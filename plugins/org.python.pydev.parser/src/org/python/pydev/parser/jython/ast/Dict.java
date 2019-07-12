@@ -24,59 +24,53 @@ public final class Dict extends exprType {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
         Dict other = (Dict) obj;
-        if (!Arrays.equals(keys, other.keys))
-            return false;
-        if (!Arrays.equals(values, other.values))
-            return false;
+        if (!Arrays.equals(keys, other.keys)) return false;
+        if (!Arrays.equals(values, other.values)) return false;
         return true;
     }
-
     @Override
     public Dict createCopy() {
         return createCopy(true);
     }
-
     @Override
     public Dict createCopy(boolean copyComments) {
         exprType[] new0;
-        if (this.keys != null) {
-            new0 = new exprType[this.keys.length];
-            for (int i = 0; i < this.keys.length; i++) {
-                new0[i] = (exprType) (this.keys[i] != null ? this.keys[i].createCopy(copyComments) : null);
-            }
-        } else {
+        if(this.keys != null){
+        new0 = new exprType[this.keys.length];
+        for(int i=0;i<this.keys.length;i++){
+            new0[i] = (exprType) (this.keys[i] != null? this.keys[i].createCopy(copyComments):null);
+        }
+        }else{
             new0 = this.keys;
         }
         exprType[] new1;
-        if (this.values != null) {
-            new1 = new exprType[this.values.length];
-            for (int i = 0; i < this.values.length; i++) {
-                new1[i] = (exprType) (this.values[i] != null ? this.values[i].createCopy(copyComments) : null);
-            }
-        } else {
+        if(this.values != null){
+        new1 = new exprType[this.values.length];
+        for(int i=0;i<this.values.length;i++){
+            new1[i] = (exprType) (this.values[i] != null?
+            this.values[i].createCopy(copyComments):null);
+        }
+        }else{
             new1 = this.values;
         }
         Dict temp = new Dict(new0, new1);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if (this.specialsBefore != null && copyComments) {
-            for (Object o : this.specialsBefore) {
-                if (o instanceof commentType) {
+        if(this.specialsBefore != null && copyComments){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
                     commentType commentType = (commentType) o;
                     temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if (this.specialsAfter != null && copyComments) {
-            for (Object o : this.specialsAfter) {
-                if (o instanceof commentType) {
+        if(this.specialsAfter != null && copyComments){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
                     commentType commentType = (commentType) o;
                     temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }

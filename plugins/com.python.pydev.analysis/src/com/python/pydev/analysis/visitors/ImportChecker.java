@@ -9,6 +9,10 @@
  */
 package com.python.pydev.analysis.visitors;
 
+import org.python.pydev.ast.codecompletion.revisited.AbstractASTManager;
+import org.python.pydev.ast.codecompletion.revisited.CompletionStateFactory;
+import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.ICompletionState;
@@ -16,11 +20,8 @@ import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.TokensList;
 import org.python.pydev.core.structure.CompletionRecursionException;
-import org.python.pydev.editor.codecompletion.revisited.AbstractASTManager;
-import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
-import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple3;
 
@@ -29,7 +30,7 @@ import com.python.pydev.analysis.scopeanalysis.AbstractScopeAnalyzerVisitor;
 /**
  * The import checker not only generates information on errors for unresolved modules, but also gathers
  * dependency information so that we can do incremental building of dependent modules.
- * 
+ *
  * @author Fabio
  */
 public final class ImportChecker {
@@ -60,7 +61,7 @@ public final class ImportChecker {
          */
         public final IToken token;
         /**
-         * This is the representation where it was found 
+         * This is the representation where it was found
          */
         public final String rep;
         /**
@@ -154,11 +155,11 @@ public final class ImportChecker {
 
     /**
      * @param token MUST be an import token
-     * @param reportUndefinedImports 
-     * 
-     * @return the module where the token was found and a String representing the way it was found 
+     * @param reportUndefinedImports
+     *
+     * @return the module where the token was found and a String representing the way it was found
      * in the module.
-     * 
+     *
      * Note: it may return information even if the token was not found in the representation required. This is useful
      * to get dependency info, because it is actually dependent on the module, event though it does not have the
      * token we were looking for.
@@ -183,7 +184,7 @@ public final class ImportChecker {
                     completionCache);
 
             try {
-                modTok = astManager.findOnImportedMods(new IToken[] { token }, state, moduleName, visitor.current);
+                modTok = astManager.findOnImportedMods(new TokensList(token), state, moduleName, visitor.current);
             } catch (CompletionRecursionException e1) {
                 modTok = null;//unable to resolve it
             }

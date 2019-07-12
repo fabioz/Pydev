@@ -9,6 +9,7 @@
  */
 package org.python.pydev.parser.visitors;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -16,17 +17,23 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IGrammarVersionProvider;
+import org.python.pydev.core.IIndentPrefs;
+import org.python.pydev.core.IPyEdit;
+import org.python.pydev.core.ITypeInfo;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.UnpackInfo;
+import org.python.pydev.core.autoedit.DefaultIndentPrefs;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.BinOp;
 import org.python.pydev.parser.jython.ast.Call;
@@ -36,11 +43,13 @@ import org.python.pydev.parser.jython.ast.Comprehension;
 import org.python.pydev.parser.jython.ast.Dict;
 import org.python.pydev.parser.jython.ast.DictComp;
 import org.python.pydev.parser.jython.ast.Expr;
+import org.python.pydev.parser.jython.ast.ExtSlice;
 import org.python.pydev.parser.jython.ast.For;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
+import org.python.pydev.parser.jython.ast.Index;
 import org.python.pydev.parser.jython.ast.ListComp;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
@@ -57,19 +66,25 @@ import org.python.pydev.parser.jython.ast.VisitorBase;
 import org.python.pydev.parser.jython.ast.While;
 import org.python.pydev.parser.jython.ast.With;
 import org.python.pydev.parser.jython.ast.aliasType;
+import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.commentType;
 import org.python.pydev.parser.jython.ast.comprehensionType;
 import org.python.pydev.parser.jython.ast.excepthandlerType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.keywordType;
+import org.python.pydev.parser.jython.ast.sliceType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
+import org.python.pydev.parser.prettyprinterv2.PrettyPrinterPrefsV2;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterV2;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorWithLoop;
+import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.utils.Reflection;
 
 public class NodeUtils {
@@ -113,7 +128,13 @@ public class NodeUtils {
 
                         @Override
                         public int getGrammarVersion() throws MisconfigurationException {
-                            return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0;
+                            return IGrammarVersionProvider.LATEST_GRAMMAR_PY3_VERSION;
+                        }
+
+                        @Override
+                        public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions()
+                                throws MisconfigurationException {
+                            return null;
                         }
                     }, functionDef.args);
                     if (printed != null) {
@@ -1082,6 +1103,9 @@ public class NodeUtils {
 
     public static String getStringToPrint(Str node) {
         StringBuffer buffer = new StringBuffer();
+        if (node.fstring) {
+            buffer.append("f");
+        }
         if (node.unicode) {
             buffer.append("u");
         }
@@ -1407,6 +1431,54 @@ public class NodeUtils {
         return nodeOffsetBegin;
     }
 
+    public static TypeInfo getTypeForParameterFromAST(String actTok, SimpleNode node) {
+        exprType typeForParameter = NodeUtils.getTypeForParameterFromStaticTyping(actTok, node);
+        if (typeForParameter != null) {
+            return new TypeInfo(typeForParameter);
+        }
+        String typeForParameterFromDocstring = NodeUtils.getTypeForParameterFromDocstring(actTok, node);
+        if (typeForParameterFromDocstring != null) {
+            return new TypeInfo(typeForParameterFromDocstring);
+        }
+        return null;
+    }
+
+    /**
+     * Deal with PEP 484 (Type Hints)
+     */
+    public static exprType getTypeForParameterFromStaticTyping(String actTok, SimpleNode node) {
+        if (node instanceof FunctionDef) {
+            FunctionDef functionDef = (FunctionDef) node;
+            argumentsType args = functionDef.args;
+            if (args == null) {
+                return null;
+            }
+            exprType[] annotation = args.annotation;
+            if (annotation == null) {
+                return null;
+            }
+            exprType[] args2 = args.args;
+            if (args2 == null) {
+                return null;
+            }
+            for (int i = 0; i < args2.length; i++) {
+                exprType argI = args2[i];
+                if (argI != null) {
+                    String rep = NodeUtils.getRepresentationString(argI);
+                    if (actTok.equals(rep)) {
+                        if (annotation.length > i) {
+                            exprType exprType = annotation[i];
+                            if (exprType != null) {
+                                return exprType;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     public static String getTypeForParameterFromDocstring(String actTok, SimpleNode node) {
         String nodeDocString = NodeUtils.getNodeDocString(node);
         if (nodeDocString != null) {
@@ -1462,6 +1534,68 @@ public class NodeUtils {
         return fixType(possible);
     }
 
+    public static TypeInfo getTypeForClassDefAttribute(String attributeWithoutSelf, ClassDef nodeFromPath) {
+        stmtType[] body = nodeFromPath.body;
+        for (int i = 0; i < body.length; i++) {
+            stmtType stmtType = body[i];
+            if (stmtType instanceof Assign) {
+                Assign assign = (Assign) stmtType;
+                if (assign.type != null) {
+                    String representationString = getRepresentationString(assign.type);
+                    if (attributeWithoutSelf.equals(representationString)) {
+                        return new TypeInfo(assign.value);
+                    }
+                }
+                if (assign.targets != null && assign.targets.length == 1) {
+                    if (attributeWithoutSelf.equals(getRepresentationString(assign.targets[0]))) {
+                        ArrayList<commentType> collectComments = NodeUtils.collectComments(stmtType);
+                        for (commentType commentType : collectComments) {
+                            if (commentType.id != null) {
+                                FastStringBuffer buf = new FastStringBuffer(commentType.id, 0);
+                                buf.rightTrim();
+                                buf.leftTrim();
+                                if (buf.startsWith('#')) {
+                                    buf.deleteFirst();
+                                }
+                                buf.leftTrim();
+                                if (buf.startsWith("type:")) {
+                                    buf.deleteFirstChars(5);
+                                    buf.leftTrim();
+                                    return new TypeInfo(buf.toString());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private static ArrayList<commentType> collectComments(SimpleNode node) {
+        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(node);
+        Iterator<ASTEntry> iterator = visitor.getIterator();
+        ArrayList<commentType> lst = new ArrayList<>();
+        while (iterator.hasNext()) {
+            ASTEntry entry = iterator.next();
+            if (entry.node.specialsAfter != null) {
+                for (Object o : entry.node.specialsAfter) {
+                    if (o instanceof commentType) {
+                        lst.add((commentType) o);
+                    }
+                }
+            }
+            if (entry.node.specialsBefore != null) {
+                for (Object o : entry.node.specialsBefore) {
+                    if (o instanceof commentType) {
+                        lst.add((commentType) o);
+                    }
+                }
+            }
+        }
+        return lst;
+    }
+
     private static String fixType(String trimmed) {
         if (trimmed != null) {
             trimmed = trimmed.trim();
@@ -1489,6 +1623,29 @@ public class NodeUtils {
             }
         }
         return trimmed;
+    }
+
+    public static ITypeInfo getReturnTypeFromFuncDefAST(SimpleNode node) {
+        ITypeInfo returnTypeFromStaticTyping = getReturnTypeFromStaticTyping(node);
+        if (returnTypeFromStaticTyping != null) {
+            return returnTypeFromStaticTyping;
+        }
+        String returnTypeFromDocstring = getReturnTypeFromDocstring(node);
+        if (returnTypeFromDocstring != null) {
+            return new TypeInfo(returnTypeFromDocstring);
+        }
+        return null;
+    }
+
+    public static TypeInfo getReturnTypeFromStaticTyping(SimpleNode node) {
+        if (node instanceof FunctionDef) {
+            FunctionDef functionDef = (FunctionDef) node;
+            exprType returns = functionDef.returns;
+            if (returns != null) {
+                return new TypeInfo(returns);
+            }
+        }
+        return null;
     }
 
     public static String getReturnTypeFromDocstring(SimpleNode node) {
@@ -1582,7 +1739,7 @@ public class NodeUtils {
 
     private static String getValueForContainer(String substring, int currentPos, int unpackTuple,
             int foundFirstSeparator)
-                    throws SyntaxErrorException {
+            throws SyntaxErrorException {
         if (unpackTuple == -1) {
             return substring;
         }
@@ -1630,6 +1787,10 @@ public class NodeUtils {
             return substring.substring(lastStart, substring.length()).trim();
         }
         return substring;
+    }
+
+    public static String getPackedTypeFromDocstring(ITypeInfo docstring) {
+        return getPackedTypeFromDocstring(docstring.getActTok());
     }
 
     public static String getPackedTypeFromDocstring(String docstring) {
@@ -1717,7 +1878,11 @@ public class NodeUtils {
         }
         if (ast instanceof org.python.pydev.parser.jython.ast.Dict) {
             org.python.pydev.parser.jython.ast.Dict dict = (org.python.pydev.parser.jython.ast.Dict) ast;
-            return new exprType[] { dict.keys[0], dict.values[0] };
+            if (dict.keys != null && dict.keys.length > 0 && dict.values != null && dict.values.length > 0) {
+                return new exprType[] { dict.keys[0], dict.values[0] };
+            } else {
+                return null;
+            }
         }
         if (ast instanceof org.python.pydev.parser.jython.ast.DictComp) {
             org.python.pydev.parser.jython.ast.DictComp dict = (org.python.pydev.parser.jython.ast.DictComp) ast;
@@ -1778,6 +1943,185 @@ public class NodeUtils {
             }
         }
         return null;
+    }
+
+    public static org.python.pydev.shared_core.structure.Tuple<Integer, Integer> getStartEndOffset(IDocument doc,
+            SimpleNode node) {
+        org.python.pydev.shared_core.structure.Tuple<Integer, Integer> ret = null;
+        if (node instanceof Import) {
+            ret = new org.python.pydev.shared_core.structure.Tuple<>(
+                    -1, -1);
+            updateStartOffset(doc, node, ret);
+            updateEndOffsetWithLastAliasPos(doc, node, ret, ((Import) node).names);
+
+        } else if (node instanceof ImportFrom) {
+            ret = new org.python.pydev.shared_core.structure.Tuple<>(
+                    -1, -1);
+            updateStartOffset(doc, node, ret);
+            updateEndOffsetWithLastAliasPos(doc, node, ret, ((ImportFrom) node).names);
+
+        } else {
+            throw new AssertionError("Node: " + node + " not handled.");
+        }
+        return ret;
+
+    }
+
+    private static void updateStartOffset(IDocument doc, SimpleNode node,
+            org.python.pydev.shared_core.structure.Tuple<Integer, Integer> ret) {
+        int offset;
+        try {
+            offset = doc.getLineOffset(node.beginLine - 1);
+        } catch (BadLocationException e) {
+            throw new RuntimeException(e);
+        }
+        int firstCharPosition = TextSelectionUtils
+                .getFirstCharPosition(PySelection.getLine(doc, node.beginLine - 1));
+        offset += firstCharPosition;
+        ret.o1 = offset;
+    }
+
+    private static void updateEndOffsetWithLastAliasPos(IDocument doc, SimpleNode node,
+            org.python.pydev.shared_core.structure.Tuple<Integer, Integer> ret, aliasType[] names)
+            throws AssertionError {
+        NameTokType last = null;
+        for (aliasType name : names) {
+            if (name == null) {
+                continue;
+            }
+            if (name.asname != null) {
+                last = name.asname;
+            } else {
+                last = name.name;
+            }
+        }
+        if (last == null) {
+            throw new AssertionError("ImportFrom or ImportFrom not complete: " + node);
+        }
+
+        ret.o2 = PySelection.getAbsoluteCursorOffset(doc, last.beginLine - 1, last.beginColumn - 1)
+                + NodeUtils.getRepresentationString(last).length();
+    }
+
+    public static exprType[] getEltsTypedAnnotation(exprType type) {
+        if (type instanceof Subscript) {
+            Subscript subscript = (Subscript) type;
+            exprType value = subscript.value;
+            if (value != null) {
+                sliceType slice = subscript.slice;
+                if (slice instanceof ExtSlice) {
+                    ExtSlice extSlice = (ExtSlice) slice;
+                    sliceType[] dims = extSlice.dims;
+                    if (dims != null) {
+                        exprType[] ret = new exprType[dims.length];
+                        for (int i = 0; i < dims.length; i++) {
+                            sliceType sliceType = dims[i];
+                            if (sliceType instanceof Index) {
+                                Index index = (Index) sliceType;
+                                ret[i] = index.value;
+                            }
+                        }
+                        return ret;
+                    }
+                } else if (slice instanceof Index) {
+                    Index index = (Index) slice;
+                    return new exprType[] { index.value };
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Based on org.python.pydev.shared_ui.tooltips.presenter.AbstractInformationPresenter
+     *
+     * The line delimiter that should be used in the tooltip.
+     */
+    public static final String LINE_DELIM = System.getProperty("line.separator", "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+
+    /**
+     * Copied from {@link PyTextHover} when that class was deprecated.
+     */
+    public static String printAst(IPyEdit edit, SimpleNode astToPrint) {
+        String str = null;
+        if (astToPrint != null) {
+            IIndentPrefs indentPrefs;
+            if (edit != null) {
+                indentPrefs = edit.getIndentPrefs();
+            } else {
+                indentPrefs = DefaultIndentPrefs.get(null);
+            }
+
+            Str docStr = getNodeDocStringNode(astToPrint);
+            if (docStr != null) {
+                docStr.s = PyStringUtils.fixWhitespaceColumnsToLeftFromDocstring(docStr.s,
+                        indentPrefs.getIndentationString());
+            }
+
+            PrettyPrinterPrefsV2 prefsV2 = PrettyPrinterV2.createDefaultPrefs(edit, indentPrefs,
+                    LINE_DELIM);
+
+            PrettyPrinterV2 prettyPrinterV2 = new PrettyPrinterV2(prefsV2);
+            try {
+
+                str = prettyPrinterV2.print(astToPrint);
+            } catch (IOException e) {
+                Log.log(e);
+            }
+        }
+        return str;
+    }
+
+    public static String printAst(IIndentPrefs indentPrefs, IGrammarVersionProvider versionProvider,
+            SimpleNode astToPrint, String lineDelimiter) {
+        String str = null;
+        if (astToPrint != null) {
+
+            PrettyPrinterPrefsV2 prefsV2 = PrettyPrinterV2.createDefaultPrefs(versionProvider, indentPrefs,
+                    lineDelimiter);
+            PrettyPrinterV2 prettyPrinterV2 = new PrettyPrinterV2(prefsV2);
+            try {
+
+                str = prettyPrinterV2.print(astToPrint);
+            } catch (IOException e) {
+                Log.log(e);
+            }
+        }
+        return str;
+    }
+
+    public static boolean isParamName(SimpleNode ast) {
+        if (ast instanceof Name) {
+            Name name = (Name) ast;
+            if (name.ctx == Name.Param) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isSelfAttribute(SimpleNode ast) {
+        if (ast instanceof Attribute) {
+            Attribute attribute = (Attribute) ast;
+            if ("self".equals(getRepresentationString(attribute.value))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isEnum(ClassDef classDef) {
+        if (classDef != null && classDef.bases != null) {
+            for (int j = 0; j < classDef.bases.length; j++) {
+                String representationString = NodeUtils
+                        .getRepresentationString(classDef.bases[j]);
+                if ("Enum".equals(representationString)
+                        || "IntEnum".equals(representationString)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }

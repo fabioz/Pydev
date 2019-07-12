@@ -28,60 +28,61 @@ import org.eclipse.ui.internal.texteditor.spelling.NoCompletionsProposal;
 import org.eclipse.ui.texteditor.spelling.SpellingAnnotation;
 import org.eclipse.ui.texteditor.spelling.SpellingCorrectionProcessor;
 import org.eclipse.ui.texteditor.spelling.SpellingProblem;
+import org.python.pydev.ast.codecompletion.ProposalsComparator;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.IPySyntaxHighlightingAndCodeCompletionEditor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.IPySyntaxHighlightingAndCodeCompletionEditor;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
-import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
 import org.python.pydev.editor.correctionassist.docstrings.AssistDocString;
 import org.python.pydev.editor.correctionassist.heuristics.AssistAssign;
 import org.python.pydev.editor.correctionassist.heuristics.AssistImport;
+import org.python.pydev.editor.correctionassist.heuristics.AssistImportToLocal;
 import org.python.pydev.editor.correctionassist.heuristics.AssistPercentToFormat;
 import org.python.pydev.editor.correctionassist.heuristics.AssistSurroundWith;
-import org.python.pydev.editor.correctionassist.heuristics.IAssistProps;
-import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
+import org.python.pydev.shared_core.image.IImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 
 /**
  * This class should be used to give context help
- * 
+ *
  * Help depending on context (Ctrl+1):
- * 
+ *
  * class A: pass
- * 
+ *
  * class C:
- * 
- * def __init__(self, param): 
+ *
+ * def __init__(self, param):
  *         self.newMethod()<- create new method on class C  (with params if needed)
- *                         <- assign result to new local variable 
- *                         <- assign result to new field 
- * 
- *         a = A()
- *         a.newMethod()   <- create new method on class A 
- *                         <- assign result to new local variable 
+ *                         <- assign result to new local variable
  *                         <- assign result to new field
- * 
+ *
+ *         a = A()
+ *         a.newMethod()   <- create new method on class A
+ *                         <- assign result to new local variable
+ *                         <- assign result to new field
+ *
  *         param.b() <- don't show anything.
- * 
- *         self.a1 = A() 
+ *
+ *         self.a1 = A()
  *         self.a1.newMethod() <- create new method on class A (difficult part is discovering class)
- *                             <- assign result to new local variable 
+ *                             <- assign result to new local variable
  *                             <- assign result to new field
- * 
- *         def m(self): 
- *             self.a1.newMethod() <- create new method on class A 
- *                                 <- assign result to new local variable 
+ *
+ *         def m(self):
+ *             self.a1.newMethod() <- create new method on class A
+ *                                 <- assign result to new local variable
  *                                 <- assign result to new field
- * 
+ *
  *             import compiler    <- move import to global context
  *             NewClass() <- Create class NewClass (Depends on new class wizard)
  *
- *        a() <-- make this a new method in this class 
- *                                                                                                        
+ *        a() <-- make this a new method in this class
+ *
  * @author Fabio Zadrozny
  */
 public class PythonCorrectionProcessor implements IQuickAssistProcessor {
@@ -95,7 +96,7 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
 
     /**
      * Checks if some assist with the given id is already added.
-     * 
+     *
      * @param id the id of the assist
      * @return true if it's already added and false otherwise
      */
@@ -107,7 +108,7 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
 
     /**
      * Adds some additional assist to Ctrl+1 (used from the scripting engine)
-     * 
+     *
      * @param id the id of the assist
      * @param assist the assist to be added
      */
@@ -119,7 +120,7 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
 
     /**
      * Removes some additional assist from Ctrl+1
-     * 
+     *
      * @param id id of the assist to be removed
      */
     public static void removeAdditionalAssist(String id) {
@@ -154,7 +155,7 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
         }
         PyEdit editor = (PyEdit) this.edit;
 
-        List<ICompletionProposal> results = new ArrayList<ICompletionProposal>();
+        List<ICompletionProposalHandle> results = new ArrayList<>();
         String sel = PyAction.getLineWithoutComments(base);
 
         List<IAssistProps> assists = new ArrayList<IAssistProps>();
@@ -169,9 +170,10 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
         assists.add(new AssistDocString());
         assists.add(new AssistAssign());
         assists.add(new AssistPercentToFormat());
+        assists.add(new AssistImportToLocal());
 
         assists.addAll(ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_CTRL_1));
-        ImageCache imageCache = PydevPlugin.getImageCache();
+        IImageCache imageCache = SharedUiPlugin.getImageCache();
         File editorFile = edit.getEditorFile();
         IPythonNature pythonNature = null;
         try {
@@ -196,12 +198,12 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
             }
         }
 
-        Collections.sort(results, IPyCodeCompletion.PROPOSAL_COMPARATOR);
+        Collections.sort(results, new ProposalsComparator("", new ProposalsComparator.CompareContext(pythonNature)));
 
         try {
             //handling spelling... (we only want to show spelling fixes if a spell problem annotation is found at the current location).
             //we'll only show some spelling proposal if there's some spelling problem (so, we don't have to check the preferences at this place,
-            //as no annotations on spelling will be here if the spelling is not enabled). 
+            //as no annotations on spelling will be here if the spelling is not enabled).
             ICompletionProposal[] spellProps = null;
 
             IAnnotationModel annotationModel = editor.getPySourceViewer().getAnnotationModel();

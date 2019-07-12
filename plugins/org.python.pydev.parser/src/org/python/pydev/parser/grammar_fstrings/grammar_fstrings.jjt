@@ -1,0 +1,463 @@
+// Notes on the grammar:
+// The target of this grammar is to be able to make the pre-parsing step of f-strings.
+// It tries to handle any error in the parsing to generate a valid AST (and still makes
+// those errors available for processing later on).
+//
+// Unlike the python grammar, it can't make strings a lexical entity because
+// that's dependent upon the context -- we just want to create strings inside
+// the expression part, out of it, we should just handle it as regular text.
+//
+// Also, if we have unbalanced chars for some expression, we generate the AST
+// going to the end of the f-string (so, this would be an open partition) -- while
+// properly generating errors.
+//
+// This grammar is expected to be used along with the regular Python grammar:
+// after finding an f-string in the regular python grammar, it should be verified
+// with this grammar (and expressions should be extracted based on this AST) and later
+// on, each expression can be fed to the python grammar again (to eval_input).
+//
+// it's even interesting to note that f-strings are actually a disguised eval -- so, things
+// such as:
+//
+// a = 10
+// print(f'''{f"{f'{a}'}"}''')
+//
+// are actually possible -- this means that to check for syntax errors we may need to
+// recursively check it (although that's a corner case, so, we may skip it initially).
+//
+// Known differences from the 'official version':
+//
+// f' <text> { <expression> <optional !s, !r, or !a> <optional : format specifier> } <text>
+//
+// the optional versions can't have any space between them and the ending '}', whereas
+// this grammar lets that happen (spaces are always skipped).
+//
+// i.e.: f'''{text !r }''' -- this is not valid in the regular version but is valid in this one.
+
+options
+{
+    // only non-defaults are given here.
+    NODE_SCOPE_HOOK       = true;   // call jjtree*NodeScope()
+    NODE_FACTORY          = true;
+    NODE_USES_PARSER      = true;
+    STATIC                = false;  // multiple parsers
+    COMMON_TOKEN_ACTION   = true;   // CommonTokenAction(Token)
+    DEBUG_PARSER          = false;  // must be used to enable tracing
+    DEBUG_LOOKAHEAD       = false;
+    DEBUG_TOKEN_MANAGER   = false;  // used to debug the tokens we have generating
+
+    USER_CHAR_STREAM      = true;
+    UNICODE_INPUT         = true;
+    ERROR_REPORTING       = true;  // this is NOT used to shut down errors regarding javacc org.python.pydev.parser.jython.PythonGrammar$LookaheadSuccess
+                                      // because the generated information is not complete enough if we do it.
+}
+
+PARSER_BEGIN(FStringsGrammar)
+package org.python.pydev.parser.grammar_fstrings;
+
+import org.python.pydev.parser.jython.FastCharStream;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.parser.jython.ParseException;
+import org.python.pydev.parser.jython.Token;
+import org.python.pydev.parser.fastparser.grammar_fstrings_common.AbstractFStringsGrammar;
+import org.python.pydev.parser.fastparser.grammar_fstrings_common.AbstractFStringsTokenManager;
+import org.python.pydev.parser.fastparser.grammar_fstrings_common.JJTFStringsGrammarState;
+import org.python.pydev.parser.fastparser.grammar_fstrings_common.Node;
+import org.python.pydev.parser.fastparser.grammar_fstrings_common.SimpleNode;
+import org.python.pydev.parser.fastparser.grammar_fstrings_common.FStringsAST;
+
+public final class FStringsGrammar extends AbstractFStringsGrammar
+{
+}
+
+PARSER_END(FStringsGrammar)
+
+
+TOKEN_MGR_DECLS:
+{
+    /**
+     * Called right after the creation of any token.
+     */
+    protected final void CommonTokenAction(final Token initial) {
+    }
+}
+
+// ============= Lexical actions =============
+
+SKIP: { " " | "\t" | "\n" | "\r" }
+TOKEN : // What we care for.
+{
+    < LPAREN: "(" >
+|   < RPAREN: ")" >
+|   < LBRACE: "{" >
+|   < RBRACE: "}" >
+|   < LBRACKET: "[" >
+|   < RBRACKET: "]" >
+|   < EXCLAMATION: "!" >
+|   < COLON: ":" >
+|   < QUOTE: "'" >
+|   < QUOTE2: "\"" >
+|   < BACKSLASH: "\\" >
+}
+
+TOKEN : // Anything which is not important but is a visible char should be marked as regular text.
+{
+<TEXT : ([
+    //0 - 32: space-related chars (we already skip the important ones, such as space and tab, others are invalid).
+    //33 = ! (exclamation)
+    //34 = " (quote)
+    "#"-"&", // 35 - 38
+    //39 = ' (single quote)
+    // 40, 41 = () (parenthesis)
+    "*"-"/", // 42 - 47
+    "0"-"9", // 48 - 57
+    //: = 58
+    ";"-"@", // 59 - 64
+    "A"-"Z",  // 65 - 90
+    // 91 == [
+    // 92 == \
+    // 93 = ]
+    "^"-"`", // 94 - 96
+    "a"-"z",  // 97 - 122
+    // 123 = {
+    "|", // 124
+    // 125 = }
+    "~", // 126
+    // 127 = DEL (invisible)
+    "\u0080"-"\uffff" //Anything more than 128 is considered valid (unicode range)
+])+ >
+}
+
+// ============= Syntatic/Semantic actions =============
+
+FStringsAST f_string(): {Token t; Token doubleRbrace=null;}
+{
+    (
+        f_string_expr()
+        |<TEXT>
+        |<QUOTE>
+        |<QUOTE2>
+        |<EXCLAMATION>
+        |<COLON>
+        |<BACKSLASH>
+        |<LPAREN>
+        |<RPAREN>
+        |<LBRACKET>
+        |<RBRACKET>
+        |t=<RBRACE> {doubleRbrace=null;} (doubleRbrace=<RBRACE>)? {
+        	if(doubleRbrace == null) addParseError(t, "Single '}' not allowed.");
+        }
+    )* <EOF>
+
+    // jjtree does most things automatically for us, so, just
+    // popping its final node should do the trick for a reasonable AST.
+    // Note that we may need to mark the start/end of the nodes we're
+    // interested in (as jjtree.markNodeStartEnd).
+    {return new FStringsAST((SimpleNode)jjtree.popNode());}
+}
+
+void f_string_expr(): {Token start, end, bStart;boolean empty=true;SimpleNode bText;}
+{
+    start = <LBRACE>
+	try{
+	    (
+
+		        (
+		            {
+		            	bStart=getToken(1);
+	                    if(bStart.kind==LBRACE && bStart.beginColumn==start.beginColumn+1) {
+	                        // If we found 2 consecutive {{ it's an escaped {.
+	                     	jj_consume_token(LBRACE);
+	                        throw DOUBLE_LBRACE_FOUND;
+	                     }
+		            }
+		            bText=balanced_expression_text()
+		            {
+		                empty=false;
+		            }
+		        )?
+		        (type_conversion())?
+		        (format_spec())?
+
+		    try{
+		        end = <RBRACE>
+		    }catch(ParseException e){
+		        addParseError(e, "Unbalanced '{'");
+		        end = token;
+		    }
+
+		    {
+		        jjtree.markNodeStartEnd(jjtThis, start, end);
+		        if(empty){
+		            errorPyExprEmpty(jjtThis);
+		        }
+		    }
+		)
+	}catch(DoubleLBraceFound e){
+		// Found double brace (not really an expression).
+		jjtree.markNodeStartEnd(jjtThis, start, start);
+	}
+
+}
+
+void type_conversion(): {Token t;boolean foundText=false;}
+{
+    <EXCLAMATION>
+    (
+        t=<TEXT> {errorIfTextIsNotASR(t);}
+        {foundText=true;}
+
+        // It can't really be empty, but we make this node optional to generate a nice AST
+        // and then report the error later on.
+    )?
+
+    {if(!foundText){errorTypeConversionEmpty(jjtThis);}}
+}
+
+void format_spec(): {Token start, end, bStart;boolean empty=true;SimpleNode bText; Token t;}
+{
+    <COLON>
+    (
+    	(<TEXT>)+
+        |
+	    start = <LBRACE>
+		try{
+		    (
+
+			        (
+			            {
+			            	bStart=getToken(1);
+		                    if(bStart.kind==LBRACE && bStart.beginColumn==start.beginColumn+1) {
+		                        // If we found 2 consecutive {{ it's an escaped {.
+		                     	jj_consume_token(LBRACE);
+		                        throw DOUBLE_LBRACE_FOUND;
+		                     }
+			            }
+			            bText=balanced_expression_text()
+			            {
+			                empty=false;
+			            }
+			        )?
+			    try{
+			        end = <RBRACE>
+			    }catch(ParseException e){
+			        addParseError(e, "Unbalanced '{'");
+			        end = token;
+			    }
+
+			    {
+			        jjtree.markNodeStartEnd(jjtThis, start, end);
+			        if(empty){
+			            errorPyExprEmpty(jjtThis);
+			        }
+			    }
+			)
+		}catch(DoubleLBraceFound e){
+			// Found double brace (not really an expression).
+			jjtree.markNodeStartEnd(jjtThis, start, start);
+		}
+        |
+        string()
+        |
+        string2()
+        |
+        t = <BACKSLASH> {errorBackSlashInvalidInFStrings(t);}
+    )*
+}
+
+SimpleNode balanced_expression_text(): {Token start; Token end; Token t;}
+{
+	{
+		start = getToken(1);
+	}
+    (
+        initial_balanced_expression_text()
+        |
+        string()
+        |
+        string2()
+        |
+        // The main difference from this one to inner_balanced_expression_text_with_exclamation_and_colon
+        // is that at this level an exclamation or colon shoud not be matched, whereas in the next one it
+        // can be matched (so, the user can do f"{{'c':20}}").
+        (<TEXT>)+
+        |
+        t = <BACKSLASH> {errorBackSlashInvalidInFStrings(t);}
+    )+
+
+    {
+	    end = token;
+	    jjtree.markNodeStartEnd(jjtThis, start, end);
+
+    }
+    {return (SimpleNode)jjtree.peekNode();}
+}
+
+
+SimpleNode initial_balanced_expression_text(): {Token start; Token end;}
+{
+	{
+		start = getToken(1);
+	}
+
+    (
+        (
+            <LPAREN>
+            (inner_balanced_expression_text_with_exclamation_and_colon())*
+            try{
+                <RPAREN>
+            }catch(ParseException e){
+                addParseError(e, "Unbalanced '('");
+            }
+        )
+        |
+        (
+            <LBRACE>
+            (inner_balanced_expression_text_with_exclamation_and_colon())*
+            try{
+                <RBRACE>
+            }catch(ParseException e){
+                addParseError(e, "Unbalanced '{'");
+            }
+        )
+        |
+        (
+            <LBRACKET>
+            (inner_balanced_expression_text_with_exclamation_and_colon())*
+            try{
+                <RBRACKET>
+            }catch(ParseException e){
+                addParseError(e, "Unbalanced '['");
+            }
+        )
+    )
+    {
+	    end = token;
+	    jjtree.markNodeStartEnd(jjtThis, start, end);
+
+    }
+    {return (SimpleNode)jjtree.peekNode();}
+}
+
+SimpleNode inner_balanced_expression_text_with_exclamation_and_colon(): {Token start; Token end; Token t;}
+{
+	{
+		start = getToken(1);
+	}
+    (
+        (
+            <LPAREN>
+            (inner_balanced_expression_text_with_exclamation_and_colon())*
+            try{
+                <RPAREN>
+            }catch(ParseException e){
+                addParseError(e, "Unbalanced '('");
+            }
+        )
+        |
+        (
+            <LBRACE>
+            (inner_balanced_expression_text_with_exclamation_and_colon())*
+            try{
+                <RBRACE>
+            }catch(ParseException e){
+                addParseError(e, "Unbalanced '{'");
+            }
+        )
+        |
+        (
+            <LBRACKET>
+            (inner_balanced_expression_text_with_exclamation_and_colon())*
+            try{
+                <RBRACKET>
+            }catch(ParseException e){
+                addParseError(e, "Unbalanced '['");
+            }
+        )
+        |
+        string()
+        |
+        string2()
+        |
+        (
+        <TEXT>
+        |<EXCLAMATION>
+        |<COLON>
+        )+
+        |
+        t = <BACKSLASH> {errorBackSlashInvalidInFStrings(t);}
+    )
+    {
+	    end = token;
+	    jjtree.markNodeStartEnd(jjtThis, start, end);
+
+    }
+    {return (SimpleNode)jjtree.peekNode();}
+}
+
+
+void string(): {Token start; Token end; Token t;}
+{
+	{
+		start = getToken(1);
+	}
+
+    <QUOTE>
+    (
+        <TEXT>
+        |<LPAREN>
+        |<RPAREN>
+        |<LBRACE>
+        |<RBRACE>
+        |<LBRACKET>
+        |<RBRACKET>
+        |<QUOTE2>
+        |<EXCLAMATION>
+        |<COLON>
+        |t = <BACKSLASH> {errorBackSlashInvalidInFStrings(t);}
+    )*
+    try{
+        <QUOTE>
+    }catch(ParseException e){
+        addParseError(e, "Unbalanced \"'\"");
+    }
+    {
+	    end = token;
+	    jjtree.markNodeStartEnd(jjtThis, start, end);
+
+    }
+
+}
+
+void string2(): {Token start; Token end; Token t;}
+{
+	{
+		start = getToken(1);
+	}
+
+    <QUOTE2>
+    (
+        <TEXT>
+        |<LPAREN>
+        |<RPAREN>
+        |<LBRACE>
+        |<RBRACE>
+        |<LBRACKET>
+        |<RBRACKET>
+        |<QUOTE>
+        |<EXCLAMATION>
+        |<COLON>
+        |t = <BACKSLASH> {errorBackSlashInvalidInFStrings(t);}
+    )*
+    try{
+        <QUOTE2>
+    }catch(ParseException e){
+        addParseError(e, "Unbalanced '\"'");
+    }
+    {
+	    end = token;
+	    jjtree.markNodeStartEnd(jjtThis, start, end);
+
+    }
+}
+

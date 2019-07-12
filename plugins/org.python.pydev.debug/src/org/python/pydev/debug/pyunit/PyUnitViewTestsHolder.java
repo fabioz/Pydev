@@ -21,13 +21,12 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
-import org.python.pydev.shared_core.structure.Tuple;
 
 // Class which is friends with PyUnitView
 public class PyUnitViewTestsHolder {
@@ -36,6 +35,7 @@ public class PyUnitViewTestsHolder {
 
     private static PyUnitTestRun lastPinned;
     private static PyUnitTestRun currentPinned;
+    private static PyUnitTestRun currentSelected;
 
     public static PyUnitTestRun getLastPinned() {
         return lastPinned;
@@ -51,6 +51,14 @@ public class PyUnitViewTestsHolder {
         }
         PyUnitViewTestsHolder.currentPinned = pin;
         onPinSelected.call(pin);
+    }
+
+    public static void setCurrentTest(PyUnitTestRun result) {
+        currentSelected = result;
+    }
+
+    public static PyUnitTestRun getCurrentTest() {
+        return currentSelected;
     }
 
     public static final CallbackWithListeners<PyUnitTestRun> onPinSelected = new CallbackWithListeners<>();
@@ -123,19 +131,27 @@ public class PyUnitViewTestsHolder {
             if (pinInfoContents == null) {
                 pinInfoContents = "";
             }
-            Tuple<String, String> split = StringUtils.splitOnFirst(pinInfoContents, '|');
+            List<String> split = StringUtils.splitKeepEmpty(pinInfoContents, '|');
             int currentPin = -1;
+            int currentRun = -1;
             int lastPin = -1;
-            if (split.o1.length() > 0) {
+            if (split.size() > 0) {
                 try {
-                    currentPin = Integer.parseInt(split.o1);
+                    currentPin = Integer.parseInt(split.get(0));
                 } catch (NumberFormatException e) {
                     //ignore
                 }
             }
-            if (split.o2.length() > 0) {
+            if (split.size() > 1) {
                 try {
-                    lastPin = Integer.parseInt(split.o2);
+                    lastPin = Integer.parseInt(split.get(1));
+                } catch (NumberFormatException e) {
+                    //ignore
+                }
+            }
+            if (split.size() > 2) {
+                try {
+                    currentRun = Integer.parseInt(split.get(2));
                 } catch (NumberFormatException e) {
                     //ignore
                 }
@@ -156,6 +172,9 @@ public class PyUnitViewTestsHolder {
                         if (currentPin == lastPin) {
                             lastPinned = currentPinned;
                         }
+                        if (currentRun == currentPin) {
+                            currentSelected = currentPinned;
+                        }
                     } catch (Exception e) {
                         Log.log(e);
                     }
@@ -163,6 +182,20 @@ public class PyUnitViewTestsHolder {
                     try {
                         lastPinned = PyUnitTestRun.fromXML(FileUtils.getFileContents(entry.getValue()));
                         setSavedDiskIndex(lastPinned, workspaceMetadataFile, i, entry);
+
+                        if (currentRun == lastPin) {
+                            currentSelected = lastPinned;
+                        }
+
+                        i += 1;
+                    } catch (Exception e) {
+                        Log.log(e);
+                    }
+
+                } else if (entry.getKey() == currentRun) {
+                    try {
+                        currentSelected = PyUnitTestRun.fromXML(FileUtils.getFileContents(entry.getValue()));
+                        setSavedDiskIndex(currentSelected, workspaceMetadataFile, i, entry);
                         i += 1;
                     } catch (Exception e) {
                         Log.log(e);
@@ -177,21 +210,26 @@ public class PyUnitViewTestsHolder {
             for (Entry<Integer, File> entry : entrySet) {
                 File file = entry.getValue();
                 try {
-                    PyUnitTestRun testRunRestored = PyUnitTestRun.fromXML(FileUtils.getFileContents(file));
-                    setSavedDiskIndex(testRunRestored, workspaceMetadataFile, i, entry);
-                    i += 1;
+                    String fileContents = FileUtils.getFileContents(file);
+                    try {
+                        PyUnitTestRun testRunRestored = PyUnitTestRun.fromXML(fileContents);
+                        setSavedDiskIndex(testRunRestored, workspaceMetadataFile, i, entry);
+                        i += 1;
 
-                    // If the pinned files are current files, we have to restore them too.
-                    if (entry.getKey() == currentPin) {
-                        currentPinned = testRunRestored;
+                        // If the pinned files are current files, we have to restore them too.
+                        if (entry.getKey() == currentPin) {
+                            currentPinned = testRunRestored;
+                        }
+                        if (entry.getKey() == lastPin) {
+                            lastPinned = testRunRestored;
+                        }
+                        DummyPyUnitServer pyUnitServer = new DummyPyUnitServer(testRunRestored.getPyUnitLaunch());
+                        final PyUnitViewServerListener serverListener = new PyUnitViewServerListener(pyUnitServer,
+                                testRunRestored);
+                        addServerListener(serverListener);
+                    } catch (Exception e) {
+                        Log.log("Error with contents: " + fileContents, e);
                     }
-                    if (entry.getKey() == lastPin) {
-                        lastPinned = testRunRestored;
-                    }
-                    DummyPyUnitServer pyUnitServer = new DummyPyUnitServer(testRunRestored.getPyUnitLaunch());
-                    final PyUnitViewServerListener serverListener = new PyUnitViewServerListener(pyUnitServer,
-                            testRunRestored);
-                    addServerListener(serverListener);
                 } catch (Exception e) {
                     Log.log(e);
                 }
@@ -245,13 +283,18 @@ public class PyUnitViewTestsHolder {
                 int i = 0;
 
                 PyUnitTestRun currPin = currentPinned;
+                PyUnitTestRun currRun = currentSelected;
                 PyUnitTestRun lastPin = lastPinned;
-                boolean foundCurr = false;
+                boolean foundCurrPin = false;
+                boolean foundCurrRun = false;
                 boolean foundLast = false;
 
                 for (PyUnitTestRun testRun : lst) {
                     if (testRun == currPin) {
-                        foundCurr = true;
+                        foundCurrPin = true;
+                    }
+                    if (testRun == currRun) {
+                        foundCurrRun = true;
                     }
                     if (testRun == lastPin) {
                         foundLast = true;
@@ -261,7 +304,7 @@ public class PyUnitViewTestsHolder {
                     }
                 }
 
-                if (!foundCurr && currPin != null) {
+                if (!foundCurrPin && currPin != null) {
                     lst.add(currPin);
                     if (currPin.savedDiskIndex != null && currPin.savedDiskIndex >= i) {
                         i = currPin.savedDiskIndex + 1;
@@ -271,6 +314,12 @@ public class PyUnitViewTestsHolder {
                     lst.add(lastPin);
                     if (lastPin.savedDiskIndex != null && lastPin.savedDiskIndex >= i) {
                         i = lastPin.savedDiskIndex + 1;
+                    }
+                }
+                if (!foundCurrRun && currRun != null) {
+                    lst.add(currRun);
+                    if (currRun.savedDiskIndex != null && currRun.savedDiskIndex >= i) {
+                        i = currRun.savedDiskIndex + 1;
                     }
                 }
 
@@ -293,12 +342,16 @@ public class PyUnitViewTestsHolder {
                 }
 
                 FastStringBuffer buf = new FastStringBuffer();
-                if (currPin != null) {
+                if (currPin != null && currPin.savedDiskIndex != null) {
                     buf.append(currPin.savedDiskIndex);
                 }
                 buf.append('|');
-                if (lastPin != null) {
+                if (lastPin != null && lastPin.savedDiskIndex != null) {
                     buf.append(lastPin.savedDiskIndex);
+                }
+                buf.append('|');
+                if (currRun != null && currRun.savedDiskIndex != null) {
+                    buf.append(currRun.savedDiskIndex);
                 }
                 FileUtils.writeBytesToFile(buf.getBytes(), new File(workspaceMetadataFile, "test_run_pin_info.txt"));
             }
@@ -309,10 +362,10 @@ public class PyUnitViewTestsHolder {
     }
 
     /**
-     * @return the directory to save the files 
+     * @return the directory to save the files
      */
     private static File getPyUnitTestsDir() {
-        File workspaceMetadataFile = PydevPlugin.getWorkspaceMetadataFile("pyunit_tests");
+        File workspaceMetadataFile = CorePlugin.getWorkspaceMetadataFile("pyunit_tests");
         if (!workspaceMetadataFile.exists()) {
             workspaceMetadataFile.mkdirs();
         }

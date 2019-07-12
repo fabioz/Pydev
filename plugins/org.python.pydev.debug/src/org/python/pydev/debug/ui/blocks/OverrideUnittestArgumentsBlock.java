@@ -24,17 +24,19 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.debug.core.Constants;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.pyunit.preferences.PyUnitPrefsPage2;
-
 
 public class OverrideUnittestArgumentsBlock extends AbstractLaunchConfigurationTab {
 
     private Button buttonAskOverride;
     private Combo comboSelectRunner;
     private Text textRunnerParameters;
+    private Text testsToRun; // test names (class + optionally methods)
 
     @Override
     public void createControl(Composite parent) {
@@ -96,6 +98,18 @@ public class OverrideUnittestArgumentsBlock extends AbstractLaunchConfigurationT
             }
         });
 
+        GridLayout testsLayout = new GridLayout(2, false);
+        Composite testsGroup = new Composite(group, SWT.NONE);
+        testsGroup.setLayout(testsLayout);
+        gd = new GridData(GridData.FILL_HORIZONTAL);
+        testsGroup.setLayoutData(gd);
+        Label testsToRunLabel = new Label(testsGroup, SWT.LEFT);
+        testsToRunLabel.setText("Tests to run: ");
+        testsToRun = new Text(testsGroup, SWT.LEFT | SWT.FILL | SWT.BORDER);
+        testsToRun.setLayoutData(gd);
+        testsToRun.setFont(font);
+        // read only property
+        testsToRun.setEditable(false);
     }
 
     @Override
@@ -109,7 +123,7 @@ public class OverrideUnittestArgumentsBlock extends AbstractLaunchConfigurationT
     public void initializeFrom(ILaunchConfiguration configuration) {
 
         //Override selection
-        IPreferenceStore prefs = PydevPrefs.getPreferenceStore();
+        IPreferenceStore prefs = PyDevUiPrefs.getPreferenceStore();
         try {
             buttonAskOverride.setSelection(configuration.getAttribute(
                     PyUnitPrefsPage2.LAUNCH_CONFIG_OVERRIDE_PYUNIT_RUN_PARAMS_CHOICE, false));
@@ -147,6 +161,18 @@ public class OverrideUnittestArgumentsBlock extends AbstractLaunchConfigurationT
         } catch (CoreException e) {
             Log.log(e);
         }
+
+        // Test cases - arguments to test runner
+        try {
+            String testCases = configuration.getAttribute(Constants.ATTR_UNITTEST_TESTS, "");
+            if (testCases.contains(",") && !testCases.contains(", ")) {
+                testCases = testCases.replace(",", ", ");
+            }
+            testsToRun.setText(testCases);
+        } catch (CoreException e) {
+            Log.log(e);
+        }
+
         updateOverrideState();
     }
 

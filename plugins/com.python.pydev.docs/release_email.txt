@@ -1,59 +1,37 @@
-PyDev 5.0.0 Released
+PyDev 7.2.0 Released
 
-Release Highlights:
+PyDev 7.2.0 Release Highlights
 -------------------------------
 
-* **Important** PyDev now requires Java 8.
 
-	* PyDev 4.5.5 is the last release supporting Java 7.
-	* See: http://www.pydev.org/update_sites/index.html for the update site of older versions of PyDev.
-	* See: the **PyDev does not appear after install** section on http://www.pydev.org/download.html for help on using a Java 8 vm in Eclipse.
 
-* PyUnit view now persists its state across restarts.
+* Debugger improvements (updated to pydevd 1.6.0).
 
-* Fixed issue in super() code completion.
+    * Fixed issue quoting/unquoting parameters for subprocess.
+    * Fixed exception breakpoints for Django and Jinja2.
+    * Console hook import compatibility with matplotlib and pylab fixed.
 
-* PyDev.Debugger updated to the latest version.
+* Fixed issue where pipenv executable search was being executed over and over when it was not found.
 
-* No longer showing un-needed shell on Linux on startup when showing donation dialog.
 
-* Fixed pyedit_wrap_expression to avoid halt of the IDE on Ctrl+1 -> Wrap expression.
 
-What is PyDev?
+About PyDev
 ---------------------------
 
-PyDev is an open-source Python IDE on top of Eclipse for Python, Jython and IronPython development.
+PyDev is an open-source Python IDE on top of Eclipse for Python, Jython and IronPython development, now also available for Python on Visual Studio Code.
 
 It comes with goodies such as code completion, syntax highlighting, syntax analysis, code analysis, refactor, debug, interactive console, etc.
 
-Details on PyDev: http://pydev.org
-Details on its development: http://pydev.blogspot.com
+It is also available as a standalone through LiClipse with goodies such as multiple cursors, theming and support for many other languages, such as Django Templates, Jinja2, Html, JavaScript, etc.
 
+Links:
 
-What is LiClipse?
----------------------------
-
-LiClipse is a PyDev standalone with goodies such as support for Multiple cursors, theming, TextMate bundles and a number of other languages such as Django Templates, Jinja2, Kivy Language, Mako Templates, Html, Javascript, etc.
-
-It's also a commercial counterpart which helps supporting the development of PyDev.
-
-Details on LiClipse: http://www.liclipse.com/
-
-
+PyDev: http://pydev.org
+PyDev Blog: http://pydev.blogspot.com
+PyDev on VSCode: http://pydev.org/vscode
+LiClipse: http://www.liclipse.com
+PyVmMonitor - Python Profiler: http://www.pyvmmonitor.com/
 
 Cheers,
 
---
 Fabio Zadrozny
-------------------------------------------------------
-Software Developer
-
-LiClipse
-http://www.liclipse.com
-
-PyDev - Python Development Environment for Eclipse
-http://pydev.org
-http://pydev.blogspot.com
-
-PyVmMonitor - Python Profiler
-http://www.pyvmmonitor.com/

@@ -11,10 +11,12 @@
 package org.python.pydev.shared_ui.proposals;
 
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.ITextPresentationListener;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.ITextViewerExtension2;
+import org.eclipse.jface.text.ITextViewerExtension4;
 import org.eclipse.jface.text.ITextViewerExtension5;
-import org.eclipse.jface.text.Region;
+import org.eclipse.jface.text.TextPresentation;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
@@ -24,53 +26,23 @@ import org.eclipse.swt.widgets.Display;
 public class PyCompletionPresentationUpdater {
 
     private StyleRange fRememberedStyleRange;
+    private ITextPresentationListener fTextPresentationListener;
 
-    private static Color getForegroundColor(StyledText text) {
+    private static Color getForegroundColor() {
         return Display.getDefault().getSystemColor(SWT.COLOR_RED);
     }
 
-    private static Color getBackgroundColor(StyledText text) {
+    private static Color getBackgroundColor() {
         return Display.getDefault().getSystemColor(SWT.COLOR_YELLOW);
     }
 
     public PyCompletionPresentationUpdater() {
     }
 
-    public void repairPresentation(ITextViewer viewer) {
-        if (fRememberedStyleRange != null) {
-            if (viewer instanceof ITextViewerExtension2) {
-                // attempts to reduce the redraw area
-                ITextViewerExtension2 viewer2 = (ITextViewerExtension2) viewer;
-
-                if (viewer instanceof ITextViewerExtension5) {
-
-                    ITextViewerExtension5 extension = (ITextViewerExtension5) viewer;
-                    IRegion modelRange = extension.widgetRange2ModelRange(new Region(fRememberedStyleRange.start,
-                            fRememberedStyleRange.length));
-                    if (modelRange != null) {
-                        viewer2.invalidateTextPresentation(modelRange.getOffset(), modelRange.getLength());
-                    }
-
-                } else {
-                    viewer2.invalidateTextPresentation(fRememberedStyleRange.start
-                            + viewer.getVisibleRegion().getOffset(), fRememberedStyleRange.length);
-                }
-
-            } else {
-                viewer.invalidateTextPresentation();
-            }
-        }
-        if (viewer instanceof ICompletionStyleToggleEnabler) {
-            ICompletionStyleToggleEnabler pySourceViewer = (ICompletionStyleToggleEnabler) viewer;
-            pySourceViewer.setInToggleCompletionStyle(false);
-        }
-    }
-
-    public void updateStyle(ITextViewer viewer, int initialOffset, int len) {
-
+    private StyleRange createStyleRange(ITextViewer viewer, int initialOffset, int len) {
         StyledText text = viewer.getTextWidget();
         if (text == null || text.isDisposed()) {
-            return;
+            return null;
         }
 
         int widgetCaret = text.getCaretOffset();
@@ -85,37 +57,60 @@ public class PyCompletionPresentationUpdater {
         }
 
         if (modelCaret >= initialOffset + len) {
-            repairPresentation(viewer);
-            return;
+            return null;
         }
 
-        int offset = widgetCaret;
         int length = initialOffset + len - modelCaret;
 
-        Color foreground = getForegroundColor(text);
-        Color background = getBackgroundColor(text);
+        Color foreground = getForegroundColor();
+        Color background = getBackgroundColor();
 
-        StyleRange range = text.getStyleRangeAtOffset(offset);
-        int fontStyle = range != null ? range.fontStyle : SWT.NORMAL;
-
-        repairPresentation(viewer);
-        fRememberedStyleRange = new StyleRange(offset, length, foreground, background, fontStyle);
-        if (range != null) {
-            fRememberedStyleRange.strikeout = range.strikeout;
-            fRememberedStyleRange.underline = range.underline;
-        }
-
-        // http://dev.eclipse.org/bugs/show_bug.cgi?id=34754
-        try {
-            if (viewer instanceof ICompletionStyleToggleEnabler) {
-                ICompletionStyleToggleEnabler pySourceViewer = (ICompletionStyleToggleEnabler) viewer;
-                pySourceViewer.setInToggleCompletionStyle(true);
-            }
-            text.setStyleRange(fRememberedStyleRange);
-        } catch (IllegalArgumentException x) {
-            // catching exception as offset + length might be outside of the text widget
-            fRememberedStyleRange = null;
-        }
+        return new StyleRange(modelCaret, length, foreground, background);
     }
 
+    public void selected(final ITextViewer viewer, final int initialOffset, final int len) {
+        repairPresentation(viewer);
+        fRememberedStyleRange = null;
+
+        StyleRange range = createStyleRange(viewer, initialOffset, len);
+        if (range == null) {
+            return;
+        }
+        fRememberedStyleRange = range;
+
+        if (fTextPresentationListener == null) {
+            fTextPresentationListener = new ITextPresentationListener() {
+                @Override
+                public void applyTextPresentation(TextPresentation textPresentation) {
+                    fRememberedStyleRange = createStyleRange(viewer, initialOffset, len);
+                    if (fRememberedStyleRange != null) {
+                        textPresentation.mergeStyleRange(fRememberedStyleRange);
+                    }
+                }
+            };
+            ((ITextViewerExtension4) viewer).addTextPresentationListener(fTextPresentationListener);
+        }
+        repairPresentation(viewer);
+    }
+
+    public void unselected(ITextViewer viewer) {
+        if (fTextPresentationListener != null) {
+            ((ITextViewerExtension4) viewer).removeTextPresentationListener(fTextPresentationListener);
+            fTextPresentationListener = null;
+        }
+        repairPresentation(viewer);
+        fRememberedStyleRange = null;
+    }
+
+    private void repairPresentation(ITextViewer viewer) {
+        if (fRememberedStyleRange != null) {
+            if (viewer instanceof ITextViewerExtension2) {
+                // attempts to reduce the redraw area
+                ITextViewerExtension2 viewer2 = (ITextViewerExtension2) viewer;
+                viewer2.invalidateTextPresentation(fRememberedStyleRange.start, fRememberedStyleRange.length);
+            } else {
+                viewer.invalidateTextPresentation();
+            }
+        }
+    }
 }

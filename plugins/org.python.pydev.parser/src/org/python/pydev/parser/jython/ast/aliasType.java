@@ -24,48 +24,37 @@ public final class aliasType extends SimpleNode {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
         aliasType other = (aliasType) obj;
-        if (name == null) {
-            if (other.name != null)
-                return false;
-        } else if (!name.equals(other.name))
-            return false;
-        if (asname == null) {
-            if (other.asname != null)
-                return false;
-        } else if (!asname.equals(other.asname))
-            return false;
+        if (name == null) { if (other.name != null) return false;}
+        else if (!name.equals(other.name)) return false;
+        if (asname == null) { if (other.asname != null) return false;}
+        else if (!asname.equals(other.asname)) return false;
         return true;
     }
-
     @Override
     public aliasType createCopy() {
         return createCopy(true);
     }
-
     @Override
     public aliasType createCopy(boolean copyComments) {
-        aliasType temp = new aliasType(name != null ? (NameTokType) name.createCopy(copyComments) : null,
-                asname != null ? (NameTokType) asname.createCopy(copyComments) : null);
+        aliasType temp = new aliasType(name!=null?(NameTokType)name.createCopy(copyComments):null,
+        asname!=null?(NameTokType)asname.createCopy(copyComments):null);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if (this.specialsBefore != null && copyComments) {
-            for (Object o : this.specialsBefore) {
-                if (o instanceof commentType) {
+        if(this.specialsBefore != null && copyComments){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
                     commentType commentType = (commentType) o;
                     temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if (this.specialsAfter != null && copyComments) {
-            for (Object o : this.specialsAfter) {
-                if (o instanceof commentType) {
+        if(this.specialsAfter != null && copyComments){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
                     commentType commentType = (commentType) o;
                     temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }
@@ -88,7 +77,11 @@ public final class aliasType extends SimpleNode {
 
     @Override
     public Object accept(VisitorIF visitor) throws Exception {
-        traverse(visitor);
+        if (visitor instanceof VisitorBase) {
+            ((VisitorBase) visitor).traverse(this);
+        } else {
+            traverse(visitor);
+        }
         return null;
     }
 

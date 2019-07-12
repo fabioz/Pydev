@@ -9,13 +9,13 @@ package org.python.pydev.editor.codefolding;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.preference.PreferenceStore;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
+import org.python.pydev.shared_core.preferences.InMemoryEclipsePreferences;
 
 import junit.framework.TestCase;
 
@@ -23,87 +23,87 @@ public class CodeFoldingSetterTest extends TestCase {
 
     public static boolean DEBUG = true;
 
-    public static String largeDoc = "import signal\n" + //0                                         
+    public static String largeDoc = "import signal\n" + //0
             "from __future__ import with_statement\n" + //1
-            "\n" + //2   
+            "\n" + //2
             "def foo():\n" + //3
-            "    try:\n" + //4       
-            "        print 'trythis'\n" + //5                   
-            "        print 'tryagain'\n" + //6                       
-            "        while True:\n" + //7                       
-            "            print 'embedded while'\n" + //8               
-            "    except(Exception):\n" + //9                
-            "        print 'exception'\n" + //10                     
-            "        print 'exception again'\n" + //11                                                             
-            "    except(TypeError):\n" + //12                                                    
-            "        print 'type error'\n" + //13                                                        
-            "        print 'type error again'\n" + //14                                                              
-            "        while True:\n" + //15                                                 
-            "            print 'loop'\n" + //16                                                      
-            "            print 'loop again'\n" + //17                                                            
-            "    else:\n" + //18                                       
-            "        print 'else'\n" + //19                                                  
-            "        while True:\n" + //20                                                 
-            "            print 'embedded while'\n" + //21                                                                
-            "    finally:\n" + //22                                          
-            "        print 'finally'\n" + //23                                                     
-            "        print 'finally2'\n" + //24                                                      
-            "        while True:\n" + //25                                                 
-            "            print 'embedded while'\n" + //26                                                                
-            "\n" + //27                                          
-            "    try:\n" + //28                                      
-            "        print 'small try'\n" + //29                                                       
-            "    finally:\n" + //30                                          
+            "    try:\n" + //4
+            "        print 'trythis'\n" + //5
+            "        print 'tryagain'\n" + //6
+            "        while True:\n" + //7
+            "            print 'embedded while'\n" + //8
+            "    except(Exception):\n" + //9
+            "        print 'exception'\n" + //10
+            "        print 'exception again'\n" + //11
+            "    except(TypeError):\n" + //12
+            "        print 'type error'\n" + //13
+            "        print 'type error again'\n" + //14
+            "        while True:\n" + //15
+            "            print 'loop'\n" + //16
+            "            print 'loop again'\n" + //17
+            "    else:\n" + //18
+            "        print 'else'\n" + //19
+            "        while True:\n" + //20
+            "            print 'embedded while'\n" + //21
+            "    finally:\n" + //22
+            "        print 'finally'\n" + //23
+            "        print 'finally2'\n" + //24
+            "        while True:\n" + //25
+            "            print 'embedded while'\n" + //26
+            "\n" + //27
+            "    try:\n" + //28
+            "        print 'small try'\n" + //29
+            "    finally:\n" + //30
             "        print 'small finally'\n" + //31
-            "def PrintThis():\n" + //32                                              
-            "    with signal.blocked():\n" + //33                                                        
-            "        print 'a'\n" + //34                                               
-            "        print 'few'\n" + //35                                                 
-            "        while True:\n" + //36                                                 
-            "            print 'some more'\n" + //37                                                           
-            "            print 'again'\n" + //38                                                       
-            "    return 'some string'\n" + //39                                                      
-            "\n" + //40                              
-            "def PrintThat():\n" + //41                                              
-            "    x = 4\n" + //42                                       
-            "    while True:\n" + //43                                             
-            "        print 'something'\n" + //44                                                       
-            "        while False:\n" + //45                                                  
-            "            print 'comp'\n" + //46                                                      
-            "            for x in range(5):\n" + //47                                                            
-            "                print x\n" + //48                                                     
-            "                print x\n" + //49                                                     
-            "            else:\n" + //50                                               
-            "                print 'nge'\n" + //51                                                         
-            "            print 'other'\n" + //52                                                       
-            "\n" + //53                                  
-            "    return 'some string'\n" + //54                                                      
-            "\n" + //55                              
-            "\n" + //56                              
-            "if __name__ == '__main__':\n" + //57                                                        
-            "    print 'this is a simple file'\n" + //58                                                               
-            "    while True:\n" + //59                                             
-            "        print 'blah'\n" + //60                                                  
-            "    else:\n" + //61                                       
-            "        print 'nothing'\n" + //62                                                     
-            "elif True:\n" + //63                                        
-            "    print 'rando'\n" + //64                                               
-            "    print 'other'\n" + //65                                               
-            "else:\n" + //66                                   
-            "    print 'something'\n" + //67                                                   
-            "    if True:\n" + //68                                          
-            "        print 'me'\n" + //69                                                
-            "    elif False:\n" + //70                                             
-            "        for x in range(5):\n" + //71                                                        
-            "            print x\n" + //72                                                 
-            "            print x\n" + //73                                                 
-            "        else:\n" + //74                                           
-            "            print 'nge'\n" + //75                                                     
-            "        print 'metoo'\n" + //76                                                   
-            "    else:\n" + //77                                       
-            "        print 'nothing'\n" + //78                                                     
-            "        print 'other'" //79                   
-            ;
+            "def PrintThis():\n" + //32
+            "    with signal.blocked():\n" + //33
+            "        print 'a'\n" + //34
+            "        print 'few'\n" + //35
+            "        while True:\n" + //36
+            "            print 'some more'\n" + //37
+            "            print 'again'\n" + //38
+            "    return 'some string'\n" + //39
+            "\n" + //40
+            "def PrintThat():\n" + //41
+            "    x = 4\n" + //42
+            "    while True:\n" + //43
+            "        print 'something'\n" + //44
+            "        while False:\n" + //45
+            "            print 'comp'\n" + //46
+            "            for x in range(5):\n" + //47
+            "                print x\n" + //48
+            "                print x\n" + //49
+            "            else:\n" + //50
+            "                print 'nge'\n" + //51
+            "            print 'other'\n" + //52
+            "\n" + //53
+            "    return 'some string'\n" + //54
+            "\n" + //55
+            "\n" + //56
+            "if __name__ == '__main__':\n" + //57
+            "    print 'this is a simple file'\n" + //58
+            "    while True:\n" + //59
+            "        print 'blah'\n" + //60
+            "    else:\n" + //61
+            "        print 'nothing'\n" + //62
+            "elif True:\n" + //63
+            "    print 'rando'\n" + //64
+            "    print 'other'\n" + //65
+            "else:\n" + //66
+            "    print 'something'\n" + //67
+            "    if True:\n" + //68
+            "        print 'me'\n" + //69
+            "    elif False:\n" + //70
+            "        for x in range(5):\n" + //71
+            "            print x\n" + //72
+            "            print x\n" + //73
+            "        else:\n" + //74
+            "            print 'nge'\n" + //75
+            "        print 'metoo'\n" + //76
+            "    else:\n" + //77
+            "        print 'nothing'\n" + //78
+            "        print 'other'" //79
+    ;
 
     public static void main(String[] args) {
         try {
@@ -117,13 +117,13 @@ public class CodeFoldingSetterTest extends TestCase {
         }
     }
 
-    private IPreferenceStore preferences;
+    private IEclipsePreferences preferences;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
         DEBUG = false;
-        preferences = new PreferenceStore();//PydevPlugin.getDefault().getPluginPreferences();
+        preferences = new InMemoryEclipsePreferences();
         CodeFoldingSetter.setPreferences(preferences);
         setAllOptions(false);
     }
@@ -132,22 +132,23 @@ public class CodeFoldingSetterTest extends TestCase {
      * Sets all the code folding options to false
      */
     private void setAllOptions(boolean value) {
-        preferences.setValue(PyDevCodeFoldingPrefPage.USE_CODE_FOLDING, value);
-        preferences.setValue(PyDevCodeFoldingPrefPage.FOLD_CLASSDEF, value);
-        preferences.setValue(PyDevCodeFoldingPrefPage.FOLD_COMMENTS, value);
-        preferences.setValue(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_COMMENTS, value);
-        preferences.setValue(PyDevCodeFoldingPrefPage.FOLD_FOR, value);
-        preferences.setValue(PyDevCodeFoldingPrefPage.FOLD_FUNCTIONDEF, value);
-        preferences.setValue(PyDevCodeFoldingPrefPage.FOLD_IF, value);
-        preferences.setValue(PyDevCodeFoldingPrefPage.FOLD_IMPORTS, value);
-        preferences.setValue(PyDevCodeFoldingPrefPage.FOLD_STRINGS, value);
-        preferences.setValue(PyDevCodeFoldingPrefPage.FOLD_TRY, value);
-        preferences.setValue(PyDevCodeFoldingPrefPage.FOLD_WHILE, value);
-        preferences.setValue(PyDevCodeFoldingPrefPage.FOLD_WITH, value);
+        preferences.putBoolean(PyDevCodeFoldingPrefPage.USE_CODE_FOLDING, value);
+        preferences.putBoolean(PyDevCodeFoldingPrefPage.FOLD_CLASSDEF, value);
+        preferences.putBoolean(PyDevCodeFoldingPrefPage.FOLD_COMMENTS, value);
+        preferences.putBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_COMMENTS, value);
+        preferences.putBoolean(PyDevCodeFoldingPrefPage.FOLD_FOR, value);
+        preferences.putBoolean(PyDevCodeFoldingPrefPage.FOLD_FUNCTIONDEF, value);
+        preferences.putBoolean(PyDevCodeFoldingPrefPage.FOLD_IF, value);
+        preferences.putBoolean(PyDevCodeFoldingPrefPage.FOLD_IMPORTS, value);
+        preferences.putBoolean(PyDevCodeFoldingPrefPage.FOLD_STRINGS, value);
+        preferences.putBoolean(PyDevCodeFoldingPrefPage.FOLD_TRY, value);
+        preferences.putBoolean(PyDevCodeFoldingPrefPage.FOLD_WHILE, value);
+        preferences.putBoolean(PyDevCodeFoldingPrefPage.FOLD_WITH, value);
+        preferences.putBoolean(PyDevCodeFoldingPrefPage.FOLD_REGION, value);
     }
 
     private void setOptionTrue(String option) {
-        preferences.setValue(option, true);
+        preferences.putBoolean(option, true);
     }
 
     @Override
@@ -361,11 +362,11 @@ public class CodeFoldingSetterTest extends TestCase {
     }
 
     private List<FoldingEntry> getMarks(Document doc) {
-        return getMarks(doc, IPythonNature.LATEST_GRAMMAR_VERSION);
+        return getMarks(doc, IPythonNature.LATEST_GRAMMAR_PY2_VERSION);
     }
 
     private List<FoldingEntry> getMarks(Document doc, int grammarVersion) {
-        ParseOutput r = PyParser.reparseDocument(new PyParser.ParserInfo(doc, grammarVersion));
+        ParseOutput r = PyParser.reparseDocument(new PyParser.ParserInfo(doc, grammarVersion, null));
         List<FoldingEntry> marks = CodeFoldingSetter.getMarks(doc, (SimpleNode) r.ast, true);
         if (DEBUG) {
             for (FoldingEntry entry : marks) {
@@ -587,4 +588,46 @@ public class CodeFoldingSetterTest extends TestCase {
 
         assertTrue(it.hasNext() == false);
     }
+
+    public void testRegion() throws Exception {
+        setOptionTrue(PyDevCodeFoldingPrefPage.FOLD_REGION);
+        setOptionTrue(PyDevCodeFoldingPrefPage.FOLD_COMMENTS);
+        setOptionTrue(PyDevCodeFoldingPrefPage.FOLD_IMPORTS);
+        setOptionTrue(PyDevCodeFoldingPrefPage.USE_CODE_FOLDING);
+        Document doc = new Document("" +
+                "import foo\n" +
+                "import foo2 \n" +
+                "\n" +
+                "#comment1\n" +
+                "#comment2\n" +
+                "#comment3\n" +
+                "\n" +
+                "#region 01\n" +
+                "some text\n" +
+                "#endregion 01\n" +
+                "\n" +
+                "\n" +
+                "#region 02 nested top level\n" +
+                "txt \n" +
+                "\n" +
+                "#region 03 nested inside region 2\n" +
+                "\n" +
+                "txt 3\n" +
+                "#endregion 03\n" +
+                "txt\n" +
+                "\n" +
+                "#endregion 02" +
+                "\n");
+
+        List<FoldingEntry> marks = getMarks(doc);
+
+        Iterator<FoldingEntry> it = marks.iterator();
+        assertEquals(new FoldingEntry(FoldingEntry.TYPE_IMPORT, 0, 2, null), it.next());
+        assertEquals(new FoldingEntry(FoldingEntry.TYPE_COMMENT, 3, 6, null), it.next());
+        assertEquals(new FoldingEntry(FoldingEntry.TYPE_REGION, 7, 10, null), it.next());
+        assertEquals(new FoldingEntry(FoldingEntry.TYPE_REGION, 12, 22, null), it.next());
+        assertEquals(new FoldingEntry(FoldingEntry.TYPE_REGION, 15, 19, null), it.next());
+        assertTrue(it.hasNext() == false);
+    }
+
 }

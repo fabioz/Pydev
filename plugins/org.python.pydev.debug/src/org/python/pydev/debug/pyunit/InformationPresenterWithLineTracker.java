@@ -6,6 +6,7 @@
  */
 package org.python.pydev.debug.pyunit;
 
+import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.TextPresentation;
 import org.eclipse.swt.SWT;
@@ -28,6 +29,8 @@ public class InformationPresenterWithLineTracker extends AbstractTooltipInformat
 
         //(the first line is: TestName Status: status Time: time\n\n)
         //See: org.python.pydev.debug.pyunit.PyUnitView.notifyTest(PyUnitTestResult, boolean)
+        final PyUnitTestResult pyUnitTestResult = this.data instanceof PyUnitTestResult ? (PyUnitTestResult) this.data
+                : null;
         int firstSpace = hoverInfo.indexOf(' ');
         if (firstSpace > 0) {
             StyleRangeWithCustomData range = new StyleRangeWithCustomData();
@@ -40,8 +43,7 @@ public class InformationPresenterWithLineTracker extends AbstractTooltipInformat
             }
             range.start = 0;
             range.length = firstSpace;
-            if (this.data instanceof PyUnitTestResult) {
-                final PyUnitTestResult pyUnitTestResult = (PyUnitTestResult) this.data;
+            if (pyUnitTestResult != null) {
                 range.customData = new IHyperlink() {
 
                     @Override
@@ -60,9 +62,19 @@ public class InformationPresenterWithLineTracker extends AbstractTooltipInformat
             }
             presentation.addStyleRange(range);
         }
+        ILaunchConfiguration launchConfiguration = null;
+        if (pyUnitTestResult != null) {
+            PyUnitTestRun testRun = pyUnitTestResult.getTestRun();
+            if (testRun != null) {
+                IPyUnitLaunch pyUnitLaunch = testRun.getPyUnitLaunch();
+                if (pyUnitLaunch != null) {
+                    launchConfiguration = pyUnitLaunch.getLaunchConfiguration();
+                }
+            }
+        }
 
         PythonConsoleLineTracker lineTracker = new PythonConsoleLineTracker();
-        lineTracker.init(new ILinkContainer() {
+        lineTracker.init(launchConfiguration, new ILinkContainer() {
 
             @Override
             public void addLink(IHyperlink link, int offset, int length) {

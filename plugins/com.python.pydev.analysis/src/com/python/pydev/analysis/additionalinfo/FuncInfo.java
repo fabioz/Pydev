@@ -9,6 +9,8 @@
  */
 package com.python.pydev.analysis.additionalinfo;
 
+import org.python.pydev.core.IPythonNature;
+
 public final class FuncInfo extends AbstractInfo {
 
     /**
@@ -16,12 +18,14 @@ public final class FuncInfo extends AbstractInfo {
      */
     private static final long serialVersionUID = 3L;
 
-    public FuncInfo(String defName, String moduleDeclared, String path) {
-        super(defName, moduleDeclared, path);
+    public FuncInfo(String defName, String moduleDeclared, String path, IPythonNature nature, String file, int line,
+            int col) {
+        super(defName, moduleDeclared, path, nature, file, line, col);
     }
 
-    public FuncInfo(String defName, String moduleDeclared, String path, boolean doNotInternOnThisContstruct) {
-        super(defName, moduleDeclared, path, doNotInternOnThisContstruct);
+    public FuncInfo(String defName, String moduleDeclared, String path, boolean doNotInternOnThisContstruct,
+            IPythonNature nature, String file, int line, int col) {
+        super(defName, moduleDeclared, path, doNotInternOnThisContstruct, nature, file, line, col);
     }
 
     @Override

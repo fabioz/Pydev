@@ -11,14 +11,13 @@
 ******************************************************************************/
 package org.python.pydev.editor.correctionassist.heuristics;
 
-import org.python.pydev.editor.correctionassist.heuristics.PercentToBraceConverter;
-
-import junit.framework.*;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 /**
  * The class <code>PercentToBraceConverterTest</code> contains tests for the
  * class <code>{@link PercentToBraceConverter}</code>.
- * 
+ *
  * @author André Berg
  */
 public class PercentToBraceConverterTest extends TestCase {
@@ -38,7 +37,7 @@ public class PercentToBraceConverterTest extends TestCase {
         assertEquals("", result.convert());
         assertEquals(false, result.isSkippingFormatCallReplacement());
     }
-    
+
     /**
      * Run the PercentToBraceConverter(String) constructor test.
      * @throws Exception
@@ -75,8 +74,8 @@ public class PercentToBraceConverterTest extends TestCase {
     public void testConvertNonFormatString() {
 
         String[] inputs = {
-            "some string that should'nt match",
-            "x = r'''variable assignment with a double percent sign: %%'''"
+                "some string that should'nt match",
+                "x = r'''variable assignment with a double percent sign: %%'''"
         };
 
         int i = 0;
@@ -97,13 +96,13 @@ public class PercentToBraceConverterTest extends TestCase {
     public void testConvertFloatFormatStrings() {
 
         String[] inputs = {
-            "'%0.2f' % (2.3334)",
-            "x = r'''%#0.3LF''' % (2.7272777)"
+                "'%0.2f' % (2.3334)",
+                "x = r'''%#0.3LF''' % (2.7272777)"
         };
 
         String[] expectedResults = {
-            "'{0:>0.2f}'.format(2.3334)",
-            "x = r'''{0:>0.3F}'''.format(2.7272777)"
+                "'{0:>0.2f}'.format(2.3334)",
+                "x = r'''{0:>0.3F}'''.format(2.7272777)"
         };
 
         int i = 0;
@@ -125,22 +124,22 @@ public class PercentToBraceConverterTest extends TestCase {
     public void testConvertIntFormatStrings() {
 
         String[] inputs = {
-            "'my int: %.2i' % 12222334",
-            "'my int: %2.i' % 12222334",
-            "'my int: %2.0i' % 12222334",
-            "'my oct: %#o' % 9",
-            "'my oct: %#+20o' % 9",
-            "'my oct: %#-20o' % 9",
-            "'my oct: %# 20o' % 9"
+                "'my int: %.2i' % 12222334",
+                "'my int: %2.i' % 12222334",
+                "'my int: %2.0i' % 12222334",
+                "'my oct: %#o' % 9",
+                "'my oct: %#+20o' % 9",
+                "'my oct: %#-20o' % 9",
+                "'my oct: %# 20o' % 9"
         };
         String[] expectedResults = {
-            "'my int: {0:.2d}'.format(12222334)",
-            "'my int: {0:>2d}'.format(12222334)",
-            "'my int: {0:>2.0d}'.format(12222334)",
-            "'my oct: {0:o}'.format(9)",
-            "'my oct: {0:>+20o}'.format(9)",
-            "'my oct: {0:<20o}'.format(9)",
-            "'my oct: {0:> 20o}'.format(9)"
+                "'my int: {0:.2d}'.format(12222334)",
+                "'my int: {0:>2d}'.format(12222334)",
+                "'my int: {0:>2.0d}'.format(12222334)",
+                "'my oct: {0:o}'.format(9)",
+                "'my oct: {0:>+20o}'.format(9)",
+                "'my oct: {0:<20o}'.format(9)",
+                "'my oct: {0:> 20o}'.format(9)"
         };
 
         int i = 0;
@@ -162,10 +161,10 @@ public class PercentToBraceConverterTest extends TestCase {
     public void testConvertStringFormatStrings() {
 
         String[] inputs = {
-            "'%s%s' % (key, transform)",
+                "'%s%s' % (key, transform)",
         };
         String[] expectedResults = {
-            "'{0!s}{1!s}'.format(key, transform)",
+                "'{0!s}{1!s}'.format(key, transform)",
         };
 
         int i = 0;
@@ -179,7 +178,7 @@ public class PercentToBraceConverterTest extends TestCase {
             i++;
         }
     }
-    
+
     /**
      * Run the String convert() method test. Post-Condition: converted results
      * equal to expected results.
@@ -187,12 +186,12 @@ public class PercentToBraceConverterTest extends TestCase {
     public void testConvertKeyMappingFormatStrings() {
 
         String[] inputs = {
-            "r'''%(test)s''' % ({'test': \\\"fest\\\"})",
-            "r'''%(test)s%(foo)s''' % ({'test': \\\"fest\\\", 'foo': \\\"bar\\\"})"
+                "r'''%(test)s''' % ({'test': \\\"fest\\\"})",
+                "r'''%(test)s%(foo)s''' % ({'test': \\\"fest\\\", 'foo': \\\"bar\\\"})"
         };
         String[] expectedResults = {
-            "r'''{[test]!s}'''.format({'test': \\\"fest\\\"})",
-            "r'''{[test]!s}{[foo]!s}'''.format({'test': \\\"fest\\\", 'foo': \\\"bar\\\"})"
+                "r'''{[test]!s}'''.format({'test': \\\"fest\\\"})",
+                "r'''{[test]!s}{[foo]!s}'''.format({'test': \\\"fest\\\", 'foo': \\\"bar\\\"})"
         };
 
         int i = 0;
@@ -214,12 +213,12 @@ public class PercentToBraceConverterTest extends TestCase {
     public void testConvertFormatStringsWithHeadAndTail() {
 
         String[] inputs = {
-            "x = r'''%(test)s''' % ({'test': \"fest\"})  # this is a comment",
-            "    print(\"test %s\" % \"fest\") #test"
+                "x = r'''%(test)s''' % ({'test': \"fest\"})  # this is a comment",
+                "    print(\"test %s\" % \"fest\") #test"
         };
         String[] expectedResults = {
-            "x = r'''{[test]!s}'''.format({'test': \"fest\"})  # this is a comment",
-            "    print(\"test {0!s}\".format(\"fest\")) #test"
+                "x = r'''{[test]!s}'''.format({'test': \"fest\"})  # this is a comment",
+                "    print(\"test {0!s}\".format(\"fest\")) #test"
         };
 
         int i = 0;
@@ -233,7 +232,7 @@ public class PercentToBraceConverterTest extends TestCase {
             i++;
         }
     }
-    
+
     /**
      * Run the String convert() method test. Post-Condition: converted results
      * equal to expected results.
@@ -242,16 +241,16 @@ public class PercentToBraceConverterTest extends TestCase {
 
         // test with skipFormatCallReplacement == false (default)
         String[] inputs = {
-            "\"test %s %0.2f\" % (\"fest\", 2.3393)",
-            "\"test %s %0.2f\"% (\"fest\", 2.3393)",
-            "\"test %s %0.2f\" %(\"fest\", 2.3393)",
-            "\"test %s %0.2f\"%(\"fest\", 2.3393)"
+                "\"test %s %0.2f\" % (\"fest\", 2.3393)",
+                "\"test %s %0.2f\"% (\"fest\", 2.3393)",
+                "\"test %s %0.2f\" %(\"fest\", 2.3393)",
+                "\"test %s %0.2f\"%(\"fest\", 2.3393)"
         };
         String[] expectedResults = {
-            "\"test {0!s} {1:>0.2f}\".format(\"fest\", 2.3393)",
-            "\"test {0!s} {1:>0.2f}\".format(\"fest\", 2.3393)",
-            "\"test {0!s} {1:>0.2f}\".format(\"fest\", 2.3393)",
-            "\"test {0!s} {1:>0.2f}\".format(\"fest\", 2.3393)"
+                "\"test {0!s} {1:>0.2f}\".format(\"fest\", 2.3393)",
+                "\"test {0!s} {1:>0.2f}\".format(\"fest\", 2.3393)",
+                "\"test {0!s} {1:>0.2f}\".format(\"fest\", 2.3393)",
+                "\"test {0!s} {1:>0.2f}\".format(\"fest\", 2.3393)"
         };
 
         int i = 0;
@@ -274,16 +273,16 @@ public class PercentToBraceConverterTest extends TestCase {
 
         // test with skipFormatCallReplacement == true
         String[] inputs = {
-            "\"test %.2s %0.2f\" % (\"fest\", 2.3393)",
-            "\"test %s %0.2f\"% (\"fest\", 2.3393)",
-            "\"test %s %0.2f\" %(\"fest\", 2.3393)",
-            "\"test %s %0.2f\"%(\"fest\", 2.3393)"
+                "\"test %.2s %0.2f\" % (\"fest\", 2.3393)",
+                "\"test %s %0.2f\"% (\"fest\", 2.3393)",
+                "\"test %s %0.2f\" %(\"fest\", 2.3393)",
+                "\"test %s %0.2f\"%(\"fest\", 2.3393)"
         };
         String[] expectedResults = {
-            "\"test {0!s:.2} {1:>0.2f}\" % (\"fest\", 2.3393)",
-            "\"test {0!s} {1:>0.2f}\"% (\"fest\", 2.3393)",
-            "\"test {0!s} {1:>0.2f}\" %(\"fest\", 2.3393)",
-            "\"test {0!s} {1:>0.2f}\"%(\"fest\", 2.3393)"
+                "\"test {0!s:.2} {1:>0.2f}\" % (\"fest\", 2.3393)",
+                "\"test {0!s} {1:>0.2f}\"% (\"fest\", 2.3393)",
+                "\"test {0!s} {1:>0.2f}\" %(\"fest\", 2.3393)",
+                "\"test {0!s} {1:>0.2f}\"%(\"fest\", 2.3393)"
         };
 
         int i = 0;
@@ -300,29 +299,29 @@ public class PercentToBraceConverterTest extends TestCase {
     }
 
     /**
-     * Run the boolean equals(Object) method test for converters 
+     * Run the boolean equals(Object) method test for converters
      * constructed from diverse inputs.
      */
     public void testEqualsWithVaryingInputs() {
 
         String[] inputs = {
-            "",
-            "'%s%s' % (key, transform)",
-            "'%s%s' % (key, transform)",
-            null
+                "",
+                "'%s%s' % (key, transform)",
+                "'%s%s' % (key, transform)",
+                null
         };
 
         String[] inputsOther = {
-            "",
-            "'%s%s' & (key, transform)",
-            "'%s%s' & (key, transfrom)",
-            null
+                "",
+                "'%s%s' & (key, transform)",
+                "'%s%s' & (key, transfrom)",
+                null
         };
 
         boolean[] expectedResults = {
-            true,
-            true,
-            false
+                true,
+                true,
+                false
         };
 
         for (int i = 0; i < inputs.length; i++) {
@@ -342,20 +341,20 @@ public class PercentToBraceConverterTest extends TestCase {
     }
 
     /**
-     * Run the boolean equals(Object) method test for converters 
+     * Run the boolean equals(Object) method test for converters
      * constructed from same inputs but with varying object state.
      */
     public void testEqualsWithVaryingState() {
-        
+
         PercentToBraceConverter fixture = new PercentToBraceConverter("");
         PercentToBraceConverter other = new PercentToBraceConverter("");
-        
+
         fixture.setSkipFormatCallReplacement(true);
         other.setSkipFormatCallReplacement(false); // false is the default, but this makes it explicit
 
         boolean result = fixture.equals(other);
         assertEquals(false, result);
-        
+
         // now the inverse test
         fixture.setSkipFormatCallReplacement(false);
         result = fixture.equals(other);
@@ -365,15 +364,16 @@ public class PercentToBraceConverterTest extends TestCase {
     /**
      * Run the boolean equals(Object) method test with "bogus" input.
      */
+    @SuppressWarnings("unlikely-arg-type")
     public void testEqualsBogus() {
         PercentToBraceConverter fixture = new PercentToBraceConverter("");
-        
+
         boolean result = fixture.equals(null);
         assertEquals(false, result);
-        
+
         result = fixture.equals("");
         assertEquals(false, result);
-        
+
         result = fixture.equals(Integer.valueOf(3));
         assertEquals(false, result);
     }
@@ -384,13 +384,13 @@ public class PercentToBraceConverterTest extends TestCase {
     public void testGetLength() {
 
         String[] inputs = {
-            "",
-            "'%s%s' % (key, transform)"
+                "",
+                "'%s%s' % (key, transform)"
         };
 
         int[] expectedResults = {
-            0,
-            35
+                0,
+                35
         };
 
         int i = 0;
@@ -415,17 +415,17 @@ public class PercentToBraceConverterTest extends TestCase {
      * Run the int hashCode() method test.
      */
     public void testHashCode() {
-        
+
         PercentToBraceConverter fixture = new PercentToBraceConverter("");
         fixture.setSkipFormatCallReplacement(false);
 
         int result = fixture.hashCode();
         assertEquals(1, result);
-        
+
         fixture.setSkipFormatCallReplacement(true);
         result = fixture.hashCode();
         assertEquals(2, result);
-        
+
         String stringToConvert1 = "this is just a test";
         fixture = new PercentToBraceConverter(stringToConvert1);
         result = fixture.hashCode();
@@ -436,7 +436,7 @@ public class PercentToBraceConverterTest extends TestCase {
      * Run the boolean isSkippingFormatCallReplacement() method test.
      */
     public void testIsSkippingFormatCallReplacement() {
-        
+
         PercentToBraceConverter fixture = new PercentToBraceConverter("this is string");
         fixture.setSkipFormatCallReplacement(true);
 
@@ -457,41 +457,41 @@ public class PercentToBraceConverterTest extends TestCase {
     public void testIsValidPercentFormatString() {
 
         String[] inputs = {
-            "",
-            "\"test %s %0.2f\"% (\"fest\", 2.3393)",
-            "        return 'odict.odict(%r)' % self.items()",
-            
-            "    def setdefault(self, key, default=None):\n" + 
-            "        if key not in self:\n" + 
-            "            self._keys.append(key)\n" + 
-            "        dict.setdefault(self, key, default)",
+                "",
+                "\"test %s %0.2f\"% (\"fest\", 2.3393)",
+                "        return 'odict.odict(%r)' % self.items()",
 
-            "print u\"Processing '%s'\" % inpath",
-            "               raise Error(u\"Error: inpath (%s) doesn't exist!\" % inpath)\n",
-            "pat = re.compile(ur'^(\\d+): \\(\\s*0,\\s*0,\\s*0\\) #0{6} black(\\n\\nconvert:.*?)?$')"
+                "    def setdefault(self, key, default=None):\n" +
+                        "        if key not in self:\n" +
+                        "            self._keys.append(key)\n" +
+                        "        dict.setdefault(self, key, default)",
+
+                "print u\"Processing '%s'\" % inpath",
+                "               raise Error(u\"Error: inpath (%s) doesn't exist!\" % inpath)\n",
+                "pat = re.compile(ur'^(\\d+): \\(\\s*0,\\s*0,\\s*0\\) #0{6} black(\\n\\nconvert:.*?)?$')"
         };
-        
+
         String[] multilineInputs = {
-            "\t\tif len(result) == 0:\n\t\t\treturn False\n\t\telse:\n\t\t\tpat = re.compile(ur'^(\\d+): \\(\\s*0,\\s*0,\\s*0\\) #0{6} black(\\n\\nconvert:.*?)?$')\n\t\t\tmat = re.match(pat, result)\n",
-            "cmd = u\"%s \\\"%s\\\"%s -depth %s -format %%c histogram:info:-\" % (convertpath, imgfile, resize, depth)",
-            "help_message = u'''%s\nDetermine if an image is completely black, using ImageMagicks\nhistogram:info construct. Given one or many paths, filters and\nprint the paths containing fully black images to stdout.\n''' % license\n",
-            "program_name = u\"imageisblack\"\nprogram_version = u\"v0.1\"\nprogram_build_date = u\"2010-10-16\"\n\nversion_message = u'%%(prog)s %s (%s)' % (program_version, program_build_date)\n"
+                "\t\tif len(result) == 0:\n\t\t\treturn False\n\t\telse:\n\t\t\tpat = re.compile(ur'^(\\d+): \\(\\s*0,\\s*0,\\s*0\\) #0{6} black(\\n\\nconvert:.*?)?$')\n\t\t\tmat = re.match(pat, result)\n",
+                "cmd = u\"%s \\\"%s\\\"%s -depth %s -format %%c histogram:info:-\" % (convertpath, imgfile, resize, depth)",
+                "help_message = u'''%s\nDetermine if an image is completely black, using ImageMagicks\nhistogram:info construct. Given one or many paths, filters and\nprint the paths containing fully black images to stdout.\n''' % license\n",
+                "program_name = u\"imageisblack\"\nprogram_version = u\"v0.1\"\nprogram_build_date = u\"2010-10-16\"\n\nversion_message = u'%%(prog)s %s (%s)' % (program_version, program_build_date)\n"
         };
-        
+
         boolean[] expectedResults = {
-            false,
-            true,
-            true,
-            false,
-            true,
-            true,
-            false
+                false,
+                true,
+                true,
+                false,
+                true,
+                true,
+                false
         };
         boolean[] mlExpectedResults = {
-            false,
-            true,
-            false, // FIXME: format string spanning multiple lines should be supported
-            true
+                false,
+                true,
+                false, // FIXME: format string spanning multiple lines should be supported
+                true
         };
 
         String input = null;
@@ -504,12 +504,12 @@ public class PercentToBraceConverterTest extends TestCase {
             assertEquals(expectedResult, result);
             i++;
         }
-        
+
         for (int i = 0; i < multilineInputs.length; i++) {
             input = multilineInputs[i];
             boolean mlExpectedResult = mlExpectedResults[i];
             boolean result = PercentToBraceConverter.isValidPercentFormatString(input, true);
-            
+
             assertEquals(mlExpectedResult, result);
             i++;
         }
@@ -519,7 +519,7 @@ public class PercentToBraceConverterTest extends TestCase {
      * Run the String toString() method test.
      */
     public void testToString() {
-        
+
         PercentToBraceConverter fixture = new PercentToBraceConverter("");
         fixture.setSkipFormatCallReplacement(true);
 
@@ -530,10 +530,10 @@ public class PercentToBraceConverterTest extends TestCase {
 
     /**
      * Launch the test.
-     * 
+     *
      * @param args
      *            the command line arguments
-     * 
+     *
      * @generatedBy CodePro at 25.01.11 11:00
      */
     public static void main(String[] args) {

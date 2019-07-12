@@ -39,6 +39,7 @@ public class PrettyPrinterPrefsV2 implements IPrettyPrinterPrefs {
         this.tokReplacement.put("in", " in ");
         this.tokReplacement.put("as", " as ");
         this.tokReplacement.put("yield", "yield ");
+        this.tokReplacement.put("await", "await ");
         this.tokReplacement.put("from", "from ");
         this.tokReplacement.put("del", "del ");
         this.tokReplacement.put("assert", "assert ");
@@ -53,15 +54,20 @@ public class PrettyPrinterPrefsV2 implements IPrettyPrinterPrefs {
         return versionProvider.getGrammarVersion();
     }
 
+    @Override
+    public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions() throws MisconfigurationException {
+        return versionProvider.getAdditionalGrammarVersions();
+    }
+
     public final String[] boolOperatorMapping = new String[] { "<undef>", "and", "or", };
 
     public final String[] unaryopOperatorMapping = new String[] { "<undef>", "~", "not", "+", "-", };
 
     public final String[] operatorMapping = new String[] { "<undef>", "+", "-", "*", "/", "%", "**", "<<", ">>", "|",
-            "^", "&", "//", };
+            "^", "&", "//", "@" };
 
     public final String[] augOperatorMapping = new String[] { "<undef>", "+=", "-=", "*=", "/=", "%=", "**=", "<<=",
-            ">>=", "|=", "^=", "&=", "//=", };
+            ">>=", "|=", "^=", "&=", "//=", "@=" };
 
     public static final String[] cmpop = new String[] { "<undef>", "==", "!=", "<", "<=", ">", ">=", "is", "is not",
             "in", "not in", };

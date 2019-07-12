@@ -9,6 +9,8 @@
  */
 package com.python.pydev.analysis.additionalinfo;
 
+import org.python.pydev.core.IPythonNature;
+
 public final class AttrInfo extends AbstractInfo {
 
     /**
@@ -16,12 +18,14 @@ public final class AttrInfo extends AbstractInfo {
      */
     private static final long serialVersionUID = 3L;
 
-    public AttrInfo(String name, String moduleDeclared, String path) {
-        super(name, moduleDeclared, path);
+    public AttrInfo(String name, String moduleDeclared, String path, IPythonNature nature, String file, int line,
+            int col) {
+        super(name, moduleDeclared, path, nature, file, line, col);
     }
 
-    public AttrInfo(String name, String moduleDeclared, String path, boolean doNotInternOnThisContstruct) {
-        super(name, moduleDeclared, path, doNotInternOnThisContstruct);
+    public AttrInfo(String name, String moduleDeclared, String path, boolean doNotInternOnThisContstruct,
+            IPythonNature nature, String file, int line, int col) {
+        super(name, moduleDeclared, path, doNotInternOnThisContstruct, nature, file, line, col);
     }
 
     @Override

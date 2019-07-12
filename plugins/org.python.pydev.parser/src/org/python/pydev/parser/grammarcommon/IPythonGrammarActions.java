@@ -88,4 +88,11 @@ public interface IPythonGrammarActions {
 
     void setImportFromLevel(int level);
 
+    void popStarExpr();
+
+    // Starred.Store or Starred.Load
+    void pushStarExpr(int store);
+
+    int getStarExprScope();
+
 }

@@ -11,6 +11,8 @@
 ******************************************************************************/
 package org.python.pydev.shared_core.log;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -100,5 +102,14 @@ public class Log {
             //logging should not fail!
         }
         return coreException;
+    }
+
+    public static String getExceptionStr(Exception e) {
+        final ByteArrayOutputStream str = new ByteArrayOutputStream();
+        final PrintStream prnt = new PrintStream(str);
+        e.printStackTrace(prnt);
+        prnt.flush();
+        String msg = new String(str.toByteArray());
+        return msg;
     }
 }

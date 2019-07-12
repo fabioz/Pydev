@@ -11,10 +11,6 @@
 package org.python.pydev.shared_core.partitioner;
 
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.rules.IPartitionTokenScanner;
-import org.eclipse.jface.text.rules.IPredicateRule;
-import org.eclipse.jface.text.rules.IRule;
-import org.eclipse.jface.text.rules.IToken;
 import org.python.pydev.shared_core.log.Log;
 
 /**

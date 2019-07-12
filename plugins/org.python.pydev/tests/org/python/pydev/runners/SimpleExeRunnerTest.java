@@ -13,8 +13,9 @@ package org.python.pydev.runners;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.python.pydev.ast.codecompletion.revisited.CodeCompletionTestsBase;
+import org.python.pydev.ast.runners.SimpleExeRunner;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.shared_core.structure.Tuple;
 
 /**

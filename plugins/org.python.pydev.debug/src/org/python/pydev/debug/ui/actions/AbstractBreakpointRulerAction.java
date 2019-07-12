@@ -39,7 +39,7 @@ import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.editor.BaseEditor;
 import org.python.pydev.shared_ui.editor_input.EditorInputUtils;
-import org.python.pydev.shared_ui.utils.PyMarkerUtils;
+import org.python.pydev.shared_ui.utils.PyMarkerUIUtils;
 
 /**
  * Some things similar to: org.eclipse.ui.texteditor.MarkerRulerAction
@@ -105,7 +105,7 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
     }
 
     protected IResource getResourceForDebugMarkers() {
-        return PyMarkerUtils.getResourceForTextEditor(fTextEditor);
+        return PyMarkerUIUtils.getResourceForTextEditor(fTextEditor);
     }
 
     public boolean isExternalFileEditor() {
@@ -185,7 +185,7 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
     }
 
     public static List<IMarker> getMarkersFromCurrentFile(BaseEditor edit, int line) {
-        return getMarkersFromEditorResource(PyMarkerUtils.getResourceForTextEditor(edit), edit.getDocument(),
+        return getMarkersFromEditorResource(PyMarkerUIUtils.getResourceForTextEditor(edit), edit.getDocument(),
                 getExternalFileEditorInput(edit), line, true, edit.getAnnotationModel());
 
     }
@@ -291,7 +291,7 @@ public abstract class AbstractBreakpointRulerAction extends Action implements IU
                 }
                 IBreakpoint breakpoint = breakpointManager.getBreakpoint(marker);
                 if (breakpoint != null && breakpointManager.isRegistered(breakpoint)) {
-                    Position pos = PyMarkerUtils.getMarkerPosition(document, marker, annotationModel);
+                    Position pos = PyMarkerUIUtils.getMarkerPosition(document, marker, annotationModel);
 
                     if (!isExternalFile) {
                         if (!onlyIncludeLastLineActivity) {

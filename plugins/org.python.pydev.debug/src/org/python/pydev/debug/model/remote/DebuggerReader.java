@@ -6,11 +6,11 @@
  */
 package org.python.pydev.debug.model.remote;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.Socket;
-import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
@@ -19,14 +19,17 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.AbstractDebugTarget;
 import org.python.pydev.debug.model.AbstractDebugTargetWithTransmission;
-
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
+import org.python.pydev.ui.dialogs.PyDialogHelpers;
 
 /**
  * Reads and dispatches commands
  */
 public class DebuggerReader implements Runnable {
     /**
-     * can be specified to debug this class 
+     * can be specified to debug this class
      */
     private static final boolean DEBUG = false;
 
@@ -41,11 +44,6 @@ public class DebuggerReader implements Runnable {
     private volatile boolean done = false;
 
     /**
-     * Lock object for sleeping.
-     */
-    private Object lock = new Object();
-
-    /**
      * commands waiting for response. Their keys are the sequence ids
      */
     private Dictionary<Integer, AbstractDebuggerCommand> responseQueue = new Hashtable<Integer, AbstractDebuggerCommand>();
@@ -53,7 +51,7 @@ public class DebuggerReader implements Runnable {
     /**
      * we read from this
      */
-    private InputStreamReader in;
+    private InputStream in;
 
     /**
      * that's the debugger that made us... we have to finish it when we are done
@@ -62,17 +60,16 @@ public class DebuggerReader implements Runnable {
 
     /**
      * Create it
-     * 
+     *
      * @param s socket we are reading from
      * @param r the debugger associated
-     * 
+     *
      * @throws IOException
      */
     public DebuggerReader(Socket s, AbstractDebugTargetWithTransmission r) throws IOException {
         remote = (AbstractDebugTarget) r;
         socket = s;
-        InputStream sin = socket.getInputStream();
-        in = new InputStreamReader(sin);
+        in = socket.getInputStream();
     }
 
     /**
@@ -100,12 +97,12 @@ public class DebuggerReader implements Runnable {
             String[] cmdParsed = cmdLine.split("\t", 3);
             int cmdCode = Integer.parseInt(cmdParsed[0]);
             int seqCode = Integer.parseInt(cmdParsed[1]);
-            String payload = URLDecoder.decode(cmdParsed[2], "UTF-8");
+            String payload = cmdParsed[2];
 
             // is there a response waiting
             AbstractDebuggerCommand cmd;
             synchronized (responseQueue) {
-                cmd = (AbstractDebuggerCommand) responseQueue.remove(new Integer(seqCode));
+                cmd = responseQueue.remove(new Integer(seqCode));
             }
 
             if (cmd == null) {
@@ -126,58 +123,98 @@ public class DebuggerReader implements Runnable {
     /**
      * keep reading until we finish (that should happen when an exception is thrown, or if it is set as
      * done from outside)
-     * 
+     *
      * @see java.lang.Runnable#run()
      */
     @Override
     public void run() {
-        while (!done) {
-            try {
-                String cmdLine = readLine();
-                if (DEBUG) {
-                    System.err.println("receive cmd: " + cmdLine);
+        try {
+            while (!done) {
+                String contents;
+                try {
+                    if ((contents = readContents()) == null) {
+                        done = true;
+                    } else {
+                        if (contents.length() > 0) {
+                            processCommand(contents.toString());
+                        }
+                    }
+                } catch (Exception e1) {
+                    done = true;
+                    //that's ok, it means that the client finished
+                    if (DEBUG) {
+                        e1.printStackTrace();
+                    }
                 }
-                if (cmdLine != null && cmdLine.trim().length() > 0) {
-                    processCommand(cmdLine);
-                }
-                synchronized (lock) {
-                    Thread.sleep(50);
-                }
-            } catch (Exception e1) {
-                done = true;
-                //that's ok, it means that the client finished
-                if (DEBUG) {
-                    e1.printStackTrace();
+
+                if (done || socket == null || !socket.isConnected()) {
+                    AbstractDebugTarget target = remote;
+
+                    if (target != null) {
+                        target.terminate();
+                    }
+                    done = true;
                 }
             }
+        } finally {
+            buffer = null;
+            contents = null;
+            byteArrayOutputStream = null;
+        }
+    }
 
-            if (done || socket == null || !socket.isConnected()) {
-                AbstractDebugTarget target = remote;
+    private byte[] buffer = new byte[32 * 1024];
+    private FastStringBuffer contents = new FastStringBuffer();
+    private ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
-                if (target != null) {
-                    target.terminate();
+    private String readContents() throws IOException {
+        int bytesToRead = -1;
+
+        while (true) {
+            FileUtils.readLine(in, contents.clear());
+            contents.trim(); // Remove the \r\n in the end.
+
+            if (contents.length() == 0) {
+                // Ok, real payload ahead.
+                // Read once from stdin and print result to stdout
+                if (bytesToRead == -1) {
+                    Log.log("Error. pydevd did not respect protocol (Content-Length not passed in header).");
+                    return null;
                 }
-                done = true;
+
+                int bytesRead;
+                while ((bytesRead = in.read(buffer, 0, Math.min(bytesToRead, buffer.length))) > 0) {
+                    byteArrayOutputStream.write(buffer, 0, bytesRead);
+                    bytesToRead -= bytesRead;
+                }
+                byte[] bytes = byteArrayOutputStream.toByteArray();
+                byteArrayOutputStream.reset();
+                return new String(bytes, StandardCharsets.UTF_8);
+            } else {
+                // Header found
+                String contentLen = "Content-Length: ";
+                if (contents.startsWith(contentLen)) {
+                    if (DEBUG) {
+                        System.err.println("receive cmd: " + contents);
+                    }
+                    contents.deleteFirstChars(contentLen.length());
+                    try {
+                        bytesToRead = Integer.parseInt(contents.trim().toString());
+                    } catch (NumberFormatException e) {
+                        throw new IOException("Error getting number of bytes to load. Found: " + contents);
+                    }
+                } else {
+                    // Unexpected header.
+                    String msg = "It seems an old version of the PyDev Debugger is being used (please update the pydevd package being used).\n\nFound message:\n"
+                            + contents;
+                    RunInUiThread.async(() -> {
+                        PyDialogHelpers.openCritical("Error", msg);
+                    });
+                    Log.log(msg);
+                    return null;
+                }
             }
         }
     }
 
-    /**
-     * Implemented our own: with the BufferedReader, when the socket was closed, it still appeared stuck in the method.
-     * 
-     * @return a line that was read from the debugger.
-     * @throws IOException
-     */
-    private String readLine() throws IOException {
-        StringBuffer contents = new StringBuffer();
-        int i;
-        while ((i = in.read()) != -1) {
-            char c = (char) i;
-            if (c == '\n' || c == '\r') {
-                return contents.toString();
-            }
-            contents.append(c);
-        }
-        throw new IOException("Done");
-    }
 }

@@ -13,6 +13,7 @@ package org.python.pydev.shared_core.editor;
 
 import java.util.Map;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.shared_core.model.IModelListener;
 import org.python.pydev.shared_core.parsing.IParserObserver;
@@ -24,7 +25,7 @@ public interface IBaseEditor extends IParserObserver {
     /**
      * @return the editor input
      */
-    /*IEditorInput*/Object getEditorInput();
+    /*IEditorInput*/IAdaptable getEditorInput();
 
     /**
      * This map may be used by clients to store info regarding this editor.

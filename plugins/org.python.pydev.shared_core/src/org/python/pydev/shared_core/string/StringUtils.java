@@ -12,6 +12,7 @@
 ******************************************************************************/
 package org.python.pydev.shared_core.string;
 
+import java.io.BufferedReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.math.BigInteger;
@@ -23,6 +24,7 @@ import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -30,6 +32,7 @@ import java.util.NoSuchElementException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
 
 import javax.swing.text.Document;
 import javax.swing.text.EditorKit;
@@ -251,10 +254,7 @@ public final class StringUtils {
      * but start at the passed initial location in the splitted array.
      */
     public static String join(String delimiter, String[] splitted, int startAtSegment, int endAtSegment) {
-        String[] s = new String[endAtSegment - startAtSegment];
-        for (int i = startAtSegment, j = 0; i < splitted.length && i < endAtSegment; i++, j++) {
-            s[j] = splitted[i];
-        }
+        String[] s = Arrays.copyOfRange(splitted, startAtSegment, Math.min(splitted.length, endAtSegment));
         return StringUtils.join(delimiter, s);
     }
 
@@ -545,6 +545,41 @@ public final class StringUtils {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Splits keeping empty partitions.
+     *
+     * Notes:
+     * If ending with the char to split, adds an empty partition to the end.
+     *
+     * I.e.:
+     * aaa|   will give "aaa", ""
+     */
+    public static List<String> splitKeepEmpty(String string, char toSplit) {
+        int len = string.length();
+        if (len == 0) {
+            return new ArrayList<>(0);
+        }
+        ArrayList<String> ret = new ArrayList<String>();
+
+        int last = -1;
+
+        char c = 0;
+
+        for (int i = 0; i < len; i++) {
+            c = string.charAt(i);
+            if (c == toSplit) {
+                ret.add(string.substring(last + 1, i));
+                last = i;
+            }
+        }
+        if (c != toSplit) {
+            ret.add(string.substring(last + 1, len));
+        } else {
+            ret.add("");
+        }
+        return ret;
     }
 
     /**
@@ -1730,6 +1765,12 @@ public final class StringUtils {
             }
         }
         return onlyWildCardsInPart;
+    }
+
+    public static String readAll(Reader reader) {
+        BufferedReader bufferedReader = new BufferedReader(reader);
+        //java8 idiom to read all lines.
+        return bufferedReader.lines().collect(Collectors.joining());
     }
 
 }

@@ -10,6 +10,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -19,37 +20,41 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.jface.text.ITextViewer;
+import org.python.pydev.ast.codecompletion.IPyDevCompletionParticipant2;
+import org.python.pydev.ast.codecompletion.ProposalsComparator;
+import org.python.pydev.ast.simpleassist.ISimpleAssistParticipant2;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.ICompletionRequest;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.IterTokenEntry;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.TokensList;
 import org.python.pydev.core.docutils.ImportsSelection;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
+import org.python.pydev.core.interactive_console.IScriptConsoleViewer;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.debug.model.PyDebugTarget;
 import org.python.pydev.debug.model.PyStackFrame;
-import org.python.pydev.editor.codecompletion.IPyCodeCompletion;
-import org.python.pydev.editor.codecompletion.IPyDevCompletionParticipant2;
-import org.python.pydev.editor.codecompletion.PyLinkedModeCompletionProposal;
-import org.python.pydev.editor.codecompletion.templates.PyTemplateCompletionProcessor;
-import org.python.pydev.editor.simpleassist.ISimpleAssistParticipant2;
+import org.python.pydev.editor.codecompletion.IPyTemplateCompletionProcessor;
+import org.python.pydev.editor.codecompletion.PyTemplateCompletionProcessor;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
+import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_interactive_console.console.IScriptConsoleCommunication;
 import org.python.pydev.shared_interactive_console.console.IScriptConsoleInterpreter;
 import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
-import org.python.pydev.shared_interactive_console.console.ui.IScriptConsoleViewer;
 import org.python.pydev.shared_ui.content_assist.AbstractCompletionProcessorWithCycling;
-import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
-import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 
 /**
  * Default implementation for the console interpreter.
@@ -64,7 +69,10 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
 
     private List<ISimpleAssistParticipant2> simpleParticipants;
 
-    private List<IPythonNature> naturesUsed = new ArrayList<IPythonNature>();
+    /**
+     * Note: contains all the natures (if it was a single one selected, it's expanded to the nature + references + system nature).
+     */
+    private Set<IPythonNature> initialNatures = new HashSet<IPythonNature>();
 
     private IInterpreterInfo interpreterInfo;
 
@@ -116,7 +124,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
 
     @Override
     @SuppressWarnings("unchecked")
-    public ICompletionProposal[] getCompletions(IScriptConsoleViewer viewer, String commandLine, int position,
+    public ICompletionProposalHandle[] getCompletions(IScriptConsoleViewer viewer, String commandLine, int position,
             int offset, int whatToShow) throws Exception {
 
         final String text = commandLine.substring(0, position);
@@ -125,17 +133,23 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
         String textForCompletionInConsole = PySelection
                 .getTextForCompletionInConsole(new Document(text), text.length());
 
+        if (PySelection.isCompletionForLiteralNumber(tokenAndQual.activationToken)) {
+            // suppress completions that would be invalid
+            return new ICompletionProposalHandle[0];
+        }
+
         //Code-completion for imports
         ImportInfo importsTipper = ImportsSelection.getImportsTipperStr(text, false);
+        Set<IPythonNature> natureAndRelatedNatures = getNatureAndRelatedNatures();
         if (importsTipper.importsTipperStr.length() != 0) {
             importsTipper.importsTipperStr = importsTipper.importsTipperStr.trim();
             Set<IToken> tokens = new TreeSet<IToken>();
-            boolean onlyGetDirectModules = false;
+            final boolean onlyGetDirectModules = true;
 
             //Check all the natures.
-            for (final IPythonNature nature : naturesUsed) {
+            for (final IPythonNature nature : natureAndRelatedNatures) {
                 ICodeCompletionASTManager astManager = nature.getAstManager();
-                IToken[] importTokens = astManager.getCompletionsForImport(importsTipper, new ICompletionRequest() {
+                TokensList importTokens = astManager.getCompletionsForImport(importsTipper, new ICompletionRequest() {
 
                     @Override
                     public IPythonNature getNature() {
@@ -154,24 +168,28 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
                 }, onlyGetDirectModules);
 
                 //only get all modules for the 1st one we analyze (no need to get on the others)
-                onlyGetDirectModules = true;
-                tokens.addAll(Arrays.asList(importTokens));
+                for (IterTokenEntry entry : importTokens) {
+                    IToken iToken = entry.getToken();
+                    tokens.add(iToken);
+                }
             }
 
             int qlen = tokenAndQual.qualifier.length();
-            List<ICompletionProposal> ret = new ArrayList<ICompletionProposal>(tokens.size());
+            List<ICompletionProposalHandle> ret = new ArrayList<ICompletionProposalHandle>(tokens.size());
             Iterator<IToken> it = tokens.iterator();
             for (int i = 0; i < tokens.size(); i++) {
                 IToken t = it.next();
                 int replacementOffset = offset - qlen;
                 String representation = t.getRepresentation();
                 if (representation.startsWith(tokenAndQual.qualifier)) {
-                    ret.add(new PyLinkedModeCompletionProposal(representation, replacementOffset, qlen, representation
-                            .length(), t, null, null, IPyCompletionProposal.PRIORITY_DEFAULT,
-                            PyCompletionProposal.ON_APPLY_DEFAULT, ""));
+                    ret.add(CompletionProposalFactory.get().createPyLinkedModeCompletionProposal(representation,
+                            replacementOffset, qlen, representation
+                                    .length(),
+                            t, null, null, IPyCompletionProposal.PRIORITY_DEFAULT,
+                            IPyCompletionProposal.ON_APPLY_DEFAULT, "", null));
                 }
             }
-            return ret.toArray(new ICompletionProposal[ret.size()]);
+            return ret.toArray(new ICompletionProposalHandle[ret.size()]);
         }
         //END Code-completion for imports
 
@@ -187,7 +205,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
         boolean showForTabCompletion = whatToShow == AbstractCompletionProcessorWithCycling.SHOW_FOR_TAB_COMPLETIONS;
 
         //simple completions (clients)
-        ArrayList<ICompletionProposal> results = new ArrayList<ICompletionProposal>();
+        ArrayList<ICompletionProposalHandle> results = new ArrayList<ICompletionProposalHandle>();
 
         if (!showForTabCompletion) {
             for (ISimpleAssistParticipant2 participant : simpleParticipants) {
@@ -197,12 +215,13 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
             }
         }
 
-        ArrayList<ICompletionProposal> results2 = new ArrayList<ICompletionProposal>();
+        ProposalsComparator proposalsComparator = new ProposalsComparator(tokenAndQual.qualifier, null);
+        ArrayList<ICompletionProposalHandle> results2 = new ArrayList<ICompletionProposalHandle>();
 
         if (!showOnlyTemplates) {
             //shell completions
             if (consoleCommunication != null) {
-                ICompletionProposal[] consoleCompletions = consoleCommunication.getCompletions(text,
+                ICompletionProposalHandle[] consoleCompletions = consoleCommunication.getCompletions(text,
                         textForCompletionInConsole, offset,
                         showForTabCompletion);
                 // If we're only showing ipython completions, then short-circuit the rest
@@ -215,29 +234,30 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
 
         if (tokenAndQual.activationToken.length() == 0) {
             //templates (only if we have no activation token)
-            PyTemplateCompletionProcessor pyTemplateCompletionProcessor = new PyTemplateCompletionProcessor();
-            pyTemplateCompletionProcessor.addTemplateProposals(viewer, offset, results2);
+            IPyTemplateCompletionProcessor pyTemplateCompletionProcessor = new PyTemplateCompletionProcessor();
+            pyTemplateCompletionProcessor.addTemplateProposals((ITextViewer) viewer, offset, results2);
         }
 
-        Collections.sort(results2, IPyCodeCompletion.PROPOSAL_COMPARATOR);
+        Collections.sort(results2, proposalsComparator);
 
-        ArrayList<ICompletionProposal> results3 = new ArrayList<ICompletionProposal>();
+        ArrayList<ICompletionProposalHandle> results3 = new ArrayList<ICompletionProposalHandle>();
         if (!showOnlyTemplates) {
             //other participants
             List<Object> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_COMPLETION);
             for (Object participant : participants) {
                 if (participant instanceof IPyDevCompletionParticipant2) {
                     IPyDevCompletionParticipant2 participant2 = (IPyDevCompletionParticipant2) participant;
-                    results3.addAll(participant2.computeConsoleCompletions(tokenAndQual, this.naturesUsed, viewer,
-                            offset));
+                    results3.addAll(
+                            participant2.computeConsoleCompletions(tokenAndQual, natureAndRelatedNatures, viewer,
+                                    offset));
                 }
             }
-            Collections.sort(results3, IPyCodeCompletion.PROPOSAL_COMPARATOR);
+            Collections.sort(results3, proposalsComparator);
         }
         results.addAll(results2);
         results.addAll(results3);
 
-        return results.toArray(new ICompletionProposal[results.size()]);
+        return results.toArray(new ICompletionProposalHandle[results.size()]);
     }
 
     /*
@@ -291,11 +311,35 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
         this.closeRunnables.add(runnable);
     }
 
-    public void setNaturesUsed(List<IPythonNature> naturesUsed) {
-        if (naturesUsed == null) {
-            naturesUsed = new ArrayList<IPythonNature>();
+    public void setNaturesUsed(List<IPythonNature> localNaturesUsed) {
+        if (localNaturesUsed == null) {
+            localNaturesUsed = new ArrayList<IPythonNature>();
         }
-        this.naturesUsed = naturesUsed;
+        this.initialNatures = new HashSet<>(localNaturesUsed);
+    }
+
+    private Set<IPythonNature> getNatureAndRelatedNatures() {
+        Set<IPythonNature> ret = new HashSet<IPythonNature>();
+        for (IPythonNature iPythonNature : this.initialNatures) {
+            try {
+                ICodeCompletionASTManager astManager = iPythonNature.getAstManager();
+                if (astManager == null) {
+                    continue;
+                }
+                IModulesManager modulesManager = astManager.getModulesManager();
+                if (modulesManager == null) {
+                    continue;
+                }
+                IModulesManager[] managersInvolved = modulesManager
+                        .getManagersInvolved(true);
+                for (IModulesManager iModulesManager : managersInvolved) {
+                    ret.add(iModulesManager.getNature());
+                }
+            } catch (Exception e) {
+                Log.log(e);
+            }
+        }
+        return ret;
     }
 
     public void setInterpreterInfo(IInterpreterInfo interpreterInfo) {
@@ -345,6 +389,7 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
                 PythonNature nature = PythonNature.getPythonNature(pyDebugTarget.project);
                 if (nature != null) {
                     ArrayList<IPythonNature> natures = new ArrayList<>(1);
+                    natures.add(nature);
                     this.setNaturesUsed(natures);
                     try {
                         projectInterpreter = nature.getProjectInterpreter();

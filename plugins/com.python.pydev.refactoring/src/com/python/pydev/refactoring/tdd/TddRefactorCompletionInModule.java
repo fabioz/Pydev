@@ -13,13 +13,13 @@ import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.IContextInformation;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.python.pydev.ast.item_pointer.ItemPointer;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyOpenAction;
-import org.python.pydev.editor.model.ItemPointer;
+import org.python.pydev.shared_core.image.IImageHandle;
 
 /**
  * This is the proposal that goes outside. It only creates the proposal that'll actually do something later, as
@@ -33,7 +33,7 @@ public final class TddRefactorCompletionInModule extends AbstractTddRefactorComp
     private PySelection ps;
     public int locationStrategy = AbstractPyCreateAction.LOCATION_STRATEGY_END;
 
-    public TddRefactorCompletionInModule(String replacementString, Image image, String displayString,
+    public TddRefactorCompletionInModule(String replacementString, IImageHandle image, String displayString,
             IContextInformation contextInformation, String additionalProposalInfo, int priority, PyEdit edit,
             File module, List<String> parametersAfterCall, AbstractPyCreateAction pyCreateAction, PySelection ps) {
 

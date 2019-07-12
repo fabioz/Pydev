@@ -7,7 +7,7 @@ import java.util.Set;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.python.pydev.shared_core.structure.Tuple;
 
 /**
@@ -34,25 +34,28 @@ public interface IScopedPreferences {
     //  -- i.e.: org.python.pydev will get a %APPDATA%/EclipseSettings/org.python.pydev.yaml file)
 
     /**
-     * @param pluginPreferenceStore the preferences store of the plugin (workspace setting)
+     * @param instancePreferences the preferences store of the plugin (workspace setting)
      * @param keyInPreferenceStore the key to get from the workspace (if needed)
      * @param adaptable an adaptable which can adapt to IProject.
      */
-    public boolean getBoolean(IPreferenceStore pluginPreferenceStore, String keyInPreferenceStore, IAdaptable adaptable);
+    public boolean getBoolean(IEclipsePreferences instancePreferences, IEclipsePreferences defaultPreferences,
+            String keyInPreferenceStore, IAdaptable adaptable);
 
     /**
-     * @param pluginPreferenceStore the preferences store of the plugin (workspace setting)
+     * @param instancePreferences the preferences store of the plugin (workspace setting)
      * @param keyInPreferenceStore the key to get from the workspace (if needed)
      * @param adaptable an adaptable which can adapt to IProject.
      */
-    public int getInt(IPreferenceStore pluginPreferenceStore, String keyInPreferenceStore, IAdaptable adaptable);
+    public int getInt(IEclipsePreferences instancePreferences, IEclipsePreferences defaultPreferences,
+            String keyInPreferenceStore, IAdaptable adaptable);
 
     /**
-     * @param pluginPreferenceStore the preferences store of the plugin (workspace setting)
+     * @param instancePreferences the preferences store of the plugin (workspace setting)
      * @param keyInPreferenceStore the key to get from the workspace (if needed)
      * @param adaptable an adaptable which can adapt to IProject.
      */
-    public String getString(IPreferenceStore pluginPreferenceStore, String keyInPreferenceStore, IAdaptable adaptable);
+    public String getString(IEclipsePreferences instancePreferences, IEclipsePreferences defaultPreferences,
+            String keyInPreferenceStore, IAdaptable adaptable);
 
     /**
      * May throw an exception if it's not possible to save the passed data.

@@ -14,11 +14,12 @@ package org.python.pydev.editor.actions;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.runtime.Preferences;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
+import org.python.pydev.core.formatter.FormatStd;
+import org.python.pydev.core.formatter.PyFormatterPreferences;
 import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -69,7 +70,7 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
             return defaultClassNameBehaviour;
         }
 
-        Preferences prefs = PydevPlugin.getDefault().getPluginPreferences();
+        IPreferenceStore prefs = PyDevUiPrefs.getPreferenceStore();
         return prefs.getBoolean(CommentBlocksPreferences.MULTI_BLOCK_COMMENT_SHOW_ONLY_CLASS_NAME);
     }
 
@@ -78,7 +79,7 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
             return defaultFunctionNameBehaviour;
         }
 
-        Preferences prefs = PydevPlugin.getDefault().getPluginPreferences();
+        IPreferenceStore prefs = PyDevUiPrefs.getPreferenceStore();
         return prefs.getBoolean(CommentBlocksPreferences.MULTI_BLOCK_COMMENT_SHOW_ONLY_FUNCTION_NAME);
     }
 
@@ -185,7 +186,7 @@ public class PyAddBlockComment extends AbstractBlockCommentAction {
                 strbuf.append(strBefore).append("#").append(fullCommentLine).append(endLineDelim);
 
                 String spacesInStartComment = null;
-                FormatStd std = this.std != null ? this.std : PyFormatStd.getFormat(getPyEdit());
+                FormatStd std = this.std != null ? this.std : PyFormatterPreferences.getFormatStd(getPyEdit());
                 if (std.spacesInStartComment != 0) {
                     if (std.spacesInStartComment < 0) {
                         //Negative means that we manage it manually!

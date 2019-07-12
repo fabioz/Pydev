@@ -29,6 +29,7 @@ import org.eclipse.jface.bindings.Binding;
 import org.eclipse.jface.bindings.TriggerSequence;
 import org.eclipse.jface.bindings.keys.KeySequence;
 import org.eclipse.jface.bindings.keys.ParseException;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
@@ -86,7 +87,12 @@ public class InteractiveConsoleCommand {
                 IExecuteLineAction executeLineAction = (IExecuteLineAction) action;
                 String commandText = this.interactiveConsoleCommand.commandText;
                 TextSelectionUtils ts = pyEdit.createTextSelectionUtils();
-                String selectedText = ts.getSelectedText();
+                String selectedText;
+                try {
+                    selectedText = ts.getSelectedText();
+                } catch (BadLocationException e) {
+                    selectedText = "";
+                }
                 if (selectedText.length() == 0) {
                     selectedText = ts.getCursorLineContents();
                 }
@@ -330,7 +336,7 @@ public class InteractiveConsoleCommand {
             // Log.log(e); -- don't even log (if we're in a state we can't use it, there's no point in doing anything).
             return;
         }
-        ICommandService commandService = (ICommandService) workbench.getService(ICommandService.class);
+        ICommandService commandService = workbench.getService(ICommandService.class);
 
         //Note: hardcoding that we want to deal with the PyDev editor category.
         Category pydevCommandsCategory = commandService.getCategory("org.python.pydev.ui.category.source");

@@ -63,11 +63,13 @@ public final class JJTPythonGrammarState extends AbstractJJTPythonGrammarState i
     private void pushNode(Node n, SimpleNode created, int line, int col) {
         nodes.push(created);
 
-        if (created.beginLine == 0)
+        if (created.beginLine == 0) {
             created.beginLine = line;
+        }
 
-        if (created.beginColumn == 0)
+        if (created.beginColumn == 0) {
             created.beginColumn = col;
+        }
 
         ++sp;
     }
@@ -286,5 +288,9 @@ final class IntStack {
 
     public int pop() {
         return stack[--sp];
+    }
+
+    public int peek() {
+        return stack[sp - 1];
     }
 }

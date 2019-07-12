@@ -15,11 +15,13 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
 
+import org.python.pydev.ast.codecompletion.revisited.PyPublicTreeMap;
 import org.python.pydev.core.FastBufferedReader;
+import org.python.pydev.core.IInfo;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ObjectsInternPool;
 import org.python.pydev.core.ObjectsInternPool.ObjectsPoolMap;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.codecompletion.revisited.PyPublicTreeMap;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 
@@ -28,6 +30,13 @@ import org.python.pydev.shared_core.string.StringUtils;
  *
  */
 public class TreeIO {
+
+    private static final char END_IINFO_SEPARATOR = '@';
+    private static final char NAME_CHAR_SEPARATOR = '!';
+    private static final char PATH_CHAR_SEPARATOR = '&';
+    private static final char FILE_CHAR_SEPARATOR = '^';
+    private static final char LINE_CHAR_SEPARATOR = '#';
+    private static final char COL_CHAR_SEPARATOR = '*';
 
     /**
      * Tree is written as:
@@ -54,7 +63,7 @@ public class TreeIO {
             while (it2.hasNext()) {
                 IInfo info = it2.next();
                 tempBuf.append(info.getName());
-                tempBuf.append('!');
+                tempBuf.append(NAME_CHAR_SEPARATOR);
 
                 String path = info.getPath();
                 if (path != null) {
@@ -64,8 +73,24 @@ public class TreeIO {
                         strToInt.put(path, integer);
                     }
                     tempBuf.append(integer);
-                    tempBuf.append('&');
+                    tempBuf.append(PATH_CHAR_SEPARATOR);
                 }
+
+                String file = info.getFile();
+                if (file != null) {
+                    integer = strToInt.get(file);
+                    if (integer == null) {
+                        integer = strToInt.size() + 1;
+                        strToInt.put(file, integer);
+                    }
+                    tempBuf.append(integer);
+                    tempBuf.append(FILE_CHAR_SEPARATOR);
+                }
+                tempBuf.append(info.getLine());
+                tempBuf.append(LINE_CHAR_SEPARATOR);
+
+                tempBuf.append(info.getCol());
+                tempBuf.append(COL_CHAR_SEPARATOR);
 
                 String modName = info.getDeclaringModuleName();
 
@@ -139,7 +164,8 @@ public class TreeIO {
     }
 
     public static PyPublicTreeMap<String, Set<IInfo>> loadTreeFrom(final FastBufferedReader reader,
-            final Map<Integer, String> dictionary, FastStringBuffer buf, ObjectsPoolMap objectsPoolMap)
+            final Map<Integer, String> dictionary, FastStringBuffer buf, ObjectsPoolMap objectsPoolMap,
+            IPythonNature nature)
             throws IOException {
         PyPublicTreeMap<String, Set<IInfo>> tree = new PyPublicTreeMap<String, Set<IInfo>>();
         final int size = StringUtils.parsePositiveInt(reader.readLine());
@@ -151,15 +177,18 @@ public class TreeIO {
             //note: the path (2nd int in record) is optional
             for (int iEntry = 0; iEntry < size; iEntry++) {
                 buf.clear();
-                FastStringBuffer line = reader.readLine();
-                if (line == null || line.startsWith("-- ")) {
-                    throw new RuntimeException("Unexpected line: " + line);
+                FastStringBuffer readLine = reader.readLine();
+                if (readLine == null || readLine.startsWith("-- ")) {
+                    throw new RuntimeException("Unexpected line: " + readLine);
                 }
-                char[] internalCharsArray = line.getInternalCharsArray();
-                int length = line.length();
+                char[] internalCharsArray = readLine.getInternalCharsArray();
+                int length = readLine.length();
                 String key = null;
                 String infoName = null;
                 String path = null;
+                String file = null;
+                int line = 0;
+                int col = 0;
 
                 int i = 0;
 
@@ -194,17 +223,32 @@ public class TreeIO {
                 for (; i < length; i++) {
                     char c = internalCharsArray[i];
                     switch (c) {
-                        case '!':
+                        case NAME_CHAR_SEPARATOR:
                             infoName = ObjectsInternPool.internLocal(objectsPoolMap, buf.toString());
                             buf.clear();
                             break;
 
-                        case '&':
+                        case PATH_CHAR_SEPARATOR:
                             path = dictionary.get(StringUtils.parsePositiveInt(buf));
                             buf.clear();
                             break;
 
-                        case '@':
+                        case FILE_CHAR_SEPARATOR:
+                            file = dictionary.get(StringUtils.parsePositiveInt(buf));
+                            buf.clear();
+                            break;
+
+                        case LINE_CHAR_SEPARATOR:
+                            line = StringUtils.parsePositiveInt(buf);
+                            buf.clear();
+                            break;
+
+                        case COL_CHAR_SEPARATOR:
+                            col = StringUtils.parsePositiveInt(buf);
+                            buf.clear();
+                            break;
+
+                        case END_IINFO_SEPARATOR:
                             int dictKey = StringUtils.parsePositiveInt(buf);
                             byte type = (byte) dictKey;
                             type &= 0x07; //leave only the 3 least significant bits there (this is the type -- value from 0 - 8).
@@ -220,23 +264,34 @@ public class TreeIO {
                             }
                             switch (type) {
                                 case IInfo.CLASS_WITH_IMPORT_TYPE:
-                                    set.add(new ClassInfo(infoName, moduleDeclared, path, false));
+                                    set.add(new ClassInfo(infoName, moduleDeclared, path, false, nature, file, line,
+                                            col));
                                     break;
                                 case IInfo.METHOD_WITH_IMPORT_TYPE:
-                                    set.add(new FuncInfo(infoName, moduleDeclared, path, false));
+                                    set.add(new FuncInfo(infoName, moduleDeclared, path, false, nature, file, line,
+                                            col));
                                     break;
                                 case IInfo.ATTRIBUTE_WITH_IMPORT_TYPE:
-                                    set.add(new AttrInfo(infoName, moduleDeclared, path, false));
+                                    set.add(new AttrInfo(infoName, moduleDeclared, path, false, nature, file, line,
+                                            col));
                                     break;
                                 case IInfo.NAME_WITH_IMPORT_TYPE:
-                                    set.add(new NameInfo(infoName, moduleDeclared, path, false));
+                                    set.add(new NameInfo(infoName, moduleDeclared, path, false, nature, file, line,
+                                            col));
                                     break;
                                 case IInfo.MOD_IMPORT_TYPE:
-                                    set.add(new ModInfo(infoName, false));
+                                    set.add(new ModInfo(infoName, false, nature, file, line, col));
                                     break;
                                 default:
                                     Log.log("Unexpected type: " + type);
                             }
+                            file = null;
+                            infoName = null;
+                            path = null;
+                            file = null;
+                            line = 0;
+                            col = 0;
+
                             break;
                         default:
                             buf.appendResizeOnExc(c);

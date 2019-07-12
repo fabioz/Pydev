@@ -14,15 +14,16 @@ import java.util.List;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
+import org.python.pydev.ast.codecompletion.revisited.CompletionCache;
+import org.python.pydev.ast.codecompletion.revisited.CompletionStateFactory;
+import org.python.pydev.ast.item_pointer.ItemPointer;
+import org.python.pydev.ast.location.FindWorkspaceFiles;
+import org.python.pydev.ast.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyOpenAction;
-import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
-import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
-import org.python.pydev.editor.model.ItemPointer;
-import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.parser.fastparser.FastDefinitionsParser;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -42,6 +43,7 @@ public class PyUnitTestResult {
     private WeakReference<PyUnitTestRun> testRun;
 
     public final String STATUS_OK = "ok";
+    public final String STATUS_OK_SKIPPED = "ok (skipped)";
     public final String STATUS_SKIP = "skip";
     public final String STATUS_FAIL = "fail";
     public final String STATUS_ERROR = "error";
@@ -76,7 +78,7 @@ public class PyUnitTestResult {
     }
 
     public boolean isSkip() {
-        return STATUS_SKIP.equals(this.status);
+        return STATUS_SKIP.equals(this.status) || STATUS_OK_SKIPPED.equals(this.status);
     }
 
     /**
@@ -103,7 +105,11 @@ public class PyUnitTestResult {
             String thisTest = this.test;
             int i = thisTest.indexOf('['); // This happens when parameterizing pytest tests.
             if (i != -1) {
-                thisTest = thisTest.substring(0, i);
+                thisTest = thisTest.substring(0, i).trim();
+            }
+            i = thisTest.indexOf('('); // This happens with unittest subtests.
+            if (i != -1) {
+                thisTest = thisTest.substring(0, i).trim();
             }
             ItemPointer itemPointer = getItemPointer(file, fileContents, thisTest);
             openAction.run(itemPointer);
@@ -113,7 +119,7 @@ public class PyUnitTestResult {
     public static ItemPointer getItemPointer(File file, String fileContents, String testPath) {
         SimpleNode testNode = null;
         if (fileContents != null) {
-            SimpleNode node = FastDefinitionsParser.parse(fileContents, "");
+            SimpleNode node = FastDefinitionsParser.parse(fileContents, "", file);
             if (testPath != null && testPath.length() > 0) {
                 testNode = NodeUtils.getNodeFromPath(node, testPath);
             }
@@ -127,7 +133,7 @@ public class PyUnitTestResult {
             //do an actual (more costly) find definition.
             try {
                 PySourceLocatorBase locator = new PySourceLocatorBase();
-                IFile workspaceFile = locator.getWorkspaceFile(file, null);
+                IFile workspaceFile = FindWorkspaceFiles.getWorkspaceFile(file, null);
                 if (workspaceFile != null && workspaceFile.exists()) {
                     IProject project = workspaceFile.getProject();
                     if (project != null && project.exists()) {

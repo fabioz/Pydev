@@ -12,6 +12,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.ViewerFilter;
+import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_ui.ImageCache;
 
 /**
@@ -34,7 +35,7 @@ public abstract class AbstractOutlineFilterAction extends Action {
      * @param preference the name of the preference that should keep the preferences (to keep it checked among sessions)
      * @param uiConstant the name of the constant in UIConstants to get the icon from the image cache.
      */
-    public AbstractOutlineFilterAction(String text, BaseOutlinePage page, ImageCache imageCache, String preference,
+    public AbstractOutlineFilterAction(String text, BaseOutlinePage page, IImageCache imageCache, String preference,
             String uiConstant) {
         super(text, IAction.AS_CHECK_BOX);
         this.preference = preference;
@@ -44,7 +45,7 @@ public abstract class AbstractOutlineFilterAction extends Action {
         setChecked(page.getStore().getBoolean(preference));
         setActionEnabled(isChecked());
 
-        setImageDescriptor(imageCache.getDescriptor(uiConstant));
+        setImageDescriptor(ImageCache.asImageDescriptor(imageCache.getDescriptor(uiConstant)));
     }
 
     @Override

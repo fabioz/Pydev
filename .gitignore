@@ -27,7 +27,7 @@ Thumbs.db
 ProfileProject
 de.loskutov.anyedit.AnyEditTools.prefs
 *asthelper.completions
-plugins/org.python.pydev/tests/pysrc/extendable/bootstrap_dll/umath.pyd
+plugins/org.python.pydev.core/tests/pysrc/extendable/bootstrap_dll/umath.pyd
 plugins/com.python.pydev.runalltests/Configuration*
 external-sources
 plugins/org.python.pydev.parser/tests/org/python/pydev/parser/generated_data_test_utf8_with_bom.py
@@ -48,7 +48,9 @@ Desktop DB
 .fseventsd
 .syncinfo
 .TemporaryItems
-plugins/org.python.pydev/pysrc/.git
-plugins/org.python.pydev/pysrc/.project
-plugins/org.python.pydev/pysrc/.settings
+plugins/org.python.pydev.core/pysrc/.git
+plugins/org.python.pydev.core/pysrc/.project
+plugins/org.python.pydev.core/pysrc/.settings
 **/v2_indexcache/**
+plugins/com.python.pydev.runalltests/fake_homedir*
+.cache

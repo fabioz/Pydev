@@ -1,0 +1,98 @@
+<doc>
+<contents_area>
+
+
+<div class="section" id="pylint-can-be-used-with-pydev">
+<h1><a class="reference external" href="https://pylint.org/">PyLint</a> can be used with PyDev</h1>
+<p>Note that <a class="reference external" href="https://pylint.org/">PyLint</a> is <strong>disabled
+by default</strong>.</p>
+<p>To activate it, go to the PyLint preferences page, <strong>specify its location</strong> (the executable
+from the python/Scripts directory) and then check <strong>Use PyLint</strong>.</p>
+<blockquote>
+<div class="figure align-center">
+<img alt="images/pylint/pylint_prefs.png" src="images/pylint/pylint_prefs.png" />
+</div>
+</blockquote>
+<p>The integration is done so that when the PyDev code analysis is passed on a saved file, PyLint will also
+be run on that file (so, the PyDev code analysis must also be turned on for the PyLint analysis to be done).</p>
+</div>
+<div class="section" id="what-s-the-differences-from-the-pydev-code-analysis-to-pylint">
+<h1>What's the differences from the PyDev code analysis to PyLint?</h1>
+<p>The main difference for PyDev and PyLint in the code analysis is that PyDev favors fewer and faster checks,
+trying to have few false positives while PyLint favors completeness.</p>
+<p>In practice, this means that PyLint catches more errors than PyDev but it's also considerably slower to run
+and can give more false positives.</p>
+<p>Also, PyLint doesn't currently accept running in files that are not saved in the disk (so, the PyDev code
+analysis can work on the editor contents while PyLint can't -- this may be fixed
+when/if something as <a class="reference external" href="https://github.com/PyCQA/pylint/pull/1189">https://github.com/PyCQA/pylint/pull/1189</a> is integrated in PyLint).</p>
+</div>
+<div class="section" id="files-analyzed">
+<h1>Files analyzed</h1>
+<p>Note that the PyDev code analysis will only be run in the currently opened editor
+(right after opening it or when the file is saved) and only if the file is
+actually in the PYTHONPATH (i.e.: it needs to be under a source folder, have a valid
+Python name and have __init__.py files in each package to access it).</p>
+</div>
+<div class="section" id="forcing-analysis-without-open-editor">
+<h1>Forcing analysis without open editor</h1>
+<p>It's possible to force running code analysis on files which are not opened in an editor
+by right-clicking a folder and choosing the menu <strong>PyDev &gt; Code Analysis</strong>.</p>
+<blockquote>
+<div class="figure align-center">
+<img alt="images/pylint/ask_code_analysis.png" src="images/pylint/ask_code_analysis.png" />
+</div>
+</blockquote>
+<p>The problems flagged by PyLint can then be seen at the Problems view (it can be accessed
+by using <strong>Ctrl+3</strong> and then typing <strong>Problems</strong>).</p>
+</div>
+<div class="section" id="forcing-file-to-be-reanalyzed-in-open-editor">
+<h1>Forcing file to be reanalyzed in open editor</h1>
+<p>Usually, when the editor is opened, the analysis will run automatically, and whenever the
+file is saved, it'll be rerun, but it's also possible to force running the analysis by
+using:</p>
+<p><strong>Ctrl+2, C</strong></p>
+<p>That'll force the code to be re-analyzed (which may be useful if you're tweaking your
+settings on PyLint). Note that PyLint will always work on the file on the disk (so,
+if your file is changed in the editor, the results from PyLint may not match what
+you're seeing in the editor).</p>
+</div>
+<div class="section" id="per-project-settings">
+<h1>Per-project settings</h1>
+<p>It's possible to specify PyLint settings per project by creating a <strong>.pylintrc</strong> file in the project
+root and passing <strong>--rcfile=.pylintrc</strong>, in the preferences (PyLint inside PyDev is always run
+relative to the project directory, so, <strong>.pylintrc</strong> in this case must be alongside <strong>.project</strong> and <strong>.pydevproject</strong>).</p>
+</div>
+<div class="section" id="pylint-configuration-vs-severity-configuration-in-pydev">
+<h1>PyLint Configuration vs Severity Configuration in PyDev</h1>
+<p>In PyDev, you can specify the severity for each of the PyLint checkers in the preferences page,
+but PyLint will still make those analysis. If you want, you can disable the errors from being generated in PyLint itself.</p>
+<p>For instance, it's possible to pass:</p>
+<blockquote>
+<strong>--disable=C --disable=R</strong></blockquote>
+<p>in the PyLint args to disable all the conventions and refactor messages from being generated in PyLint.</p>
+<p>You may also disable a specific messages by using its id. For instance:</p>
+<blockquote>
+<strong>--disable=protected-access</strong></blockquote>
+<p>can be used to disable messages regarding accessing protected fields.</p>
+</div>
+<div class="section" id="ignoring-a-pylint-message">
+<h1>Ignoring a PyLint message</h1>
+<p>PyDev also allows users to ignore a given PyLint message in a given line by pressing <strong>Ctrl+1</strong> in a line with
+a PyLint error and choosing the appropriate ignore option.</p>
+</div>
+</contents_area>
+
+
+<right_area>
+</right_area>
+
+
+<image_area>manual.png</image_area>
+
+
+<quote_area></quote_area>
+
+
+
+</doc>
+

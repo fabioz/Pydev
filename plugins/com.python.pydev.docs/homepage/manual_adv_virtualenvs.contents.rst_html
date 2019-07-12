@@ -1,0 +1,34 @@
+<doc>
+<contents_area>
+<h1 class="title">Managing virtual environments in PyDev</h1>
+
+<div class="section" id="managing-virtual-environments-with-pipenv">
+<h1>Managing virtual environments with pipenv</h1>
+<p>PyDev 7.0.0 onwards has a tighter integration with pipenv to manage virtual environments.</p>
+<p>Note: before starting, make sure you have it installed locally and understand how it works (see: <a class="reference external" href="https://pipenv.readthedocs.io/en/latest/">https://pipenv.readthedocs.io/en/latest/</a> for details).</p>
+<p>After it's properly installed (i.e.: your can run <strong>pipenv</strong> from the command line) make sure the base interpreter for your virtual env is
+configured inside PyDev (as explained in <a class="reference external" href="http://www.pydev.org/manual_101_interpreter.html">http://www.pydev.org/manual_101_interpreter.html</a>).</p>
+</div>
+<div class="section" id="managing-virtual-environments-with-conda">
+<h1>Managing virtual environments with conda</h1>
+</div>
+<div class="section" id="managing-other-virtual-environments">
+<h1>Managing other virtual environments</h1>
+<p>Although</p>
+</div>
+</contents_area>
+
+
+<right_area>
+</right_area>
+
+
+<image_area>manual.png</image_area>
+
+
+<quote_area></quote_area>
+
+
+
+</doc>
+

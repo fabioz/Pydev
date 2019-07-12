@@ -8,13 +8,14 @@ package com.python.pydev.refactoring.tdd;
 
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension2;
 import org.eclipse.jface.text.contentassist.IContextInformation;
-import org.eclipse.swt.graphics.Image;
+import org.python.pydev.ast.codecompletion.ProposalsComparator;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.codecompletion.proposals.PyCompletionProposal;
 import org.python.pydev.parser.PyParser;
+import org.python.pydev.shared_core.IMiscConstants;
+import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
+import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
-
-import com.python.pydev.analysis.builder.AnalysisParserObserver;
 
 /**
  * @author fabioz
@@ -32,30 +33,32 @@ public abstract class AbstractTddRefactorCompletion extends PyCompletionProposal
     }
 
     public AbstractTddRefactorCompletion(PyEdit edit, String replacementString, int replacementOffset,
-            int replacementLength, int cursorPosition, Image image, String displayString,
+            int replacementLength, int cursorPosition, IImageHandle image, String displayString,
             IContextInformation contextInformation, String additionalProposalInfo, int priority) {
         this(edit, replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
-                contextInformation, additionalProposalInfo, priority, ON_APPLY_DEFAULT, "");
+                contextInformation, additionalProposalInfo, priority, IPyCompletionProposal.ON_APPLY_DEFAULT, "");
     }
 
     public AbstractTddRefactorCompletion(PyEdit edit, String replacementString, int replacementOffset,
-            int replacementLength, int cursorPosition, Image image, String displayString,
+            int replacementLength, int cursorPosition, IImageHandle image, String displayString,
             IContextInformation contextInformation, String additionalProposalInfo, int priority, int onApplyAction,
             String args) {
         super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
-                contextInformation, additionalProposalInfo, priority);
+                contextInformation, additionalProposalInfo, priority, new ProposalsComparator.CompareContext(edit));
         this.edit = edit;
     }
 
     protected void forceReparseInBaseEditorAnd(PyEdit... others) {
         if (edit != null) {
             PyParser parser = edit.getParser();
-            parser.forceReparse(new Tuple<String, Boolean>(AnalysisParserObserver.ANALYSIS_PARSER_OBSERVER_FORCE, true));
+            parser.forceReparse(
+                    new Tuple<String, Boolean>(IMiscConstants.ANALYSIS_PARSER_OBSERVER_FORCE, true));
         }
 
         for (PyEdit e : others) {
             PyParser parser = e.getParser();
-            parser.forceReparse(new Tuple<String, Boolean>(AnalysisParserObserver.ANALYSIS_PARSER_OBSERVER_FORCE, true));
+            parser.forceReparse(
+                    new Tuple<String, Boolean>(IMiscConstants.ANALYSIS_PARSER_OBSERVER_FORCE, true));
         }
     }
 

@@ -13,11 +13,6 @@ package org.python.pydev.shared_core.partitioner;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.rules.ICharacterScanner;
-import org.eclipse.jface.text.rules.IRule;
-import org.eclipse.jface.text.rules.IToken;
-import org.eclipse.jface.text.rules.ITokenScanner;
-import org.eclipse.jface.text.rules.Token;
 import org.python.pydev.shared_core.log.Log;
 
 /**
@@ -61,7 +56,7 @@ public abstract class AbstractCustomRuleBasedScanner implements ICharacterScanne
 
     /**
      * Configures the scanner with the given sequence of rules.
-     * 
+     *
      * @param rules the sequence of rules controlling this scanner (can be null).
      * @note the rules may be null and a reference to them will be kept (i.e.: the
      * passed array should not be modified outside of this method).

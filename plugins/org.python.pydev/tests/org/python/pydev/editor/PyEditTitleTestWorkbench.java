@@ -16,7 +16,7 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
+import org.python.pydev.ast.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
 import org.python.pydev.editorinput.PyOpenEditor;
 import org.python.pydev.shared_core.callbacks.ICallback;
 

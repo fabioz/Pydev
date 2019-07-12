@@ -3,7 +3,6 @@ package org.python.pydev.parser.jython.ast.factory;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
@@ -25,6 +24,7 @@ import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.keywordType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.FastStack;
 
@@ -37,7 +37,8 @@ public class PyAstFactory {
     }
 
     public FunctionDef createFunctionDef(String name) {
-        FunctionDef functionDef = new FunctionDef(new NameTok(name, NameTok.FunctionName), null, null, null, null);
+        FunctionDef functionDef = new FunctionDef(new NameTok(name, NameTok.FunctionName), null, null, null, null,
+                false);
         return functionDef;
     }
 
@@ -49,7 +50,8 @@ public class PyAstFactory {
         exprType starargs = null;
         exprType kwargs = null;
 
-        ClassDef def = new ClassDef(new NameTok(name, NameTok.ClassName), bases, body, decs, keywords, starargs, kwargs);
+        ClassDef def = new ClassDef(new NameTok(name, NameTok.ClassName), bases, body, decs, keywords, starargs,
+                kwargs);
         return def;
 
     }
@@ -73,7 +75,7 @@ public class PyAstFactory {
         argumentsType args = createArguments(true, "value");
         stmtType[] body = createSetterBody(attributeName);
 
-        return new FunctionDef(functionName, args, body, null, null);
+        return new FunctionDef(functionName, args, body, null, null, false);
     }
 
     public argumentsType createArguments(boolean addSelf, String... simpleParams) {
@@ -97,7 +99,7 @@ public class PyAstFactory {
         Attribute attribute = new Attribute(self, name, Attribute.Store);
 
         Name value = new Name("value", Name.Load, false);
-        Assign assign = new Assign(new exprType[] { attribute }, value);
+        Assign assign = new Assign(new exprType[] { attribute }, value, null);
 
         return new stmtType[] { assign };
     }
@@ -144,7 +146,7 @@ public class PyAstFactory {
         exprType[] targets = new exprType[targetsAndVal.length - 1];
         System.arraycopy(targetsAndVal, 0, targets, 0, targets.length);
         exprType value = targetsAndVal[targetsAndVal.length - 1];
-        return new Assign(targets, value);
+        return new Assign(targets, value, null);
     }
 
     public void setBody(FunctionDef functionDef, Object... body) {
@@ -172,7 +174,7 @@ public class PyAstFactory {
     }
 
     public Str createString(String string) {
-        return new Str(string, Str.TripleSingle, false, false, false);
+        return new Str(string, Str.TripleSingle, false, false, false, false);
     }
 
     public Pass createPass() {

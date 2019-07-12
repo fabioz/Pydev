@@ -9,16 +9,16 @@
  */
 package org.python.pydev.editor;
 
-import junit.framework.TestCase;
-
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentPartitioner;
-import org.eclipse.jface.text.rules.IToken;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.partition.PyPartitionScanner;
 import org.python.pydev.core.partition.PyPartitioner;
+import org.python.pydev.shared_core.partitioner.IToken;
 import org.python.pydev.shared_core.testutils.TestUtils;
+
+import junit.framework.TestCase;
 
 public class PyPartitionScannerTest extends TestCase {
 
@@ -63,7 +63,7 @@ public class PyPartitionScannerTest extends TestCase {
                 + "\\\n"
                 + "a' b '\\\n"
                 + "c\\\n"
-                + "e' f'g' ''' h ''' "
+                + "e' x'g' ''' h ''' "
                 + "";
 
         IDocument document = new Document(txt);

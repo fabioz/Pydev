@@ -27,11 +27,10 @@ package org.python.pydev.refactoring.coderefactoring.extractlocal.edit;
 
 import java.util.List;
 
-import org.eclipse.jface.text.ITextSelection;
+import org.python.pydev.ast.codecompletion.revisited.visitors.FindScopeVisitor;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.codecompletion.revisited.visitors.FindScopeVisitor;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Visitor;
 import org.python.pydev.parser.jython.ast.Assign;
@@ -43,6 +42,7 @@ import org.python.pydev.parser.visitors.scope.GetNodeForExtractLocalVisitor;
 import org.python.pydev.refactoring.coderefactoring.extractlocal.request.ExtractLocalRequest;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.edit.AbstractInsertEdit;
+import org.python.pydev.shared_core.string.ICoreTextSelection;
 import org.python.pydev.shared_core.structure.FastStack;
 import org.python.pydev.shared_core.structure.Tuple;
 
@@ -58,7 +58,7 @@ public class CreateLocalVariableEdit extends AbstractInsertEdit {
 
     private boolean replaceDuplicates;
 
-    private List<Tuple<ITextSelection, SimpleNode>> duplicates;
+    private List<Tuple<ICoreTextSelection, SimpleNode>> duplicates;
 
     public CreateLocalVariableEdit(ExtractLocalRequest req) {
         super(req);
@@ -74,16 +74,16 @@ public class CreateLocalVariableEdit extends AbstractInsertEdit {
         exprType variable = new Name(variableName, expr_contextType.Store, false);
         exprType[] target = { variable };
 
-        return new Assign(target, expression);
+        return new Assign(target, expression, null);
     }
 
     private int calculateLineForLocal() {
         if (lineForLocal == -1) {
-            ITextSelection userSelection = info.getUserSelection();
+            ICoreTextSelection userSelection = info.getUserSelection();
             if (replaceDuplicates) {
                 //When replacing duplicates, we have to consider the selection the first
                 //replace (so that the local created works for all the replaces).
-                for (Tuple<ITextSelection, SimpleNode> dup : duplicates) {
+                for (Tuple<ICoreTextSelection, SimpleNode> dup : duplicates) {
                     if (dup.o1.getStartLine() < userSelection.getStartLine()) {
                         userSelection = dup.o1;
                     }
@@ -97,7 +97,7 @@ public class CreateLocalVariableEdit extends AbstractInsertEdit {
 
             try {
                 FindScopeVisitor scopeVisitor = new FindScopeVisitor(startLineIndexInASTCoords,
-                        selection.getCursorColumn() + 1);
+                        selection.getCursorColumn() + 1, info.getNature());
                 module.accept(scopeVisitor);
                 ILocalScope scope = scopeVisitor.scope;
                 FastStack scopeStack = scope.getScopeStack();

@@ -50,7 +50,7 @@
          <attribute name="class" type="string" use="required">
             <annotation>
                <documentation>
-                  must implement the interface org.python.pydev.editor.correctionassist.heuristics.IAssistProps
+                  must implement the interface org.python.pydev.editor.correctionassist.IAssistProps
                </documentation>
                <appInfo>
                   <meta.attribute translatable="true"/>
@@ -78,7 +78,7 @@
 &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;lt;builder_participant class=&quot;my.AssistAddition&quot;/&amp;gt;&lt;br&gt;
 &amp;lt;/extension&amp;gt;&lt;br&gt;
 &lt;br&gt;
-and my.AssistAddition must implement org.python.pydev.editor.correctionassist.heuristics.IAssistProps.
+and my.AssistAddition must implement org.python.pydev.editor.correctionassist.IAssistProps.
 
 To get the problem markers at some line, the code below can be used:&lt;br&gt;
 &lt;br&gt;
@@ -105,7 +105,7 @@ To get the problem markers at some line, the code below can be used:&lt;br&gt;
          <meta.section type="apiInfo"/>
       </appInfo>
       <documentation>
-         See org.python.pydev.editor.correctionassist.heuristics.IAssistProps for more details.&lt;br&gt;
+         See org.python.pydev.editor.correctionassist.IAssistProps for more details.&lt;br&gt;
 &lt;br&gt;
 It gives an option to see if the completions in a given line are valid (with IAssistProps.isValid) and asks for the completions to apply (IAssistProps.getProps).
       </documentation>

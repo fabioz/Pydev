@@ -2,82 +2,118 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: PyDev - Python Development Environment
 Bundle-SymbolicName: org.python.pydev; singleton:=true
-Bundle-Version: 5.0.0.qualifier
+Bundle-Version: 7.2.1.qualifier
 Bundle-ClassPath: pydev.jar,
  libs/WinRegistry-4.5.jar
 Bundle-Activator: org.python.pydev.plugin.PydevPlugin
-Bundle-Vendor: PyDev
+Bundle-Vendor: Brainwy Software Ltda
 Bundle-Localization: plugin
 Eclipse-BundleShape: dir
-Require-Bundle: org.eclipse.ui,
- org.eclipse.ui.ide,
+Require-Bundle: org.junit;bundle-version="4.0.0";resolution:=optional,
  org.eclipse.core.runtime,
- org.eclipse.core.resources,
+ org.eclipse.ltk.core.refactoring,
+ org.eclipse.core.variables,
+ org.eclipse.core.filesystem,
+ org.eclipse.core.expressions,
+ org.python.pydev.ast;bundle-version="[7.2.1,7.2.2)",
+ org.python.pydev.parser;bundle-version="[7.2.1,7.2.2)",
+ org.python.pydev.core;bundle-version="[7.2.1,7.2.2)",
  org.eclipse.jface.text,
  org.eclipse.ui.editors,
  org.eclipse.ui.views,
  org.eclipse.ui.workbench.texteditor,
- org.eclipse.debug.core,
- org.eclipse.core.variables,
  org.eclipse.jdt.launching;resolution:=optional,
- org.python.pydev.ast;bundle-version="[5.0.0,5.0.1)",
- org.python.pydev.parser;bundle-version="[5.0.0,5.0.1)",
- org.python.pydev.core;bundle-version="[5.0.0,5.0.1)",
  org.eclipse.search,
+ org.eclipse.ui,
+ org.eclipse.ui.ide,
+ org.python.pydev.shared_ui;bundle-version="[7.2.1,7.2.2)",
  org.eclipse.debug.ui,
  org.eclipse.ui.console,
- org.python.pydev.jython;bundle-version="[5.0.0,5.0.1)",
- org.eclipse.ltk.core.refactoring,
- org.eclipse.ltk.ui.refactoring,
+ org.python.pydev.jython;bundle-version="[7.2.1,7.2.2)",
+ com.python.pydev.analysis;bundle-version="[7.2.1,7.2.2)",
  org.eclipse.ui.navigator,
  org.eclipse.ui.navigator.resources,
- org.eclipse.core.filesystem,
- org.eclipse.core.expressions,
- org.junit;bundle-version="4.0.0";resolution:=optional,
  org.eclipse.jdt.core;resolution:=optional,
  org.eclipse.jdt.ui;resolution:=optional,
  org.eclipse.compare,
- org.python.pydev.shared_interactive_console;bundle-version="[5.0.0,5.0.1)",
- org.python.pydev.shared_ui;bundle-version="[5.0.0,5.0.1)",
- org.python.pydev.shared_core;bundle-version="[5.0.0,5.0.1)",
+ org.python.pydev.shared_interactive_console;bundle-version="[7.2.1,7.2.2)",
  org.eclipse.e4.ui.css.swt.theme;resolution:=optional,
  org.eclipse.e4.ui.services;resolution:=optional,
  org.eclipse.ui.forms,
- org.eclipse.swt
+ org.eclipse.ltk.ui.refactoring
 Bundle-ActivationPolicy: lazy
-Export-Package: org.python.copiedfromeclipsesrc,org.python.pydev.build
- er,org.python.pydev.builder.pycremover,org.python.pydev.builder.pylin
- t,org.python.pydev.builder.syntaxchecker,org.python.pydev.builder.tod
- o,org.python.pydev.changed_lines,org.python.pydev.codingstd,org.pytho
- n.pydev.dltk.console.codegen,org.python.pydev.eclipseresourcestubs,or
- g.python.pydev.editor,org.python.pydev.editor.actions,org.python.pyde
- v.editor.actions.codefolding,org.python.pydev.editor.actions.refactor
- ing,org.python.pydev.editor.autoedit,org.python.pydev.editor.codecomp
- letion,org.python.pydev.editor.codecompletion.revisited,org.python.py
- dev.editor.codecompletion.revisited.javaintegration,org.python.pydev.
- editor.codecompletion.revisited.jython,org.python.pydev.editor.codeco
- mpletion.revisited.modules,org.python.pydev.editor.codecompletion.rev
- isited.visitors,org.python.pydev.editor.codecompletion.shell,org.pyth
- on.pydev.editor.codecompletion.templates,org.python.pydev.editor.code
- folding,org.python.pydev.editor.commentblocks,org.python.pydev.editor
- .correctionassist,org.python.pydev.editor.correctionassist.docstrings
- ,org.python.pydev.editor.correctionassist.heuristics,org.python.pydev
- .editor.hover,org.python.pydev.editor.model,org.python.pydev.editor.p
- references,org.python.pydev.editor.refactoring,org.python.pydev.edito
- r.scripting,org.python.pydev.editor.simpleassist,org.python.pydev.edi
- tor.templates,org.python.pydev.editorinput,org.python.pydev.logging,o
- rg.python.pydev.navigator,org.python.pydev.navigator.actions,org.pyth
- on.pydev.navigator.actions.copied,org.python.pydev.navigator.elements
- ,org.python.pydev.navigator.filters,org.python.pydev.navigator.proper
- ties,org.python.pydev.navigator.sorter,org.python.pydev.navigator.ui,
- org.python.pydev.outline,org.python.pydev.plugin,org.python.pydev.plu
- gin.nature,org.python.pydev.plugin.preferences,org.python.pydev.pyuni
- t.preferences,org.python.pydev.runners,org.python.pydev.tree,org.pyth
- on.pydev.ui,org.python.pydev.ui.actions.container,org.python.pydev.ui
- .actions.project,org.python.pydev.ui.actions.resources,org.python.pyd
- ev.ui.dialogs,org.python.pydev.ui.editors,org.python.pydev.ui.filetyp
- es,org.python.pydev.ui.importsconf,org.python.pydev.ui.interpreters,o
- rg.python.pydev.ui.perspective,org.python.pydev.ui.pythonpathconf,org
- .python.pydev.ui.wizards.files,org.python.pydev.ui.wizards.gettingsta
- rted,org.python.pydev.ui.wizards.project,org.python.pydev.utils, org.python.pydev.consoles
+Export-Package: com.python.pydev.actions,
+ com.python.pydev.analysis,
+ com.python.pydev.analysis.actions,
+ com.python.pydev.analysis.additionalinfo,
+ com.python.pydev.analysis.builder,
+ com.python.pydev.analysis.ctrl_1,
+ com.python.pydev.analysis.indexview,
+ com.python.pydev.analysis.ui,
+ com.python.pydev.ui.hierarchy,
+ org.python.copiedfromeclipsesrc,
+ org.python.pydev.ast.codecompletion,
+ org.python.pydev.ast.codecompletion.revisited,
+ org.python.pydev.ast.codecompletion.revisited.javaintegration,
+ org.python.pydev.ast.codecompletion.revisited.jython,
+ org.python.pydev.ast.codecompletion.revisited.visitors,
+ org.python.pydev.ast.codecompletion.shell,
+ org.python.pydev.ast.interpreter_managers,
+ org.python.pydev.builder,
+ org.python.pydev.builder.pylint,
+ org.python.pydev.builder.syntaxchecker,
+ org.python.pydev.builder.todo,
+ org.python.pydev.changed_lines,
+ org.python.pydev.codingstd,
+ org.python.pydev.consoles,
+ org.python.pydev.dltk.console.codegen,
+ org.python.pydev.editor,
+ org.python.pydev.editor.actions,
+ org.python.pydev.editor.actions.codefolding,
+ org.python.pydev.editor.actions.refactoring,
+ org.python.pydev.editor.codecompletion,
+ org.python.pydev.editor.codecompletion.proposals,
+ org.python.pydev.editor.codecompletion.templates,
+ org.python.pydev.editor.codefolding,
+ org.python.pydev.editor.commentblocks,
+ org.python.pydev.editor.correctionassist,
+ org.python.pydev.editor.correctionassist.docstrings,
+ org.python.pydev.editor.correctionassist.heuristics,
+ org.python.pydev.editor.hover,
+ org.python.pydev.editor.preferences,
+ org.python.pydev.editor.scripting,
+ org.python.pydev.editor.templates,
+ org.python.pydev.editorinput,
+ org.python.pydev.logging,
+ org.python.pydev.navigator,
+ org.python.pydev.navigator.actions,
+ org.python.pydev.navigator.actions.copied,
+ org.python.pydev.navigator.elements,
+ org.python.pydev.navigator.filters,
+ org.python.pydev.navigator.properties,
+ org.python.pydev.navigator.sorter,
+ org.python.pydev.navigator.ui,
+ org.python.pydev.outline,
+ org.python.pydev.plugin,
+ org.python.pydev.plugin.preferences,
+ org.python.pydev.process_window,
+ org.python.pydev.pyunit.preferences,
+ org.python.pydev.tree,
+ org.python.pydev.ui,
+ org.python.pydev.ui.actions.container,
+ org.python.pydev.ui.actions.project,
+ org.python.pydev.ui.actions.resources,
+ org.python.pydev.ui.dialogs,
+ org.python.pydev.ui.editors,
+ org.python.pydev.ui.filetypes,
+ org.python.pydev.ui.importsconf,
+ org.python.pydev.ui.interpreters,
+ org.python.pydev.ui.perspective,
+ org.python.pydev.ui.pythonpathconf,
+ org.python.pydev.ui.pythonpathconf.package_manager,
+ org.python.pydev.ui.refactoring,
+ org.python.pydev.ui.wizards.files,
+ org.python.pydev.ui.wizards.gettingstarted,
+ org.python.pydev.ui.wizards.project,
+ org.python.pydev.utils
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

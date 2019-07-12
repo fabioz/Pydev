@@ -87,24 +87,24 @@
           SIGN_STOREPASS=<store password entered above>
           SIGN_KEYPASS=<key password entered above>
        3) Run the build
-       
+
      - Update all poms/manifests/feature with a new version number
        When -SNAPSHOT is used, in the manifests it is replaced with
        .qualifier
        1) Apply the test_with_tycho.patch
             git apply test_with_tycho.patch
-            
+
        2) Run the new version command
             mvn -o tycho-versions:set-version -Dtycho.localArtifacts=ignore -DnewVersion=3.0.0-SNAPSHOT
                (-o can be used if all the dependencies are already in .m2 directory,
                 if not you need to run without the -o on the first run)
                 Then, manually change version on com.python.pydev.runalltests on pom.xml and MANIFEST.MF as they're not updated there
-                
+
        3) Reverse the test_with_tycho.patch
             git apply -R test_with_tycho.patch
                (if this fails it means you need to manually recreate the patch
                 because it is no longer valid)
-                
+
      - Sync pom and feature.xml version numbers to manifest ones.
           "mvn -o tycho-versions:update-pom -Dtycho.localArtifacts=ignore"
           (See the notes about setting versions above, e.g. you need to do this
@@ -124,11 +124,11 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <properties>
-    <tycho-version>0.24.0</tycho-version>
-    <tycho-extras-version>0.24.0</tycho-extras-version>
+    <tycho-version>1.1.0</tycho-version>
+    <tycho-extras-version>1.1.0</tycho-extras-version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <repository.id>eclipse-neon</repository.id>
-    <repository.url>http://download.eclipse.org/releases/neon/</repository.url>
+    <repository.id>eclipse-oxygen</repository.id>
+    <repository.url>http://download.eclipse.org/releases/oxygen/</repository.url>
   </properties>
   <prerequisites>
     <maven>3.0</maven>
@@ -136,7 +136,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.python.pydev</groupId>
   <artifactId>parent</artifactId>
-  <version>5.0.0-SNAPSHOT</version>
+  <version>7.2.1-SNAPSHOT</version>
   <name>Pydev Build Parent</name>
   <packaging>pom</packaging>
   <modules>
@@ -164,10 +164,8 @@
                  this lists matches. -->
             <explodedBundle>com.python.pydev</explodedBundle>
             <explodedBundle>com.python.pydev.analysis</explodedBundle>
-            <explodedBundle>com.python.pydev.codecompletion</explodedBundle>
             <explodedBundle>com.python.pydev.debug</explodedBundle>
             <!-- TODO com.python.pydev.docs -->
-            <explodedBundle>com.python.pydev.fastparser</explodedBundle>
             <explodedBundle>com.python.pydev.refactoring</explodedBundle>
             <explodedBundle>com.python.pydev.runalltests</explodedBundle>
             <explodedBundle>org.python.pydev</explodedBundle>
@@ -280,10 +278,14 @@
             <artifactId>maven-jarsigner-plugin</artifactId>
             <version>1.4</version>
             <configuration>
+              <!-- Note: to sign with a .pfx the alias can be seen with keytool -list -v -storetype pkcs12 -keystore code_sign.pfx -->
               <keystore>${env.SIGN_KEYSTORE}</keystore>
               <storepass>${env.SIGN_STOREPASS}</storepass>
               <alias>${env.SIGN_ALIAS}</alias>
               <keypass>${env.SIGN_KEYPASS}</keypass>
+              <storetype>${env.SIGN_STORETYPE}</storetype>
+              <tsa>${env.SIGN_TSA}</tsa>
+              <verbose>true</verbose>
             </configuration>
             <executions>
               <execution>

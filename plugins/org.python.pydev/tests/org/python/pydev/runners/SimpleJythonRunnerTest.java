@@ -15,11 +15,14 @@ import java.io.IOException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.python.pydev.ast.codecompletion.revisited.PythonInterpreterManagerStub;
+import org.python.pydev.ast.codecompletion.revisited.jython.JythonCodeCompletionTestsBase;
+import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
+import org.python.pydev.ast.runners.SimpleJythonRunner;
+import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.editor.codecompletion.revisited.PythonInterpreterManagerStub;
-import org.python.pydev.editor.codecompletion.revisited.jython.JythonCodeCompletionTestsBase;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.io.FileUtils;
 
 public class SimpleJythonRunnerTest extends JythonCodeCompletionTestsBase {
 
@@ -32,23 +35,21 @@ public class SimpleJythonRunnerTest extends JythonCodeCompletionTestsBase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        curr = PydevPlugin.getJythonInterpreterManager();
-        PydevPlugin.setJythonInterpreterManager(new PythonInterpreterManagerStub(getPreferences()));
+        curr = InterpreterManagersAPI.getJythonInterpreterManager();
+        InterpreterManagersAPI.setJythonInterpreterManager(new PythonInterpreterManagerStub(getPreferences()));
     }
 
     @Override
     public void tearDown() throws Exception {
-        PydevPlugin.setJythonInterpreterManager(curr);
+        InterpreterManagersAPI.setJythonInterpreterManager(curr);
     }
 
     public void testRun() throws CoreException, IOException {
         SimpleJythonRunner runner = new SimpleJythonRunner();
-        File absoluteFile = PydevPlugin.getBundleInfo().getRelativePath(new Path("interpreterInfo.py"))
+        File absoluteFile = CorePlugin.getBundleInfo().getRelativePath(new Path("interpreterInfo.py"))
                 .getAbsoluteFile();
-        String string = runner.runAndGetOutputWithJar(absoluteFile.getCanonicalPath(),
+        String string = runner.runAndGetOutputWithJar(FileUtils.getFileAbsolutePath(absoluteFile),
                 TestDependent.JYTHON_JAR_LOCATION, null, null, null, new NullProgressMonitor(), "utf-8").o1;
-        //        String string = runner.runAndGetOutput(absoluteFile.getCanonicalPath(), (String)null, null);
         assertNotNull(string);
-        //        System.out.println(string);
     }
 }

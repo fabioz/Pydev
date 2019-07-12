@@ -26,8 +26,9 @@ import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.python.pydev.core.autoedit.IHandleScriptAutoEditStrategy;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -108,6 +109,11 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      * Console line trackers (for hyperlinking)
      */
     private List<IConsoleLineTracker> consoleLineTrackers;
+
+    /**
+     * scrollLock state flag, controls revealEndOfDocument().
+     */
+    private boolean scrollLock = false;
 
     public IHandleScriptAutoEditStrategy getIndentStrategy() {
         return strategy;
@@ -413,7 +419,9 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
                 Log.log(e);
             }
         }
-        revealEndOfDocument();
+        if (!this.scrollLock) {
+            revealEndOfDocument();
+        }
     }
 
     /**
@@ -446,18 +454,30 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
 
         String indentString = "";
         boolean addedNewLine = false;
-        boolean addedParen = false;
-        boolean addedCloseParen = false;
+        char addedParen = '\0';
+        char addedCloseParen = '\0';
         int addedLen = text.length();
         if (addedLen == 1) {
             if (text.equals("\r") || text.equals("\n")) {
                 addedNewLine = true;
 
             } else if (text.equals("(")) {
-                addedParen = true;
+                addedParen = '(';
 
             } else if (text.equals(")")) {
-                addedCloseParen = true;
+                addedCloseParen = ')';
+
+            } else if (text.equals("[")) {
+                addedParen = '[';
+
+            } else if (text.equals("]")) {
+                addedCloseParen = ']';
+
+            } else if (text.equals("{")) {
+                addedParen = '{';
+
+            } else if (text.equals("}")) {
+                addedCloseParen = '}';
             }
 
         } else if (addedLen == 2) {
@@ -536,7 +556,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
      */
     private void execCommand(final boolean addedNewLine, final String delim, final String[] finalIndentString,
             final String cmd, final List<String> commands, final int currentCommand, final String text,
-            final boolean addedParen, final int start, final boolean addedCloseParen, final int newDeltaCaretPosition) {
+            final char addedParen, final int start, final char addedCloseParen, final int newDeltaCaretPosition) {
         applyStyleToUserAddedText(cmd, doc.getLength());
 
         //the cmd could be something as '\n'
@@ -544,6 +564,11 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
 
         //and the command line the actual contents to be executed at this time
         final String commandLine = getCommandLine();
+
+        if (handler.isOnStateWhereCommandHandlingShouldStop(commandLine)) {
+            return;
+        }
+
         history.update(commandLine);
 
         // handle the command line:
@@ -646,7 +671,7 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
 
             @Override
             protected IStatus run(IProgressMonitor monitor) {
-                ICompletionProposal[] completions = handler
+                ICompletionProposalHandle[] completions = handler
                         .getTabCompletions(commandLine, caretOffset - commandLineOffset);
                 if (completions.length == 0) {
                     return Status.OK_STATUS;
@@ -656,11 +681,11 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
                 final List<String> compList = new ArrayList<String>();
 
                 //%cd is a special case already handled when converting it in
-                //org.python.pydev.debug.newconsole.PydevConsoleCommunication.convertToICompletions(String, String, int, Object, List<ICompletionProposal>, boolean)
+                //org.python.pydev.debug.newconsole.PydevConsoleCommunication.convertToICompletions(String, String, int, Object, List<ICompletionProposalHandle>, boolean)
                 //So, don't consider it 'magic' in this case.
                 boolean magicCommand = commandLine.startsWith("%") && !commandLine.startsWith("%cd ");
 
-                for (ICompletionProposal completion : completions) {
+                for (ICompletionProposalHandle completion : completions) {
                     boolean magicCompletion = completion.getDisplayString().startsWith("%");
 
                     Document doc = new Document(commandLine.substring((magicCommand && magicCompletion) ? 1 : 0));
@@ -768,34 +793,31 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
     /**
      * This method should be called after all the lines received were processed.
      */
-    private void onAfterAllLinesHandled(final String finalText, final boolean finalAddedParen, final int finalStart,
-            final int finalOffset, final boolean finalAddedCloseParen, final String finalIndentString,
+    private void onAfterAllLinesHandled(final String finalText, final char finalAddedParen, final int finalStart,
+            final int finalOffset, final char finalAddedCloseParen, final String finalIndentString,
             final int finalNewDeltaCaretPosition) {
         boolean shiftsCaret = true;
         String newText = finalText.substring(finalStart, finalText.length());
-        if (finalAddedParen) {
+        if (finalAddedParen != '\0') {
             String cmdLine = getCommandLine();
             Document parenDoc = new Document(cmdLine + newText);
             int currentOffset = cmdLine.length() + 1;
-            DocCmd docCmd = new DocCmd(currentOffset, 0, "(");
+            DocCmd docCmd = new DocCmd(currentOffset, 0, "" + finalAddedParen);
             docCmd.shiftsCaret = true;
-            try {
-                strategy.customizeParenthesis(parenDoc, docCmd);
-            } catch (BadLocationException e) {
-                Log.log(e);
-            }
+            strategy.setConsiderOnlyCurrentLine(true);
+            strategy.customizeDocumentCommand(parenDoc, docCmd);
             newText = docCmd.text + newText.substring(1);
             if (!docCmd.shiftsCaret) {
                 shiftsCaret = false;
                 setCaretOffset(finalOffset + (docCmd.caretOffset - currentOffset));
             }
-        } else if (finalAddedCloseParen) {
+        } else if (finalAddedCloseParen != '\0') {
             String cmdLine = getCommandLine();
             String existingDoc = cmdLine + finalText.substring(1);
             int cmdLineOffset = cmdLine.length();
             if (existingDoc.length() > cmdLineOffset) {
                 Document parenDoc = new Document(existingDoc);
-                DocCmd docCmd = new DocCmd(cmdLineOffset, 0, ")");
+                DocCmd docCmd = new DocCmd(cmdLineOffset, 0, "" + finalAddedCloseParen);
                 docCmd.shiftsCaret = true;
                 boolean canSkipOpenParenthesis;
                 try {
@@ -1050,6 +1072,21 @@ public class ScriptConsoleDocumentListener implements IDocumentListener {
         } finally {
             stopDisconnected();
         }
+    }
+
+    /**
+     * control ScrollLock state.
+     * @param scrollLock state true or false.
+     */
+    public void setScrollLock(boolean state) {
+        scrollLock = state;
+    }
+
+    /**
+     * @return ScrollLock state.
+     */
+    public boolean getScrollLock() {
+        return scrollLock;
     }
 
 }

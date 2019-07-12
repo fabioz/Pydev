@@ -49,4 +49,9 @@ public class ScriptConsoleSession implements IScriptConsoleListener, IScriptCons
     public void onStderrContentsReceived(String o2) {
         session.append(o2);
     }
+
+    @Override
+    public boolean isOnStateWhereCommandHandlingShouldStop(String commandLine) {
+        return false;
+    }
 }

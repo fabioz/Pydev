@@ -38,200 +38,30 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.StatusInfo;
+import org.python.pydev.shared_ui.word_boundaries.SubWordPreferences;
 
 public abstract class AbstractPydevPrefs extends PreferencePage implements IWorkbenchPreferencePage {
-
-    //   Preferences
-    //To add a new preference it needs to be included in
-    //createAppearancePage
-    //createOverlayStore
-    //initializeDefaultPreferences
-    //declaration of fAppearanceColorListModel if it is a color
-    //constants (here)
-    public static final int TOOLTIP_WIDTH = 80;
-
-    /*
-     * If you just want to add some option, you will need to:
-     * - create fields for it, as seen here
-     * - add to overlay store in createOverlayStore()
-     * - add what appears in the Preferences page at createAppearancePage()
-     * - add the function to the org.python.pydev.editor.autoedit.IIndentPrefs interface
-     * - probably add that function to org.python.pydev.editor.autoedit.DefaultIndentPrefs
-     *
-     */
-
-    /**
-     * Edition of translation paths.
-     */
-    public static final String SOURCE_LOCATION_PATHS = "SOURCE_LOCATION_PATHS";
-
-    //text
-    public static final String TAB_WIDTH = "TAB_WIDTH";
-    public static final int DEFAULT_TAB_WIDTH = 4;
-
-    //checkboxes
-    public static final String SUBSTITUTE_TABS = "SUBSTITUTE_TABS";
-    public static final boolean DEFAULT_SUBSTITUTE_TABS = true;
-
-    public static final String GUESS_TAB_SUBSTITUTION = "GUESS_TAB_SUBSTITUTION";
-    public static final boolean DEFAULT_GUESS_TAB_SUBSTITUTION = true;
-
-    public static final String TAB_STOP_IN_COMMENT = "TAB_STOP_IN_COMMENT";
-    public static final boolean DEFAULT_TAB_STOP_IN_COMMENT = true;
-
-    public static final String USE_VERTICAL_INDENT_GUIDE = "USE_VERTICAL_INDENT_GUIDE";
-    public static final boolean DEFAULT_USE_VERTICAL_INDENT_GUIDE = true;
-
-    public static final String USE_VERTICAL_INDENT_COLOR_EDITOR_FOREGROUND = "USE_VERTICAL_INDENT_COLOR_EDITOR_FOREGROUND";
-    public static final boolean DEFAULT_USE_VERTICAL_INDENT_COLOR_EDITOR_FOREGROUND = true;
-
-    public static final String VERTICAL_INDENT_COLOR = "VERTICAL_INDENT_COLOR";
-    public static final RGB DEFAULT_VERTICAL_INDENT_COLOR = new RGB(125, 125, 125);
-
-    public static final String VERTICAL_INDENT_TRANSPARENCY = "VERTICAL_INDENT_TRANSPARENCY";
-    public static final int DEFAULT_VERTICAL_INDENT_TRANSPARENCY = 100;
-
-    public static final boolean DEFAULT_EDITOR_USE_CUSTOM_CARETS = false;
-    public static final boolean DEFAULT_EDITOR_WIDE_CARET = false;
-
-    //matching
-    public static final String USE_MATCHING_BRACKETS = "USE_MATCHING_BRACKETS";
-    public static final boolean DEFAULT_USE_MATCHING_BRACKETS = true;
-
-    public static final String MATCHING_BRACKETS_COLOR = "EDITOR_MATCHING_BRACKETS_COLOR";
-    public static final RGB DEFAULT_MATCHING_BRACKETS_COLOR = new RGB(64, 128, 128);
-
-    public static final String MATCHING_BRACKETS_STYLE = "EDITOR_MATCHING_BRACKETS_STYLE";
-    public static final int DEFAULT_MATCHING_BRACKETS_STYLE = SWT.NORMAL;
-
-    //colors
-    public static final String DECORATOR_COLOR = "DECORATOR_COLOR";
-    public static final RGB DEFAULT_DECORATOR_COLOR = new RGB(125, 125, 125);
-
-    public static final String NUMBER_COLOR = "NUMBER_COLOR";
-    public static final RGB DEFAULT_NUMBER_COLOR = new RGB(128, 0, 0);
-
-    public static final String CODE_COLOR = "CODE_COLOR";
-    public static final RGB DEFAULT_CODE_COLOR = new RGB(0, 0, 0);
-
-    public static final String KEYWORD_COLOR = "KEYWORD_COLOR";
-    public static final RGB DEFAULT_KEYWORD_COLOR = new RGB(0, 0, 255);
-
-    public static final String SELF_COLOR = "SELF_COLOR";
-    public static final RGB DEFAULT_SELF_COLOR = new RGB(0, 0, 0);
-
-    public static final String STRING_COLOR = "STRING_COLOR";
-    public static final RGB DEFAULT_STRING_COLOR = new RGB(201, 128, 43);
-
-    public static final String UNICODE_COLOR = "UNICODE_COLOR";
-    public static final RGB DEFAULT_UNICODE_COLOR = new RGB(0, 170, 0);
-
-    public static final String COMMENT_COLOR = "COMMENT_COLOR";
-    public static final RGB DEFAULT_COMMENT_COLOR = new RGB(192, 192, 192);
-
-    public static final String BACKQUOTES_COLOR = "BACKQUOTES_COLOR";
-    public static final RGB DEFAULT_BACKQUOTES_COLOR = new RGB(0, 0, 0);
-
-    public static final String CLASS_NAME_COLOR = "CLASS_NAME_COLOR";
-    public static final RGB DEFAULT_CLASS_NAME_COLOR = new RGB(0, 0, 0);
-
-    public static final String FUNC_NAME_COLOR = "FUNC_NAME_COLOR";
-    public static final RGB DEFAULT_FUNC_NAME_COLOR = new RGB(0, 0, 0);
-
-    public static final String PARENS_COLOR = "PARENS_COLOR";
-    public static final RGB DEFAULT_PARENS_COLOR = new RGB(0, 0, 0);
-
-    public static final String OPERATORS_COLOR = "OPERATORS_COLOR";
-    public static final RGB DEFAULT_OPERATORS_COLOR = new RGB(0, 0, 0);
-
-    public static final String DOCSTRING_MARKUP_COLOR = "DOCSTRING_MARKUP_COLOR";
-    public static final RGB DEFAULT_DOCSTRING_MARKUP_COLOR = new RGB(0, 170, 0);
-
-    //see initializeDefaultColors for selection defaults
-    public static final String CONNECT_TIMEOUT = "CONNECT_TIMEOUT";
-    public static final int DEFAULT_CONNECT_TIMEOUT = 20000;
-
-    public static final String RELOAD_MODULE_ON_CHANGE = "RELOAD_MODULE_ON_CHANGE";
-    public static final boolean DEFAULT_RELOAD_MODULE_ON_CHANGE = true;
-
-    public static final String DONT_TRACE_ENABLED = "DONT_TRACE_ENABLED";
-    public static final boolean DEFAULT_DONT_TRACE_ENABLED = true;
-
-    public static final String TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS = "TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS";
-    public static final boolean DEFAULT_TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS = false;
-
-    public static final String DEBUG_MULTIPROCESSING_ENABLED = "DEBUG_MULTIPROCESSING_ENABLED";
-    public static final boolean DEFAULT_DEBUG_MULTIPROCESSING_ENABLED = true;
-
-    public static final String KILL_SUBPROCESSES_WHEN_TERMINATING_PROCESS = "KILL_SUBPROCESSES_WHEN_TERMINATING_PROCESS";
-    public static final boolean DEFAULT_KILL_SUBPROCESSES_WHEN_TERMINATING_PROCESS = true;
-
-    public static final String GEVENT_DEBUGGING = "GEVENT_DEBUGGING";
-    public static final boolean DEFAULT_GEVENT_DEBUGGING = false;
-
-    //font
-    public static final String DECORATOR_STYLE = "DECORATOR_STYLE";
-    public static final int DEFAULT_DECORATOR_STYLE = SWT.ITALIC;
-
-    public static final String NUMBER_STYLE = "NUMBER_STYLE";
-    public static final int DEFAULT_NUMBER_STYLE = SWT.NORMAL;
-
-    public static final String CODE_STYLE = "CODE_STYLE";
-    public static final int DEFAULT_CODE_STYLE = SWT.NORMAL;
-
-    public static final String KEYWORD_STYLE = "KEYWORD_STYLE";
-    public static final int DEFAULT_KEYWORD_STYLE = SWT.NORMAL;
-
-    public static final String SELF_STYLE = "SELF_STYLE";
-    public static final int DEFAULT_SELF_STYLE = SWT.ITALIC;
-
-    public static final String STRING_STYLE = "STRING_STYLE";
-    public static final int DEFAULT_STRING_STYLE = SWT.ITALIC;
-
-    public static final String UNICODE_STYLE = "UNICODE_STYLE";
-    public static final int DEFAULT_UNICODE_STYLE = SWT.ITALIC;
-
-    public static final String COMMENT_STYLE = "COMMENT_STYLE";
-    public static final int DEFAULT_COMMENT_STYLE = SWT.NORMAL;
-
-    public static final String BACKQUOTES_STYLE = "BACKQUOTES_STYLE";
-    public static final int DEFAULT_BACKQUOTES_STYLE = SWT.BOLD;
-
-    public static final String CLASS_NAME_STYLE = "CLASS_NAME_STYLE";
-    public static final int DEFAULT_CLASS_NAME_STYLE = SWT.BOLD;
-
-    public static final String FUNC_NAME_STYLE = "FUNC_NAME_STYLE";
-    public static final int DEFAULT_FUNC_NAME_STYLE = SWT.BOLD;
-
-    public static final String PARENS_STYLE = "PARENS_STYLE";
-    public static final int DEFAULT_PARENS_STYLE = SWT.NORMAL;
-
-    public static final String OPERATORS_STYLE = "OPERATORS_STYLE";
-    public static final int DEFAULT_OPERATORS_STYLE = SWT.NORMAL;
-
-    public static final String DOCSTRING_MARKUP_STYLE = "DOCSTRING_MARKUP_STYLE";
-    public static final int DEFAULT_DOCSTRING_MARKUP_STYLE = SWT.BOLD;
 
     /**
      * Defaults
      */
-    protected final String[][] fAppearanceColorListModel = new String[][] { { "Code", CODE_COLOR, null },
-            { "Decorators", DECORATOR_COLOR, null }, { "Numbers", NUMBER_COLOR, null },
-            { "Matching brackets", MATCHING_BRACKETS_COLOR, null }, { "Keywords", KEYWORD_COLOR, null },
-            { "self", SELF_COLOR, null }, { "Bytes", STRING_COLOR, null }, { "Unicode", UNICODE_COLOR, null },
-            { "Docstring markup", DOCSTRING_MARKUP_COLOR, null }, { "Comments", COMMENT_COLOR, null },
-            { "Backquotes", BACKQUOTES_COLOR, null }, { "Class Name", CLASS_NAME_COLOR, null },
-            { "Function Name", FUNC_NAME_COLOR, null }, { "(), [], {}", PARENS_COLOR, null },
-            { "Operators (+,-,*,...)", OPERATORS_COLOR, null }, };
+    protected final String[][] fAppearanceColorListModel = new String[][] { { "Code", PyDevEditorPreferences.CODE_COLOR, null },
+            { "Decorators", PyDevEditorPreferences.DECORATOR_COLOR, null }, { "Numbers", PyDevEditorPreferences.NUMBER_COLOR, null },
+            { "Matching brackets", PyDevEditorPreferences.MATCHING_BRACKETS_COLOR, null }, { "Keywords", PyDevEditorPreferences.KEYWORD_COLOR, null },
+            { "self", PyDevEditorPreferences.SELF_COLOR, null }, { "Bytes", PyDevEditorPreferences.STRING_COLOR, null }, { "Unicode", PyDevEditorPreferences.UNICODE_COLOR, null },
+            { "Docstring markup", PyDevEditorPreferences.DOCSTRING_MARKUP_COLOR, null }, { "Comments", PyDevEditorPreferences.COMMENT_COLOR, null },
+            { "Backquotes", PyDevEditorPreferences.BACKQUOTES_COLOR, null }, { "Class Name", PyDevEditorPreferences.CLASS_NAME_COLOR, null },
+            { "Function Name", PyDevEditorPreferences.FUNC_NAME_COLOR, null }, { "(), [], {}", PyDevEditorPreferences.PARENS_COLOR, null },
+            { "Operators (+,-,*,...)", PyDevEditorPreferences.OPERATORS_COLOR, null }, };
 
-    protected final String[][] fAppearanceFontListModel = new String[][] { { "Code", CODE_STYLE, null },
-            { "Decorators", DECORATOR_STYLE, null }, { "Numbers", NUMBER_STYLE, null },
-            { "Matching brackets", MATCHING_BRACKETS_STYLE, null }, { "Keywords", KEYWORD_STYLE, null },
-            { "self", SELF_STYLE, null }, { "Bytes", STRING_STYLE, null }, { "Unicode", UNICODE_STYLE, null },
-            { "Docstring markup", DOCSTRING_MARKUP_STYLE, null }, { "Comments", COMMENT_STYLE, null },
-            { "Backquotes", BACKQUOTES_STYLE, null }, { "Class Name", CLASS_NAME_STYLE, null },
-            { "Function Name", FUNC_NAME_STYLE, null }, { "(), [], {}", PARENS_STYLE, null },
-            { "Operators (+,-,*,...)", OPERATORS_STYLE, null }, };
+    protected final String[][] fAppearanceFontListModel = new String[][] { { "Code", PyDevEditorPreferences.CODE_STYLE, null },
+            { "Decorators", PyDevEditorPreferences.DECORATOR_STYLE, null }, { "Numbers", PyDevEditorPreferences.NUMBER_STYLE, null },
+            { "Matching brackets", PyDevEditorPreferences.MATCHING_BRACKETS_STYLE, null }, { "Keywords", PyDevEditorPreferences.KEYWORD_STYLE, null },
+            { "self", PyDevEditorPreferences.SELF_STYLE, null }, { "Bytes", PyDevEditorPreferences.STRING_STYLE, null }, { "Unicode", PyDevEditorPreferences.UNICODE_STYLE, null },
+            { "Docstring markup", PyDevEditorPreferences.DOCSTRING_MARKUP_STYLE, null }, { "Comments", PyDevEditorPreferences.COMMENT_STYLE, null },
+            { "Backquotes", PyDevEditorPreferences.BACKQUOTES_STYLE, null }, { "Class Name", PyDevEditorPreferences.CLASS_NAME_STYLE, null },
+            { "Function Name", PyDevEditorPreferences.FUNC_NAME_STYLE, null }, { "(), [], {}", PyDevEditorPreferences.PARENS_STYLE, null },
+            { "Operators (+,-,*,...)", PyDevEditorPreferences.OPERATORS_STYLE, null }, };
 
     protected OverlayPreferenceStore fOverlayStore;
 
@@ -311,41 +141,45 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
 
         java.util.List<OverlayPreferenceStore.OverlayKey> overlayKeys = new ArrayList<OverlayPreferenceStore.OverlayKey>();
 
+        overlayKeys
+                .add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING,
+                        SubWordPreferences.WORD_NAVIGATION_STYLE));
+
         //matching
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, USE_MATCHING_BRACKETS));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, MATCHING_BRACKETS_COLOR));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.BOOLEAN, PyDevEditorPreferences.USE_MATCHING_BRACKETS));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, PyDevEditorPreferences.MATCHING_BRACKETS_COLOR));
 
         //colors
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, CODE_COLOR));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, NUMBER_COLOR));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, DECORATOR_COLOR));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, KEYWORD_COLOR));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, SELF_COLOR));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, STRING_COLOR));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, UNICODE_COLOR));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, COMMENT_COLOR));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, BACKQUOTES_COLOR));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, CLASS_NAME_COLOR));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, FUNC_NAME_COLOR));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, PARENS_COLOR));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, OPERATORS_COLOR));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, DOCSTRING_MARKUP_COLOR));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, PyDevEditorPreferences.CODE_COLOR));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, PyDevEditorPreferences.NUMBER_COLOR));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, PyDevEditorPreferences.DECORATOR_COLOR));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, PyDevEditorPreferences.KEYWORD_COLOR));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, PyDevEditorPreferences.SELF_COLOR));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, PyDevEditorPreferences.STRING_COLOR));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, PyDevEditorPreferences.UNICODE_COLOR));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, PyDevEditorPreferences.COMMENT_COLOR));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, PyDevEditorPreferences.BACKQUOTES_COLOR));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, PyDevEditorPreferences.CLASS_NAME_COLOR));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, PyDevEditorPreferences.FUNC_NAME_COLOR));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, PyDevEditorPreferences.PARENS_COLOR));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, PyDevEditorPreferences.OPERATORS_COLOR));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, PyDevEditorPreferences.DOCSTRING_MARKUP_COLOR));
 
         //font style
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, CODE_STYLE));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, NUMBER_STYLE));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, DECORATOR_STYLE));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, KEYWORD_STYLE));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, SELF_STYLE));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, STRING_STYLE));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, UNICODE_STYLE));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, COMMENT_STYLE));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, BACKQUOTES_STYLE));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, CLASS_NAME_STYLE));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, FUNC_NAME_STYLE));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, PARENS_STYLE));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, OPERATORS_STYLE));
-        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, DOCSTRING_MARKUP_STYLE));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, PyDevEditorPreferences.CODE_STYLE));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, PyDevEditorPreferences.NUMBER_STYLE));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, PyDevEditorPreferences.DECORATOR_STYLE));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, PyDevEditorPreferences.KEYWORD_STYLE));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, PyDevEditorPreferences.SELF_STYLE));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, PyDevEditorPreferences.STRING_STYLE));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, PyDevEditorPreferences.UNICODE_STYLE));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, PyDevEditorPreferences.COMMENT_STYLE));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, PyDevEditorPreferences.BACKQUOTES_STYLE));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, PyDevEditorPreferences.CLASS_NAME_STYLE));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, PyDevEditorPreferences.FUNC_NAME_STYLE));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, PyDevEditorPreferences.PARENS_STYLE));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, PyDevEditorPreferences.OPERATORS_STYLE));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, PyDevEditorPreferences.DOCSTRING_MARKUP_STYLE));
 
         OverlayPreferenceStore.OverlayKey[] keys = new OverlayPreferenceStore.OverlayKey[overlayKeys.size()];
         overlayKeys.toArray(keys);

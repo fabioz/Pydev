@@ -29,6 +29,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.dialogs.SelectionDialog;
+import org.python.pydev.ast.interpreter_managers.DefaultPathsForInterpreterInfo;
 
 public class PyListSelectionDialog extends SelectionDialog {
     // the root element to populate the viewer with
@@ -94,12 +95,12 @@ public class PyListSelectionDialog extends SelectionDialog {
             SelectionListener listenerNotInWorkspace = new SelectionAdapter() {
                 @Override
                 public void widgetSelected(SelectionEvent e) {
-                    HashSet<IPath> rootPaths = InterpreterConfigHelpers.getRootPaths();
+                    HashSet<IPath> rootPaths = DefaultPathsForInterpreterInfo.getRootPaths();
                     TableItem[] children = listViewer.getTable().getItems();
                     for (int i = 0; i < children.length; i++) {
                         TableItem item = children[i];
                         item.setChecked(
-                                !InterpreterConfigHelpers.isChildOfRootPath((String) item.getData(), rootPaths));
+                                !DefaultPathsForInterpreterInfo.isChildOfRootPath((String) item.getData(), rootPaths));
                     }
                 }
             };

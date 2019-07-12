@@ -12,6 +12,7 @@
 
 package org.python.pydev.ui.pythonpathconf;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.Arrays;
@@ -21,26 +22,23 @@ import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipFile;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
+import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
+import org.python.pydev.ast.runners.SimpleJythonRunner;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.runners.SimpleJythonRunner;
+import org.python.pydev.core.preferences.FileTypesPreferences;
+import org.python.pydev.plugin.nature.PipenvHelper;
+import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.string.StringUtils;
-import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.utils.AsynchronousProgressMonitorDialog;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
-import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
+import org.python.pydev.ui.pythonpathconf.package_manager.PipenvPackageManager;
 
 /**
  * Contains some static methods to be used for configuring PyDev interpreters.
@@ -50,12 +48,20 @@ import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
  * @author Andrew Ferrazzutti
  */
 public class InterpreterConfigHelpers {
+
     public final static int CONFIG_MANUAL = 0;
     public final static int CONFIG_AUTO = 1;
     public final static int CONFIG_ADV_AUTO = 2;
-    public final static String[] CONFIG_NAMES = new String[] { "Manual Config", "Quick Auto-Config",
-            "Advanced Auto-Config" };
-    public final static int NUM_CONFIG_TYPES = 3;
+    public final static int CONFIG_PIPENV = 3;
+
+    public static final String CONFIG_MANUAL_CONFIG = "Manual &config";
+    public static final String CONFIG_AUTO_NAME = "Config &first in PATH";
+    public static final String CONFIG_ADV_AUTO_NAME = "&Choose from list";
+    public static final String CONFIG_PIPENV_NAME = "&New with Pipenv";
+
+    public final static String[] CONFIG_NAMES_FOR_FIRST_INTERPRETER = new String[] { CONFIG_MANUAL_CONFIG,
+            CONFIG_AUTO_NAME,
+            CONFIG_ADV_AUTO_NAME }; // Note: pipenv requires a base interpreter configured and thus doesn't appear here.
 
     public final static String ERMSG_NOLIBS = "The interpreter's standard libraries (typically in a Lib/ folder) are missing: ";
 
@@ -72,7 +78,7 @@ public class InterpreterConfigHelpers {
      * @return The interpreter config operation, or <code>null</code> if the operation is cancelled.
      * @throws Exception Will be thrown if an operation fails.
      */
-    static ObtainInterpreterInfoOperation tryInterpreter(Tuple<String, String> interpreterNameAndExecutable,
+    static ObtainInterpreterInfoOperation tryInterpreter(NameAndExecutable interpreterNameAndExecutable,
             IInterpreterManager interpreterManager, boolean autoSelectFolders, boolean displayErrors,
             PrintWriter logger, Shell shell) throws Exception {
         String executable = interpreterNameAndExecutable.o2;
@@ -93,7 +99,7 @@ public class InterpreterConfigHelpers {
                     SimpleJythonRunner.JavaNotConfiguredException javaNotConfiguredException = (SimpleJythonRunner.JavaNotConfiguredException) operation.e;
                     if (displayErrors) {
                         ErrorDialog.openError(shell, errorTitle,
-                                javaNotConfiguredException.getMessage(), PydevPlugin.makeStatus(IStatus.ERROR,
+                                javaNotConfiguredException.getMessage(), SharedCorePlugin.makeStatus(IStatus.ERROR,
                                         "Java vm not configured.\n", javaNotConfiguredException));
                     }
                     throw new Exception(javaNotConfiguredException);
@@ -103,7 +109,7 @@ public class InterpreterConfigHelpers {
                     if (displayErrors) {
                         ErrorDialog.openError(shell, errorTitle,
                                 noJdtException.getMessage(),
-                                PydevPlugin.makeStatus(IStatus.ERROR, "JDT not available.\n", noJdtException));
+                                SharedCorePlugin.makeStatus(IStatus.ERROR, "JDT not available.\n", noJdtException));
                     }
                     throw new Exception(noJdtException);
 
@@ -117,7 +123,7 @@ public class InterpreterConfigHelpers {
                                 + "\n" + "- Specifying an invalid interpreter\n"
                                 + "  (usually a link to the actual interpreter on Mac or Linux)" + "";
                         ErrorDialog.openError(shell, errorTitle,
-                                errorMsg, PydevPlugin.makeStatus(IStatus.ERROR, "See error log for details.",
+                                errorMsg, SharedCorePlugin.makeStatus(IStatus.ERROR, "See error log for details.",
                                         operation.e));
                     }
                     throw new Exception(operation.e);
@@ -133,7 +139,7 @@ public class InterpreterConfigHelpers {
             hashSet.add("threading");
             hashSet.add("traceback");
 
-            String[] validSourceFiles = FileTypesPreferencesPage.getValidSourceFiles();
+            String[] validSourceFiles = FileTypesPreferences.getValidSourceFiles();
             Set<String> extensions = new HashSet<String>(Arrays.asList(validSourceFiles));
             for (String s : operation.result.libs) {
                 File file = new File(s);
@@ -226,7 +232,7 @@ public class InterpreterConfigHelpers {
      * @param shell An optional shell in which to display errors.
      * @return <code>true</code> if the interpreter is valid, or <code>false</code> if it caused an error.
      */
-    static boolean checkInterpreterNameAndExecutable(Tuple<String, String> interpreterNameAndExecutable,
+    static boolean checkInterpreterNameAndExecutable(NameAndExecutable interpreterNameAndExecutable,
             PrintWriter logger, String errorMsg, Map<String, IInterpreterInfo> nameToInfo, Shell shell) {
         boolean foundError = false;
         //Check auto config or dialog return.
@@ -236,7 +242,7 @@ public class InterpreterConfigHelpers {
             if (shell != null) {
                 ErrorDialog.openError(shell, errorMsg,
                         "interpreterNameAndExecutable == null",
-                        PydevPlugin.makeStatus(IStatus.ERROR, "interpreterNameAndExecutable == null",
+                        SharedCorePlugin.makeStatus(IStatus.ERROR, "interpreterNameAndExecutable == null",
                                 new RuntimeException()));
             }
             foundError = true;
@@ -247,7 +253,7 @@ public class InterpreterConfigHelpers {
 
                 if (shell != null) {
                     ErrorDialog.openError(shell, errorMsg, "interpreterNameAndExecutable size == empty",
-                            PydevPlugin.makeStatus(IStatus.ERROR, "interpreterNameAndExecutable size == empty",
+                            SharedCorePlugin.makeStatus(IStatus.ERROR, "interpreterNameAndExecutable size == empty",
                                     new RuntimeException()));
                 }
                 foundError = true;
@@ -259,7 +265,7 @@ public class InterpreterConfigHelpers {
             if (error != null) {
                 logger.println("- Duplicated interpreter found.");
                 if (shell != null) {
-                    ErrorDialog.openError(shell, errorMsg, error, PydevPlugin.makeStatus(IStatus.ERROR,
+                    ErrorDialog.openError(shell, errorMsg, error, SharedCorePlugin.makeStatus(IStatus.ERROR,
                             "Duplicated interpreter information", new RuntimeException()));
                 }
                 foundError = true;
@@ -313,46 +319,91 @@ public class InterpreterConfigHelpers {
         return error;
     }
 
-    /**
-     * Creates a Set of the root paths of all projects (and the workspace root itself).
-     * @return A HashSet of root paths.
-     */
-    public static HashSet<IPath> getRootPaths() {
-        HashSet<IPath> rootPaths = new HashSet<IPath>();
-        if (SharedCorePlugin.inTestMode()) {
-            return rootPaths;
+    public static boolean canAddNameAndExecutable(PrintWriter logger, NameAndExecutable interpreterNameAndExecutable,
+            Map<String, IInterpreterInfo> nameToInfo, Shell shell) {
+        interpreterNameAndExecutable.o1 = getUniqueInterpreterName(
+                interpreterNameAndExecutable.o1, nameToInfo);
+        boolean foundError = checkInterpreterNameAndExecutable(
+                interpreterNameAndExecutable, logger, "Error getting info on interpreter",
+                nameToInfo, shell);
+        return foundError;
+    }
+
+    public static ObtainInterpreterInfoOperation createPipenvInterpreter(IInterpreterInfo[] interpreterInfos,
+            Shell shell, PrintWriter logger, Map<String, IInterpreterInfo> nameToInfo, String defaultProjectLocation,
+            IInterpreterManager interpreterManager) throws Exception {
+        if (logger == null) {
+            logger = new PrintWriter(new ByteArrayOutputStream());
         }
-        IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-        IPath rootLocation = root.getLocation().makeAbsolute();
+        if (interpreterInfos == null || interpreterInfos.length == 0) {
+            PyDialogHelpers.openCritical("Unable to configure with pipenv",
+                    "Cannot configure with pipenv without a base interpreter configured. Please configure the base interpreter first.");
+            return null;
+        }
+        PipenvDialog pipenvDialog = new PipenvDialog(shell, interpreterInfos, null,
+                defaultProjectLocation, interpreterManager, "New Pipenv interpreter", true);
+        if (pipenvDialog.open() == Dialog.OK) {
+            final IInterpreterInfo baseInterpreter = pipenvDialog.getBaseInterpreter();
+            final String executableOrJar = baseInterpreter.getExecutableOrJar();
+            final String pipenvLocation = pipenvDialog.getPipenvLocation();
+            final String projectLocation = pipenvDialog.getProjectLocation();
+            final SystemPythonNature nature = new SystemPythonNature(interpreterManager, baseInterpreter);
 
-        rootPaths.add(rootLocation);
+            File pythonVenvFromLocation = PipenvHelper.getPythonExecutableFromProjectLocationWithPipenv(pipenvLocation,
+                    new File(projectLocation));
+            if (pythonVenvFromLocation == null) {
+                PipenvPackageManager.create(executableOrJar, pipenvLocation, projectLocation, nature);
+                // Get the one just created.
+                pythonVenvFromLocation = PipenvHelper.getPythonExecutableFromProjectLocationWithPipenv(pipenvLocation,
+                        new File(projectLocation));
+            }
 
-        IProject[] projects = root.getProjects();
-        for (IProject iProject : projects) {
-            IPath location = iProject.getLocation();
-            if (location != null) {
-                IPath abs = location.makeAbsolute();
-                if (!rootLocation.isPrefixOf(abs)) {
-                    rootPaths.add(abs);
+            if (pythonVenvFromLocation != null) {
+                NameAndExecutable interpreterNameAndExecutable = new NameAndExecutable(
+                        new File(projectLocation).getName() + " (pipenv)",
+                        pythonVenvFromLocation.getAbsolutePath());
+                boolean foundError = canAddNameAndExecutable(logger, interpreterNameAndExecutable, nameToInfo, shell);
+                if (foundError) {
+                    return null;
+                }
+
+                logger.println("- Chosen interpreter (name and file):'" + interpreterNameAndExecutable);
+
+                if (interpreterNameAndExecutable != null && interpreterNameAndExecutable.o2 != null) {
+                    //ok, now that we got the file, let's see if it is valid and get the library info.
+                    ObtainInterpreterInfoOperation ret = tryInterpreter(
+                            interpreterNameAndExecutable, interpreterManager,
+                            false, true, logger, shell);
+                    if (ret != null && ret.result != null) {
+                        ret.result.setPipenvTargetDir(projectLocation);
+                    }
+                    return ret;
                 }
             }
         }
-        return rootPaths;
+        return null;
     }
 
-    /**
-     * States whether or not a given path is the child of at least one root path of a set of root paths.
-     * @param data The path that will be checked for child status.
-     * @param rootPaths A set of root paths.
-     * @return True if the path of data is a child of any of the paths of rootPaths.
-     */
-    public static boolean isChildOfRootPath(String data, Set<IPath> rootPaths) {
-        IPath path = Path.fromOSString(data);
-        for (IPath p : rootPaths) {
-            if (p.isPrefixOf(path)) {
-                return true;
-            }
+    public static String getConfigPageIdFromInterpreterType(int interpreterType) {
+        String configPageId;
+        switch (interpreterType) {
+            case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
+                configPageId = "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPagePython";
+                break;
+
+            case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
+                configPageId = "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageJython";
+                break;
+
+            case IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON:
+                configPageId = "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageIronpython";
+                break;
+
+            default:
+                throw new RuntimeException("Cannot recognize type: " + interpreterType);
+
         }
-        return false;
+        return configPageId;
     }
+
 }

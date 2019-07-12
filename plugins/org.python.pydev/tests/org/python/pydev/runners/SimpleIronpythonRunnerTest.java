@@ -12,10 +12,13 @@ import java.io.IOException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.python.pydev.ast.codecompletion.revisited.IronpythonInterpreterManagerStub;
+import org.python.pydev.ast.codecompletion.revisited.jython.JythonCodeCompletionTestsBase;
+import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
+import org.python.pydev.ast.runners.SimpleIronpythonRunner;
+import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.editor.codecompletion.revisited.IronpythonInterpreterManagerStub;
-import org.python.pydev.editor.codecompletion.revisited.jython.JythonCodeCompletionTestsBase;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.io.FileUtils;
 
 public class SimpleIronpythonRunnerTest extends JythonCodeCompletionTestsBase {
 
@@ -26,18 +29,16 @@ public class SimpleIronpythonRunnerTest extends JythonCodeCompletionTestsBase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        PydevPlugin.setIronpythonInterpreterManager(new IronpythonInterpreterManagerStub(getPreferences()));
+        InterpreterManagersAPI.setIronpythonInterpreterManager(new IronpythonInterpreterManagerStub(getPreferences()));
 
     }
 
     public void testRun() throws CoreException, IOException {
         SimpleIronpythonRunner runner = new SimpleIronpythonRunner();
-        File absoluteFile = PydevPlugin.getBundleInfo().getRelativePath(new Path("interpreterInfo.py"))
+        File absoluteFile = CorePlugin.getBundleInfo().getRelativePath(new Path("interpreterInfo.py"))
                 .getAbsoluteFile();
         String string = runner.runAndGetOutputWithInterpreter(TestDependent.IRONPYTHON_EXE,
-                absoluteFile.getCanonicalPath(), null, null, null, new NullProgressMonitor(), "utf-8").o1;
-        //        String string = runner.runAndGetOutput(absoluteFile.getCanonicalPath(), (String)null, null);
+                FileUtils.getFileAbsolutePath(absoluteFile), null, null, null, new NullProgressMonitor(), "utf-8").o1;
         assertNotNull(string);
-        //        System.out.println(string);
     }
 }

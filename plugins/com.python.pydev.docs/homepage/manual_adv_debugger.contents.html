@@ -1,0 +1,114 @@
+<doc>
+<contents_area>
+<div id="Content" style="padding: 5px;">
+<p>This section is targetted at explaining how to use the debugger. If you want more details on how to use the remote debugger, 
+please check the <a href="manual_adv_remote_debugger.html" title="PyDev Remote Debugger">Remote Debugger page</a>.</p>
+
+<p>Ok, probably the first thing you'll want to do is: add a breakpoint to some file and then run the file (and wait for it to hit the breakpoint). 
+To do that, let's start with the example below:</p>
+
+<p><span class="image-wrap" style=""><img src="images/debugger/debugger1.png" style="border: 1px solid black" /></span></p>
+
+<p><b>Image:</b> example.py</p>
+
+<p>The first thing we'll want to do is add a breakpoint. Let's do that at line 5 (print(i)). There are some ways for adding a breakpoint:</p>
+
+<ul class="alternate" type="circle">
+	<li>Double-clicking the left ruler;</li>
+	<li>Use <b>Ctrl+F10</b> to open the context-menu and then select <b>Add Breakpoint</b>;</li>
+	<li>Right-click the left bar to open the context-menu and then select <b>Add Breakpoint</b>;</li>
+	<li>Use <b>Ctrl+Shift+B</b> to toggle the breakpoint in the line (if it doesn't work, go to the 
+	customize perspective and enable <b>Breakpoints</b> in <b>Action Set Availability</b>.</li>
+</ul>
+
+<p>If everything goes ok, you'll have the breakpoint shown in your sidebar (as below).</p>
+
+<p><span class="image-wrap" style=""><img src="images/debugger/debugger3.png" style="border: 1px solid black" /></span></p>
+
+<p><b>Image:</b> Breakpoint added</p>
+
+<p>Now, to debug that file, you can use <b>Shift+F9</b> (the editor must be focused). <b>NOTE</b>: if you want to re-run the 
+last executed file, you can use <b>F11</b> to debug it (if you haven't configured F11 to always launch the last launch in debug mode, make
+sure you read the <a href="manual_101_run.html">Getting Started on Running a program</a>).</p>
+
+<p><span class="image-wrap" style=""><img src="images/debugger/debugger4.png" style="border: 1px solid black" /></span></p>
+
+<p><b>Image:</b> Running the file in the debugger</p>
+
+<p>When it hits the breakpoint, it will ask you to go to the debug perspective (you should say <b>Yes</b> to this dialog).</p>
+
+<p><span class="image-wrap" style=""><img src="images/perspective_to_debug.png" style="border: 1px solid black" /></span></p>
+
+<p><b>Image:</b> Go to perspective dialog</p>
+
+<p>This perspective has the actions needed for debugging and allows you to see the variables and evaluate expressions.</p>
+
+<p><span class="image-wrap" style=""><img src="images/debugger/debugger6.png" style="border: 1px solid black" /></span></p>
+
+<p><b>Image:</b> Debug perspective</p>
+
+<ul class="alternate" type="circle">
+	<li><b>1. Stack view</b>: You can see the variables in previous stacks by clicking on the stack you want to see.</li>
+	<li><b>2. Variables view</b>: It allows you to see the globals and locals for the selected stack.</li>
+	<li><b>3. Breakpoints view</b>:Selecting this tab you can see the breakpoints available and enable/disable any breakpoint.</li>
+	<li><b>4. Editor</b>: Shows the code and highlights the line that is about to be executed.</li>
+	<li><b>5. Console</b>: When you run a file through the PyDev debugger, the first thing that appears is a 'pydev debugger' string, to indicate that you're running the file through the debugger.</li>
+	<li><b>6. Console evaluation</b>: You can enter commands to be evaluated in the context of the selected stack (1).</li>
+</ul>
+
+
+<p>Now, the basic things you can do in the debugger have some keybindings:</p>
+
+<ul class="alternate" type="circle">
+	<li>Step in: <b>F5</b></li>
+	<li>Step over: <b>F6</b></li>
+	<li>Step out: <b>F7</b></li>
+	<li>Resume: <b>F8</b></li>
+    <li>Toggle Breakpoint: <b>Ctrl+Shift+B</b></li>
+    <li>Set Next Statement: <b>Ctrl+Alt+R</b> (note that it will set the next line to be executed, not run until some line is hit).</li>
+    <li>Use line prefixed with <b>>>></b> in the console to evaluate expressions.</li>
+</ul>
+
+
+<p>And you can also add a watch for some expression or make the breakpoint a conditional breakpoint. We'll see how this works below.</p>
+
+
+<h1><a name="PyDevDebugger-Evaluatingsomeexpression"></a>Adding a watch</h1>
+
+<p>To evaluate some expression, you can simply select the piece of code you want to evaluate, right-click it and select <b>Watch</b>.</p>
+
+<p><span class="image-wrap" style=""><img src="images/debugger/debugger7.png" style="border: 1px solid black" /></span></p>
+
+<p><b>Image:</b> Evaluating expression</p>
+
+<p>Doing so will open a new view that allows you to view the result of evaluating that piece of code in the current context. It allows you to edit some existing watch, add a new one or remove an existing (right clicking it provides all those actions).</p>
+
+<p><span class="image-wrap" style=""><img src="images/debugger/debugger8.png" style="border: 1px solid black" /></span></p>
+
+<p><b>Image:</b> Evaluate Expression view</p>
+
+
+<h1><a name="PyDevDebugger-Conditionalbreakpoints"></a>Conditional breakpoints</h1>
+
+<p>To make some breakpoint a <b>conditional breakpoint</b>, you have to go to some line that already has a breakpoint, 
+open the context menu <b>Ctrl+F10</b> and select <b>breakpoint properties</b>.</p>
+
+<p><span class="image-wrap" style=""><img src="images/debugger/debugger9.png" style="border: 1px solid black" /></span></p>
+
+<p><b>Image:</b> Adding a condition to a breakpoint</p>
+
+<p>Doing that will get you to the breakpoint properties panel, where it's possible to enable some condition for the breakpoint to be hit.</p>
+
+<p><span class="image-wrap" style=""><img src="images/debugger/debugger10.png" style="border: 1px solid black" /></span></p>
+
+<p><b>Image:</b> Enabling some condition</p>
+
+<p>So, now, if you resume execution, it will only hit that breakpoint again when the condition is evaluated to True.</p>
+
+
+<h1><a name="PyDevDebugger-Whatmore%3F"></a>What more?</h1>
+
+<p>Now, on to the <a href="manual_adv_remote_debugger.html" title="PyDev Remote Debugger">Remote Debugger</a> and the <a href="manual_adv_debug_console.html" title="PyDev Debug Console">Debug Console</a>...</p>
+</div>
+</contents_area>
+</doc>

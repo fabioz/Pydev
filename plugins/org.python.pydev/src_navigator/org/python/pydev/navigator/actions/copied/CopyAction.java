@@ -6,6 +6,7 @@
  */
 package org.python.pydev.navigator.actions.copied;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -111,11 +112,7 @@ public class CopyAction extends SelectionListenerAction {
         }
         // was one or more of the locations null?
         if (actualLength < length) {
-            String[] tempFileNames = fileNames;
-            fileNames = new String[actualLength];
-            for (int i = 0; i < actualLength; i++) {
-                fileNames[i] = tempFileNames[i];
-            }
+            fileNames = Arrays.copyOf(fileNames, actualLength);
         }
         setClipboard(resources, fileNames, buf.toString());
 

@@ -19,4 +19,6 @@ public interface IScriptConsoleListener {
 
     // Called out of the UI thread.
     void interpreterResponse(InterpreterResponse response, ScriptConsolePrompt prompt);
+
+    boolean isOnStateWhereCommandHandlingShouldStop(String commandLine);
 }

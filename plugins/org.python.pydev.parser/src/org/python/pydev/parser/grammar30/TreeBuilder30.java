@@ -19,6 +19,7 @@ import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assert;
 import org.python.pydev.parser.jython.ast.Assign;
+import org.python.pydev.parser.jython.ast.Await;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Ellipsis;
@@ -37,6 +38,7 @@ import org.python.pydev.parser.jython.ast.Raise;
 import org.python.pydev.parser.jython.ast.Return;
 import org.python.pydev.parser.jython.ast.Set;
 import org.python.pydev.parser.jython.ast.Slice;
+import org.python.pydev.parser.jython.ast.Starred;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.TryExcept;
@@ -67,13 +69,14 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
         Suite suite;
 
         int l;
+        exprType awaitExpr;
         switch (n.getId()) {
             case JJTEXPR_STMT:
                 value = (exprType) stack.popNode();
                 if (arity > 1) {
                     exprs = makeExprs(arity - 1);
                     ctx.setStore(exprs);
-                    return new Assign(exprs, value);
+                    return new Assign(exprs, value, null);
                 } else {
                     return new Expr(value);
                 }
@@ -164,7 +167,8 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
                 argumentsType arguments = makeArguments(arity - 1);
                 NameTok nameTok = makeName(NameTok.FunctionName);
                 //decorator is always null at this point... it's decorated later on
-                FunctionDef funcDef = new FunctionDef(nameTok, arguments, body, null, actualReturnAnnotation);
+                FunctionDef funcDef = new FunctionDef(nameTok, arguments, body, null, actualReturnAnnotation,
+                        this.stack.getGrammar().getInsideAsync());
                 addSpecialsAndClearOriginal(suite, funcDef);
                 setParentForFuncOrClass(body, funcDef);
                 return funcDef;
@@ -510,6 +514,16 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
 
             case JJTIMPORTFROM:
                 return makeImportFrom25Onwards(arity);
+
+            case JJTAWAIT_ATOM_EXPR:
+                awaitExpr = (exprType) stack.popNode();
+                return new Await(awaitExpr);
+
+            case JJTSTAR_EXPR:
+                Starred starred = (Starred) n;
+                starred.value = (exprType) this.stack.popNode();
+                ctx.setCtx(starred, starred.ctx);
+                return starred;
 
             default:
                 Log.log(("Error at TreeBuilder: default not treated:" + n.getId()));

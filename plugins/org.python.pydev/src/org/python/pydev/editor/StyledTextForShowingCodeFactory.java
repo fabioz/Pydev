@@ -16,8 +16,6 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.TextPresentation;
-import org.eclipse.jface.text.rules.FastPartitioner;
-import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
@@ -27,12 +25,14 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
+import org.python.pydev.ast.formatter.PyFormatter;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.docutils.SyntaxErrorException;
+import org.python.pydev.core.formatter.FormatStd;
 import org.python.pydev.core.partition.PyPartitionScanner;
-import org.python.pydev.editor.actions.PyFormatStd;
-import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
-import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.plugin.PyDevUiPrefs;
+import org.python.pydev.shared_core.partitioner.FastPartitioner;
+import org.python.pydev.shared_core.partitioner.IToken;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -42,7 +42,7 @@ import org.python.pydev.ui.ColorAndStyleCache;
 
 /**
  * This class can create a styled text and later format a python code string and give style ranges for
- * that string so that it's properly highlighted with the colors in the passed preferences.  
+ * that string so that it's properly highlighted with the colors in the passed preferences.
  */
 public class StyledTextForShowingCodeFactory implements IPropertyChangeListener {
 
@@ -76,7 +76,7 @@ public class StyledTextForShowingCodeFactory implements IPropertyChangeListener 
         }
         updateBackgroundColor();
 
-        PydevPrefs.getChainedPrefStore().addPropertyChangeListener(this);
+        PyDevUiPrefs.getChainedPrefStore().addPropertyChangeListener(this);
 
         return styledText;
     }
@@ -85,7 +85,7 @@ public class StyledTextForShowingCodeFactory implements IPropertyChangeListener 
      * Updates the color of the background.
      */
     private void updateBackgroundColor() {
-        IPreferenceStore chainedPrefStore = PydevPrefs.getChainedPrefStore();
+        IPreferenceStore chainedPrefStore = PyDevUiPrefs.getChainedPrefStore();
 
         Color backgroundColor = null;
         if (!chainedPrefStore.getBoolean(PyEdit.PREFERENCE_COLOR_BACKGROUND_SYSTEM_DEFAULT)) {
@@ -112,7 +112,7 @@ public class StyledTextForShowingCodeFactory implements IPropertyChangeListener 
      * It needs to be called so that we're properly garbage-collected and clear our caches.
      */
     public void dispose() {
-        PydevPrefs.getChainedPrefStore().removePropertyChangeListener(this);
+        PyDevUiPrefs.getChainedPrefStore().removePropertyChangeListener(this);
         this.backgroundColorCache.dispose();
         this.colorCache.dispose();
     }
@@ -120,24 +120,22 @@ public class StyledTextForShowingCodeFactory implements IPropertyChangeListener 
     /**
      * This method will format the passed string with the passed standard and create style ranges for the returned
      * string, so that the code is properly seen by the user in a StyledText.
-     * 
+     *
      * @param formatStd the coding standard that should be used for the parse.
      * @param str the string that should be formatted and have the colors applied.
      * @param prefs the preferences that contain the colors to be used for each partition.
      * @param showSpacesAndNewLines if true, spaces will be shown as dots and new lines shown as a '\n' string
      *        (otherwise they're not visible).
      */
-    @SuppressWarnings("unchecked")
     public Tuple<String, StyleRange[]> formatAndGetStyleRanges(FormatStd formatStd, String str, IPreferenceStore prefs,
             boolean showSpacesAndNewLines) {
-        //When new preferences are set, the cache is reset (the background color doesn't need to be 
+        //When new preferences are set, the cache is reset (the background color doesn't need to be
         //cleared because the colors are gotten from the rgb and not from the names).
         this.colorCache.setPreferences(prefs);
 
-        PyFormatStd formatter = new PyFormatStd();
         try {
             Document doc = new Document(str);
-            formatter.formatAll(doc, null, false, formatStd, false);
+            PyFormatter.formatAll(doc, null, false, formatStd, false, true);
             str = doc.get();
         } catch (SyntaxErrorException e) {
         }
@@ -202,6 +200,14 @@ public class StyledTextForShowingCodeFactory implements IPropertyChangeListener 
                     textPresentation.addStyleRange(new StyleRange(offset, len, textAttribute.getForeground(), null,
                             textAttribute.getStyle()));
 
+                } else if (IPythonPartitions.PY_MULTILINE_FSTRING1.equals(type)
+                        || IPythonPartitions.PY_MULTILINE_FSTRING2.equals(type)
+                        || IPythonPartitions.PY_SINGLELINE_FSTRING1.equals(type)
+                        || IPythonPartitions.PY_SINGLELINE_FSTRING2.equals(type)) {
+                    TextAttribute textAttribute = colorCache.getUnicodeTextAttribute();
+                    textPresentation.addStyleRange(new StyleRange(offset, len, textAttribute.getForeground(), null,
+                            textAttribute.getStyle()));
+
                 } else if (IPythonPartitions.PY_MULTILINE_UNICODE1.equals(type)
                         || IPythonPartitions.PY_MULTILINE_UNICODE2.equals(type)
                         || IPythonPartitions.PY_SINGLELINE_UNICODE1.equals(type)
@@ -254,7 +260,7 @@ public class StyledTextForShowingCodeFactory implements IPropertyChangeListener 
 
     /**
      * Creates the ranges from parsing the code with the PyCodeScanner.
-     * 
+     *
      * @param textPresentation this is the container of the style ranges.
      * @param scanner the scanner used to parse the document.
      * @param doc document to parse.

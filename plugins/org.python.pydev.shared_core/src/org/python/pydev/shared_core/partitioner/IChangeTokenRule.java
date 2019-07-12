@@ -6,8 +6,6 @@
  */
 package org.python.pydev.shared_core.partitioner;
 
-import org.eclipse.jface.text.rules.IToken;
-
 public interface IChangeTokenRule {
 
     void setToken(IToken token);

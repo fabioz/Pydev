@@ -11,16 +11,14 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.search.ui.ISearchQuery;
 import org.eclipse.search.ui.NewSearchUI;
+import org.python.pydev.ast.refactoring.AbstractPyRefactoring;
+import org.python.pydev.ast.refactoring.IPyRefactoring2;
+import org.python.pydev.ast.refactoring.RefactoringRequest;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
-import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
-import org.python.pydev.editor.refactoring.RefactoringRequest;
 
-import com.python.pydev.refactoring.IPyRefactoring2;
 import com.python.pydev.refactoring.search.FindOccurrencesSearchQuery;
 
 public class PyFindAllOccurrences extends PyRefactorAction {
-
-    public static final boolean DEBUG_FIND_REFERENCES = false;
 
     @Override
     protected String perform(IAction action, IProgressMonitor monitor) throws Exception {

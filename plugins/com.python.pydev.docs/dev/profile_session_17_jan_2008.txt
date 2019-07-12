@@ -1,1 +1,0 @@
-Debug session: drpython.py: line 242:  drShortcutsFile

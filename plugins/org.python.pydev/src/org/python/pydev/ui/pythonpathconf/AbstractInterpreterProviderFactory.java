@@ -16,6 +16,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.python.pydev.ast.interpreter_managers.IInterpreterProviderFactory;
 import org.python.pydev.shared_core.io.FileUtils;
 
 public abstract class AbstractInterpreterProviderFactory implements IInterpreterProviderFactory {

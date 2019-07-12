@@ -7,10 +7,12 @@ import java.util.Arrays;
 public final class Assign extends stmtType {
     public exprType[] targets;
     public exprType value;
+    public exprType type;
 
-    public Assign(exprType[] targets, exprType value) {
+    public Assign(exprType[] targets, exprType value, exprType type) {
         this.targets = targets;
         this.value = value;
+        this.type = type;
     }
 
     @Override
@@ -19,58 +21,54 @@ public final class Assign extends stmtType {
         int result = 1;
         result = prime * result + Arrays.hashCode(targets);
         result = prime * result + ((value == null) ? 0 : value.hashCode());
+        result = prime * result + ((type == null) ? 0 : type.hashCode());
         return result;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
         Assign other = (Assign) obj;
-        if (!Arrays.equals(targets, other.targets))
-            return false;
-        if (value == null) {
-            if (other.value != null)
-                return false;
-        } else if (!value.equals(other.value))
-            return false;
+        if (!Arrays.equals(targets, other.targets)) return false;
+        if (value == null) { if (other.value != null) return false;}
+        else if (!value.equals(other.value)) return false;
+        if (type == null) { if (other.type != null) return false;}
+        else if (!type.equals(other.type)) return false;
         return true;
     }
-
     @Override
     public Assign createCopy() {
         return createCopy(true);
     }
-
     @Override
     public Assign createCopy(boolean copyComments) {
         exprType[] new0;
-        if (this.targets != null) {
-            new0 = new exprType[this.targets.length];
-            for (int i = 0; i < this.targets.length; i++) {
-                new0[i] = (exprType) (this.targets[i] != null ? this.targets[i].createCopy(copyComments) : null);
-            }
-        } else {
+        if(this.targets != null){
+        new0 = new exprType[this.targets.length];
+        for(int i=0;i<this.targets.length;i++){
+            new0[i] = (exprType) (this.targets[i] != null?
+            this.targets[i].createCopy(copyComments):null);
+        }
+        }else{
             new0 = this.targets;
         }
-        Assign temp = new Assign(new0, value != null ? (exprType) value.createCopy(copyComments) : null);
+        Assign temp = new Assign(new0, value!=null?(exprType)value.createCopy(copyComments):null,
+        type!=null?(exprType)type.createCopy(copyComments):null);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if (this.specialsBefore != null && copyComments) {
-            for (Object o : this.specialsBefore) {
-                if (o instanceof commentType) {
+        if(this.specialsBefore != null && copyComments){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
                     commentType commentType = (commentType) o;
                     temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if (this.specialsAfter != null && copyComments) {
-            for (Object o : this.specialsAfter) {
-                if (o instanceof commentType) {
+        if(this.specialsAfter != null && copyComments){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
                     commentType commentType = (commentType) o;
                     temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }
@@ -87,6 +85,9 @@ public final class Assign extends stmtType {
         sb.append(", ");
         sb.append("value=");
         sb.append(dumpThis(this.value));
+        sb.append(", ");
+        sb.append("type=");
+        sb.append(dumpThis(this.type));
         sb.append("]");
         return sb.toString();
     }
@@ -107,6 +108,9 @@ public final class Assign extends stmtType {
         }
         if (value != null) {
             value.accept(visitor);
+        }
+        if (type != null) {
+            type.accept(visitor);
         }
     }
 

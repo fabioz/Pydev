@@ -27,54 +27,40 @@ public final class Slice extends sliceType {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
         Slice other = (Slice) obj;
-        if (lower == null) {
-            if (other.lower != null)
-                return false;
-        } else if (!lower.equals(other.lower))
-            return false;
-        if (upper == null) {
-            if (other.upper != null)
-                return false;
-        } else if (!upper.equals(other.upper))
-            return false;
-        if (step == null) {
-            if (other.step != null)
-                return false;
-        } else if (!step.equals(other.step))
-            return false;
+        if (lower == null) { if (other.lower != null) return false;}
+        else if (!lower.equals(other.lower)) return false;
+        if (upper == null) { if (other.upper != null) return false;}
+        else if (!upper.equals(other.upper)) return false;
+        if (step == null) { if (other.step != null) return false;}
+        else if (!step.equals(other.step)) return false;
         return true;
     }
-
     @Override
     public Slice createCopy() {
         return createCopy(true);
     }
-
     @Override
     public Slice createCopy(boolean copyComments) {
-        Slice temp = new Slice(lower != null ? (exprType) lower.createCopy(copyComments) : null,
-                upper != null ? (exprType) upper.createCopy(copyComments) : null,
-                step != null ? (exprType) step.createCopy(copyComments) : null);
+        Slice temp = new Slice(lower!=null?(exprType)lower.createCopy(copyComments):null,
+        upper!=null?(exprType)upper.createCopy(copyComments):null,
+        step!=null?(exprType)step.createCopy(copyComments):null);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if (this.specialsBefore != null && copyComments) {
-            for (Object o : this.specialsBefore) {
-                if (o instanceof commentType) {
+        if(this.specialsBefore != null && copyComments){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
                     commentType commentType = (commentType) o;
                     temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if (this.specialsAfter != null && copyComments) {
-            for (Object o : this.specialsAfter) {
-                if (o instanceof commentType) {
+        if(this.specialsAfter != null && copyComments){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
                     commentType commentType = (commentType) o;
                     temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }

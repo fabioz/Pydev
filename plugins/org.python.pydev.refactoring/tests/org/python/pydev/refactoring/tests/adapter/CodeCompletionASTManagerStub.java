@@ -19,23 +19,25 @@
 package org.python.pydev.refactoring.tests.adapter;
 
 import java.io.File;
-import java.util.HashSet;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionRequest;
 import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.ITypeInfo;
+import org.python.pydev.core.TokensList;
 import org.python.pydev.core.UnpackInfo;
 import org.python.pydev.core.structure.CompletionRecursionException;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.structure.ImmutableTuple;
@@ -58,59 +60,61 @@ public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
     }
 
     @Override
-    public Tuple3<IModule, String, IToken> findOnImportedMods(IToken[] importedModules, ICompletionState state,
+    public Tuple3<IModule, String, IToken> findOnImportedMods(TokensList importedModules, ICompletionState state,
             String currentModuleName, IModule current) throws CompletionRecursionException {
         throw new RuntimeException("Not implemented");
     }
 
     @Override
-    public IToken[] findTokensOnImportedMods(IToken[] importedModules, ICompletionState state, IModule current)
+    public TokensList findTokensOnImportedMods(TokensList importedModules, ICompletionState state, IModule current)
             throws CompletionRecursionException {
         throw new RuntimeException("Not implemented");
     }
 
     @Override
-    public List<IToken> getBuiltinCompletions(ICompletionState state, List<IToken> completions) {
+    public TokensList getBuiltinCompletions(ICompletionState state, TokensList completions) {
         throw new RuntimeException("Not implemented");
     }
 
-    public IToken[] getCompletionsForImport(ImportInfo original, ICompletionRequest request)
+    public TokensList getCompletionsForImport(ImportInfo original, ICompletionRequest request)
             throws CompletionRecursionException {
         throw new RuntimeException("Not implemented");
     }
 
     @Override
-    public IToken[] getCompletionsForModule(IModule module, ICompletionState state)
+    public TokensList getCompletionsForModule(IModule module, ICompletionState state)
             throws CompletionRecursionException {
-        return new IToken[] { new SourceToken(new Name("True", Name.Store, true), "True", "", "", "__builtin__"),
-                new SourceToken(new Name("False", Name.Store, true), "False", "", "", "__builtin__"), };
+        return new TokensList(
+                new IToken[] { new SourceToken(new Name("True", Name.Store, true), "True", "", "", "__builtin__", null),
+                        new SourceToken(new Name("False", Name.Store, true), "False", "", "", "__builtin__", null), });
     }
 
     @Override
-    public IToken[] getCompletionsForModule(IModule module, ICompletionState state, boolean searchSameLevelMods)
+    public TokensList getCompletionsForModule(IModule module, ICompletionState state, boolean searchSameLevelMods)
             throws CompletionRecursionException {
         throw new RuntimeException("Not implemented");
     }
 
     @Override
-    public IToken[] getCompletionsForModule(IModule module, ICompletionState state, boolean searchSameLevelMods,
+    public TokensList getCompletionsForModule(IModule module, ICompletionState state, boolean searchSameLevelMods,
             boolean lookForArgumentCompletion) throws CompletionRecursionException {
         throw new RuntimeException("Not implemented");
     }
 
-    public IToken[] getCompletionsForToken(File file, IDocument doc, ICompletionState state)
+    public TokensList getCompletionsForToken(File file, IDocument doc, ICompletionState state)
             throws CompletionRecursionException {
         throw new RuntimeException("Not implemented");
     }
 
     @Override
-    public IToken[] getCompletionsForToken(IDocument doc, ICompletionState state) throws CompletionRecursionException {
+    public TokensList getCompletionsForToken(IDocument doc, ICompletionState state)
+            throws CompletionRecursionException {
         throw new RuntimeException("Not implemented");
     }
 
     @Override
-    public List<IToken> getGlobalCompletions(IToken[] globalTokens, IToken[] importedModules,
-            IToken[] wildImportedModules, ICompletionState state, IModule current) {
+    public TokensList getGlobalCompletions(TokensList globalTokens, TokensList importedModules,
+            TokensList wildImportedModules, ICompletionState state, IModule current) {
         throw new RuntimeException("Not implemented");
     }
 
@@ -162,9 +166,9 @@ public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
     }
 
     @Override
-    public void getCompletionsForClassInLocalScope(IModule module, ICompletionState state, boolean searchSameLevelMods,
-            boolean lookForArgumentCompletion, List<String> lookForClass, HashSet<IToken> hashSet)
-                    throws CompletionRecursionException {
+    public TokensList getCompletionsForClassInLocalScope(IModule module, ICompletionState state,
+            boolean searchSameLevelMods, boolean lookForArgumentCompletion, List<ITypeInfo> lookForClass)
+            throws CompletionRecursionException {
         throw new RuntimeException("Not implemented");
     }
 
@@ -174,7 +178,7 @@ public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
     }
 
     @Override
-    public IToken[] getCompletionsForImport(ImportInfo original, ICompletionRequest request,
+    public TokensList getCompletionsForImport(ImportInfo original, ICompletionRequest request,
             boolean onlyGetDirectModules) throws CompletionRecursionException {
         throw new RuntimeException("Not implemented");
     }
@@ -185,8 +189,14 @@ public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
     }
 
     @Override
-    public boolean getCompletionsForWildImport(ICompletionState state, IModule current, List<IToken> completions,
+    public boolean getCompletionsForWildImport(ICompletionState state, IModule current, TokensList completions,
             IToken wildImport) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
+    public TokensList getCompletionFromFuncDefReturn(ICompletionState state, IModule s, IDefinition definition,
+            boolean considerYieldTheReturnType) {
         throw new RuntimeException("Not implemented");
     }
 
@@ -210,15 +220,20 @@ public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
     }
 
     @Override
-    public IToken[] getCompletionsUnpackingObject(IModule module, ICompletionState copy, ILocalScope scope,
+    public TokensList getCompletionsUnpackingObject(IModule module, ICompletionState copy, ILocalScope scope,
             UnpackInfo unpackPos) throws CompletionRecursionException {
         throw new RuntimeException("Not implemented");
     }
 
     @Override
-    public IToken[] getCompletionsFromTokenInLocalScope(IModule module, ICompletionState state,
+    public TokensList getCompletionsFromTokenInLocalScope(IModule module, ICompletionState state,
             boolean searchSameLevelMods, boolean lookForArgumentCompletion, ILocalScope localScope)
-                    throws CompletionRecursionException {
+            throws CompletionRecursionException {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
+    public IModule getPyiStubModule(IModule module, ICompletionState completionState) {
         throw new RuntimeException("Not implemented");
     }
 

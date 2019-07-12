@@ -47,7 +47,7 @@ public class PyParser30Test extends PyParserTestBase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_3_0);
+        setDefaultVersion(IPythonNature.LATEST_GRAMMAR_PY3_VERSION);
     }
 
     public void testTryExceptAs() {
@@ -328,12 +328,12 @@ public class PyParser30Test extends PyParserTestBase {
         SimpleNode ast = parseLegalDocStr(s);
         Module m = (Module) ast;
         Assign a0 = (Assign) m.body[0];
-        assertTrue(a0.value instanceof Set);
+        assertTrue("Expected Set. Found: " + a0.toString(), a0.value instanceof Set);
         assertEquals("Assign[targets=[Name[id=namespace, ctx=Store, reserved=false]], value="
                 +
                 "Set[elts=[Num[n=1, type=Int, num=1], Num[n=2, type=Int, num=2], "
                 +
-                "Num[n=3, type=Int, num=3], Num[n=4, type=Int, num=4]]]]", a0.toString());
+                "Num[n=3, type=Int, num=3], Num[n=4, type=Int, num=4]]], type=null]", a0.toString());
     }
 
     public void testDictComprehension() {
@@ -823,6 +823,30 @@ public class PyParser30Test extends PyParserTestBase {
         parseLegalDocStr(s);
     }
 
+    public void testUnpacking7() throws Exception {
+        String s = ""
+                + "print(*[1], *[2], 3, *[4, 5])"
+                + "";
+        parseLegalDocStrWithoutTree(s);
+        parseLegalDocStr(s);
+    }
+
+    public void testUnpacking8() throws Exception {
+        String s = "" +
+                "{*range(4), 4, *(5, 6, 7)}\n" +
+                "";
+        parseLegalDocStrWithoutTree(s);
+        parseLegalDocStr(s);
+    }
+
+    public void testUnpacking9() throws Exception {
+        String s = "" +
+                "{'x': 1, **{'y': 2}}\n" +
+                "";
+        parseLegalDocStrWithoutTree(s);
+        parseLegalDocStr(s);
+    }
+
     public void testAsyncBackwardCompatibility() throws Exception {
         String s = "async = 10\n" +
                 "print(async)\n" +
@@ -839,5 +863,26 @@ public class PyParser30Test extends PyParserTestBase {
         parseLegalDocStrWithoutTree(s);
         parseLegalDocStr(s);
 
+    }
+
+    public void testTestGrammar35() {
+        String contents = FileUtils.getFileContents(new File(TestDependent.TEST_PYDEV_PARSER_PLUGIN_LOC +
+                "/tests/org/python/pydev/parser/python_test_grammar_35.py"));
+
+        parseLegalDocStr(contents);
+        parseLegalDocStrWithoutTree(contents);
+    }
+
+    public void testAsync4() {
+        String s = "" +
+                "async def test2(session):\n" +
+                "    async with session:\n" +
+                "        async for _msg in session:\n" +
+                "            pass\n" +
+                "\n" +
+                "    # broken grammar\n" +
+                "    await session\n" +
+                "";
+        parseLegalDocStr(s);
     }
 }

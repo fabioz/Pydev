@@ -10,6 +10,7 @@
  */
 package org.python.pydev.navigator;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
@@ -22,8 +23,10 @@ import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
+import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.core.preferences.FileTypesPreferences;
 import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.navigator.elements.ProjectConfigError;
 import org.python.pydev.navigator.elements.PythonFolder;
@@ -32,14 +35,14 @@ import org.python.pydev.navigator.elements.PythonProjectSourceFolder;
 import org.python.pydev.navigator.elements.PythonSourceFolder;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
+import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_core.structure.TreeNode;
+import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
-import org.python.pydev.shared_ui.UIConstants;
-import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
  * Provides the labels for the pydev package explorer.
- * 
+ *
  * @author Fabio
  */
 public class PythonLabelProvider implements ILabelProvider {
@@ -60,25 +63,18 @@ public class PythonLabelProvider implements ILabelProvider {
     @Override
     public Image getImage(Object element) {
         if (element instanceof PythonProjectSourceFolder) {
-            return SharedUiPlugin.getImageCache().get(UIConstants.PROJECT_SOURCE_FOLDER_ICON);
+            return ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.PROJECT_SOURCE_FOLDER_ICON));
         }
         if (element instanceof PythonSourceFolder) {
-            return SharedUiPlugin.getImageCache().get(UIConstants.SOURCE_FOLDER_ICON);
+            return ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.SOURCE_FOLDER_ICON));
         }
         if (element instanceof PythonFolder) {
             PythonFolder folder = (PythonFolder) element;
             IFolder actualObject = folder.getActualObject();
             if (actualObject != null) {
-                final String[] validInitFiles = FileTypesPreferencesPage.getValidInitFiles();
-
-                for (String init : validInitFiles) {
-                    if (actualObject.getFile(init).exists()) {
-                        if (checkParentsHaveInit(folder, validInitFiles)) {
-                            return SharedUiPlugin.getImageCache().get(UIConstants.FOLDER_PACKAGE_ICON);
-                        } else {
-                            break;
-                        }
-                    }
+                if (checkIfValidPackageFolder(folder)) {
+                    return ImageCache
+                            .asImage(SharedUiPlugin.getImageCache().get(UIConstants.FOLDER_PACKAGE_ICON));
                 }
             }
             return provider.getImage(actualObject);
@@ -96,22 +92,23 @@ public class PythonLabelProvider implements ILabelProvider {
 
                 if (name.indexOf('.') == -1) {
                     try {
-                        if (PythonPathHelper.markAsPyDevFileIfDetected(iFile)) {
-                            if (FileTypesPreferencesPage.isCythonFile(name)) {
-                                return SharedUiPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON);
+                        if (CorePlugin.markAsPyDevFileIfDetected(iFile)) {
+                            if (FileTypesPreferences.isCythonFile(name)) {
+                                return ImageCache
+                                        .asImage(SharedUiPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON));
                             }
-                            return SharedUiPlugin.getImageCache().get(UIConstants.PY_FILE_ICON);
+                            return ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.PY_FILE_ICON));
                         }
                     } catch (Exception e) {
                         //Ignore
                     }
                 }
-                if (FileTypesPreferencesPage.isCythonFile(name)) {
-                    return SharedUiPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON);
+                if (FileTypesPreferences.isCythonFile(name)) {
+                    return ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON));
                 }
 
                 if (name.startsWith("__init__.") && PythonPathHelper.isValidSourceFile(name)) {
-                    return PyTitlePreferencesPage.getInitIcon();
+                    return ImageCache.asImage(PyTitlePreferencesPage.getInitIcon());
                 } else {
                     IProject project = iFile.getProject();
                     try {
@@ -121,7 +118,7 @@ public class PythonLabelProvider implements ILabelProvider {
                                     || djangoModulesHandling == PyTitlePreferencesPage.TITLE_EDITOR_DJANGO_MODULES_DECORATE) {
 
                                 if (PyTitlePreferencesPage.isDjangoModuleToDecorate(name)) {
-                                    return PyTitlePreferencesPage.getDjangoModuleIcon(name);
+                                    return ImageCache.asImage(PyTitlePreferencesPage.getDjangoModuleIcon(name));
                                 }
                             }
                         }
@@ -133,18 +130,18 @@ public class PythonLabelProvider implements ILabelProvider {
             return provider.getImage(actualObject);
         }
         if (element instanceof ProjectConfigError) {
-            return SharedUiPlugin.getImageCache().get(UIConstants.ERROR);
+            return ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.ERROR));
         }
         if (element instanceof TreeNode<?>) {
             TreeNode<?> treeNode = (TreeNode<?>) element;
             LabelAndImage data = (LabelAndImage) treeNode.getData();
-            return data.image;
+            return ImageCache.asImage(data.image);
         }
         if (element instanceof IFile) {
             IFile iFile = (IFile) element;
             String name = iFile.getName();
-            if (FileTypesPreferencesPage.isCythonFile(name)) {
-                return SharedUiPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON);
+            if (FileTypesPreferences.isCythonFile(name)) {
+                return ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON));
             }
 
         }
@@ -175,8 +172,8 @@ public class PythonLabelProvider implements ILabelProvider {
                         Image image = provider.getImage(element);
                         try {
                             DecorationOverlayIcon decorationOverlayIcon = new DecorationOverlayIcon(image,
-                                    SharedUiPlugin
-                                            .getImageCache().getDescriptor(UIConstants.ERROR_SMALL),
+                                    ImageCache.asImageDescriptor(SharedUiPlugin
+                                            .getImageCache().getDescriptor(UIConstants.ERROR_SMALL)),
                                     IDecoration.BOTTOM_LEFT);
                             projectWithError = decorationOverlayIcon.createImage();
                         } catch (Exception e) {
@@ -191,42 +188,33 @@ public class PythonLabelProvider implements ILabelProvider {
         }
 
         if (element instanceof IWorkingSet) {
-            return SharedUiPlugin.getImageCache().get(UIConstants.WORKING_SET);
+            return ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.WORKING_SET));
         }
         return null;
     }
 
     /**
-     * Checks if all the parents have the needed __init__ files (needed to consider some folder an actual python module)
-     * 
-     * @param pythonFolder the python folder whose hierarchy should be checked (note that the folder itself must have already
-     * been checked at this point)
-     * @param validInitFiles the valid names for the __init__ files (because we can have more than one matching extension)
-     * 
-     * @return true if all the parents have the __init__ files and false otherwise.
+     * Checks if the given folder is a valid package.
      */
-    private final boolean checkParentsHaveInit(final PythonFolder pythonFolder, final String[] validInitFiles) {
+    private final boolean checkIfValidPackageFolder(final PythonFolder pythonFolder) {
+        String name = pythonFolder.getActualObject().getName();
+        if (!PythonPathHelper.isValidModuleLastPart(name)) {
+            return false;
+        }
+
         IWrappedResource parentElement = pythonFolder.getParentElement();
         while (parentElement != null) {
             if (parentElement instanceof PythonSourceFolder) {
                 //gotten to the source folder: this one doesn't need to have an __init__.py
                 return true;
             }
-
             Object actualObject = parentElement.getActualObject();
-            if (actualObject instanceof IFolder) {
-                IFolder folder = (IFolder) actualObject;
-                boolean foundInit = false;
-                for (String init : validInitFiles) {
-                    final IFile file = folder.getFile(init);
-                    if (file.exists()) {
-                        foundInit = true;
-                        break;
-                    }
-                }
-                if (!foundInit) {
-                    return false;
-                }
+            if (!(actualObject instanceof IContainer)) {
+                return false;
+            }
+            IContainer iContainer = (IContainer) actualObject;
+            if (!PythonPathHelper.isValidModuleLastPart(iContainer.getName())) {
+                return false;
             }
 
             Object tempParent = parentElement.getParentElement();

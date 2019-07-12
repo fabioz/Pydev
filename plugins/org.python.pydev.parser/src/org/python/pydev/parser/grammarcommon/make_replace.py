@@ -1,7 +1,7 @@
 from string import Template
 import os
 import sys
-grammar_common_dir = os.path.split(__file__)[0]
+grammar_common_dir = os.path.split(os.path.abspath(__file__))[0]
 parent_dir = os.path.split(grammar_common_dir)[0]
 
 
@@ -326,6 +326,7 @@ import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Num;
+import org.python.pydev.parser.jython.ast.Starred;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.Yield;
@@ -710,6 +711,7 @@ void slice() #void: {}
         (os.path.join(parent_dir, 'grammar26', 'python.jjt_template'), 26),
         (os.path.join(parent_dir, 'grammar27', 'python.jjt_template'), 27),
         (os.path.join(parent_dir, 'grammar30', 'python.jjt_template'), 30),
+        (os.path.join(parent_dir, 'grammar36', 'python.jjt_template'), 36),
     ]
 
     for file, version in files:

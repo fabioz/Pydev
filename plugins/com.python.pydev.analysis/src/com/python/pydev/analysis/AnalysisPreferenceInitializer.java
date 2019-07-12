@@ -14,12 +14,7 @@ import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.osgi.service.prefs.Preferences;
 
-import com.python.pydev.analysis.ui.AnalysisPreferencesPage;
-
 public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer {
-
-    public static final String WHEN_ANALYZE = "WHEN_ANALYZE";
-    public static final int DEFAULT_WHEN_ANALYZE = IAnalysisPreferences.ANALYZE_ON_SUCCESFUL_PARSE;
 
     public static final String DEFAULT_SCOPE = "com.python.pydev.analysis";
 
@@ -75,7 +70,7 @@ public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer
     public static final int DEFAULT_SEVERITY_ASSIGNMENT_TO_BUILT_IN_SYMBOL = IMarker.SEVERITY_WARNING;
 
     public static final String SEVERITY_PEP8 = "SEVERITY_PEP8";
-    public static final int DEFAULT_SEVERITY_PEP8 = IMarker.SEVERITY_INFO;
+    public static final int DEFAULT_SEVERITY_PEP8 = -1;
 
     public static final String DO_AUTO_IMPORT = "DO_AUTO_IMPORT";
     public static final boolean DEFAULT_DO_AUT_IMPORT = true;
@@ -87,7 +82,24 @@ public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer
     public static final boolean DEFAULT_DO_IGNORE_FIELDS_WITH_UNDER = false;
 
     public static final String SEVERITY_ARGUMENTS_MISMATCH = "SEVERITY_ARGUMENTS_MISMATCH";
-    public static final int DEFAULT_SEVERITY_ARGUMENTS_MISMATCH = IMarker.SEVERITY_INFO; //Currently does not run by default!
+    public static final int DEFAULT_SEVERITY_ARGUMENTS_MISMATCH = -1; //Currently does not run by default!
+
+    public static final String SEVERITY_FSTRING_ERROR = "SEVERITY_FSTRING_ERROR";
+    public static final int DEFAULT_SEVERITY_FSTRING_ERROR = IMarker.SEVERITY_ERROR;
+
+    public static final String SEVERITY_INVALID_ENCODING = "SEVERITY_INVALID_ENCODING";
+    public static final int DEFAULT_SEVERITY_INVALID_ENCODING = IMarker.SEVERITY_ERROR;
+
+    public static final String USE_PEP8_CONSOLE = "USE_PEP8_CONSOLE";
+    public static final boolean DEFAULT_USE_PEP8_CONSOLE = false;
+
+    public static final String PEP8_COMMAND_LINE = "PEP8_IGNORE_WARNINGS";
+
+    public static final String PEP8_USE_SYSTEM = "PEP8_USE_SYSTEM";
+    public static final boolean DEFAULT_PEP8_USE_SYSTEM = false;
+
+    //Disabled because we're running in a thread now.
+    public static final boolean SHOW_IN_PEP8_FEATURE_ENABLED = false;
 
     @Override
     public void initializeDefaultPreferences() {
@@ -101,15 +113,14 @@ public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer
         node.put(NAMES_TO_IGNORE_UNUSED_VARIABLE, DEFAULT_NAMES_TO_IGNORE_UNUSED_VARIABLE);
         node.put(NAMES_TO_IGNORE_UNUSED_IMPORT, DEFAULT_NAMES_TO_IGNORE_UNUSED_IMPORT);
         node.put(NAMES_TO_CONSIDER_GLOBALS, DEFAULT_NAMES_TO_CONSIDER_GLOBALS);
-        node.putInt(WHEN_ANALYZE, DEFAULT_WHEN_ANALYZE);
         node.putBoolean(DO_CODE_ANALYSIS, DEFAULT_DO_CODE_ANALYSIS);
         node.putBoolean(DO_AUTO_IMPORT, DEFAULT_DO_AUT_IMPORT);
         node.putBoolean(DO_AUTO_IMPORT_ON_ORGANIZE_IMPORTS, DEFAULT_DO_AUTO_IMPORT_ON_ORGANIZE_IMPORTS);
         node.putBoolean(DO_IGNORE_IMPORTS_STARTING_WITH_UNDER, DEFAULT_DO_IGNORE_FIELDS_WITH_UNDER);
 
         //pep8 related.
-        node.putBoolean(AnalysisPreferencesPage.USE_PEP8_CONSOLE, AnalysisPreferencesPage.DEFAULT_USE_PEP8_CONSOLE);
-        node.putBoolean(AnalysisPreferencesPage.PEP8_USE_SYSTEM, AnalysisPreferencesPage.DEFAULT_PEP8_USE_SYSTEM);
+        node.putBoolean(USE_PEP8_CONSOLE, DEFAULT_USE_PEP8_CONSOLE);
+        node.putBoolean(PEP8_USE_SYSTEM, DEFAULT_PEP8_USE_SYSTEM);
     }
 
 }

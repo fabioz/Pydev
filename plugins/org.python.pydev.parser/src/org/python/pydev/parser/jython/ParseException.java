@@ -63,21 +63,29 @@ public class ParseException extends Exception {
     }
 
     public ParseException(String message, Token t) {
-        this(message, t.beginLine, t.beginColumn);
+        this(message, t.beginLine, t.beginColumn, t.endLine, t.endColumn);
     }
 
     public ParseException(String message, int beginLine, int beginColumn) {
+        this(message, beginLine, beginColumn, beginLine, beginColumn);
+    }
+
+    public ParseException(String message, int beginLine, int beginColumn, int endLine, int endColumn) {
         super(message);
         // If a node is passed in, provide just enough info to get current line/column out
         Token t = new Token();
         t.beginLine = beginLine;
         t.beginColumn = beginColumn;
+        t.endLine = endLine;
+        t.endColumn = endColumn;
 
         currentToken = new Token();
         currentToken.next = t;
         t = currentToken;
         t.beginLine = beginLine;
         t.beginColumn = beginColumn;
+        t.endLine = endLine;
+        t.endColumn = endColumn;
 
         specialConstructor = false;
     }
@@ -120,7 +128,7 @@ public class ParseException extends Exception {
      * of the final stack trace, and hence the correct error message
      * gets displayed.
      */
-    public static boolean verboseExceptions = false;
+    public static boolean verboseExceptions = true;
 
     @Override
     public String getMessage() {
@@ -145,8 +153,9 @@ public class ParseException extends Exception {
             String retval = "Encountered \"";
             Token tok = currentToken.next;
             for (int i = 0; i < maxSize; i++) {
-                if (i != 0)
+                if (i != 0) {
                     retval += " ";
+                }
                 if (tok.kind == 0) {
                     retval += tokenImage[0];
                     break;

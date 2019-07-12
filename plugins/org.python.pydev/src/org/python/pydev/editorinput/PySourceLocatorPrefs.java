@@ -12,8 +12,8 @@ import java.util.List;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.python.pydev.editor.preferences.PydevEditorPrefs;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
 import org.python.pydev.shared_core.string.StringUtils;
 
 /**
@@ -95,7 +95,7 @@ public class PySourceLocatorPrefs {
             throw new RuntimeException(valid);
         }
         IPreferenceStore store = PydevPlugin.getDefault().getPreferenceStore();
-        String available = store.getString(PydevEditorPrefs.SOURCE_LOCATION_PATHS);
+        String available = store.getString(PyDevEditorPreferences.SOURCE_LOCATION_PATHS);
 
         if (available == null || available.trim().length() == 0) {
             available = StringUtils.join(",", translation);
@@ -120,7 +120,7 @@ public class PySourceLocatorPrefs {
                 available += StringUtils.join(",", translation);
             }
         }
-        store.putValue(PydevEditorPrefs.SOURCE_LOCATION_PATHS, available);
+        store.putValue(PyDevEditorPreferences.SOURCE_LOCATION_PATHS, available);
     }
 
     /**
@@ -139,7 +139,7 @@ public class PySourceLocatorPrefs {
     public static String getPathTranslation(String pathToTranslate) {
         pathToTranslate = pathToTranslate.trim();
         IPreferenceStore store = PydevPlugin.getDefault().getPreferenceStore();
-        String available = store.getString(PydevEditorPrefs.SOURCE_LOCATION_PATHS);
+        String available = store.getString(PyDevEditorPreferences.SOURCE_LOCATION_PATHS);
         if (available == null || available.trim().length() == 0) {
             return null; //nothing available
         } else {

@@ -9,8 +9,9 @@ package org.python.pydev.debug.pyunit;
 import java.lang.ref.WeakReference;
 
 import org.eclipse.jface.action.Action;
-import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_core.image.UIConstants;
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 
 public class RelaunchAction extends Action {
 
@@ -18,7 +19,8 @@ public class RelaunchAction extends Action {
 
     public RelaunchAction(PyUnitView pyUnitView) {
         this.view = new WeakReference<PyUnitView>(pyUnitView);
-        this.setImageDescriptor(PydevPlugin.getImageCache().getDescriptor(UIConstants.RELAUNCH1));
+        this.setImageDescriptor(
+                ImageCache.asImageDescriptor(SharedUiPlugin.getImageCache().getDescriptor(UIConstants.RELAUNCH1)));
         this.setToolTipText("Relaunches the currently selected test run.");
     }
 

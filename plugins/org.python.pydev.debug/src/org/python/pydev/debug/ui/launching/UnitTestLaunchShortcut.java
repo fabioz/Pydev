@@ -17,7 +17,9 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.ui.IEditorPart;
+import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.debug.core.Constants;
@@ -25,7 +27,6 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.fastparser.FastParser;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
 public class UnitTestLaunchShortcut extends AbstractLaunchShortcut {
@@ -39,7 +40,7 @@ public class UnitTestLaunchShortcut extends AbstractLaunchShortcut {
 
     @Override
     protected IInterpreterManager getInterpreterManager(IProject project) {
-        return PydevPlugin.getPythonInterpreterManager();
+        return InterpreterManagersAPI.getPythonInterpreterManager();
     }
 
     @Override
@@ -48,7 +49,12 @@ public class UnitTestLaunchShortcut extends AbstractLaunchShortcut {
         if (editor instanceof PyEdit) {
             PyEdit pyEdit = (PyEdit) editor;
             PySelection ps = pyEdit.createPySelection();
-            String selectedText = ps.getSelectedText();
+            String selectedText;
+            try {
+                selectedText = ps.getSelectedText();
+            } catch (BadLocationException e) {
+                selectedText = "";
+            }
             if (selectedText.length() > 0) {
                 String last = null;
                 FastStringBuffer buf = new FastStringBuffer();
@@ -74,8 +80,7 @@ public class UnitTestLaunchShortcut extends AbstractLaunchShortcut {
     @Override
     public ILaunchConfigurationWorkingCopy createDefaultLaunchConfigurationWithoutSaving(
             FileOrResource[] resource) throws CoreException {
-        ILaunchConfigurationWorkingCopy workingCopy = super
-                .createDefaultLaunchConfigurationWithoutSaving(resource);
+        ILaunchConfigurationWorkingCopy workingCopy = super.createDefaultLaunchConfigurationWithoutSaving(resource);
         if (arguments.length() > 0) {
             workingCopy.setAttribute(Constants.ATTR_UNITTEST_TESTS, arguments);
         }

@@ -9,8 +9,8 @@ package org.python.pydev.editor.actions;
 import junit.framework.TestCase;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.autoedit.TestIndentPrefs;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.autoedit.TestIndentPrefs;
 
 public class PyShiftLeftTest extends TestCase {
 

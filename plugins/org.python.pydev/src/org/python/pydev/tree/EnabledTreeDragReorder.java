@@ -19,8 +19,9 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 
 public class EnabledTreeDragReorder {
 
@@ -39,7 +40,7 @@ public class EnabledTreeDragReorder {
         public void update(TreeItem item) {
             item.setText(text);
             if (image != null) {
-                item.setImage(PydevPlugin.getImageCache().get(image));
+                item.setImage(ImageCache.asImage(SharedUiPlugin.getImageCache().get(image)));
                 item.setData(DRAG_IMAGE_DATA_KEY, image);
             }
         }
@@ -49,7 +50,7 @@ public class EnabledTreeDragReorder {
     /**
      * Based on SWT Snippet91.
      */
-    public static void enableDrag(final Tree tree, final boolean acceptDropInTree,
+    public static void enableDrag(final Tree tree, final boolean acceptDropInTree, final boolean canChangeParent,
             final ICallback<Object, Object> onDNDFinished) {
 
         Transfer[] types = new Transfer[] { TreeItemDragDataTransfer.getInstance() };
@@ -134,7 +135,6 @@ public class EnabledTreeDragReorder {
 
             @Override
             public void drop(DropTargetEvent event) {
-                System.out.println("dropDone");
                 if (event.data == null) {
                     event.detail = DND.DROP_NONE;
                     return;
@@ -167,8 +167,14 @@ public class EnabledTreeDragReorder {
                                     index + 1);
                             data.update(newItem);
                         } else {
-                            TreeItem newItem = new TreeItem(item, SWT.NONE);
-                            data.update(newItem);
+                            if (canChangeParent) {
+                                TreeItem newItem = new TreeItem(item, SWT.NONE);
+                                data.update(newItem);
+                            } else {
+                                TreeItem newItem = new TreeItem(parent, SWT.NONE,
+                                        index + 1);
+                                data.update(newItem);
+                            }
                         }
 
                     } else {

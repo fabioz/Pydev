@@ -14,12 +14,12 @@
 * Contributors:
 *     Fabio Zadrozny <fabiofz@gmail.com> - initial implementation
 ******************************************************************************/
-/* 
+/*
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
  * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  *
  * IFS Institute for Software, HSR Rapperswil, Switzerland
- * 
+ *
  */
 
 package org.python.pydev.refactoring.core.base;
@@ -31,36 +31,36 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.ITextSelection;
-import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
+import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IIndentPrefs;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.autoedit.DefaultIndentPrefs;
+import org.python.pydev.core.autoedit.TestIndentPrefs;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
-import org.python.pydev.editor.autoedit.TestIndentPrefs;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.TokenMgrError;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.refactoring.ast.PythonModuleManager;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.string.CoreTextSelection;
+import org.python.pydev.shared_core.string.ICoreTextSelection;
 import org.python.pydev.shared_core.structure.Tuple;
 
 public class RefactoringInfo {
     private IFile sourceFile;
     private IDocument doc;
-    private ITextSelection userSelection;
-    private ITextSelection extendedSelection;
+    private ICoreTextSelection userSelection;
+    private ICoreTextSelection extendedSelection;
     private ModuleAdapter moduleAdapter;
     private final IPythonNature nature;
     private final IGrammarVersionProvider versionProvider;
@@ -70,14 +70,14 @@ public class RefactoringInfo {
     private IProject project;
     private File realFile;
 
-    public RefactoringInfo(PyEdit edit) throws MisconfigurationException {
-        this(edit, (ITextSelection) edit.getSelectionProvider().getSelection());
+    public RefactoringInfo(IPyEdit edit) throws MisconfigurationException {
+        this(edit, edit.getTextSelection());
     };
 
     /**
      * Constructor to be used only in tests!
      */
-    public RefactoringInfo(IDocument document, ITextSelection selection, IGrammarVersionProvider versionProvider) {
+    public RefactoringInfo(IDocument document, ICoreTextSelection selection, IGrammarVersionProvider versionProvider) {
         this.sourceFile = null;
         this.nature = null;
         this.versionProvider = versionProvider;
@@ -92,8 +92,8 @@ public class RefactoringInfo {
         initInfo(selection);
     }
 
-    public RefactoringInfo(PyEdit edit, ITextSelection selection) throws MisconfigurationException {
-        IEditorInput input = edit.getEditorInput();
+    public RefactoringInfo(IPyEdit edit, ICoreTextSelection selection) throws MisconfigurationException {
+        IEditorInput input = (IEditorInput) edit.getEditorInput();
         this.indentPrefs = edit.getIndentPrefs();
         IPythonNature localNature = edit.getPythonNature();
 
@@ -106,7 +106,7 @@ public class RefactoringInfo {
         }
 
         if (localNature == null) {
-            Tuple<IPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(this.realFile);
+            Tuple<IPythonNature, String> infoForFile = InterpreterManagersAPI.getInfoForFile(this.realFile);
             if (infoForFile != null && infoForFile.o1 != null) {
                 localNature = infoForFile.o1;
             }
@@ -120,7 +120,7 @@ public class RefactoringInfo {
         initInfo(selection);
     }
 
-    private void initInfo(ITextSelection selection) {
+    private void initInfo(ICoreTextSelection selection) {
         if (this.nature != null) {
             this.moduleManager = new PythonModuleManager(nature);
         }
@@ -156,9 +156,9 @@ public class RefactoringInfo {
         return this.doc;
     }
 
-    public ITextSelection getExtendedSelection() {
+    public ICoreTextSelection getExtendedSelection() {
         if (this.extendedSelection == null) {
-            this.extendedSelection = new TextSelection(this.doc, this.userSelection.getOffset(),
+            this.extendedSelection = new CoreTextSelection(this.doc, this.userSelection.getOffset(),
                     this.userSelection.getLength());
 
             if (getScopeAdapter() != null) {
@@ -170,7 +170,7 @@ public class RefactoringInfo {
         return extendedSelection;
     }
 
-    public ITextSelection getUserSelection() {
+    public ICoreTextSelection getUserSelection() {
         return userSelection;
     }
 
@@ -214,7 +214,7 @@ public class RefactoringInfo {
         return parsedAdapter;
     }
 
-    public String normalizeSourceSelection(ITextSelection selection) {
+    public String normalizeSourceSelection(ICoreTextSelection selection) {
         String selectedText = "";
 
         if (selection.getText() != null) {
@@ -233,7 +233,7 @@ public class RefactoringInfo {
 
     }
 
-    private String normalizeBlockIndentation(ITextSelection selection, String selectedText) throws Throwable {
+    private String normalizeBlockIndentation(ICoreTextSelection selection, String selectedText) throws Throwable {
         String[] lines = selectedText.split("\\n");
         if (lines.length < 2) {
             return selectedText;
@@ -348,7 +348,7 @@ public class RefactoringInfo {
     //
     //    /**
     //     * Returns the NameUse of the currently selected variable
-    //     * 
+    //     *
     //     * @return the currently selected nameUse
     //     */
     //    public Use findSelectedUse() {

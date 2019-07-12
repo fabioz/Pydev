@@ -28,7 +28,10 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.python.pydev.ast.codecompletion.revisited.ProjectModulesManager;
+import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.FileUtilsFileBuffer;
+import org.python.pydev.core.IInfo;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
@@ -36,10 +39,10 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.codecompletion.revisited.ProjectModulesManager;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.nature.SystemPythonNature;
+import org.python.pydev.shared_core.global_feedback.GlobalFeedback;
+import org.python.pydev.shared_core.global_feedback.GlobalFeedback.GlobalFeedbackReporter;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.OrderedMap;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -58,6 +61,8 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
 
     private final File persistingLocation;
 
+    private PythonNature nature;
+
     /**
      * holds nature info (project name points to info)
      */
@@ -67,6 +72,11 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
 
     public IProject getProject() {
         return project;
+    }
+
+    @Override
+    protected IPythonNature getNature() {
+        return nature;
     }
 
     /**
@@ -86,6 +96,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
         super(false);
         Assert.isNotNull(project);
         this.project = project;
+        this.nature = PythonNature.getPythonNature(project);
 
         File f;
         try {
@@ -144,13 +155,13 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
 
     public static List<Tuple<AbstractAdditionalTokensInfo, IPythonNature>> getAdditionalInfoAndNature(
             IPythonNature nature, boolean addSystemInfo, boolean addReferencingProjects)
-                    throws MisconfigurationException {
+            throws MisconfigurationException {
         return getAdditionalInfoAndNature(nature, addSystemInfo, addReferencingProjects, true);
     }
 
     public static List<Tuple<AbstractAdditionalTokensInfo, IPythonNature>> getAdditionalInfoAndNature(
             IPythonNature nature, boolean addSystemInfo, boolean addReferencingProjects, boolean addReferencedProjects)
-                    throws MisconfigurationException {
+            throws MisconfigurationException {
 
         List<Tuple<AbstractAdditionalTokensInfo, IPythonNature>> ret = new ArrayList<Tuple<AbstractAdditionalTokensInfo, IPythonNature>>();
 
@@ -161,7 +172,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
             AbstractAdditionalTokensInfo systemInfo;
             try {
                 systemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(
-                        PydevPlugin.getInterpreterManager(nature), nature.getProjectInterpreter().getExecutableOrJar());
+                        InterpreterManagersAPI.getInterpreterManager(nature), nature.getProjectInterpreter().getExecutableOrJar());
             } catch (MisconfigurationException e) {
                 throw e;
             } catch (PythonNatureWithoutProjectException e) {
@@ -243,8 +254,10 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
 
                         @Override
                         protected IStatus run(IProgressMonitor monitor) {
-                            try {
+                            try (GlobalFeedbackReporter r = GlobalFeedback.start("Check index integrity...")) {
                                 new InterpreterInfoBuilder().syncInfoToPythonPath(monitor, nature);
+                            } catch (Exception e) {
+                                Log.log(e);
                             } finally {
                                 temp.setWaitForIntegrityCheck(false);
                             }
@@ -307,7 +320,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
     }
 
     public static void recreateAllInfo(IPythonNature nature, IProgressMonitor monitor) {
-        try {
+        try (GlobalFeedbackReporter r = GlobalFeedback.start("Full projects reindex...")) {
             synchronized (additionalNatureInfoLock) {
                 //Note: at this point we're 100% certain that the ast manager is there.
                 IModulesManager m = nature.getAstManager().getModulesManager();

@@ -19,8 +19,9 @@ import org.eclipse.search.ui.text.Match;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
+import org.python.pydev.shared_core.image.UIConstants;
+import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
-import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.search.SearchMessages;
 
 public class FileLabelProvider extends LabelProvider {
@@ -46,7 +47,7 @@ public class FileLabelProvider extends LabelProvider {
         fOrder = orderFlag;
         fPage = page;
 
-        fLineMatchImage = SharedUiPlugin.getImageCache().get(UIConstants.LINE_MATCH);
+        fLineMatchImage = ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.LINE_MATCH));
         fMatchComparator = new Comparator<FileMatch>() {
             @Override
             public int compare(FileMatch o1, FileMatch o2) {

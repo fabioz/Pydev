@@ -2,12 +2,12 @@ package org.python.pydev.core.partition;
 
 import java.util.ArrayList;
 
-import org.eclipse.jface.text.rules.ICharacterScanner;
-import org.eclipse.jface.text.rules.IPredicateRule;
-import org.eclipse.jface.text.rules.IToken;
-import org.eclipse.jface.text.rules.Token;
 import org.python.pydev.shared_core.partitioner.IChangeTokenRule;
+import org.python.pydev.shared_core.partitioner.ICharacterScanner;
 import org.python.pydev.shared_core.partitioner.IMarkScanner;
+import org.python.pydev.shared_core.partitioner.IPredicateRule;
+import org.python.pydev.shared_core.partitioner.IToken;
+import org.python.pydev.shared_core.partitioner.Token;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
 public class SingleLineRuleWithMultipleStarts implements IPredicateRule, IChangeTokenRule {
@@ -15,8 +15,8 @@ public class SingleLineRuleWithMultipleStarts implements IPredicateRule, IChange
     protected IToken fToken;
     private final char escapeCharacter;
     private final boolean escapeContinuesLine;
-    private ArrayList<char[]> fStartSequences;
-    private char[] fEndSequence;
+    private final ArrayList<char[]> fStartSequences;
+    private final char[] fEndSequence;
 
     @Override
     public void setToken(IToken token) {

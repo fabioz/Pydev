@@ -14,10 +14,10 @@ import junit.framework.TestSuite;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.Path;
+import org.python.pydev.ast.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.ui.DebuggerTestUtils;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
 import org.python.pydev.editorinput.PyOpenEditor;
 
 public class PyReferrersViewTestWorkbench extends AbstractWorkbenchTestCase {

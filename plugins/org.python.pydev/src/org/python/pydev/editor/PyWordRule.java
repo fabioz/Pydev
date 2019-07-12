@@ -13,22 +13,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.jface.text.rules.ICharacterScanner;
-import org.eclipse.jface.text.rules.IRule;
-import org.eclipse.jface.text.rules.IToken;
-import org.eclipse.jface.text.rules.IWordDetector;
-import org.eclipse.jface.text.rules.Token;
+import org.python.pydev.shared_core.partitioner.ICharacterScanner;
+import org.python.pydev.shared_core.partitioner.IRule;
+import org.python.pydev.shared_core.partitioner.IToken;
+import org.python.pydev.shared_core.partitioner.IWordDetector;
+import org.python.pydev.shared_core.partitioner.Token;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
 /**
  * This class is a copy of the WordRule, with the exception that when we detected a 'def' or a 'class', the next default token
  * is not the regular, but the token identifying the class name or the function name.
- * 
- * The changes were: 
- * 
+ *
+ * The changes were:
+ *
  * added the classNameToken and funcNameToken attributes (and constructor parameters)
  * changed the evaluate to store the last found and return things accordingly
- * 
+ *
  * @see IWordDetector
  */
 public class PyWordRule implements IRule {
@@ -63,8 +63,8 @@ public class PyWordRule implements IRule {
      * @param detector the word detector to be used by this rule, may not be <code>null</code>
      * @param defaultToken the default token to be returned on success
      *      if nothing else is specified, may not be <code>null</code>
-     * @param funcNameToken 
-     * @param classNameToken 
+     * @param funcNameToken
+     * @param classNameToken
      *
      * @see #addWord(String, IToken)
      */
@@ -104,8 +104,9 @@ public class PyWordRule implements IRule {
      * @param column the column in which the pattern starts
      */
     public void setColumnConstraint(int column) {
-        if (column < 0)
+        if (column < 0) {
             column = UNDEFINED;
+        }
         fColumn = column;
     }
 
@@ -140,6 +141,7 @@ public class PyWordRule implements IRule {
             case '~':
             case '^':
             case ',':
+            case '@': // matmul (unless previously matched by PyDecoratorRule, so, this must come afterwards).
                 found = this.operatorsToken;
                 break;
         }
@@ -160,14 +162,15 @@ public class PyWordRule implements IRule {
                 scanner.unread();
 
                 String str = fBuffer.toString();
-                IToken token = (IToken) fWords.get(str);
+                IToken token = fWords.get(str);
                 if (token != null) {
                     lastFound = str;
                     return token;
                 }
 
-                if (fDefaultToken.isUndefined())
+                if (fDefaultToken.isUndefined()) {
                     unreadBuffer(scanner);
+                }
 
                 if (lastFound.equals("def")) {
                     lastFound = str;
@@ -191,7 +194,8 @@ public class PyWordRule implements IRule {
      * @param scanner the scanner to be used
      */
     protected void unreadBuffer(ICharacterScanner scanner) {
-        for (int i = fBuffer.length() - 1; i >= 0; i--)
+        for (int i = fBuffer.length() - 1; i >= 0; i--) {
             scanner.unread();
+        }
     }
 }

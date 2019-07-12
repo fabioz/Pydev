@@ -21,20 +21,22 @@ import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ListDialog;
 import org.eclipse.ui.dialogs.SelectionDialog;
+import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
+import org.python.pydev.ast.runners.SimplePythonRunner;
+import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.SystemPythonNature;
-import org.python.pydev.runners.SimplePythonRunner;
+import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_core.structure.TreeNode;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.IProcessInfo;
 import org.python.pydev.shared_core.utils.IProcessList;
 import org.python.pydev.shared_core.utils.PlatformUtils;
+import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
-import org.python.pydev.shared_ui.UIConstants;
 import org.python.pydev.shared_ui.utils.UIUtils;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.dialogs.Select1Dialog;
@@ -77,7 +79,7 @@ public class AttachToProcess implements IWorkbenchWindowActionDelegate {
                 return new TreeNodeLabelProvider() {
                     @Override
                     public Image getImage(Object element) {
-                        return SharedUiPlugin.getImageCache().get(UIConstants.PUBLIC_ATTR_ICON);
+                        return ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.PUBLIC_ATTR_ICON));
                     };
 
                     @SuppressWarnings("unchecked")
@@ -107,7 +109,7 @@ public class AttachToProcess implements IWorkbenchWindowActionDelegate {
 
             //Select interpreter
             IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-            IInterpreterManager interpreterManager = PydevPlugin.getPythonInterpreterManager();
+            IInterpreterManager interpreterManager = InterpreterManagersAPI.getPythonInterpreterManager();
             if (interpreterManager == null) {
                 MessageDialog.openError(workbenchWindow.getShell(), "No interpreter manager.",
                         "No interpreter manager was available for attaching to a process.");
@@ -138,7 +140,7 @@ public class AttachToProcess implements IWorkbenchWindowActionDelegate {
             }
             SimplePythonRunner runner = new SimplePythonRunner();
             IPath relative = new Path("pysrc").append("pydevd_attach_to_process").append("attach_pydevd.py");
-            String script = PydevPlugin.getBundleInfo().getRelativePath(relative).getAbsolutePath();
+            String script = CorePlugin.getBundleInfo().getRelativePath(relative).getAbsolutePath();
             String[] args = new String[] {
                     "--port",
                     "" + DebugPluginPrefsInitializer.getRemoteDebuggerPort(),

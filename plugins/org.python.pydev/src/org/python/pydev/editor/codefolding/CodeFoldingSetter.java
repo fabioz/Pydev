@@ -19,9 +19,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListResourceBundle;
 import java.util.Map;
+import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -34,6 +37,7 @@ import org.eclipse.ui.IPropertyListener;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.performanceeval.OptimizationRelatedConstants;
+import org.python.pydev.core.preferences.PydevPrefs;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -54,7 +58,6 @@ import org.python.pydev.parser.jython.ast.suiteType;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
 import org.python.pydev.parser.visitors.scope.CodeFoldingVisitor;
-import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.model.ErrorDescription;
 import org.python.pydev.shared_core.model.IModelListener;
 import org.python.pydev.shared_core.model.ISimpleNode;
@@ -66,9 +69,9 @@ import org.python.pydev.shared_ui.editor.IPyEditListener3;
 
 /**
  * @author Fabio Zadrozny
- * 
+ *
  * This class is used to set the code folding markers.
- * 
+ *
  * Changed 15/09/07 to include more folding elements
  */
 public class CodeFoldingSetter implements IModelListener, IPropertyListener, IPyEditListener, IPyEditListener3 {
@@ -114,8 +117,8 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener, IPy
 
     /*
      * (non-Javadoc)
-     * 
-     * @see org.python.pydev.editor.model.IModelListener#modelChanged(org.python.pydev.editor.model.AbstractNode)
+     *
+     * @see org.python.pydev.ast.item_pointer.IModelListener#modelChanged(org.python.pydev.ast.item_pointer.AbstractNode)
      */
     @Override
     public synchronized void modelChanged(final ISimpleNode ast) {
@@ -203,10 +206,10 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener, IPy
 
     /**
      * To add a mark, we have to do the following:
-     * 
-     * Get the current node to add and find the next that is on the same indentation or on an indentation that is lower 
+     *
+     * Get the current node to add and find the next that is on the same indentation or on an indentation that is lower
      * than the current (this will mark the end of the selection).
-     * 
+     *
      * If we don't find that, the end of the selection is the end of the file.
      */
     private Map<ProjectionAnnotation, Position> getAnnotationsToAdd(List<FoldingEntry> nodes,
@@ -276,7 +279,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener, IPy
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.ui.IPropertyListener#propertyChanged(java.lang.Object, int)
      */
     @Override
@@ -286,12 +289,15 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener, IPy
         }
     }
 
+    private static final Pattern regionStartPattern = Pattern.compile("(\\s)*#(\\s)*\\bregion\\b");
+    private static final Pattern regionEndPattern = Pattern.compile("(\\s)*#(\\s)*\\bendregion\\b");
+
     /**
      * To get the marks, we work a little with the ast and a little with the doc... the ast is good to give us all things but the comments,
      * and the doc will give us the comments.
-     * 
+     *
      * @return a list of entries, ordered by their appearance in the document.
-     * 
+     *
      * Also, there should be no overlap for any of the entries
      */
     public static List<FoldingEntry> getMarks(IDocument doc, SimpleNode ast, boolean foldInitial) {
@@ -300,61 +306,115 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener, IPy
 
         CodeFoldingVisitor visitor = CodeFoldingVisitor.create(ast);
         //(re) insert annotations.
-        IPreferenceStore prefs = getPreferences();
+        IEclipsePreferences prefs = getPreferences();
 
-        if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_IMPORTS)) {
+        if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_IMPORTS, PyDevCodeFoldingPrefPage.DEFAULT_FOLD_IMPORTS)) {
             createFoldingEntries(ret, visitor,
-                    foldInitial ? prefs.getBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_IMPORTS) : false,
+                    foldInitial ? prefs.getBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_IMPORTS,
+                            PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_FOLD_IMPORTS) : false,
                     Import.class,
                     ImportFrom.class);
         }
-        if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_CLASSDEF)) {
+        if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_CLASSDEF,
+                PyDevCodeFoldingPrefPage.DEFAULT_FOLD_FUNCTIONDEF)) {
             createFoldingEntries(ret, visitor,
-                    foldInitial ? prefs.getBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_CLASSDEF) : false,
+                    foldInitial ? prefs.getBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_CLASSDEF,
+                            PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_FOLD_CLASSDEF) : false,
                     ClassDef.class);
         }
-        if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_FUNCTIONDEF)) {
+        if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_FUNCTIONDEF,
+                PyDevCodeFoldingPrefPage.DEFAULT_FOLD_FUNCTIONDEF)) {
             createFoldingEntries(ret, visitor,
-                    foldInitial ? prefs.getBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_FUNCTIONDEF) : false,
+                    foldInitial ? prefs.getBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_FUNCTIONDEF,
+                            PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_FOLD_FUNCTIONDEF) : false,
                     FunctionDef.class);
         }
-        if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_STRINGS)) {
+        if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_STRINGS, PyDevCodeFoldingPrefPage.DEFAULT_FOLD_STRINGS)) {
             createFoldingEntries(ret, visitor,
-                    foldInitial ? prefs.getBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_STRINGS) : false, Str.class);
+                    foldInitial ? prefs.getBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_STRINGS,
+                            PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_FOLD_STRINGS) : false,
+                    Str.class);
         }
-        if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_WHILE)) {
+        if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_WHILE, PyDevCodeFoldingPrefPage.DEFAULT_FOLD_WHILE)) {
             createFoldingEntries(ret, visitor,
-                    foldInitial ? prefs.getBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_WHILE) : false, While.class);
+                    foldInitial ? prefs.getBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_WHILE,
+                            PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_FOLD_WHILE) : false,
+                    While.class);
         }
-        if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_IF)) {
+        if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_IF, PyDevCodeFoldingPrefPage.DEFAULT_FOLD_IF)) {
             createFoldingEntries(ret, visitor,
-                    foldInitial ? prefs.getBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_IF) : false, If.class);
+                    foldInitial ? prefs.getBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_IF,
+                            PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_FOLD_IF) : false,
+                    If.class);
         }
-        if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_FOR)) {
+        if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_FOR, PyDevCodeFoldingPrefPage.DEFAULT_FOLD_FOR)) {
             createFoldingEntries(ret, visitor,
-                    foldInitial ? prefs.getBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_FOR) : false, For.class);
+                    foldInitial ? prefs.getBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_FOR,
+                            PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_FOLD_FOR) : false,
+                    For.class);
         }
-        if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_WITH)) {
+        if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_WITH, PyDevCodeFoldingPrefPage.DEFAULT_FOLD_WITH)) {
             createFoldingEntries(ret, visitor,
-                    foldInitial ? prefs.getBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_WITH) : false, With.class);
+                    foldInitial ? prefs.getBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_WITH,
+                            PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_FOLD_WITH) : false,
+                    With.class);
         }
-        if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_TRY)) {
+        if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_TRY, PyDevCodeFoldingPrefPage.DEFAULT_FOLD_TRY)) {
             createFoldingEntries(ret, visitor,
-                    foldInitial ? prefs.getBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_TRY) : false,
+                    foldInitial ? prefs.getBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_TRY,
+                            PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_FOLD_TRY) : false,
                     TryExcept.class, TryFinally.class);
         }
 
         //and at last, get the comments
-        if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_COMMENTS)) {
+        final boolean foldComments = prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_COMMENTS,
+                PyDevCodeFoldingPrefPage.DEFAULT_FOLD_COMMENTS);
+        final boolean foldRegions = prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_REGION,
+                PyDevCodeFoldingPrefPage.DEFAULT_FOLD_REGION);
+        if (foldComments || foldRegions) {
             boolean collapseComments = foldInitial
-                    ? prefs.getBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_COMMENTS) : false;
+                    ? prefs.getBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_COMMENTS,
+                            PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_FOLD_COMMENTS)
+                    : false;
+
+            boolean collapseRegions = foldInitial
+                    ? prefs.getBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_REGION,
+                            PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_FOLD_REGION)
+                    : false;
+
             DocIterator it = new DocIterator(true, new PySelection(doc, 0));
+            Stack<Integer> stack = new Stack<Integer>(); // need stack to properly match nested #region tags
+            int l, l_start;
             while (it.hasNext()) {
                 String string = it.next();
-                if (string.trim().startsWith("#")) {
-                    int l = it.getCurrentLine() - 1;
+                Matcher regionStartMatcher = regionStartPattern.matcher(string);
+                Matcher regionEndMatcher = regionEndPattern.matcher(string);
+                final boolean isLookingAtRegionStart = regionStartMatcher.lookingAt();
+                final boolean isLookingAtRegionEnd = regionEndMatcher.lookingAt();
+                if (foldComments
+                        && string.trim().startsWith("#")
+                        && !isLookingAtRegionStart
+                        && !isLookingAtRegionEnd) {
+                    l = it.getCurrentLine() - 1;
                     addFoldingEntry(ret, new FoldingEntry(FoldingEntry.TYPE_COMMENT, l, l + 1, new ASTEntry(null,
                             new commentType(string)), collapseComments));
+                }
+                // ticket 694: Fold for #region ... #endregion
+                if (foldRegions) {
+                    if (isLookingAtRegionStart) {
+                        l = it.getCurrentLine() - 1;
+                        //add line number to stack
+                        stack.push(l);
+                    }
+                    if (isLookingAtRegionEnd) {
+                        l = it.getCurrentLine() - 1;
+                        // pop start of region line number from stack and call addFoldingEntry
+                        if (stack.size() > 0) {
+                            l_start = stack.pop();
+                            addFoldingEntry(ret, new FoldingEntry(FoldingEntry.TYPE_REGION, l_start, l + 1,
+                                    new ASTEntry(null, new commentType(string)), collapseRegions));
+                        }
+                    }
                 }
             }
         }
@@ -477,16 +537,16 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener, IPy
     }
 
     /**
-     * Checks an entry for its 'else' statement. If found, will add a folding entry for the previous block and 
+     * Checks an entry for its 'else' statement. If found, will add a folding entry for the previous block and
      * return a new entry for the 'else' part (to the end of the previous block).
-     * 
+     *
      * @param entry the entry that we're analyzing at this point
      * @param ret where the folding entry should be added
-     * @param foldingEntry the folding entry that will be added with the contents o the full block (so, if it's a 
+     * @param foldingEntry the folding entry that will be added with the contents o the full block (so, if it's a
      * while...else, it contains the position up to the end of the else block.
      * @param blockEndLine the end line of the whole block (with the else part)
      * @param orelse the suite with the else part
-     * @return the same folding entry passed or a new folding entry that should be added in the place of the one passed 
+     * @return the same folding entry passed or a new folding entry that should be added in the place of the one passed
      * as a parameter
      */
     private static FoldingEntry checkOrElse(ASTEntryWithChildren entry, List<FoldingEntry> ret,
@@ -528,21 +588,21 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener, IPy
         return foldingEntry;
     }
 
-    public static IPreferenceStore getPreferences() {
+    public static IEclipsePreferences getPreferences() {
         if (testingPrefs == null) {
-            return PydevPrefs.getPreferences();
+            return PydevPrefs.getEclipsePreferences();
         } else {
             return testingPrefs;
         }
     }
 
-    private static IPreferenceStore testingPrefs;
+    private static IEclipsePreferences testingPrefs;
 
     /**
      * Used for tests
      * @return
      */
-    public static void setPreferences(IPreferenceStore prefs) {
+    public static void setPreferences(IEclipsePreferences prefs) {
         CodeFoldingSetter.testingPrefs = prefs;
     }
 

@@ -1,0 +1,59 @@
+<doc>
+<contents_area>
+<h1 class="title">Settings</h1>
+
+<div class="section" id="python-pydev-java-home">
+<h1>python.pydev.java.home</h1>
+<p>If the extension can't find the java executable, this setting can be used to specify the java home folder (which has <strong>/bin/java</strong> inside it).</p>
+<p><strong>Note</strong>: requires restarting vscode</p>
+</div>
+<div class="section" id="python-pydev-ls-vmargs">
+<h1>python.pydev.ls.vmargs</h1>
+<p>vmargs to the java executable used to launch PyDev.</p>
+<p><strong>Note</strong>: requires restarting vscode</p>
+</div>
+<div class="section" id="python-pydev-pythonexecutable">
+<h1>python.pydev.pythonExecutable</h1>
+<p>The python executable to be used (if not specified, <strong>python</strong> is expected to be in the <strong>PATH</strong>).</p>
+</div>
+<div class="section" id="python-pydev-pythonpath">
+<h1>python.pydev.pythonPath</h1>
+<p>A list of folders that should be added to the <strong>PYTHONPATH</strong> and should be considered source folders
+(i.e.: folders with the sources meant to be edited by the user).</p>
+<p>If not specified, the folders which are in the <strong>PYTHONPATH</strong> and are available below a workspace
+in vscode will be considered as source folders (and if there's no match, each workspace folder in
+vscode will be considered a source folder).</p>
+</div>
+<div class="section" id="python-pydev-forcedbuiltins">
+<h1>python.pydev.forcedBuiltins</h1>
+<p>A  list of additional modules to be inspected through a shell
+(see <a class="reference external" href="http://www.pydev.org/manual_101_interpreter.html#PyDevInterpreterConfiguration-ForcedBuiltins">http://www.pydev.org/manual_101_interpreter.html#PyDevInterpreterConfiguration-ForcedBuiltins</a> for more information).</p>
+</div>
+<div class="section" id="python-pydev-preferredimportlocation">
+<h1>python.pydev.preferredImportLocation</h1>
+<p>The preferred import location to be used on auto-imports and quick-fix to determine the location to add an import. Must be one of:</p>
+<p><strong>global</strong>: Adds the import to the imports in the top of the module.</p>
+<p><strong>topOfMethod</strong>: Adds the import to the top of the current method.</p>
+<p><strong>lineBeforeUsage</strong>: Adds the import just before the line where the import was requested.</p>
+</div>
+<div class="section" id="editor-formatontype">
+<h1>editor.formatOnType</h1>
+<p>When format on type is turned on, PyDev will automatically add some of its auto-editions (such as adding <strong>self</strong> on a method automatically
+or closing a method with <strong>):</strong>).</p>
+</div>
+</contents_area>
+
+
+<right_area>
+</right_area>
+
+
+<image_area>manual.png</image_area>
+
+
+<quote_area></quote_area>
+
+
+
+</doc>
+

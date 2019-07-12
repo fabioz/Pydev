@@ -72,10 +72,10 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.progress.UIJob;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.StatusInfo;
 import org.python.pydev.plugin.preferences.IPreferenceConfigurationBlock;
-import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.ui.EmulatedNativeCheckBoxLabelProvider;
 import org.python.pydev.ui.ScrolledPageContent;
 import org.python.pydev.ui.TableLayoutComposite;
@@ -665,26 +665,26 @@ public class PyEditorHoverConfigurationBlock implements IPreferenceConfiguration
 
             Boolean enable = hoverDesc.isEnabled();
             String hoverDescId = hoverDesc.getId();
-            PydevPrefs.getPreferenceStore().setValue(
+            PyDevUiPrefs.getPreferenceStore().setValue(
                     PyHoverPreferencesPage.KEY_TEXT_HOVER_MODIFIER + hoverDescId, modifier);
-            PydevPrefs.getPreferenceStore().setValue(
+            PyDevUiPrefs.getPreferenceStore().setValue(
                     PyHoverPreferencesPage.KEY_TEXT_HOVER_MODIFIER_MASK + hoverDescId, modifierMask);
-            PydevPrefs.getPreferenceStore().setValue(
+            PyDevUiPrefs.getPreferenceStore().setValue(
                     PyHoverPreferencesPage.KEY_TEXT_HOVER_PRIORITY + hoverDescId, priority);
-            PydevPrefs.getPreferenceStore().setValue(
+            PyDevUiPrefs.getPreferenceStore().setValue(
                     PyHoverPreferencesPage.KEY_TEXT_HOVER_PREEMPT + hoverDescId, preempt);
-            PydevPrefs.getPreferenceStore().setValue(
+            PyDevUiPrefs.getPreferenceStore().setValue(
                     PyHoverPreferencesPage.KEY_TEXT_HOVER_ENABLE + hoverDescId, enable);
         }
 
         //save preferences for the combining hover
-        PydevPrefs.getPreferenceStore().setValue(
+        PyDevUiPrefs.getPreferenceStore().setValue(
                 PyHoverPreferencesPage.KEY_TEXT_HOVER_MODIFIER + fCombiningHover.getId(),
                 fCombiningHover.getModifierString());
-        PydevPrefs.getPreferenceStore().setValue(
+        PyDevUiPrefs.getPreferenceStore().setValue(
                 PyHoverPreferencesPage.KEY_TEXT_HOVER_MODIFIER_MASK + fCombiningHover.getId(),
                 fCombiningHover.fStateMask);
-        PydevPrefs.getPreferenceStore().setValue(
+        PyDevUiPrefs.getPreferenceStore().setValue(
                 PyHoverPreferencesPage.KEY_TEXT_HOVER_ENABLE + fCombiningHover.getId(),
                 PyHoverPreferencesPage.getCombineHoverInfo());
 
@@ -770,7 +770,7 @@ public class PyEditorHoverConfigurationBlock implements IPreferenceConfiguration
 
         //restore settings for contributed hovers
         for (int i = 0; i < fHoverDescs.length; i++) {
-            String modifierString = PydevPrefs.getPreferenceStore()
+            String modifierString = PyDevUiPrefs.getPreferenceStore()
                     .getDefaultString(PyHoverPreferencesPage.KEY_TEXT_HOVER_MODIFIER + fHoverDescs[i].getId());
 
             if (PyEditorTextHoverDescriptor.NO_MODIFIER.equals(modifierString)) {
@@ -783,7 +783,7 @@ public class PyEditorHoverConfigurationBlock implements IPreferenceConfiguration
             if (fHoverDescs[i].fStateMask == -1) {
                 try {
                     fHoverDescs[i].fStateMask = Integer
-                            .parseInt(PydevPrefs.getPreferenceStore().getString(
+                            .parseInt(PyDevUiPrefs.getPreferenceStore().getString(
                                     PyHoverPreferencesPage.KEY_TEXT_HOVER_MODIFIER_MASK + fHoverDescs[i].getId()));
                 } catch (NumberFormatException ex) {
                     fHoverDescs[i].fStateMask = -1;
@@ -801,7 +801,7 @@ public class PyEditorHoverConfigurationBlock implements IPreferenceConfiguration
         }
 
         //restore settings for combining hover
-        String modifierString = PydevPrefs.getPreferenceStore().getDefaultString(
+        String modifierString = PyDevUiPrefs.getPreferenceStore().getDefaultString(
                 PyHoverPreferencesPage.KEY_TEXT_HOVER_MODIFIER + fCombiningHover.getId());
         if (PyEditorTextHoverDescriptor.NO_MODIFIER.equals(modifierString)) {
             modifierString = ""; //$NON-NLS-1$
@@ -812,7 +812,7 @@ public class PyEditorHoverConfigurationBlock implements IPreferenceConfiguration
         if (fCombiningHover.fStateMask == -1) {
             // Fallback: use stored modifier masks
             try {
-                fCombiningHover.fStateMask = Integer.parseInt(PydevPrefs.getPreferenceStore().getString(
+                fCombiningHover.fStateMask = Integer.parseInt(PyDevUiPrefs.getPreferenceStore().getString(
                         PyHoverPreferencesPage.KEY_TEXT_HOVER_MODIFIER_MASK + fCombiningHover.getId()));
             } catch (NumberFormatException ex) {
                 fCombiningHover.fStateMask = -1;

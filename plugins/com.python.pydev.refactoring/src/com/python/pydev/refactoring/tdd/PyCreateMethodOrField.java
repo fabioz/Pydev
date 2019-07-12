@@ -11,7 +11,6 @@ import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -23,6 +22,7 @@ import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
@@ -52,7 +52,8 @@ public class PyCreateMethodOrField extends AbstractPyCreateClassOrMethodOrField 
      * Returns a proposal that can be used to generate the code.
      */
     @Override
-    public ICompletionProposal createProposal(RefactoringInfo refactoringInfo, String actTok, int locationStrategy,
+    public ICompletionProposalHandle createProposal(RefactoringInfo refactoringInfo, String actTok,
+            int locationStrategy,
             List<String> parametersAfterCall) {
         PySelection pySelection = refactoringInfo.getPySelection();
         ModuleAdapter moduleAdapter = refactoringInfo.getModuleAdapter();

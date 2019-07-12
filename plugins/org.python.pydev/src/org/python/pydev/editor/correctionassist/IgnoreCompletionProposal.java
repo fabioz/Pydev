@@ -12,21 +12,22 @@ package org.python.pydev.editor.correctionassist;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.IContextInformation;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
+import org.python.pydev.editor.codecompletion.proposals.PyCompletionProposal;
+import org.python.pydev.shared_core.image.IImageHandle;
 
 public class IgnoreCompletionProposal extends PyCompletionProposal {
 
-    protected final PyEdit edit;
+    protected final IPyEdit edit;
 
     public IgnoreCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
-            int cursorPosition, Image image, String displayString, IContextInformation contextInformation,
-            String additionalProposalInfo, int priority, PyEdit edit) {
+            int cursorPosition, IImageHandle image, String displayString, IContextInformation contextInformation,
+            String additionalProposalInfo, int priority, IPyEdit edit) {
         super(replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
-                contextInformation, additionalProposalInfo, priority);
+                contextInformation, additionalProposalInfo, priority, null);
         this.edit = edit;
     }
 
@@ -37,12 +38,16 @@ public class IgnoreCompletionProposal extends PyCompletionProposal {
             document.replace(fReplacementOffset, fReplacementLength, fReplacementString);
 
             //ok, after doing it, let's call for a reparse
-            if (edit != null) {
-                edit.getParser().forceReparse();
+            if (edit != null && getForceReparse()) {
+                ((PyEdit) edit).getParser().forceReparse();
             }
         } catch (BadLocationException x) {
             Log.log(x);
         }
+    }
+
+    protected boolean getForceReparse() {
+        return true;
     }
 
     @Override

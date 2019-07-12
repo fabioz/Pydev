@@ -1,0 +1,148 @@
+<doc>
+<contents_area>
+
+
+<div class="section" id="code-completion">
+<h1>Code Completion</h1>
+</div>
+<div class="section" id="type-hinting-with-docstrings-comments">
+<h1>Type hinting with docstrings/comments</h1>
+<div class="section" id="new-on-pydev-2-8-0">
+<h2>New on PyDev 2.8.0</h2>
+<p>It's possible to provide hints for code-completion with docstrings by commenting types with the Sphinx/Epydoc format.</p>
+<p>Below are some examples of how to provide type-hints.</p>
+</div>
+<div class="section" id="list-type-with-sphinx-pydev-4-0-onwards">
+<h2>List type with Sphinx (PyDev 4.0 onwards)</h2>
+<p>Note: It works with brackets or parenthesis:</p>
+<blockquote>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span></span><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyClass</span>:
+
+    <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">method</span>(<span style="color: #008000">self</span>, param):
+        <span style="color: #BA2121">&#39;:type param: list(str)&#39;</span>
+        <span style="color: #BA2121">&#39;:type param: list[str]&#39;</span>
+</pre></div>
+</blockquote>
+</div>
+<div class="section" id="dict-type-with-sphinx-pydev-4-0-onwards">
+<h2>Dict type with Sphinx (PyDev 4.0 onwards)</h2>
+<p>Note: It works with brackets or parenthesis:</p>
+<blockquote>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span></span><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyClass</span>:
+
+    <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">method</span>(<span style="color: #008000">self</span>, param):
+        <span style="color: #BA2121">&#39;:type param: dict(str, MyClass)&#39;</span>
+        <span style="color: #BA2121">&#39;:type param: dict[str, MyClass]&#39;</span>
+</pre></div>
+</blockquote>
+</div>
+<div class="section" id="return-type-with-sphinx">
+<h2>Return type with Sphinx</h2>
+<blockquote>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span></span><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyClass</span>:
+
+    <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">method</span>(<span style="color: #008000">self</span>):
+        <span style="color: #BA2121">&#39;:rtype unittest.TestCase&#39;</span>
+</pre></div>
+</blockquote>
+</div>
+<div class="section" id="parameter-type-with-sphinx">
+<h2>Parameter type with Sphinx</h2>
+<blockquote>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span></span><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyClass</span>:
+
+    <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">method</span>(<span style="color: #008000">self</span>, a):
+        <span style="color: #BA2121">&#39;:type a: TestCase&#39;</span>
+        <span style="color: #408080; font-style: italic">#Note that just the class name is accepted, but in this case,</span>
+        <span style="color: #408080; font-style: italic">#it&#39;ll search for a TestCase class in the whole workspace</span>
+</pre></div>
+</blockquote>
+</div>
+<div class="section" id="parameter-type-with-sphinx-inline">
+<h2>Parameter type with Sphinx inline</h2>
+<blockquote>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span></span><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyClass</span>:
+
+    <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">method</span>(<span style="color: #008000">self</span>, a):
+        <span style="color: #BA2121">&#39;:param TestCase a:&#39;</span>
+</pre></div>
+</blockquote>
+</div>
+<div class="section" id="local-variable-with-sphinx">
+<h2>Local variable with Sphinx</h2>
+<blockquote>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span></span><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyClass</span>:
+
+    <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">method</span>(<span style="color: #008000">self</span>, lst):
+        <span style="color: #408080; font-style: italic">#Can be on the same line</span>
+        <span style="color: #008000; font-weight: bold">for</span> a <span style="color: #AA22FF; font-weight: bold">in</span> lst: <span style="color: #408080; font-style: italic">#: :type a: GUITest</span>
+            a<span style="color: #666666">.</span>;
+</pre></div>
+</blockquote>
+</div>
+<div class="section" id="id1">
+<h2>Local variable with Sphinx</h2>
+<blockquote>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span></span><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyClass</span>:
+
+    <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">method</span>(<span style="color: #008000">self</span>, lst):
+        <span style="color: #408080; font-style: italic">#Or on the line before</span>
+        <span style="color: #408080; font-style: italic">#: :type a: GUITest</span>
+        <span style="color: #008000; font-weight: bold">for</span> a <span style="color: #AA22FF; font-weight: bold">in</span> lst:
+            a<span style="color: #666666">.</span>;
+</pre></div>
+</blockquote>
+</div>
+<div class="section" id="id2">
+<h2>Local variable with Sphinx</h2>
+<blockquote>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span></span><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyClass</span>:
+
+    <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">method</span>(<span style="color: #008000">self</span>, lst):
+        <span style="color: #408080; font-style: italic">#If commented as a docstring must be on the</span>
+        <span style="color: #408080; font-style: italic">#line after</span>
+        <span style="color: #008000; font-weight: bold">for</span> a <span style="color: #AA22FF; font-weight: bold">in</span> lst:
+            <span style="color: #BA2121">&#39;: :type a: GUITest&#39;</span>
+            a<span style="color: #666666">.</span>;
+</pre></div>
+</blockquote>
+</div>
+<div class="section" id="return-type-with-epydoc">
+<h2>Return type with Epydoc</h2>
+<blockquote>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span></span><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyClass</span>:
+
+    <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">method</span>(<span style="color: #008000">self</span>):
+        <span style="color: #BA2121">&#39;@rtype unittest.TestCase&#39;</span>
+</pre></div>
+</blockquote>
+</div>
+<div class="section" id="parameter-type-with-epydoc">
+<h2>Parameter type with Epydoc</h2>
+<blockquote>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span></span><span style="color: #008000; font-weight: bold">class</span> <span style="color: #0000FF; font-weight: bold">MyClass</span>:
+
+    <span style="color: #008000; font-weight: bold">def</span> <span style="color: #0000FF">method</span>(<span style="color: #008000">self</span>, a):
+        <span style="color: #BA2121">&#39;@type a: TestCase&#39;</span>
+        <span style="color: #408080; font-style: italic">#Note that just the class name is accepted, but in this case,</span>
+        <span style="color: #408080; font-style: italic">#it&#39;ll search for a TestCase class in the whole workspace</span>
+</pre></div>
+</blockquote>
+</div>
+</div>
+</contents_area>
+
+
+<right_area>
+</right_area>
+
+
+<image_area>manual.png</image_area>
+
+
+<quote_area></quote_area>
+
+
+
+</doc>
+

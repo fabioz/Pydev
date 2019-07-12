@@ -42,14 +42,22 @@ public class ShowAllUppercaseReferencesActionDelegate extends AbstractShowRefere
     protected boolean select(Viewer viewer, Object parentElement, PyVariable variable, String variableName) {
 
         if (variableName != null) {
+            boolean foundUpper = false;
             int length = variableName.length();
             for (int i = 0; i < length; i++) {
-                if (Character.isLowerCase(variableName.charAt(i))) {
+                char c = variableName.charAt(i);
+                if (Character.isDigit(c)) {
+                    continue;
+                }
+                if (Character.isLowerCase(c)) {
                     return true;
                 }
+                if (!foundUpper) {
+                    foundUpper = Character.isUpperCase(c);
+                }
             }
-            // no lower case letters, filter out
-            return false;
+            // Filter out if we found an upper case char.
+            return !foundUpper;
         }
         return true;
     }

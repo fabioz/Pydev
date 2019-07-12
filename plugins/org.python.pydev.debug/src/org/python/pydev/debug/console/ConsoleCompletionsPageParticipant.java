@@ -13,7 +13,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.internal.ui.views.console.ProcessConsole;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
@@ -24,6 +23,7 @@ import org.eclipse.ui.console.TextConsoleViewer;
 import org.eclipse.ui.internal.console.IOConsolePage;
 import org.eclipse.ui.internal.console.IOConsolePartition;
 import org.eclipse.ui.part.IPageBookViewPage;
+import org.python.pydev.ast.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.model.AbstractDebugTarget;
@@ -36,9 +36,10 @@ import org.python.pydev.debug.newconsole.CurrentPyStackFrameForConsole;
 import org.python.pydev.debug.newconsole.PydevConsoleCommunication;
 import org.python.pydev.debug.newconsole.PydevConsoleCompletionProcessor;
 import org.python.pydev.debug.newconsole.PydevConsoleInterpreter;
-import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
+import org.python.pydev.editor.PyInformationControlCreator;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_interactive_console.console.IScriptConsoleCommunication;
 import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
@@ -55,7 +56,7 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
      */
     public static class GetCompletionsInDebug implements IScriptConsoleCommunication, ICommandResponseListener {
 
-        private static final ICompletionProposal[] EMPTY_COMPLETION_PROPOSALS = new ICompletionProposal[0];
+        private static final ICompletionProposalHandle[] EMPTY_COMPLETION_PROPOSALS = new ICompletionProposalHandle[0];
         private String actTok;
         private String text;
         private int offset;
@@ -80,7 +81,7 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
          * Gets the completions at the passed offset.
          */
         @Override
-        public ICompletionProposal[] getCompletions(String text, String actTok, int offset,
+        public ICompletionProposalHandle[] getCompletions(String text, String actTok, int offset,
                 boolean showForTabCompletion)
                 throws Exception {
             this.text = text;
@@ -105,7 +106,7 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
          * Keeps in a loop for 3 seconds or until the completions are found. If no completions are found in that time,
          * returns an empty array.
          */
-        private ICompletionProposal[] waitForCommand() {
+        private ICompletionProposalHandle[] waitForCommand() {
             int i = 300; //wait up to 3 seconds
             while (--i > 0 && receivedXmlCompletions == null) {
                 try {
@@ -121,10 +122,10 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
                 Log.logInfo("Timeout for waiting for debug completions elapsed (3 seconds).");
                 return EMPTY_COMPLETION_PROPOSALS;
             }
-            List<ICompletionProposal> ret = new ArrayList<ICompletionProposal>(fromServer.size());
+            List<ICompletionProposalHandle> ret = new ArrayList<ICompletionProposalHandle>(fromServer.size());
             PydevConsoleCommunication.convertConsoleCompletionsToICompletions(text, actTok, offset, fromServer, ret,
                     false);
-            return ret.toArray(new ICompletionProposal[0]);
+            return ret.toArray(new ICompletionProposalHandle[0]);
         }
 
         @Override
@@ -197,8 +198,8 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
         if (process == null) {
             return;
         }
-        if (!PyCodeCompletionPreferencesPage.useCodeCompletion()
-                || !PyCodeCompletionPreferencesPage.useCodeCompletionOnDebug()) {
+        if (!PyCodeCompletionPreferences.useCodeCompletion()
+                || !PyCodeCompletionPreferences.useCodeCompletionOnDebug()) {
             return;
         }
         String attribute = process.getAttribute(Constants.PYDEV_DEBUG_IPROCESS_ATTR);
@@ -245,7 +246,7 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
                     return super.showPossibleCompletions();
                 };
             };
-            contentAssist.setInformationControlCreator(PyContentAssistant.createInformationControlCreator(viewer));
+            contentAssist.setInformationControlCreator(new PyInformationControlCreator());
             contentAssist.install(new ScriptConsoleViewerWrapper(viewer, interpreter.getInterpreterInfo()));
 
             IContentAssistProcessor processor = new PydevConsoleCompletionProcessor(interpreter, contentAssist);
@@ -254,7 +255,7 @@ public class ConsoleCompletionsPageParticipant implements IConsolePageParticipan
 
             contentAssist.enableAutoActivation(true);
             contentAssist.enableAutoInsert(false);
-            contentAssist.setAutoActivationDelay(PyCodeCompletionPreferencesPage.getAutocompleteDelay());
+            contentAssist.setAutoActivationDelay(PyCodeCompletionPreferences.getAutocompleteDelay());
         }
     }
 

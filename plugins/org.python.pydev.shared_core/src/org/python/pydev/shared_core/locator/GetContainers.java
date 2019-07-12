@@ -15,9 +15,9 @@ public class GetContainers {
     /**
      * This method is a workaround for w.getRoot().getContainerForLocation(path); which does not work consistently because
      * it filters out files which should not be filtered (i.e.: if a project is not in the workspace but imported).
-     * 
+     *
      * Also, it can fail to get resources in linked folders in the pythonpath.
-     * 
+     *
      * @param project is optional (may be null): if given we'll search in it dependencies first.
      */
     public IContainer getContainerForLocation(IPath location, IProject project) {
@@ -32,9 +32,9 @@ public class GetContainers {
     /**
      * This method is a workaround for w.getRoot().getContainersForLocation(path); which does not work consistently because
      * it filters out files which should not be filtered (i.e.: if a project is not in the workspace but imported).
-     * 
+     *
      * Also, it can fail to get resources in linked folders in the pythonpath.
-     * 
+     *
      * @param project is optional (may be null): if given we'll search in it dependencies first.
      */
     public IContainer[] getContainersForLocation(IPath location, IProject project, boolean stopOnFirst) {
@@ -93,8 +93,9 @@ public class GetContainers {
     /**
      * Gets an IContainer inside a container given a path in the filesystem (resolves the full path of the container and
      * checks if the location given is under it).
+     * @param mustExist 
      */
-    protected IContainer getContainerInContainer(IPath location, IContainer container) {
+    public static final IContainer getContainerInContainer(IPath location, IContainer container, boolean mustExist) {
         IPath projectLocation = container.getLocation();
         if (projectLocation != null && projectLocation.isPrefixOf(location)) {
             int segmentsToRemove = projectLocation.segmentCount();
@@ -103,7 +104,7 @@ public class GetContainers {
                 return container; //I.e.: equal to container
             }
             IContainer file = container.getFolder(removeFirstSegments);
-            if (file.exists()) {
+            if (!mustExist || file.exists()) {
                 return file;
             }
         }
@@ -118,7 +119,7 @@ public class GetContainers {
      * @return the file found or null if it was not found.
      */
     protected IContainer getContainerInProject(IPath location, IProject project) {
-        IContainer file = getContainerInContainer(location, project);
+        IContainer file = getContainerInContainer(location, project, true);
         if (file != null) {
             return file;
         }

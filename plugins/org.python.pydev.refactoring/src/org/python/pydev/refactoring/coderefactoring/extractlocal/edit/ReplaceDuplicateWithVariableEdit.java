@@ -24,21 +24,21 @@
 
 package org.python.pydev.refactoring.coderefactoring.extractlocal.edit;
 
-import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.expr_contextType;
 import org.python.pydev.refactoring.coderefactoring.extractlocal.request.ExtractLocalRequest;
 import org.python.pydev.refactoring.core.edit.AbstractReplaceEdit;
+import org.python.pydev.shared_core.string.ICoreTextSelection;
 import org.python.pydev.shared_core.structure.Tuple;
 
 public class ReplaceDuplicateWithVariableEdit extends AbstractReplaceEdit {
 
-    private ITextSelection selection;
+    private ICoreTextSelection selection;
     private String variableName;
-    private Tuple<ITextSelection, SimpleNode> dup;
+    private Tuple<ICoreTextSelection, SimpleNode> dup;
 
-    public ReplaceDuplicateWithVariableEdit(ExtractLocalRequest req, Tuple<ITextSelection, SimpleNode> dup) {
+    public ReplaceDuplicateWithVariableEdit(ExtractLocalRequest req, Tuple<ICoreTextSelection, SimpleNode> dup) {
         super(req);
         this.dup = dup;
 

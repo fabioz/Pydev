@@ -40,6 +40,7 @@ import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.BooleanQuery.Builder;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
@@ -54,12 +55,12 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jface.text.rules.IToken;
-import org.eclipse.jface.text.rules.ITokenScanner;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.partitioner.IContentsScanner;
+import org.python.pydev.shared_core.partitioner.IToken;
+import org.python.pydev.shared_core.partitioner.ITokenScanner;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.OrderedMap;
@@ -69,6 +70,8 @@ public class IndexApi {
 
     public static final boolean DEBUG = false;
 
+    private static final String lucene6dot1Suffix = "L6dot1";
+
     private final Directory indexDir;
     private IndexWriter writer;
     private SearcherManager searchManager;
@@ -77,8 +80,22 @@ public class IndexApi {
     private CodeAnalyzer analyzer;
     private final Object lock = new Object();
 
-    public IndexApi(Directory indexDir, boolean applyAllDeletes) throws IOException {
-        this.indexDir = indexDir;
+    protected IndexApi(Object /*Directory*/ indexDirObj, boolean applyAllDeletes) throws IOException {
+        // Note; indexDirOjb must actually be a org.apache.lucene.store.Directory (but we don't export it
+        // in the API so that it's not in the public API -- that way clients don't need to depend on it
+        // as they'll usually use the other constructor which receive as File anyways).
+        Directory indexDir = (Directory) indexDirObj;
+        Directory resultDir = indexDir;
+        if (indexDir instanceof FSDirectory) {
+            FSDirectory dir = (FSDirectory) indexDir;
+            java.nio.file.Path indexPath = dir.getDirectory();
+            File indexFile = indexPath.toFile();
+            if (!indexFile.getAbsolutePath().endsWith(lucene6dot1Suffix)) {
+                File newIndexFile = new File(indexFile.getAbsolutePath() + lucene6dot1Suffix);
+                resultDir = FSDirectory.open(newIndexFile.toPath());
+            }
+        }
+        this.indexDir = resultDir;
         init(applyAllDeletes);
     }
 
@@ -108,7 +125,7 @@ public class IndexApi {
         }
 
         searcherFactory = new SearcherFactory();
-        searchManager = new SearcherManager(writer, applyAllDeletes, searcherFactory);
+        searchManager = new SearcherManager(writer, applyAllDeletes, false, searcherFactory);
     }
 
     public void registerTokenizer(String fieldName, TokenStreamComponents tokenStream) {
@@ -274,14 +291,14 @@ public class IndexApi {
 
     public SearchResult searchExact(String string, String fieldName, boolean applyAllDeletes, IDocumentsVisitor visitor,
             String... fieldsToLoad)
-                    throws IOException {
+            throws IOException {
         Query query = new TermQuery(new Term(fieldName, string));
         return search(query, applyAllDeletes, visitor, fieldsToLoad);
     }
 
     public SearchResult searchWildcard(Set<String> string, String fieldName, boolean applyAllDeletes,
             IDocumentsVisitor visitor, Map<String, String> translateFields, String... fieldsToLoad)
-                    throws IOException {
+            throws IOException {
         OrderedMap<String, Set<String>> fieldNameToValues = new OrderedMap<>();
         fieldNameToValues.put(fieldName, string);
         return searchWildcard(fieldNameToValues, applyAllDeletes, visitor, translateFields, fieldsToLoad);
@@ -294,11 +311,11 @@ public class IndexApi {
      */
     public SearchResult searchWildcard(OrderedMap<String, Set<String>> fieldNameToValues, boolean applyAllDeletes,
             IDocumentsVisitor visitor, Map<String, String> translateFields, String... fieldsToLoad)
-                    throws IOException {
-        BooleanQuery booleanQuery = new BooleanQuery();
+            throws IOException {
+        Builder booleanQueryBuilder = new BooleanQuery.Builder();
         Set<Entry<String, Set<String>>> entrySet = fieldNameToValues.entrySet();
         for (Entry<String, Set<String>> entry : entrySet) {
-            BooleanQuery fieldQuery = new BooleanQuery();
+            Builder fieldQueryBuilder = new BooleanQuery.Builder();
             String fieldName = entry.getKey();
             if (translateFields != null) {
                 String newFieldName = translateFields.get(fieldName);
@@ -327,28 +344,28 @@ public class IndexApi {
                     if (StringUtils.containsOnlyWildCards(s)) {
                         throw new RuntimeException("Unable to create term for searching only wildcards: " + s);
                     }
-                    fieldQuery.add(new WildcardQuery(new Term(fieldName, s)),
+                    fieldQueryBuilder.add(new WildcardQuery(new Term(fieldName, s)),
                             negate ? BooleanClause.Occur.MUST_NOT : BooleanClause.Occur.SHOULD);
 
                 } else {
-                    fieldQuery.add(new TermQuery(new Term(fieldName, s)),
+                    fieldQueryBuilder.add(new TermQuery(new Term(fieldName, s)),
                             negate ? BooleanClause.Occur.MUST_NOT : BooleanClause.Occur.SHOULD);
                 }
                 if (!negate) {
                     allNegate = false;
                 }
             }
-
-            if (fieldQuery.getClauses().length != 0) {
+            BooleanQuery transitiveQuery = fieldQueryBuilder.build();
+            if (transitiveQuery.clauses().size() != 0) {
                 if (allNegate) {
                     // If all are negations, we actually have to add one which would
                     // match all to remove the negations.
-                    fieldQuery.add(new MatchAllDocsQuery(), BooleanClause.Occur.SHOULD);
+                    fieldQueryBuilder.add(new MatchAllDocsQuery(), BooleanClause.Occur.SHOULD);
                 }
-                booleanQuery.add(fieldQuery, BooleanClause.Occur.MUST);
+                booleanQueryBuilder.add(fieldQueryBuilder.build(), BooleanClause.Occur.MUST);
             }
         }
-
+        BooleanQuery booleanQuery = booleanQueryBuilder.build();
         if (DEBUG) {
             System.out.println("Searching: " + booleanQuery);
         }
@@ -396,7 +413,7 @@ public class IndexApi {
      */
     public void visitAllDocs(IDocumentsVisitor visitor, String... fields) throws IOException {
         boolean applyAllDeletes = true;
-        try (IndexReader reader = DirectoryReader.open(writer, applyAllDeletes);) {
+        try (IndexReader reader = DirectoryReader.open(writer, applyAllDeletes, false);) {
 
             IndexSearcher searcher = searcherFactory.newSearcher(reader, null);
             Query query = new MatchAllDocsQuery();
@@ -420,7 +437,7 @@ public class IndexApi {
         } catch (Exception e) {
             Log.log(e);
         }
-        try (IndexReader reader = DirectoryReader.open(writer, applyAllDeletes);) {
+        try (IndexReader reader = DirectoryReader.open(writer, applyAllDeletes, false);) {
             IndexSearcher searcher = searcherFactory.newSearcher(reader, null);
 
             TopDocs search = searcher.search(query, maxMatches);

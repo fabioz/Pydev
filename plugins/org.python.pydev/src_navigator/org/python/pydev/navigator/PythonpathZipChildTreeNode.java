@@ -8,19 +8,19 @@ package org.python.pydev.navigator;
 
 import java.util.List;
 
-import org.eclipse.swt.graphics.Image;
-import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.navigator.elements.ISortedElement;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.image.IImageCache;
+import org.python.pydev.shared_core.image.IImageHandle;
+import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.TreeNode;
-import org.python.pydev.shared_ui.ImageCache;
-import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 
 /**
  * This class represents a file or folder that's inside a zip file.
  */
-public class PythonpathZipChildTreeNode extends TreeNode<LabelAndImage>implements ISortedElement {
+public class PythonpathZipChildTreeNode extends TreeNode<LabelAndImage> implements ISortedElement {
 
     /**
      * Identifies whether we already calculated the children
@@ -59,7 +59,7 @@ public class PythonpathZipChildTreeNode extends TreeNode<LabelAndImage>implement
      * @param isPythonpathRoot identifies whether we're directly in the root of the zip file
      */
     public PythonpathZipChildTreeNode(TreeNode<LabelAndImage> parent, ZipStructure zipStructure, String zipPath,
-            Image icon, boolean isPythonpathRoot) {
+            IImageHandle icon, boolean isPythonpathRoot) {
         super(parent, null); //data will be set later
         try {
             this.zipStructure = zipStructure;
@@ -73,19 +73,15 @@ public class PythonpathZipChildTreeNode extends TreeNode<LabelAndImage>implement
 
                 } else if (parent instanceof PythonpathZipChildTreeNode
                         && ((PythonpathZipChildTreeNode) parent).isPackage) {
-                    for (String s : dirContents) {
-                        if (PythonPathHelper.isValidInitFile(s)) {
-                            isPackage = true;
-                            break;
-                        }
-                    }
+                    // Python 3.6 onwards no longer requires having an __init__.py to be a package.
+                    isPackage = true;
 
                 }
             }
 
             //Update the icon if it wasn't received.
             if (icon == null) {
-                ImageCache imageCache = PydevPlugin.getImageCache();
+                IImageCache imageCache = SharedUiPlugin.getImageCache();
                 if (isDir) {
                     if (isPackage) {
                         icon = imageCache.get(UIConstants.FOLDER_PACKAGE_ICON);

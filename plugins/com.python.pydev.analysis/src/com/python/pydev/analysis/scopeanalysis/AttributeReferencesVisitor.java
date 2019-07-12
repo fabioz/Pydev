@@ -9,7 +9,7 @@ package com.python.pydev.analysis.scopeanalysis;
 import java.util.Iterator;
 import java.util.List;
 
-import org.python.pydev.editor.codecompletion.revisited.CompletionState;
+import org.python.pydev.ast.codecompletion.revisited.CompletionState;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ClassDef;

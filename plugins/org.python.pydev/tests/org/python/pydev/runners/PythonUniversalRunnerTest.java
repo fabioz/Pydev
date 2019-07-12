@@ -7,11 +7,13 @@
 package org.python.pydev.runners;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.python.pydev.ast.codecompletion.revisited.CodeCompletionTestsBase;
+import org.python.pydev.ast.codecompletion.revisited.modules.CompiledModule;
+import org.python.pydev.ast.runners.SimpleRunner;
+import org.python.pydev.ast.runners.UniversalRunner;
+import org.python.pydev.ast.runners.UniversalRunner.AbstractRunner;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.editor.codecompletion.revisited.CodeCompletionTestsBase;
-import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
-import org.python.pydev.runners.UniversalRunner.AbstractRunner;
 import org.python.pydev.shared_core.structure.Tuple;
 
 public class PythonUniversalRunnerTest extends CodeCompletionTestsBase {
@@ -41,7 +43,7 @@ public class PythonUniversalRunnerTest extends CodeCompletionTestsBase {
         assertEquals("test", output.o1.trim());
         assertEquals("err", output.o2.trim());
 
-        Tuple<Process, String> createProcess = runner.createProcess(TestDependent.TEST_PYSRC_LOC
+        Tuple<Process, String> createProcess = runner.createProcess(TestDependent.TEST_PYSRC_TESTING_LOC
                 + "universal_runner_test.py", null, null, new NullProgressMonitor());
         output = SimpleRunner.getProcessOutput(createProcess.o1, "", new NullProgressMonitor(), "utf-8");
         assertEquals("stdout", output.o1.trim());

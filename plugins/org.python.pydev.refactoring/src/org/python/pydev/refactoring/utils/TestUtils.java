@@ -21,6 +21,7 @@
 
 package org.python.pydev.refactoring.utils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
@@ -94,7 +95,7 @@ public final class TestUtils {
     }
 
     public static Cursors findCursors(String input) {
-        List<Integer> positions = new LinkedListWarningOnSlowOperations<Integer>();
+        List<Integer> positions = new ArrayList<Integer>();
         String text = input;
 
         while (true) {

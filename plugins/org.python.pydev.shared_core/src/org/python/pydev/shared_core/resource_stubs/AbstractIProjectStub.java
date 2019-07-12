@@ -77,7 +77,7 @@ public class AbstractIProjectStub extends AbstractIContainerStub implements IPro
 
     @Override
     public IProjectNature getNature(String natureId) throws CoreException {
-        throw new RuntimeException("Not implemented");
+        return null;
     }
 
     @Override
@@ -191,6 +191,9 @@ public class AbstractIProjectStub extends AbstractIContainerStub implements IPro
     @Override
     public int getType() {
         return IResource.PROJECT;
+    }
+
+    public void clearCachedDynamicReferences() {
     }
 
 }

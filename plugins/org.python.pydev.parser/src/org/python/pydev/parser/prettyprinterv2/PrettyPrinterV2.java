@@ -10,8 +10,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IIndentPrefs;
@@ -28,12 +28,12 @@ import org.python.pydev.shared_core.structure.Tuple;
  * because of comments, as it depends too much on how the parsing was done and the comments
  * found (and javacc just spits them out and the parser tries to put them in good places, but
  * this is often not what happens)
- * 
+ *
  * So, a different approach will be tested:
  * Instead of doing everything in a single pass, we'll traverse the structure once to create
  * a new (flat) structure, in a 2nd step that structure will be filled with comments and in
  * a final step, that intermediary structure will be actually written.
- * 
+ *
  * This will also enable the parsing to be simpler (and faster) as it'll not have to move comments
  * around to try to find a suitable position.
  */
@@ -43,7 +43,7 @@ public class PrettyPrinterV2 {
 
     private final int LEVEL_PARENS = 0; //()
     private final int LEVEL_BRACKETS = 1; //[]
-    private final int LEVEL_BRACES = 2; //{} 
+    private final int LEVEL_BRACES = 2; //{}
 
     public static PrettyPrinterPrefsV2 createDefaultPrefs(IGrammarVersionProvider versionProvider,
             IIndentPrefs indentPrefs, String endLineDelim) {
@@ -52,7 +52,13 @@ public class PrettyPrinterV2 {
 
                 @Override
                 public int getGrammarVersion() throws MisconfigurationException {
-                    return IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;
+                    return IGrammarVersionProvider.LATEST_GRAMMAR_PY3_VERSION;
+                }
+
+                @Override
+                public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions()
+                        throws MisconfigurationException {
+                    return null;
                 }
             };
         }
@@ -318,8 +324,8 @@ public class PrettyPrinterV2 {
 
     /**
      * Handles a single line comment, putting it in the correct indentation.
-     * @param line 
-     * @param commentsSkipped 
+     * @param line
+     * @param commentsSkipped
      * @return the indent used or null if it wasn't written.
      */
     private String handleSingleLineComment(ILinePart2 linePart, PrettyPrinterDocLineEntry line,
@@ -333,7 +339,7 @@ public class PrettyPrinterV2 {
             return indent;
         }
 
-        ILinePart2 iLinePart2 = (ILinePart2) linePart;
+        ILinePart2 iLinePart2 = linePart;
         commentType commentType = (commentType) linePart.getToken();
         int col = commentType.beginColumn;
         if (col == 1) { //yes, our indexing starts at 1.

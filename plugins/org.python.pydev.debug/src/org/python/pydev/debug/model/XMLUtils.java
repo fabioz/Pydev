@@ -35,6 +35,8 @@ import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -46,6 +48,16 @@ import org.xml.sax.helpers.DefaultHandler;
 public class XMLUtils {
 
     public static final SAXParserFactory parserFactory = SAXParserFactory.newInstance();
+    static {
+        try {
+            parserFactory.setFeature("http://xml.org/sax/features/namespaces", false);
+            parserFactory.setFeature("http://xml.org/sax/features/validation", false);
+            parserFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+            parserFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        } catch (SAXNotRecognizedException | SAXNotSupportedException | ParserConfigurationException e) {
+            Log.log(e);
+        }
+    }
 
     public static SAXParser getSAXParser() throws CoreException {
         SAXParser parser = null;
@@ -70,6 +82,18 @@ public class XMLUtils {
             }
         }
         return null;
+    }
+
+    private static String decodeIgnoreError(String value) {
+        try {
+            if (value != null) {
+                // this may fail beyond the scope of UTF-8 not found (= serious problem); for example, value is invalid.
+                return URLDecoder.decode(value, "UTF-8");
+            }
+        } catch (Exception e) {
+            Log.log(e);
+        }
+        return value;
     }
 
     /**
@@ -122,29 +146,30 @@ public class XMLUtils {
      */
     static PyVariable createVariable(AbstractDebugTarget target, IVariableLocator locator, Attributes attributes) {
         PyVariable var;
-        String name = attributes.getValue("name");
+        String name = decodeIgnoreError(attributes.getValue("name"));
         String type = attributes.getValue("type");
-        String value = attributes.getValue("value");
-        try {
-            if (value != null) {
-                value = URLDecoder.decode(value, "UTF-8");
-            }
-        } catch (Exception e) {
-            Log.log(e);
-        }
-        try {
-            if (name != null) {
-                name = URLDecoder.decode(name, "UTF-8");
-            }
-        } catch (Exception e) {
-            Log.log(e);
-        }
+        String qualifier = decodeIgnoreError(attributes.getValue("qualifier"));
+        String value = decodeIgnoreError(attributes.getValue("value"));
         String isContainer = attributes.getValue("isContainer");
         if ("True".equals(isContainer)) {
             var = new PyVariableCollection(target, name, type, value, locator);
         } else {
             var = new PyVariable(target, name, type, value, locator);
         }
+        var.setQualifier(qualifier);
+        String isRetVal = attributes.getValue("isRetVal");
+        if ("True".equals(isRetVal)) {
+            var.setIsReturnValue(true);
+        }
+        String isIPythonHidden = attributes.getValue("isIPythonHidden");
+        if ("True".equals(isIPythonHidden)) {
+            var.setIsIPythonHidden(true);
+        }
+        String isErrorOnEval = attributes.getValue("isErrorOnEval");
+        if ("True".equals(isErrorOnEval)) {
+            var.setIsErrorOnEval(true);
+        }
+
         return var;
     }
 
@@ -191,7 +216,8 @@ public class XMLUtils {
 
             String line = attributes.getValue("line");
             IPath filePath = new Path(file);
-            // Try to recycle old stack objects
+            // Try to recycle old stack objects (this is needed so that in a step over we
+            // reuse the same frame and keep the expanded state of the frame).
             currentFrame = thread.findStackFrameByID(id);
             if (currentFrame == null) {
                 currentFrame = new PyStackFrame(thread, id, name, filePath, Integer.parseInt(line), target);
@@ -199,6 +225,8 @@ public class XMLUtils {
                 currentFrame.setName(name);
                 currentFrame.setPath(filePath);
                 currentFrame.setLine(Integer.parseInt(line));
+                // If we found it, reuse it and make sure that new variables will be asked when requested.
+                currentFrame.forceGetNewVariables();
             }
             stack.add(currentFrame);
         }
@@ -256,7 +284,7 @@ public class XMLUtils {
      * @return an array of [thread_id, stopReason, IStackFrame[]]
      */
     public static StoppedStack XMLToStack(AbstractDebugTarget target, String payload) throws CoreException {
-        IStackFrame[] stack;
+        IStackFrame[] stack = new IStackFrame[0];
         StoppedStack retVal;
         try {
             SAXParser parser = getSAXParser();
@@ -510,9 +538,11 @@ public class XMLUtils {
         } catch (CoreException e) {
             throw e;
         } catch (SAXException e) {
-            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected XML error", e));
+            throw new CoreException(
+                    PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected XML error. Payload:\n" + payload, e));
         } catch (IOException e) {
-            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected XML error", e));
+            throw new CoreException(
+                    PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected XML error. Payload:\n" + payload, e));
         }
 
     }

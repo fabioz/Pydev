@@ -18,7 +18,7 @@ import org.python.pydev.core.IPyFormatStdProvider;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
+import org.python.pydev.core.formatter.FormatStd;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 
 import junit.framework.TestCase;
@@ -46,7 +46,7 @@ public class PyOrganizeImportsTest extends TestCase {
 
         @Override
         public IPythonNature getPythonNature() throws MisconfigurationException {
-            throw new RuntimeException("Not implemented");
+            return null;
         }
 
         @Override
@@ -79,6 +79,7 @@ public class PyOrganizeImportsTest extends TestCase {
         ImportsPreferencesPage.groupImportsForTests = false;
         ImportsPreferencesPage.sortNamesGroupedForTests = false; //default
         formatStd.spaceAfterComma = true;
+        formatStd.trimLines = true;
     }
 
     /*

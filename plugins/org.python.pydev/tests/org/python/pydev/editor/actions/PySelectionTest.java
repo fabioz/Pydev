@@ -16,12 +16,13 @@ import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
-import org.eclipse.jface.text.TextSelection;
 import org.python.pydev.core.docutils.PyDocIterator;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.PySelection.DocstringInfo;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.docutils.PySelection.TddPossibleMatches;
 import org.python.pydev.core.docutils.PythonPairMatcher;
+import org.python.pydev.shared_core.string.CoreTextSelection;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
@@ -72,15 +73,15 @@ public class PySelectionTest extends TestCase {
     }
 
     public void testAddLine() {
-        ps = new PySelection(new Document("line1\nline2\n"), new TextSelection(doc, 0, 0));
+        ps = new PySelection(new Document("line1\nline2\n"), 0);
         ps.addLine("foo", 0);
         assertEquals("line1\nfoo\nline2\n", ps.getDoc().get());
 
-        ps = new PySelection(new Document("line1\n"), new TextSelection(doc, 0, 0));
+        ps = new PySelection(new Document("line1\n"), 0);
         ps.addLine("foo", 0);
         assertEquals("line1\nfoo\n", ps.getDoc().get());
 
-        ps = new PySelection(new Document("line1"), new TextSelection(doc, 0, 0));
+        ps = new PySelection(new Document("line1"), 0);
         ps.addLine("foo", 0);
         assertEquals("line1\nfoo\n", ps.getDoc().get().replace("\r\n", "\n"));
     }
@@ -90,7 +91,7 @@ public class PySelectionTest extends TestCase {
      *
      */
     public void testGeneral() throws BadLocationException {
-        ps = new PySelection(doc, new TextSelection(doc, 0, 0));
+        ps = new PySelection(doc, 0);
         assertEquals("TestLine1", ps.getCursorLineContents());
         assertEquals("", ps.getLineContentsToCursor());
         ps.selectCompleteLine();
@@ -269,18 +270,18 @@ public class PySelectionTest extends TestCase {
         assertEquals(1, selection.getLineAvailableForImport(false));
     }
 
-    public void testSelectAll() {
-        ps = new PySelection(doc, new TextSelection(doc, 0, 0));
+    public void testSelectAll() throws BadLocationException {
+        ps = new PySelection(doc, 0);
         ps.selectAll(true);
         assertEquals(docContents, ps.getCursorLineContents() + "\n");
         assertEquals(docContents, ps.getSelectedText());
 
-        ps = new PySelection(doc, new TextSelection(doc, 0, 9)); //first line selected
+        ps = new PySelection(doc, new CoreTextSelection(doc, 0, 9)); //first line selected
         ps.selectAll(true); //changes
         assertEquals(docContents, ps.getCursorLineContents() + "\n");
         assertEquals(docContents, ps.getSelectedText());
 
-        ps = new PySelection(doc, new TextSelection(doc, 0, 9)); //first line selected
+        ps = new PySelection(doc, new CoreTextSelection(doc, 0, 9)); //first line selected
         ps.selectAll(false); //nothing changes
         assertEquals(ps.getLine(0), ps.getCursorLineContents());
         assertEquals(ps.getLine(0), ps.getSelectedText());
@@ -289,12 +290,12 @@ public class PySelectionTest extends TestCase {
     public void testFullRep() throws Exception {
         String s = "v=aa.bb.cc()";
         doc = new Document(s);
-        ps = new PySelection(doc, new TextSelection(doc, 2, 2));
+        ps = new PySelection(doc, new CoreTextSelection(doc, 2, 2));
         assertEquals("aa.bb.cc", ps.getFullRepAfterSelection());
 
         s = "v=aa.bb.cc";
         doc = new Document(s);
-        ps = new PySelection(doc, new TextSelection(doc, 2, 2));
+        ps = new PySelection(doc, new CoreTextSelection(doc, 2, 2));
         assertEquals("aa.bb.cc", ps.getFullRepAfterSelection());
 
     }
@@ -310,7 +311,7 @@ public class PySelectionTest extends TestCase {
     public void testGetInsideParentesis() throws Exception {
         String s = "def m1(self, a, b)";
         doc = new Document(s);
-        ps = new PySelection(doc, new TextSelection(doc, 0, 0));
+        ps = new PySelection(doc, 0);
         List<String> insideParentesisToks = ps.getInsideParentesisToks(false).o1;
         assertEquals(2, insideParentesisToks.size());
         assertEquals("a", insideParentesisToks.get(0));
@@ -318,7 +319,7 @@ public class PySelectionTest extends TestCase {
 
         s = "def m1(self, a, b, )";
         doc = new Document(s);
-        ps = new PySelection(doc, new TextSelection(doc, 0, 0));
+        ps = new PySelection(doc, 0);
         insideParentesisToks = ps.getInsideParentesisToks(false).o1;
         assertEquals(2, insideParentesisToks.size());
         assertEquals("a", insideParentesisToks.get(0));
@@ -326,7 +327,7 @@ public class PySelectionTest extends TestCase {
 
         s = "def m1(self, a, b=None)";
         doc = new Document(s);
-        ps = new PySelection(doc, new TextSelection(doc, 0, 0));
+        ps = new PySelection(doc, 0);
         insideParentesisToks = ps.getInsideParentesisToks(true).o1;
         assertEquals(3, insideParentesisToks.size());
         assertEquals("self", insideParentesisToks.get(0));
@@ -335,7 +336,7 @@ public class PySelectionTest extends TestCase {
 
         s = "def m1(self, a, b=None)";
         doc = new Document(s);
-        ps = new PySelection(doc, new TextSelection(doc, 0, 0));
+        ps = new PySelection(doc, 0);
         insideParentesisToks = ps.getInsideParentesisToks(false).o1;
         assertEquals(2, insideParentesisToks.size());
         assertEquals("a", insideParentesisToks.get(0));
@@ -344,14 +345,14 @@ public class PySelectionTest extends TestCase {
         //Note: as Python dropped this support, so did PyDev: in this situation (b,c) is ignored.
         s = "def m1(self, a, (b,c) )";
         doc = new Document(s);
-        ps = new PySelection(doc, new TextSelection(doc, 0, 0));
+        ps = new PySelection(doc, 0);
         insideParentesisToks = ps.getInsideParentesisToks(false).o1;
         assertEquals(1, insideParentesisToks.size());
         assertEquals("a", insideParentesisToks.get(0));
 
         s = "def m1(self, a, b, \nc,\nd )";
         doc = new Document(s);
-        ps = new PySelection(doc, new TextSelection(doc, 0, 0));
+        ps = new PySelection(doc, 0);
         insideParentesisToks = ps.getInsideParentesisToks(false).o1;
         assertEquals(4, insideParentesisToks.size());
         assertEquals("a", insideParentesisToks.get(0));
@@ -361,7 +362,7 @@ public class PySelectionTest extends TestCase {
 
         s = "def m1(self, a=(1,2))";
         doc = new Document(s);
-        ps = new PySelection(doc, new TextSelection(doc, 0, 0));
+        ps = new PySelection(doc, 0);
         insideParentesisToks = ps.getInsideParentesisToks(false).o1;
         assertEquals(1, insideParentesisToks.size());
         assertEquals("a", insideParentesisToks.get(0));
@@ -641,12 +642,12 @@ public class PySelectionTest extends TestCase {
 
     public void testIsInDecl() throws Exception {
         assertEquals(PySelection.DECLARATION_CLASS,
-                new PySelection(new Document("class A(foo):\r\n    pass"), 7).isInDeclarationLine());
-        assertEquals(0, new PySelection(new Document("class A(foo):\r\n    pass"), 9).isInDeclarationLine());
+                new PySelection(new Document("class A(foo):\r\n    pass"), 7).isRightAfterDeclarationInLine());
+        assertEquals(0, new PySelection(new Document("class A(foo):\r\n    pass"), 9).isRightAfterDeclarationInLine());
 
         assertEquals(PySelection.DECLARATION_METHOD,
-                new PySelection(new Document("def A(foo):\r\n    pass"), 5).isInDeclarationLine());
-        assertEquals(0, new PySelection(new Document("def A(foo):\r\n    pass"), 6).isInDeclarationLine());
+                new PySelection(new Document("def A(foo):\r\n    pass"), 5).isRightAfterDeclarationInLine());
+        assertEquals(0, new PySelection(new Document("def A(foo):\r\n    pass"), 6).isRightAfterDeclarationInLine());
     }
 
     public static void checkStrEquals(String string, String string2) {
@@ -828,7 +829,7 @@ public class PySelectionTest extends TestCase {
                 + "    return 10");
         ps = new PySelection(doc, line, col, len);
         Tuple<Integer, Integer> startEndLines = ps.getCurrentMethodStartEndLines();
-        assertEquals(new Tuple<Integer, Integer>(0, 4), startEndLines);
+        assertEquals(new Tuple<Integer, Integer>(0, 5), startEndLines);
     }
 
     public void testGetCurrentMethodLines() throws Exception {
@@ -870,5 +871,180 @@ public class PySelectionTest extends TestCase {
         ps = new PySelection(doc, line, col, len);
         Tuple<Integer, Integer> startEndLines = ps.getCurrentMethodStartEndLines();
         assertEquals(new Tuple<Integer, Integer>(1, 2), startEndLines);
+    }
+
+    /**
+     * Test that we are identifying the correct strings to suppress completions for.
+     */
+    public void testIsCompletionForLiteralNumber() throws Exception {
+        // activation token must end with a dot to be considered for suppression
+        assertFalse(PySelection.isCompletionForLiteralNumber(""));
+        assertFalse(PySelection.isCompletionForLiteralNumber("a"));
+        assertFalse(PySelection.isCompletionForLiteralNumber("1.0"));
+
+        // things which don't look like numbers aren't considered for suppression
+        assertFalse(PySelection.isCompletionForLiteralNumber("a."));
+        assertFalse(PySelection.isCompletionForLiteralNumber("a1."));
+        assertFalse(PySelection.isCompletionForLiteralNumber("(1)."));
+
+        // floating points are allowed completions
+        assertFalse(PySelection.isCompletionForLiteralNumber("1.0."));
+        // hex numbers are also allowed completions
+        assertFalse(PySelection.isCompletionForLiteralNumber("0x0."));
+
+        // decimal numbers cannot have completions (it would be a syntax error)
+        assertTrue(PySelection.isCompletionForLiteralNumber("1."));
+        assertTrue(PySelection.isCompletionForLiteralNumber("1234."));
+
+        // Python 3.6 numbers allow _ (underscore) for readability
+        assertTrue(PySelection.isCompletionForLiteralNumber("1_1."));
+    }
+
+    public void testGetDocstringFromLine() throws BadLocationException {
+        doc = new Document("def m1():\n    'docstring'");
+        ps = new PySelection(doc);
+        DocstringInfo docstringFromLine = ps.getDocstringFromLine(1);
+        assertEquals("DocstringInfo [startLiteralOffset=14, endLiteralOffset=25, string='docstring']",
+                docstringFromLine.toString());
+        assertEquals(11, docstringFromLine.getLength());
+        assertEquals("'docstring'",
+                doc.get(docstringFromLine.startLiteralOffset, docstringFromLine.getLength()));
+    }
+
+    public void testGetDocstringFromLine2() throws BadLocationException {
+        doc = new Document("def m1():\n    '''docstring\n    '''");
+        ps = new PySelection(doc);
+        DocstringInfo docstringFromLine = ps.getDocstringFromLine(1);
+        assertEquals("DocstringInfo [startLiteralOffset=14, endLiteralOffset=34, string='''docstring\n" +
+                "    ''']",
+                docstringFromLine.toString());
+        assertEquals("'''docstring\n    '''",
+                doc.get(docstringFromLine.startLiteralOffset, docstringFromLine.getLength()));
+    }
+
+    public void testGetDocstringFromLineInvalid() {
+        doc = new Document("def m1():\n    '''docstring\n    ''");
+        ps = new PySelection(doc);
+        DocstringInfo docstringFromLine = ps.getDocstringFromLine(1);
+        assertNull(docstringFromLine);
+    }
+
+    public void testGetEndOfCurrentDeclaration() throws Exception {
+        doc = new Document(""
+                + "def m1():\n"
+                + "  a = 10"
+                + "");
+        assertEquals(1, PySelection.getEndLineOfCurrentDeclaration(doc, 0));
+    }
+
+    public void testGetEndOfCurrentDeclaration2() throws Exception {
+        doc = new Document(""
+                + "def m1():\n"
+                + "  a = 10\n"
+                + "");
+        assertEquals(2, PySelection.getEndLineOfCurrentDeclaration(doc, 0));
+    }
+
+    public void testGetEndOfCurrentDeclaration3() throws Exception {
+        doc = new Document(""
+                + "def m1():\n"
+                + "  a = 10\n"
+                + "\n"
+                + "  b = 30\n"
+                + "  def foo():\n"
+                + "    pass\n"
+                + "  \n"
+                + "  c = 30\n"
+                + "a = 10");
+        assertEquals(7, PySelection.getEndLineOfCurrentDeclaration(doc, 0));
+    }
+
+    public void testGetEndOfCurrentDeclaration4() throws Exception {
+        doc = new Document(""
+                + "def m1():\n"
+                + "  a = 10\n"
+                + "  \n"
+                + "\n"
+                + "  \n"
+                + "b = 30\n");
+        assertEquals(4, PySelection.getEndLineOfCurrentDeclaration(doc, 0));
+    }
+
+    public void testGetEndOfCurrentDeclaration5() throws Exception {
+        doc = new Document(""
+                + "def m1():\n"
+                + "  a = 10\n"
+                + "  \n"
+                + "\n"
+                + "  a = '''\n"
+                + "b = 30\n"
+                + "b = 30\n"
+                + "'''\n"
+                + "");
+        assertEquals(8, PySelection.getEndLineOfCurrentDeclaration(doc, 0));
+    }
+
+    public void testGetEndOfCurrentDeclaration6() throws Exception {
+        doc = new Document(""
+                + "def m1():\n"
+                + "  a = '''\n"
+                + "   foo\n"
+                + "   '''\n"
+                + "\n"
+                + "def m2():\n"
+                + "    pass\n"
+                + "");
+        assertEquals(4, PySelection.getEndLineOfCurrentDeclaration(doc, 0));
+    }
+
+    public void testGetEndOfCurrentDeclaration7() throws Exception {
+        doc = new Document(""
+                + "class A(object):\n"
+                + "# comment\n"
+                + "  def m2():\n"
+                + "    pass\n"
+                + "");
+        assertEquals(4, PySelection.getEndLineOfCurrentDeclaration(doc, 0));
+    }
+
+    public void testGetEndOfCurrentDeclaration8() throws Exception {
+        doc = new Document(""
+                + "class A(object):\n"
+                + "  # comment\n"
+                + "  def m2():\n"
+                + "    pass\n"
+                + "");
+        assertEquals(4, PySelection.getEndLineOfCurrentDeclaration(doc, 0));
+    }
+
+    public void testGetEndOfCurrentDeclaration9() throws Exception {
+        doc = new Document(""
+                + "def my(a):\n"
+                + "    rara = 10 + \\\n"
+                + "ignore this\n"
+                + "a = 10\n"
+                + "");
+        assertEquals(2, PySelection.getEndLineOfCurrentDeclaration(doc, 0));
+    }
+
+    public void testGetEndOfCurrentDeclaration10() throws Exception {
+        doc = new Document(""
+                + "def my(a):\r\n"
+                + "    rara = 10 + \\\r\n"
+                + "ignore this\r\n"
+                + "a = 10\r\n"
+                + "");
+        assertEquals(2, PySelection.getEndLineOfCurrentDeclaration(doc, 0));
+    }
+
+    public void testGetEndOfCurrentDeclaration11() throws Exception {
+        doc = new Document(""
+                + "def my(a):\r\n"
+                + "    rara = 10 + \\\r\n"
+                + "ignore this\r\n"
+                + "#comment\r\n"
+                + "a = 10\r\n"
+                + "");
+        assertEquals(3, PySelection.getEndLineOfCurrentDeclaration(doc, 0));
     }
 }

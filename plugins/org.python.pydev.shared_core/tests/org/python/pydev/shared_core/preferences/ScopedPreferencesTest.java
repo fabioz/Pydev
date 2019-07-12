@@ -12,7 +12,7 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.resource_stubs.ProjectStub;
 
@@ -51,10 +51,10 @@ public class ScopedPreferencesTest extends TestCase {
     }
 
     public void testUserSettingsScopedPreferences() throws Exception {
-        IScopedPreferences iScopedPreferences = ScopedPreferences.get("my.test");
+        IScopedPreferences iScopedPreferences = ScopedPreferences.get("my.test1");
         File eclipsePrefs = new File(baseDir, ".eclipse");
         assertTrue(eclipsePrefs.exists());
-        File userSettingsYamlFile = new File(eclipsePrefs, "my.test.yaml");
+        File userSettingsYamlFile = new File(eclipsePrefs, "my.test1.yaml");
         assertTrue(!userSettingsYamlFile.exists());
         Map<String, Object> saveData = new HashMap<String, Object>();
         saveData.put("foo", 1);
@@ -67,18 +67,19 @@ public class ScopedPreferencesTest extends TestCase {
                 return null;
             }
         };
-        IPreferenceStore pluginPreferenceStore = new NullPrefsStore();
-        assertEquals(1, iScopedPreferences.getInt(pluginPreferenceStore, "foo", adaptable));
+        IEclipsePreferences pluginPreferenceStore = new InMemoryEclipsePreferences();
+        IEclipsePreferences defaultPreferenceStore = new InMemoryEclipsePreferences();
+        assertEquals(1, iScopedPreferences.getInt(pluginPreferenceStore, defaultPreferenceStore, "foo", adaptable));
         assertEquals("foo: 1\n", FileUtils.getFileContents(userSettingsYamlFile));
         saveData = new HashMap<String, Object>();
         saveData.put("bar", 2);
         iScopedPreferences.saveToUserSettings(saveData);
         assertEquals("bar: 2\nfoo: 1\n", FileUtils.getFileContents(userSettingsYamlFile));
-        assertEquals(2, iScopedPreferences.getInt(pluginPreferenceStore, "bar", adaptable));
+        assertEquals(2, iScopedPreferences.getInt(pluginPreferenceStore, defaultPreferenceStore, "bar", adaptable));
         waitABit();
         FileUtils.writeStrToFile("bar: 1\nfoo: 1\n", userSettingsYamlFile);
         waitABit();
-        assertEquals(1, iScopedPreferences.getInt(pluginPreferenceStore, "bar", adaptable));
+        assertEquals(1, iScopedPreferences.getInt(pluginPreferenceStore, defaultPreferenceStore, "bar", adaptable));
     }
 
     private void waitABit() {
@@ -94,17 +95,17 @@ public class ScopedPreferencesTest extends TestCase {
     }
 
     public void testProjectSettingsScopedPreferences() throws Exception {
-        IScopedPreferences iScopedPreferences = ScopedPreferences.get("my.test");
+        IScopedPreferences iScopedPreferences = ScopedPreferences.get("my.test2");
         File eclipsePrefs = new File(baseDir, ".eclipse");
         File projectDir = new File(baseDir, "project");
         File projectDirSettings = new File(projectDir, ".settings");
-        File projectDirYAMLFile = new File(projectDirSettings, "my.test.yaml");
+        File projectDirYAMLFile = new File(projectDirSettings, "my.test2.yaml");
         eclipsePrefs.mkdirs();
         projectDir.mkdirs();
         projectDirSettings.mkdirs();
         FileUtils.writeStrToFile("", projectDirYAMLFile);
         assertTrue(eclipsePrefs.exists());
-        File userSettingsYamlFile = new File(eclipsePrefs, "my.test.yaml");
+        File userSettingsYamlFile = new File(eclipsePrefs, "my.test2.yaml");
         assertTrue(!userSettingsYamlFile.exists());
         final IProject project = new ProjectStub(projectDir, null);
         Map<String, Object> saveData = new HashMap<String, Object>();
@@ -123,22 +124,24 @@ public class ScopedPreferencesTest extends TestCase {
                 return null;
             }
         };
-        IPreferenceStore pluginPreferenceStore = new NullPrefsStore();
-        assertEquals(1, iScopedPreferences.getInt(pluginPreferenceStore, "foo", adaptable));
+        IEclipsePreferences pluginPreferenceStore = new InMemoryEclipsePreferences();
+        IEclipsePreferences defaultPreferenceStore = new InMemoryEclipsePreferences();
+
+        assertEquals(1, iScopedPreferences.getInt(pluginPreferenceStore, defaultPreferenceStore, "foo", adaptable));
         saveData = new HashMap<String, Object>();
         saveData.put("bar", 2);
         waitABit();
         iScopedPreferences.saveToProjectSettings(saveData, project);
         waitABit();
         assertEquals("bar: 2\nfoo: 1\n", FileUtils.getFileContents(projectDirYAMLFile));
-        assertEquals(2, iScopedPreferences.getInt(pluginPreferenceStore, "bar", adaptable));
+        assertEquals(2, iScopedPreferences.getInt(pluginPreferenceStore, defaultPreferenceStore, "bar", adaptable));
         FileUtils.writeStrToFile("bar: 1\nfoo: 1\n", projectDirYAMLFile);
-        assertEquals(1, iScopedPreferences.getInt(pluginPreferenceStore, "bar", adaptable));
+        assertEquals(1, iScopedPreferences.getInt(pluginPreferenceStore, defaultPreferenceStore, "bar", adaptable));
         waitABit();
         FileUtils.writeStrToFile("foo: 1\n", projectDirYAMLFile);
         waitABit();
-        assertEquals(0, iScopedPreferences.getInt(pluginPreferenceStore, "bar", adaptable)); // default in NullPrefsStore
-        pluginPreferenceStore.setValue("bar", 2);
-        assertEquals(2, iScopedPreferences.getInt(pluginPreferenceStore, "bar", adaptable)); // default in NullPrefsStore
+        assertEquals(0, iScopedPreferences.getInt(pluginPreferenceStore, defaultPreferenceStore, "bar", adaptable)); // default in NullPrefsStore
+        pluginPreferenceStore.putInt("bar", 2);
+        assertEquals(2, iScopedPreferences.getInt(pluginPreferenceStore, defaultPreferenceStore, "bar", adaptable)); // default in NullPrefsStore
     }
 }

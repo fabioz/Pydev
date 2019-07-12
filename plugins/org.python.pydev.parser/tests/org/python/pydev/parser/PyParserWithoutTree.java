@@ -11,14 +11,14 @@
 ******************************************************************************/
 package org.python.pydev.parser;
 
-import junit.framework.TestCase;
-
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
+
+import junit.framework.TestCase;
 
 public class PyParserWithoutTree extends TestCase {
 
@@ -30,6 +30,11 @@ public class PyParserWithoutTree extends TestCase {
             @Override
             public int getGrammarVersion() throws MisconfigurationException {
                 return IPythonNature.GRAMMAR_PYTHON_VERSION_2_7;
+            }
+
+            @Override
+            public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions() throws MisconfigurationException {
+                return null;
             }
         };
         ParseOutput tuple = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(contents),

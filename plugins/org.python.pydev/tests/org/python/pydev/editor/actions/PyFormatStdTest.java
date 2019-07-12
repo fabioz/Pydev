@@ -11,14 +11,15 @@
  */
 package org.python.pydev.editor.actions;
 
-import junit.framework.TestCase;
-
 import org.eclipse.jface.text.Document;
+import org.python.pydev.ast.formatter.PyFormatter;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
-import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
+import org.python.pydev.core.formatter.FormatStd;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.string.StringUtils;
+
+import junit.framework.TestCase;
 
 /**
  * @author Fabio Zadrozny
@@ -50,7 +51,7 @@ public class PyFormatStdTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        std = new PyFormatStd.FormatStd();
+        std = new FormatStd();
         std.operatorsWithSpace = true;
     }
 
@@ -286,6 +287,40 @@ public class PyFormatStdTest extends TestCase {
                 "    pass   \n";
 
         checkFormatResults(s, s2);
+    }
+
+    public void testFormatMatMul() {
+        std.spaceAfterComma = true;
+        std.operatorsWithSpace = true;
+        std.assignWithSpaceInsideParens = false;
+
+        String s = "" +
+                "a@2\n" +
+                "a@=2\n" +
+                "@method" +
+                "";
+
+        String s1 = "" +
+                "a @ 2\n" +
+                "a @= 2\n" +
+                "@method" +
+                "";
+
+        checkFormatResults(s, s1);
+    }
+
+    public void testFormatMatMul2() {
+        std.spaceAfterComma = true;
+        std.operatorsWithSpace = true;
+        std.assignWithSpaceInsideParens = false;
+
+        String s = "" +
+                "(a\n"
+                + "@\n"
+                + "2)\n" +
+                "";
+
+        checkFormatResults(s, s);
     }
 
     public void testFormatInnerParams() {
@@ -818,7 +853,7 @@ public class PyFormatStdTest extends TestCase {
         std.addNewLineAtEndOfFile = true;
         std.trimLines = true;
 
-        final PyFormatStd pyFormatStd = new PyFormatStd();
+        final PyFormatAction pyFormatStd = new PyFormatAction();
         String s = "" +
                 "a  =  10  \n" +
                 "a  =  10  " +
@@ -830,7 +865,7 @@ public class PyFormatStdTest extends TestCase {
         Document doc = new Document(s);
 
         int[] regionsForSave = new int[] { 0 };
-        pyFormatStd.formatSelection(doc, regionsForSave, null, new PySelection(doc), std);
+        PyFormatter.formatSelection(doc, regionsForSave, null, new PySelection(doc), std);
         assertEquals(expected, doc.get());
     }
 
@@ -841,7 +876,7 @@ public class PyFormatStdTest extends TestCase {
         std.addNewLineAtEndOfFile = true;
         std.trimLines = true;
 
-        final PyFormatStd pyFormatStd = new PyFormatStd();
+        final PyFormatAction pyFormatStd = new PyFormatAction();
         String s = "" +
                 "a,b,c\n" +
                 "a  =  10  " +
@@ -853,7 +888,7 @@ public class PyFormatStdTest extends TestCase {
         Document doc = new Document(s);
 
         int[] regionsForSave = new int[] { 0 };
-        pyFormatStd.formatSelection(doc, regionsForSave, null, new PySelection(doc), std);
+        PyFormatter.formatSelection(doc, regionsForSave, null, new PySelection(doc), std);
         assertEquals(expected, doc.get());
     }
 
@@ -864,7 +899,7 @@ public class PyFormatStdTest extends TestCase {
         std.addNewLineAtEndOfFile = true;
         std.trimLines = true;
 
-        final PyFormatStd pyFormatStd = new PyFormatStd();
+        final PyFormatAction pyFormatStd = new PyFormatAction();
         final String s = "" +
                 "'a,b,c'\n" +
                 "a  =  10\n" +
@@ -872,7 +907,7 @@ public class PyFormatStdTest extends TestCase {
         Document doc = new Document(s);
 
         int[] regionsForSave = new int[] { 0 };
-        pyFormatStd.formatSelection(doc, regionsForSave, null, new PySelection(doc), std);
+        PyFormatter.formatSelection(doc, regionsForSave, null, new PySelection(doc), std);
         assertEquals(s, doc.get());
     }
 
@@ -998,9 +1033,8 @@ public class PyFormatStdTest extends TestCase {
     private void checkFormatResults(String s, String expected) {
         //default check (defined with \n)
         try {
-            final PyFormatStd pyFormatStd = new PyFormatStd();
             Document doc = new Document(s);
-            pyFormatStd.formatAll(doc, null, true, std, false);
+            PyFormatter.formatAll(doc, null, true, std, false, true);
             String formatStr = doc.get();
 
             if (DEBUG) {
@@ -1023,7 +1057,7 @@ public class PyFormatStdTest extends TestCase {
             String expected2 = expected.replace('\n', '\r');
 
             doc = new Document(s);
-            pyFormatStd.formatAll(doc, null, true, std, false);
+            PyFormatter.formatAll(doc, null, true, std, false, true);
             formatStr = doc.get();
             assertEquals(expected, formatStr);
 
@@ -1032,11 +1066,11 @@ public class PyFormatStdTest extends TestCase {
             expected = StringUtils.replaceAll(expected, "\r", "\r\n");
 
             doc = new Document(s);
-            pyFormatStd.formatAll(doc, null, true, std, false);
+            PyFormatter.formatAll(doc, null, true, std, false, true);
             formatStr = doc.get();
             assertEquals(expected, formatStr);
 
-            formatStr = pyFormatStd.formatStr(s2, std, "\r", false);
+            formatStr = PyFormatter.formatStrAutopep8OrPyDev(null, new Document(s2), std, "\r", false, true, null);
             if (expected2.endsWith("\r") && !formatStr.endsWith("\r")) {
                 expected2 = expected2.substring(0, expected2.length() - 1);
             }
@@ -1046,7 +1080,7 @@ public class PyFormatStdTest extends TestCase {
             String s3 = StringUtils.replaceAll(s, "\n", "\r\n");
             String expected3 = StringUtils.replaceAll(expected, "\n", "\r\n");
 
-            formatStr = pyFormatStd.formatStr(s3, std, "\r\n", false);
+            formatStr = PyFormatter.formatStrAutopep8OrPyDev(null, new Document(s3), std, "\r\n", false, true, null);
             if (expected3.endsWith("\r\n") && !formatStr.endsWith("\r\n")) {
                 expected3 = expected3.substring(0, expected3.length() - 2);
             }
@@ -1055,7 +1089,7 @@ public class PyFormatStdTest extends TestCase {
             //now, same thing with different API
             doc = new Document();
             doc.set(s);
-            pyFormatStd.formatAll(doc, null, true, std, false);
+            PyFormatter.formatAll(doc, null, true, std, false, true);
             assertEquals(expected, doc.get());
         } catch (SyntaxErrorException e) {
             throw new RuntimeException(e);
@@ -1255,19 +1289,21 @@ public class PyFormatStdTest extends TestCase {
                 "        ra( )\n" +
                 "        a.Get(self, ra( )\n" +
                 "";
-        final PyFormatStd pyFormatStd = new PyFormatStd();
+        final PyFormatAction pyFormatStd = new PyFormatAction();
         try {
-            pyFormatStd.formatAll(new Document(s), null, false, std, true);
+            PyFormatter.formatAll(new Document(s), null, false, std, true, true);
             fail("Expecting exception!");
         } catch (Exception e) {
         }
         String expected = "" +
                 "class Bar:\n" +
+                "\n" +
                 "    def Foo:\n" +
                 "        ra()\n" +
                 "        a.Get(self, ra()\n" +
                 "";
 
+        std.manageBlankLines = true;
         checkFormatResults(s, expected);
     }
 
@@ -1275,37 +1311,33 @@ public class PyFormatStdTest extends TestCase {
         String input = "" +
                 "class Foo:\n" +
                 "    '''Class docstring   '''\n" +
-                "    def __init__(self):\n"
-                +
+                "    def __init__(self):\n" +
                 "        '''   \n" +
                 "        Method docstring   \n" +
-                "        \n"
-                +
+                "        \n" +
                 "        with multiple lines   \n" +
                 "        '''\n" +
-                "        print 'Some information   '\n"
-                +
+                "        print 'Some information   '\n" +
                 "        print '''More\n" +
                 "              information   \n" +
                 "              '''\n";
         String expected = "" +
                 "class Foo:\n" +
                 "    '''Class docstring   '''\n" +
-                "    def __init__(self):\n"
-                +
+                "\n" +
+                "    def __init__(self):\n" +
                 "        '''\n" +
                 "        Method docstring\n" +
                 "\n" +
-                "        with multiple lines\n"
-                +
+                "        with multiple lines\n" +
                 "        '''\n" +
                 "        print 'Some information   '\n" +
-                "        print '''More\n"
-                +
+                "        print '''More\n" +
                 "              information\n" +
                 "              '''\n";
 
         std.trimMultilineLiterals = true;
+        std.manageBlankLines = true;
         checkFormatResults(input, expected);
     }
 
@@ -1325,7 +1357,7 @@ public class PyFormatStdTest extends TestCase {
 
     public void testWhitespacesBeforeCommentsUnchanged3() throws Exception {
         std.spacesBeforeComment = 0;
-        String input = "a = 10\r\n    #comment";
+        String input = "a = 10\n    #comment";
         checkFormatResults(input, input);
     }
 
@@ -1394,4 +1426,752 @@ public class PyFormatStdTest extends TestCase {
         checkFormatResults(input, expected);
     }
 
+    public void testSelfAndPlus() throws Exception {
+        String input = ""
+                + "y = self + x\n";
+        String expected = input;
+        checkFormatResults(input, expected);
+    }
+
+    public void testKeepAtMostOneEmptyLine() throws Exception {
+        String input = ""
+                + "def my(a):\n"
+                + "    a = 10\n"
+                + "\n"
+                + "\n"
+                + "\n"
+                + "    b = 20\n"
+                + "";
+
+        String expected = ""
+                + "def my(a):\n"
+                + "    a = 10\n"
+                + "\n"
+                + "    b = 20\n"
+                + "";
+        std.manageBlankLines = true;
+        checkFormatResults(input, expected);
+    }
+
+    public void testSpacesBeforeClass() throws Exception {
+        String input = ""
+                + "class my:\n"
+                + "    a = 10\n"
+                + "class my:\n"
+                + "    a = 10\n"
+                + "";
+
+        String expected = ""
+                + "class my:\n"
+                + "    a = 10\n"
+                + "\n"
+                + "\n"
+                + "class my:\n"
+                + "    a = 10\n"
+                + "";
+        std.manageBlankLines = true;
+        std.addNewLineAtEndOfFile = false;
+        checkFormatResults(input, expected);
+    }
+
+    public void testSpacesBeforeClass2() throws Exception {
+        // Already is properly formatted.
+        String input = ""
+                + "a = 10\n"
+                + "\n"
+                + "\n"
+                + "class my:\n"
+                + "    a = 10\n"
+                + "\n"
+                + "    def foo():\n"
+                + "        \n"
+                + "";
+
+        std.manageBlankLines = true;
+        checkFormatResults(input, input);
+    }
+
+    public void testSpacesBeforeClass3() throws Exception {
+        // Already is properly formatted.
+        String input = ""
+                + "a = 10\n"
+                + "  \n"
+                + "  \n"
+                + "class my:\n"
+                + "    a = 10\n"
+                + "    \n"
+                + "    def foo():\n"
+                + "        \n"
+                + "";
+
+        std.manageBlankLines = true;
+        std.trimLines = false;
+        checkFormatResults(input, input);
+    }
+
+    public void testSpacesBeforeAfterClass() throws Exception {
+        // Already is properly formatted.
+        String input = ""
+                + "from a import b\n"
+                + "\n"
+                + "\n"
+                + "\n"
+                + "class my:\n" // line 4
+                + "    a = 10\n"
+                + "    \n"
+                + "    \n"
+                + "    def foo():\n" // line 8
+                + "        '''docstring\n"
+                + "        docstring'''\n"
+                + "\n"
+                + "\n"
+                + "    def bar():\n" // line 13
+                + "        '''docstring\n" // line 14
+                + "        docstring'''\n"
+                + "\n"
+                + "\n"
+                + "\n"
+                + "class my:\n" // line 19
+                + "    a = 10\n"
+                + "    \n"
+                + "    \n"
+                + "    def foo():\n"
+                + "        '''docstring\n"
+                + "        docstring'''\n"
+                + "\n"
+                + "\n"
+                + "    def bar():\n"
+                + "        '''docstring\n"
+                + "        docstring'''\n"
+                + "\n"
+                + "";
+
+        std.manageBlankLines = true;
+        std.trimLines = false;
+        std.blankLinesInner = 2;
+        std.blankLinesTopLevel = 3;
+        checkFormatResults(input, input);
+    }
+
+    public void testSpacesBeforeClassIgnoreLiterals() throws Exception {
+        // Already is properly formatted.
+        String input = ""
+                + "a = 10\n"
+                + "  \n"
+                + "        '''\n"
+                + " tttttt\n"
+                + "\n"
+                + "\n"
+                + "\n"
+                + "        '''\n"
+                + "  \n"
+                + "  \n"
+                + "class my:\n" // line 10
+                + "    a = 10\n"
+                + "    \n"
+                + "    def foo():\n"
+                + "";
+
+        std.manageBlankLines = true;
+        std.trimLines = false;
+        checkFormatResults(input, input);
+    }
+
+    public void testSpacesBeforeClassIgnoreLiterals2() throws Exception {
+        // Already is properly formatted.
+        String input = ""
+                + "a = 10\n"
+                + "  \n"
+                + "        '''\n"
+                + "        '''\n"
+                + "  \n"
+                + "  \n"
+                + "class my:\n"
+                + "    a = 10\n"
+                + "    \n"
+                + "    def foo():\n"
+                + "";
+
+        std.manageBlankLines = true;
+        std.trimLines = false;
+        checkFormatResults(input, input);
+    }
+
+    public void testBlankLinesWithMultipleDecorators() throws Exception {
+        String input = "" +
+                "\n" +
+                "\n" +
+                "def m1():\n" +
+                "    pass\n" +
+                "\n" +
+                "\n" +
+                "@foo\n" +
+                "@bar\n" +
+                "def m2():\n" +
+                "    pass";
+
+        std.manageBlankLines = true;
+        std.trimLines = false;
+        checkFormatResults(input, input);
+    }
+
+    public void testIgnoreDefs() throws Exception {
+        String input = "" +
+                "\n" +
+                "\n" +
+                "def m1():\n" +
+                "    a = def class\n" +
+                "    pass";
+
+        std.manageBlankLines = true;
+        std.trimLines = false;
+        checkFormatResults(input, input);
+    }
+
+    public void testBlankLinesBeforeClassIgnoreLiterals3() throws Exception {
+        // Already is properly formatted.
+        String input = ""
+                + "a = 10\n"
+                + "  \n"
+                + "        ''' check '''\n"
+                + "  \n"
+                + "  \n"
+                + "class my:\n"
+                + "    a = 10\n"
+                + "    \n"
+                + "    def foo():\n"
+                + "";
+
+        std.manageBlankLines = true;
+        std.trimLines = false;
+        checkFormatResults(input, input);
+    }
+
+    public void testBlankLinesWithLogicalLines() throws Exception {
+        // Already is properly formatted.
+        String input = "" +
+                "def method():\n" +
+                "\n" +
+                "    def foo():\n" +
+                "        assert bar(),\\\n" +
+                "            'line1 '\\\n" +
+                "            'line2.'\n" +
+                "\n" +
+                "\n" +
+                "if xx == 'bar':\n" +
+                "    try:\n" +
+                "        from a import b\n" +
+                "    except ImportError:\n" +
+                "        import c\n" +
+                ""
+                + "";
+
+        std.manageBlankLines = true;
+        std.trimLines = false;
+        checkFormatResults(input, input);
+    }
+
+    public void testBlankLinesCommentsDontChangeLevel() throws Exception {
+        // Already is properly formatted.
+        String input = "" +
+                "class Foo:\n" +
+                "\n" +
+                "    def bar(self):\n" +
+                "        a = 10\n" +
+                "#             comment\n" +
+                "\n" +
+                "    def foo(self):\n" +
+                "        pass\n" +
+                "";
+
+        std.manageBlankLines = true;
+        std.trimLines = false;
+        checkFormatResults(input, input);
+    }
+
+    public void testBlankLinesAfterTop() throws Exception {
+        String input = "" +
+                "class A:\n" +
+                "\n" +
+                "    def foo(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "class B:\n" +
+                "    pass\n" +
+                "\n" +
+                "";
+
+        String expected = "" +
+                "class A:\n" +
+                "\n" +
+                "\n" +
+                "    def foo(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "class B:\n" +
+                "    pass\n" +
+                "\n" +
+                "";
+
+        std.manageBlankLines = true;
+        std.trimLines = false;
+        std.blankLinesTopLevel = 3;
+        std.blankLinesInner = 2;
+        checkFormatResults(input, expected);
+    }
+
+    public void testBlankLinesCommentsDontChangeLevel2() throws Exception {
+        // Already is properly formatted.
+        String input = "" +
+                "class Foo:\n" +
+                "\n" +
+                "    def bar(self):\n" +
+                "        a = 10\n" +
+                "\n" +
+                "    def foo(self):\n" +
+                "        b = 10\n" +
+                "\n" +
+                "\n" +
+                "# comment from class\n" +
+                "class Bar:\n" +
+                "    pass" +
+                "";
+
+        std.manageBlankLines = true;
+        std.trimLines = false;
+        checkFormatResults(input, input);
+    }
+
+    public void testBlankLinesCommentsDontChangeLevel3() throws Exception {
+        // Already is properly formatted.
+        String input = "" +
+                "class Foo:\n" +
+                "    b = 10\n" +
+                "\n" +
+                "\n" +
+                "# comment from class\n" +
+                "class Bar:\n" +
+                "    pass" +
+                "";
+
+        std.manageBlankLines = true;
+        std.trimLines = false;
+        checkFormatResults(input, input);
+    }
+
+    public void testSpacesBeforeClassWithComments() throws Exception {
+        String input = ""
+                + "#comment\n"
+                + "class my:\n"
+                + "    a = 10\n"
+                + "#comment\n"
+                + "class my:\n"
+                + "    a = 10\n"
+                + "";
+
+        String expected = ""
+                + "#comment\n"
+                + "class my:\n"
+                + "    a = 10\n"
+                + "\n"
+                + "\n"
+                + "#comment\n"
+                + "class my:\n"
+                + "    a = 10\n"
+                + "";
+        std.manageBlankLines = true;
+        checkFormatResults(input, expected);
+    }
+
+    public void testSpacesBeforeClassWithCommentsAndDecorator() throws Exception {
+        String input = ""
+                + "#comment\n"
+                + "@decorator\n"
+                + "class my:\n"
+                + "    a = 10\n"
+                + "#comment\n"
+                + "@decorator\n"
+                + "class my:\n"
+                + "    a = 10\n"
+                + "";
+
+        String expected = ""
+                + "#comment\n"
+                + "@decorator\n"
+                + "class my:\n"
+                + "    a = 10\n"
+                + "\n"
+                + "\n"
+                + "#comment\n"
+                + "@decorator\n"
+                + "class my:\n"
+                + "    a = 10\n"
+                + "";
+        std.manageBlankLines = true;
+        checkFormatResults(input, expected);
+    }
+
+    public void testEmptyLinesBeforeAfter() throws Exception {
+        String input = ""
+                + "def my(a):\n"
+                + "    pass\n"
+                + "def my2(b):\n"
+                + "    pass\n"
+                + "";
+
+        String expected = ""
+                + "def my(a):\n"
+                + "    pass\n"
+                + "\n"
+                + "\n"
+                + "def my2(b):\n"
+                + "    pass\n"
+                + "";
+        std.manageBlankLines = true;
+        checkFormatResults(input, expected);
+    }
+
+    public void testEmptyLinesBeforeAfter4() throws Exception {
+        String input = ""
+                + "from a import b\n" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "#comment\n" +
+                "class Test(object):\n" + // line 5
+                "\n" +
+                "\n" +
+                "    def m2(self):\n" +
+                "        pass\n" +
+                ""
+                + "";
+
+        std.manageBlankLines = true;
+        std.blankLinesTopLevel = 3;
+        std.blankLinesInner = 2;
+        checkFormatResults(input, input);
+    }
+
+    public void testEmptyLinesBeforeAfter5() throws Exception {
+        String input = "" +
+                "class Test(object):\n" +
+                "\n" +
+                "    def m2(self):\n" +
+                "        pass\n" +
+                "    a = 10\n" +
+                "";
+        String expected = "" +
+                "class Test(object):\n" +
+                "\n" +
+                "    def m2(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "    a = 10\n" +
+                "";
+
+        std.manageBlankLines = true;
+        checkFormatResults(input, expected);
+    }
+
+    public void testEmptyLinesBeforeAfter6() throws Exception {
+        String input = "" +
+                "class Test(object):\n" +
+                "\n" +
+                "    def m2(self):\n" +
+                "        pass\n" +
+                "    @foo\n" +
+                "\n" + // Remove this space
+                "    def m3(self):\n" +
+                "        pass\n" +
+                "    a = 10\n" +
+                "";
+        String expected = "" +
+                "class Test(object):\n" +
+                "\n" +
+                "    def m2(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "    @foo\n" +
+                "    def m3(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "    a = 10\n" +
+                "";
+
+        std.manageBlankLines = true;
+        checkFormatResults(input, expected);
+    }
+
+    public void testEmptyLinesBeforeAfter8() throws Exception {
+        String input = "" +
+                "class C:\n" +
+                "\n" +
+                "    @foo\n" +
+                "    @bar\n" +
+                " \n" +
+                " \n" +
+                "    def x(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "\n" +
+                "class B(QWidget):\n" +
+                "\n" +
+                "    @property\n" +
+                "    def model(self):\n" +
+                "        pass\n" +
+                "\n"
+                + "";
+        String expected = "" +
+                "class C:\n" +
+                "\n" +
+                "    @foo\n" +
+                "    @bar\n" +
+                "    def x(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "\n" +
+                "class B(QWidget):\n" +
+                "\n" +
+                "    @property\n" +
+                "    def model(self):\n" +
+                "        pass\n" +
+                "\n";
+
+        std.manageBlankLines = true;
+        checkFormatResults(input, expected);
+    }
+
+    public void testEmptyLinesBeforeAfter7() throws Exception {
+        String expected = "" +
+                "class Test(object):\n" +
+                "\n" +
+                "    def m2(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "    @foo\n" +
+                "    def m3(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "    a = 10\n" +
+                "";
+
+        std.manageBlankLines = true;
+        checkFormatResults(expected, expected);
+    }
+
+    public void testEmptyLinesBeforeAfter2() throws Exception {
+        String input = ""
+                + "def my(a):\n"
+                + "    pass\n"
+                + "a = 10\n"
+                + "";
+
+        String expected = ""
+                + "def my(a):\n"
+                + "    pass\n"
+                + "\n"
+                + "\n"
+                + "a = 10\n"
+                + "";
+        std.manageBlankLines = true;
+        checkFormatResults(input, expected);
+    }
+
+    public void testEmptyLinesBeforeAfter3() throws Exception {
+        String input = ""
+                + "def my(a):\n"
+                + "    rara = 10 + \\\n"
+                + "ignore this\n"
+                + "a = 10\n"
+                + "";
+
+        String expected = ""
+                + "def my(a):\n"
+                + "    rara = 10 + \\\n"
+                + "ignore this\n"
+                + "\n"
+                + "\n"
+                + "a = 10\n"
+                + "";
+        std.manageBlankLines = true;
+        checkFormatResults(input, expected);
+    }
+
+    public void testEmptyLinesBeforeAfterAsyncDef() throws Exception {
+        String input = ""
+                + "async def my(a):\n"
+                + "    pass\n"
+                + "async def my2(b):\n"
+                + "    pass\n"
+                + "";
+
+        String expected = ""
+                + "async def my(a):\n"
+                + "    pass\n"
+                + "\n"
+                + "\n"
+                + "async def my2(b):\n"
+                + "    pass\n"
+                + "";
+        std.manageBlankLines = true;
+        checkFormatResults(input, expected);
+    }
+
+    public void testFormatSelectionChangingLines() {
+        std.manageBlankLines = true;
+        std.trimLines = true;
+
+        String s = "" +
+                "a  =  10  \n" +
+                "\n" +
+                "\n" +
+                "\n" +
+                "a  =  10  \n" +
+                "";
+        String expected = "" +
+                "a = 10\n" +
+                "\n" +
+                "a  =  10  \n" +
+                "";
+        Document doc = new Document(s);
+
+        int[] regionsForSave = new int[] { 0, 1, 2, 3 };
+        PyFormatter.formatSelection(doc, regionsForSave, null, new PySelection(doc), std);
+        assertEquals(expected, doc.get());
+    }
+
+    public void testSpacesBeforeClassIgnoreLiteralsWithSelection() throws Exception {
+        // Already is properly formatted.
+        String input = ""
+                + "a = 10\n"
+                + "  \n"
+                + "        ''' check '''\n"
+                + "  \n"
+                + "class my:\n"
+                + "    a = 10\n"
+                + "    \n"
+                + "    def foo():\n"
+                + "";
+
+        String expected = ""
+                + "a = 10\n"
+                + "  \n"
+                + "        ''' check '''\n"
+                + "\n"
+                + "  \n"
+                + "class my:\n"
+                + "    a = 10\n"
+                + "    \n"
+                + "    def foo():\n"
+                + "";
+
+        std.manageBlankLines = true;
+        std.trimLines = true;
+        Document doc = new Document(input);
+        int[] regionsForSave = new int[] { 4 };
+        PyFormatter.formatSelection(doc, regionsForSave, null, new PySelection(doc), std);
+        assertEquals(expected, doc.get());
+
+    }
+
+    public void testUpdateBlankLinesInCloseRegion() throws Exception {
+        // Already is properly formatted.
+        String input = ""
+                + "a = 10\n"
+                + "  \n"
+                + "        ''' check '''\n"
+                + "  \n"
+                + "  \n"
+                + "  \n"
+                + "  \n"
+                + "class my:\n"
+                + "    a = 10\n"
+                + "    \n"
+                + "    def foo():\n"
+                + "";
+
+        String expected = ""
+                + "a = 10\n"
+                + "  \n"
+                + "        ''' check '''\n"
+                + "\n"
+                + "  \n"
+                + "class my:\n"
+                + "    a = 10\n"
+                + "    \n"
+                + "    def foo():\n"
+                + "";
+
+        std.manageBlankLines = true;
+        std.trimLines = true;
+        Document doc = new Document(input);
+        int[] regionsForSave = new int[] { 5 };
+        PyFormatter.formatSelection(doc, regionsForSave, null, new PySelection(doc), std);
+        assertEquals(expected, doc.get());
+    }
+
+    public void testUpdateBlankLinesInCloseRegion2() throws Exception {
+        String input = ""
+                + "class my:\n"
+                + "    def foo():\n"
+                + "        a = 10\n"
+                + "\n"
+                + "    def foo():\n"
+                + "        a = 10\n"
+                + "";
+
+        String expected = ""
+                + "class my:\n"
+                + "    def foo():\n"
+                + "        a = 10\n"
+                + "\n"
+                + "\n"
+                + "    def foo():\n"
+                + "        a = 10\n"
+                + "";
+
+        std.manageBlankLines = true;
+        std.trimLines = true;
+        std.blankLinesInner = 2;
+        Document doc = new Document(input);
+        int[] regionsForSave = new int[] { 3 };
+        PyFormatter.formatSelection(doc, regionsForSave, null, new PySelection(doc), std);
+        assertEquals(expected, doc.get());
+    }
+
+    public void testUpdateBlankLinesInTry() throws Exception {
+        String input = "" +
+                "def a():\n" +
+                "    pass\n" +
+                "\n" +
+                "\n" +
+                "def b():\n" +
+                "    pass\n" +
+                "\n" +
+                "\n" +
+                "def c():\n" +
+                "    pass\n" +
+                "\n" +
+                "\n" +
+                "def d():\n" +
+                "    pass\n" +
+                "\n" +
+                "\n" +
+                "def e():\n" +
+                "    pass\n" +
+                "\n" +
+                "\n" +
+                "try:\n" +
+                "    Err\n" +
+                "except foo:\n" +
+                "    pass\n" +
+                "\n"
+                + "";
+
+        std.updateFormatterStyle();
+        std.manageBlankLines = true;
+        checkFormatResults(input);
+    }
 }

@@ -13,6 +13,7 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.DebugPrefsPage;
+import org.python.pydev.debug.ui.RunPreferencesPage;
 import org.python.pydev.debug.ui.launching.AbstractLaunchShortcut;
 import org.python.pydev.debug.ui.launching.FileOrResource;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -40,7 +41,7 @@ public class DjangoLaunchShortcut extends AbstractLaunchShortcut {
             workingCopy.setAttribute(Constants.ATTR_LOCATION, mainDir + "/${" + DjangoConstants.DJANGO_MANAGE_VARIABLE
                     + "}");
             if (DebugPrefsPage.getDebugMultiprocessingEnabled()
-                    && DebugPrefsPage.getKillSubprocessesWhenTerminatingProcess()) {
+                    && RunPreferencesPage.getKillSubprocessesWhenTerminatingProcess()) {
                 workingCopy.setAttribute(Constants.ATTR_PROGRAM_ARGUMENTS, "runserver");
 
             } else {

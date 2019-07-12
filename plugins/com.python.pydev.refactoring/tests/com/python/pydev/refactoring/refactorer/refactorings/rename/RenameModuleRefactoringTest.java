@@ -11,15 +11,15 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.python.pydev.ast.refactoring.ModuleRenameRefactoringRequest;
+import org.python.pydev.ast.refactoring.RefactoringRequest;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IProjectModulesManager;
-import org.python.pydev.editor.refactoring.ModuleRenameRefactoringRequest;
-import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.shared_core.structure.Tuple;
 
-import com.python.pydev.refactoring.wizards.rename.PyRenameEntryPoint;
-import com.python.pydev.refactoring.wizards.rename.PyRenameImportProcess;
+import com.python.pydev.analysis.refactoring.wizards.rename.PyRenameEntryPoint;
+import com.python.pydev.analysis.refactoring.wizards.rename.PyRenameImportProcess;
 
 public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
 
@@ -424,6 +424,28 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
                         + "  ASTEntryWithSourceModule<Module (Module L=1 C=1)>\n"
                         + "\n"
                         + "",
+                asStr);
+    }
+
+    public void testRenameModuleInWorkspace15() throws Exception {
+
+        Map<Tuple<String, File>, HashSet<ASTEntry>> referencesForModuleRename = getReferencesForModuleRename(
+                "reflib.renamemodule7.inside7a", "reflib.renamemodule7.inside7b", false);
+        String asStr = asStr(referencesForModuleRename);
+        assertEquals(
+                "" +
+                        "reflib.renamemodule7.inside7\n" +
+                        "  ImportFromRenameAstEntry<from reflib.renamemodule7 import inside7a (ImportFrom L=1 C=6)>\n" +
+                        "    Initial:\n" +
+                        "from reflib\\\n" +
+                        "    .renamemodule7 import inside7a\n" +
+                        "    Final:\n" +
+                        "from reflib.renamemodule7 import inside7b\n" +
+                        "\n" +
+                        "reflib.renamemodule7.inside7a\n" +
+                        "  ASTEntryWithSourceModule<Module (Module L=0 C=0)>\n" +
+                        "\n" +
+                        "",
                 asStr);
     }
 

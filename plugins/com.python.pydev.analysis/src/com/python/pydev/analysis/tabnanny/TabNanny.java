@@ -14,28 +14,27 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.python.pydev.ast.analysis.IAnalysisPreferences;
+import org.python.pydev.ast.analysis.messages.IMessage;
+import org.python.pydev.ast.analysis.messages.Message;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.TabNannyDocIterator;
+import org.python.pydev.core.docutils.TabNannyDocIterator.IndentInfo;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_core.string.FastStringBuffer;
-import org.python.pydev.shared_core.structure.Tuple3;
-
-import com.python.pydev.analysis.IAnalysisPreferences;
-import com.python.pydev.analysis.messages.IMessage;
-import com.python.pydev.analysis.messages.Message;
 
 /**
  * Name was gotten from the python library... but the implementation is very different ;-)
- * 
+ *
  * @author Fabio
  */
 public class TabNanny {
 
     /**
      * Analyze the doc for mixed tabs and indents with the wrong number of chars.
-     * @param monitor 
-     * 
+     * @param monitor
+     *
      * @return a list with the error messages to be shown to the user.
      */
     public static List<IMessage> analyzeDoc(IDocument doc, IAnalysisPreferences analysisPrefs, String moduleName,
@@ -43,12 +42,12 @@ public class TabNanny {
         ArrayList<IMessage> ret = new ArrayList<IMessage>();
 
         //don't even try to gather indentation errors if they should be ignored.
-        if (analysisPrefs.getSeverityForType(IAnalysisPreferences.TYPE_INDENTATION_PROBLEM) == IMarker.SEVERITY_INFO) {
+        if (analysisPrefs.getSeverityForType(IAnalysisPreferences.TYPE_INDENTATION_PROBLEM) < IMarker.SEVERITY_INFO) {
             return ret;
         }
 
-        List<Tuple3<String, Integer, Boolean>> foundTabs = new ArrayList<Tuple3<String, Integer, Boolean>>();
-        List<Tuple3<String, Integer, Boolean>> foundSpaces = new ArrayList<Tuple3<String, Integer, Boolean>>();
+        List<IndentInfo> foundTabs = new ArrayList<IndentInfo>();
+        List<IndentInfo> foundSpaces = new ArrayList<IndentInfo>();
 
         TabNannyDocIterator it;
         try {
@@ -57,17 +56,17 @@ public class TabNanny {
             return ret;
         }
         while (it.hasNext()) {
-            Tuple3<String, Integer, Boolean> indentation;
+            IndentInfo indentation;
             try {
                 indentation = it.next();
             } catch (BadLocationException e) {
                 return ret;
             }
             //it can actually be in both (if we have spaces and tabs in the same indent line).
-            if (indentation.o1.indexOf('\t') != -1) {
+            if (indentation.indent.indexOf('\t') != -1) {
                 foundTabs.add(indentation);
             }
-            if (indentation.o1.indexOf(' ') != -1) {
+            if (indentation.indent.indexOf(' ') != -1) {
                 foundSpaces.add(indentation);
             }
             if (monitor.isCanceled()) {
@@ -99,8 +98,8 @@ public class TabNanny {
 
         }
 
-        List<Tuple3<String, Integer, Boolean>> errorsAre;
-        List<Tuple3<String, Integer, Boolean>> validsAre;
+        List<IndentInfo> errorsAre;
+        List<IndentInfo> validsAre;
         String errorMsg;
         char errorChar;
 
@@ -125,10 +124,10 @@ public class TabNanny {
 
     /**
      * Creates the errors that are related to a bad indentation (number of space chars is not ok).
-     * @param monitor 
+     * @param monitor
      */
     private static void createBadIndentForSpacesMessages(IDocument doc, IAnalysisPreferences analysisPrefs,
-            IIndentPrefs indentPrefs, ArrayList<IMessage> ret, List<Tuple3<String, Integer, Boolean>> validsAre,
+            IIndentPrefs indentPrefs, ArrayList<IMessage> ret, List<IndentInfo> validsAre,
             IProgressMonitor monitor) {
 
         int tabWidth = indentPrefs.getTabWidth();
@@ -136,15 +135,15 @@ public class TabNanny {
         //a tab always marks a full indent).
 
         FastStringBuffer buffer = new FastStringBuffer();
-        for (Tuple3<String, Integer, Boolean> indentation : validsAre) {
+        for (IndentInfo indentation : validsAre) {
             if (monitor.isCanceled()) {
                 return;
             }
 
-            if (!indentation.o3) { //if it does not have more contents (its only whitespaces), let's keep on going!
+            if (!indentation.hasNonIndentChars) { //if it does not have more contents (its only whitespaces), let's keep on going!
                 continue;
             }
-            String indentStr = indentation.o1;
+            String indentStr = indentation.indent;
             if (indentStr.indexOf("\t") != -1) {
                 continue; //the ones that appear in tabs and spaces should not be analyzed here (they'll have their own error messages).
             }
@@ -153,7 +152,7 @@ public class TabNanny {
             int extraChars = lenFound % tabWidth;
             if (extraChars != 0) {
 
-                Integer offset = indentation.o2;
+                Integer offset = indentation.startOffset;
                 int startLine = PySelection.getLineOfOffset(doc, offset) + 1;
                 int startCol = 1;
                 int endCol = startCol + lenFound;
@@ -170,24 +169,24 @@ public class TabNanny {
 
     /**
      * Creates the errors that are related to the mixed indentation.
-     * @param monitor 
+     * @param monitor
      */
     private static void createMixedErrorMessages(IDocument doc, IAnalysisPreferences analysisPrefs,
-            ArrayList<IMessage> ret, List<Tuple3<String, Integer, Boolean>> errorsAre, String errorMsg, char errorChar,
+            ArrayList<IMessage> ret, List<IndentInfo> errorsAre, String errorMsg, char errorChar,
             IProgressMonitor monitor) {
 
-        for (Tuple3<String, Integer, Boolean> indentation : errorsAre) {
+        for (IndentInfo indentation : errorsAre) {
             if (monitor.isCanceled()) {
                 return;
             }
 
-            Integer offset = indentation.o2;
+            Integer offset = indentation.startOffset;
             int startLine = PySelection.getLineOfOffset(doc, offset) + 1;
             IRegion region;
             try {
                 region = doc.getLineInformationOfOffset(offset);
                 int startCol = offset - region.getOffset() + 1;
-                String indentationString = indentation.o1;
+                String indentationString = indentation.indent;
                 int charIndex = indentationString.indexOf(errorChar);
                 startCol += charIndex;
 

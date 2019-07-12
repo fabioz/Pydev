@@ -11,6 +11,8 @@
 ******************************************************************************/
 package org.python.pydev.shared_core.utils;
 
+import java.lang.management.ManagementFactory;
+
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.osgi.service.environment.Constants;
 import org.python.pydev.shared_core.log.Log;
@@ -95,5 +97,25 @@ public class PlatformUtils {
                 return new IProcessInfo[0];
             }
         };
+    }
+
+    /**
+     * @return the pid for the current process or -1 if unable to get.
+     */
+    public static long getPid() {
+        // Could use long pid = ProcessHandle.current().pid(); on java 9.
+        final String jvmName = ManagementFactory.getRuntimeMXBean().getName();
+        final int index = jvmName.indexOf('@');
+
+        if (index < 1) {
+            return -1;
+        }
+
+        try {
+            return Long.parseLong(jvmName.substring(0, index));
+        } catch (NumberFormatException e) {
+            // ignore
+        }
+        return -1;
     }
 }

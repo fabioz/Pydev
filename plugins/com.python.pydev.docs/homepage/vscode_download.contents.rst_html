@@ -1,0 +1,24 @@
+<doc>
+<contents_area>
+
+
+<!-- <image_area>download.png</image_area>
+<quote_area><strong>Getting it up and running in your computer...</strong></quote_area> -->
+<p>To install PyDev on VSCode, search for PyDev in the extensions marketplace and install it.</p>
+<img alt="../images/vscode/install.png" class="snap" src="../images/vscode/install.png" />
+<div class="section" id="getting-it-running">
+<h1>Getting it running</h1>
+<p>The main requisite to run <strong>PyDev</strong> in <strong>Visual Studio Code</strong> is a <strong>Java 8</strong> installation. If you have
+it installed, just installing the extension from the <strong>Visual Studio Code Marketplace</strong> may be all that's
+needed, but if it doesn't work, you may customize the setting:</p>
+<p><strong>python.pydev.java.home</strong></p>
+<p>locally to point to the proper <strong>Java Home</strong> in your <strong>Visual Studio Code</strong> installation (note that the <strong>Java Home</strong>
+is the directory which contains the <strong>/bin/java</strong> executable).</p>
+<p><strong>Note</strong>: you have to restart <strong>Visual Studio Code</strong> after changing this setting.</p>
+</div>
+</contents_area>
+
+
+
+</doc>
+

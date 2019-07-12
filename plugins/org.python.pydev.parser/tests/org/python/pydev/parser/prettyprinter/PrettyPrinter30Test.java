@@ -33,7 +33,7 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0);
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5);
     }
 
     public void testMetaClass() throws Exception {
@@ -593,7 +593,7 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase {
     public void testAsync() throws Exception {
         String s = ""
                 + "async def m1():\n"
-                + "    pass";
+                + "    pass\n";
         checkPrettyPrintEqual(s, s, s, s);
     }
 
@@ -601,48 +601,55 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase {
         String s = ""
                 + "@param\n"
                 + "async def m1():\n"
-                + "    pass";
+                + "    pass\n";
         checkPrettyPrintEqual(s, s, s, s);
     }
 
     public void testAsync2() throws Exception {
         String s = ""
                 + "async with a:\n"
-                + "    pass";
+                + "    pass\n";
         checkPrettyPrintEqual(s, s, s, s);
     }
 
     public void testAsync3() throws Exception {
         String s = ""
                 + "async with a:\n"
-                + "    pass";
+                + "    pass\n";
         checkPrettyPrintEqual(s, s, s, s);
     }
 
     public void testAwait() throws Exception {
         String s = ""
                 + "async with a:\n"
-                + "    b = await foo()";
+                + "    b = await foo()\n";
+        checkPrettyPrintEqual(s, s, s, s);
+    }
+
+    public void testAsyncFor() throws Exception {
+        String s = ""
+                + "async for a in [1,2]:\n"
+                + "    pass\n";
         checkPrettyPrintEqual(s, s, s, s);
     }
 
     public void testListRemainder() throws Exception {
         String s = ""
-                + "(first, middle, *last) = lst"
+                + "first,middle,*last = lst\n"
                 + "";
         checkPrettyPrintEqual(s, s, s, s);
     }
 
     public void testDotOperator() throws Exception {
         String s = ""
-                + "a = a @ a"
+                + "a = a @ a\n"
                 + "";
         checkPrettyPrintEqual(s, s, s, s);
     }
 
     public void testDotOperator2() throws Exception {
         String s = ""
-                + "a @= a"
+                + "a @= a\n"
                 + "";
         checkPrettyPrintEqual(s, s, s, s);
     }

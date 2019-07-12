@@ -2,9 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Refactoring Plug-in
 Bundle-SymbolicName: com.python.pydev.refactoring; singleton:=true
-Bundle-Version: 5.0.0.qualifier
+Bundle-Version: 7.2.1.qualifier
 Bundle-Activator: com.python.pydev.refactoring.RefactoringPlugin
-Bundle-Vendor: Aptana
+Bundle-Vendor: Brainwy Software Ltda
 Bundle-Localization: plugin
 Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.ui,
@@ -13,32 +13,30 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.core.runtime,
  org.eclipse.jface.text,
- org.python.pydev;bundle-version="[5.0.0,5.0.1)",
- com.python.pydev;bundle-version="[5.0.0,5.0.1)",
+ org.python.pydev.ast;bundle-version="[7.2.1,7.2.2)",
+ org.python.pydev;bundle-version="[7.2.1,7.2.2)",
  org.junit;bundle-version="4.0";resolution:=optional,
  org.eclipse.search,
- org.python.pydev.ast;bundle-version="[5.0.0,5.0.1)",
- org.python.pydev.shared_ui;bundle-version="[5.0.0,5.0.1)",
- org.python.pydev.core;bundle-version="[5.0.0,5.0.1)",
- org.python.pydev.parser;bundle-version="[5.0.0,5.0.1)",
+ org.python.pydev.shared_ui;bundle-version="[7.2.1,7.2.2)",
+ org.python.pydev.core;bundle-version="[7.2.1,7.2.2)",
+ org.python.pydev.parser;bundle-version="[7.2.1,7.2.2)",
  org.eclipse.core.resources,
  org.eclipse.ltk.core.refactoring,
  org.eclipse.ltk.ui.refactoring,
- org.python.pydev.refactoring;bundle-version="[5.0.0,5.0.1)",
- com.python.pydev.analysis;bundle-version="[5.0.0,5.0.1)",
+ org.python.pydev.refactoring;bundle-version="[7.2.1,7.2.2)",
+ com.python.pydev.analysis;bundle-version="[7.2.1,7.2.2)",
  org.eclipse.jdt.core;resolution:=optional,
  org.eclipse.jdt.ui;resolution:=optional
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: refactoring.jar
-Export-Package: com.python.pydev.refactoring.actions,com.python.pydev.
- refactoring.changes,com.python.pydev.refactoring.hyperlink,com.python
- .pydev.refactoring.markoccurrences,com.python.pydev.refactoring.refac
- torer,com.python.pydev.refactoring.refactorer.refactorings.rename,com
- .python.pydev.refactoring.refactorer.refactorings.renamelocal,com.pyt
- hon.pydev.refactoring.refactorer.search,com.python.pydev.refactoring.
- refactorer.search.copied,com.python.pydev.refactoring.search,com.pyth
- on.pydev.refactoring.tdd,com.python.pydev.refactoring.ui,com.python.p
- ydev.refactoring.ui.findreplace,com.python.pydev.refactoring.wizards,
- com.python.pydev.refactoring.wizards.rename,com.python.pydev.refactor
- ing.wizards.rename.visitors
+Export-Package: com.python.pydev.codecompletion,
+ com.python.pydev.refactoring.actions,
+ com.python.pydev.refactoring.hyperlink,
+ com.python.pydev.refactoring.markoccurrences,
+ com.python.pydev.refactoring.refactorer.search,
+ com.python.pydev.refactoring.refactorer.search.copied,
+ com.python.pydev.refactoring.search,
+ com.python.pydev.refactoring.tdd,
+ com.python.pydev.refactoring.ui,
+ com.python.pydev.refactoring.ui.findreplace
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

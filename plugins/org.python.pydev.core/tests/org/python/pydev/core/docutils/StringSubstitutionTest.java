@@ -45,11 +45,12 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
-import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
+import org.python.pydev.core.TokensList;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.structure.OrderedMap;
+import org.python.pydev.shared_core.structure.Tuple;
 
 import junit.framework.TestCase;
 
@@ -107,7 +108,7 @@ public class StringSubstitutionTest extends TestCase {
             }
 
             @Override
-            public IToken[] getBuiltinCompletions() {
+            public TokensList getBuiltinCompletions() {
                 throw new RuntimeException("Not implemented");
             }
 
@@ -118,11 +119,6 @@ public class StringSubstitutionTest extends TestCase {
 
             @Override
             public File getCompletionsCacheDir() {
-                throw new RuntimeException("Not implemented");
-            }
-
-            @Override
-            public String getDefaultVersion() {
                 throw new RuntimeException("Not implemented");
             }
 
@@ -243,7 +239,7 @@ public class StringSubstitutionTest extends TestCase {
             }
 
             @Override
-            public String getVersion() throws CoreException {
+            public String getVersion(boolean translateIfInterpreter) throws CoreException {
                 throw new RuntimeException("Not implemented");
             }
 
@@ -554,6 +550,10 @@ public class StringSubstitutionTest extends TestCase {
                     @Override
                     public String getName() {
                         throw new RuntimeException("Not implemented");
+                    }
+
+                    public void clearCachedDynamicReferences() {
+
                     }
 
                     @Override
@@ -1092,6 +1092,16 @@ public class StringSubstitutionTest extends TestCase {
 
             @Override
             public long getMtime() {
+                throw new RuntimeException("Not implemented");
+            }
+
+            @Override
+            public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions() throws MisconfigurationException {
+                throw new RuntimeException("Not implemented");
+            }
+
+            @Override
+            public Tuple<String, String> getVersionAndError(boolean translateIfInterpreter) throws CoreException {
                 throw new RuntimeException("Not implemented");
             }
         });

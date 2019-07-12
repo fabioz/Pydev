@@ -36,6 +36,7 @@ import org.python.pydev.parser.jython.ast.Raise;
 import org.python.pydev.parser.jython.ast.Repr;
 import org.python.pydev.parser.jython.ast.Return;
 import org.python.pydev.parser.jython.ast.Slice;
+import org.python.pydev.parser.jython.ast.Starred;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.TryExcept;
@@ -76,7 +77,7 @@ public final class TreeBuilder25 extends AbstractTreeBuilder implements ITreeBui
                 if (arity > 1) {
                     exprs = makeExprs(arity - 1);
                     ctx.setStore(exprs);
-                    return new Assign(exprs, value);
+                    return new Assign(exprs, value, null);
                 } else {
                     return new Expr(value);
                 }
@@ -167,8 +168,9 @@ public final class TreeBuilder25 extends AbstractTreeBuilder implements ITreeBui
 
                 keywordType[] keywords = new keywordType[l - nargs];
                 for (int i = nargs; i < l; i++) {
-                    if (!(tmparr[i] instanceof keywordType))
+                    if (!(tmparr[i] instanceof keywordType)) {
                         throw new ParseException("non-keyword argument following keyword", tmparr[i]);
+                    }
                     keywords[i - nargs] = (keywordType) tmparr[i];
                 }
                 exprType func = (exprType) stack.popNode();
@@ -185,7 +187,7 @@ public final class TreeBuilder25 extends AbstractTreeBuilder implements ITreeBui
                 NameTok nameTok = makeName(NameTok.FunctionName);
                 Decorators decs = (Decorators) stack.popNode();
                 decoratorsType[] decsexp = decs.exp;
-                FunctionDef funcDef = new FunctionDef(nameTok, arguments, body, decsexp, null);
+                FunctionDef funcDef = new FunctionDef(nameTok, arguments, body, decsexp, null, false);
                 if (decs.exp.length == 0) {
                     addSpecialsBefore(decs, funcDef);
                 }
@@ -333,7 +335,7 @@ public final class TreeBuilder25 extends AbstractTreeBuilder implements ITreeBui
                 suiteType s = new Suite(suite.body);
                 addSpecialsAndClearOriginal(suite, s);
 
-                return new With(new WithItem[] { new WithItem(expr, asOrExpr) }, s);
+                return new With(new WithItem[] { new WithItem(expr, asOrExpr) }, s, false);
             case JJTWITH_VAR:
                 expr = (exprType) stack.popNode(); //expr
                 if (expr != null) {
@@ -458,7 +460,11 @@ public final class TreeBuilder25 extends AbstractTreeBuilder implements ITreeBui
                 return col;
             case JJTIMPORTFROM:
                 return makeImportFrom25Onwards(arity);
-
+            case JJTSTAR_EXPR:
+                Starred starred = (Starred) n;
+                starred.value = (exprType) this.stack.popNode();
+                ctx.setStore(starred);
+                return starred;
             default:
                 Log.log(("Error at TreeBuilder: default not treated:" + n.getId()));
                 return null;
@@ -535,13 +541,13 @@ public final class TreeBuilder25 extends AbstractTreeBuilder implements ITreeBui
         for (int i = l - 1; i >= 0; i--) {
             SimpleNode popped = stack.popNode();
             try {
-                list.add((DefaultArg) popped);
+                list.add(popped);
             } catch (ClassCastException e) {
                 throw new ParseException("Internal error (ClassCastException):" + e.getMessage() + "\n" + popped,
                         popped);
             }
         }
         Collections.reverse(list);//we get them in reverse order in the stack
-        return makeArguments((DefaultArg[]) list.toArray(new DefaultArg[0]), stararg, kwarg);
+        return makeArguments(list.toArray(new DefaultArg[0]), stararg, kwarg);
     }
 }

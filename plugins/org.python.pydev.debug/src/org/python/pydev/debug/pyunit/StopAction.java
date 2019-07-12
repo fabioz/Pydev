@@ -9,8 +9,9 @@ package org.python.pydev.debug.pyunit;
 import java.lang.ref.WeakReference;
 
 import org.eclipse.jface.action.Action;
-import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_core.image.UIConstants;
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 
 public class StopAction extends Action {
 
@@ -18,7 +19,8 @@ public class StopAction extends Action {
 
     public StopAction(PyUnitView view) {
         setToolTipText("Stops the execution of the current test being run.");
-        this.setImageDescriptor(PydevPlugin.getImageCache().getDescriptor(UIConstants.TERMINATE));
+        this.setImageDescriptor(
+                ImageCache.asImageDescriptor(SharedUiPlugin.getImageCache().getDescriptor(UIConstants.TERMINATE)));
         this.view = new WeakReference<PyUnitView>(view);
     }
 

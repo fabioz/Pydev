@@ -24,8 +24,6 @@ package org.python.pydev.refactoring.tests.coderefactoring.inlinelocal;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.ITextSelection;
-import org.eclipse.jface.text.TextSelection;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.core.IGrammarVersionProvider;
@@ -34,6 +32,8 @@ import org.python.pydev.refactoring.coderefactoring.inlinelocal.InlineLocalRefac
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.tests.core.AbstractIOTestCase;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.string.CoreTextSelection;
+import org.python.pydev.shared_core.string.ICoreTextSelection;
 
 public class InlineLocalTestCase extends AbstractIOTestCase {
 
@@ -46,13 +46,18 @@ public class InlineLocalTestCase extends AbstractIOTestCase {
         FileUtils.IN_TESTS = true;
 
         IDocument document = new Document(data.source);
-        ITextSelection selection = new TextSelection(document, data.sourceSelection.getOffset(),
+        ICoreTextSelection selection = new CoreTextSelection(document, data.sourceSelection.getOffset(),
                 data.sourceSelection.getLength());
         RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
 
             @Override
             public int getGrammarVersion() throws MisconfigurationException {
                 return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
+            }
+
+            @Override
+            public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions() throws MisconfigurationException {
+                return null;
             }
         });
         InlineLocalRefactoring refactoring = new InlineLocalRefactoring(info);

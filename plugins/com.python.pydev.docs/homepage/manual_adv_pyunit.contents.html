@@ -1,0 +1,107 @@
+<doc>
+<contents_area>
+<div id="Content" style="padding: 5px;">
+<h1><a name="PyDevUnittestintegration-Unittestintegration"></a>Unittest integration</h1>
+
+<p>On PyDev 1.6.4, an improved unittest support was introduced. It allows using different test runners (the default PyDev test runner, nose or py.test) and allows seeing the results in a view (PyUnit view) with a red/green bar which also allows re-running tests. </p>
+
+
+
+<h1><a name="PyDevUnittestintegration-Configuringtestrunners"></a>Configuring test runners</h1>
+
+<p>The preferences page to configure the test runner is accessible from the PyUnit view at the dropdown menu &gt; configure test runner preferences (or at window &gt; preferences &gt; PyDev &gt; PyUnit)</p>
+
+<p><span class="image-wrap" style=""><img src="images/py_unit/py_unit_preferences.png" style="border: 1px solid black" /></span><br/>
+<b>Note</b>: the flags to choose the tests in the test runner should not be specified (they are properly managed by PyDev in each test run)</p>
+
+
+
+<h1><a name="PyDevUnittestintegration-ConfiguringthePyDevtestrunner"></a>Configuring the PyDev test runner</h1>
+
+<p>The options that the PyDev unittest accepts are:</p>
+
+<p> <b>--verbosity=number</b><br/>
+    Sets the verbosity level for the run </p>
+
+
+<p> <b>--jobs=number</b> <br/>
+    The number of processes to be used to run the tests</p>
+
+
+<p> <b>--split_jobs=tests|module</b><br/>
+    if <b>tests</b> is passed (default), the tests will be split independently to each process<br/>
+    if <b>module</b> is passed, a given job will always receive all the tests from a module</p>
+
+
+<p>An example of options that can be set in the preferences would be:</p>
+
+<p><b>--verbosity=1 --jobs=2 --split_jobs=module</b></p>
+
+
+
+<h1><a name="PyDevUnittestintegration-ConfiguringtheNosetestrunner"></a>Configuring the Nose test runner</h1>
+
+<p>Note: the integration was tested with version 1.0</p>
+
+<p>The options that the nose test runner accepts can be found at <a href="http://nose.readthedocs.io" class="external-link" rel="nofollow">http://nose.readthedocs.io</a></p>
+
+<p>An example of options that can be set in the preferences would be:</p>
+
+<p><b>--verbosity=2 --processes=2</b></p>
+
+<p>--verbosity=2 (set the verbosity level to 2)</p>
+
+<p>--processes=2 (use 2 processes to run the tests) </p>
+
+
+
+<h1><a name="PyDevUnittestintegration-ConfiguringthePy.testtestrunner"></a>Configuring the Py.test test runner</h1>
+
+<p>Note: the integration was tested with version 2.0</p>
+
+<p>The options that the py.test test runner accepts can be found at <a href="http://pytest.org" class="external-link" rel="nofollow">http://pytest.org</a> </p>
+
+<p>An example of options that can be set in the preferences would be:</p>
+
+<p><b>-maxfail=2 --tb=native</b></p>
+
+<p>-maxfail=2 (stop at 2nd failure)</p>
+
+<p>--tb=native (will show tracebacks in the default standard library formatting)</p>
+
+<p><b>Note</b>: currently when using the xdist plugin, the results won't be properly shown in the PyUnit view.</p>
+
+
+
+<h1><a name="PyDevUnittestintegration-PyUnitview"></a>PyUnit view</h1>
+
+<p>The PyUnit view may be used to see the results of tests being run, their output, time, re-running tests, among others.</p>
+
+<p><span class="image-wrap" style=""><img src="images/py_unit/py_unit_view.png" style="border: 1px solid black" /></span><br/>
+The most interesting features related to seeing the tests are:</p>
+
+<ul class="alternate" type="square">
+	<li>The results of tests are shown, along with a green/red bar depending whether all the tests succeeded or not (or if you're with Aptana Studio, following the color theme)</li>
+	<li>The time a test took to run is shown (and may be used to sort the tree)</li>
+	<li>The errors/output are shown by selecting the test run or just hovering over the items</li>
+	<li>A filter to show only errors is available</li>
+</ul>
+
+
+<p>And the most interesting actions are:</p>
+
+<ul class="alternate" type="square">
+	<li>A test session can be rerun</li>
+	<li>A new test session can be created to rerun only the errors of the current run</li>
+	<li>The test session can be stopped</li>
+	<li>The results of a previously run test session can be seen again</li>
+</ul>
+
+
+
+<h1><a name="PyDevUnittestintegration-RunningandshowingresultsinthePyUnitview"></a>Running and showing results in the PyUnit view</h1>
+
+<p>To show the results in the PyUnit view, a <b>unittest run</b> must be done. If running the tests when editing a module, <b>Ctrl+F9</b> may be used to run the tests in that mode (and choosing which tests should be run), otherwise, right-click a folder or python file and choose <b>Run as &gt; Python Unittest</b></p>
+</div>
+</contents_area>
+</doc>

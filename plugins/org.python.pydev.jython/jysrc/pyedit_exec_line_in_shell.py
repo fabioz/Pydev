@@ -103,7 +103,7 @@ if cmd == 'onCreateActions':
                 self._editor = editor
             def get_line(self):
                 '''Find the current line'''
-                selection = PySelection(self._editor).getLine()
+                selection = self._editor.createTextSelectionUtils().getLine()
                 # strip tailing whitespace
                 return selection.rstrip()
             def goto_next_line(self):
@@ -114,7 +114,7 @@ if cmd == 'onCreateActions':
                 once they've completed their step-through, so we protect against that.
                 '''
                 # skip cursor to next line
-                oSelection = PySelection(self._editor)
+                oSelection = self._editor.createTextSelectionUtils()
                 current_line = oSelection.getCursorLine()
                 last_line = oSelection.getDoc().getNumberOfLines() - 1
                 offset = oSelection.getLineOffset(current_line + 1)
@@ -160,7 +160,7 @@ if cmd == 'onCreateActions':
                 return PySelection.getDelimiter(self._editor.getDocument());
 
             def _get_selection(self):
-                return PySelection(self._editor).getSelectedText()
+                return self._editor.createTextSelectionUtils().getSelectedText()
 
             def _send_to_console(self, text):
                 if len(text.rstrip()):
@@ -316,4 +316,3 @@ if cmd == 'onCreateActions':
     action.setId(COMMAND_ID)
     editor.setAction(COMMAND_ID, action)
     action = None #Clear the namespace
-

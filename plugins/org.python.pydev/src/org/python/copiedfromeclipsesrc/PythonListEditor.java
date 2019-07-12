@@ -31,11 +31,14 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
+import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_core.image.UIConstants;
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.ui.pythonpathconf.InterpreterConfigHelpers;
+import org.python.pydev.ui.pythonpathconf.NameAndExecutable;
 
 /**
  * An abstract field editor that manages a list of input values. The editor displays a list containing the values, buttons for adding and
@@ -44,7 +47,7 @@ import org.python.pydev.ui.pythonpathconf.InterpreterConfigHelpers;
  * Subclasses must implement the <code>parseString</code>,<code>createList</code>, and <code>getNewInputObject</code> framework
  * methods.
  * </p>
- * 
+ *
  * NOTE: COPIED only because we want removePressed to be protected
  */
 public abstract class PythonListEditor extends FieldEditor {
@@ -70,6 +73,11 @@ public abstract class PythonListEditor extends FieldEditor {
      * The Quick Auto config button.
      */
     protected Button autoConfigButton;
+
+    /**
+     * The Pipenv config button (may be null as it's only available for cpython).
+     */
+    protected Button pipenvConfigButton;
 
     /**
      * The Avanced Auto config button.
@@ -101,18 +109,20 @@ public abstract class PythonListEditor extends FieldEditor {
      */
     private Image imageInterpreter;
 
+    protected abstract IInterpreterManager getInterpreterManager();
+
     /**
      * Creates a new list field editor
      */
     protected PythonListEditor() {
         if (USE_ICONS) {
-            imageInterpreter = PydevPlugin.getImageCache().get(UIConstants.PY_INTERPRETER_ICON);
+            imageInterpreter = ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.PY_INTERPRETER_ICON));
         }
     }
 
     /**
      * Creates a list field editor.
-     * 
+     *
      * @param name the name of the preference this field editor works on
      * @param labelText the label text of the field editor
      * @param parent the parent of the field editor's control
@@ -125,11 +135,11 @@ public abstract class PythonListEditor extends FieldEditor {
 
     /**
      * Notifies that one of the Config buttons (or Add) has been pressed.
-     * 
+     *
      * @param configType the type of configuration to use when creating the new interpreter.
      */
     public void addPressed(int configType) {
-        Tuple<String, String> input = getNewInputObject(configType);
+        NameAndExecutable input = getNewInputObject(configType);
         if (input != null) {
             if (input.o1 != null && input.o2 != null) {
                 setPresentsDefaultValue(false);
@@ -149,7 +159,7 @@ public abstract class PythonListEditor extends FieldEditor {
 
     /**
      * Adds a new tree item to the interpreter tree.
-     * @return 
+     * @return
      */
     protected TreeItem createInterpreterItem(String name, String executable) {
         TreeItem item = new TreeItem(treeWithInterpreters, SWT.NULL);
@@ -170,20 +180,44 @@ public abstract class PythonListEditor extends FieldEditor {
 
     /**
      * Creates the Add, Remove, Up, and Down button in the given button box.
-     * 
+     *
      * @param box the box for the buttons
      */
     private void createButtons(Composite box) {
-        addButton = createPushButton(box, "ListEditor.add");//$NON-NLS-1$
+        final int interpreterType = getInterpreterManager().getInterpreterType();
+        String selectTitle = "";
+        switch (interpreterType) {
+            case IPythonNature.INTERPRETER_TYPE_PYTHON:
+                selectTitle = "Brows&e for python/pypy exe";
+                break;
+            case IPythonNature.INTERPRETER_TYPE_JYTHON:
+                selectTitle = "Brows&e for Jython jar";
+                break;
+            case IPythonNature.INTERPRETER_TYPE_IRONPYTHON:
+                selectTitle = "Brows&e for ipy exe";
+                break;
+
+            default:
+                Log.log("Unhandled type: " + interpreterType);
+                selectTitle = "Select executable";
+        }
+
+        addButton = createPushButton(box, selectTitle);
+
+        if (interpreterType == IPythonNature.INTERPRETER_TYPE_PYTHON) {
+            pipenvConfigButton = createPushButton(box,
+                    InterpreterConfigHelpers.CONFIG_PIPENV_NAME);
+        }
         autoConfigButton = createPushButton(box,
-                InterpreterConfigHelpers.CONFIG_NAMES[InterpreterConfigHelpers.CONFIG_AUTO]);
+                InterpreterConfigHelpers.CONFIG_AUTO_NAME);
         advAutoConfigButton = createPushButton(box,
-                InterpreterConfigHelpers.CONFIG_NAMES[InterpreterConfigHelpers.CONFIG_ADV_AUTO]);
+                InterpreterConfigHelpers.CONFIG_ADV_AUTO_NAME);
         removeButton = createPushButton(box, "ListEditor.remove");//$NON-NLS-1$
         upButton = createPushButton(box, "ListEditor.up");//$NON-NLS-1$
         downButton = createPushButton(box, "ListEditor.down");//$NON-NLS-1$
         advAutoConfigButton
-                .setToolTipText("Choose from a list of valid interpreters, and select the folders to be in the SYSTEM pythonpath.");
+                .setToolTipText(
+                        "Choose from a list of valid interpreters, and select the folders to be in the SYSTEM pythonpath.");
     }
 
     /**
@@ -195,7 +229,7 @@ public abstract class PythonListEditor extends FieldEditor {
 
     /**
      * Helper method to create a push button.
-     * 
+     *
      * @param parent the parent control
      * @param key the resource name used to supply the button's label text
      * @return Button
@@ -225,6 +259,8 @@ public abstract class PythonListEditor extends FieldEditor {
                     addPressed(InterpreterConfigHelpers.CONFIG_MANUAL);
                 } else if (widget == autoConfigButton) {
                     addPressed(InterpreterConfigHelpers.CONFIG_AUTO);
+                } else if (pipenvConfigButton != null && widget == pipenvConfigButton) {
+                    addPressed(InterpreterConfigHelpers.CONFIG_PIPENV);
                 } else if (widget == advAutoConfigButton) {
                     addPressed(InterpreterConfigHelpers.CONFIG_ADV_AUTO);
                 } else if (widget == removeButton) {
@@ -290,7 +326,7 @@ public abstract class PythonListEditor extends FieldEditor {
 
     /**
      * Returns this field editor's button box containing the Add, Remove, Up, and Down button.
-     * 
+     *
      * @param parent the parent control
      * @return the button box
      */
@@ -306,6 +342,7 @@ public abstract class PythonListEditor extends FieldEditor {
                 public void widgetDisposed(DisposeEvent event) {
                     addButton = null;
                     autoConfigButton = null;
+                    pipenvConfigButton = null;
                     removeButton = null;
                     upButton = null;
                     downButton = null;
@@ -323,7 +360,7 @@ public abstract class PythonListEditor extends FieldEditor {
 
     /**
      * Returns this field editor's list control.
-     * 
+     *
      * @param parent the parent control
      * @return the list control
      */
@@ -358,10 +395,10 @@ public abstract class PythonListEditor extends FieldEditor {
      * <p>
      * Subclasses must implement this method.
      * </p>
-     * 
+     *
      * @return the name and executable of the new item
      */
-    protected abstract Tuple<String, String> getNewInputObject(int configType);
+    protected abstract NameAndExecutable getNewInputObject(int configType);
 
     /*
      * (non-Javadoc) Method declared on FieldEditor.
@@ -373,12 +410,13 @@ public abstract class PythonListEditor extends FieldEditor {
 
     /**
      * Returns this field editor's selection listener. The listener is created if nessessary.
-     * 
+     *
      * @return the selection listener
      */
     private SelectionListener getSelectionListener() {
-        if (selectionListener == null)
+        if (selectionListener == null) {
             createSelectionListener();
+        }
         return selectionListener;
     }
 
@@ -387,12 +425,13 @@ public abstract class PythonListEditor extends FieldEditor {
      * <p>
      * This method is internal to the framework; subclassers should not call this method.
      * </p>
-     * 
+     *
      * @return the shell
      */
     protected Shell getShell() {
-        if (addButton == null)
+        if (addButton == null) {
             return null;
+        }
         return addButton.getShell();
     }
 
@@ -459,7 +498,7 @@ public abstract class PythonListEditor extends FieldEditor {
 
     /**
      * Moves the currently selected item up or down.
-     * 
+     *
      * @param up <code>true</code> if the item should move up, and <code>false</code> if it should move down
      */
     private void swap(boolean up) {
@@ -498,6 +537,9 @@ public abstract class PythonListEditor extends FieldEditor {
         getListControl(parent).setEnabled(enabled);
         addButton.setEnabled(enabled);
         autoConfigButton.setEnabled(enabled);
+        if (pipenvConfigButton != null) {
+            pipenvConfigButton.setEnabled(enabled);
+        }
         removeButton.setEnabled(enabled);
         upButton.setEnabled(enabled);
         downButton.setEnabled(enabled);

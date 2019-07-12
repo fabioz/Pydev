@@ -34,18 +34,18 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.actions.RenameResourceAction;
 import org.eclipse.ui.internal.ide.IDEWorkbenchMessages;
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
+import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.ast.refactoring.ModuleRenameRefactoringRequest;
+import org.python.pydev.ast.refactoring.PyRefactoringRequest;
+import org.python.pydev.ast.refactoring.RefactoringRequest;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
-import org.python.pydev.editor.refactoring.AbstractPyRefactoring;
-import org.python.pydev.editor.refactoring.ModuleRenameRefactoringRequest;
-import org.python.pydev.editor.refactoring.PyRefactoringRequest;
-import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 import org.python.pydev.shared_core.structure.OrderedMap;
 import org.python.pydev.shared_ui.dialogs.DialogHelpers;
+import org.python.pydev.ui.refactoring.PyRenameRefactoring;
 
 public class PyRenameResourceAction extends RenameResourceAction {
 
@@ -279,8 +279,8 @@ public class PyRenameResourceAction extends RenameResourceAction {
                 try {
                     String resolveModule = n.resolveModule(r);
                     if (resolveModule != null &&
-                            // When it's an __init__, don't rename the package, only the file (regular rename operation
-                            // -- the folder has to be selected to do a package rename
+                    // When it's an __init__, don't rename the package, only the file (regular rename operation
+                    // -- the folder has to be selected to do a package rename
                             !resolveModule.endsWith(".__init__")) {
                         IFile file = null;
                         boolean foundAsInit = false;
@@ -302,7 +302,7 @@ public class PyRenameResourceAction extends RenameResourceAction {
                                 // rename would be provided in the first place).
                                 request.setFileResource(file);
                             }
-                            AbstractPyRefactoring.getPyRefactoring().rename(new PyRefactoringRequest(request));
+                            PyRenameRefactoring.rename(new PyRefactoringRequest(request));
                             //i.e.: if it was a module inside the pythonpath (as we resolved the name), don't go the default
                             //route and do a refactoring request to rename it)!
                             return;

@@ -6,7 +6,7 @@
  */
 /*
  * Created on 02/08/2005
- * 
+ *
  * @author Fabio Zadrozny
  */
 package org.python.pydev.editor.hover;
@@ -18,6 +18,7 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.editor.codefolding.PySourceViewer;
+import org.python.pydev.shared_core.markers.PyMarkerUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
 public class PyAnnotationHover implements IAnnotationHover {
@@ -37,7 +38,10 @@ public class PyAnnotationHover implements IAnnotationHover {
                     if (buf.length() > 0) {
                         buf.append("\n");
                     }
-                    buf.appendObject(marker.markerAnnotation.getMarker().getAttribute(IMarker.MESSAGE));
+                    IMarker m = marker.markerAnnotation.getMarker();
+                    if (PyMarkerUtils.showToUser(m)) {
+                        buf.appendObject(m.getAttribute(IMarker.MESSAGE));
+                    }
                 } catch (CoreException e) {
                     Log.log(e);
                 }

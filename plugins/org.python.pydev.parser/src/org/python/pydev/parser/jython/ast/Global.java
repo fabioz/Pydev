@@ -24,53 +24,45 @@ public final class Global extends stmtType {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
         Global other = (Global) obj;
-        if (!Arrays.equals(names, other.names))
-            return false;
-        if (value == null) {
-            if (other.value != null)
-                return false;
-        } else if (!value.equals(other.value))
-            return false;
+        if (!Arrays.equals(names, other.names)) return false;
+        if (value == null) { if (other.value != null) return false;}
+        else if (!value.equals(other.value)) return false;
         return true;
     }
-
     @Override
     public Global createCopy() {
         return createCopy(true);
     }
-
     @Override
     public Global createCopy(boolean copyComments) {
         NameTokType[] new0;
-        if (this.names != null) {
-            new0 = new NameTokType[this.names.length];
-            for (int i = 0; i < this.names.length; i++) {
-                new0[i] = (NameTokType) (this.names[i] != null ? this.names[i].createCopy(copyComments) : null);
-            }
-        } else {
+        if(this.names != null){
+        new0 = new NameTokType[this.names.length];
+        for(int i=0;i<this.names.length;i++){
+            new0[i] = (NameTokType) (this.names[i] != null?
+            this.names[i].createCopy(copyComments):null);
+        }
+        }else{
             new0 = this.names;
         }
-        Global temp = new Global(new0, value != null ? (exprType) value.createCopy(copyComments) : null);
+        Global temp = new Global(new0, value!=null?(exprType)value.createCopy(copyComments):null);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if (this.specialsBefore != null && copyComments) {
-            for (Object o : this.specialsBefore) {
-                if (o instanceof commentType) {
+        if(this.specialsBefore != null && copyComments){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
                     commentType commentType = (commentType) o;
                     temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if (this.specialsAfter != null && copyComments) {
-            for (Object o : this.specialsAfter) {
-                if (o instanceof commentType) {
+        if(this.specialsAfter != null && copyComments){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
                     commentType commentType = (commentType) o;
                     temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }

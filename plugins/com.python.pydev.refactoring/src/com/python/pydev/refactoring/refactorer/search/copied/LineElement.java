@@ -24,12 +24,18 @@ public class LineElement implements ICustomLineElement {
     private final int fLineNumber;
     private final int fLineStartOffset;
     private final String fLineContents;
+    private final int fColumn;
 
-    public LineElement(IResource parent, int lineNumber, int lineStartOffset, String lineContents) {
+    public LineElement(IResource parent, int lineNumber, int lineStartOffset, String lineContents, int column) {
         fParent = parent;
         fLineNumber = lineNumber;
         fLineStartOffset = lineStartOffset;
         fLineContents = lineContents;
+        fColumn = column;
+    }
+
+    public int getColumn() {
+        return fColumn;
     }
 
     @Override

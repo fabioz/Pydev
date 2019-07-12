@@ -1,0 +1,64 @@
+<doc>
+<contents_area>
+<div id="Content" style="padding: 5px;">
+<h1><a name="PyDevProjectCreation-CreatingaProject"></a>Creating a Project</h1>
+
+<p>Ok, now that your interpreter is configured, it is time to <b>create a project</b>. </p>
+
+<p><strong>Note</strong>: if you have existing sources see more details below: 
+<a href="#CreatingaProjectfromexistingsources">Creating a Project from existing sources</a></p>
+
+<p>After opening Eclipse, go to the menu:<br/>
+<b>File &gt; New &gt; Project &gt; PyDev &gt; PyDev project</b>. You should see the screen below:</p>
+
+
+<p><span class="image-wrap" style=""><img src="images/new_project.png" style="border: 1px solid black" /></span><br/>
+<b>Project name</b>: The name of the project.</p>
+
+<p><b>Project contents</b>: Where the project should be located in the filesystem (can be pointed to existing sources). </p>
+
+<p><b>Project type</b>: Defines the kind of the interpreter to be used for that project.</p>
+
+<p><b>Grammar version</b>: The grammar used for parsing the files in this project. It doesn't have to match the grammar of the 
+actual interpreter selected. This is done so that you can use a newer interpreter while having the grammar you use 
+compatible with an older interpreter (e.g.: using a Python 2.6 interpreter with a Python 2.4 grammar in the project).</p>
+
+<p><b>Interpreter</b>: Defines which interpreter should be used for code-completion and default run configurations (note that
+you can still create a run configuration with a different interpreter). </p>
+
+<p><b>Additional syntax validation</b>: Here you can add additional syntaxes to which the sources of this project should be
+validated (so, if a project should be Python 2 and Python 3 compatible, you could select the main grammar as Python 3 and an
+additional syntax validation as Python 2).</p>
+
+<p><b>PYTHONPATH configuration</b>: It's possible to have the project directory directly be the main PYTHONPATH entry (which
+is the most common setup), create a <b>src</b> folder and have that folder added to the PYTHONPATH, create links to
+existing sources or don't configure any folder to be in the PYTHONPATH (in which case it should be manually configured later on).</p>
+
+<p>You may finish in this screen or go to the next, where you will be asked which projects are referenced from this one (or have an additional
+step to create links to existing sources if you chose such option in the PYTHONPATH configuration). </p>
+
+
+<h1><a name="PyDevProjectCreation-Referencedprojects"></a>Referenced projects</h1>
+
+<p>The referenced projects are the projects whose source folders are added to the PYTHONPATH for the 
+referrer project.</p>
+
+
+<p>The <a href="manual_101_project_conf2.html" title="PyDev Project Configuration">next tutorial page</a> enters into more details on project references </p>
+
+<h1 id="CreatingaProjectfromexistingsources"><a name="PyDevProjectCreation-CreatingaProjectfromexistingsources"></a>Creating a Project from existing sources</h1>
+
+<p>   If you <b>created the project inside Eclipse</b>, you just have to import the project again 
+   (in <b>files &gt; import &gt; general &gt; existing projects into workspace</b>) &#8211; it'll look for the existing .project
+   file and will configure it automatically from the existing configuration. </p>
+
+<p>   If you have the sources from an existing project that wasn't created in Eclipse, you can either create a new project at that same location
+(and choose <b>Add project directory to the PYTHONPATH</b>) or create it in a different directory and choose <b>create links to existing sources</b> 
+in the PYTHONPATH configuration in the new project wizard.</p>
+
+<p>See the <a href="faq.html#ImportExistingSources">FAQ</a> for more information.</p>
+
+
+</div>
+</contents_area>
+</doc>

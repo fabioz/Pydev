@@ -22,7 +22,6 @@ import org.python.pydev.shared_interactive_console.console.codegen.StructuredSel
 
 import junit.framework.TestCase;
 
-@SuppressWarnings("rawtypes")
 public class GetGeneratorTestWorkbench extends TestCase {
 
     private static final class TestAdapter implements IScriptConsoleCodeGenerator {

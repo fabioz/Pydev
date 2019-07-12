@@ -29,6 +29,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.jface.text.link.ILinkedModeListener;
 import org.eclipse.jface.text.link.LinkedModeModel;
 import org.eclipse.jface.text.link.LinkedModeUI;
 import org.eclipse.jface.text.link.LinkedPositionGroup;
@@ -36,11 +37,13 @@ import org.eclipse.jface.text.link.ProposalPosition;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.ui.progress.UIJob;
 import org.eclipse.ui.texteditor.link.EditorLinkedModeUI;
+import org.python.pydev.ast.refactoring.RefactoringRequest;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.editor.MacroModeStateHandler;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.refactoring.RefactoringRequest;
+import org.python.pydev.editor.PySelectionFromEditor;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
@@ -48,8 +51,8 @@ import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.parsing.IParserObserver;
 import org.python.pydev.shared_core.structure.Tuple;
 
+import com.python.pydev.analysis.refactoring.wizards.rename.PyRenameEntryPoint;
 import com.python.pydev.refactoring.markoccurrences.MarkOccurrencesJob;
-import com.python.pydev.refactoring.wizards.rename.PyRenameEntryPoint;
 
 /**
  * This action should mark to rename all the occurrences found for some name in the file
@@ -78,7 +81,7 @@ public class PyRenameInFileAction extends Action {
                     try {
                         ISourceViewer viewer = pyEdit.getPySourceViewer();
                         IDocument document = viewer.getDocument();
-                        PySelection ps = new PySelection(pyEdit);
+                        PySelection ps = PySelectionFromEditor.createPySelectionFromEditor(pyEdit);
                         LinkedPositionGroup group = new LinkedPositionGroup();
 
                         if (!fillWithOccurrences(document, group, new NullProgressMonitor(), ps)) {
@@ -96,7 +99,26 @@ public class PyRenameInFileAction extends Action {
                             final LinkedModeUI ui = new EditorLinkedModeUI(model, viewer);
                             Tuple<String, Integer> currToken = ps.getCurrToken();
                             ui.setCyclingMode(LinkedModeUI.CYCLE_ALWAYS);
-                            ui.setExitPosition(viewer, currToken.o2 + currToken.o1.length(), 0, 0 /*ordered so that 0 is current pos*/);
+                            ui.setExitPosition(viewer, currToken.o2 + currToken.o1.length(), 0,
+                                    0 /*ordered so that 0 is current pos*/);
+
+                            final MacroModeStateHandler handler = new MacroModeStateHandler(pyEdit);
+                            handler.enterMacroMode();
+                            model.addLinkingListener(new ILinkedModeListener() {
+
+                                @Override
+                                public void suspend(LinkedModeModel model) {
+                                }
+
+                                @Override
+                                public void resume(LinkedModeModel model, int flags) {
+                                }
+
+                                @Override
+                                public void left(LinkedModeModel model, int flags) {
+                                    handler.leaveMacroMode();
+                                }
+                            });
                             ui.enter();
                         }
                     } catch (BadLocationException e) {
@@ -118,7 +140,7 @@ public class PyRenameInFileAction extends Action {
     }
 
     /**
-     * This class adds an observer and triggers a reparse that this listener should listen to. 
+     * This class adds an observer and triggers a reparse that this listener should listen to.
      */
     private class RenameInFileJob extends Job {
 
@@ -151,16 +173,16 @@ public class PyRenameInFileAction extends Action {
 
     /**
      * Puts the found positions referente to the occurrences in the group
-     * 
-     * @param document the document that will contain this positions 
+     *
+     * @param document the document that will contain this positions
      * @param group the group that will contain this positions
      * @param ps the selection used
-     * @return 
-     * 
+     * @return
+     *
      * @throws BadLocationException
      * @throws OperationCanceledException
      * @throws CoreException
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     private boolean fillWithOccurrences(IDocument document, LinkedPositionGroup group, IProgressMonitor monitor,
             PySelection ps) throws BadLocationException, OperationCanceledException, CoreException,

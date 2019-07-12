@@ -12,14 +12,22 @@
 package org.python.pydev.shared_core.utils;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPartitioningException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.ISynchronizable;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.log.Log;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
+import org.python.pydev.shared_core.utils.diff_match_patch.Patch;
 
 public class DocUtils {
 
@@ -60,5 +68,141 @@ public class DocUtils {
             return (String[]) contentTypes.toArray(new String[contentTypes.size()]);
         }
         return document.getLegalContentTypes();
+    }
+
+    public static void updateDocRangeWithContents(final IDocument doc, final String docContents,
+            final String newDocContents,
+            final String endLineDelimiter) {
+
+        updateDocRangeWithContents(new IDocumentUpdateAPI() {
+
+            @Override
+            public void set(String string) {
+                doc.set(string);
+            }
+
+            @Override
+            public void replace(int offset, int length, String text) throws BadLocationException {
+                // When doing a replace, sometimes the patch will try to make something as '\r\nsomething\r\n'
+                // and replace just from just starting after the '\r' to something with '\nfoo\r\n'.
+                // This breaks the editor line counts (seems a bug in SWT itself), but let's fix this
+                // here to minimize the area replaced and prevent that from happening.
+                if (length > 0) {
+                    FastStringBuffer tempBuf = new FastStringBuffer(text.length());
+                    tempBuf.append(text);
+
+                    String curr = doc.get(offset, length);
+
+                    for (int i = 0; i < length && tempBuf.length() > 0; i++) {
+                        if (curr.charAt(i) == tempBuf.charAt(0)) {
+                            tempBuf.deleteFirst();
+                            offset++;
+                            length--;
+                        } else {
+                            break;
+                        }
+                    }
+
+                    curr = doc.get(offset, length);
+
+                    if (tempBuf.length() > 0) {
+                        for (int i = curr.length() - 1; i >= 0 && tempBuf.length() > 0; i--) {
+                            if (tempBuf.lastChar() == curr.charAt(i)) {
+                                tempBuf.deleteLast();
+                                length--;
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+                    text = tempBuf.toString();
+                }
+                doc.replace(offset, length, text);
+            }
+        }, doc, docContents, newDocContents, endLineDelimiter);
+    }
+
+    public static interface IDocumentUpdateAPI {
+
+        void replace(int offset, int length, String text) throws BadLocationException;
+
+        void set(String text) throws BadLocationException;
+    }
+
+    /**
+     * @param docUpdateAPI any document mutation is done through this parameter (so, it's possible to record any changes done).
+     * @throws BadLocationException
+     */
+    public static void updateDocRangeWithContents(final IDocumentUpdateAPI docUpdateAPI, final IDocument docToUpdate,
+            final String docContents, final String newDocContents, final String endLineDelimiter) {
+        diff_match_patch diff_match_patch = new diff_match_patch();
+        diff_match_patch.Diff_Timeout = 0.5f;
+        diff_match_patch.Match_Distance = 200;
+        diff_match_patch.Patch_Margin = 10;
+        diff_match_patch.Diff_EditCost = 8;
+        LinkedList<Patch> patches = diff_match_patch.patch_make(docContents, newDocContents);
+        try {
+            diff_match_patch.patch_apply(patches, docContents, docUpdateAPI);
+        } catch (BadLocationException e) {
+            Log.log(e);
+        }
+    }
+
+    public static class EmptyLinesComputer {
+
+        private final IDocument doc;
+        private Map<Integer, Boolean> lineToIsEmpty = new HashMap<>();
+        private final int numberOfLines;
+
+        public EmptyLinesComputer(IDocument doc) {
+            this.doc = doc;
+            numberOfLines = this.doc.getNumberOfLines();
+        }
+
+        public boolean isLineEmpty(int line) {
+            Boolean b = this.lineToIsEmpty.get(line);
+            if (b == null) {
+                String lineContents = TextSelectionUtils.getLine(doc, line);
+                if (lineContents.trim().isEmpty()) {
+                    this.lineToIsEmpty.put(line, true);
+                    b = true;
+                } else {
+                    this.lineToIsEmpty.put(line, false);
+                    b = false;
+                }
+            }
+            return b;
+        }
+
+        /**
+         * Note: will add the current line if it's not empty and will add
+         * surrounding empty lines (even if the passed line is not empty).
+         */
+        public void addToSetEmptyLinesCloseToLine(Set<Integer> hashSet, int line) {
+            if (line < 0) {
+                return;
+            }
+            if (line >= numberOfLines) {
+                return;
+            }
+            if (isLineEmpty(line)) {
+                hashSet.add(line);
+            }
+            for (int i = line + 1; i < numberOfLines; i++) {
+                if (isLineEmpty(i)) {
+                    hashSet.add(i);
+                } else {
+                    break;
+                }
+            }
+            for (int i = line - 1; i >= 0 && i < numberOfLines; i--) {
+                if (isLineEmpty(i)) {
+                    hashSet.add(i);
+                } else {
+                    break;
+                }
+            }
+        }
+
     }
 }

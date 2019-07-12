@@ -8,7 +8,7 @@ package org.python.pydev.customizations.app_engine.util;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.swt.widgets.Shell;
-import org.python.pydev.customizations.common.ProcessWindow;
+import org.python.pydev.process_window.ProcessWindow;
 
 /**
  * The window for handling app engine for a given project.
@@ -42,6 +42,11 @@ public class AppEngineProcessWindow extends ProcessWindow {
 
     public static String getUpdateCommand(IResource resource) {
         return "update --secure " + getResourceLoc(resource);
+    }
+
+    @Override
+    protected String getSeeURL() {
+        return "http://code.google.com/appengine/docs/python/tools/uploadinganapp.html";
     }
 
 }

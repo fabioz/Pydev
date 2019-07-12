@@ -10,7 +10,6 @@
 package com.python.pydev.analysis.scopeanalysis;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -20,23 +19,24 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.ast.codecompletion.revisited.CompletionCache;
+import org.python.pydev.ast.codecompletion.revisited.CompletionStateFactory;
+import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.ast.codecompletion.revisited.visitors.AbstractVisitor;
+import org.python.pydev.ast.codecompletion.revisited.visitors.AssignDefinition;
+import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
+import org.python.pydev.ast.codecompletion.revisited.visitors.LocalScope;
 import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.IterTokenEntry;
+import org.python.pydev.core.TokensList;
 import org.python.pydev.core.TupleN;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
-import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
-import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
-import org.python.pydev.editor.codecompletion.revisited.visitors.AssignDefinition;
-import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
-import org.python.pydev.editor.codecompletion.revisited.visitors.LocalScope;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -68,6 +68,7 @@ import org.python.pydev.parser.jython.ast.comprehensionType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.structure.StringToIntCounterSmallSet;
 
 import com.python.pydev.analysis.visitors.Found;
@@ -126,7 +127,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
      */
     public final ICompletionCache completionCache;
 
-    private final LocalScope currentLocalScope = new LocalScope();
+    private final LocalScope currentLocalScope;
 
     private final Set<String> builtinTokens = new HashSet<String>();
 
@@ -135,6 +136,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
         this.monitor = monitor;
         this.current = current;
         this.nature = nature;
+        currentLocalScope = new LocalScope(nature);
         this.moduleName = moduleName;
         this.document = document;
         this.scope = new Scope(this, nature, moduleName);
@@ -147,16 +149,18 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
                 .getEmptyCompletionState(nature, new CompletionCache());
         this.completionCache = completionState;
 
-        List<IToken> builtinCompletions = nature.getAstManager().getBuiltinCompletions(completionState,
-                new ArrayList<IToken>());
+        TokensList builtinCompletions = nature.getAstManager().getBuiltinCompletions(completionState,
+                new TokensList());
 
         if (moduleName != null && moduleName.endsWith("__init__")) {
             //__path__ should be added to modules that have __init__
-            builtinCompletions.add(new SourceToken(new Name("__path__", Name.Load, false), "__path__", "", "",
-                    moduleName));
+            builtinCompletions
+                    .addAll(new TokensList(new SourceToken(new Name("__path__", Name.Load, false), "__path__", "", "",
+                            moduleName, nature)));
         }
 
-        for (IToken t : builtinCompletions) {
+        for (IterTokenEntry entry : builtinCompletions) {
+            IToken t = entry.getToken();
             Found found = makeFound(t);
             org.python.pydev.shared_core.structure.Tuple<IToken, Found> tup = new org.python.pydev.shared_core.structure.Tuple<IToken, Found>(
                     t, found);
@@ -263,11 +267,12 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
                 }
             }
         }
-        
+
         if (node.keywords != null) {
             for (int i = 0; i < node.keywords.length; i++) {
-                if (node.keywords[i] != null)
+                if (node.keywords[i] != null) {
                     node.keywords[i].accept(visitor);
+                }
             }
         }
 
@@ -284,7 +289,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
      * used so that the token is added to the names to ignore...
      */
     protected void addToNamesToIgnore(SimpleNode node, boolean finishClassScope, boolean checkBuiltins) {
-        SourceToken token = AbstractVisitor.makeToken(node, "");
+        SourceToken token = AbstractVisitor.makeToken(node, "", nature);
 
         if (checkBuiltins) {
             if (checkCurrentScopeForAssignmentsToBuiltins()) {
@@ -516,7 +521,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
         unhandled_node(nameTok);
         if (nameTok.ctx == NameTok.VarArg || nameTok.ctx == NameTok.KwArg) {
 
-            SourceToken token = AbstractVisitor.makeToken(nameTok, moduleName);
+            SourceToken token = AbstractVisitor.makeToken(nameTok, moduleName, nature);
             scope.addToken(token, token, (nameTok).id);
             if (checkCurrentScopeForAssignmentsToBuiltins()) {
                 if (builtinTokens.contains(token.getRepresentation())) {
@@ -543,7 +548,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
     @Override
     public Object visitImport(Import node) throws Exception {
         unhandled_node(node);
-        List<IToken> list = AbstractVisitor.makeImportToken(node, null, moduleName, true);
+        List<IToken> list = AbstractVisitor.makeImportToken(node, null, moduleName, true, nature);
 
         if (checkCurrentScopeForAssignmentsToBuiltins()) {
             for (IToken token : list) {
@@ -553,7 +558,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
                 }
             }
         }
-        scope.addImportTokens(list, null, this.completionCache);
+        scope.addImportTokens(new TokensList(list), null, this.completionCache);
         return null;
     }
 
@@ -567,18 +572,18 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
         try {
 
             if (AbstractVisitor.isWildImport(node)) {
-                IToken wildImport = AbstractVisitor.makeWildImportToken(node, null, moduleName);
+                IToken wildImport = AbstractVisitor.makeWildImportToken(node, null, moduleName, nature);
 
                 ICompletionState state = CompletionStateFactory.getEmptyCompletionState(nature, this.completionCache);
                 state.setBuiltinsGotten(true); //we don't want any builtins
-                List<IToken> completionsForWildImport = new ArrayList<IToken>();
+                TokensList completionsForWildImport = new TokensList();
                 if (nature.getAstManager().getCompletionsForWildImport(state, current, completionsForWildImport,
                         wildImport)) {
                     scope.addImportTokens(completionsForWildImport, wildImport, this.completionCache);
                 }
             } else {
-                List<IToken> list = AbstractVisitor.makeImportToken(node, null, moduleName, true);
-                scope.addImportTokens(list, null, this.completionCache);
+                List<IToken> list = AbstractVisitor.makeImportToken(node, null, moduleName, true, nature);
+                scope.addImportTokens(new TokensList(list), null, this.completionCache);
             }
 
         } catch (Exception e) {
@@ -596,7 +601,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
     public Object visitName(Name node) throws Exception {
         unhandled_node(node);
         //when visiting the global namespace, we don't go into any inner scope.
-        SourceToken token = AbstractVisitor.makeToken(node, moduleName);
+        SourceToken token = AbstractVisitor.makeToken(node, moduleName, nature);
         boolean found = true;
         //on aug assign, it has to enter both, the load and the read (but first the load, because it can be undefined)
         if (node.ctx == Name.Load || node.ctx == Name.Del || node.ctx == Name.AugStore) {
@@ -632,7 +637,8 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
      * @param rep the representation we're looking for
      * @return whether the representation is in the names to ignore
      */
-    protected org.python.pydev.shared_core.structure.Tuple<IToken, Found> findInNamesToIgnore(String rep, IToken token) {
+    protected org.python.pydev.shared_core.structure.Tuple<IToken, Found> findInNamesToIgnore(String rep,
+            IToken token) {
         org.python.pydev.shared_core.structure.Tuple<IToken, Found> found = scope.findInNamesToIgnore(rep);
         return found;
     }
@@ -645,7 +651,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
             nameAst.beginLine = name.beginLine;
             nameAst.beginColumn = name.beginColumn;
 
-            SourceToken token = AbstractVisitor.makeToken(nameAst, moduleName);
+            SourceToken token = AbstractVisitor.makeToken(nameAst, moduleName, nature);
             scope.addTokenToGlobalScope(token);
             addToNamesToIgnore(nameAst, false, true); // it is global, so, ignore it...
         }
@@ -663,7 +669,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
      */
     @Override
     public Object visitAttribute(Attribute node) throws Exception {
-        SourceToken token = AbstractVisitor.makeFullNameToken(node, moduleName);
+        SourceToken token = AbstractVisitor.makeFullNameToken(node, moduleName, nature);
         unhandled_node(node);
 
         visitingAttributeStackI += 1;
@@ -1203,10 +1209,11 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
                             if (!isDefinitionUnknown(m, repToCheck)) {
                                 //Check if there's some hasattr (if there is, we'll consider that the token which
                                 //had the hasattr checked will actually have it).
-                                Collection<IToken> interfaceForLocal = this.currentLocalScope.getInterfaceForLocal(
+                                TokensList interfaceForLocal = this.currentLocalScope.getInterfaceForLocal(
                                         foundAsStr, false, true);
                                 boolean foundInHasAttr = false;
-                                for (IToken iToken : interfaceForLocal) {
+                                for (IterTokenEntry entry : interfaceForLocal) {
+                                    IToken iToken = entry.getToken();
                                     if (iToken.getRepresentation().equals(repToCheck)) {
                                         foundInHasAttr = true;
                                         break;
@@ -1349,10 +1356,10 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
                 Attribute a = (Attribute) ast;
 
                 if (((NameTok) a.attr).id.equals(searchFor)) {
-                    return new SourceToken(a.attr, searchFor, "", "", token.getParentPackage());
+                    return new SourceToken(a.attr, searchFor, "", "", token.getParentPackage(), nature);
 
                 } else if (a.value.toString().equals(searchFor)) {
-                    return new SourceToken(a.value, searchFor, "", "", token.getParentPackage());
+                    return new SourceToken(a.value, searchFor, "", "", token.getParentPackage(), nature);
                 }
                 ast = a.value;
             }

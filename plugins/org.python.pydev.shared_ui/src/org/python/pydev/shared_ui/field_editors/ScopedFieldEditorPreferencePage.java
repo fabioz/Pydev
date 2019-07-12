@@ -1,5 +1,6 @@
 package org.python.pydev.shared_ui.field_editors;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,6 +14,8 @@ import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.IPersistentPreferenceStore;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.swt.widgets.Button;
@@ -288,6 +291,22 @@ public abstract class ScopedFieldEditorPreferencePage extends FieldEditorPrefere
 
     public void saveToWorkspace() {
         super.performApply();
+    }
+
+    @Override
+    public boolean performOk() {
+        boolean ret = super.performOk();
+        IPreferenceStore preferenceStore2 = getPreferenceStore();
+        // When the user presses apply, make sure we try to persist now, not when the IDE is closed.
+        if (preferenceStore2 instanceof IPersistentPreferenceStore) {
+            IPersistentPreferenceStore iPersistentPreferenceStore = (IPersistentPreferenceStore) preferenceStore2;
+            try {
+                iPersistentPreferenceStore.save();
+            } catch (IOException e) {
+                Log.log(e);
+            }
+        }
+        return ret;
     }
 
     public void loadFromWorkspace() {

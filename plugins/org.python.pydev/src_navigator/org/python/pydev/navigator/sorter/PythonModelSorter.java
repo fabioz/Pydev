@@ -50,14 +50,13 @@ public class PythonModelSorter extends ViewerSorter {
         return ISortedElement.UNKNOWN_ELEMENT;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public int compare(Viewer viewer, Object e1, Object e2) {
         if (e1 instanceof PythonNode && e2 instanceof PythonNode) {
             return 0; //we don't want to sort it... just show it in the order it is found in the file
         }
 
-        //Could be super.compare, but we don't have a way to override getLabel, so, copying the whole code. 
+        //Could be super.compare, but we don't have a way to override getLabel, so, copying the whole code.
         int cat1 = category(e1);
         int cat2 = category(e2);
 

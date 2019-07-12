@@ -3,12 +3,12 @@ package org.python.pydev.core.partition;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.jface.text.rules.ICharacterScanner;
-import org.eclipse.jface.text.rules.IPredicateRule;
-import org.eclipse.jface.text.rules.IToken;
-import org.eclipse.jface.text.rules.Token;
 import org.python.pydev.shared_core.partitioner.IChangeTokenRule;
+import org.python.pydev.shared_core.partitioner.ICharacterScanner;
 import org.python.pydev.shared_core.partitioner.IMarkScanner;
+import org.python.pydev.shared_core.partitioner.IPredicateRule;
+import org.python.pydev.shared_core.partitioner.IToken;
+import org.python.pydev.shared_core.partitioner.Token;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
 public class MultiLineRuleWithMultipleStarts implements IPredicateRule, IChangeTokenRule {

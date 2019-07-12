@@ -52,18 +52,23 @@ public class PyImportsIterator implements Iterator<ImportHandle> {
         this(doc, true);
     }
 
+    public PyImportsIterator(IDocument doc, boolean addOnlyGlobalImports, boolean allowBadInput) {
+        this(doc, addOnlyGlobalImports, allowBadInput, 0);
+    }
+
     /**
      * Constructor
-     * 
+     *
      * @param doc the document from where the import should be gathered.
-     * @param allowBadInput 
+     * @param allowBadInput
      */
-    public PyImportsIterator(IDocument doc, boolean addOnlyGlobalImports, boolean allowBadInput) {
+    public PyImportsIterator(IDocument doc, boolean addOnlyGlobalImports, boolean allowBadInput, int startOffset) {
         this.doc = doc;
         this.addOnlyGlobalImports = addOnlyGlobalImports;
         this.allowBadInput = allowBadInput;
         delimiter = PySelection.getDelimiter(doc);
         this.docIterator = new PyDocIterator(doc, false, false, false, true);
+        this.docIterator.setStartingOffset(startOffset);
         //gather the 1st import
         calcNext();
     }

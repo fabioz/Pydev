@@ -1,0 +1,22 @@
+<doc>
+<contents_area>
+<h1 class="title">Screenshots</h1>
+
+<!-- <right_area>
+</right_area>
+<image_area></image_area>
+<quote_area></quote_area> -->
+<div class="section" id="code-completion-and-quick-fix">
+<h1>Code Completion and Quick Fix</h1>
+<img alt="../images/screenshot/vscode_code_completion_quick_fix.gif" class="snap" src="../images/screenshot/vscode_code_completion_quick_fix.gif" />
+</div>
+<div class="section" id="workspace-symbols">
+<h1>Workspace Symbols</h1>
+<img alt="../images/screenshot/vscode_workspace_symbols.gif" class="snap" src="../images/screenshot/vscode_workspace_symbols.gif" />
+</div>
+</contents_area>
+
+
+
+</doc>
+

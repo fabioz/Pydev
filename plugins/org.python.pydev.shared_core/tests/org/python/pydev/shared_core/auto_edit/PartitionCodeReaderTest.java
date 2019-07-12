@@ -14,17 +14,17 @@ package org.python.pydev.shared_core.auto_edit;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.TypedPosition;
-import org.eclipse.jface.text.rules.FastPartitioner;
-import org.eclipse.jface.text.rules.IPartitionTokenScanner;
-import org.eclipse.jface.text.rules.RuleBasedPartitionScanner;
+import org.python.pydev.shared_core.partitioner.FastPartitioner;
+import org.python.pydev.shared_core.partitioner.IPartitionTokenScanner;
 import org.python.pydev.shared_core.partitioner.PartitionCodeReader;
+import org.python.pydev.shared_core.partitioner.RuleBasedPartitionScanner;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.testutils.TestUtils;
+
+import junit.framework.TestCase;
 
 public class PartitionCodeReaderTest extends TestCase {
 

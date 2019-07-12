@@ -27,27 +27,28 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.texteditor.ITextEditor;
-import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.ast.codecompletion.AbstractPyCodeCompletion;
+import org.python.pydev.ast.codecompletion.PyCodeCompletionImages;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.concurrency.ConditionEvent;
 import org.python.pydev.core.concurrency.ConditionEventWithValue;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.env.UserCanceledException;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
-import org.python.pydev.editor.codecompletion.AbstractPyCodeCompletion;
-import org.python.pydev.editor.codecompletion.PyCalltipsContextInformation;
-import org.python.pydev.editor.codecompletion.PyCodeCompletionImages;
-import org.python.pydev.editor.codecompletion.PyLinkedModeCompletionProposal;
+import org.python.pydev.editor.codefolding.PyCalltipsContextInformation;
 import org.python.pydev.editorinput.PyOpenEditor;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.callbacks.ICallback0;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
+import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
 import org.python.pydev.shared_core.io.ThreadStreamReader;
 import org.python.pydev.shared_core.process.ProcessUtils;
+import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_interactive_console.console.IScriptConsoleCommunication;
@@ -55,8 +56,6 @@ import org.python.pydev.shared_interactive_console.console.IXmlRpcClient;
 import org.python.pydev.shared_interactive_console.console.InterpreterResponse;
 import org.python.pydev.shared_interactive_console.console.ScriptXmlRpcClient;
 import org.python.pydev.shared_ui.EditorUtils;
-import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
-import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 /**
@@ -149,7 +148,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
      */
     public PydevConsoleCommunication(int port, final Process process, int clientPort, String[] commandArray,
             String[] envp, String encoding)
-                    throws Exception {
+            throws Exception {
         this.commandArray = commandArray;
         this.envp = envp;
 
@@ -497,22 +496,23 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
      * @return completions from the client
      */
     @Override
-    public ICompletionProposal[] getCompletions(String text, String actTok, int offset, boolean showForTabCompletion)
+    public ICompletionProposalHandle[] getCompletions(String text, String actTok, int offset,
+            boolean showForTabCompletion)
             throws Exception {
         if (waitingForInput) {
-            return new ICompletionProposal[0];
+            return new ICompletionProposalHandle[0];
         }
         Object fromServer = client.execute("getCompletions", new Object[] { text, actTok });
-        List<ICompletionProposal> ret = new ArrayList<ICompletionProposal>();
+        List<ICompletionProposalHandle> ret = new ArrayList<ICompletionProposalHandle>();
 
         convertConsoleCompletionsToICompletions(text, actTok, offset, fromServer, ret, showForTabCompletion);
-        ICompletionProposal[] proposals = ret.toArray(new ICompletionProposal[ret.size()]);
+        ICompletionProposalHandle[] proposals = ret.toArray(new ICompletionProposalHandle[ret.size()]);
         return proposals;
     }
 
     public static void convertConsoleCompletionsToICompletions(final String text, String actTok, int offset,
             Object fromServer,
-            List<ICompletionProposal> ret, boolean showForTabCompletion) {
+            List<ICompletionProposalHandle> ret, boolean showForTabCompletion) {
         IFilterCompletion filter = null;
         if (actTok != null && actTok.indexOf("].") != -1) {
             // Fix issue: when we request a code-completion on a list position i.e.: "lst[0]." IPython is giving us completions from the
@@ -520,7 +520,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
             filter = new IFilterCompletion() {
 
                 @Override
-                public boolean acceptCompletion(int type, PyLinkedModeCompletionProposal completion) {
+                public boolean acceptCompletion(int type, ICompletionProposalHandle completion) {
                     if (type == IToken.TYPE_IPYTHON) {
                         if (completion.getDisplayString().startsWith(".")) {
                             return false;
@@ -536,11 +536,11 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
     }
 
     public static interface IFilterCompletion {
-        boolean acceptCompletion(int type, PyLinkedModeCompletionProposal completion);
+        boolean acceptCompletion(int type, ICompletionProposalHandle completion);
     }
 
     private static void convertToICompletions(final String text, String actTok, int offset, Object fromServer,
-            List<ICompletionProposal> ret, boolean showForTabCompletion, IFilterCompletion filter) {
+            List<ICompletionProposalHandle> ret, boolean showForTabCompletion, IFilterCompletion filter) {
         if (fromServer instanceof Object[]) {
             Object[] objects = (Object[]) fromServer;
             fromServer = Arrays.asList(objects);
@@ -564,7 +564,7 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                     String docStr = (String) comp[1];
                     int type = extractInt(comp[3]);
                     String args = AbstractPyCodeCompletion.getArgs((String) comp[2], type,
-                            ICompletionState.LOOKING_FOR_INSTANCED_VARIABLE);
+                            ICompletionState.LookingFor.LOOKING_FOR_INSTANCED_VARIABLE);
                     String nameAndArgs = name + args;
 
                     int priority = IPyCompletionProposal.PRIORITY_DEFAULT;
@@ -640,10 +640,10 @@ public class PydevConsoleCommunication implements IScriptConsoleCommunication, X
                         }
                     }
 
-                    PyLinkedModeCompletionProposal completion = new PyLinkedModeCompletionProposal(nameAndArgs,
-                            replacementOffset, length, cursorPos,
-                            PyCodeCompletionImages.getImageForType(type), nameAndArgs, pyContextInformation, docStr,
-                            priority, PyCompletionProposal.ON_APPLY_DEFAULT, args, false);
+                    ICompletionProposalHandle completion = CompletionProposalFactory.get()
+                            .createPyLinkedModeCompletionProposal(nameAndArgs, replacementOffset, length, cursorPos,
+                                    PyCodeCompletionImages.getImageForType(type), nameAndArgs, pyContextInformation,
+                                    docStr, priority, IPyCompletionProposal.ON_APPLY_DEFAULT, args, false, null);
                     if (filter == null || filter.acceptCompletion(type, completion)) {
                         ret.add(completion);
                     }

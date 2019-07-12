@@ -44,17 +44,24 @@ import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Num;
+import org.python.pydev.parser.jython.ast.Starred;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.modType;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
+import org.python.pydev.parser.jython.ast.Await;
 
 public final class PythonGrammar30 extends AbstractPythonGrammar implements IGrammar
 {
 
-	private boolean insideAsync;
+    private int insideAsync;
+
+    @Override
+    public boolean getInsideAsync() {
+        return insideAsync != 0;
+    }
 
 
 
@@ -591,28 +598,77 @@ void parameters() #void:  {}
   try{{grammarActions.findTokenAndAdd(")");}<RPAREN> }catch(ParseException e){handleRParensNearButNotCurrent(e);}
 }
 
-// typedargslist: (tfpdef ['=' test] (',' tfpdef ['=' test])* [','
-//        ['*' [tfpdef] (',' tfpdef ['=' test])* [',' '**' tfpdef] | '**' tfpdef]]
-//      |  '*' [tfpdef] (',' tfpdef ['=' test])* [',' '**' tfpdef] | '**' tfpdef)
-
+// typedargslist:
+// (
+//     tfpdef ['=' test]
+//     (
+//         ',' tfpdef ['=' test]
+//     )*
+//     [
+//         ',' [
+//             '*' [tfpdef] (',' tfpdef ['=' test])* [',' '**' tfpdef]
+//             |
+//             '**' tfpdef
+//             ]
+//     ]
+//     |  '*' [tfpdef] (',' tfpdef ['=' test])* [',' '**' tfpdef] | '**' tfpdef
+// )
+//
+// aliases:
+//  - defaultarg2 is tfpdef ['=' test]
+//  - ExtraArgList2 is '*' [tfpdef]
+//  - ExtraKeywordList2 is '**' tfpdef
+//
+// vesion replacing with our aliases
+// (
+//     defaultarg2
+//     (
+//         ',' defaultarg2
+//     )*
+//     [
+//         ',' [
+//             ExtraArgList2 (',' defaultarg2)* [',' ExtraKeywordList2]
+//             |
+//             ExtraKeywordList2
+//             ]
+//     ]
+//     |
+//     ExtraArgList2 (',' defaultarg2)* [',' ExtraKeywordList2] | ExtraKeywordList2
+// )
 void typedargslist() #void: {}
 {
-// Doing the exact same does not yield good results for javacc, so, we have to work with an alternative specification
-// (that does the same thing)... yay, Python 3.5 updated their construct to the same I had to use for Python 3 from the beggining ;)
-       ((defaultarg2() (LOOKAHEAD(2){grammarActions.findTokenAndAdd(",");}<COMMA> defaultarg2())*) [LOOKAHEAD(2){grammarActions.findTokenAndAdd(",");}<COMMA> ((ExtraArgList2() (LOOKAHEAD(2){grammarActions.findTokenAndAdd(",");}<COMMA> onlykeywordarg2())* [{grammarActions.findTokenAndAdd(",");}<COMMA> ExtraKeywordList2()]) | (ExtraKeywordList2()) )]) [{grammarActions.findTokenAndAdd(",");}<COMMA>]
-    |  (ExtraArgList2() (LOOKAHEAD(2){grammarActions.findTokenAndAdd(",");}<COMMA> onlykeywordarg2())* [LOOKAHEAD(2){grammarActions.findTokenAndAdd(",");}<COMMA> ExtraKeywordList2()]) [{grammarActions.findTokenAndAdd(",");}<COMMA>]
-    |   ExtraKeywordList2() [{grammarActions.findTokenAndAdd(",");}<COMMA>]
+    (
+        (
+            defaultarg2()
+            (LOOKAHEAD(2)
+                {grammarActions.findTokenAndAdd(",");}<COMMA> defaultarg2()
+            )*
+        )
+        [LOOKAHEAD(2)
+            {grammarActions.findTokenAndAdd(",");}<COMMA>
+            [
+            ExtraArgList2() (LOOKAHEAD(2){grammarActions.findTokenAndAdd(",");}<COMMA> onlykeywordarg2())* [{grammarActions.findTokenAndAdd(",");}<COMMA> ExtraKeywordList2()]
+            |
+            ExtraKeywordList2()
+            ]
+        ]
+    )
+    |
+    (
+        (ExtraArgList2() (LOOKAHEAD(2){grammarActions.findTokenAndAdd(",");}<COMMA> onlykeywordarg2())* [LOOKAHEAD(2){grammarActions.findTokenAndAdd(",");}<COMMA> ExtraKeywordList2()]) | ExtraKeywordList2()
+    )
 }
 
-// ['*' [tfpdef]
+// '*' [tfpdef]
 void ExtraArgList2(): {}
 {
-	<MULTIPLY> {grammarActions.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} [tfpdef()]
+    <MULTIPLY> {grammarActions.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} [tfpdef()]
 }
 
+// '**' tfpdef
 void ExtraKeywordList2(): {}
 {
-	<POWER> {grammarActions.addSpecialToken("**", STRATEGY_BEFORE_NEXT);} tfpdef()
+    <POWER> {grammarActions.addSpecialToken("**", STRATEGY_BEFORE_NEXT);} tfpdef()
 }
 
 // tfpdef ['=' test]
@@ -620,6 +676,7 @@ void defaultarg2(): {}
 { tfpdef() [temporaryToken=<EQUAL> {this.addSpecialToArgDef(temporaryToken);}  test()] }
 
 
+// same as defaultarg2 but in a different construct
 void onlykeywordarg2(): {}
 { tfpdef() [temporaryToken=<EQUAL> {this.addSpecialToArgDef(temporaryToken);}  test()] }
 
@@ -627,18 +684,33 @@ void onlykeywordarg2(): {}
 //tfpdef: NAME [':' test]
 void tfpdef(): {}
 {
-	Name() [LOOKAHEAD(2)<COLON> {grammarActions.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} test()]
+    Name() [LOOKAHEAD(2)<COLON> {grammarActions.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} test()]
 }
 
 
-//varargslist: ((vfpdef ['=' test] ',')*
-//              ('*' [vfpdef] (',' vfpdef ['=' test])*  [',' '**' vfpdef] | '**' vfpdef)
-//              | vfpdef ['=' test] (',' vfpdef ['=' test])* [','])
+// varargslist:
+// (
+//     vfpdef ['=' test] (',' vfpdef ['=' test])* [
+//         ',' ['*' [vfpdef] (',' vfpdef ['=' test])* [',' '**' vfpdef] | '**' vfpdef]
+//     ]
+//     |  '*' [vfpdef] (',' vfpdef ['=' test])* [',' '**' vfpdef] | '**' vfpdef
+// )
 void varargslist() #void: {}
 {
-       ((defaultarg() (LOOKAHEAD(2){grammarActions.findTokenAndAdd(",");}<COMMA> defaultarg())*) [LOOKAHEAD(2){grammarActions.findTokenAndAdd(",");}<COMMA> ((ExtraArgList() (LOOKAHEAD(2){grammarActions.findTokenAndAdd(",");}<COMMA> onlykeywordarg())* [{grammarActions.findTokenAndAdd(",");}<COMMA> ExtraKeywordList()]) | (ExtraKeywordList()) )]) [{grammarActions.findTokenAndAdd(",");}<COMMA>]
-    |  (ExtraArgList() (LOOKAHEAD(2){grammarActions.findTokenAndAdd(",");}<COMMA> onlykeywordarg())* [LOOKAHEAD(2){grammarActions.findTokenAndAdd(",");}<COMMA> ExtraKeywordList()]) [{grammarActions.findTokenAndAdd(",");}<COMMA>]
-    |   ExtraKeywordList() [{grammarActions.findTokenAndAdd(",");}<COMMA>]
+    (
+        (defaultarg() (LOOKAHEAD(2){grammarActions.findTokenAndAdd(",");}<COMMA> defaultarg())*)
+        [LOOKAHEAD(2){grammarActions.findTokenAndAdd(",");}<COMMA>
+            (
+                (ExtraArgList() (LOOKAHEAD(2){grammarActions.findTokenAndAdd(",");}<COMMA> onlykeywordarg())* [{grammarActions.findTokenAndAdd(",");}<COMMA> ExtraKeywordList()])
+                |
+                (ExtraKeywordList())
+            )
+        ]
+    ) [{grammarActions.findTokenAndAdd(",");}<COMMA>]
+    |
+    (ExtraArgList() (LOOKAHEAD(2){grammarActions.findTokenAndAdd(",");}<COMMA> onlykeywordarg())* [LOOKAHEAD(2){grammarActions.findTokenAndAdd(",");}<COMMA> ExtraKeywordList()]) [{grammarActions.findTokenAndAdd(",");}<COMMA>]
+    |
+    ExtraKeywordList() [{grammarActions.findTokenAndAdd(",");}<COMMA>]
 }
 
 void ExtraArgList(): {}
@@ -665,14 +737,14 @@ void fplist() #tuple: {}
 //stmt: simple_stmt | compound_stmt
 void stmt() #void: {}
 {
-		// Note: this is different from the Python AST because simple_stmt() can actually become Name() which can consume the <async> keyword...
-		// So, the async_stmt() was moved from the compound_stmt to the stmt() level to be processed first (as we have to find
-		// an async def/async with/ async for, while Name() would match the <async> in a single step).
-		LOOKAHEAD(2)
-		
-		async_stmt()
-	|
-		non_async_stmt()
+        // Note: this is different from the Python AST because simple_stmt() can actually become Name() which can consume the <async> keyword...
+        // So, the async_stmt() was moved from the compound_stmt to the stmt() level to be processed first (as we have to find
+        // an async def/async with/ async for, while Name() would match the <async> in a single step).
+        LOOKAHEAD(2)
+
+        async_stmt()
+    |
+        non_async_stmt()
 }
 
 
@@ -685,7 +757,7 @@ void non_async_stmt() #void: {}
         }catch(ParseException e){
             handleErrorInCompountStmt(e);
         }
-	
+
 }
 
 
@@ -719,7 +791,7 @@ void small_stmt() #void: {SimpleNode simpleNode;Token spStr;}
 // augassign: ('+=' | '-=' | '*=' | '@=' | '/=' | '%=' | '&=' | '|=' | '^=' |
 void expr_stmt() #void: {}
 {
-    testlist_star_expr() (
+    {grammarActions.pushStarExpr(Starred.Load);}testlist_star_expr(){grammarActions.popStarExpr();} (
     <PLUSEQ>        (yield_expr()|SmartTestList())   #aug_plus(2)
 |   <MINUSEQ>       (yield_expr()|SmartTestList())   #aug_minus(2)
 |   <MULTIPLYEQ>    (yield_expr()|SmartTestList())   #aug_multiply(2)
@@ -733,7 +805,7 @@ void expr_stmt() #void: {}
 |   <LSHIFTEQ>      (yield_expr()|SmartTestList())   #aug_lshift(2)
 |   <RSHIFTEQ>      (yield_expr()|SmartTestList())   #aug_rshift(2)
 |   <POWEREQ>       (yield_expr()|SmartTestList())   #aug_power(2)
-|  (<EQUAL>         (yield_expr()|testlist_star_expr()))* #expr_stmt(jjtree.nodeArity()+1))
+|  (<EQUAL>         (yield_expr()| {grammarActions.pushStarExpr(Starred.Store);} testlist_star_expr() {grammarActions.popStarExpr();}))* #expr_stmt(jjtree.nodeArity()+1))
 
 }
 
@@ -906,12 +978,12 @@ void compound_stmt() #void : {}
 //async_stmt: ASYNC (funcdef | with_stmt | for_stmt)
 void async_stmt() #void :{}
 {
-		{insideAsync = true;}
-		try{
-			<ASYNC> (funcdef() | with_stmt() | for_stmt())
-		}finally{
-			insideAsync = false;
-		}
+        {insideAsync += 1;}
+        try{
+            <ASYNC> (funcdef() | with_stmt() | for_stmt())
+        }finally{
+            insideAsync -= 1;
+        }
 }
 
 
@@ -950,7 +1022,7 @@ Object[] begin_else_stmt(): {Object o1, o2;}
 
 //for_stmt: 'for' exprlist 'in' testlist ':' suite ['else' ':' suite]
 void for_stmt(): {}
-{   <FOR> {this.markLastAsSuiteStart();} {grammarActions.addSpecialTokenToLastOpened("for ");} exprlist() {grammarActions.findTokenAndAdd("in");}<IN>  SmartTestList() {grammarActions.findTokenAndAdd(":");}<COLON> suite()
+{   <FOR> {this.markLastAsSuiteStart();} {grammarActions.addSpecialTokenToLastOpened("for ");} {grammarActions.pushStarExpr(Starred.Store);}exprlist(){grammarActions.popStarExpr();} {grammarActions.findTokenAndAdd("in");}<IN>  SmartTestList() {grammarActions.findTokenAndAdd(":");}<COLON> suite()
     [begin_for_else_stmt() suite()]
 
 }
@@ -1129,12 +1201,12 @@ void arith_expr() #void : {}
 void term() #void : {}
 {
     factor()  (
-		    <MULTIPLY> factor() #mul_2op(2) // *
-		|   <AT> factor() #dot_2op(2) //@
-		|   <DIVIDE> factor() #div_2op(2) // /
-		|   <MODULO> factor() #mod_2op(2) // %
-		|   <FLOORDIVIDE> factor() #floordiv_2op(2) // //
-	)*
+            <MULTIPLY> factor() #mul_2op(2) // *
+        |   <AT> factor() #dot_2op(2) //@
+        |   <DIVIDE> factor() #div_2op(2) // /
+        |   <MODULO> factor() #mod_2op(2) // %
+        |   <FLOORDIVIDE> factor() #floordiv_2op(2) // //
+    )*
 }
 
 //factor: ('+'|'-'|'~') factor | power
@@ -1152,19 +1224,26 @@ void power() #void: {}
 
 //atom_expr: [AWAIT] atom trailer*
 void atom_expr() #void: {}
-{ 
-	{
-		if(insideAsync){
-			// The await statement is only valid inside an async block!
-			consume_await();
-		}
-	}
-	 atom() (trailer())*
+{
+    {
+        // getToken(1) just peeks the next token without consuming it.
+        Token t = getToken(1);
+        if(insideAsync != 0 && t != null && t.kind == AWAIT){
+            // The await statement is only valid inside an async block!
+            await_atom_expr();
+            return;
+        }
+    }
+    atom() (trailer())*
 }
 
-void consume_await() #void: {}
+void await_atom_expr(): {Token spStr;}
 {
-	[<AWAIT>]
+    spStr=<AWAIT> atom() (trailer())*
+
+    {
+        this.grammarActions.addToPeek(spStr, false, Await.class);
+    }
 }
 
 //trailer: '(' [arglist] ')' | '[' subscriptlist ']' | '.' NAME
@@ -1288,35 +1367,59 @@ void testlist_star_expr() #void: {}
 void star_expr(): {}
 {<MULTIPLY> {grammarActions.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} expr()}
 
-
-
-//dictorsetmaker: (
-//                   (test ':' test (comp_for | (',' test ':' test)* [',']))
-//                  |(test (comp_for | (',' test)* [',']))
-//                )
+// dictorsetmaker:
+// (
+//     (
+//         (test ':' test | '**' expr)
+//         (comp_for | (',' (test ':' test | '**' expr))* [','])
+//     )
+// |
+//     (
+//         (test | star_expr)
+//         (comp_for | (',' (test | star_expr))* [','])
+//     )
+// )
 void dictorsetmaker() #void: {}
 {
-    test()
-
+    // Note: we actually expand so that we have a match with test() and expand the set and dict variants for
+    // the first form so that there's only one single token at the beginning to match (test, '*' or '**').
     (
+        test()
         (
-            {grammarActions.findTokenAndAdd(":");}<COLON>
-            try{
-                test()
-            }catch(ParseException e){
-                handleNoValInDict(e);
-            }
             (
-                comp_for()
-                |
-                (LOOKAHEAD(2) {grammarActions.findTokenAndAdd(",");}<COMMA> test(){grammarActions.findTokenAndAdd(":");}<COLON> test())*[{grammarActions.findTokenAndAdd(",");}<COMMA>]
+                {grammarActions.findTokenAndAdd(":");}<COLON>
+                try{
+                    test()
+                }catch(ParseException e){
+                    handleNoValInDict(e);
+                }
+                (
+                    comp_for()
+                    |
+                    (LOOKAHEAD(2) {grammarActions.findTokenAndAdd(",");}<COMMA> ( (test(){grammarActions.findTokenAndAdd(":");}<COLON> test())| (<POWER> expr())  ) )*[{grammarActions.findTokenAndAdd(",");}<COMMA>]
+                )
+            )
+            |
+            (
+              (LOOKAHEAD(2) comp_for() | (LOOKAHEAD(2){grammarActions.findTokenAndAdd(",");}<COMMA> (test() | {grammarActions.pushStarExpr(Starred.Load);}star_expr(){grammarActions.popStarExpr();}))* #set) [{grammarActions.findTokenAndAdd(",");}<COMMA>]
             )
         )
-        |
-        (
-          (LOOKAHEAD(2) comp_for() | ({grammarActions.findTokenAndAdd(",");}<COMMA> [test()])* #set)
-        )
     )
+    |
+    <POWER> expr()
+    (
+        //Note: repeat the final construct for the dict
+        comp_for()
+        |
+        (LOOKAHEAD(2) {grammarActions.findTokenAndAdd(",");}<COMMA> ( (test(){grammarActions.findTokenAndAdd(":");}<COLON> test())| (<POWER> expr())  ) )*[{grammarActions.findTokenAndAdd(",");}<COMMA>]
+    )
+    |
+    {grammarActions.pushStarExpr(Starred.Load);}star_expr(){grammarActions.popStarExpr();}
+    (
+        //Note: repeat the final construct for the set
+        (LOOKAHEAD(2) comp_for() | (LOOKAHEAD(2){grammarActions.findTokenAndAdd(",");}<COMMA> (test() | {grammarActions.pushStarExpr(Starred.Load);}star_expr(){grammarActions.popStarExpr();}))* #set) [{grammarActions.findTokenAndAdd(",");}<COMMA>]
+    )
+
 }
 
 
@@ -1324,7 +1427,7 @@ void dictorsetmaker() #void: {}
 
 // testlist_comp: (test|star_expr) ( comp_for | (',' (test|star_expr))* [','] )
 void testlist_comp() #void: {}
-{ (test()|star_expr()) ( LOOKAHEAD(2)(comp_for())+ | (LOOKAHEAD(2) {grammarActions.findTokenAndAdd(",");}<COMMA> (test()|star_expr()))* [Comma()] #tuple(>1)) }
+{ (test()|{grammarActions.pushStarExpr(Starred.Load);}star_expr(){grammarActions.popStarExpr();}) ( LOOKAHEAD(2)(comp_for())+ | (LOOKAHEAD(2) {grammarActions.findTokenAndAdd(",");}<COMMA> (test()|{grammarActions.pushStarExpr(Starred.Load);}star_expr(){grammarActions.popStarExpr();}))* [Comma()] #tuple(>1)) }
 
 
 //comp_iter: [comp_for | comp_if]
@@ -1333,7 +1436,7 @@ void comp_iter() #void: {}
 
 //comp_for: 'for' exprlist 'in' or_test [comp_iter]
 void comp_for(): {}
-{ {grammarActions.findTokenAndAdd("for");}<FOR> exprlist() {grammarActions.findTokenAndAdd("in");}<IN>  or_test() [comp_iter()] }
+{ {grammarActions.findTokenAndAdd("for");}<FOR> {grammarActions.pushStarExpr(Starred.Store);} exprlist() {grammarActions.popStarExpr();} {grammarActions.findTokenAndAdd("in");}<IN>  or_test() [comp_iter()] }
 
 //comp_if: 'if' test_nocond [comp_iter]
 void comp_if()#void:{}
@@ -1349,12 +1452,12 @@ void decorated():{}
 //async_funcdef: ASYNC funcdef
 void async_funcdef() #void : {}
 {
-	{insideAsync = true;}
-	try{
-	    <ASYNC> funcdef()
-	}finally{
-		insideAsync=false;
-	}
+    {insideAsync += 1;}
+    try{
+        <ASYNC> funcdef()
+    }finally{
+        insideAsync -= 1;
+    }
 }
 
 //classdef: 'class' NAME ['(' [arglist] ')'] ':' suite
@@ -1364,15 +1467,10 @@ void classdef(): {Token spStr;Token spStr2;}
         suite()
 }
 
-//arglist: (argument ',')* (argument [',']
-//                         |'*' test (',' argument)* [',' '**' test]
-//                         |'**' test)
+// arglist: argument (',' argument)*  [',']
 void arglist() #void: {}
 {
-       ((argument() (LOOKAHEAD(2){grammarActions.findTokenAndAdd(",");}<COMMA> argument())*) [LOOKAHEAD(2){grammarActions.findTokenAndAdd(",");}<COMMA> ((ExtraArgValueList() (LOOKAHEAD(2){grammarActions.findTokenAndAdd(",");}<COMMA> argument())* [{grammarActions.findTokenAndAdd(",");}<COMMA> ExtraKeywordValueList()]) | (ExtraKeywordValueList()) )]) [{grammarActions.findTokenAndAdd(",");}<COMMA>]
-    |  (ExtraArgValueList() (LOOKAHEAD(2){grammarActions.findTokenAndAdd(",");}<COMMA> argument())* [LOOKAHEAD(2){grammarActions.findTokenAndAdd(",");}<COMMA> ExtraKeywordValueList()]) [{grammarActions.findTokenAndAdd(",");}<COMMA>]
-    |   ExtraKeywordValueList() [{grammarActions.findTokenAndAdd(",");}<COMMA>]
-
+    (argument() (LOOKAHEAD(2){grammarActions.findTokenAndAdd(",");}<COMMA> argument())*) [{grammarActions.findTokenAndAdd(",");}<COMMA>]
 }
 
 
@@ -1383,15 +1481,34 @@ void ExtraKeywordValueList(): {}
 { {grammarActions.addSpecialToken(grammarActions.createSpecialStr("**", false));} <POWER> test() }
 
 
-//argument: test [comp_for] | test '=' test  # Really [keyword '='] test
+// argument: ( test [comp_for] |
+//             test '=' test |
+//             '**' test |
+//             '*' test )
+//
+// aliases: Keyword = '=' test
+// note how it duplicates the test() for the comp_for or '=' test:
+// for us this is a problem, so, we create a construct such as:
+//
+// argument: ( (test ('=' test) | [comp_for])
+//             '**' test |
+//             '*' test )
 void argument(): {}
 {
-	   test() (LOOKAHEAD(2)  (Keyword()) |  [comp_for()])
+    (LOOKAHEAD(2)
+        (
+            test() (LOOKAHEAD(2)  (Keyword()) |  [comp_for()])
+        )
+        |
+        ExtraKeywordValueList()
+        |
+        ExtraArgValueList()
+    )
 }
 
 void Keyword() : {}
 {
-	{grammarActions.findTokenAndAdd("=");}<EQUAL> test()
+    {grammarActions.findTokenAndAdd("=");}<EQUAL> test()
 }
 
 void Number() #Num :
@@ -1437,18 +1554,18 @@ Token Name() #Name:
 {
     try{
         (
-        	t = <NAME> 
-         | 
-        	t = <ASYNC> 
-         | 
-        	t = <AWAIT>
+            t = <NAME>
+         |
+            t = <ASYNC>
+         |
+            t = <AWAIT>
         )
     }catch(ParseException e){
         t = handleErrorInName(e);
     }
-    
 
-        { 
+
+        {
         ((Name)jjtThis).id = t.image; return t;
         }
 

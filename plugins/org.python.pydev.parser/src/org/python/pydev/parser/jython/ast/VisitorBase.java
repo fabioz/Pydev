@@ -5,413 +5,360 @@ import org.python.pydev.parser.jython.SimpleNode;
 import java.util.Arrays;
 
 public abstract class VisitorBase implements VisitorIF {
-    @Override
     public Object visitModule(Module node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitInteractive(Interactive node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitExpression(Expression node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitNameTok(NameTok node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitSuite(Suite node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitWithItem(WithItem node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitFunctionDef(FunctionDef node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitClassDef(ClassDef node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitReturn(Return node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitDelete(Delete node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitAssign(Assign node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitAugAssign(AugAssign node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitPrint(Print node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitFor(For node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitWhile(While node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitIf(If node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitWith(With node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitRaise(Raise node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitTryExcept(TryExcept node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitTryFinally(TryFinally node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitAssert(Assert node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitImport(Import node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitImportFrom(ImportFrom node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitExec(Exec node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitGlobal(Global node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitNonLocal(NonLocal node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitExpr(Expr node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitPass(Pass node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitBreak(Break node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitContinue(Continue node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitBoolOp(BoolOp node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitBinOp(BinOp node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitUnaryOp(UnaryOp node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitLambda(Lambda node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitIfExp(IfExp node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitDict(Dict node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitSet(Set node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitListComp(ListComp node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitSetComp(SetComp node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitDictComp(DictComp node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitGeneratorExp(GeneratorExp node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitYield(Yield node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
+    public Object visitAwait(Await node) throws Exception {
+        Object ret = unhandled_node(node);
+        traverse(node);
+        return ret;
+    }
+
     public Object visitCompare(Compare node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitCall(Call node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitRepr(Repr node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitNum(Num node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitStr(Str node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitStrJoin(StrJoin node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitAttribute(Attribute node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitSubscript(Subscript node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitStarred(Starred node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitName(Name node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitList(List node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitTuple(Tuple node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitEllipsis(Ellipsis node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitSlice(Slice node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitExtSlice(ExtSlice node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitIndex(Index node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;
     }
 
-    @Override
     public Object visitComprehension(Comprehension node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
@@ -419,6 +366,5 @@ public abstract class VisitorBase implements VisitorIF {
     }
 
     abstract protected Object unhandled_node(SimpleNode node) throws Exception;
-
     abstract public void traverse(SimpleNode node) throws Exception;
 }

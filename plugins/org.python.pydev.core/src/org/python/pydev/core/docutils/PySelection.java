@@ -24,20 +24,18 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.ITextSelection;
-import org.eclipse.jface.text.TextSelection;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.IPythonPartitions;
+import org.python.pydev.core.docutils.TabNannyDocIterator.IndentInfo;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.partition.PyPartitionScanner;
+import org.python.pydev.shared_core.string.CoreTextSelection;
 import org.python.pydev.shared_core.string.DocIterator;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.ICoreTextSelection;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.shared_core.structure.Tuple3;
 
 /**
  * Redone the whole class, so that the interface is better defined and no
@@ -55,14 +53,14 @@ public final class PySelection extends TextSelectionUtils {
             //      after seeing the std lib, several cases use yield at the middle of the scope
     };
 
-    public static final String[] CLASS_AND_FUNC_TOKENS = new String[] { "def", "class", };
+    public static final String[] CLASS_AND_FUNC_TOKENS = new String[] { "def", "class", "async def" };
 
-    public static final String[] FUNC_TOKEN = new String[] { "def" };
+    public static final String[] FUNC_TOKEN = new String[] { "def", "async def" };
 
     public static final String[] CLASS_TOKEN = new String[] { "class", };
 
-    public static final String[] INDENT_TOKENS = new String[] { "if", "for", "except", "def", "class", "else", "elif",
-            "while", "try", "with", "finally" };
+    public static final String[] INDENT_TOKENS = new String[] { "async", "if", "for", "except", "def", "class",
+            "else", "elif", "while", "try", "with", "finally" };
 
     public static final Set<String> STATEMENT_TOKENS = new HashSet<String>();
 
@@ -132,20 +130,10 @@ public final class PySelection extends TextSelectionUtils {
     };
 
     /**
-     * Alternate constructor for PySelection. Takes in a text editor from Eclipse.
-     *
-     * @param textEditor The text editor operating in Eclipse
-     */
-    public PySelection(ITextEditor textEditor) {
-        this(textEditor.getDocumentProvider().getDocument(textEditor.getEditorInput()), (ITextSelection) textEditor
-                .getSelectionProvider().getSelection());
-    }
-
-    /**
      * @param document the document we are using to make the selection
      * @param selection that's the actual selection. It might have an offset and a number of selected chars
      */
-    public PySelection(IDocument doc, ITextSelection selection) {
+    public PySelection(IDocument doc, ICoreTextSelection selection) {
         super(doc, selection);
     }
 
@@ -164,7 +152,7 @@ public final class PySelection extends TextSelectionUtils {
     }
 
     public PySelection(IDocument doc, int line, int col, int len) {
-        super(doc, new TextSelection(doc, getAbsoluteCursorOffset(doc, line, col), len));
+        super(doc, new CoreTextSelection(doc, getAbsoluteCursorOffset(doc, line, col), len));
     }
 
     /**
@@ -172,7 +160,7 @@ public final class PySelection extends TextSelectionUtils {
      * @param offset the offset where the selection will happen (0 characters will be selected)
      */
     public PySelection(IDocument doc, int offset) {
-        super(doc, new TextSelection(doc, offset, 0));
+        super(doc, new CoreTextSelection(doc, offset, 0));
     }
 
     /**
@@ -187,7 +175,7 @@ public final class PySelection extends TextSelectionUtils {
      * Creates a selection based on another selection.
      */
     public PySelection(PySelection base) {
-        super(base.doc, new TextSelection(base.doc, base.getAbsoluteCursorOffset(), base.getSelLength()));
+        super(base.doc, new CoreTextSelection(base.doc, base.getAbsoluteCursorOffset(), base.getSelLength()));
     }
 
     /**
@@ -384,11 +372,6 @@ public final class PySelection extends TextSelectionUtils {
         } catch (SyntaxErrorException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    protected static void beep(Exception e) {
-        Log.log(e);
-        PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay().beep();
     }
 
     public static String getLineWithoutCommentsOrLiterals(String l) {
@@ -715,10 +698,6 @@ public final class PySelection extends TextSelectionUtils {
         return getNextLineThatStartsScope(indentTokens, lineToStart, mustHaveIndentLowerThan);
     }
 
-    public LineStartingScope getPreviousLineThatStartsScope(int lineToStart) {
-        return getPreviousLineThatStartsScope(PySelection.INDENT_TOKENS, lineToStart, Integer.MAX_VALUE);
-    }
-
     public static class LineStartingScope {
 
         public final String lineStartingScope;
@@ -793,10 +772,13 @@ public final class PySelection extends TextSelectionUtils {
                 foundDedent = line;
 
             } else if (foundDedent == null && trimmed.length() > 0) {
-                int firstCharPosition = getFirstCharPosition(line);
-                if (firstCharPosition < mustHaveIndentLowerThan) {
-                    mustHaveIndentLowerThan = firstCharPosition;
-                    lowestStr = line;
+                if (!trimmed.startsWith(")")
+                        && !trimmed.startsWith("'") && !trimmed.startsWith("\"")) {
+                    int firstCharPosition = getFirstCharPosition(line);
+                    if (firstCharPosition < mustHaveIndentLowerThan) {
+                        mustHaveIndentLowerThan = firstCharPosition;
+                        lowestStr = line;
+                    }
                 }
             }
 
@@ -1214,7 +1196,7 @@ public final class PySelection extends TextSelectionUtils {
      * @return whether the current selection is on the ClassName or Function name context
      * (just after the 'class' or 'def' tokens)
      */
-    public int isInDeclarationLine() {
+    public int isRightAfterDeclarationInLine() {
         try {
             String contents = getLineContentsToCursor();
             StringTokenizer strTok = new StringTokenizer(contents);
@@ -1401,7 +1383,6 @@ public final class PySelection extends TextSelectionUtils {
      * @return a tuple(start line, end line).
      */
     public Tuple<Integer, Integer> getCurrentMethodStartEndLines() {
-
         try {
             boolean considerCurrentLine = false;
             LineStartingScope previousLineThatStartsScope = this.getPreviousLineThatStartsScope(FUNC_TOKEN,
@@ -1411,25 +1392,8 @@ public final class PySelection extends TextSelectionUtils {
                 return getFullDocStartEndLines();
             }
             int startLine = previousLineThatStartsScope.iLineStartingScope;
-            int minColumn = PySelection.getFirstCharPosition(previousLineThatStartsScope.lineStartingScope);
-
             int initialOffset = this.getLineOffset(startLine);
-            TabNannyDocIterator iterator = new TabNannyDocIterator(getDoc(), true, false,
-                    initialOffset);
-            if (iterator.hasNext()) {
-                iterator.next(); // ignore first one (this is from the current line).
-            }
-            int lastOffset = initialOffset;
-            while (iterator.hasNext()) {
-                Tuple3<String, Integer, Boolean> next = iterator.next();
-                if (next.o3) {
-                    if (next.o1.length() <= minColumn) {
-                        break;
-                    }
-                    lastOffset = next.o2;
-                }
-            }
-            return new Tuple<Integer, Integer>(startLine, this.getLineOfOffset(lastOffset));
+            return new Tuple<Integer, Integer>(startLine, getEndLineOfCurrentDeclaration(doc, initialOffset));
 
             // Can't use the approach below because we may be in an inner scope (thus, there'll be no other opening scope finishing
             // the current one).
@@ -1450,7 +1414,52 @@ public final class PySelection extends TextSelectionUtils {
             Log.log(e);
             return getFullDocStartEndLines();
         }
+    }
 
+    /**
+     * Gets the last line which is still a part of the current declaration.
+     * @param doc
+     * @param declarationOffset
+     * @return
+     * @throws BadLocationException
+     */
+    public static int getEndLineOfCurrentDeclaration(IDocument doc, int declarationOffset) throws BadLocationException {
+        int minColumn = PySelection.getFirstCharRelativePosition(doc, declarationOffset);
+
+        int initialOffset = declarationOffset;
+        TabNannyDocIterator iterator = new TabNannyDocIterator(doc, true, true,
+                initialOffset);
+        if (iterator.hasNext()) {
+            iterator.next(); // ignore first one (this is from the current line).
+        }
+        int lastOffset = initialOffset;
+        boolean finished = false;
+        while (iterator.hasNext()) {
+            IndentInfo next = iterator.next();
+            if (next.hasNonIndentChars && !next.hasOnlyComments) {
+                if (next.indent.length() <= minColumn) {
+                    lastOffset = next.startOffset - 1;
+                    if (lastOffset <= 0) {
+                        lastOffset = 0;
+                    } else {
+                        // lastOffset >= 1
+                        char c = doc.getChar(lastOffset);
+                        if (c == '\n' && doc.getChar(lastOffset - 1) == '\r') {
+                            lastOffset--;
+                        }
+                    }
+                    finished = true;
+                    break;
+                }
+            }
+            lastOffset = next.startOffset;
+        }
+        if (finished) {
+            return getLineOfOffset(doc, lastOffset);
+        } else {
+            // reached the end of the document.
+            return doc.getNumberOfLines() - 1;
+        }
     }
 
     private Tuple<Integer, Integer> getFullDocStartEndLines() {
@@ -1459,6 +1468,155 @@ public final class PySelection extends TextSelectionUtils {
             numberOfLines -= 1;
         }
         return new Tuple<Integer, Integer>(0, numberOfLines);
+    }
+
+    /**
+     * Is a digit, according to Python. (Can't use Character.isDigit as
+     * that allows unicode digits too.)
+     */
+    private static boolean isDigit(char c) {
+        return c >= '0' && c <= '9';
+    }
+
+    /**
+     * Return true if the completion is at the dot after a literal number.
+     * Literal numbers have no valid completions as they can be the first part of floats.
+     *
+     * @param activationToken this comes from either the console's ActivationTokenAndQual
+     *      or editor's CompletionRequest
+     * @return true if this completion is for a number
+     */
+    public static boolean isCompletionForLiteralNumber(String activationToken) {
+        int length = activationToken.length();
+        if (length == 0) {
+            return false;
+        }
+        if (activationToken.charAt(length - 1) != '.') {
+            return false;
+        }
+        if (!isDigit(activationToken.charAt(0))) {
+            return false;
+        }
+        for (int i = 1; i < length - 1; i++) {
+            char c = activationToken.charAt(i);
+            if (!isDigit(c) && c != '_') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static final class DocstringInfo {
+
+        public final int startLiteralOffset;
+        public final int endLiteralOffset;
+        public final String string;
+
+        public DocstringInfo(int startLiteralOffset, int endLiteralOffset, String string) {
+            this.startLiteralOffset = startLiteralOffset;
+            this.endLiteralOffset = endLiteralOffset;
+            this.string = string;
+        }
+
+        @Override
+        public String toString() {
+            return "DocstringInfo [startLiteralOffset=" + startLiteralOffset + ", endLiteralOffset=" + endLiteralOffset
+                    + ", string=" + string + "]";
+        }
+
+        public int getLength() {
+            return endLiteralOffset - startLiteralOffset;
+        }
+    }
+
+    public DocstringInfo getDocstringFromLine(int line) {
+        try {
+            String lineText = this.getLine(line);
+            String trimmed = lineText.trim();
+            char c = '\0';
+            if (trimmed.startsWith("\"")) {
+                c = '"';
+            } else if (trimmed.startsWith("'")) {
+                c = '\'';
+            } else {
+                return null;
+            }
+
+            ParsingUtils parsingUtils = ParsingUtils.create(getDoc(), true);
+            int offset = getDoc().getLineInformation(line).getOffset();
+            int startLiteralOffset = parsingUtils.findNextChar(offset, c);
+            FastStringBuffer buf = new FastStringBuffer();
+            int endLiteralOffset = parsingUtils.eatLiterals(buf, startLiteralOffset) + 1;
+            return new DocstringInfo(startLiteralOffset, endLiteralOffset, buf.toString());
+        } catch (BadLocationException | SyntaxErrorException e) {
+            return null;
+        }
+
+    }
+
+    public static void computeArgsOffsetsAndLens(String args, List<Integer> offsetsAndLens) {
+        int bufferLen = 0;
+        int len = args.length();
+        for (int i = 0; i < len; i++) {
+            char c = args.charAt(i);
+
+            if (Character.isJavaIdentifierPart(c)) {
+                if (bufferLen == 0) {
+                    offsetsAndLens.add(i);
+                    bufferLen += 1;
+                } else {
+                    bufferLen += 1;
+                }
+            } else {
+                if (bufferLen > 0) {
+                    offsetsAndLens.add(bufferLen);
+                    bufferLen = 0;
+                }
+            }
+        }
+        if (bufferLen > 0) {
+            offsetsAndLens.add(bufferLen);
+        }
+    }
+
+    public int getFirstNonWhitespaceLine(int line) {
+        while (line >= 0) {
+            String lineContents = this.getLine(line);
+            if (!lineContents.trim().isEmpty()) {
+                return line;
+            }
+            line--;
+        }
+        return line; // can be -1 if not found (expected)
+    }
+
+    /**
+     * @return the line where the current import starts or -1 if not within an import statement.
+     */
+    public int getStartOfImportLine() {
+        int currLine = this.getLineOfOffset();
+        String line = this.getLine(currLine);
+        if (isImportLine(line)) {
+            return currLine;
+        }
+        while (currLine > 0) {
+            currLine--;
+            line = this.getLine(currLine);
+            line = PySelection.getLineWithoutCommentsOrLiterals(line).trim();
+            if (line.length() == 0) {
+                continue;
+            }
+            if (line.endsWith(",") || line.endsWith("\\") || line.endsWith("(")) {
+                if (isImportLine(line)) {
+                    return currLine;
+                }
+                // If it had a continuation, keep on going even if this was not an import line.
+            } else {
+                // Not a continuation of the prev line...
+                return -1;
+            }
+        }
+        return -1;
     }
 
 }

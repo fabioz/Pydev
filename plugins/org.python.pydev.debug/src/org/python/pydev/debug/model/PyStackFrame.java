@@ -14,7 +14,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.PlatformObject;
-import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IDebugTarget;
@@ -22,7 +21,6 @@ import org.eclipse.debug.core.model.IRegisterGroup;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
 import org.eclipse.debug.core.model.IVariable;
-import org.eclipse.ui.progress.IDeferredWorkbenchAdapter;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
 import org.python.pydev.core.IPyStackFrame;
@@ -40,20 +38,20 @@ import org.python.pydev.shared_core.string.StringUtils;
  *
  * Needs to integrate with the source locator
  */
-public class PyStackFrame extends PlatformObject implements IStackFrame, IVariableLocator, IPyStackFrame {
+public class PyStackFrame extends PlatformObject
+        implements IStackFrame, IVariableLocator, IPyStackFrame, IVariablesContainerParent {
 
     private String name;
     private PyThread thread;
     private String id;
     private IPath path;
     private int line;
-    private volatile IVariable[] variables;
+    private final ContainerOfVariables variableContainer = new ContainerOfVariables(this, true);
     private IVariableLocator localsLocator;
     private IVariableLocator globalsLocator;
     private IVariableLocator frameLocator;
     private IVariableLocator expressionLocator;
     private AbstractDebugTarget target;
-    private volatile boolean onAskGetNewVars = true;
 
     public PyStackFrame(PyThread in_thread, String in_id, String name, IPath file, int line,
             AbstractDebugTarget target) {
@@ -110,6 +108,7 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
         this.target = target;
     }
 
+    @Override
     public AbstractDebugTarget getTarget() {
         return target;
     }
@@ -131,6 +130,7 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
         return frameLocator;
     }
 
+    @Override
     public IVariableLocator getGlobalLocator() {
         return globalsLocator;
     }
@@ -160,68 +160,13 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
         return thread;
     }
 
-    public void setVariables(IVariable[] locals) {
-        this.variables = locals;
-    }
-
-    private final static IVariable[] EMPTY_VARIABLES = new IVariable[0];
-    private final static Object lock = new Object();
-
-    /**
-     * This interface changed in 3.2... we returned an empty collection before, and used the
-     * DeferredWorkbenchAdapter to get the actual children, but now we have to use the
-     * DeferredWorkbenchAdapter from here, as it is not called in that other interface
-     * anymore.
-     *
-     * @see org.eclipse.debug.core.model.IStackFrame#getVariables()
-     */
     @Override
     public IVariable[] getVariables() throws DebugException {
-        if (onAskGetNewVars) {
-            synchronized (lock) {
-                //double check idiom for accessing onAskGetNewVars.
-                if (onAskGetNewVars) {
-                    IVariable[] oldVars = this.variables;
-                    if (oldVars == null) {
-                        //Temporary in case some other thread asks for it while we're still calculating.
-                        this.variables = EMPTY_VARIABLES;
-                    }
-                    onAskGetNewVars = false;
-
-                    DeferredWorkbenchAdapter adapter = new DeferredWorkbenchAdapter(this);
-                    IVariable[] vars = (IVariable[]) adapter.getChildren(this);
-
-                    if (oldVars != null) {
-                        this.target.getModificationChecker().verifyVariablesModified(vars, oldVars);
-
-                    } else {
-                        this.target.getModificationChecker().verifyModified(this, vars);
-                    }
-
-                    this.variables = vars;
-                }
-
-            }
-        }
-        return this.variables;
-    }
-
-    /**
-     * @return the internal variables array directly (may be null).
-     */
-    public IVariable[] getInternalVariables() {
-        return this.variables;
+        return variableContainer.getVariables();
     }
 
     public void forceGetNewVariables() {
-        this.onAskGetNewVars = true;
-        AbstractDebugTarget target = getTarget();
-        if (target != null) {
-            // I.e.: if we do a new DebugEvent(this, DebugEvent.CHANGE, DebugEvent.CONTENT), the selection
-            // of the editor is redone (thus, if the user uses F2 it'd get back to the current breakpoint
-            // location because it'd be reselected).
-            target.fireEvent(new DebugEvent(this, DebugEvent.CHANGE, DebugEvent.UNSPECIFIED));
-        }
+        variableContainer.forceGetNewVariables();
     }
 
     @Override
@@ -388,10 +333,6 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
             return super.getAdapter(adapter);
         }
 
-        if (adapter.equals(IDeferredWorkbenchAdapter.class)) {
-            return (T) new DeferredWorkbenchAdapter(this);
-        }
-
         AdapterDebug.printDontKnow(this, adapter);
         // ongoing, I do not fully understand all the interfaces they'd like me to support
         return super.getAdapter(adapter);
@@ -422,6 +363,11 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
 
     public GetVariableCommand getFrameCommand(AbstractDebugTarget dbg) {
         return new GetFrameCommand(dbg, frameLocator.getPyDBLocation());
+    }
+
+    @Override
+    public GetVariableCommand getVariableCommand(AbstractDebugTarget target) {
+        return getFrameCommand(target);
     }
 
     @Override
@@ -487,4 +433,5 @@ public class PyStackFrame extends PlatformObject implements IStackFrame, IVariab
         }
         return fileContents;
     }
+
 }

@@ -16,10 +16,10 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.Launch;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.debug.console_actions.RestartLaunchAction;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.model.PySourceLocator;
 import org.python.pydev.shared_core.string.FastStringBuffer;
-import org.python.pydev.shared_ui.debug.RestartLaunchAction;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -31,6 +31,11 @@ public class PyUnitLaunch implements IPyUnitLaunch {
     public PyUnitLaunch(ILaunch launch, ILaunchConfiguration configuration) {
         this.launch = launch;
         this.configuration = configuration;
+    }
+
+    @Override
+    public ILaunchConfiguration getLaunchConfiguration() {
+        return configuration;
     }
 
     @Override

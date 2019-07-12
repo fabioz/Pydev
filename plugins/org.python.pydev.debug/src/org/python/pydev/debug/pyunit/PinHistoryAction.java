@@ -10,6 +10,7 @@ import java.lang.ref.WeakReference;
 
 import org.eclipse.jface.action.Action;
 import org.python.pydev.debug.core.PydevDebugPlugin;
+import org.python.pydev.shared_ui.ImageCache;
 
 /**
  * @author fabioz
@@ -59,12 +60,17 @@ public class PinHistoryAction extends Action {
 
     private void updateState() {
         PyUnitTestRun currentPinned = PyUnitViewTestsHolder.getCurrentPinned();
+        ImageCache imageCache = PydevDebugPlugin.getImageCache();
         if (currentPinned == null) {
-            this.setImageDescriptor(PydevDebugPlugin.getImageCache().getDescriptor("icons/pin.png"));
+            if (imageCache != null) {
+                this.setImageDescriptor(ImageCache.asImageDescriptor(imageCache.getDescriptor("icons/pin.png")));
+            }
             this.setInitialTooltipText();
             this.setChecked(false);
         } else {
-            this.setImageDescriptor(PydevDebugPlugin.getImageCache().getDescriptor("icons/pin_arrow.png"));
+            if (imageCache != null) {
+                this.setImageDescriptor(ImageCache.asImageDescriptor(imageCache.getDescriptor("icons/pin_arrow.png")));
+            }
             this.setToolTipText("Currently pin: " + currentPinned.name + ". Click again to unpin.");
             this.setChecked(true);
         }

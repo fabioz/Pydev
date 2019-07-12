@@ -69,7 +69,7 @@ public class PydevZipFileStorage implements IStorage {
 
         } catch (Exception e) {
             throw new CoreException(
-                    new Status(IStatus.ERROR, SharedCorePlugin.PLUGIN_ID, "Error getting contents from zip file", e));
+                    new Status(IStatus.ERROR, SharedCorePlugin.SHARED_CORE_PLUGIN_ID, "Error getting contents from zip file", e));
         }
     }
 

@@ -1,0 +1,73 @@
+<doc>
+<contents_area>
+<div id="Content" style="padding: 5px;">
+<h1><a name="PyDevRemoteDebugger-RemoteDebugger"></a>Remote Debugger</h1>
+
+<p>In PyDev you can debug a remote program (a file that is not launched from within Eclipse).</p>
+
+<p>The steps to debug an external program are:</p>
+
+<ul class="alternate" style="list-style-type:none">
+	<li>1. Start the remote debugger server</li>
+	<li>2. Go to the debug perspective</li>
+	<li>3. Start the external program with the file pydevd.py in its PYTHONPATH</li>
+	<li>4. Call pydevd.settrace()</li>
+	<ul>
+    	<li><strong>Note:</strong> if the program is being edited inside of PyDev (and launched externally), you can write only <b>pydevd</b> and request
+    	a code-completion which will add pydevd.py to sys.path and do the settrace (i.e.: steps 3 and 4).</li>
+	</ul>
+</ul>
+
+
+<p>Let's see a simple step-by-step example on how this works:</p>
+
+<p><b>1. Start the remote debugger server</b>: To start the remote debugger server, 
+go to the menu: <b>PyDev &gt; Start Debug Server</b>. When running, a Debug Server
+entry should appear in the Debug Stack view.</p>
+
+<p><b>Note</b>: That menu item should be present at the debug perspective and it can be 
+enabled in other perspectives through Window &gt; Perspective &gt; Customize perspective &gt; Tool Bar Visibility &gt; PyDev debug.</p>
+
+
+
+<p><span class="image-wrap" style=""><img src="images/debugger/remotedebugger1.png" style="border: 1px solid black" /></span></p>
+
+<p><b>Image:</b> Remote Debugger Server</p>
+
+
+
+<p><b>2. Go to the debug perspective</b>: This is needed because it has no actual 'signal' that it 
+reached a breakpoint when doing remote debugging. So, if you already have it open, just cycle to it
+ with <b>Ctrl+F8</b>. Otherwise, go to the menu: window &gt; Open Perspective &gt; Other &gt; Debug.</p>
+
+<p><b>3. Call pydevd.settrace()</b>. If the program is being edited inside of PyDev 
+(and launched externally), you can write only <b>pydevd</b> and request a code-completion 
+which will add pydevd.py to sys.path and do the pydevd.settrace().</p>
+
+<p>Now, if you're launching from a different computer, you should copy the contents of PyDev.Debugger to the
+target computer. If you're in the latest version, it  may be installed with <strong>pip install pydevd</strong>. Otherwise,
+you have to copy the <b>pysrc</b> contents of <b>org.python.pydev</b> plugin from your Eclipse installation. 
+</p>
+
+<p><strong>Note</strong>: if the target machine does not have the same paths as the client machine, the file <b>pydevd_file_utils.py</b> 
+must be edited to properly translate the paths from one machine to the other - see comments on that file.</p>
+
+<p><b>4. Launch the program and wait for it to reach the pydevd.settrace() call</b>: 
+When that call is reached, it will automatically suspend the execution and show the debugger.</p>
+
+<p><span class="image-wrap" style=""><img src="images/debugger/remotedebugger3.png" style="border: 1px solid black" /></span></p>
+
+<p><b>Image:</b> pydevd.settrace called</p>
+
+<h1><a name="PyDevRemoteDebugger-ImportantNotes"></a>Important Notes</h1>
+
+<p><b>NOTE 1</b>: the settrace() function can have an optional parameter to specify the host where the remote debugger is listening. E.g.: <b>pydevd.settrace('10.0.0.1')</b></p>
+
+<p><b>NOTE 2</b>: the settrace() function can have optional parameters to specify that all the messages printed to stdout or stderr should be passed to the server to show. E.g.: <b>pydevd.settrace(stdoutToServer=True, stderrToServer=True)</b></p>
+
+<p><b>NOTE 3</b>: You can have the running program in one machine and PyDev on another machine, but if the paths are not exactly the same, some adjustments have to be done in the target machine:</p>
+
+<p>Aside from passing the files in eclipse/plugins/org.python.pydev&#95;x.x.x/pysrc to your target machine, the file <b>pydevd&#95;file&#95;utils.py</b> must be edited to make the path translations from the client machine to the server machine and vice-versa. See the comments on that file for detailed instructions on setting the path translations.</p>
+</div>
+</contents_area>
+</doc>

@@ -10,13 +10,15 @@ public final class Str extends exprType implements str_typeType {
     public boolean unicode;
     public boolean raw;
     public boolean binary;
+    public boolean fstring;
 
-    public Str(String s, int type, boolean unicode, boolean raw, boolean binary) {
+    public Str(String s, int type, boolean unicode, boolean raw, boolean binary, boolean fstring) {
         this.s = s;
         this.type = type;
         this.unicode = unicode;
         this.raw = raw;
         this.binary = binary;
+        this.fstring = fstring;
     }
 
     @Override
@@ -28,55 +30,45 @@ public final class Str extends exprType implements str_typeType {
         result = prime * result + (unicode ? 17 : 137);
         result = prime * result + (raw ? 17 : 137);
         result = prime * result + (binary ? 17 : 137);
+        result = prime * result + (fstring ? 17 : 137);
         return result;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
         Str other = (Str) obj;
-        if (s == null) {
-            if (other.s != null)
-                return false;
-        } else if (!s.equals(other.s))
-            return false;
-        if (this.type != other.type)
-            return false;
-        if (this.unicode != other.unicode)
-            return false;
-        if (this.raw != other.raw)
-            return false;
-        if (this.binary != other.binary)
-            return false;
+        if (s == null) { if (other.s != null) return false;}
+        else if (!s.equals(other.s)) return false;
+        if(this.type != other.type) return false;
+        if(this.unicode != other.unicode) return false;
+        if(this.raw != other.raw) return false;
+        if(this.binary != other.binary) return false;
+        if(this.fstring != other.fstring) return false;
         return true;
     }
-
     @Override
     public Str createCopy() {
         return createCopy(true);
     }
-
     @Override
     public Str createCopy(boolean copyComments) {
-        Str temp = new Str(s, type, unicode, raw, binary);
+        Str temp = new Str(s, type, unicode, raw, binary, fstring);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if (this.specialsBefore != null && copyComments) {
-            for (Object o : this.specialsBefore) {
-                if (o instanceof commentType) {
+        if(this.specialsBefore != null && copyComments){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
                     commentType commentType = (commentType) o;
                     temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if (this.specialsAfter != null && copyComments) {
-            for (Object o : this.specialsAfter) {
-                if (o instanceof commentType) {
+        if(this.specialsAfter != null && copyComments){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
                     commentType commentType = (commentType) o;
                     temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }
@@ -102,6 +94,9 @@ public final class Str extends exprType implements str_typeType {
         sb.append(", ");
         sb.append("binary=");
         sb.append(dumpThis(this.binary));
+        sb.append(", ");
+        sb.append("fstring=");
+        sb.append(dumpThis(this.fstring));
         sb.append("]");
         return sb.toString();
     }

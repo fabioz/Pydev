@@ -16,10 +16,14 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.TextSelection;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.eclipse.swt.graphics.Image;
-import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.ast.analysis.IAnalysisPreferences;
+import org.python.pydev.ast.codecompletion.revisited.CompletionCache;
+import org.python.pydev.ast.codecompletion.revisited.CompletionStateFactory;
+import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
+import org.python.pydev.ast.refactoring.PyRefactoringFindDefinition;
+import org.python.pydev.ast.refactoring.RefactoringRequest;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IDefinition;
@@ -30,29 +34,25 @@ import org.python.pydev.core.docutils.ImportHandle.ImportHandleInfo;
 import org.python.pydev.core.docutils.PyImportsHandling;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.preferences.FileTypesPreferences;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
-import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
-import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
-import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
-import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
-import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.visitors.NodeUtils;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
+import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
+import org.python.pydev.shared_core.image.IImageCache;
+import org.python.pydev.shared_core.image.IImageHandle;
+import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.string.CoreTextSelection;
+import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.shared_ui.ImageCache;
-import org.python.pydev.shared_ui.UIConstants;
-import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
-import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 
-import com.python.pydev.analysis.IAnalysisPreferences;
-import com.python.pydev.analysis.builder.AnalysisRunner;
+import com.python.pydev.analysis.additionalinfo.builders.AnalysisRunner;
 import com.python.pydev.analysis.ctrl_1.IAnalysisMarkersParticipant;
 
 /**
@@ -60,12 +60,12 @@ import com.python.pydev.analysis.ctrl_1.IAnalysisMarkersParticipant;
  */
 public class TddQuickFixParticipant implements IAnalysisMarkersParticipant {
 
-    /*default*/Image imageClass;
-    /*default*/Image imageMethod;
-    /*default*/Image imageModule;
+    /*default*/IImageHandle imageClass;
+    /*default*/IImageHandle imageMethod;
+    /*default*/IImageHandle imageModule;
 
     public TddQuickFixParticipant() {
-        ImageCache imageCache = PydevPlugin.getImageCache();
+        IImageCache imageCache = SharedUiPlugin.getImageCache();
         if (imageCache != null) { //making tests
             imageClass = imageCache.get(UIConstants.CREATE_CLASS_ICON);
             imageMethod = imageCache.get(UIConstants.CREATE_METHOD_ICON);
@@ -75,8 +75,9 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant {
 
     @Override
     public void addProps(MarkerAnnotationAndPosition markerAnnotation, IAnalysisPreferences analysisPreferences,
-            String line, PySelection ps, int offset, IPythonNature nature, PyEdit edit, List<ICompletionProposal> props)
-                    throws BadLocationException, CoreException {
+            String line, PySelection ps, int offset, IPythonNature nature, PyEdit edit,
+            List<ICompletionProposalHandle> props)
+            throws BadLocationException, CoreException {
         if (nature == null) {
             return;
         }
@@ -118,7 +119,7 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant {
                 //import sys
                 //sys.Bar
                 //in which case 'Bar' is undefined
-                //in this situation, the activationTokenAndQual would be "sys." and "Bar" 
+                //in this situation, the activationTokenAndQual would be "sys." and "Bar"
                 //and we want to get the definition for "sys"
                 String[] activationTokenAndQual = ps.getActivationTokenAndQual(true);
 
@@ -191,7 +192,7 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant {
                                                 currentModule,
                                                 state,
                                                 new SourceModule(currentModule, edit.getEditorFile(), edit.getAST(),
-                                                        null));
+                                                        null, nature));
                                     } catch (Exception e) {
                                         Log.log(e);
                                     }
@@ -249,7 +250,7 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant {
                                     //Cannot create class or method from the info (only the module structure).
                                     if (sourceModule.getName().endsWith(".__init__")) {
                                         File f = new File(file.getParent(), found.o2
-                                                + FileTypesPreferencesPage.getDefaultDottedPythonExtension());
+                                                + FileTypesPreferences.getDefaultDottedPythonExtension());
                                         addCreateModuleOption(ps, edit, props, markerContents, f);
                                     }
                                 } else {
@@ -326,7 +327,7 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant {
         int size = split.size();
         for (int i = 0; i < size; i++) {
             if (i == size - 1) {
-                f = new File(f, split.get(i) + FileTypesPreferencesPage.getDefaultDottedPythonExtension());
+                f = new File(f, split.get(i) + FileTypesPreferences.getDefaultDottedPythonExtension());
 
             } else {
                 f = new File(f, split.get(i));
@@ -335,66 +336,72 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant {
         return f;
     }
 
-    private void addCreateClassmethodOption(PySelection ps, PyEdit edit, List<ICompletionProposal> props,
+    private void addCreateClassmethodOption(PySelection ps, PyEdit edit, List<ICompletionProposalHandle> props,
             String markerContents, List<String> parametersAfterCall, PyCreateMethodOrField pyCreateMethod, File file,
             String className) {
         props.add(new TddRefactorCompletionInModule(markerContents, imageMethod, "Create " + markerContents +
                 " classmethod at " + className +
-                " in " + file.getName(), null, "Create " + markerContents +
+                " in " + file.getName(), null,
+                "Create " + markerContents +
                         " classmethod at class: " + className +
                         " in " + file,
                 IPyCompletionProposal.PRIORITY_CREATE, edit,
                 file, parametersAfterCall, pyCreateMethod, ps));
     }
 
-    private void addCreateMethodOption(PySelection ps, PyEdit edit, List<ICompletionProposal> props,
+    private void addCreateMethodOption(PySelection ps, PyEdit edit, List<ICompletionProposalHandle> props,
             String markerContents, List<String> parametersAfterCall, File file) {
         props.add(new TddRefactorCompletionInModule(markerContents, imageMethod, "Create " + markerContents +
-                " method at " + file.getName(), null, "Create " + markerContents +
+                " method at " + file.getName(), null,
+                "Create " + markerContents +
                         " method at " + file,
                 IPyCompletionProposal.PRIORITY_CREATE, edit, file, parametersAfterCall, new PyCreateMethodOrField(),
                 ps));
     }
 
-    private void addCreateClassOption(PySelection ps, PyEdit edit, List<ICompletionProposal> props,
+    private void addCreateClassOption(PySelection ps, PyEdit edit, List<ICompletionProposalHandle> props,
             String markerContents, List<String> parametersAfterCall, File file) {
         props.add(new TddRefactorCompletionInModule(markerContents, imageClass, "Create " + markerContents +
-                " class at " + file.getName(), null, "Create " + markerContents +
+                " class at " + file.getName(), null,
+                "Create " + markerContents +
                         " class at " + file,
                 IPyCompletionProposal.PRIORITY_CREATE, edit, file, parametersAfterCall, new PyCreateClass(), ps));
     }
 
-    private void addCreateClassInNewModuleOption(PySelection ps, PyEdit edit, List<ICompletionProposal> props,
+    private void addCreateClassInNewModuleOption(PySelection ps, PyEdit edit, List<ICompletionProposalHandle> props,
             String markerContents, String moduleName, List<String> parametersAfterCall, File file) {
         props.add(new TddRefactorCompletionInInexistentModule(markerContents, imageClass, "Create " + markerContents +
-                " class at new module " + moduleName, null, "Create " + markerContents +
+                " class at new module " + moduleName, null,
+                "Create " + markerContents +
                         " class at new module "
                         + file,
                 IPyCompletionProposal.PRIORITY_CREATE, edit, file, new ArrayList<String>(),
                 new PyCreateClass(), ps));
     }
 
-    private void addCreateMethodInNewModuleOption(PySelection ps, PyEdit edit, List<ICompletionProposal> props,
+    private void addCreateMethodInNewModuleOption(PySelection ps, PyEdit edit, List<ICompletionProposalHandle> props,
             String markerContents, String moduleName, List<String> parametersAfterCall, File file) {
         props.add(new TddRefactorCompletionInInexistentModule(markerContents, imageMethod, "Create " + markerContents +
-                " method at new module " + moduleName, null, "Create " + markerContents +
+                " method at new module " + moduleName, null,
+                "Create " + markerContents +
                         " method at new module "
                         + file,
                 IPyCompletionProposal.PRIORITY_CREATE, edit, file, new ArrayList<String>(),
                 new PyCreateMethodOrField(), ps));
     }
 
-    private void addCreateModuleOption(PySelection ps, PyEdit edit, List<ICompletionProposal> props,
+    private void addCreateModuleOption(PySelection ps, PyEdit edit, List<ICompletionProposalHandle> props,
             String markerContents, File file) {
         props.add(new TddRefactorCompletionInInexistentModule(markerContents, imageModule, "Create " + markerContents +
-                " module", null, "Create " + markerContents +
+                " module", null,
+                "Create " + markerContents +
                         " module (" + file +
                         ")",
                 IPyCompletionProposal.PRIORITY_CREATE, edit, file, new ArrayList<String>(), new NullPyCreateAction(),
                 ps));
     }
 
-    private void addCreateMethodOption(PySelection ps, PyEdit edit, List<ICompletionProposal> props,
+    private void addCreateMethodOption(PySelection ps, PyEdit edit, List<ICompletionProposalHandle> props,
             String markerContents, List<String> parametersAfterCall) {
         props.add(new TddRefactorCompletion(markerContents, imageMethod, "Create " + markerContents +
                 " method", null,
@@ -402,7 +409,7 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant {
                 parametersAfterCall, new PyCreateMethodOrField(), ps));
     }
 
-    private void addCreateClassOption(PySelection ps, PyEdit edit, List<ICompletionProposal> props,
+    private void addCreateClassOption(PySelection ps, PyEdit edit, List<ICompletionProposalHandle> props,
             String markerContents, List<String> parametersAfterCall) {
         props.add(new TddRefactorCompletion(markerContents, imageClass, "Create " + markerContents +
                 " class", null,
@@ -415,7 +422,7 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant {
         ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
 
         RefactoringRequest request = new RefactoringRequest(edit.getEditorFile(), new PySelection(doc,
-                new TextSelection(doc, start, 0)), new NullProgressMonitor(), nature, edit);
+                new CoreTextSelection(doc, start, 0)), new NullProgressMonitor(), nature, edit);
 
         try {
             PyRefactoringFindDefinition.findActualDefinition(request, completionCache, selected);

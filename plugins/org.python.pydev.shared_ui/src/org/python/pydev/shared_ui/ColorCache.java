@@ -21,6 +21,7 @@ import org.eclipse.jface.resource.StringConverter;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
+import org.python.pydev.core.IColorCache;
 import org.python.pydev.shared_core.log.Log;
 
 /**
@@ -34,7 +35,7 @@ import org.python.pydev.shared_core.log.Log;
         preferences.addPropertyChangeListener(this);
         preferences.removePropertyChangeListener(this);
 */
-public abstract class ColorCache {
+public abstract class ColorCache implements IColorCache {
 
     private final Map<RGB, Color> fColorTable = new HashMap<RGB, Color>();
     protected final Map<String, Color> fNamedColorTable = new HashMap<String, Color>();

@@ -31,7 +31,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
@@ -42,15 +41,17 @@ import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.adapters.SimpleAdapter;
+import org.python.pydev.shared_core.string.ICoreTextSelection;
 
 public class ParameterReturnDeduce {
     private List<String> parameters;
     private Collection<String> returns;
     private AbstractScopeNode<?> scopeAdapter;
-    private ITextSelection selection;
+    private ICoreTextSelection selection;
     private ModuleAdapter moduleAdapter;
 
-    public ParameterReturnDeduce(AbstractScopeNode<?> scope, ITextSelection selection, ModuleAdapter moduleAdapter) {
+    public ParameterReturnDeduce(AbstractScopeNode<?> scope, ICoreTextSelection selection,
+            ModuleAdapter moduleAdapter) {
         this.scopeAdapter = scope;
         this.selection = selection;
         this.parameters = new ArrayList<String>();
@@ -148,21 +149,21 @@ public class ParameterReturnDeduce {
     }
 
     private boolean isAfterOnSameLine(SimpleAdapter lastSelectedVariable, SimpleAdapter adapter) {
-        return adapter.getNodeFirstLine() == lastSelectedVariable.getNodeFirstLine()
+        return adapter.getNodeFirstLine(false) == lastSelectedVariable.getNodeFirstLine(false)
                 && (adapter.getNodeIndent() > lastSelectedVariable.getNodeIndent());
     }
 
     private boolean isAfterSelectedLine(SimpleAdapter lastSelectedVariable, SimpleAdapter adapter) {
-        return adapter.getNodeFirstLine() > lastSelectedVariable.getNodeFirstLine();
+        return adapter.getNodeFirstLine(false) > lastSelectedVariable.getNodeFirstLine(false);
     }
 
     private boolean isBeforeOnSameLine(SimpleAdapter firstSelectedVariable, SimpleAdapter adapter) {
-        return adapter.getNodeFirstLine() == firstSelectedVariable.getNodeFirstLine()
+        return adapter.getNodeFirstLine(false) == firstSelectedVariable.getNodeFirstLine(false)
                 && (adapter.getNodeIndent() < firstSelectedVariable.getNodeIndent());
     }
 
     private boolean isBeforeSelectedLine(SimpleAdapter firstSelectedVariable, SimpleAdapter adapter) {
-        return adapter.getNodeFirstLine() < firstSelectedVariable.getNodeFirstLine();
+        return adapter.getNodeFirstLine(false) < firstSelectedVariable.getNodeFirstLine(false);
     }
 
     /**

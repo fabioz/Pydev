@@ -36,7 +36,6 @@ import org.python.pydev.refactoring.core.change.IChangeProcessor;
 import org.python.pydev.refactoring.core.edit.AbstractTextEdit;
 import org.python.pydev.refactoring.core.request.IRefactoringRequest;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
-import org.python.pydev.shared_ui.utils.SynchronizedTextFileChange;
 
 public abstract class AbstractFileChangeProcessor<T extends IRefactoringRequest> implements IChangeProcessor {
 

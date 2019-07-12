@@ -7,14 +7,13 @@
 package org.python.pydev.editor;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.ListResourceBundle;
-import java.util.Set;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,6 +31,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
@@ -41,7 +41,6 @@ import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.DeviceResourceException;
 import org.eclipse.jface.resource.FontDescriptor;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.jface.text.BadLocationException;
@@ -79,50 +78,57 @@ import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.texteditor.ITextEditorExtension2;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
+import org.osgi.framework.Version;
+import org.python.pydev.ast.codecompletion.revisited.CompletionCache;
+import org.python.pydev.ast.codecompletion.revisited.CompletionStateFactory;
+import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.ast.codecompletion.revisited.modules.AbstractModule;
+import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.ast.codecompletion.shell.AbstractShell;
+import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
+import org.python.pydev.ast.item_pointer.ItemPointer;
+import org.python.pydev.ast.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.changed_lines.ChangedLinesComputer;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPyEdit;
+import org.python.pydev.core.IPySyntaxHighlightingAndCodeCompletionEditor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ITabChangedListener;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.NotConfiguredInterpreterException;
+import org.python.pydev.core.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PythonPairMatcher;
 import org.python.pydev.core.docutils.SyntaxErrorException;
+import org.python.pydev.core.editor.OpenEditors;
+import org.python.pydev.core.formatter.FormatStd;
+import org.python.pydev.core.formatter.PyFormatterPreferences;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.partition.PyPartitionScanner;
+import org.python.pydev.core.preferences.FileTypesPreferences;
+import org.python.pydev.core.preferences.PyDevCoreEditorPreferences;
+import org.python.pydev.core.preferences.PydevPrefs;
 import org.python.pydev.editor.actions.FirstCharAction;
 import org.python.pydev.editor.actions.IExecuteLineAction;
 import org.python.pydev.editor.actions.OfflineAction;
 import org.python.pydev.editor.actions.OfflineActionTarget;
 import org.python.pydev.editor.actions.PyBackspace;
-import org.python.pydev.editor.actions.PyFormatStd;
-import org.python.pydev.editor.actions.PyFormatStd.FormatStd;
+import org.python.pydev.editor.actions.PyFormatAction;
 import org.python.pydev.editor.actions.PyMoveLineDownAction;
 import org.python.pydev.editor.actions.PyMoveLineUpAction;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.editor.actions.PyOrganizeImports;
 import org.python.pydev.editor.actions.PyPeerLinker;
-import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
-import org.python.pydev.editor.codecompletion.revisited.CompletionCache;
-import org.python.pydev.editor.codecompletion.revisited.CompletionStateFactory;
-import org.python.pydev.editor.codecompletion.revisited.PythonPathHelper;
-import org.python.pydev.editor.codecompletion.revisited.modules.AbstractModule;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
-import org.python.pydev.editor.codecompletion.shell.AbstractShell;
+import org.python.pydev.editor.codecompletion.proposals.PyCompletionProposal;
 import org.python.pydev.editor.codefolding.CodeFoldingSetter;
 import org.python.pydev.editor.codefolding.PyEditProjection;
 import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.editor.correctionassist.PythonCorrectionProcessor;
-import org.python.pydev.editor.model.ItemPointer;
-import org.python.pydev.editor.preferences.PydevEditorPrefs;
-import org.python.pydev.editor.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.editor.saveactions.PydevSaveActionsPrefPage;
 import org.python.pydev.editor.scripting.PyEditScripting;
 import org.python.pydev.editorinput.PyOpenEditor;
@@ -138,14 +144,19 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.CheckDefaultPreferencesDialog;
-import org.python.pydev.plugin.preferences.PyCodeFormatterPage;
-import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
-import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
+import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
+import org.python.pydev.shared_core.image.IImageCache;
+import org.python.pydev.shared_core.image.IImageDescriptor;
+import org.python.pydev.shared_core.image.UIConstants;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.markers.PyMarkerUtils;
+import org.python.pydev.shared_core.markers.PyMarkerUtils.MarkerInfo;
 import org.python.pydev.shared_core.model.ErrorDescription;
 import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
@@ -154,24 +165,22 @@ import org.python.pydev.shared_core.parsing.ChangedParserInfoForObservers;
 import org.python.pydev.shared_core.parsing.ErrorParserInfoForObservers;
 import org.python.pydev.shared_core.parsing.IParserObserver3;
 import org.python.pydev.shared_core.parsing.IScopesParser;
+import org.python.pydev.shared_core.string.CoreTextSelection;
 import org.python.pydev.shared_core.string.ICharacterPairMatcher2;
+import org.python.pydev.shared_core.string.ICoreTextSelection;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
 import org.python.pydev.shared_interactive_console.console.ui.ScriptConsole;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.ImageCache;
-import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.editor.IPyEditListener;
 import org.python.pydev.shared_ui.editor_input.PydevFileEditorInput;
 import org.python.pydev.shared_ui.outline.IOutlineModel;
-import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
-import org.python.pydev.shared_ui.proposals.PyCompletionProposal;
-import org.python.pydev.shared_ui.utils.PyMarkerUtils;
-import org.python.pydev.shared_ui.utils.PyMarkerUtils.MarkerInfo;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.ui.ColorAndStyleCache;
-import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
+import org.python.pydev.ui.dialogs.PyDialogHelpers;
 
 /**
  * The TextWidget.
@@ -205,12 +214,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     public static final String PY_EDIT_CONTEXT = "#PyEditContext";
     public static final String PY_EDIT_RULER_CONTEXT = "#PyEditRulerContext";
 
-    static public final String EDITOR_ID = "org.python.pydev.editor.PythonEditor";
-
     static public final String ACTION_OPEN = "OpenEditor";
-
-    static private final Set<PyEdit> currentlyOpenedEditors = new HashSet<PyEdit>();
-    static private final Object currentlyOpenedEditorsLock = new Object();
 
     /** color cache */
     private ColorAndStyleCache colorCache;
@@ -239,12 +243,18 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      */
     @Override
     public PySelection createPySelection() {
-        return new PySelection(this);
+        return PySelectionFromEditor.createPySelectionFromEditor(this);
     }
 
     @Override
     public TextSelectionUtils createTextSelectionUtils() {
-        return new PySelection(this);
+        return PySelectionFromEditor.createPySelectionFromEditor(this);
+    }
+
+    @Override
+    public ICoreTextSelection getTextSelection() {
+        ITextSelection selection = (ITextSelection) this.getSelectionProvider().getSelection();
+        return new CoreTextSelection(getDocument(), selection.getOffset(), selection.getLength());
     }
 
     /**
@@ -326,9 +336,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     @SuppressWarnings("unchecked")
     public PyEdit() {
         super();
-        synchronized (currentlyOpenedEditorsLock) {
-            currentlyOpenedEditors.add(this);
-        }
+        OpenEditors.addOpenedEditor(this);
         try {
             onPyEditCreated.call(this);
         } catch (Throwable e) {
@@ -341,9 +349,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             }
             notifier.notifyEditorCreated();
 
-            colorCache = new ColorAndStyleCache(PydevPrefs.getChainedPrefStore());
+            colorCache = new ColorAndStyleCache(PyDevUiPrefs.getChainedPrefStore());
 
-            editConfiguration = new PyEditConfiguration(colorCache, this, PydevPrefs.getChainedPrefStore());
+            editConfiguration = new PyEditConfiguration(colorCache, this, PyDevUiPrefs.getChainedPrefStore());
             setSourceViewerConfiguration(editConfiguration);
             indentStrategy = editConfiguration.getPyAutoIndentStrategy(this);
             setRangeIndicator(new DefaultRangeIndicator()); // enables standard
@@ -356,7 +364,39 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
             //Ask for people to consider funding PyDev.
             PydevShowBrowserMessage.show();
+
+            //Warn about the Eclipse version we require.
+            checkEclipseRunning();
         } catch (Throwable e) {
+            Log.log(e);
+        }
+    }
+
+    private boolean checkedEclipseVersion = false;
+
+    private void checkEclipseRunning() {
+        if (checkedEclipseVersion) {
+            return;
+        }
+        checkedEclipseVersion = true;
+        try {
+            String string = Platform.getBundle("org.eclipse.jface.text").getHeaders().get("Bundle-Version");
+            Version version = new Version(string);
+            if (version.compareTo(new Version("3.11.0")) < 0) {
+                Log.log("Error: This version of PyDev requires a newer version of Eclipse to run properly.");
+                RunInUiThread.async(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        PyDialogHelpers.openCritical("Eclipse version too old (4.6 -- Neon -- required).",
+                                "This version of PyDev requires a newer version of Eclipse to run properly.\n\n"
+                                        + "Please upgrade Eclipse or use an older version of PyDev.\n\n"
+                                        + "See: http://www.pydev.org/download.html for requirements\n"
+                                        + "(for this version or older versions).");
+                    }
+                }, false);
+            }
+        } catch (Exception e) {
             Log.log(e);
         }
     }
@@ -443,8 +483,8 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
     public void updateForceTabsMessage() {
         boolean forceTabs = getIndentPrefs().getForceTabs();
-        ImageCache imageCache = PydevPlugin.getImageCache();
-        ImageDescriptor desc;
+        IImageCache imageCache = SharedUiPlugin.getImageCache();
+        IImageDescriptor desc;
         if (forceTabs) {
             desc = imageCache.getDescriptor(UIConstants.FORCE_TABS_ACTIVE);
         } else {
@@ -452,7 +492,8 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         }
         IEditorStatusLine statusLine = (IEditorStatusLine) getAdapter(IEditorStatusLine.class);
         if (statusLine != null) {
-            statusLine.setMessage(false, forceTabs ? "Forcing tabs" : "Not forcing tabs.", desc.createImage());
+            statusLine.setMessage(false, forceTabs ? "Forcing tabs" : "Not forcing tabs.",
+                    ImageCache.asImageDescriptor(desc).createImage());
         }
     }
 
@@ -511,7 +552,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             // Also adds Python nature to the project.
             // The reason this is done here is because I want to assign python
             // nature automatically to any project that has active python files.
-            final IPythonNature nature = PythonNature.addNature(input);
+            final IPythonNature nature = addNature(input);
 
             //we also want to initialize our shells...
             //we use 2: one for the main thread and one for the other threads.
@@ -537,7 +578,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             prefListener = createPrefChangeListener(this);
             this.getIndentPrefs().addTabChangedListener(this);
             resetForceTabs();
-            PydevPrefs.getChainedPrefStore().addPropertyChangeListener(prefListener);
+            PyDevUiPrefs.getChainedPrefStore().addPropertyChangeListener(prefListener);
 
             Runnable runnable = new Runnable() {
 
@@ -568,7 +609,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     }
 
     private static void onTabSettingsChanged(final IPySyntaxHighlightingAndCodeCompletionEditor editor) {
-        ISourceViewer sourceViewer = editor.getEditorSourceViewer();
+        ISourceViewer sourceViewer = (ISourceViewer) editor.getEditorSourceViewer();
         if (sourceViewer == null) {
             return;
         }
@@ -588,21 +629,21 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                 try {
                     String property = event.getProperty();
                     //tab width
-                    if (property.equals(PydevEditorPrefs.TAB_WIDTH)) {
+                    if (property.equals(PyDevCoreEditorPreferences.TAB_WIDTH)) {
                         onTabSettingsChanged(editor);
 
-                    } else if (property.equals(PydevEditorPrefs.SUBSTITUTE_TABS)) {
+                    } else if (property.equals(PyDevCoreEditorPreferences.SUBSTITUTE_TABS)) {
                         onTabSettingsChanged(editor);
 
                         //auto adjust for file tabs
-                    } else if (property.equals(PydevEditorPrefs.GUESS_TAB_SUBSTITUTION)) {
+                    } else if (property.equals(PyDevCoreEditorPreferences.GUESS_TAB_SUBSTITUTION)) {
                         onTabSettingsChanged(editor);
 
                         //colors and styles
                     } else if (ColorAndStyleCache.isColorOrStyleProperty(property)) {
                         editor.getColorCache().reloadProperty(property); //all reference this cache
                         editor.getEditConfiguration().updateSyntaxColorAndStyle(); //the style needs no reloading
-                        editor.getEditorSourceViewer().invalidateTextPresentation();
+                        ((ISourceViewer) editor.getEditorSourceViewer()).invalidateTextPresentation();
                     }
                 } catch (Exception e) {
                     Log.log(e);
@@ -738,7 +779,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                 //see if we have to change the encoding of the file on load
                 fixEncoding(input, document);
 
-                PyParserManager.getPyParserManager(PydevPrefs.getPreferences()).attachParserTo(this);
+                PyParserManager.getPyParserManager(PydevPrefs.getEclipsePreferences()).attachParserTo(this);
                 if (document != null) {
                     PyPartitionScanner.checkPartitionScanner(document, this.getGrammarVersionProvider());
                 }
@@ -757,7 +798,8 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
         try {
             if (this.isCythonFile()) {
-                this.setTitleImage(PydevPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON));
+                this.setTitleImage(
+                        ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.CYTHON_FILE_ICON)));
                 this.getAutoEditStrategy().setCythonFile(true);
             } else {
                 this.getAutoEditStrategy().setCythonFile(false);
@@ -823,7 +865,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                 IDocumentProvider documentProvider = getDocumentProvider();
                 int[] regionsForSave = null;
 
-                if (PyCodeFormatterPage.getFormatOnlyChangedLines(this)) {
+                if (PyFormatterPreferences.getFormatOnlyChangedLines(this)) {
                     if (documentProvider instanceof PyDocumentProvider) {
                         PyDocumentProvider pyDocumentProvider = (PyDocumentProvider) documentProvider;
                         ITextFileBuffer fileBuffer = pyDocumentProvider.getFileBuffer(getEditorInput());
@@ -840,11 +882,10 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                     //Note: auto-format should only take place if we're always formatting everything or
                     //if we have some region to update (regionsForSave.length == 0 means that we only
                     //had deleted lines, in which case we can't really do anything).
-                    ITextSelection selection = (ITextSelection) this.getSelectionProvider().getSelection();
-                    PySelection ps = new PySelection(document, selection);
+                    PySelection ps = new PySelection(document, this.getTextSelection());
 
                     if (!hasSyntaxError(ps.getDoc())) {
-                        PyFormatStd std = new PyFormatStd();
+                        PyFormatAction std = new PyFormatAction();
                         boolean throwSyntaxError = true;
                         try {
                             std.applyFormatAction(this, ps, regionsForSave, throwSyntaxError,
@@ -954,35 +995,39 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     private void fixEncoding(final IEditorInput input, IDocument document) {
         if (input instanceof FileEditorInput) {
             final IFile file = ((FileEditorInput) input).getAdapter(IFile.class);
+            String fileEncoding;
             try {
-                final String encoding = FileUtilsFileBuffer.getPythonFileEncoding(document, file.getFullPath()
-                        .toOSString());
-                if (encoding != null) {
-                    try {
-                        if (encoding.equals(file.getCharset()) == false) {
+                fileEncoding = FileUtils.getPythonFileEncoding(document, file.getFullPath().toOSString());
+            } catch (UnsupportedEncodingException e) {
+                fileEncoding = null;
+            }
+            // If the file does not specify an encoding, or the encoding is not supported, we have nothing to do
+            if (fileEncoding == null) {
+                return;
+            }
+            // Proceed with the job if we know the encoding
+            final String encoding = fileEncoding;
+            try {
+                if (encoding.equals(file.getCharset()) == false) {
 
-                            new Job("Change encoding") {
+                    new Job("Change encoding") {
 
-                                @Override
-                                protected IStatus run(IProgressMonitor monitor) {
-                                    try {
-                                        file.setCharset(encoding, monitor);
-                                        ((TextFileDocumentProvider) getDocumentProvider()).setEncoding(input, encoding);
-                                        //refresh it...
-                                        file.refreshLocal(IResource.DEPTH_INFINITE, null);
-                                    } catch (CoreException e) {
-                                        Log.log(e);
-                                    }
-                                    return Status.OK_STATUS;
-                                }
-
-                            }.schedule();
+                        @Override
+                        protected IStatus run(IProgressMonitor monitor) {
+                            try {
+                                file.setCharset(encoding, monitor);
+                                ((TextFileDocumentProvider) getDocumentProvider()).setEncoding(input, encoding);
+                                //refresh it...
+                                file.refreshLocal(IResource.DEPTH_INFINITE, null);
+                            } catch (CoreException e) {
+                                Log.log(e);
+                            }
+                            return Status.OK_STATUS;
                         }
-                    } catch (CoreException e) {
-                        Log.log(e);
-                    }
+
+                    }.schedule();
                 }
-            } catch (Exception e) {
+            } catch (CoreException e) {
                 Log.log(e);
             }
         }
@@ -1013,9 +1058,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         if (!this.disposed) {
             this.disposed = true;
 
-            synchronized (currentlyOpenedEditorsLock) {
-                currentlyOpenedEditors.remove(this);
-            }
+            OpenEditors.removeOpenedEditor(this);
             this.outlinePage = null;
             this.codeFoldingSetter = null;
 
@@ -1033,7 +1076,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
                 notifier.notifyOnDispose();
 
-                PydevPrefs.getChainedPrefStore().removePropertyChangeListener(prefListener);
+                PyDevUiPrefs.getChainedPrefStore().removePropertyChangeListener(prefListener);
                 PyParserManager.getPyParserManager(null).notifyEditorDisposed(this);
 
                 colorCache.dispose();
@@ -1172,8 +1215,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             if (fOfflineActionTarget == null) {
                 IStatusLineManager manager = getStatusLineManager();
                 if (manager != null) {
-                    fOfflineActionTarget = (getSourceViewer() == null ? null : new OfflineActionTarget(
-                            getSourceViewer(), manager, this));
+                    fOfflineActionTarget = (getSourceViewer() == null ? null
+                            : new OfflineActionTarget(
+                                    getSourceViewer(), manager, this));
                 }
             }
             return fOfflineActionTarget;
@@ -1233,7 +1277,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
         try {
             int startOffset = -1, endOffset = -1;
-            PySelection selection = new PySelection(this);
+            PySelection selection = PySelectionFromEditor.createPySelectionFromEditor(this);
 
             for (ISimpleNode inode : nodes) {
                 SimpleNode node = (SimpleNode) inode;
@@ -1273,7 +1317,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         int offset, length, endOffset;
 
         try {
-            PySelection selection = new PySelection(this);
+            PySelection selection = PySelectionFromEditor.createPySelectionFromEditor(this);
             offset = selection.getLineOffset(node.beginLine - 1) + node.beginColumn - 1;
             int[] colLineEnd = NodeUtils.getColLineEnd(node);
 
@@ -1330,7 +1374,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                                 synchronized (lockHandle) {
                                     releaseCurrentHandle();
                                     int modHandle = modulesManager.pushTemporaryModule(moduleName, new SourceModule(
-                                            moduleName, editorFile, ast, null));
+                                            moduleName, editorFile, ast, null, pythonNature));
 
                                     this.handle = new Tuple3<Integer, IModulesManager, String>(modHandle,
                                             modulesManager, moduleName);
@@ -1497,11 +1541,20 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         if (editorFile == null) {
             throw new MisconfigurationException();
         }
-        Tuple<IPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(editorFile);
+        Tuple<IPythonNature, String> infoForFile = InterpreterManagersAPI.getInfoForFile(editorFile);
         if (infoForFile == null || infoForFile.o1 == null) {
             throw new MisconfigurationException();
         }
         return infoForFile.o1.getGrammarVersion();
+    }
+
+    @Override
+    public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions() throws MisconfigurationException {
+        IPythonNature pythonNature = getPythonNature();
+        if (pythonNature != null) {
+            return pythonNature.getAdditionalGrammarVersions();
+        }
+        return null;
     }
 
     @Override
@@ -1512,6 +1565,11 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             public int getGrammarVersion() throws MisconfigurationException {
                 //Always calculate at the present time based on the editor configuration.
                 return PyEdit.this.getGrammarVersion();
+            }
+
+            @Override
+            public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions() throws MisconfigurationException {
+                return PyEdit.this.getAdditionalGrammarVersions();
             }
         };
     }
@@ -1527,7 +1585,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                 fileName = editorFile.getName();
             }
         }
-        return FileTypesPreferencesPage.isCythonFile(fileName);
+        return FileTypesPreferences.isCythonFile(fileName);
     }
 
     /**
@@ -1546,7 +1604,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         }
 
         //if it's an external file, there's the possibility that it won't be added even here.
-        pythonNature = PythonNature.addNature(this.getEditorInput());
+        pythonNature = addNature(this.getEditorInput());
 
         if (pythonNature != null) {
             return pythonNature;
@@ -1556,12 +1614,12 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         if (editorFile == null) {
             return null;
         }
-        Tuple<IPythonNature, String> infoForFile = PydevPlugin.getInfoForFile(editorFile);
+        Tuple<IPythonNature, String> infoForFile = InterpreterManagersAPI.getInfoForFile(editorFile);
         if (infoForFile == null) {
             NotConfiguredInterpreterException e = new NotConfiguredInterpreterException();
             ErrorDialog.openError(EditorUtils.getShell(), "Error: no interpreter configured",
                     "Interpreter not configured\n(Please, Configure it under window->preferences->PyDev)",
-                    PydevPlugin.makeStatus(IStatus.ERROR, e.getMessage(), e));
+                    SharedCorePlugin.makeStatus(IStatus.ERROR, e.getMessage(), e));
             throw e;
 
         }
@@ -1573,7 +1631,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     protected void initializeEditor() {
         super.initializeEditor();
         try {
-            this.setPreferenceStore(PydevPrefs.getChainedPrefStore());
+            this.setPreferenceStore(PyDevUiPrefs.getChainedPrefStore());
             setEditorContextMenuId(PY_EDIT_CONTEXT);
             setRulerContextMenuId(PY_EDIT_RULER_CONTEXT);
             setDocumentProvider(PyDocumentProvider.instance);
@@ -1593,8 +1651,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         offlineActionsManager.addOfflineActionListener(key, action);
     }
 
-    public void addOfflineActionListener(String key, IAction action, String description, boolean needsEnter) {
-        offlineActionsManager.addOfflineActionListener(key, action, description, needsEnter);
+    @Override
+    public void addOfflineActionListener(String key, Object action, String description, boolean needsEnter) {
+        offlineActionsManager.addOfflineActionListener(key, (IAction) action, description, needsEnter);
     }
 
     public boolean activatesAutomaticallyOn(String key) {
@@ -1646,42 +1705,9 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         }
     }
 
-    public static Object iterOpenEditorsUntilFirstReturn(ICallback<Object, PyEdit> callback) {
-        HashSet<PyEdit> hashSet;
-        synchronized (currentlyOpenedEditorsLock) {
-            hashSet = new HashSet<>(currentlyOpenedEditors);
-        }
-        // Iterate in unsynchronized copy
-        for (PyEdit edit : hashSet) {
-            Object ret = callback.call(edit);
-            if (ret != null) {
-                return ret;
-            }
-        }
-        return null;
-    }
-
-    public static boolean isEditorOpenForResource(IResource r) {
-        HashSet<PyEdit> hashSet;
-        synchronized (currentlyOpenedEditorsLock) {
-            hashSet = new HashSet<>(currentlyOpenedEditors);
-        }
-        // Iterate in unsynchronized copy
-        for (PyEdit edit : hashSet) {
-            IEditorInput input = edit.getEditorInput();
-            if (input != null) {
-                Object adapter = input.getAdapter(IResource.class);
-                if (adapter != null && r.equals(adapter)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     @Override
     public FormatStd getFormatStd() {
-        return PyFormatStd.getFormat(this);
+        return PyFormatterPreferences.getFormatStd(this);
     }
 
     /**
@@ -1703,7 +1729,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      * Important: keep for scripting
      */
     public int getPrintMarginColums() {
-        return PydevPrefs.getChainedPrefStore()
+        return PyDevUiPrefs.getChainedPrefStore()
                 .getInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLUMN);
     }
 
@@ -1818,5 +1844,19 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
     @Override
     public IScopesParser createScopesParser() {
         return new ScopesParser();
+    }
+
+    public static IPythonNature addNature(IEditorInput element) {
+        if (element instanceof FileEditorInput) {
+            IFile file = ((FileEditorInput) element).getAdapter(IFile.class);
+            if (file != null) {
+                try {
+                    return PythonNature.addNature(file.getProject(), null, null, null, null, null, null);
+                } catch (CoreException e) {
+                    Log.log(e);
+                }
+            }
+        }
+        return null;
     }
 }

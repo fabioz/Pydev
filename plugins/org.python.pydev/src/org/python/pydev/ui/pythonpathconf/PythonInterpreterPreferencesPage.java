@@ -6,14 +6,14 @@
  */
 /*
  * Created on 08/08/2005
- * 
+ *
  * @author Fabio Zadrozny
  */
 package org.python.pydev.ui.pythonpathconf;
 
 import org.eclipse.swt.widgets.Composite;
+import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.IInterpreterManager;
-import org.python.pydev.plugin.PydevPlugin;
 
 public class PythonInterpreterPreferencesPage extends AbstractInterpreterPreferencesPage {
 
@@ -26,7 +26,7 @@ public class PythonInterpreterPreferencesPage extends AbstractInterpreterPrefere
      * @return the title that should be used above the interpreters editor.
      */
     protected String getInterpretersTitle() {
-        return "Python interpreters (e.g.: python.exe).   Double-click to rename.";
+        return "Python interpreters (e.g.: python.exe, pypy.exe).   Double-click to rename.";
     }
 
     /**
@@ -35,12 +35,12 @@ public class PythonInterpreterPreferencesPage extends AbstractInterpreterPrefere
      */
     @Override
     protected AbstractInterpreterEditor getInterpreterEditor(Composite p) {
-        return new PythonInterpreterEditor(getInterpretersTitle(), p, PydevPlugin.getPythonInterpreterManager(true));
+        return new PythonInterpreterEditor(getInterpretersTitle(), p, InterpreterManagersAPI.getPythonInterpreterManager(true));
     }
 
     @Override
     protected IInterpreterManager getInterpreterManager() {
-        return PydevPlugin.getPythonInterpreterManager(true);
+        return InterpreterManagersAPI.getPythonInterpreterManager(true);
     }
 
 }

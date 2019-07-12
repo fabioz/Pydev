@@ -1,0 +1,1436 @@
+// -*- java -*-
+//good reading for error handling: https://javacc.dev.java.net/doc/errorrecovery.html
+//check Python.asdl for references on the python implementation of the grammar
+options
+{
+    // only non-defaults are given here.
+    NODE_SCOPE_HOOK       = true;   // call jjtree*NodeScope()
+    NODE_FACTORY          = true;
+    NODE_USES_PARSER      = true;
+    STATIC                = false;  // multiple parsers
+    COMMON_TOKEN_ACTION   = true;   // CommonTokenAction(Token)
+    DEBUG_PARSER          = false;  // must be used to enable tracing
+    DEBUG_LOOKAHEAD       = false;
+    DEBUG_TOKEN_MANAGER   = false;  // used to debug the tokens we have generating
+
+    USER_CHAR_STREAM      = true;
+    UNICODE_INPUT         = true;
+    ERROR_REPORTING       = true;  // this is NOT used to shut down errors regarding javacc org.python.pydev.parser.jython.PythonGrammar$$LookaheadSuccess
+                                      // because the generated information is not complete enough if we do it.
+}
+
+
+PARSER_BEGIN(PythonGrammar36)
+package org.python.pydev.parser.grammar36;
+$IMPORTS
+import org.python.pydev.parser.jython.ast.Await;
+import org.python.pydev.parser.jython.ast.Expr;
+import org.python.pydev.parser.IGrammar2;
+
+public final class PythonGrammar36 extends AbstractPythonGrammar implements IGrammar, IGrammar2
+{
+
+    private int insideAsync;
+
+    @Override
+    public boolean getInsideAsync() {
+        return insideAsync != 0;
+    }
+
+$COMMOM_METHODS
+
+    private void handleFutureImports(String importName){
+
+    }
+
+
+
+    protected final void addSpecialToArgDef(Object str){
+        Token token = (Token)str;
+        SimpleNode peeked = jjtree.peekNode();
+        if(peeked instanceof JfpDef){
+            JfpDef jfpdef = (JfpDef) peeked;
+            if(jfpdef.typeDef != null){
+                jfpdef.typeDef.getSpecialsAfter().add(token.asSpecialStr());
+            }else{
+                jfpdef.nameNode.getSpecialsAfter().add(token.asSpecialStr());
+            }
+        }else if (peeked != null){
+            peeked.getSpecialsAfter().add(token.asSpecialStr());
+        }
+
+    }
+
+}
+
+
+PARSER_END(PythonGrammar36)
+
+TOKEN_MGR_DECLS:
+{
+    protected Class<?> getConstantsClass(){
+        return PythonGrammar36Constants.class;
+    }
+
+
+$TOKEN_MGR_COMMOM_METHODS
+
+}
+
+
+SKIP :
+{
+    <SPACE: " ">
+|   "\t"
+|   "\014"
+|   <CONTINUATION: ("\\") ("\r\n"|"\n"|"\r")>
+|   <NEWLINE1: ("\r\n"|"\n"|"\r")>
+        {
+            if (parens == 0) {
+                indent = 0;
+                input_stream.backup(1);
+                if (indentation.level == 0)
+                    SwitchTo(FORCE_NEWLINE1);
+                else
+                    SwitchTo(FORCE_NEWLINE2);
+            }
+        }
+}
+
+
+<FORCE_NEWLINE1> TOKEN :
+{ <NEWLINE: ("\n" | "\r")> : INDENTATION_UNCHANGED }
+
+
+<FORCE_NEWLINE2> TOKEN :
+{ <NEWLINE2: ("\n" | "\r")> { matchedToken.kind = NEWLINE; }: INDENTING }
+
+
+
+<INDENTING, INDENTATION_UNCHANGED> SKIP :
+{
+    "\t"
+        { indenting((indent/8+1)*8); }
+|   " "
+        { indenting(indent+1); }
+|   "\014"
+        { indenting(0); }
+|   <CRLF1: ("\r\n" | "\n" | "\r")>
+        {
+            indenting(0);
+        }
+}
+
+
+<INDENTATION_UNCHANGED> SKIP :
+{
+    <""> : DEFAULT
+}
+
+
+$INDENTING
+
+
+
+<UNREACHABLE> TOKEN :
+{
+    < INDENT:"<INDENT>">
+//|     < DEDENT:"<DEDENT>">
+}
+
+
+<DEFAULT> SPECIAL_TOKEN: /* COMMENTS 1*/
+{
+    <TRAILING_COMMENT: "#" (~["\n","\r"])* >{
+//    System.out.println("TRAILING_COMMENT "+image);
+//    matchedToken.image = image.toString();
+    }
+}
+
+<INDENTING, INDENTATION_UNCHANGED> SPECIAL_TOKEN: /* COMMENTS 2*/
+{
+    <SINGLE_LINE_COMMENT: "#" (~["\n","\r"])* ("\r\n" | "\n" | "\r")> {
+//    System.out.println("SINGLE_LINE_COMMENT "+image);
+//    matchedToken.image = image.toString();
+        indenting(0);
+    }
+}
+
+TOKEN : /* SEPARATORS */
+{
+    < LPAREN: "(" > {parens++;}
+|   < RPAREN: ")" > {parens--;}
+|   < LBRACE: "{" > {parens++;}
+|   < RBRACE: "}" > {parens--;}
+|   < LBRACKET: "[" > {parens++;}
+|   < RBRACKET: "]" > {parens--;}
+|   < SEMICOLON: ";" >
+|   < COMMA: "," >
+|   < DOT: "." >
+|   < COLON: ":" >
+}
+
+
+TOKEN : /* OPERATORS */
+{
+    < PLUS: "+" >
+|   < MINUS: "-" >
+|   < MINUS_GREATER: "->" >
+|   < MULTIPLY: "*" >
+|   < DIVIDE: "/" >
+|   < FLOORDIVIDE: "//" >
+|   < POWER: "**" >
+|   < LSHIFT: "<<" >
+|   < RSHIFT: ">>" >
+|   < MODULO: "%" >
+|   < NOT: "~" >
+|   < XOR: "^" >
+|   < OR: "|" >
+|   < AND: "&" >
+|   < EQUAL: "=" >
+|   < GREATER: ">" >
+|   < LESS: "<" >
+|   < EQEQUAL: "==" >
+|   < EQLESS: "<=" >
+|   < EQGREATER: ">=" >
+|   < NOTEQUAL: "!=" >
+|   < PLUSEQ: "+=" >
+|   < MINUSEQ: "-=" >
+|   < MULTIPLYEQ: "*=" >
+|   < DOTEQ: "@=" >
+|   < DIVIDEEQ: "/=" >
+|   < FLOORDIVIDEEQ: "//=" >
+|   < MODULOEQ: "%=" >
+|   < ANDEQ: "&=" >
+|   < OREQ: "|=" >
+|   < XOREQ: "^=" >
+|   < LSHIFTEQ: "<<=" >
+|   < RSHIFTEQ: ">>=" >
+|   < POWEREQ: "**=" >
+}
+
+TOKEN : /* KEYWORDS */
+{
+    < OR_BOOL: "or" >
+|   < AND_BOOL: "and" >
+|   < NOT_BOOL: "not" >
+|   < IS: "is" >
+|   < IN: "in" >
+|   < LAMBDA: "lambda" >
+|   < IF: "if" >
+|   < ELSE: "else" >
+|   < ELIF: "elif" >
+|   < WHILE: "while" >
+|   < FOR: "for" >
+|   < TRY: "try" >
+|   < EXCEPT: "except" >
+|   < DEF: "def" >
+|   < ASYNC: "async" >
+|   < AWAIT: "await" >
+|   < CLASS: "class" >
+|   < FINALLY: "finally" >
+|   < PASS: "pass" >
+|   < BREAK: "break" >
+|   < CONTINUE: "continue" >
+|   < RETURN: "return" >
+|   < YIELD: "yield" >
+|   < IMPORT: "import" >
+|   < FROM: "from" >
+|   < DEL: "del" >
+|   < RAISE: "raise" >
+|   < GLOBAL: "global" >
+|   < NONLOCAL: "nonlocal" >
+|   < ASSERT: "assert" >
+|   < AS: "as" >
+|   < WITH: "with" >
+|   < FALSE: "False" >
+|   < TRUE: "True" >
+|   < NONE: "None" >
+|   < AT: "@" >
+}
+
+
+//Python 3.0 can use unicode identifiers. So, the letter construct deals with that...
+TOKEN : /* Python identifiers */
+{
+    < NAME: <LETTER> ( <LETTER> | <DIGIT>)* >
+|
+    < #LETTER:
+    [
+       "a"-"z",
+       "A"-"Z",
+       "_",
+       "\u0080"-"\uffff" //Anything more than 128 is considered valid (unicode range)
+
+    ]
+>
+}
+
+
+TOKEN : /* Numeric literals */
+{
+    < DECNUMBER:
+        ["1"-"9"] ((["_"])?["0"-"9"])* (["l", "L"])?
+      | "0"
+      >
+|   < HEXNUMBER: "0" ["x","X"] ((["_"])? ["0"-"9","a"-"f","A"-"F"])+ (["l","L"])? >
+|   < OCTNUMBER: "0" ["o","O"] ((["_"])? ["0"-"7"])* (["l","L"])? >
+|   < BINNUMBER: "0" (["b","B"])? ((["_"])? ["0"-"1"])* (["l","L"])? >
+|
+    < FLOAT:
+        ["0"-"9"]((["_"])?["0"-"9"])* "." ((["_"])?["0"-"9"])* (<EXPONENT>)?
+      | "." ["0"-"9"]((["_"])?["0"-"9"])* (<EXPONENT>)?
+      | ["0"-"9"]((["_"])?["0"-"9"])* <EXPONENT>
+      >
+|   < COMPLEX: (<DECNUMBER> | <FLOAT> | "0" <DECNUMBER> ) ["j", "J"]>
+|   < #EXPONENT: ["e","E"] (["+","-"])? ["0"-"9"]((["_"])?["0"-"9"])* >
+|   < #DIGIT: ["0" - "9"] >
+}
+
+
+MORE : /* Strings */
+{
+    < (["u", "U"]) (["r", "R"])? "'" > :  IN_USTRING11
+|   < (["u", "U"]) (["r", "R"])? "\"" > :  IN_USTRING21
+|   < (["u", "U"]) (["r", "R"])? "'''" > :  IN_USTRING13
+|   < (["u", "U"]) (["r", "R"])? "\"\"\"" > :  IN_USTRING23
+
+|   < (["b", "B"]) (["r", "R"])? "'" > :  IN_BSTRING11
+|   < (["b", "B"]) (["r", "R"])? "\"" > :  IN_BSTRING21
+|   < (["b", "B"]) (["r", "R"])? "'''" > :  IN_BSTRING13
+|   < (["b", "B"]) (["r", "R"])? "\"\"\"" > :  IN_BSTRING23
+
+|   < (["f", "F"]) (["r", "R"])? "'" > :  IN_FSTRING11
+|   < (["f", "F"]) (["r", "R"])? "\"" > :  IN_FSTRING21
+|   < (["f", "F"]) (["r", "R"])? "'''" > :  IN_FSTRING13
+|   < (["f", "F"]) (["r", "R"])? "\"\"\"" > :  IN_FSTRING23
+
+|   < (["r", "R"])? "'" > :  IN_STRING11
+|   < (["r", "R"])? "\"" > :  IN_STRING21
+|   < (["r", "R"])? "'''" > :  IN_STRING13
+|   < (["r", "R"])? "\"\"\"" > :  IN_STRING23
+}
+
+<IN_STRING11> TOKEN : { <SINGLE_STRING: "'"> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+<IN_STRING21> TOKEN : { <SINGLE_STRING2: "\""> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+<IN_STRING13> TOKEN : { <TRIPLE_STRING: "'''"> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+<IN_STRING23> TOKEN : { <TRIPLE_STRING2: "\"\"\""> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+
+<IN_BSTRING11> TOKEN : { <SINGLE_BSTRING: "'"> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+<IN_BSTRING21> TOKEN : { <SINGLE_BSTRING2: "\""> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+<IN_BSTRING13> TOKEN : { <TRIPLE_BSTRING: "'''"> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+<IN_BSTRING23> TOKEN : { <TRIPLE_BSTRING2: "\"\"\""> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+
+<IN_FSTRING11> TOKEN : { <SINGLE_FSTRING: "'"> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+<IN_FSTRING21> TOKEN : { <SINGLE_FSTRING2: "\""> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+<IN_FSTRING13> TOKEN : { <TRIPLE_FSTRING: "'''"> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+<IN_FSTRING23> TOKEN : { <TRIPLE_FSTRING2: "\"\"\""> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+
+<IN_USTRING11> TOKEN : { <SINGLE_USTRING: "'"> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+<IN_USTRING21> TOKEN : { <SINGLE_USTRING2: "\""> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+<IN_USTRING13> TOKEN : { <TRIPLE_USTRING: "'''"> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+<IN_USTRING23> TOKEN : { <TRIPLE_USTRING2: "\"\"\""> {
+    matchedToken.image = image.toString(); } : DEFAULT}
+
+<IN_STRING11> MORE:
+{
+    <"\\\r\n">           { image.setLength(image.length()-3); } : IN_STRING1NLC
+|   <("\\" ("\n"|"\r"))> { image.setLength(image.length()-2); } : IN_STRING1NLC
+}
+
+<IN_STRING21> MORE:
+{
+    <"\\\r\n">           { image.setLength(image.length()-3); } : IN_STRING2NLC
+|   <("\\" ("\n"|"\r"))> { image.setLength(image.length()-2); } : IN_STRING2NLC
+}
+
+<IN_USTRING11> MORE:
+{
+    <"\\\r\n">           { image.setLength(image.length()-3); } : IN_USTRING1NLC
+|   <("\\" ("\n"|"\r"))> { image.setLength(image.length()-2); } : IN_USTRING1NLC
+}
+
+<IN_USTRING21> MORE:
+{
+    <"\\\r\n">           { image.setLength(image.length()-3); } : IN_USTRING2NLC
+|   <("\\" ("\n"|"\r"))> { image.setLength(image.length()-2); } : IN_USTRING2NLC
+}
+
+<IN_BSTRING11> MORE:
+{
+    <"\\\r\n">           { image.setLength(image.length()-3); } : IN_BSTRING1NLC
+|   <("\\" ("\n"|"\r"))> { image.setLength(image.length()-2); } : IN_BSTRING1NLC
+}
+
+<IN_BSTRING21> MORE:
+{
+    <"\\\r\n">           { image.setLength(image.length()-3); } : IN_BSTRING2NLC
+|   <("\\" ("\n"|"\r"))> { image.setLength(image.length()-2); } : IN_BSTRING2NLC
+}
+
+<IN_FSTRING11> MORE:
+{
+    <"\\\r\n">           { image.setLength(image.length()-3); } : IN_FSTRING1NLC
+|   <("\\" ("\n"|"\r"))> { image.setLength(image.length()-2); } : IN_FSTRING1NLC
+}
+
+<IN_FSTRING21> MORE:
+{
+    <"\\\r\n">           { image.setLength(image.length()-3); } : IN_FSTRING2NLC
+|   <("\\" ("\n"|"\r"))> { image.setLength(image.length()-2); } : IN_FSTRING2NLC
+}
+
+<IN_STRING1NLC> MORE:
+{
+ <""> : IN_STRING11
+}
+
+<IN_STRING2NLC> MORE:
+{
+ <""> : IN_STRING21
+}
+
+<IN_USTRING1NLC> MORE:
+{
+ <""> : IN_USTRING11
+}
+
+<IN_USTRING2NLC> MORE:
+{
+ <""> : IN_USTRING21
+}
+
+<IN_BSTRING1NLC> MORE:
+{
+ <""> : IN_BSTRING11
+}
+
+<IN_BSTRING2NLC> MORE:
+{
+ <""> : IN_BSTRING21
+}
+
+<IN_FSTRING1NLC> MORE:
+{
+ <""> : IN_FSTRING11
+}
+
+<IN_FSTRING2NLC> MORE:
+{
+ <""> : IN_FSTRING21
+}
+
+<IN_STRING11, IN_USTRING11, IN_BSTRING11, IN_FSTRING11> MORE: { <("\\" ("\\"|"'")) | ~["\n","\r"]> }
+<IN_STRING21, IN_USTRING21, IN_BSTRING21, IN_FSTRING21> MORE: { <("\\" ("\\"|"\"")) | ~["\n","\r"]> }
+
+/* This is a test to see if we can make the loading of strings more efficient (and maybe replace the MORE that is declared below.
+I stopped this because I've seen that making the CharStream was apparently the number 1 thing to do, but it might be worth
+comming back to this approach later).
+<IN_STRING23> MORE:
+{
+    <~[]>
+    {
+         try {
+                 while(true){
+                         char c = input_stream.readChar();
+                         image.append(c);
+                         int len = image.length();
+                         if(len > 3 && image.charAt(len-3) == '"' && image.charAt(len-2) == '"'  && image.charAt(len-1) == '"' ){
+                                 input_stream.backup(3);
+                                 image.delete(image.length()-3, image.length());
+                                 break;
+                         }
+                 }
+         } catch (Exception e) {
+             throw new RuntimeException(e);
+         }
+    }
+}
+*/
+
+<IN_STRING13, IN_STRING23, IN_USTRING13, IN_USTRING23, IN_BSTRING13, IN_BSTRING23, IN_FSTRING13, IN_FSTRING23> MORE:
+{
+    <"\r\n"> {
+        int l = image.length();
+        image.setLength(l-1);
+        image.setCharAt(l-2, '\n');
+    }
+|   <"\n">
+|   <"\r"> { image.setCharAt(image.length()-1, '\n'); }
+|   <~["\n","\r"]>
+|   <"\\" ~["\n","\r"]>
+}
+
+
+$FILE_INPUT
+
+//eval_input: testlist NEWLINE* ENDMARKER
+Expr eval_input(): {}
+{
+    SmartTestList() (<NEWLINE>)* <EOF>
+    { return (Expr) jjtree.popNode(); }
+}
+
+
+//funcdef: 'def' NAME parameters ['->' test] ':' suite
+void funcdef(): {}
+{
+    $DEF_START parameters() [{grammarActions.addSpecialToken("->", STRATEGY_BEFORE_NEXT);}<MINUS_GREATER> test()#funcdef_return_annottation] $COLON
+        suite()
+}
+
+
+
+//decorators: decorator+
+//decorator: '@' dotted_name [ '(' [arglist] ')' ] NEWLINE
+void decorators(): {}
+{
+    (begin_decorator() [{grammarActions.markDecoratorWithCall();} <LPAREN>  {grammarActions.addSpecialToken("(", STRATEGY_BEFORE_NEXT);} [arglist()] $RPAREN ] $NEWLINE )+
+}
+
+
+void begin_decorator(): {}
+{ $AT dotted_name()
+}
+
+//parameters: '(' [typedargslist] ')'
+void parameters() #void:  {}
+{ $LPAREN2
+  [typedargslist()]
+  $RPAREN
+}
+
+// (
+//     tfpdef ['=' test]
+//     (
+//         ',' tfpdef ['=' test]
+//     )*
+//     [
+//         ',' [
+//             '*' [tfpdef] (',' tfpdef ['=' test])* [',' ['**' tfpdef [',']]]
+//             | '**' tfpdef [',']
+//             ]
+//     ]
+//     | '*' [tfpdef] (',' tfpdef ['=' test])* [',' ['**' tfpdef [',']]]  | '**' tfpdef [',']
+// )
+
+// aliases:
+//  - defaultarg2 is tfpdef ['=' test]
+//  - onlykeywordarg2 is tfpdef ['=' test]
+//  - ExtraArgList2 is '*' [tfpdef]
+//  - ExtraKeywordList2 is '**' tfpdef
+//
+// vesion replacing with our aliases
+//
+//
+// (
+//     defaultarg2
+//     (
+//         ',' defaultarg2
+//     )*
+//     [
+//         ',' [
+//            ExtraArgList2 (',' defaultarg2)* [',' [ExtraKeywordList2 [',']]]
+//             | ExtraKeywordList2 [',']
+//             ]
+//     ]
+//     |ExtraArgList2 (',' defaultarg2)* [',' [ExtraKeywordList2 [',']]]  | ExtraKeywordList2 [',']
+// )
+//
+void typedargslist() #void: {}
+{
+    (
+        (defaultarg2() (LOOKAHEAD(2)$COMMA defaultarg2())*)
+        [LOOKAHEAD(2)$COMMA
+            [
+                (ExtraArgList2() (
+                    LOOKAHEAD(2)$COMMA onlykeywordarg2()
+                )* [$COMMA [ExtraKeywordList2() [$COMMA]]])
+                |
+                (ExtraKeywordList2()) [$COMMA]
+            ]
+        ]
+    )
+    |
+    (ExtraArgList2() (LOOKAHEAD(2)$COMMA onlykeywordarg2())* [LOOKAHEAD(2)$COMMA [ExtraKeywordList2() [$COMMA]]])
+    |
+    ExtraKeywordList2() [$COMMA]
+}
+
+
+// '*' [tfpdef]
+void ExtraArgList2(): {}
+{
+    <MULTIPLY> {grammarActions.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} [tfpdef()]
+}
+
+// '**' tfpdef
+void ExtraKeywordList2(): {}
+{
+    <POWER> {grammarActions.addSpecialToken("**", STRATEGY_BEFORE_NEXT);} tfpdef()
+}
+
+// tfpdef ['=' test]
+void defaultarg2(): {}
+{ tfpdef() [temporaryToken=<EQUAL> {this.addSpecialToArgDef(temporaryToken);}  test()] }
+
+
+// same as defaultarg2 but in a different construct
+void onlykeywordarg2(): {}
+{ tfpdef() [temporaryToken=<EQUAL> {this.addSpecialToArgDef(temporaryToken);}  test()] }
+
+
+//tfpdef: NAME [':' test]
+void tfpdef(): {}
+{
+    Name() [LOOKAHEAD(2)<COLON> {grammarActions.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} test()]
+}
+
+
+// varargslist:
+// (
+//     vfpdef ['=' test]
+//     (
+//         ',' vfpdef ['=' test]
+//     )*
+//     [
+//         ','
+//         [
+//             '*' [vfpdef] (
+//                 ',' vfpdef ['=' test]
+//             )* [',' ['**' vfpdef [',']]]
+//             | '**' vfpdef [',']
+//         ]
+//     ]
+//     |
+//     '*' [vfpdef] (',' vfpdef ['=' test])* [',' ['**' vfpdef [',']]]
+//     |
+//     '**' vfpdef [',']
+// )
+// aliased:
+// defaultarg: vfpdef ['=' test]
+// onlykeywordarg: vfpdef ['=' test] (same but after a *)
+// ExtraKeywordList: '**' vfpdef
+// ExtraArgList: '*' [vfpdef]
+//
+//
+// (
+//     defaultarg
+//     (
+//         ',' defaultarg
+//     )*
+//     [
+//         ','
+//         [
+//             ExtraArgList (
+//                 ',' onlykeywordarg
+//             )* [',' [ExtraKeywordList [',']]]
+//             | ExtraKeywordList [',']
+//         ]
+//     ]
+//     |
+//     ExtraArgList (',' onlykeywordarg)* [',' [ExtraKeywordList [',']]]
+//     |
+//     ExtraKeywordList [',']
+// )
+
+void varargslist() #void: {}
+{
+    (
+        (defaultarg() (LOOKAHEAD(2)$COMMA defaultarg())*)
+        [LOOKAHEAD(2)$COMMA
+            [
+                (ExtraArgList() (
+                    LOOKAHEAD(2)$COMMA onlykeywordarg()
+                )* [$COMMA [ExtraKeywordList() [$COMMA]]])
+                |
+                (ExtraKeywordList()) [$COMMA]
+            ]
+        ]
+    )
+    |
+    (ExtraArgList() (LOOKAHEAD(2)$COMMA onlykeywordarg())* [LOOKAHEAD(2)$COMMA [ExtraKeywordList() [$COMMA]]])
+    |
+    ExtraKeywordList() [$COMMA]
+}
+
+void ExtraArgList(): {}
+{ <MULTIPLY> {grammarActions.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} [Name()] }
+
+void ExtraKeywordList(): {}
+{ (<POWER>{grammarActions.addSpecialToken("**", STRATEGY_BEFORE_NEXT);}|<MULTIPLY> {grammarActions.addSpecialToken("*", STRATEGY_BEFORE_NEXT);}{grammarActions.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} <MULTIPLY>) Name() }
+
+void onlykeywordarg(): {}
+{ fpdef() [temporaryToken=<EQUAL> {this.addSpecialToArgDef(temporaryToken);}  test()] }
+
+void defaultarg(): {}
+{ fpdef() [temporaryToken=<EQUAL> {this.addSpecialToArgDef(temporaryToken);}  test()] }
+
+//fpdef: NAME | '(' fplist ')'
+void fpdef() #void: {}
+{ Name() | $LPAREN1   fplist() $RPAREN  }
+
+//fplist: fpdef (',' fpdef)* [',']
+void fplist() #tuple: {}
+{ fpdef() (LOOKAHEAD(2) $COMMA fpdef())* [Comma()] }
+
+
+//stmt: simple_stmt | compound_stmt
+void stmt() #void: {}
+{
+        // Note: this is different from the Python AST because simple_stmt() can actually become Name() which can consume the <async> keyword...
+        // So, the async_stmt() was moved from the compound_stmt to the stmt() level to be processed first (as we have to find
+        // an async def/async with/ async for, while Name() would match the <async> in a single step).
+        LOOKAHEAD(2)
+
+        async_stmt()
+    |
+        non_async_stmt()
+}
+
+
+void non_async_stmt() #void: {}
+{
+        simple_stmt()
+    |
+        try{
+            compound_stmt()
+        }catch(ParseException e){
+            handleErrorInCompountStmt(e);
+        }
+
+}
+
+$SIMPLE_STMT
+
+
+//small_stmt: expr_stmt | del_stmt | pass_stmt | flow_stmt | import_stmt | global_stmt | nonlocal_stmt | assert_stmt
+void small_stmt() #void: {SimpleNode simpleNode;Token spStr;}
+{
+    expr_stmt()
+|   del_stmt()
+|   spStr = pass_stmt() {grammarActions.addToPeek(spStr, false); }
+|   flow_stmt()
+|   import_stmt()
+|   global_stmt()
+|   nonlocal_stmt()
+|   $CALL_ASSERT
+}
+
+// Note: we do 2 in one here
+// expr_stmt: testlist_star_expr (annassign | augassign (yield_expr|testlist) |
+//                      ('=' (yield_expr|testlist_star_expr))*)
+// augassign: ('+=' | '-=' | '*=' | '@=' | '/=' | '%=' | '&=' | '|=' | '^=' |
+void expr_stmt() #void: {}
+{
+    {grammarActions.pushStarExpr(Starred.Load);}testlist_star_expr(){grammarActions.popStarExpr();} (
+    annassign()                                      #ann_assign(jjtree.nodeArity()+1)
+|   <PLUSEQ>        (yield_expr()|SmartTestList())   #aug_plus(2)
+|   <MINUSEQ>       (yield_expr()|SmartTestList())   #aug_minus(2)
+|   <MULTIPLYEQ>    (yield_expr()|SmartTestList())   #aug_multiply(2)
+|   <DOTEQ>         (yield_expr()|SmartTestList())   #aug_dot(2)
+|   <DIVIDEEQ>      (yield_expr()|SmartTestList())   #aug_divide(2)
+|   <FLOORDIVIDEEQ> (yield_expr()|SmartTestList())   #aug_floordivide(2)
+|   <MODULOEQ>      (yield_expr()|SmartTestList())   #aug_modulo(2)
+|   <ANDEQ>         (yield_expr()|SmartTestList())   #aug_and(2)
+|   <OREQ>          (yield_expr()|SmartTestList())   #aug_or(2)
+|   <XOREQ>         (yield_expr()|SmartTestList())   #aug_xor(2)
+|   <LSHIFTEQ>      (yield_expr()|SmartTestList())   #aug_lshift(2)
+|   <RSHIFTEQ>      (yield_expr()|SmartTestList())   #aug_rshift(2)
+|   <POWEREQ>       (yield_expr()|SmartTestList())   #aug_power(2)
+|  (<EQUAL>         (yield_expr()| {grammarActions.pushStarExpr(Starred.Store);} testlist_star_expr() {grammarActions.popStarExpr();}))* #expr_stmt(jjtree.nodeArity()+1))
+
+}
+
+//annassign: ':' test ['=' test]
+void annassign() #void: {}
+{
+    <COLON> test() [<EQUAL> test()]
+}
+
+
+
+$DELL_STMT
+
+
+$PASS_STMT
+
+
+//flow_stmt: break_stmt | continue_stmt | return_stmt | yield_stmt | raise_stmt
+void flow_stmt() #void: {}
+{
+    <BREAK> {grammarActions.addToPeek("break",true);} #break_stmt(0)
+|   <CONTINUE>  {grammarActions.addToPeek("continue",true);} #continue_stmt(0)
+|   return_stmt()
+|   yield_stmt()
+|   raise_stmt()
+}
+
+//return_stmt: 'return' [testlist]
+void return_stmt(): {}
+{ begin_return_stmt() [SmartTestList()] }
+
+void begin_return_stmt(): {}
+{ <RETURN> {this.grammarActions.addToPeek("return ",false);}
+}
+
+
+//yield_stmt: yield_expr
+void yield_stmt(): {}
+{ yield_expr() }
+
+
+//Change in Python 3.3: yield from 'xxx'
+//yield_expr: 'yield' [yield_arg]
+void yield_expr(): {Token spStr; boolean isYieldFrom=false;}
+{ spStr=<YIELD> [isYieldFrom=yield_arg()]
+    {
+        Yield yield = (Yield)this.grammarActions.addToPeek(spStr, false, Yield.class);
+        if(yield != null){
+            yield.yield_from = isYieldFrom;
+        }
+    }
+}
+
+
+//yield_arg: 'from' test | testlist
+boolean yield_arg() #void: {}
+{ {boolean isYieldFrom;}
+  (
+  (<FROM> {grammarActions.addSpecialToken(" from ");isYieldFrom=true;} test())
+  |
+  SmartTestList(){isYieldFrom=false;}
+  )
+  {return isYieldFrom;}
+}
+
+
+
+//raise_stmt: 'raise' [test ['from' test]]
+void raise_stmt(): {}
+{ $RAISE [test() [{grammarActions.addSpecialToken(" from ");} <FROM> test()]] }
+
+
+$IMPORT_STMT
+
+
+Import Import(): {}
+{ dotted_as_name() ($COMMA dotted_as_name())*
+  {return (Import)jjtree.peekNode();}
+}
+
+//import_from: ('from' ('.'* dotted_name | '.'+)
+//              'import' ('*' | '(' import_as_names ')' | import_as_names))
+void ImportFrom(): { int level=0; int state=0;String fromName=null;String importName=null; }
+{
+    //we need to set the  $IMPORT in both otherwise the lookahead will not work as we want it to work
+    //because it confuses the import with the dotted name
+     (("." {level++;} )* (fromName=dotted_name())? )  {if(fromName==null && level==0){throw new ParseException("Expecting to find '.' or name in import.");}}
+     $IMPORT
+
+    (
+        //from xxx import *
+        <MULTIPLY> {grammarActions.addSpecialToken("*",STRATEGY_ADD_AFTER_PREV);}//from xx import *
+
+        //from xxx import a,b,c
+        | (importName=import_as_name() {if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);}
+            ($COMMA (importName=import_as_name()){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);})*
+          )
+
+        //from xxx import (a,b,c)
+        | $LPAREN1
+          (importName=import_as_name()){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);}
+          (
+           ({
+             if(state!=0){
+                 throw new ParseException("Invalid syntax: 2 commas cannot be grouped.", getToken(1));
+             }
+             state=1;
+             }
+             $COMMA ( {state=0;} (importName=import_as_name(){if(fromName != null && fromName.equals("__future__"))handleFutureImports(importName);}))? )*
+           $RPAREN
+          )
+    )
+    //now, let's set the correct level for the module
+    {grammarActions.setImportFromLevel(level);}
+}
+
+//dotted_as_name: dotted_name [NAME NAME]
+void dotted_as_name(): {}
+{ dotted_name() [$AS Name()] }
+
+$DOTTED_NAME
+
+//import_as_name: NAME [NAME NAME]
+String import_as_name(): { Token t; }
+{ t=Name() [$AS Name()] { return t.image; } }
+
+//global_stmt: 'global' NAME (',' NAME)*
+void global_stmt(): {}
+{ $GLOBAL Name() ($COMMA Name())* }
+
+
+//nonlocal_stmt: 'nonlocal' NAME (',' NAME)* [','] ['=' testlist]
+void nonlocal_stmt(): {}
+{ <NONLOCAL> {grammarActions.addSpecialToken("nonlocal ", STRATEGY_BEFORE_NEXT);} Name() (LOOKAHEAD(2)$COMMA Name())* [$COMMA] [$EQUAL2 testlist()]}
+
+
+$ASSERT
+
+
+//compound_stmt: if_stmt | while_stmt | for_stmt | try_stmt | with_stmt | funcdef | classdef | decorated | async_stmt
+void compound_stmt() #void : {}
+{
+    if_stmt() | while_stmt() | for_stmt() | try_stmt() | with_stmt() | funcdef() | classdef() | decorated()
+    // Note: async_stmt() moved to stmt to fix issue resolving async name/async statement.
+}
+
+//async_stmt: ASYNC (funcdef | with_stmt | for_stmt)
+void async_stmt() #void :{}
+{
+        {insideAsync += 1;}
+        try{
+            <ASYNC> (funcdef() | with_stmt() | for_stmt())
+        }finally{
+            insideAsync -= 1;
+        }
+}
+
+$IF
+
+
+void begin_elif_stmt(): {}
+{ <ELIF> {this.grammarActions.addToPeek("elif",false);}
+}
+
+$WHILE
+
+$BEGIN_ELSE
+
+
+//for_stmt: 'for' exprlist 'in' testlist ':' suite ['else' ':' suite]
+void for_stmt(): {}
+{   <FOR> {this.markLastAsSuiteStart();} {grammarActions.addSpecialTokenToLastOpened("for ");} {grammarActions.pushStarExpr(Starred.Store);}exprlist(){grammarActions.popStarExpr();} $IN SmartTestList() $COLON suite()
+    [begin_for_else_stmt() suite()]
+
+}
+
+
+void begin_for_else_stmt(): {}
+{ <ELSE> {grammarActions.addSpecialToken("else",STRATEGY_BEFORE_NEXT);} {grammarActions.addSpecialToken(":",STRATEGY_BEFORE_NEXT);} <COLON>
+}
+//try_stmt: ('try' ':' suite (except_clause ':' suite)+ #diagram:break
+//           ['else' ':' suite] | 'try' ':' suite 'finally' ':' suite)
+void try_stmt() #void: {SimpleNode tryNode;int i=0;}
+{
+    begin_try_stmt() {tryNode = (SimpleNode)jjtree.peekNode();}  suite() (
+        (
+            (except_clause(tryNode) {i++;})+
+
+            [begin_try_else_stmt() suite() {i++;} #tryelse_stmt(2) ]
+
+            [begin_finally_stmt()  suite() {i++;} #tryfinally_outer_stmt(2)]
+
+            #try_stmt(i)
+        )
+
+        | begin_finally_stmt() suite()
+            #tryfinally_stmt(jjtree.nodeArity()+1)
+    )
+}
+
+//this is the 'try' ':'  it is needed because we need that scope closing for getting the specials.
+void begin_try_stmt(): {}
+{ <TRY> {this.markLastAsSuiteStart();} {grammarActions.addSpecialToken("try", STRATEGY_BEFORE_NEXT);} {grammarActions.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} <COLON>
+}
+void begin_try_else_stmt(): {}
+{ <ELSE> {grammarActions.addSpecialToken("else", STRATEGY_BEFORE_NEXT);}{grammarActions.addSpecialToken(":", STRATEGY_BEFORE_NEXT);}<COLON>
+}
+
+void begin_finally_stmt(): {}
+{ <FINALLY> {grammarActions.addSpecialToken("finally", STRATEGY_BEFORE_NEXT);} {grammarActions.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} <COLON>
+}
+
+//except_clause: 'except' [test [as test]]
+void except_clause(SimpleNode tryNode): {}
+{ begin_except_clause() {this.grammarActions.addToPeek("except",false);} [test() [$AS test()]] $COLON suite() }
+
+void begin_except_clause(): {}
+{ <EXCEPT> }
+
+
+$PY3K_WITH_STMT
+
+
+$SUITE
+
+//test: or_test ['if' or_test 'else' test] | lambdef
+void test(): {}
+{  lambdef() | or_test() [if_exp()] }
+
+//test_nocond: or_test | lambdef_nocond
+void test_nocond() #void: {}
+{  or_test() | lambdef_nocond() }
+
+
+$IF_EXP
+
+//or_test: and_test ('or' and_test)*
+void or_test() #or_boolean(>1): {}
+{ and_test() (<OR_BOOL> and_test())* }
+
+
+//and_test: not_test ('and' not_test)*
+void and_test() #and_boolean(>1): {}
+{ not_test() (<AND_BOOL> not_test())* }
+
+//not_test: 'not' not_test | comparison
+void not_test() #void: {}
+{ <NOT_BOOL> not_test() #not_1op(1) | comparison() }
+
+//comparison: expr (comp_op expr)*
+void comparison() #void: {}
+{ (expr() (comp_op() expr())*) #comparision(>2) }
+
+
+//comp_op: '<'|'>'|'=='|'>='|'<='|'!='|'in'|'not' 'in'|'is'|'is' 'not'
+void comp_op() #void: {}
+{
+    <LESS> #less_cmp(0)
+|   <GREATER> #greater_cmp(0)
+|   <EQEQUAL> #equal_cmp(0)
+|   <EQGREATER> #greater_equal_cmp(0)
+|   <EQLESS> #less_equal_cmp(0)
+|   <NOTEQUAL> #notequal_cmp(0)
+|   <IN> #in_cmp(0)
+|   <NOT_BOOL> <IN> #not_in_cmp(0)
+|   LOOKAHEAD(2) <IS> <NOT_BOOL> #is_not_cmp(0)
+|   <IS> #is_cmp(0)
+}
+
+//expr: xor_expr ('|' xor_expr)*
+void expr() #void : {}
+{ xor_expr() (<OR> xor_expr() #or_2op(2))* }
+
+//xor_expr: and_expr ('^' and_expr)*
+void xor_expr() #void : {}
+{ and_expr() (<XOR> and_expr() #xor_2op(2))* }
+
+//and_expr: shift_expr ('&' shift_expr)*
+void and_expr() #void : {}
+{ shift_expr() (<AND> shift_expr() #and_2op(2))* }
+
+//shift_expr: arith_expr (('<<'|'>>') arith_expr)*
+void shift_expr() #void : {}
+{
+    arith_expr() (<LSHIFT> arith_expr() #lshift_2op(2)
+|   <RSHIFT> arith_expr() #rshift_2op(2) )*
+}
+
+//arith_expr: term (('+'|'-') term)*
+void arith_expr() #void : {}
+{
+    term() (<PLUS> term() #add_2op(2)
+|   <MINUS> term() #sub_2op(2) )*
+}
+
+//term: factor (('*'|'@'|'/'|'%'|'//') factor)*
+void term() #void : {}
+{
+    factor()  (
+            <MULTIPLY> factor() #mul_2op(2) // *
+        |   <AT> factor() #dot_2op(2) //@
+        |   <DIVIDE> factor() #div_2op(2) // /
+        |   <MODULO> factor() #mod_2op(2) // %
+        |   <FLOORDIVIDE> factor() #floordiv_2op(2) // //
+    )*
+}
+
+//factor: ('+'|'-'|'~') factor | power
+void factor() #void: {}
+{
+    <PLUS> factor() #pos_1op(1)
+|   <MINUS> factor() #neg_1op(1)
+|   <NOT> factor() #invert_1op(1)
+|   power()
+} /*Modified, no recursion*/
+
+//power: atom_expr ['**' factor]
+void power() #void: {}
+{ atom_expr() (LOOKAHEAD(2) <POWER> factor() #pow_2op(2))* }
+
+//atom_expr: [AWAIT] atom trailer*
+void atom_expr() #void: {}
+{
+    {
+        // getToken(1) just peeks the next token without consuming it.
+        Token t = getToken(1);
+        if(insideAsync != 0 && t != null && t.kind == AWAIT){
+            // The await statement is only valid inside an async block!
+            await_atom_expr();
+            return;
+        }
+    }
+    atom() (trailer())*
+}
+
+void await_atom_expr(): {Token spStr;}
+{
+    spStr=<AWAIT> atom() (trailer())*
+
+    {
+        this.grammarActions.addToPeek(spStr, false, Await.class);
+    }
+}
+
+//trailer: '(' [arglist] ')' | '[' subscriptlist ']' | '.' NAME
+void trailer() #void: {Object spStr;Object spStr2;}
+{
+
+    ({spStr  = grammarActions.createSpecialStr("(", false);} <LPAREN>
+    [arglist()]
+    <RPAREN> {spStr2 = grammarActions.createSpecialStr(")", false);}
+    )#Call_Op(jjtree.nodeArity()+1) {grammarActions.addToPeekCallFunc(spStr, true); grammarActions.addToPeek(spStr2, true);}
+
+
+|   ({spStr = grammarActions.createSpecialStr("[", false);} <LBRACKET>
+    subscriptlist()
+    <RBRACKET> {spStr2 = grammarActions.createSpecialStr("]", false);}
+    )#Index_Op(2) {grammarActions.addToPeek(spStr, false); grammarActions.addToPeek(spStr2, true);}
+
+|   <DOT> Name() #Dot_Op(2)
+}
+
+
+
+//atom: ('(' [yield_expr|testlist_comp] ')' |
+//       '[' [testlist_comp] ']' |
+//       '{' [dictorsetmaker] '}' |
+//       NAME | NUMBER | STRING+ | '...' | 'None' | 'True' | 'False')
+void atom() #void: {Object spStr;Object spStr2;}
+{
+    LOOKAHEAD(2) (
+      {spStr  = grammarActions.createSpecialStr("(", false);} <LPAREN>
+      {spStr2 = grammarActions.createSpecialStr(")", false);} <RPAREN>
+    ) #tuple {grammarActions.addToPeek(spStr, false); grammarActions.addToPeek(spStr2, true);}
+
+|   LOOKAHEAD(2) (
+      {spStr  = grammarActions.createSpecialStr("(", false);} <LPAREN>
+      (yield_expr() | testlist_comp())
+      {spStr2 = grammarActions.createSpecialStr(")", false);} <RPAREN>
+    ) #tuple {grammarActions.addToPeek(spStr, false); grammarActions.addToPeek(spStr2, true);}
+
+
+|   ( {spStr = grammarActions.createSpecialStr("[", false);} <LBRACKET>
+      [testlist_comp()]
+      {spStr2 = grammarActions.createSpecialStr("]", false);} <RBRACKET>
+    ) #list {grammarActions.addToPeek(spStr, false); grammarActions.addToPeek(spStr2, true);}
+
+
+|   ( {spStr  = grammarActions.createSpecialStr("{", false);}<LBRACE>
+      [dictorsetmaker()]
+      {spStr2  = grammarActions.createSpecialStr("}", false);} <RBRACE>
+    ) #dictionary {grammarActions.addToPeek(spStr, false); grammarActions.addToPeek(spStr2, true);}
+
+|   (<FALSE>)#False
+|   (<TRUE>)#True
+|   (<NONE>)#None
+|   (<DOT> <DOT> <DOT>)#Ellipsis_as_name
+|   Name()
+|   Number()
+|   String() (String() #strjoin(2))*
+}
+
+//lambdef: 'lambda' [varargslist] ':' test
+//we add the colon to the args if there is some argument... otherwise, we add it to the first token that appears on the test
+void lambdef():{boolean hasArgs=false;}
+{ <LAMBDA> [varargslist(){hasArgs=true;}] $LAMBDA_COLON test() }
+
+//lambdef_nocond: 'lambda' [varargslist] ':' test_nocond
+void lambdef_nocond():{boolean hasArgs=false;}
+{ <LAMBDA> [varargslist(){hasArgs=true;}] $LAMBDA_COLON test_nocond() }
+
+
+//subscriptlist: subscript (',' subscript)* [',']
+void subscriptlist() #void: {}
+{ (subscript() (LOOKAHEAD(2) $COMMA subscript())* [Comma()]) #subscriptlist(>1) }
+
+//subscript: '.' '.' '.' | test | [test] ':' [test] [sliceop]
+void subscript() #void: {}
+{
+    <DOT> <DOT> <DOT> #Ellipsis
+|   (test() (slice())?) #Slice
+|   slice() #Slice(>0)
+}
+
+
+$SLICE
+
+
+void Colon(): {} {{grammarActions.addSpecialToken(grammarActions.createSpecialStr(":", false), STRATEGY_BEFORE_NEXT);} <COLON> }
+void Comma(): {} {<COMMA>}
+
+//exprlist: expr (',' expr)* [',']
+void exprlist() #void: {}
+{ ((expr()|star_expr()) (LOOKAHEAD(2) $COMMA (expr()|star_expr()))* [Comma()]) #tuple(>1) }
+
+//testlist: test (',' test)* [',']
+void SmartTestList() #void: {}
+{ (test() (LOOKAHEAD(2) $COMMA test())* [Comma()]) #tuple(>1) }
+
+//testlist: test (',' test)* [',']
+void testlist() #void: {}
+{ test() (LOOKAHEAD(2) $COMMA test())* [$COMMA]}
+
+
+// testlist_star_expr: (test|star_expr) (',' (test|star_expr))* [',']
+void testlist_star_expr() #void: {}
+{ ( (test()|star_expr()) (LOOKAHEAD(2) $COMMA  (test()|star_expr()))* [Comma()]) #tuple(>1) }
+
+//star_expr: '*' expr
+void star_expr(): {}
+{<MULTIPLY> {grammarActions.addSpecialToken("*", STRATEGY_BEFORE_NEXT);} expr()}
+
+// dictorsetmaker:
+// (
+//     (
+//         (test ':' test | '**' expr)
+//         (comp_for | (',' (test ':' test | '**' expr))* [','])
+//     )
+// |
+//     (
+//         (test | star_expr)
+//         (comp_for | (',' (test | star_expr))* [','])
+//     )
+// )
+void dictorsetmaker() #void: {}
+{
+    // Note: we actually expand so that we have a match with test() and expand the set and dict variants for
+    // the first form so that there's only one single token at the beginning to match (test, '*' or '**').
+    (
+        test()
+        (
+            (
+                $COLON
+                try{
+                    test()
+                }catch(ParseException e){
+                    handleNoValInDict(e);
+                }
+                (
+                    comp_for()
+                    |
+                    (LOOKAHEAD(2) $COMMA ( (test()$COLON test())| (<POWER> expr())  ) )*[$COMMA]
+                )
+            )
+            |
+            (
+              (LOOKAHEAD(2) comp_for() | (LOOKAHEAD(2)$COMMA (test() | {grammarActions.pushStarExpr(Starred.Load);}star_expr(){grammarActions.popStarExpr();}))* #set) [$COMMA]
+            )
+        )
+    )
+    |
+    <POWER> expr()
+    (
+        //Note: repeat the final construct for the dict
+        comp_for()
+        |
+        (LOOKAHEAD(2) $COMMA ( (test()$COLON test())| (<POWER> expr())  ) )*[$COMMA]
+    )
+    |
+    {grammarActions.pushStarExpr(Starred.Load);}star_expr(){grammarActions.popStarExpr();}
+    (
+        //Note: repeat the final construct for the set
+        (LOOKAHEAD(2) comp_for() | (LOOKAHEAD(2)$COMMA (test() | {grammarActions.pushStarExpr(Starred.Load);}star_expr(){grammarActions.popStarExpr();}))* #set) [$COMMA]
+    )
+
+}
+
+
+
+
+// testlist_comp: (test|star_expr) ( comp_for | (',' (test|star_expr))* [','] )
+void testlist_comp() #void: {}
+{ (test()|{grammarActions.pushStarExpr(Starred.Load);}star_expr(){grammarActions.popStarExpr();}) ( LOOKAHEAD(2)(comp_for())+ | (LOOKAHEAD(2) $COMMA (test()|{grammarActions.pushStarExpr(Starred.Load);}star_expr(){grammarActions.popStarExpr();}))* [Comma()] #tuple(>1)) }
+
+
+//comp_iter: [comp_for | comp_if]
+void comp_iter() #void: {}
+{ comp_for() | comp_if() }
+
+//comp_for: 'for' exprlist 'in' or_test [comp_iter]
+void comp_for(): {}
+{ (<ASYNC>)? $FOR_COMP {grammarActions.pushStarExpr(Starred.Store);} exprlist() {grammarActions.popStarExpr();} $IN or_test() [comp_iter()] }
+
+//comp_if: 'if' test_nocond [comp_iter]
+void comp_if()#void:{}
+{ $IF_COMP test_nocond() [comp_iter()]}
+
+
+//decorated: decorators (classdef | funcdef | async_funcdef)
+void decorated():{}
+{
+    decorators() (classdef()|funcdef()|async_funcdef())
+}
+
+//async_funcdef: ASYNC funcdef
+void async_funcdef() #void : {}
+{
+    {insideAsync += 1;}
+    try{
+        <ASYNC> funcdef()
+    }finally{
+        insideAsync -= 1;
+    }
+}
+
+//classdef: 'class' NAME ['(' [arglist] ')'] ':' suite
+void classdef(): {Token spStr;Token spStr2;}
+{
+    $START_CLASS [$LPAREN3   [arglist()] $RPAREN ] $COLON
+        suite()
+}
+
+// arglist: argument (',' argument)*  [',']
+void arglist() #void: {}
+{
+    (argument() (LOOKAHEAD(2)$COMMA argument())*) [$COMMA]
+}
+
+
+void ExtraArgValueList(): {}
+{ {grammarActions.addSpecialToken(grammarActions.createSpecialStr("*", false));} <MULTIPLY> test() }
+
+void ExtraKeywordValueList(): {}
+{ {grammarActions.addSpecialToken(grammarActions.createSpecialStr("**", false));} <POWER> test() }
+
+
+// argument: ( test [comp_for] |
+//             test '=' test |
+//             '**' test |
+//             '*' test )
+//
+// aliases: Keyword = '=' test
+// note how it duplicates the test() for the comp_for or '=' test:
+// for us this is a problem, so, we create a construct such as:
+//
+// argument: ( (test ('=' test) | [comp_for])
+//             '**' test |
+//             '*' test )
+void argument(): {}
+{
+    (LOOKAHEAD(2)
+        (
+            test() (LOOKAHEAD(2)  (Keyword()) |  [comp_for()])
+        )
+        |
+        ExtraKeywordValueList()
+        |
+        ExtraArgValueList()
+    )
+}
+
+void Keyword() : {}
+{
+    $EQUAL test()
+}
+
+void Number() #Num :
+{
+    Token t;
+}
+{
+    (
+        t=<HEXNUMBER> {
+            grammarActions.makeIntSub2(t, 16, t, (Num)jjtThis);
+        } {}
+    )
+|    (
+        t=<BINNUMBER> {
+            grammarActions.makeIntSub2(t, 2, t, (Num)jjtThis);
+        } {}
+    )
+|   (
+        t=<OCTNUMBER> {
+            grammarActions.makeIntSub2(t, 8, t, (Num) jjtThis);
+        } {}
+    )
+|   (
+        t=<DECNUMBER> { grammarActions.makeInt(t, 10, t, (Num)jjtThis); } {}
+    )
+|   (
+        t=<FLOAT> { grammarActions.makeFloat(t, (Num)jjtThis); } {}
+    )
+|   (
+        t=<COMPLEX> { grammarActions.makeComplex(t, (Num)jjtThis); } {}
+    )
+}
+
+
+void Complex(): {}
+{ <FLOAT>   }
+
+
+Token Name() #Name:
+{
+    Token t;
+}
+{
+    try{
+        (
+            t = <NAME>
+         |
+            t = <ASYNC>
+         |
+            t = <AWAIT>
+        )
+    }catch(ParseException e){
+        t = handleErrorInName(e);
+    }
+
+
+        {
+        ((Name)jjtThis).id = t.image; return t;
+        }
+
+}
+
+
+void String() #void :
+{
+    Token t;
+}
+{
+    ( t=<SINGLE_STRING> { grammarActions.makeString(t, 1, (Str)jjtThis); } {} )#String
+|   ( t=<SINGLE_STRING2> { grammarActions.makeString(t, 1, (Str)jjtThis); } {} )#String
+|   ( t=<TRIPLE_STRING> { grammarActions.makeString(t, 3, (Str)jjtThis); } {} )#String
+|   ( t=<TRIPLE_STRING2> { grammarActions.makeString(t, 3, (Str)jjtThis); } {} )#String
+|   ( t=<SINGLE_USTRING> { grammarActions.makeString(t, 1, (Str)jjtThis); } {} )#Unicode
+|   ( t=<SINGLE_USTRING2> { grammarActions.makeString(t, 1, (Str)jjtThis); } {} )#Unicode
+|   ( t=<TRIPLE_USTRING> { grammarActions.makeString(t, 3, (Str)jjtThis); } {} )#Unicode
+|   ( t=<TRIPLE_USTRING2> { grammarActions.makeString(t, 3, (Str)jjtThis); } {} )#Unicode
+|   ( t=<SINGLE_BSTRING> { grammarActions.makeString(t, 1, (Str)jjtThis); } {} )#Binary
+|   ( t=<SINGLE_BSTRING2> { grammarActions.makeString(t, 1, (Str)jjtThis); } {} )#Binary
+|   ( t=<TRIPLE_BSTRING> { grammarActions.makeString(t, 3, (Str)jjtThis); } {} )#Binary
+|   ( t=<TRIPLE_BSTRING2> { grammarActions.makeString(t, 3, (Str)jjtThis); } {} )#Binary
+|   ( t=<SINGLE_FSTRING> { grammarActions.makeString(t, 1, (Str)jjtThis); } {} )#FString
+|   ( t=<SINGLE_FSTRING2> { grammarActions.makeString(t, 1, (Str)jjtThis); } {} )#FString
+|   ( t=<TRIPLE_FSTRING> { grammarActions.makeString(t, 3, (Str)jjtThis); } {} )#FString
+|   ( t=<TRIPLE_FSTRING2> { grammarActions.makeString(t, 3, (Str)jjtThis); } {} )#FString
+}
+

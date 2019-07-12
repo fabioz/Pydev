@@ -28,6 +28,7 @@ import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.ui.texteditor.IDocumentProvider;
+import org.python.pydev.ast.refactoring.RefactoringRequest;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
@@ -35,7 +36,6 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
 import org.python.pydev.editor.codefolding.PySourceViewer;
-import org.python.pydev.editor.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
@@ -44,8 +44,8 @@ import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.editor.BaseEditor;
 import org.python.pydev.shared_ui.mark_occurrences.BaseMarkOccurrencesJob;
 
+import com.python.pydev.analysis.refactoring.wizards.rename.PyReferenceSearcher;
 import com.python.pydev.refactoring.ui.MarkOccurrencesPreferencesPage;
-import com.python.pydev.refactoring.wizards.rename.PyReferenceSearcher;
 
 /**
  * This is a 'low-priority' thread. It acts as a singleton. Requests to mark the occurrences
@@ -116,7 +116,7 @@ public class MarkOccurrencesJob extends BaseMarkOccurrencesJob {
     @Override
     protected MarkOccurrencesRequest createRequest(BaseEditor baseEditor,
             IDocumentProvider documentProvider, IProgressMonitor monitor) throws BadLocationException,
-                    OperationCanceledException, CoreException, MisconfigurationException {
+            OperationCanceledException, CoreException, MisconfigurationException {
         if (!MarkOccurrencesPreferencesPage.useMarkOccurrences()) {
             return new PyMarkOccurrencesRequest(false, null, null);
         }
@@ -170,13 +170,13 @@ public class MarkOccurrencesJob extends BaseMarkOccurrencesJob {
     @Override
     protected synchronized Map<Annotation, Position> getAnnotationsToAddAsMap(final BaseEditor baseEditor,
             IAnnotationModel annotationModel, MarkOccurrencesRequest markOccurrencesRequest, IProgressMonitor monitor)
-                    throws BadLocationException {
+            throws BadLocationException {
         PyEdit pyEdit = (PyEdit) baseEditor;
         PySourceViewer viewer = pyEdit.getPySourceViewer();
         if (viewer == null || monitor.isCanceled()) {
             return null;
         }
-        if (viewer.getIsInToggleCompletionStyle() || monitor.isCanceled()) {
+        if (monitor.isCanceled()) {
             return null;
         }
 

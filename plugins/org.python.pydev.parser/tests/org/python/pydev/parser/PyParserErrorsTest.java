@@ -504,7 +504,7 @@ public class PyParserErrorsTest extends PyParserTestBase {
                         "print(('btt'), file=f)\n" +
                         "";
 
-                if (arg >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0) {
+                if (arg >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5) {
                     parseLegalDocStr(s);
 
                 } else {

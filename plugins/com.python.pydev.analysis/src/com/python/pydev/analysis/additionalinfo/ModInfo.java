@@ -6,7 +6,8 @@
  */
 package com.python.pydev.analysis.additionalinfo;
 
-import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.core.IPythonNature;
+import org.python.pydev.shared_core.string.FullRepIterable;
 
 /**
  * @author fabioz
@@ -16,12 +17,14 @@ public final class ModInfo extends AbstractInfo {
 
     private static final long serialVersionUID = 1L;
 
-    public ModInfo(String moduleDeclared) {
-        super(getNameFromModule(moduleDeclared), moduleDeclared, null);
+    public ModInfo(String moduleDeclared, IPythonNature nature, String file, int line, int col) {
+        super(getNameFromModule(moduleDeclared), moduleDeclared, null, nature, file, line, col);
     }
 
-    public ModInfo(String moduleDeclared, boolean doNotInternOnThisContstruct) {
-        super(getNameFromModule(moduleDeclared), moduleDeclared, null, doNotInternOnThisContstruct);
+    public ModInfo(String moduleDeclared, boolean doNotInternOnThisContstruct, IPythonNature nature, String file,
+            int line, int col) {
+        super(getNameFromModule(moduleDeclared), moduleDeclared, null, doNotInternOnThisContstruct, nature, file, line,
+                col);
     }
 
     private static String getNameFromModule(String moduleDeclared) {

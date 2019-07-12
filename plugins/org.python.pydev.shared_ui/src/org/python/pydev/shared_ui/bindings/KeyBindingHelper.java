@@ -80,7 +80,7 @@ public class KeyBindingHelper {
     }
 
     public static boolean matchesKeybinding(int keyCode, int stateMask, String commandId) {
-        final IBindingService bindingSvc = (IBindingService) PlatformUI.getWorkbench()
+        final IBindingService bindingSvc = PlatformUI.getWorkbench()
                 .getAdapter(IBindingService.class);
         TriggerSequence[] activeBindingsFor = bindingSvc.getActiveBindingsFor(commandId);
 
@@ -116,8 +116,13 @@ public class KeyBindingHelper {
      */
     public static KeySequence getCommandKeyBinding(String commandId) {
         Assert.isNotNull(commandId);
-        final IBindingService bindingSvc = (IBindingService) PlatformUI.getWorkbench()
-                .getAdapter(IBindingService.class);
+        IBindingService bindingSvc;
+        try {
+            bindingSvc = PlatformUI.getWorkbench()
+                    .getAdapter(IBindingService.class);
+        } catch (IllegalStateException e) {
+            return null;
+        }
 
         TriggerSequence keyBinding = bindingSvc.getBestActiveBindingFor(commandId);
         if (keyBinding instanceof KeySequence) {
@@ -150,7 +155,7 @@ public class KeyBindingHelper {
      * @param fActivateEditorBinding
      */
     public static void executeCommand(String commandId) {
-        IHandlerService handlerService = (IHandlerService) PlatformUI.getWorkbench().getService(IHandlerService.class);
+        IHandlerService handlerService = PlatformUI.getWorkbench().getService(IHandlerService.class);
         try {
             handlerService.executeCommand(commandId, null);
         } catch (Exception e) {

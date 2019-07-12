@@ -71,21 +71,23 @@ public class ProcessUtils {
                     interrupted = true;
                 }
             }
+            monitor.setTaskName("Process finished.");
 
             try {
-                //just to see if we get something after the process finishes (and let the other threads run).
-                Object sync = new Object();
-                synchronized (sync) {
-                    sync.wait(50);
-                }
-            } catch (Exception e) {
-                //ignore
+                std.join(1000); // An additional full second for the thread to finish getting the output
+            } catch (InterruptedException e1) {
+                Log.log(e1);
+            }
+            try {
+                err.join(1000); // An additional full second for the thread to finish getting the output
+            } catch (InterruptedException e1) {
+                Log.log(e1);
             }
             return new Tuple<String, String>(std.getContents(), err.getContents());
 
         } else {
             try {
-                throw new CoreException(new Status(IStatus.ERROR, SharedCorePlugin.PLUGIN_ID,
+                throw new CoreException(new Status(IStatus.ERROR, SharedCorePlugin.SHARED_CORE_PLUGIN_ID,
                         "Error creating process - got null process(" + executionString + ")", new Exception(
                                 "Error creating process - got null process.")));
             } catch (CoreException e) {
@@ -122,7 +124,8 @@ public class ProcessUtils {
     /**
      * @return a tuple with the process created and a string representation of the cmdarray.
      */
-    public static Tuple<Process, String> run(String[] cmdarray, String[] envp, File workingDir, IProgressMonitor monitor) {
+    public static Tuple<Process, String> run(String[] cmdarray, String[] envp, File workingDir,
+            IProgressMonitor monitor) {
         if (monitor == null) {
             monitor = new NullProgressMonitor();
         }
@@ -178,8 +181,7 @@ public class ProcessUtils {
             commandLine = newCommandLine;
         }
 
-        if (commandLine.length < 1)
-        {
+        if (commandLine.length < 1) {
             return ""; //$NON-NLS-1$
         }
         FastStringBuffer buf = new FastStringBuffer();
@@ -238,6 +240,13 @@ public class ProcessUtils {
      * Parses the given command line into separate arguments that can be passed to
      * <code>DebugPlugin.exec(String[], File)</code>. Embedded quotes and slashes
      * are escaped.
+     *
+     * Parses the argument text into an array of individual
+     * strings using the space character as the delimiter.
+     * An individual argument containing spaces must have a
+     * double quote (") at the start and end. Two double
+     * quotes together is taken to mean an embedded double
+     * quote in the argument text.
      *
      * @param args command line arguments as a single string
      * @return individual arguments

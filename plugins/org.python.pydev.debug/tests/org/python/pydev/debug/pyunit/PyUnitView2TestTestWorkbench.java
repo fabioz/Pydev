@@ -16,10 +16,10 @@ import org.eclipse.debug.core.ILaunchListener;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.swt.widgets.Tree;
+import org.python.pydev.ast.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
 import org.python.pydev.debug.pyunit.HistoryAction.HistoryMenuCreator;
 import org.python.pydev.debug.pyunit.HistoryAction.IActionsMenu;
 import org.python.pydev.debug.ui.launching.UnitTestLaunchShortcut;
-import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
 import org.python.pydev.shared_core.callbacks.ICallback;
 
 /**

@@ -17,6 +17,7 @@ import org.python.pydev.parser.jython.ast.Assert;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.AugAssign;
+import org.python.pydev.parser.jython.ast.Await;
 import org.python.pydev.parser.jython.ast.BinOp;
 import org.python.pydev.parser.jython.ast.BoolOp;
 import org.python.pydev.parser.jython.ast.Break;
@@ -460,6 +461,9 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     public Object visitWith(With node) throws Exception {
         startStatementPart();
         beforeNode(node);
+        if (node.async) {
+            doc.addRequire("async ", node);
+        }
         doc.addRequire("with", node);
         if (node.with_item != null) {
             for (int i = 0; i < node.with_item.length; i++) {
@@ -507,6 +511,9 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
 
         //a
         startStatementPart();
+        if (node.async) {
+            doc.addRequire("async ", node);
+        }
         doc.addRequire("for ", node); //Make the require with the final version of the "for " string.
         beforeNode(node);
 
@@ -749,6 +756,16 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         if (node.yield_from) {
             doc.addRequire("from", node);
         }
+        node.traverse(this);
+
+        afterNode(node);
+        return null;
+    }
+
+    @Override
+    public Object visitAwait(Await node) throws Exception {
+        beforeNode(node);
+        doc.addRequire("await", node);
         node.traverse(this);
 
         afterNode(node);
@@ -1090,6 +1107,9 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
             }
         }
         beforeNode(node);
+        if (node.async) {
+            doc.add(node.name.beginLine, node.beginColumn, "async ", node);
+        }
         doc.add(node.name.beginLine, node.beginColumn, "def", node);
         node.name.accept(this);
 

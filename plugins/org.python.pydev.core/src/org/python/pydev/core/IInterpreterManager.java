@@ -15,6 +15,7 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 
 /**
  * @author Fabio Zadrozny
@@ -49,7 +50,7 @@ public interface IInterpreterManager {
     /**
      * Constant for the default values
      */
-    public String IRONPYTHON_DEFAULT_INTERNAL_SHELL_VM_ARGS = "-X:Frames";
+    public String IRONPYTHON_DEFAULT_INTERNAL_SHELL_VM_ARGS = "-X:Frames -X:ExceptionDetail -X:ShowClrExceptions";
 
     public int INTERPRETER_TYPE_PYTHON = IPythonNature.INTERPRETER_TYPE_PYTHON;
     public int INTERPRETER_TYPE_JYTHON = IPythonNature.INTERPRETER_TYPE_JYTHON;
@@ -95,8 +96,9 @@ public interface IInterpreterManager {
     public IInterpreterInfo[] getInterpretersFromPersistedString(String persisted);
 
     /**
-     * All the information cached should be cleared but the information related to the passed interpreters
-     * @param interpreterNamesToRestore
+     * Sets the persisted information to match the passed infos (i.e.: order and interpreters available).
+     *
+     * Restores the in-memory PYTHONPATH information of the interpreterNamesToRestore.
      */
     public void setInfos(IInterpreterInfo[] infos, Set<String> interpreterNamesToRestore, IProgressMonitor monitor);
 
@@ -125,7 +127,7 @@ public interface IInterpreterManager {
     //caches for the builtin tokens and module
     public void clearBuiltinCompletions(String projectInterpreterName);
 
-    public IToken[] getBuiltinCompletions(String projectInterpreterName);
+    public TokensList getBuiltinCompletions(String projectInterpreterName);
 
     public IModule getBuiltinMod(String projectInterpreterName);
 

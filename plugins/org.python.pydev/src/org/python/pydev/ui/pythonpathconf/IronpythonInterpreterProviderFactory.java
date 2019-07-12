@@ -11,6 +11,9 @@
 ******************************************************************************/
 package org.python.pydev.ui.pythonpathconf;
 
+import org.python.pydev.ast.interpreter_managers.IInterpreterProvider;
+import org.python.pydev.ast.interpreter_managers.IInterpreterProviderFactory;
+
 public class IronpythonInterpreterProviderFactory extends AbstractInterpreterProviderFactory {
 
     @Override

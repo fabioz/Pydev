@@ -11,7 +11,7 @@
 ******************************************************************************/
 package org.python.pydev.editor;
 
-import org.eclipse.jface.text.rules.Token;
+import org.python.pydev.shared_core.partitioner.Token;
 import org.python.pydev.ui.ColorAndStyleCache;
 
 public class PyStringScanner extends AbstractStringScanner {

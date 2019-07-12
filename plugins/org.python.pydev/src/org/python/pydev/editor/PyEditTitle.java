@@ -46,6 +46,7 @@ import org.python.pydev.plugin.preferences.PyTitlePreferencesPage;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 /**
@@ -331,7 +332,7 @@ import org.python.pydev.shared_ui.utils.RunInUiThread;
         String lastSegment = path.lastSegment();
         if (lastSegment != null) {
             if (lastSegment.startsWith("__init__.")) {
-                Image initIcon = PyTitlePreferencesPage.getInitIcon();
+                Image initIcon = ImageCache.asImage(PyTitlePreferencesPage.getInitIcon());
                 if (initIcon != null) {
                     if (pyEdit != null) {
                         pyEdit.setEditorImage(initIcon);
@@ -350,7 +351,7 @@ import org.python.pydev.shared_ui.utils.RunInUiThread;
                     }
                     if (isDjangoHandledModule(PyTitlePreferencesPage.getDjangoModulesHandling(), editorInput,
                             lastSegment)) {
-                        Image image = PyTitlePreferencesPage.getDjangoModuleIcon(lastSegment);
+                        Image image = ImageCache.asImage(PyTitlePreferencesPage.getDjangoModuleIcon(lastSegment));
                         if (pyEdit != null) {
                             pyEdit.setEditorImage(image);
                         } else {

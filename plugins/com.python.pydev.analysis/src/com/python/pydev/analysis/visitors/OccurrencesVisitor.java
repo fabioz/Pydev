@@ -9,20 +9,33 @@
  */
 package com.python.pydev.analysis.visitors;
 
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.ast.analysis.IAnalysisPreferences;
+import org.python.pydev.ast.analysis.messages.IMessage;
+import org.python.pydev.ast.analysis.messages.Message;
+import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.ast.codecompletion.revisited.visitors.AbstractVisitor;
+import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
-import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
-import org.python.pydev.editor.codecompletion.revisited.visitors.Definition;
+import org.python.pydev.parser.IGrammar;
+import org.python.pydev.parser.IGrammar2;
+import org.python.pydev.parser.PyParser;
+import org.python.pydev.parser.fastparser.grammar_fstrings_common.FStringsAST;
+import org.python.pydev.parser.fastparser.grammar_fstrings_common.FStringsAST.FStringExpressionContent;
+import org.python.pydev.parser.grammar_fstrings.FStringsGrammar;
+import org.python.pydev.parser.jython.FastCharStream;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assert;
 import org.python.pydev.parser.jython.ast.Assign;
@@ -44,17 +57,17 @@ import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.While;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.decoratorsType;
+import org.python.pydev.parser.jython.ast.str_typeType;
 import org.python.pydev.shared_core.callbacks.ICallbackListener;
+import org.python.pydev.shared_core.model.ErrorDescription;
 import org.python.pydev.shared_core.structure.FastStack;
 import org.python.pydev.shared_core.structure.Tuple;
 
-import com.python.pydev.analysis.IAnalysisPreferences;
-import com.python.pydev.analysis.messages.IMessage;
 import com.python.pydev.analysis.scopeanalysis.AbstractScopeAnalyzerVisitor;
 
 /**
  * This visitor marks the used/ unused tokens and generates the messages related
- * 
+ *
  * @author Fabio
  */
 public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
@@ -80,17 +93,21 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
     private final ArgumentsChecker argumentsChecker;
 
     /**
-     * Determines whether we should check if function call arguments actually match the signature of the object being 
+     * Determines whether we should check if function call arguments actually match the signature of the object being
      * called.
      */
     private final boolean analyzeArgumentsMismatch;
+
+    private IAnalysisPreferences prefs;
 
     public OccurrencesVisitor(IPythonNature nature, String moduleName, IModule current, IAnalysisPreferences prefs,
             IDocument document, IProgressMonitor monitor) {
         super(nature, moduleName, current, document, monitor);
         this.messagesManager = new MessagesManager(prefs, moduleName, document);
+        this.prefs = prefs;
 
-        this.analyzeArgumentsMismatch = prefs.getSeverityForType(IAnalysisPreferences.TYPE_ARGUMENTS_MISATCH) > IMarker.SEVERITY_INFO; //Don't even run checks if we don't raise at least a warning.
+        this.analyzeArgumentsMismatch = prefs
+                .getSeverityForType(IAnalysisPreferences.TYPE_ARGUMENTS_MISATCH) > IMarker.SEVERITY_INFO; //Don't even run checks if we don't raise at least a warning.
         if (this.analyzeArgumentsMismatch) {
             this.argumentsChecker = new ArgumentsChecker(this);
         } else {
@@ -108,7 +125,7 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
     public Object visitCompare(Compare node) throws Exception {
         Object ret = super.visitCompare(node);
         if (isInTestScope == 0) {
-            SourceToken token = AbstractVisitor.makeToken(node, moduleName);
+            SourceToken token = AbstractVisitor.makeToken(node, moduleName, this.nature);
             messagesManager.addMessage(IAnalysisPreferences.TYPE_NO_EFFECT_STMT, token);
         }
         return ret;
@@ -124,8 +141,9 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
 
         if (node.body != null) {
             for (int i = 0; i < node.body.length; i++) {
-                if (node.body[i] != null)
+                if (node.body[i] != null) {
                     node.body[i].accept(this);
+                }
             }
         }
         if (node.orelse != null) {
@@ -151,12 +169,14 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
 
         if (node.body != null) {
             for (int i = 0; i < node.body.length; i++) {
-                if (node.body[i] != null)
+                if (node.body[i] != null) {
                     node.body[i].accept(this);
+                }
             }
         }
-        if (node.orelse != null)
+        if (node.orelse != null) {
             node.orelse.accept(this);
+        }
     }
 
     @Override
@@ -202,6 +222,118 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
             argumentsChecker.visitAssign(node);
         }
         return r;
+    }
+
+    @Override
+    public Object visitStr(Str node) throws Exception {
+        if (node.fstring) {
+            String s = node.s;
+            @SuppressWarnings("rawtypes")
+            List parseErrors = null;
+            int startInternalStrColOffset = 2; // +1 for 'f' and +1 for the quote.
+            if (node.raw) {
+                startInternalStrColOffset += 1;
+            }
+            if (node.unicode) {
+                startInternalStrColOffset += 1;
+            }
+            if (node.type == str_typeType.TripleDouble || node.type == str_typeType.TripleSingle) {
+                startInternalStrColOffset += 2;
+            }
+            FStringsAST ast = null;
+            if (s.trim().length() > 0) {
+                try {
+                    FastCharStream in = new FastCharStream(s.toCharArray());
+                    FStringsGrammar fStringsGrammar = new FStringsGrammar(in);
+                    ast = fStringsGrammar.f_string();
+                    //Note: we always try to generate a valid AST and get any errors in getParseErrors().
+                    parseErrors = fStringsGrammar.getParseErrors();
+                } catch (Throwable e) {
+                    parseErrors = Arrays.asList(e);
+                }
+            }
+
+            IDocument doc = new Document(s);
+            if (parseErrors != null && parseErrors.size() > 0) {
+                for (@SuppressWarnings("unchecked")
+                Iterator<Exception> iterator = parseErrors.iterator(); iterator.hasNext();) {
+                    Exception parserError = iterator.next();
+                    reportParserError(node, node.beginLine, node.beginColumn + startInternalStrColOffset, doc,
+                            parserError);
+                }
+            } else {
+                if (ast != null) {
+                    analyzeFStringAst(node, startInternalStrColOffset, ast, doc);
+                }
+            }
+        }
+        return super.visitStr(node);
+    }
+
+    private void analyzeFStringAst(Str node, int startInternalStrColOffset, FStringsAST ast, IDocument doc)
+            throws Exception {
+        for (FStringExpressionContent content : ast.getFStringExpressionsContent(doc)) {
+            Document contentDoc = new Document(content.string);
+
+            IGrammar grammar = PyParser.createGrammar(true, nature.getGrammarVersion(), content.string.toCharArray());
+            if (grammar instanceof IGrammar2) {
+                IGrammar2 iGrammar2 = (IGrammar2) grammar;
+                Throwable errorOnParsing = null;
+                Expr expr = null;
+                try {
+                    expr = iGrammar2.eval_input();
+                    errorOnParsing = grammar.getErrorOnParsing();
+                } catch (Throwable e) {
+                    errorOnParsing = e;
+                }
+                // -1 to account that content.beginLine is 1-based and node.beginLine is also 1-based
+                int startInternalStrLineOffset = content.beginLine + node.beginLine - 1;
+                int startInternalStrColOffset2 = content.beginLine == 1
+                        ? (startInternalStrColOffset + content.beginColumn + node.beginColumn - 1)
+                        : content.beginColumn;
+                if (errorOnParsing != null) {
+                    reportParserError(node, startInternalStrLineOffset,
+                            startInternalStrColOffset2,
+                            contentDoc,
+                            errorOnParsing);
+                } else if (expr != null) {
+                    // Note: we need to "fix" the nodes lines/columns so that they become part of the 'main' grammar.
+                    FixLinesVisitor fixLinesVisitor = new FixLinesVisitor(startInternalStrLineOffset - 1,
+                            startInternalStrColOffset2 - 1);
+                    expr.accept(fixLinesVisitor);
+                    expr.accept(this);
+                }
+            } else {
+                Log.log("Expected: " + grammar + " to implement IGrammar2.");
+            }
+        }
+    }
+
+    private void reportParserError(Str node, int startInternalStrLineOffset, int startInternalStrColOffset,
+            IDocument doc, Throwable parserError) {
+        ErrorDescription errorDescription = PyParser.createErrorDesc(parserError, doc);
+
+        //line
+        int errorDescriptionBeginLine = errorDescription.getBeginLine(doc);
+        int startLine = errorDescriptionBeginLine + startInternalStrLineOffset - 1; // -1 to account that startInternalStrLineOffset is 1-based and getBeginLine is also 1-based
+        int endLine = errorDescription.getEndLine(doc) + startInternalStrLineOffset - 1;
+
+        //col
+        int startCol = errorDescription.getBeginColumn(doc);
+        int endCol = errorDescription.getEndCol(doc);
+        if (errorDescriptionBeginLine == 1) {
+            startCol += startInternalStrColOffset;
+
+            if (startLine == endLine) {
+                endCol += startInternalStrColOffset;
+            }
+        }
+
+        Message message = new Message(IAnalysisPreferences.TYPE_FSTRING_SYNTAX_ERROR,
+                errorDescription.message, startLine, endLine, startCol, endCol, prefs);
+        messagesManager.addMessage(
+                AbstractVisitor.makeToken(node, this.moduleName, nature), message);
+
     }
 
     @Override
@@ -336,7 +468,7 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
                     Found f = list.get(i);
                     if (!f.isUsed()) {
                         // we don't get unused at the global scope or class definition scope unless it's an import
-                        if ((scopeType & Scope.ACCEPTED_METHOD_AND_LAMBDA) != 0 || f.isImport()) { //only within methods do we put things as unused 
+                        if ((scopeType & Scope.ACCEPTED_METHOD_AND_LAMBDA) != 0 || f.isImport()) { //only within methods do we put things as unused
                             messagesManager.addUnusedMessage(node, f);
                         }
                     }
@@ -346,7 +478,7 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
     }
 
     /**
-     * A method is virtual if it contains only raise and string statements 
+     * A method is virtual if it contains only raise and string statements
      */
     protected boolean isVirtual(FunctionDef node) {
         if (node.body != null) {
@@ -531,7 +663,8 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
                         Definition d = (Definition) iDefinition;
                         if (d.ast instanceof FunctionDef || d.ast instanceof ClassDef) {
                             SourceToken tok = AbstractVisitor.makeToken(d.ast, token.getRepresentation(),
-                                    d.module != null ? d.module.getName() : "");
+                                    d.module != null ? d.module.getName() : "",
+                                    d.module != null ? d.module.getNature() : null);
                             tok.setDefinition(d);
                             onPushToRecordedFounds(tok);
                             reportFound = false;
@@ -555,7 +688,7 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
                 SourceToken sourceToken = (SourceToken) tokenInNamesToIgnore;
                 //Make a new token because we want the ast to be the FunctionDef or ClassDef, not the name which is the reference.
                 onPushToRecordedFounds(AbstractVisitor.makeToken(sourceToken.getAst(), token.getRepresentation(),
-                        sourceToken.getParentPackage()));
+                        sourceToken.getParentPackage(), nature));
             }
         }
     }

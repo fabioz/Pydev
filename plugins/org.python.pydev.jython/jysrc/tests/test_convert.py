@@ -56,5 +56,5 @@ class Test(unittest.TestCase):
 #===================================================================================================
 if __name__ == '__main__':
     suite = unittest.makeSuite(Test)
-    unittest.TextTestRunner(verbosity=1).run(suite)
+    unittest.TextTestRunner(verbosity=3).run(suite)
 

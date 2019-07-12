@@ -9,12 +9,14 @@ public final class For extends stmtType {
     public exprType iter;
     public stmtType[] body;
     public suiteType orelse;
+    public boolean async;
 
-    public For(exprType target, exprType iter, stmtType[] body, suiteType orelse) {
+    public For(exprType target, exprType iter, stmtType[] body, suiteType orelse, boolean async) {
         this.target = target;
         this.iter = iter;
         this.body = body;
         this.orelse = orelse;
+        this.async = async;
     }
 
     @Override
@@ -25,70 +27,57 @@ public final class For extends stmtType {
         result = prime * result + ((iter == null) ? 0 : iter.hashCode());
         result = prime * result + Arrays.hashCode(body);
         result = prime * result + ((orelse == null) ? 0 : orelse.hashCode());
+        result = prime * result + (async ? 17 : 137);
         return result;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
         For other = (For) obj;
-        if (target == null) {
-            if (other.target != null)
-                return false;
-        } else if (!target.equals(other.target))
-            return false;
-        if (iter == null) {
-            if (other.iter != null)
-                return false;
-        } else if (!iter.equals(other.iter))
-            return false;
-        if (!Arrays.equals(body, other.body))
-            return false;
-        if (orelse == null) {
-            if (other.orelse != null)
-                return false;
-        } else if (!orelse.equals(other.orelse))
-            return false;
+        if (target == null) { if (other.target != null) return false;}
+        else if (!target.equals(other.target)) return false;
+        if (iter == null) { if (other.iter != null) return false;}
+        else if (!iter.equals(other.iter)) return false;
+        if (!Arrays.equals(body, other.body)) return false;
+        if (orelse == null) { if (other.orelse != null) return false;}
+        else if (!orelse.equals(other.orelse)) return false;
+        if(this.async != other.async) return false;
         return true;
     }
-
     @Override
     public For createCopy() {
         return createCopy(true);
     }
-
     @Override
     public For createCopy(boolean copyComments) {
         stmtType[] new0;
-        if (this.body != null) {
-            new0 = new stmtType[this.body.length];
-            for (int i = 0; i < this.body.length; i++) {
-                new0[i] = (stmtType) (this.body[i] != null ? this.body[i].createCopy(copyComments) : null);
-            }
-        } else {
+        if(this.body != null){
+        new0 = new stmtType[this.body.length];
+        for(int i=0;i<this.body.length;i++){
+            new0[i] = (stmtType) (this.body[i] != null? this.body[i].createCopy(copyComments):null);
+        }
+        }else{
             new0 = this.body;
         }
-        For temp = new For(target != null ? (exprType) target.createCopy(copyComments) : null,
-                iter != null ? (exprType) iter.createCopy(copyComments) : null, new0,
-                orelse != null ? (suiteType) orelse.createCopy(copyComments) : null);
+        For temp = new For(target!=null?(exprType)target.createCopy(copyComments):null,
+        iter!=null?(exprType)iter.createCopy(copyComments):null, new0,
+        orelse!=null?(suiteType)orelse.createCopy(copyComments):null, async);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if (this.specialsBefore != null && copyComments) {
-            for (Object o : this.specialsBefore) {
-                if (o instanceof commentType) {
+        if(this.specialsBefore != null && copyComments){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
                     commentType commentType = (commentType) o;
                     temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if (this.specialsAfter != null && copyComments) {
-            for (Object o : this.specialsAfter) {
-                if (o instanceof commentType) {
+        if(this.specialsAfter != null && copyComments){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
                     commentType commentType = (commentType) o;
                     temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }
@@ -111,6 +100,9 @@ public final class For extends stmtType {
         sb.append(", ");
         sb.append("orelse=");
         sb.append(dumpThis(this.orelse));
+        sb.append(", ");
+        sb.append("async=");
+        sb.append(dumpThis(this.async));
         sb.append("]");
         return sb.toString();
     }

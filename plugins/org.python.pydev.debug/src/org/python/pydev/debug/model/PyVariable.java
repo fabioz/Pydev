@@ -18,7 +18,6 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IVariable;
-import org.eclipse.ui.progress.IDeferredWorkbenchAdapter;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
 import org.python.pydev.debug.model.remote.ChangeVariableCommand;
@@ -36,13 +35,14 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
 
     protected String name;
     protected String type;
+    protected String qualifier;
     protected String value;
     protected AbstractDebugTarget target;
     protected boolean isModified;
     protected IVariableLocator locator;
 
     //Only create one instance of an empty array to be returned
-    private static final IVariable[] EMPTY_IVARIABLE_ARRAY = new IVariable[0];
+    static final IVariable[] EMPTY_IVARIABLE_ARRAY = new IVariable[0];
 
     public PyVariable(AbstractDebugTarget target, String name, String type, String value, IVariableLocator locator) {
         this.value = value;
@@ -57,6 +57,10 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
      * This is usually not set. It's only set on special cases where the variable must be accessed by the global objects list.
      */
     protected String id;
+
+    private boolean isReturnValue;
+    private boolean isIPythonHidden;
+    private boolean isErrorOnEval;
 
     /**
      * This method sets information about how this variable was found.
@@ -104,6 +108,11 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
             return "\"" + value + "\"";
         }
         return value;
+    }
+
+    public void copyValueString(PyVariable newVariable) {
+        this.type = newVariable.type;
+        this.value = newVariable.value;
     }
 
     @Override
@@ -194,11 +203,6 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
                 || adapter.equals(IResource.class) || adapter.equals(org.eclipse.core.resources.IFile.class)) {
             return super.getAdapter(adapter);
         }
-        // ongoing, I do not fully understand all the interfaces they'd like me to support
-        // so I print them out as errors
-        if (adapter.equals(IDeferredWorkbenchAdapter.class)) {
-            return (T) new DeferredWorkbenchAdapter(this);
-        }
 
         //cannot check for the actual interface because it may not be available on eclipse 3.2 (it's only available
         //from 3.3 onwards... and this is only a hack for it to work with eclipse 3.4)
@@ -232,6 +236,42 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
 
     public ChangeVariableCommand getChangeVariableCommand(AbstractDebugTarget dbg, String expression) {
         return new ChangeVariableCommand(dbg, getPyDBLocation(), expression);
+    }
+
+    public void forceGetNewVariables() {
+        //no-op for variable (only really available for PyVariableCollection).
+    }
+
+    public void setIsReturnValue(boolean isReturnValue) {
+        this.isReturnValue = isReturnValue;
+    }
+
+    public boolean isReturnValue() {
+        return isReturnValue;
+    }
+
+    public void setIsIPythonHidden(boolean isIPythonHidden) {
+        this.isIPythonHidden = isIPythonHidden;
+    }
+
+    public boolean isIPythonHidden() {
+        return isIPythonHidden;
+    }
+
+    public void setIsErrorOnEval(boolean isErrorOnEval) {
+        this.isErrorOnEval = isErrorOnEval;
+    }
+
+    public boolean isErrorOnEval() {
+        return isErrorOnEval;
+    }
+
+    public String getQualifier() {
+        return qualifier;
+    }
+
+    public void setQualifier(String qualifier) {
+        this.qualifier = qualifier;
     }
 
 }

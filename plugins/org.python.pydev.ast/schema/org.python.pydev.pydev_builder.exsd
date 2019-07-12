@@ -1,0 +1,109 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="org.python.pydev" xmlns="http://www.w3.org/2001/XMLSchema">
+<annotation>
+      <appInfo>
+         <meta.schema plugin="org.python.pydev" id="pydev_builder" name="org.python.pydev.pydev_builder"/>
+      </appInfo>
+      <documentation>
+         This extension point defines a class that should be called whenever a python file under the pythonpath is added, changed or removed.
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <annotation>
+         <appInfo>
+            <meta.element />
+         </appInfo>
+      </annotation>
+      <complexType>
+         <sequence>
+            <element ref="builder_participant" minOccurs="0" maxOccurs="unbounded"/>
+         </sequence>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  a fully qualified identifier of the target extension point
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  an optional identifier of the extension instance
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  an optional name of the extension instance
+               </documentation>
+               <appInfo>
+                  <meta.attribute translatable="true"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="builder_participant">
+      <complexType>
+         <sequence>
+         </sequence>
+         <attribute name="class" type="string" use="required">
+            <annotation>
+               <documentation>
+                  must subclass org.python.pydev.builder.PyDevBuilderVisitor
+               </documentation>
+               <appInfo>
+                  <meta.attribute kind="java" basedOn="org.python.pydev.ast.builder.PyDevBuilderVisitor:"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+
+   <annotation>
+      <appInfo>
+         <meta.section type="examples"/>
+      </appInfo>
+      <documentation>
+         &lt;br&gt;
+&amp;lt;extension point=&quot;org.python.pydev.pydev_builder&quot;&amp;gt;&lt;br&gt;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;lt;builder_participant class=&quot;my.pydev.Builder&quot;/&amp;gt;&lt;br&gt;
+&amp;lt;/extension&amp;gt;&lt;br&gt;
+&lt;br&gt;
+and my.pydev.Builder must subclass org.python.pydev.builder.PyDevBuilderVisitor&lt;br&gt;
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="apiInfo"/>
+      </appInfo>
+      <documentation>
+         The implementing class will be called whenever some python file is added, changed or removed from a file that is under the pythonpath for a project (python files outside the project pythonpath will not have this extension point called).&lt;br&gt;
+&lt;br&gt;
+For each of those actions, the following visitXXX method will be called in the visitor:&lt;br&gt;
+visitChangedResource&lt;br&gt;
+visitAddedResource (the default implementation calls visitChangedResource)&lt;br&gt;
+visitRemovedResource&lt;br&gt;
+&lt;br&gt;    
+The class may be instanced and called for many changes at once, and the methods:&lt;br&gt;
+visitingWillStart&lt;br&gt;
+visitingEnded&lt;br&gt;
+are called before any of those methods is called.&lt;br&gt;
+&lt;br&gt;
+If it should only be called for a number of resources (such as pylint, because it will spawn processes as a result of
+that), maxResourcesToVisit may be reimplemented to say the maximun amount of deltas so that this builder is activated.&lt;br&gt;
+&lt;br&gt;
+If an __init__.py file is removed or added, and the files beneath the parent folder should also be visited in this case, shouldVisitInitDependency can be reimplemented (because all the files beneath that folder may not be 
+in the pythonpath anymore, or all may be added at the same time).&lt;br&gt;
+      </documentation>
+   </annotation>
+
+
+
+</schema>

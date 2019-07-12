@@ -10,7 +10,8 @@ import java.lang.ref.WeakReference;
 
 import org.eclipse.jface.action.Action;
 import org.python.pydev.debug.core.PydevDebugPlugin;
-import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_core.image.UIConstants;
+import org.python.pydev.shared_ui.ImageCache;
 
 public class ShowOnlyFailuresAction extends Action {
 
@@ -19,7 +20,8 @@ public class ShowOnlyFailuresAction extends Action {
     public ShowOnlyFailuresAction(PyUnitView pyUnitView) {
         this.pyUnitView = new WeakReference<PyUnitView>(pyUnitView);
         this.setChecked(false);
-        this.setImageDescriptor(PydevDebugPlugin.getImageCache().getDescriptor(UIConstants.SHOW_ONLY_ERRORS));
+        this.setImageDescriptor(ImageCache
+                .asImageDescriptor(PydevDebugPlugin.getImageCache().getDescriptor(UIConstants.SHOW_ONLY_ERRORS)));
         this.setToolTipText("If pressed, shows only errors and failures");
     }
 

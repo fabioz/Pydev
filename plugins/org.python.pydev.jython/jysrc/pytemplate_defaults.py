@@ -23,6 +23,7 @@ context passed as parameter: org.python.pydev.editor.codecompletion.templates.Py
 '''
 
 import time
+
 import template_helper
 
 if False:
@@ -40,16 +41,6 @@ def _CreateSelection(context):
     selection = context.createPySelection()
     return selection
 
-
-#===================================================================================================
-# GetFile
-#===================================================================================================
-def GetFile(context):
-    return str(context.getEditorFile()).replace('\\', '/')
-
-template_helper.AddTemplateVariable(py_context_type, 'file', 'Full path for file', GetFile)
-
-
 #===================================================================================================
 # _IsGrammar3
 #===================================================================================================
@@ -60,41 +51,6 @@ def _IsGrammar3(context):
     if context.getGrammarVersion() >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0:
         return True
     return False
-
-#===================================================================================================
-# GetSpaceIfPy2
-#===================================================================================================
-def GetSpaceIfPy2(context):
-    if _IsGrammar3(context):
-        return ''
-
-    #if not 3, it's 2
-    return ' '
-
-template_helper.AddTemplateVariable(py_context_type, 'space_if_py2', 'Adds a space if python 2.', GetSpaceIfPy2)
-
-
-#===================================================================================================
-# GetRParenIfPy3
-#===================================================================================================
-def GetRParenIfPy3(context):
-    if _IsGrammar3(context):
-        return ')'
-
-    return ''
-
-template_helper.AddTemplateVariable(py_context_type, 'rparen_if_py3', 'Adds a ) if python 3.', GetRParenIfPy3)
-
-#===================================================================================================
-# GetLParenIfPy3
-#===================================================================================================
-def GetLParenIfPy3(context):
-    if _IsGrammar3(context):
-        return '('
-
-    return ''
-
-template_helper.AddTemplateVariable(py_context_type, 'lparen_if_py3', 'Adds a ( if python 3.', GetLParenIfPy3)
 
 
 #===============================================================================

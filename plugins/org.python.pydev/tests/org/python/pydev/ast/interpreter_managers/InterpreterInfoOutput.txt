@@ -1,0 +1,82 @@
+<xml>
+<version>2.7</version>
+<executable>D:\instação âo\Python27\python.exe</executable>
+<lib path="out">W:\pydev\plugins\org.python.pydev\pysrc</lib>
+<lib path="ins">D:\instação âo\Python27\lib\site-packages\pylint-0.25.1-py2.7.egg</lib>
+<lib path="ins">D:\instação âo\Python27\lib\site-packages\logilab_astng-0.23.1-py2.7.egg</lib>
+<lib path="ins">D:\instação âo\Python27\lib\site-packages\logilab_common-0.57.1-py2.7.egg</lib>
+<lib path="ins">D:\instação âo\Python27\lib\site-packages\ipython-0.12-py2.7.egg</lib>
+<lib path="ins">D:\instação âo\Python27\lib\site-packages\coverage-3.5.1-py2.7-win32.egg</lib>
+<lib path="ins">D:\instação âo\Python27\lib\site-packages\django-1.4-py2.7.egg</lib>
+<lib path="out">C:\Windows\system32\python27.zip</lib>
+<lib path="ins">D:\instação âo\Python27\DLLs</lib>
+<lib path="ins">D:\instação âo\Python27\lib</lib>
+<lib path="ins">D:\instação âo\Python27\lib\plat-win</lib>
+<lib path="ins">D:\instação âo\Python27\lib\lib-tk</lib>
+<lib path="ins">D:\instação âo\Python27</lib>
+<lib path="ins">D:\instação âo\Python27\lib\site-packages</lib>
+<forced_lib>__builtin__</forced_lib>
+<forced_lib>__main__</forced_lib>
+<forced_lib>_ast</forced_lib>
+<forced_lib>_bisect</forced_lib>
+<forced_lib>_codecs</forced_lib>
+<forced_lib>_codecs_cn</forced_lib>
+<forced_lib>_codecs_hk</forced_lib>
+<forced_lib>_codecs_iso2022</forced_lib>
+<forced_lib>_codecs_jp</forced_lib>
+<forced_lib>_codecs_kr</forced_lib>
+<forced_lib>_codecs_tw</forced_lib>
+<forced_lib>_collections</forced_lib>
+<forced_lib>_csv</forced_lib>
+<forced_lib>_functools</forced_lib>
+<forced_lib>_heapq</forced_lib>
+<forced_lib>_hotshot</forced_lib>
+<forced_lib>_io</forced_lib>
+<forced_lib>_json</forced_lib>
+<forced_lib>_locale</forced_lib>
+<forced_lib>_lsprof</forced_lib>
+<forced_lib>_md5</forced_lib>
+<forced_lib>_multibytecodec</forced_lib>
+<forced_lib>_random</forced_lib>
+<forced_lib>_sha</forced_lib>
+<forced_lib>_sha256</forced_lib>
+<forced_lib>_sha512</forced_lib>
+<forced_lib>_sre</forced_lib>
+<forced_lib>_struct</forced_lib>
+<forced_lib>_subprocess</forced_lib>
+<forced_lib>_symtable</forced_lib>
+<forced_lib>_warnings</forced_lib>
+<forced_lib>_weakref</forced_lib>
+<forced_lib>_winreg</forced_lib>
+<forced_lib>array</forced_lib>
+<forced_lib>audioop</forced_lib>
+<forced_lib>binascii</forced_lib>
+<forced_lib>cPickle</forced_lib>
+<forced_lib>cStringIO</forced_lib>
+<forced_lib>cmath</forced_lib>
+<forced_lib>datetime</forced_lib>
+<forced_lib>errno</forced_lib>
+<forced_lib>exceptions</forced_lib>
+<forced_lib>future_builtins</forced_lib>
+<forced_lib>gc</forced_lib>
+<forced_lib>imageop</forced_lib>
+<forced_lib>imp</forced_lib>
+<forced_lib>itertools</forced_lib>
+<forced_lib>marshal</forced_lib>
+<forced_lib>math</forced_lib>
+<forced_lib>mmap</forced_lib>
+<forced_lib>msvcrt</forced_lib>
+<forced_lib>multiprocessing</forced_lib>
+<forced_lib>nt</forced_lib>
+<forced_lib>operator</forced_lib>
+<forced_lib>parser</forced_lib>
+<forced_lib>signal</forced_lib>
+<forced_lib>ssl</forced_lib>
+<forced_lib>strop</forced_lib>
+<forced_lib>sys</forced_lib>
+<forced_lib>thread</forced_lib>
+<forced_lib>time</forced_lib>
+<forced_lib>xxsubtype</forced_lib>
+<forced_lib>zipimport</forced_lib>
+<forced_lib>zlib</forced_lib>
+</xml>

@@ -12,8 +12,8 @@
 * Contributors:
 *     Fabio Zadrozny <fabiofz@gmail.com> - initial implementation
 ******************************************************************************/
-/* 
- * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler 
+/*
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
  */
 
 package ch.hsr.ukistler.astgraph;
@@ -34,9 +34,9 @@ import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
 
 /**
  * Starts the parser and its visitor (GraphVisitor)
- * 
+ *
  * @author Ueli Kistler
- * 
+ *
  */
 public class ASTGraph {
 
@@ -57,7 +57,7 @@ public class ASTGraph {
 
         IDocument doc = new Document(source.toString());
         ParseOutput objects = PyParser.reparseDocument(new PyParser.ParserInfo(doc,
-                IPythonNature.LATEST_GRAMMAR_VERSION));
+                IPythonNature.LATEST_GRAMMAR_PY3_VERSION, null));
         if (objects.error != null) {
             throw objects.error;
         }

@@ -26,7 +26,7 @@ import org.python.pydev.shared_core.utils.internal.ProcessInfo;
 
 /*
  * This implementation uses the tasklist.exe from windows (must be on the path).
- * 
+ *
  * Use through PlatformUtils.
  */
 public class ProcessListWin32 implements IProcessList {
@@ -99,10 +99,17 @@ public class ProcessListWin32 implements IProcessList {
                 if (line.trim().length() == 0) {
                     continue;
                 }
-                String name = line.substring(0, commandLineI).trim();
-                String commandLine = line.substring(commandLineI, processIdI).trim();
-                String processId = line.substring(processIdI, line.length()).trim();
-                lst.add(new ProcessInfo(Integer.parseInt(processId), name + "   " + commandLine));
+                try {
+                    String name = line.substring(0, commandLineI).trim();
+                    String commandLine = line.substring(commandLineI, processIdI).trim();
+                    String processId = line.substring(processIdI, line.length()).trim();
+                    lst.add(new ProcessInfo(Integer.parseInt(processId), name + "   " + commandLine));
+                } catch (Exception e) {
+                    // This may happen if some command line is too big.
+                    // Log.log(StringUtils.format(
+                    //         "Error processing line: \n%s\ncommandLineI: %s\nprocessIdI: %s", line, commandLineI,
+                    //         processIdI), e);
+                }
             }
             if (lst.size() == 0) {
                 throw new AssertionError("Error: no processes found");

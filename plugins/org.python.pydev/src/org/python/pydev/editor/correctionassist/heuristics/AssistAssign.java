@@ -16,25 +16,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.source.ISourceViewer;
-import org.eclipse.swt.graphics.Image;
 import org.python.pydev.codingstd.ICodingStd;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codefolding.PySourceViewer;
+import org.python.pydev.editor.correctionassist.IAssistProps;
 import org.python.pydev.plugin.preferences.PyCodeStylePreferencesPage;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
+import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
+import org.python.pydev.shared_core.image.IImageCache;
+import org.python.pydev.shared_core.image.IImageHandle;
+import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
-import org.python.pydev.shared_ui.ImageCache;
-import org.python.pydev.shared_ui.UIConstants;
-import org.python.pydev.shared_ui.proposals.IPyCompletionProposal;
 
 /**
  * @author Fabio Zadrozny
@@ -58,7 +61,7 @@ public class AssistAssign implements IAssistProps {
         this.std = std;
     }
 
-    private Image getImage(ImageCache imageCache, String c) {
+    private IImageHandle getImage(IImageCache imageCache, String c) {
         if (imageCache != null) {
             return imageCache.get(c);
         }
@@ -66,14 +69,15 @@ public class AssistAssign implements IAssistProps {
     }
 
     /**
-     * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#getProps
+     * @see org.python.pydev.editor.correctionassist.IAssistProps#getProps
      */
     @Override
-    public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, File f, IPythonNature nature,
-            PyEdit edit, int offset) throws BadLocationException {
+    public List<ICompletionProposalHandle> getProps(PySelection ps, IImageCache imageCache, File f,
+            IPythonNature nature,
+            IPyEdit edit, int offset) throws BadLocationException {
         PySourceViewer viewer = null;
         if (edit != null) { //only in tests it's actually null
-            viewer = edit.getPySourceViewer();
+            viewer = ((PyEdit) edit).getPySourceViewer();
         }
 
         return this.getProps(ps, imageCache, viewer, offset, PyAction.getLineWithoutComments(ps),
@@ -82,15 +86,15 @@ public class AssistAssign implements IAssistProps {
 
     /**
      * Actual implementation (receiving a source viewer and only the actually used parameters).
-     * 
-     * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#getProps
-     * 
+     *
+     * @see org.python.pydev.editor.correctionassist.IAssistProps#getProps
+     *
      * @param lineWithoutComments the line that should be checked (without any comments)
      */
-    public List<ICompletionProposal> getProps(PySelection ps, ImageCache imageCache, ISourceViewer sourceViewer,
+    public List<ICompletionProposalHandle> getProps(PySelection ps, IImageCache imageCache, ISourceViewer sourceViewer,
             int offset, String lineWithoutComments, int firstCharAbsolutePosition) throws BadLocationException {
 
-        List<ICompletionProposal> l = new ArrayList<ICompletionProposal>();
+        List<ICompletionProposalHandle> l = new ArrayList<>();
         if (lineWithoutComments.trim().length() == 0) {
             return l;
         }
@@ -139,13 +143,17 @@ public class AssistAssign implements IAssistProps {
         if (loc.startsWith("_")) {
             loc = loc.substring(1);
         }
-        l.add(new AssistAssignCompletionProposal(loc + " = ", firstCharAbsolutePosition, 0, 0, getImage(imageCache,
-                UIConstants.ASSIST_ASSIGN_TO_LOCAL), "Assign to local (" + loc + ")", null, null,
-                IPyCompletionProposal.PRIORITY_DEFAULT, sourceViewer));
+        l.add(CompletionProposalFactory.get().createAssistAssignCompletionProposal(loc + " = ",
+                firstCharAbsolutePosition, 0, 0, getImage(imageCache,
+                        UIConstants.ASSIST_ASSIGN_TO_LOCAL),
+                "Assign to local (" + loc + ")", null, null, IPyCompletionProposal.PRIORITY_DEFAULT, sourceViewer,
+                null));
 
-        l.add(new AssistAssignCompletionProposal("self." + callName + " = ", firstCharAbsolutePosition, 0, 5, getImage(
-                imageCache, UIConstants.ASSIST_ASSIGN_TO_CLASS), "Assign to field (self." + callName + ")", null, null,
-                IPyCompletionProposal.PRIORITY_DEFAULT, sourceViewer));
+        l.add(CompletionProposalFactory.get().createAssistAssignCompletionProposal("self." + callName + " = ",
+                firstCharAbsolutePosition, 0, 5, getImage(
+                        imageCache, UIConstants.ASSIST_ASSIGN_TO_CLASS),
+                "Assign to field (self." + callName + ")", null, null, IPyCompletionProposal.PRIORITY_DEFAULT,
+                sourceViewer, null));
         return l;
     }
 
@@ -159,15 +167,15 @@ public class AssistAssign implements IAssistProps {
     }
 
     /**
-     * @see org.python.pydev.editor.correctionassist.heuristics.IAssistProps#isValid
+     * @see org.python.pydev.editor.correctionassist.IAssistProps#isValid
      */
     @Override
-    public boolean isValid(PySelection ps, String sel, PyEdit edit, int offset) {
+    public boolean isValid(PySelection ps, String sel, IPyEdit edit, int offset) {
         return isValid(ps.getTextSelection().getLength(), sel, offset);
     }
 
     /**
-     * @param selectionLength the length of the currently selected text 
+     * @param selectionLength the length of the currently selected text
      * @param lineContents the contents of the line
      * @param offset the offset of the cursor
      * @return true if an assign is available and false otherwise

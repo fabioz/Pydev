@@ -15,8 +15,8 @@ import java.util.HashMap;
 
 import org.eclipse.jface.text.templates.GlobalTemplateVariables;
 import org.eclipse.jface.text.templates.TemplateContextType;
-import org.python.pydev.jython.IPythonInterpreter;
 import org.python.pydev.jython.JythonPlugin;
+import org.python.pydev.shared_core.jython.IPythonInterpreter;
 
 /**
  * @author Fabio Zadrozny
@@ -58,6 +58,7 @@ public class PyContextType extends TemplateContextType {
         addResolver(new GlobalTemplateVariables.Time());
         addResolver(new GlobalTemplateVariables.User());
 
+        PyContextTypeVariables.addResolvers(this);
         HashMap<String, Object> locals = new HashMap<String, Object>();
         locals.put("py_context_type", this);
 

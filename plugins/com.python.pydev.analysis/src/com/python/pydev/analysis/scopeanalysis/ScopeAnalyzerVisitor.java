@@ -18,20 +18,20 @@ import java.util.Set;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.ast.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
-import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
 import org.python.pydev.shared_core.structure.Tuple4;
@@ -125,7 +125,7 @@ public class ScopeAnalyzerVisitor extends ScopeAnalyzerVisitorWithoutImports {
                 importTok.beginColumn = tokModName.beginColumn;
 
                 List<IToken> createdTokens = AbstractVisitor.makeImportToken(importTok, null, this.current.getName(),
-                        true);
+                        true, this.current.getNature());
                 for (IToken token : createdTokens) {
                     ImportInfo info = this.scope.importChecker.visitImportToken(token, false, this.completionCache);
                     Found found = new Found(token, token, scope.getCurrScopeId(), scope.getCurrScopeItems());

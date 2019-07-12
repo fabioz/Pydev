@@ -43,7 +43,7 @@ public class PyThread extends PlatformObject implements IThread {
     private final boolean isPydevThread;
 
     /**
-     * A custom frame is one that's added programatically (such as a tasklet).
+     * A custom frame is one that's added programmatically (such as a tasklet).
      */
     public final boolean isCustomFrame;
 
@@ -64,7 +64,12 @@ public class PyThread extends PlatformObject implements IThread {
      */
     public void setSuspended(boolean state, IStackFrame[] stack) {
         isSuspended = state;
-        this.stack = stack;
+        if (stack != null) {
+            // Only save the stack when it's paused (otherwise, it should be null, but we
+            // don't want to reset it because we want to reuse the stack later on so that
+            // the expanded state in the tree is properly kept).
+            this.stack = stack;
+        }
     }
 
     @Override
@@ -133,7 +138,6 @@ public class PyThread extends PlatformObject implements IThread {
     @Override
     public void resume() throws DebugException {
         if (!isPydevThread) {
-            stack = null;
             isStepping = false;
             target.postCommand(new ThreadRunCommand(target, id));
         }
@@ -142,7 +146,6 @@ public class PyThread extends PlatformObject implements IThread {
     @Override
     public void suspend() throws DebugException {
         if (!isPydevThread) {
-            stack = null;
             target.postCommand(new ThreadSuspendCommand(target, id));
         }
     }
@@ -226,7 +229,6 @@ public class PyThread extends PlatformObject implements IThread {
             for (int i = 0; i < stack.length; i++) {
 
                 if (id.equals(((PyStackFrame) stack[i]).getId())) {
-
                     return (PyStackFrame) stack[i];
                 }
             }

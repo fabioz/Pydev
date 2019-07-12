@@ -4,6 +4,40 @@
    <extension-point id="pydev_debug_console_input_listener" name="pydev_debug_console_input_listener" schema="schema/pydev_debug_console_input_listener.exsd"/>
    <extension-point id="pydev_debug_command_line_participant" name="pydev_debug_command_line_participant" schema="schema/pydev_debug_command_line_participant.exsd"/>
 
+<extension
+      point="org.eclipse.ui.console.consolePageParticipants">
+   <consolePageParticipant
+         class="org.python.pydev.debug.console_actions.ConsoleRestartLaunchPageParticipant"
+         id="org.python.pydev.debug.console_actions.ConsoleRestartLaunchPageParticipant">
+      <enablement></enablement>
+   </consolePageParticipant>
+</extension>
+
+<!-- Have an instance observing all the PyEdit editors -->
+   <extension point="org.python.pydev.pydev_pyedit_listener">
+  		<pyedit_listener_participant class="com.python.pydev.interactiveconsole.EvaluateActionSetter"/>
+   </extension>
+
+<!-- command: activate interactive console-->
+   <extension point="org.eclipse.ui.commands">
+      <command
+            description="Activates the interactive console."
+            id="org.python.pydev.interactiveconsole.evaluateActionSetter"
+            categoryId="org.python.pydev.ui.category.source"
+            name="Interactive Console">
+      </command>
+   </extension>
+<!-- binding: activate interactive console-->
+   <extension point="org.eclipse.ui.bindings">
+      <key
+            sequence="M1+M3+Enter"
+            contextId="org.python.pydev.ui.editor.scope"
+            commandId="org.python.pydev.interactiveconsole.evaluateActionSetter"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+   </extension>
+
+
 <!--- run keybindings -->
 <extension point="org.eclipse.ui.editorActions">
 <editorContribution
@@ -30,13 +64,13 @@
      <action
            definitionId="org.python.pydev.debug.ui.actions.relaunchLastAction"
            label="Relaunch last pydev launch"
-           class="org.python.pydev.shared_ui.debug.RelaunchLastAction"
+           class="org.python.pydev.debug.console_actions.RelaunchLastAction"
            id="org.python.pydev.debug.ui.actions.relaunchLastAction">
      </action>
      <action
            definitionId="org.python.pydev.debug.ui.actions.terminateAllLaunchesAction"
            label="Terminate all launches"
-           class="org.python.pydev.shared_ui.debug.TerminateAllLaunchesAction"
+           class="org.python.pydev.debug.console_actions.TerminateAllLaunchesAction"
            id="org.python.pydev.debug.ui.actions.terminateAllLaunchesAction">
      </action>
 </editorContribution>
@@ -78,7 +112,12 @@
             categoryId="org.python.pydev.ui.category.run"
             name="Terminate all launches">
       </command>
-	  <command id="org.python.pydev.debug.command.Display" name="Display Command">
+	  <command
+            description="Display text evaluation from debugger"
+	        id="org.python.pydev.debug.command.Display"
+            categoryId="org.python.pydev.ui.category.run"
+	  	    name="Display text evaluation from debugger"
+	  	    >
       </command>
 </extension>
 
@@ -471,7 +510,7 @@
         class="org.python.pydev.debug.profile.ProfileView"
         icon="icons/python_profile.png"
         category="org.python.pydev"
-        name="Profile"
+        name="Profile (PyVmMonitor)"
         id="org.python.pydev.debug.profile.ProfileView"/>
    <view
          class="org.python.pydev.debug.referrers.ReferrersView"
@@ -590,12 +629,12 @@
  <objectContribution
        adaptable="false"
        id="org.python.pydev.debug.PythonBreakPointActions"
-       objectClass="org.python.pydev.debug.core.IPythonBreakpoint">
+       objectClass="org.python.pydev.debug.model.PyBreakpoint">
     <action
           class="org.python.pydev.debug.ui.actions.PythonBreakpointPropertiesRulerAction"
           enablesFor="1"
           helpContextId="breakpoint_suspend_policy_toggle_action_context"
-          icon="icons/full/elcl16/suspend_co.gif"
+          icon="icons/breakmarker_conditional.gif"
           id="org.python.pydev.debug.PythonBreakpointProperties"
           label="%breakpointPropertiesAction.label"
           menubarPath="emptyBreakpointGroup"/>
@@ -701,7 +740,13 @@
 
 <extension point="org.eclipse.ui.preferencePages">
       <page
-            name="Run/Debug"
+            name="Run"
+            category="org.python.pydev.prefs"
+            class="org.python.pydev.debug.ui.RunPreferencesPage"
+            id="org.python.pydev.prefs.runPage">
+      </page>
+      <page
+            name="Debug"
             category="org.python.pydev.prefs"
             class="org.python.pydev.debug.ui.DebugPrefsPage"
             id="org.python.pydev.prefs.debugPage">
@@ -794,6 +839,9 @@
          <factory class="org.python.pydev.debug.ui.PyToggleTargetAdapter" adaptableType="org.python.pydev.shared_ui.editor.BaseEditor">
 			<adapter type="org.eclipse.debug.ui.actions.IToggleBreakpointsTarget"/>
          </factory>
+         <factory class="org.python.pydev.debug.ui.PyToggleTargetAdapter" adaptableType="org.brainwy.liclipsetext.editor.common.BaseLiClipseEditor">
+			<adapter type="org.eclipse.debug.ui.actions.IToggleBreakpointsTarget"/>
+         </factory>
     </extension>
 
    <extension
@@ -859,12 +907,29 @@
          </command>
       </menuContribution>
       <menuContribution
-  		locationURI="toolbar:org.eclipse.debug.ui.DebugView?after=emptyStepGroup">
+  		locationURI="toolbar:org.eclipse.debug.ui.DebugView?after=stepReturnGroup">
   		<command
            commandId="org.python.pydev.debug.setnext"
            disabledIcon="icons/setnext_co_dis.gif"
            icon="icons/setnext_co.gif"
            id="org.python.pydev.debug.toolbar.view.setnext">
+           <!--
+           Note: putting the visibleWhen below *should* work to hide the set next, but it doesn't really work
+           (and I don't really know why).
+           See: https://github.com/eclipse/cdt/blob/bfea9deb90ae1e5c8b419386050eb48a455b60dd/dsf-gdb/org.eclipse.cdt.examples.dsf.gdb/plugin.xml#L107
+
+            <visibleWhen checkEnabled="false">
+               <and>
+                  <systemTest property="org.eclipse.debug.ui.debugViewToolbarVisible" value="true"/>
+                  <with variable="org.eclipse.core.runtime.Platform">
+                     <test property="org.eclipse.core.runtime.bundleState"
+                        args="org.python.pydev.debug"
+                        value="ACTIVE">
+                     </test>
+                  </with>
+               </and>
+            </visibleWhen>
+           -->
          </command>
       </menuContribution>
       <menuContribution
@@ -883,7 +948,7 @@
    </extension>
    <extension point="org.eclipse.ui.actionSets">
 	<actionSet
-		id="org.eclipse.debug.ui.debugActionSet"
+		id="org.python.pydev.debug.debugActionSet"
 		label="PyDev Set Next Statement">
 		<action
            id="org.eclipse.debug.ui.actions.SetNextStatement"
@@ -1362,7 +1427,7 @@
             id="org.python.pydev.debug.ui.hover.PyDebugHover"
             label="PyDev Debug Hover"
             preempt="false"
-            priority="100">
+            priority="50">
       </pyTextHover>
    </extension>
 

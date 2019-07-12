@@ -96,7 +96,7 @@ public class SelectElementDialog extends ElementListSelectionDialog {
         return new Point(300, 300);
     }
 
-    public static String selectOne(List<String> items, LabelProvider labelProvider, String message) {
+    public static <T> T selectOne(List<T> items, LabelProvider labelProvider, String message) {
         Shell activeShell = Display.getCurrent().getActiveShell();
 
         SelectElementDialog dialog = new SelectElementDialog(activeShell, labelProvider);
@@ -107,7 +107,32 @@ public class SelectElementDialog extends ElementListSelectionDialog {
 
         int returnCode = dialog.open();
         if (returnCode == Window.OK) {
-            return (String) dialog.getFirstResult();
+            return (T) dialog.getFirstResult();
+        }
+        return null;
+
+    }
+
+    public static String[] selectMulti(List<String> items, LabelProvider labelProvider, String message) {
+        Shell activeShell = Display.getCurrent().getActiveShell();
+
+        SelectElementDialog dialog = new SelectElementDialog(activeShell, labelProvider);
+        dialog.setTitle("Select (multiple)");
+        dialog.setMessage(message);
+        dialog.setElements(items.toArray());
+        dialog.setMultipleSelection(true);
+
+        int returnCode = dialog.open();
+        if (returnCode == Window.OK) {
+            Object[] selectedElements = dialog.getResult();
+            if (selectedElements == null) {
+                return null;
+            }
+            String[] ret = new String[selectedElements.length];
+            for (int i = 0; i < selectedElements.length; i++) {
+                ret[i] = selectedElements[i].toString();
+            }
+            return ret;
         }
         return null;
 

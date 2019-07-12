@@ -6,7 +6,7 @@
  */
 /*
  * Created on Sep 13, 2005
- * 
+ *
  * @author Fabio Zadrozny
  */
 package com.python.pydev.analysis.additionalinfo;
@@ -20,15 +20,18 @@ import java.util.Set;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.plugin.nature.SystemPythonNature;
+import org.python.pydev.shared_core.global_feedback.GlobalFeedback;
+import org.python.pydev.shared_core.global_feedback.GlobalFeedback.GlobalFeedbackReporter;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.ui.interpreters.PythonInterpreterManager;
-import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 
 import com.python.pydev.analysis.AnalysisPlugin;
 
@@ -47,6 +50,7 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithB
     private final File persistingFolder;
 
     private final File persistingLocation;
+    private IPythonNature nature;
 
     public IInterpreterManager getManager() {
         return manager;
@@ -61,9 +65,14 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithB
         return manager != null ? manager.getManagerRelatedName() : "Unknown manager";
     }
 
+    @Override
+    protected IPythonNature getNature() {
+        return nature;
+    }
+
     /**
      * @return the path to the folder we want to keep things on
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     @Override
     protected File getPersistingFolder() {
@@ -94,9 +103,15 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithB
         this.manager = manager;
         this.additionalInfoInterpreter = interpreter;
 
+        try {
+            nature = manager != null ? new SystemPythonNature(manager) : null;
+        } catch (MisconfigurationException e) {
+            Log.log(e);
+        }
+
         File base;
         try {
-            IPath stateLocation = AnalysisPlugin.getDefault().getStateLocation();
+            IPath stateLocation = AnalysisPlugin.stateLocation;
             base = stateLocation.toFile();
         } catch (Exception e) {
             //it may fail in tests... (save it in default folder in this cases)
@@ -127,7 +142,7 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithB
     /**
      * Should only be used in tests.
      */
-    public static void setAdditionalSystemInfo(PythonInterpreterManager manager, String executableOrJar,
+    public static void setAdditionalSystemInfo(IInterpreterManager manager, String executableOrJar,
             AdditionalSystemInterpreterInfo additionalInfo) {
         synchronized (additionalSystemInfoLock) {
             Tuple<String, String> key = new Tuple<String, String>(manager.getManagerRelatedName(), executableOrJar);
@@ -138,7 +153,7 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithB
     /**
      * @param m the module manager that we want to get info on (python, jython...)
      * @return the additional info for the system
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     public static AbstractAdditionalDependencyInfo getAdditionalSystemInfo(IInterpreterManager manager,
             String interpreter, boolean errorIfNotAvailable) throws MisconfigurationException {
@@ -165,7 +180,7 @@ public class AdditionalSystemInterpreterInfo extends AbstractAdditionalInfoWithB
 
     public static void recreateAllInfo(IInterpreterManager manager, String interpreter, IProgressMonitor monitor) {
         synchronized (additionalSystemInfoLock) {
-            try {
+            try (GlobalFeedbackReporter r = GlobalFeedback.start("Full system reindex...")) {
                 final IInterpreterInfo interpreterInfo = manager.getInterpreterInfo(interpreter, monitor);
                 int grammarVersion = interpreterInfo.getGrammarVersion();
                 AbstractAdditionalTokensInfo currInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(

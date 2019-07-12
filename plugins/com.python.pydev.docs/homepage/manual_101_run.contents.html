@@ -1,0 +1,78 @@
+<doc>
+<contents_area>
+<div id="Content" style="padding: 5px;">
+<p>Ok, now that you're already up and running, let's <b>run a program from within Eclipse</b> with PyDev.</p>
+
+<p>For that, we will extend the module we created in the previous chapter with the following program:</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%"><span style="color: #008000; font-weight: bold">if</span> __name__ <span style="color: #666666">==</span> <span style="color: #BA2121">&#39;__main__&#39;</span>:
+    <span style="color: #008000; font-weight: bold">print</span>(<span style="color: #BA2121">&#39;Hello World&#39;)</span>
+</pre></div>
+
+</div></div>
+<p>Then, to run the file you can:</p>
+
+<ul class="alternate" type="circle">
+	<li>Use a shortcut: <b>F9</b> to run the open editor based on the project configuration where the module is contained (or for debug mode <b>Shift+F9</b>).</li>
+	<li>Go to the menu: Alt + R + S + The number of the Run you wish (It can be Python, Jython, unit-test, etc).</li>
+	<li>Note: if you were using <b>unit-tests</b>, you could use: <b>Ctrl+F9</b> to run the unit-tests from the module (and even selecting which tests should be run -- and if <b>Shift</b> is pressed it's launched in debug mode).</li>
+	<ul>
+	    <li>Tip: you may want to pre-select the test to be run in the editor (with <b>Ctrl+Shift+Up</b> or <b>Ctrl+Shift+Down</b>) so that <b>Ctrl+F9</b> will have that test pre-selected to run.</li>
+	</ul>
+</ul>
+
+
+<p><b>NOTE</b>: </p>
+<blockquote>
+<p>External files may be launched, but an associated project must be available. So, a file may be dragged from the filesystem into 
+Eclipse and later, with the editor open <b>F9</b> may be pressed to run the file... </p>
+
+<p>It'll still ask for a project to resolve the PYTHONPATH and interpreter to be used (you can probably just use any project 
+you have that has the interpreter you want to use for the run or create a PyDev project as 'external_projects' and bind those runs to it).</p>
+
+<p>-- The configuration created may be changed later on in the menu: <b>Run &gt; Run Configurations</b>.</p></blockquote>
+
+<p><span class="image-wrap" style=""><br/><img src="images/menu_run.png" style="border: 1px solid black" /></span><br/>
+By launching a file, the console should be brough forward with the output of the code (if you had some exception raised, clicking on it would bring you to the code in the stack-trace).</p>
+
+<p>After the first run, using <b>Ctrl+F11</b>, the last file should be re-run. Or, if you type just <b>F11</b>, a debug session is started with your last run.</p>
+
+<p><b>Note</b>: This behavior changed in Eclipse 3.3 &#8211; but it's generally recommended to restore it in the preferences at: 
+<b>Window &gt; Preferences &gt; Run/Debug &gt; Launching</b> and set the Launch Operation to <b>Always launch the previously launched application</b>. 
+This tutorial will always consider this as the default option.</p>
+
+<p>Now, let's go on to starting a debug session. First, you'll need to add a breakpoint in the 
+<strong>print('Hello World')</strong> line. To do so, go to that line, use <b>Ctrl+F10</b> and select 
+'Add breakpoint' (or double-click the left ruler), then use the <b>F11</b> to re-run the last launch. Doing so, will trigger you to go to the <b>debug perspective</b>. You should say <b>yes</b> to this dialog.</p>
+
+<p><span class="image-wrap" style=""><br/><img src="images/perspective_to_debug.png" style="border: 1px solid black" /></span><br/>
+After saying yes, you should be brought to the perspective below.</p>
+
+<p><span class="image-wrap" style=""><br/><img src="images/debug_perspective.png" style="border: 1px solid black" /></span><br/>
+In this perspective, the debug actions are activated and presented to<br/>
+you, so, you can use:</p>
+
+<p> <b>F5</b>: Step into</p>
+
+<p> <b>F6</b>: Step over</p>
+
+<p> <b>F7</b>: Step return</p>
+
+<p> <b>F8</b>: Resume execution</p>
+
+<p> <b>Ctrl+Shift+B</b>: Toggle Breakpoints</p>
+
+<p> <b>Ctrl+Alt+R</b>: Set Next Statement (so, in the example above, you could set the <b>if __name__ == "__main__"</b> as the next line to be executed).</p>
+
+<p>Use line prefixed with <b>>>></b> in the console to evaluate expressions.</p>
+
+<p>After the debug session, you can return to the previous perspective by using <b>Ctrl+F8</b> (this keybinding iterates through the open perspectives)... 
+And while we are at it, <b>Ctrl+F7</b> iterates through the views and <b>Ctrl+F6</b> iterates through the editors.</p>
+
+<p><b>Note</b>: you can also add those actions to other perspectives by customizing the perspective (in 
+<b>Window &gt; Perspective &gt; > Customize Perspective ... > Action Set availability</b> enable the <b>Breakpoints</b> and <b>Debug</b> options)</p>
+
+</div>
+</contents_area>
+</doc>

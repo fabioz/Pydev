@@ -8,10 +8,9 @@ package org.python.pydev.core.docutils;
 
 import java.util.Iterator;
 
-import junit.framework.TestCase;
-
 import org.eclipse.jface.text.Document;
-import org.python.pydev.shared_core.SharedCorePlugin;
+
+import junit.framework.TestCase;
 
 public class PyImportsHandlingTest extends TestCase {
 
@@ -113,22 +112,30 @@ public class PyImportsHandlingTest extends TestCase {
     }
 
     public void testPyImportHandling5() throws Exception {
-        // This test fails when the line ends with ";", if the line
-        // has no semi-colon the test passes (if you update the
-        // both locations)
-        if (SharedCorePlugin.skipKnownFailures()) {
-            return;
-        }
-
         Document doc = new Document("import threading ;\n");
         PyImportsHandling importsHandling = new PyImportsHandling(doc, false);
         Iterator<ImportHandle> it = importsHandling.iterator();
         assertTrue(it.hasNext());
         ImportHandle next = it.next();
 
-        assertEquals("import threading;", next.importFound);
+        assertEquals("import threading ;", next.importFound);
         assertEquals(0, next.startFoundLine);
         assertEquals(0, next.endFoundLine);
+
+        assertTrue(!it.hasNext());
+
+    }
+
+    public void testPyImportHandling5a() throws Exception {
+        Document doc = new Document("from a\\\n.b import foo");
+        PyImportsHandling importsHandling = new PyImportsHandling(doc, false);
+        Iterator<ImportHandle> it = importsHandling.iterator();
+        assertTrue(it.hasNext());
+        ImportHandle next = it.next();
+
+        assertEquals("from a\\\n.b import foo", next.importFound);
+        assertEquals(0, next.startFoundLine);
+        assertEquals(1, next.endFoundLine);
 
         assertTrue(!it.hasNext());
 

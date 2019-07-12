@@ -19,9 +19,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+import org.python.pydev.core.CorePlugin;
 import org.python.pydev.debug.newconsole.prefs.ColorManager;
 import org.python.pydev.debug.pyunit.PyUnitViewTestsHolder;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_ui.ImageCache;
 
@@ -75,6 +75,9 @@ public class PydevDebugPlugin extends AbstractUIPlugin {
     }
 
     public static ImageCache getImageCache() {
+        if (plugin == null) {
+            return null;
+        }
         return plugin.imageCache;
     }
 
@@ -120,6 +123,6 @@ public class PydevDebugPlugin extends AbstractUIPlugin {
      * @throws CoreException
      */
     public static File getScriptWithinPySrc(String targetExec) throws CoreException {
-        return PydevPlugin.getScriptWithinPySrc(targetExec);
+        return CorePlugin.getScriptWithinPySrc(targetExec);
     }
 }

@@ -9,7 +9,7 @@
  */
 package com.python.pydev.refactoring.refactorer.refactorings.renamelocal;
 
-import org.python.pydev.editor.codecompletion.revisited.modules.CompiledModule;
+import org.python.pydev.ast.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.shared_core.SharedCorePlugin;
 
 public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase {

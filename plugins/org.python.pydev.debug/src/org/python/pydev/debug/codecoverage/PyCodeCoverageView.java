@@ -21,10 +21,13 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -76,6 +79,7 @@ import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 import org.eclipse.ui.dialogs.FilteredTree;
 import org.eclipse.ui.dialogs.PatternFilter;
 import org.eclipse.ui.texteditor.MarkerUtilities;
+import org.python.pydev.ast.location.FindWorkspaceFiles;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.ui.launching.PythonRunnerCallbacks;
 import org.python.pydev.debug.ui.launching.PythonRunnerCallbacks.CreatedCommandLineParams;
@@ -94,6 +98,7 @@ import org.python.pydev.shared_ui.tooltips.presenter.StyleRangeWithCustomData;
 import org.python.pydev.shared_ui.tree.PyFilteredTree;
 import org.python.pydev.shared_ui.utils.IViewWithControls;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
+import org.python.pydev.shared_ui.utils.UIUtils;
 import org.python.pydev.tree.AllowValidPathsFilter;
 import org.python.pydev.tree.FileTreeLabelProvider;
 import org.python.pydev.tree.FileTreePyFilesProvider;
@@ -243,7 +248,14 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
         if (lastChosenDir == null) {
             return;
         }
-        PyCoverage.getPyCoverage().refreshCoverageInfo(lastChosenDir, monitor);
+        try {
+            PyCoverage.getPyCoverage().refreshCoverageInfo(lastChosenDir, monitor);
+        } catch (CoverageException e) {
+            ErrorDialog.openError(UIUtils.getActiveShell(), "Error refreshing coverage information.", e.getMessage(),
+                    new Status(IStatus.ERROR,
+                            PydevPlugin.getPluginID(), "Error refreshing coverage information.", e));
+            return;
+        }
 
         File input = lastChosenDir.getLocation().toFile();
         viewer.refresh();
@@ -360,7 +372,8 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
         public void run() {
             InputDialog d = new InputDialog(EditorUtils.getShell(), "Enter number of columns",
                     "Enter the number of columns to be used for the name.", ""
-                            + PyCoveragePreferences.getNameNumberOfColumns(), new IInputValidator() {
+                            + PyCoveragePreferences.getNameNumberOfColumns(),
+                    new IInputValidator() {
 
                         @Override
                         public String isValid(String newText) {
@@ -643,9 +656,25 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
             }
         });
         layoutData = new GridData();
-        layoutData.horizontalSpan = 2;
+        layoutData.horizontalSpan = 1;
         layoutData.grabExcessHorizontalSpace = false;
         allRunsGoThroughCoverage.setLayoutData(layoutData);
+
+        Button button = new Button(parent, SWT.PUSH);
+        button.setText("Open cov dir");
+        button.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                FileUtils.openDirectory(PyCoverage.getCoverageDirLocation());
+            }
+        });
+
+        int BUTTON_WIDTH = 80;
+        layoutData = new GridData();
+        layoutData.grabExcessHorizontalSpace = false;
+        layoutData.widthHint = BUTTON_WIDTH;
+        layoutData.horizontalAlignment = GridData.END;
+        button.setLayoutData(layoutData);
         //end all runs go through coverage
 
         //Clear the coverage info on each launch?
@@ -671,7 +700,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
         layoutData.horizontalAlignment = GridData.FILL;
         clearCoverageInfoOnNextLaunch.setLayoutData(layoutData);
 
-        Button button = new Button(parent, SWT.PUSH);
+        button = new Button(parent, SWT.PUSH);
         button.setText("Clear");
         button.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -681,7 +710,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
         });
         layoutData = new GridData();
         layoutData.grabExcessHorizontalSpace = false;
-        layoutData.widthHint = 50;
+        layoutData.widthHint = BUTTON_WIDTH;
         layoutData.horizontalAlignment = GridData.END;
         button.setLayoutData(layoutData);
         //end all runs go through coverage
@@ -718,7 +747,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
             }
         });
         layoutData = new GridData();
-        layoutData.widthHint = 50;
+        layoutData.widthHint = BUTTON_WIDTH;
         layoutData.grabExcessHorizontalSpace = true;
         layoutData.horizontalAlignment = GridData.END;
         button.setLayoutData(layoutData);
@@ -829,7 +858,7 @@ public class PyCodeCoverageView extends ViewPartWithOrientation implements IView
                         File file = new File(files[0]);
                         if (file.isDirectory()) {
                             PySourceLocatorBase locator = new PySourceLocatorBase();
-                            IContainer container = locator.getContainerForLocation(
+                            IContainer container = FindWorkspaceFiles.getContainerForLocation(
                                     Path.fromOSString(file.getAbsolutePath()), null);
                             if (container != null && container.exists()) {
                                 setSelectedContainer(container);

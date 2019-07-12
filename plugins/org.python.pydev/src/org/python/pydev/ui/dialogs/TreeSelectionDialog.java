@@ -36,4 +36,8 @@ public class TreeSelectionDialog extends org.python.pydev.shared_ui.dialogs.Tree
         org.python.pydev.plugin.PydevPlugin.setCssId(parent, "py-tree-selection-dialog", true);
         return ret;
     }
+
+    public void cancel() {
+        super.cancelPressed();
+    }
 }

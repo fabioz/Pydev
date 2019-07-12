@@ -28,7 +28,6 @@ import org.eclipse.ui.progress.UIJob;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_ui.utils.UIUtils;
 
-
 /**
  * Listens to resource deltas and filters for marker changes of type IMarker.PROBLEM
  * Viewers showing error ticks should register as listener to
@@ -130,8 +129,9 @@ public class ProblemMarkerManager implements IResourceChangeListener {
 
         try {
             IResourceDelta delta = event.getDelta();
-            if (delta != null)
+            if (delta != null) {
                 delta.accept(new ProjectErrorVisitor(changedElements));
+            }
         } catch (CoreException e) {
             Log.log(e);
         }
@@ -189,14 +189,14 @@ public class ProblemMarkerManager implements IResourceChangeListener {
                     //Yes, MUST be called on UI thread!
                     IResource[] markerResources = null;
                     IResource[] annotationResources = null;
-                    synchronized (this) {
+                    synchronized (ProblemMarkerManager.this) {
                         if (!fResourcesWithMarkerChanges.isEmpty()) {
-                            markerResources = (IResource[]) fResourcesWithMarkerChanges
+                            markerResources = fResourcesWithMarkerChanges
                                     .toArray(new IResource[fResourcesWithMarkerChanges.size()]);
                             fResourcesWithMarkerChanges.clear();
                         }
                         if (!fResourcesWithAnnotationChanges.isEmpty()) {
-                            annotationResources = (IResource[]) fResourcesWithAnnotationChanges
+                            annotationResources = fResourcesWithAnnotationChanges
                                     .toArray(new IResource[fResourcesWithAnnotationChanges.size()]);
                             fResourcesWithAnnotationChanges.clear();
                         }

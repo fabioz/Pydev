@@ -11,7 +11,12 @@ package com.python.pydev.analysis.additionalinfo;
 
 import java.io.Serializable;
 
+import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.core.IInfo;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ObjectsInternPool;
+import org.python.pydev.core.log.Log;
+import org.python.pydev.shared_core.string.StringUtils;
 
 public abstract class AbstractInfo implements IInfo, Serializable {
     /**
@@ -34,21 +39,71 @@ public abstract class AbstractInfo implements IInfo, Serializable {
      */
     public final String moduleDeclared;
 
-    public AbstractInfo(String name, String moduleDeclared, String path) {
+    public final IPythonNature nature;
+
+    // May be null
+    public final String file;
+
+    // 1-based
+    public final int line;
+
+    // 1-based
+    public final int col;
+
+    public AbstractInfo(String name, String moduleDeclared, String path, IPythonNature nature, String file, int line,
+            int col) {
+        if (line <= 0 || col <= 0) {
+            if (file != null && PythonPathHelper.isValidSourceFile(file)) {
+                Log.log(StringUtils.format("Not expecting to get negative line for: %s - %s - %s - %s - %s - %s", name,
+                        moduleDeclared, path, file, line, col));
+            }
+            if (line < 0) {
+                line = 0;
+            }
+            if (col < 0) {
+                col = 0;
+            }
+        }
         synchronized (ObjectsInternPool.lock) {
             this.name = ObjectsInternPool.internUnsynched(name);
             this.moduleDeclared = ObjectsInternPool.internUnsynched(moduleDeclared);
             this.path = ObjectsInternPool.internUnsynched(path);
+            this.file = ObjectsInternPool.internUnsynched(file);
+            this.line = line;
+            this.col = col;
         }
+        this.nature = nature;
     }
 
     /**
      * Same as the other constructor but does not intern anything.
      */
-    public AbstractInfo(String name, String moduleDeclared, String path, boolean doNotInternOnThisContstruct) {
+    public AbstractInfo(String name, String moduleDeclared, String path, boolean doNotInternOnThisContstruct,
+            IPythonNature nature, String file, int line, int col) {
+        if (line <= 0 || col <= 0) {
+            if (file != null && PythonPathHelper.isValidSourceFile(file)) {
+                Log.log(StringUtils.format("Not expecting to get negative line for: %s - %s - %s - %s - %s - %s", name,
+                        moduleDeclared, path, file, line, col));
+            }
+            if (line < 0) {
+                line = 0;
+            }
+            if (col < 0) {
+                col = 0;
+            }
+        }
         this.name = name;
         this.moduleDeclared = moduleDeclared;
         this.path = path;
+        this.nature = nature;
+        this.file = file;
+        this.line = line;
+        this.col = col;
+    }
+
+    @Override
+    public IPythonNature getNature() {
+        return nature;
     }
 
     @Override
@@ -64,6 +119,23 @@ public abstract class AbstractInfo implements IInfo, Serializable {
     @Override
     public String getPath() {
         return path;
+    }
+
+    @Override
+    public String getFile() {
+        return file;
+    }
+
+    // 1-based (0 or negative means invalid)
+    @Override
+    public int getLine() {
+        return line;
+    }
+
+    // 1-based (0 or negative means invalid)
+    @Override
+    public int getCol() {
+        return col;
     }
 
     @Override

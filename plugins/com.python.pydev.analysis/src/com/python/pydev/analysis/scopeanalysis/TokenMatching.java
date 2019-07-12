@@ -13,8 +13,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.search.core.text.TextSearchMatchAccess;
-import org.eclipse.search.core.text.TextSearchRequestor;
 
 public class TokenMatching {
 
@@ -109,7 +107,8 @@ public class TokenMatching {
      * @return true if it did collect something and false otherwise
      * @throws CoreException
      */
-    public boolean collectMatches(IFile file, final String searchInput, IProgressMonitor monitor, boolean onlyFirstMatch)
+    public boolean collectMatches(IFile file, final String searchInput, IProgressMonitor monitor,
+            boolean onlyFirstMatch)
             throws CoreException {
         boolean foundMatch = false;
         try {

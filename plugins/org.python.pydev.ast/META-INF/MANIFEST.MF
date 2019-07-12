@@ -2,14 +2,37 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Ast Plug-in
 Bundle-SymbolicName: org.python.pydev.ast; singleton:=true
-Bundle-Version: 5.0.0.qualifier
+Bundle-Version: 7.2.1.qualifier
 Bundle-ClassPath: ast.jar
 Bundle-Activator: org.python.pydev.ast.AstPlugin
-Bundle-Localization: plugin
 Eclipse-BundleShape: dir
-Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime
+Require-Bundle: org.eclipse.core.resources,
+ org.eclipse.core.runtime,
+ org.python.pydev.core;bundle-version="[7.2.1,7.2.2)",
+ org.eclipse.text,
+ org.python.pydev.parser;bundle-version="[7.2.1,7.2.2)",
+ org.eclipse.core.variables,
+ org.eclipse.debug.core
 Bundle-ActivationPolicy: lazy
-Export-Package: org.python.pydev.ast,org.python.pydev.ast.management
-Bundle-Vendor: Aptana
+Export-Package: org.python.pydev.ast,
+ org.python.pydev.ast.analysis,
+ org.python.pydev.ast.analysis.messages,
+ org.python.pydev.ast.builder,
+ org.python.pydev.ast.codecompletion,
+ org.python.pydev.ast.codecompletion.revisited,
+ org.python.pydev.ast.codecompletion.revisited.modules,
+ org.python.pydev.ast.codecompletion.revisited.visitors,
+ org.python.pydev.ast.codecompletion.shell,
+ org.python.pydev.ast.formatter,
+ org.python.pydev.ast.interpreter_managers,
+ org.python.pydev.ast.item_pointer,
+ org.python.pydev.ast.listing_utils,
+ org.python.pydev.ast.location,
+ org.python.pydev.ast.refactoring,
+ org.python.pydev.ast.runners,
+ org.python.pydev.ast.simpleassist,
+ org.python.pydev.core.pep8,
+ org.python.pydev.plugin,
+ org.python.pydev.plugin.nature
+Bundle-Vendor: Brainwy Software Ltda
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

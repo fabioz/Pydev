@@ -312,8 +312,16 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
      * @note the new line char (\r or \n) will be added as a part of the comment.
      */
     public int eatComments(FastStringBuffer buf, int i) {
+        return eatComments(buf, i, true);
+    }
+
+    /**
+     * @param addNewLine whether the '\r' or '\n' should be added or not (if false
+     * will return the char right before \r or \n).
+     */
+    public int eatComments(FastStringBuffer buf, int i, boolean addNewLine) {
         int len = len();
-        char c;
+        char c = '\0';
 
         while (i < len && (c = charAt(i)) != '\n' && c != '\r') {
             if (buf != null) {
@@ -322,9 +330,25 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
             i++;
         }
 
+        if (!addNewLine) {
+            if (c == '\r' || c == '\n') {
+                i--;
+                return i;
+            }
+        }
+
         if (i < len) {
+            // c must be '\r' or '\n' at this point
             if (buf != null) {
-                buf.append(charAt(i));
+                buf.append(c);
+            }
+            if (c == '\r') {
+                if (i + 1 < len && charAt(i + 1) == '\n') {
+                    i++;
+                    if (buf != null) {
+                        buf.append('\n');
+                    }
+                }
             }
         }
 
@@ -481,20 +505,21 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
         char startChar = charAt(startPos);
 
         if (startChar != '"' && startChar != '\'') {
-            throw new RuntimeException("Wrong location to eat literals. Expecting ' or \" ");
+            throw new RuntimeException(
+                    "Wrong location to eat literals. Expecting ' or \". Found: >>" + startChar + "<<");
         }
 
         // Retrieves the correct end position for single- and multi-line
         // string literals.
         int endPos = getLiteralEnd(startPos, startChar);
-        boolean rightTrim = rightTrimMultiline && isMultiLiteral(startPos, startChar);
 
         if (buf != null) {
+            boolean rightTrim = rightTrimMultiline && isMultiLiteral(startPos, startChar);
             int lastPos = Math.min(endPos, len() - 1);
             for (int i = startPos; i <= lastPos; i++) {
                 char ch = charAt(i);
                 if (rightTrim && (ch == '\r' || ch == '\n')) {
-                    buf.rightTrim();
+                    buf.rightTrimWhitespacesAndTabs();
                 }
                 buf.append(ch);
             }
@@ -568,7 +593,7 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
                 i = eatLiterals(null, i - 1) + 1;
 
             } else if (c == '#') {
-                i = eatComments(null, i - 1);
+                i = eatComments(null, i - 1, false) + 1;
                 break;
 
             } else if (c == '(' || c == '[' || c == '{') { //open par.
@@ -579,8 +604,15 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
                     i--;
                     break;
                 }
+                // ignoreNextNewLine == true
+                if (i < len && c == '\r') {
+                    //deal with \r\n if found...
+                    if (charAt(i) == '\n') {
+                        i++;
+                    }
+                }
 
-            } else if (c == '\\' || c == '\\') {
+            } else if (c == '\\') {
                 ignoreNextNewLine = true;
                 continue;
 
@@ -592,7 +624,7 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
 
             ignoreNextNewLine = false;
         }
-        i--; //we have to do that because we passed 1 char in the beggining of the while.
+        i--; //we have to do that because we passed 1 char in the beginning of the while.
         return i;
     }
 
@@ -630,6 +662,10 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
         }
         if (this.throwSyntaxError && c != closingPar) {
             throw new SyntaxErrorException();
+        }
+        if (j >= len) {
+            // We could overflow in eatPar(j - 1, null, par) + 1;
+            j = len;
         }
         return j;
     }
@@ -1063,8 +1099,7 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
         ;
     }
 
-    public static boolean isCommentContentType(String contentType)
-    {
+    public static boolean isCommentContentType(String contentType) {
         return IPythonPartitions.PY_COMMENT.equals(contentType);
     }
 
@@ -1076,6 +1111,77 @@ public abstract class ParsingUtils extends BaseParsingUtils implements IPythonPa
     public static boolean isCommentPartition(IDocument document, int offset) {
         String contentType = getContentType(document, offset);
         return isCommentContentType(contentType);
+    }
+
+    public static String removeCalls(String activationToken) {
+        ParsingUtils parsingUtils = ParsingUtils.create(activationToken);
+        FastStringBuffer buf = new FastStringBuffer(activationToken.length());
+        int i = 0;
+        while (true) {
+            int nextParI = parsingUtils.findNextChar(i, '(');
+            if (nextParI == -1) {
+                break;
+            }
+
+            buf.append(activationToken.substring(i, nextParI));
+            try {
+                int j = parsingUtils.eatPar(nextParI, null);
+                if (j != -1) {
+                    i = j;
+                }
+            } catch (SyntaxErrorException e) {
+            }
+            i++;
+        }
+        if (i < parsingUtils.len()) {
+            //Add the remainder of the string if it didn't end with a ')'.
+            buf.append(activationToken.substring(i));
+        }
+        return buf.toString();
+    }
+
+    public static int matchClass(int currIndex, char[] cs, int length) {
+        if (currIndex + 5 >= length) {
+            return -1;
+        }
+        if (cs[currIndex + 1] == 'l' && cs[currIndex + 2] == 'a' && cs[currIndex + 3] == 's'
+                && cs[currIndex + 4] == 's' && Character.isWhitespace(cs[currIndex + 5])) {
+            return currIndex + 5;
+        }
+        return -1;
+    }
+
+    public static int matchFunction(int currIndex, char[] cs, int length) {
+        if (currIndex + 3 >= length) {
+            return -1;
+        }
+        if (cs[currIndex + 1] == 'e' && cs[currIndex + 2] == 'f' && Character
+                .isWhitespace(cs[currIndex + 3])) {
+            return currIndex + 3;
+        }
+        return -1;
+    }
+
+    public static int matchAsyncFunction(int currIndex, char[] cs, int length) {
+        if (currIndex + 5 >= length) {
+            return -1;
+        }
+        if (cs[currIndex + 1] == 's' && cs[currIndex + 2] == 'y'
+                && cs[currIndex + 3] == 'n' && cs[currIndex + 4] == 'c' && Character
+                        .isWhitespace(cs[currIndex + 5])) {
+            int i = currIndex + 6;
+            while (i < length && Character.isWhitespace(cs[i])) {
+                i += 1;
+            }
+            if (i + 3 >= length) {
+                return -1;
+            }
+            if (cs[i] == 'd' && cs[i + 1] == 'e' && cs[i + 2] == 'f' && Character
+                    .isWhitespace(cs[i + 3])) {
+                return i + 3;
+            }
+        }
+        return -1;
     }
 
 }

@@ -17,16 +17,18 @@ set DRIVE=x:
 set BASE_LOCAL_PYDEV_GIT=x:\pydev
 set BUILD_DIR=X:\pydev_build\build_dir
 set DEPLOY_DIR=X:\pydev_build\deploy_dir
-set JAVA_HOME=C:\bin\jdk1.8.0_77
-set MAVEN_BIN=C:\bin\apache-maven-3.3.9\bin
-set GIT_EXECUTABLE="p:\git\bin\git.exe"
-set ECLIPSE_CLEAN=C:\bin\eclipse46m7
-set LAUNCHER_PLUGIN=org.eclipse.equinox.launcher_1.3.200.v20160318-1642.jar
-set BUILDER_PLUGIN=org.eclipse.pde.build_3.9.200.v20160204-0642
-set KEYSTORE=X:\release_tools\pydevkeystore
-set KEYSTORE_ALIAS=pydev
-set SIGN_KEYSTORE=X:\release_tools\pydevkeystore
-set SIGN_ALIAS=pydev
+set JAVA_HOME=C:\bin\jdk1.8.0_172
+set MAVEN_BIN=C:\bin\apache-maven-3.5.3\bin
+set GIT_EXECUTABLE="C:\Program Files\Git\bin\git.exe"
+set ECLIPSE_CLEAN=C:\bin\eclipse_48rc4a_clean
+set LAUNCHER_PLUGIN=org.eclipse.equinox.launcher_1.5.0.v20180512-1130.jar
+set BUILDER_PLUGIN=org.eclipse.pde.build_3.10.0.v20180512-1217
+@echo Expected in env var: SIGN_KEYPASS
+@echo Expected in env var: SIGN_STOREPASS
+@echo Expected in env var: SIGN_ALIAS
+@echo Expected in env var: SIGN_KEYSTORE
+@echo Expected in env var: SIGN_STORETYPE
+@echo Expected in env var: SIGN_TSA
 SET MAVEN_OPTS=-Xmx1024m
 
 
@@ -35,13 +37,12 @@ set BASEWS=win32
 set BASEARCH=x86
 
 set PATH=
-set PATH=C:\bin\Python27
 set PATH=p:\FastCopy211;%PATH%
 set PATH=C:\Windows\system32;%PATH%
 set PATH=%MAVEN_BIN%;%PATH%
 set PATH=%JAVA_HOME%\bin;%PATH%
-set PATH=p:\git\bin;%PATH%
-set PATH=%ECLIPSE_CLEAN%\plugins\org.apache.ant_1.9.6.v201510161327\bin;%PATH%
+set PATH="C:\Program Files\Git\bin\";%PATH%
+set PATH=%ECLIPSE_CLEAN%\plugins\org.apache.ant_1.10.1.v20170504-0840\bin;%PATH%
 
 
 @echo actual build command
@@ -56,16 +57,18 @@ git reset --hard
 git clean -f -d -x
 git checkout -f
 git remote update
+git fetch
 git checkout %BRANCH%
 git pull origin %BRANCH%
 @echo If copied/pasted into cmd.exe, it will break here
 
 @echo Create builtin modules
-set PYTHONPATH=%BUILD_DIR%/Pydev/plugins/org.python.pydev/pysrc
-C:\tools\Miniconda32\envs\py27_32\python %BUILD_DIR%/Pydev/plugins/org.python.pydev/pysrc/build_tools/build_binaries_windows.py
+set PYTHONPATH=%BUILD_DIR%/Pydev/plugins/org.python.pydev.core/pysrc
+C:\bin\Miniconda\envs\py36_64\python %BUILD_DIR%/Pydev/plugins/org.python.pydev.core/pysrc/build_tools/build.py
+C:\bin\Miniconda\envs\py36_64\python %BUILD_DIR%/Pydev/plugins/org.python.pydev.core/pysrc/build_tools/build_binaries_windows.py
 
 @echo to clean after the build: -DcleanAfter.set=true
-mvn install
+mvn install -o
 
 
 

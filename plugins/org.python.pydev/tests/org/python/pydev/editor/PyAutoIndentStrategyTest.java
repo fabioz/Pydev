@@ -15,9 +15,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
-import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
-import org.python.pydev.editor.autoedit.TestIndentPrefs;
+import org.python.pydev.core.autoedit.PyAutoIndentStrategy;
+import org.python.pydev.core.autoedit.TestIndentPrefs;
 import org.python.pydev.shared_core.utils.DocCmd;
 
 import junit.framework.TestCase;
@@ -110,6 +111,17 @@ public class PyAutoIndentStrategyTest extends TestCase {
         DocCmd docCmd = new DocCmd(1, 0, "\n");
         strategy.customizeDocumentCommand(doc, docCmd);
         assertEquals("\n", docCmd.text);
+    }
+
+    public void testNewLineOnAsyncDef() {
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+        String str = "\n" +
+                "async def foo():" +
+                "";
+        final Document doc = new Document(str);
+        DocCmd docCmd = new DocCmd(doc.getLength(), 0, "\n");
+        strategy.customizeDocumentCommand(doc, docCmd);
+        assertEquals("\n    ", docCmd.text);
     }
 
     public void testTab() {
@@ -1132,13 +1144,11 @@ public class PyAutoIndentStrategyTest extends TestCase {
         strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
         String doc = "" +
                 "properties.create(a = newClass(),\n" +
-                "                  b = newClass(\n"
-                +
+                "                  b = newClass(\n" +
                 "                               )"; //go to the last indentation
         DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
         strategy.customizeDocumentCommand(new Document(doc), docCmd);
-        String expected = "\n" +
-                "                  ";
+        String expected = "\n                  ";
         assertEquals(expected, docCmd.text);
     }
 
@@ -1564,28 +1574,54 @@ public class PyAutoIndentStrategyTest extends TestCase {
 
     }
 
-    public void testParens2() {
+    public void testParens2() throws BadLocationException {
         strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
         String str = "isShown() #suite()'" +
                 "";
         final Document doc = new Document(str);
         int offset = doc.getLength() - ") #suite()'".length();
         DocCmd docCmd = new DocCmd(offset, 0, ")");
+        assertTrue(strategy.canSkipCloseParenthesis(doc, docCmd));
         strategy.customizeDocumentCommand(doc, docCmd);
         assertEquals("", docCmd.text);
         assertEquals(offset + 1, docCmd.caretOffset);
 
     }
 
-    public void testParens3() {
+    public void testParens3() throws BadLocationException {
         strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
         String str = "assert_('\\\\' in txt) a()";
         final Document doc = new Document(str);
         int offset = doc.getLength() - ")".length();
         DocCmd docCmd = new DocCmd(offset, 0, ")");
+        assertTrue(strategy.canSkipCloseParenthesis(doc, docCmd));
         strategy.customizeDocumentCommand(doc, docCmd);
         assertEquals("", docCmd.text);
         assertEquals(offset + 1, docCmd.caretOffset);
+    }
+
+    public void testParens4() throws BadLocationException {
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+        String str = "call()";
+        final Document doc = new Document(str);
+        int offset = doc.getLength() - ")".length();
+        DocCmd docCmd = new DocCmd(offset, 0, "]");
+        assertFalse(strategy.canSkipCloseParenthesis(doc, docCmd));
+        strategy.customizeDocumentCommand(doc, docCmd);
+        assertEquals("]", docCmd.text);
+
+    }
+
+    public void testParens5() throws BadLocationException {
+        strategy.setIndentPrefs(new TestIndentPrefs(true, 4));
+        String str = "a = list(range(20)";
+        final Document doc = new Document(str);
+        int offset = doc.getLength();
+        DocCmd docCmd = new DocCmd(offset, 0, ")");
+        assertFalse(strategy.canSkipCloseParenthesis(doc, docCmd));
+        strategy.customizeDocumentCommand(doc, docCmd);
+        assertEquals(")", docCmd.text);
+
     }
 
     public void testElse() {
@@ -2323,13 +2359,12 @@ public class PyAutoIndentStrategyTest extends TestCase {
                 "\n" +
                 "def testIt():\n" +
                 "\n" +
-                "    return [0.5 * ((A / B) ** 2 + \n"
-                +
+                "    return [0.5 * ((A / B) ** 2 + \n" +
                 "                   (C / D) ** 2) for E, F in G]" + //<return> before 'for'
                 "";
         DocCmd docCmd = new DocCmd(doc.length() - "for E, F in G]".length(), 0, "\n");
         strategy.customizeDocumentCommand(new Document(doc), docCmd);
-        String expected = "\n            ";
+        String expected = "\n                   ";
         assertEquals(expected, docCmd.text);
     }
 
@@ -2340,8 +2375,7 @@ public class PyAutoIndentStrategyTest extends TestCase {
                 "\n" +
                 "def testIt():\n" +
                 "\n" +
-                "    return [0.5 * ((A / B) ** 2 + \n"
-                +
+                "    return [0.5 * ((A / B) ** 2 + \n" +
                 "                      (C / D) ** 2) for E, F in G]" + //keep the same level, not the one of the starting parens, as we didn't change the parens level!
                 "";
         DocCmd docCmd = new DocCmd(doc.length() - ") for E, F in G]".length(), 0, "\n");
@@ -2397,6 +2431,152 @@ public class PyAutoIndentStrategyTest extends TestCase {
         DocCmd docCmd = new DocCmd(doc.length() - 1, 0, "\n");
         strategy.customizeDocumentCommand(new Document(doc), docCmd);
         String expected = "\n        ";
+        assertEquals(expected, docCmd.text);
+    }
+
+    public void testIndentParensPep8_1() throws Exception {
+        // New indent mode:
+        // pep8 indents aligned with the opening parens (if not directly after the opening parens)
+        // or with an additional level for vertical alignment of multiple vars after the parens.
+        TestIndentPrefs prefs = new TestIndentPrefs(true, 4);
+        prefs.indentToParAsPep8 = true;
+        strategy.setIndentPrefs(prefs);
+        String doc = "" +
+                "def testIt(" + // indent 1 because of the def and an additional one for the parens.
+                "";
+        DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "\n        ";
+        assertEquals(expected, docCmd.text);
+    }
+
+    public void testIndentParensPep8_2() throws Exception {
+        // New indent mode:
+        // pep8 indents aligned with the opening parens (if not directly after the opening parens)
+        // or with an additional level for vertical alignment of multiple vars after the parens.
+        TestIndentPrefs prefs = new TestIndentPrefs(true, 4);
+        prefs.indentToParAsPep8 = true;
+        strategy.setIndentPrefs(prefs);
+        String doc = "" +
+                "def testIt(aa, bb," + // indent 1 because of the def and an additional one for the parens.
+                "";
+        DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "\n           ";
+        assertEquals(expected, docCmd.text);
+    }
+
+    public void testIndentParensPep8_3() throws Exception {
+        // New indent mode:
+        // pep8 indents aligned with the opening parens (if not directly after the opening parens)
+        // or with an additional level for vertical alignment of multiple vars after the parens.
+        TestIndentPrefs prefs = new TestIndentPrefs(true, 4);
+        prefs.indentToParAsPep8 = true;
+        strategy.setIndentPrefs(prefs);
+        String doc = "" +
+                "myverybigvar = (" + // indent 1 because of the def and an additional one for the parens.
+                "";
+        DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "\n    ";
+        assertEquals(expected, docCmd.text);
+    }
+
+    public void testIndentParensPep8_4() throws Exception {
+        // New indent mode:
+        // pep8 indents aligned with the opening parens (if not directly after the opening parens)
+        // or with an additional level for vertical alignment of multiple vars after the parens.
+        TestIndentPrefs prefs = new TestIndentPrefs(true, 4);
+        prefs.indentToParAsPep8 = true;
+        strategy.setIndentPrefs(prefs);
+        String doc = "" +
+                "myverybigvar = (aaa," + // indent 1 because of the def and an additional one for the parens.
+                "";
+        DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "\n                ";
+        assertEquals(expected, docCmd.text);
+    }
+
+    public void testIndentParensPep8_5() throws Exception {
+        TestIndentPrefs prefs = new TestIndentPrefs(true, 4);
+        prefs.indentToParAsPep8 = true;
+        strategy.setIndentPrefs(prefs);
+        String doc = "" +
+                "a(\n" +
+                "    b(\n" +
+                "    ), ";
+        DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "\n    ";
+        assertEquals(expected, docCmd.text);
+    }
+
+    public void testIndentParensPep8_1_tabs() throws Exception {
+        // New indent mode:
+        // pep8 indents aligned with the opening parens (if not directly after the opening parens)
+        // or with an additional level for vertical alignment of multiple vars after the parens.
+        TestIndentPrefs prefs = new TestIndentPrefs(true, 4);
+        prefs.indentToParAsPep8 = true;
+        prefs.setForceTabs(true);
+        strategy.setIndentPrefs(prefs);
+        String doc = "" +
+                "def testIt(" + // indent 1 because of the def and an additional one for the parens.
+                "";
+        DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "\n\t\t";
+        assertEquals(expected, docCmd.text);
+    }
+
+    public void testIndentParensPep8_2_tabs() throws Exception {
+        // New indent mode:
+        // pep8 indents aligned with the opening parens (if not directly after the opening parens)
+        // or with an additional level for vertical alignment of multiple vars after the parens.
+        TestIndentPrefs prefs = new TestIndentPrefs(true, 4);
+        prefs.indentToParAsPep8 = true;
+        prefs.setForceTabs(true);
+        strategy.setIndentPrefs(prefs);
+        String doc = "" +
+                "def testItrararara(aa, bb," + // indent 1 because of the def and an additional one for the parens.
+                "";
+        DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "\n\t\t\t\t";
+        assertEquals(expected, docCmd.text);
+    }
+
+    public void testIndentParensPep8_3_tabs() throws Exception {
+        // New indent mode:
+        // pep8 indents aligned with the opening parens (if not directly after the opening parens)
+        // or with an additional level for vertical alignment of multiple vars after the parens.
+        TestIndentPrefs prefs = new TestIndentPrefs(true, 4);
+        prefs.indentToParAsPep8 = true;
+        prefs.setForceTabs(true);
+        strategy.setIndentPrefs(prefs);
+        String doc = "" +
+                "myverybigvar = (" + // indent 1 because of the def and an additional one for the parens.
+                "";
+        DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "\n\t";
+        assertEquals(expected, docCmd.text);
+    }
+
+    public void testIndentParensPep8_4_tabs() throws Exception {
+        // New indent mode:
+        // pep8 indents aligned with the opening parens (if not directly after the opening parens)
+        // or with an additional level for vertical alignment of multiple vars after the parens.
+        TestIndentPrefs prefs = new TestIndentPrefs(true, 4);
+        prefs.indentToParAsPep8 = true;
+        prefs.setForceTabs(true);
+        strategy.setIndentPrefs(prefs);
+        String doc = "" +
+                "myverybigvar = (aaa," + // indent 1 because of the def and an additional one for the parens.
+                "";
+        DocCmd docCmd = new DocCmd(doc.length(), 0, "\n");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "\n\t\t\t";
         assertEquals(expected, docCmd.text);
     }
 

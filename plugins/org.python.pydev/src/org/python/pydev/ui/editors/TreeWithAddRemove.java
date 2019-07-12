@@ -33,13 +33,14 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.dialogs.SelectionDialog;
+import org.python.pydev.core.preferences.FileTypesPreferences;
 import org.python.pydev.plugin.PyStructureConfigHelpers;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.ui.dialogs.MapOfStringsInputDialog;
-import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
 
 /**
  * @author Fabio Zadrozny
@@ -303,7 +304,7 @@ public abstract class TreeWithAddRemove extends Composite {
                     IFile p = (IFile) object;
                     String pathAsString = getPathAsString(p.getProjectRelativePath(), project);
                     pathAsString = "/" + p.getProject().getName() + pathAsString;
-                    if (FileTypesPreferencesPage.isValidZipFile(pathAsString)) {
+                    if (FileTypesPreferences.isValidZipFile(pathAsString)) {
                         addTreeItem(pathAsString);
                     }
                 }
@@ -312,7 +313,7 @@ public abstract class TreeWithAddRemove extends Composite {
     }
 
     /**
-     * @param project 
+     * @param project
      * @return The passed path as a string (used for the selection dialog, as things come relative to the workspace).
      */
     private String getPathAsString(IPath p, IProject project) {
@@ -339,7 +340,7 @@ public abstract class TreeWithAddRemove extends Composite {
 
             TreeItem item = new TreeItem(tree, 0);
             item.setText(pathAsString);
-            item.setImage(PydevPlugin.getImageCache().get(getImageConstant()));
+            item.setImage(ImageCache.asImage(SharedUiPlugin.getImageCache().get(getImageConstant())));
         }
     }
 
@@ -347,7 +348,7 @@ public abstract class TreeWithAddRemove extends Composite {
         if (key != null && key.trim().length() > 0 && value != null && value.trim().length() > 0) {
             TreeItem item = new TreeItem(tree, 0);
             item.setText(new String[] { key, value });
-            item.setImage(PydevPlugin.getImageCache().get(getImageConstant()));
+            item.setImage(ImageCache.asImage(SharedUiPlugin.getImageCache().get(getImageConstant())));
         }
     }
 

@@ -25,6 +25,7 @@ import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Widget;
+import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
 
 /**
  * Helper to create a list of strings with buttons for new/remove.

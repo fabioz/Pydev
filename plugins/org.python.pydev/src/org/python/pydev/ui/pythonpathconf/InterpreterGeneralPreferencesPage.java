@@ -18,9 +18,9 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.python.pydev.core.IPythonNature;
-import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.ast.codecompletion.revisited.DefaultSyncSystemModulesManagerScheduler;
+import org.python.pydev.core.preferences.InterpreterGeneralPreferences;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.shared_ui.field_editors.ButtonFieldEditor;
 import org.python.pydev.shared_ui.field_editors.LabelFieldEditor;
 
@@ -29,51 +29,33 @@ import org.python.pydev.shared_ui.field_editors.LabelFieldEditor;
  *
  * Created on Sep 3, 2013
  * @author Andrew Ferrazzutti
- *
- *
- *
  */
 public class InterpreterGeneralPreferencesPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
     public InterpreterGeneralPreferencesPage() {
         super(FLAT);
-        setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
+        setPreferenceStore(PyDevUiPrefs.getPreferenceStore());
         setDescription("Interpreters: General Preferences");
     }
-
-    public static final String NOTIFY_NO_INTERPRETER = "NOTIFY_NO_INTERPRETER_";
-    public static final String NOTIFY_NO_INTERPRETER_PY = NOTIFY_NO_INTERPRETER
-            + IPythonNature.INTERPRETER_TYPE_PYTHON;
-    public final static boolean DEFAULT_NOTIFY_NO_INTERPRETER_PY = true;
-
-    public static final String NOTIFY_NO_INTERPRETER_JY = NOTIFY_NO_INTERPRETER
-            + IPythonNature.INTERPRETER_TYPE_JYTHON;
-    public final static boolean DEFAULT_NOTIFY_NO_INTERPRETER_JY = true;
-
-    public static final String NOTIFY_NO_INTERPRETER_IP = NOTIFY_NO_INTERPRETER
-            + IPythonNature.INTERPRETER_TYPE_IRONPYTHON;
-    public final static boolean DEFAULT_NOTIFY_NO_INTERPRETER_IP = true;
-
-    public static final String CHECK_CONSISTENT_ON_STARTUP = "CHECK_CONSISTENT_ON_STARTUP";
-    public final static boolean DEFAULT_CHECK_CONSISTENT_ON_STARTUP = true;
-
-    public static final String UPDATE_INTERPRETER_INFO_ON_FILESYSTEM_CHANGES = "UPDATE_INTERPRETER_INFO_ON_FILESYSTEM_CHANGES";
-    public final static boolean DEFAULT_UPDATE_INTERPRETER_INFO_ON_FILESYSTEM_CHANGES = true;
 
     @Override
     protected void createFieldEditors() {
         final Composite p = getFieldEditorParent();
 
-        addField(new BooleanFieldEditor(NOTIFY_NO_INTERPRETER_PY, "Notify when a Python project has no interpreter?", p));
-        addField(new BooleanFieldEditor(NOTIFY_NO_INTERPRETER_JY, "Notify when a Jython project has no interpreter?", p));
-        addField(new BooleanFieldEditor(NOTIFY_NO_INTERPRETER_IP,
+        addField(new BooleanFieldEditor(InterpreterGeneralPreferences.NOTIFY_NO_INTERPRETER_PY,
+                "Notify when a Python project has no interpreter?",
+                p));
+        addField(new BooleanFieldEditor(InterpreterGeneralPreferences.NOTIFY_NO_INTERPRETER_JY,
+                "Notify when a Jython project has no interpreter?",
+                p));
+        addField(new BooleanFieldEditor(InterpreterGeneralPreferences.NOTIFY_NO_INTERPRETER_IP,
                 "Notify when an IronPython project has no interpreter?", p));
 
         SelectionListener selectionListener = new SelectionListener() {
 
             @Override
             public void widgetSelected(SelectionEvent e) {
-                PydevPlugin.getDefault().syncScheduler.checkAllNow();
+                DefaultSyncSystemModulesManagerScheduler.get().checkAllNow();
             }
 
             @Override
@@ -92,10 +74,11 @@ public class InterpreterGeneralPreferencesPage extends FieldEditorPreferencePage
                         + "If the PYTHONPATH environment variable changes, the shell that started\n"
                         + "Eclipse has to be restarted so that the change can be detected.\n"
                         + "\n"
-                        + "-- Consider unchecking only if the startup time is too slow.", p));
-        addField(new BooleanFieldEditor(CHECK_CONSISTENT_ON_STARTUP,
+                        + "-- Consider unchecking only if the startup time is too slow.",
+                p));
+        addField(new BooleanFieldEditor(InterpreterGeneralPreferences.CHECK_CONSISTENT_ON_STARTUP,
                 "Check initial consistency (in 1 minute) after startup?", p));
-        addField(new BooleanFieldEditor(UPDATE_INTERPRETER_INFO_ON_FILESYSTEM_CHANGES,
+        addField(new BooleanFieldEditor(InterpreterGeneralPreferences.UPDATE_INTERPRETER_INFO_ON_FILESYSTEM_CHANGES,
                 "Check consistency when related files (i.e.: .py, .pth) in the PYTHONPATH change?",
                 p));
         addField(new ButtonFieldEditor(
@@ -109,22 +92,13 @@ public class InterpreterGeneralPreferencesPage extends FieldEditorPreferencePage
                         + "\n"
                         + "All previous selections related to ignoring the changes will be cleared in this process.\n"
                         + "\n"
-                        + "The internal state of the interpreters will also be checked for corruption.\n"
-                ,
+                        + "The internal state of the interpreters will also be checked for corruption.\n",
                 null));
     }
 
     @Override
     public void init(IWorkbench workbench) {
         // pass
-    }
-
-    public static boolean getCheckConsistentOnStartup() {
-        return PydevPrefs.getPreferences().getBoolean(CHECK_CONSISTENT_ON_STARTUP);
-    }
-
-    public static boolean getReCheckOnFilesystemChanges() {
-        return PydevPrefs.getPreferences().getBoolean(UPDATE_INTERPRETER_INFO_ON_FILESYSTEM_CHANGES);
     }
 
 }

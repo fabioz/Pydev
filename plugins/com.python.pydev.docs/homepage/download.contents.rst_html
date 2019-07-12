@@ -1,0 +1,134 @@
+<doc>
+<contents_area>
+
+
+<!-- <right_area>
+<h3>Quick Install</h3>
+
+<p><strong>LiClipse</strong> </p>
+
+            <p>
+        Get LiClipse from <a href="http://www.liclipse.com/">http://www.liclipse.com</a> (and help supporting PyDev) and use a
+        native installer with PyDev builtin.
+        </p>
+    <br>
+
+<p><strong>Update Manager</strong> </p>
+
+<p> Go to the update manager (Help > Install New Software) and add:
+    <br>
+    <br>
+    <A href="http://www.pydev.org/updates">http://www.pydev.org/updates</A>&nbsp;&nbsp;&nbsp;(for latest version)&nbsp;&nbsp;&nbsp;or
+    <br>
+    <br>
+    <A href="http://www.pydev.org/nightly">http://www.pydev.org/nightly</A>&nbsp;&nbsp;&nbsp;(for nightly build)&nbsp;&nbsp;&nbsp
+    <br>
+    <br>
+    and follow the Eclipse steps.<br/>
+    <br/>
+    <strong>Note: </strong>View <A href="http://www.pydev.org/update_sites">http://www.pydev.org/update_sites</A> to browse the update sites for other versions.
+    </p>
+
+
+<br/>
+
+<p><strong>Zip File</strong></p>
+
+<p>An alternative is just getting the zip file and extracting it yourself in the eclipse <strong>dropins</strong> (and restart Eclipse).</p>
+
+</right_area>
+<image_area>download.png</image_area>
+<quote_area><strong>Getting it up and running in your computer...</strong></quote_area> -->
+<div class="section" id="important">
+<h1>Important</h1>
+<p>First time users are <strong>strongly</strong> advised to read the <a class="reference external" href="manual_101_root.html">PyDev Getting
+Started</a> which explains how to properly
+configure PyDev.</p>
+</div>
+<div class="section" id="standalone-install">
+<h1>Standalone install</h1>
+<p>PyDev is available in <strong>LiClipse</strong>, which provides a hassle free (and OS-native) experience to install it.</p>
+<p><strong>Note that by supporting LiClipse you also directly support the development PyDev itself.</strong></p>
+<p>See the  <a class="reference external" href="http://www.liclipse.com/">LiClipse homepage</a> for details on getting it.</p>
+<p>Also, if using Django-templates, Mako or RST, <a class="reference external" href="http://www.liclipse.com/">LiClipse</a> is the recommended install as
+it provides support for those languages (among others such as C++, CoffeScript, HTML, JavaScript, CSS, etc.), along
+with theming support -- which is especially nice for dark themes -- if you're into it :)</p>
+</div>
+<div class="section" id="install-as-plugin">
+<h1>Install as Plugin</h1>
+<p>If you wish to install PyDev as a plugin in an existing Eclipse installation, make
+sure you meet the requirements below and follow the <strong>Quick Install</strong> from the right-bar
+(or follow the step-by-step from <a class="reference external" href="manual_101_install.html">Getting Started Guide &gt; Install</a>).</p>
+<div class="section" id="requirements">
+<h2>Requirements</h2>
+<ul class="simple">
+<li><a class="reference external" href="http://www.javasoft.com/">Java</a> 8: <strong>Important</strong>: If you don't have java 8, the update process may appear to succeed,
+but PyDev will simply not show in the target installation. See <a class="reference external" href="manual_101_install.html">Getting Started Guide &gt; Install</a> for troubleshooting.</li>
+</ul>
+<p>At least one of:</p>
+<ul class="simple">
+<li><a class="reference external" href="http://www.python.org/">Python</a> <strong>(2.6 or newer)</strong></li>
+<li><a class="reference external" href="http://www.jython.org/">Jython</a> <strong>(2.6 or newer)</strong></li>
+<li><a class="reference external" href="http://www.codeplex.com/Wiki/View.aspx?ProjectName=IronPython">IronPython</a> <strong>(2.6 or newer)</strong> - excluding 2.7.6 and 2.7.7 have a <a class="reference external" href="https://github.com/IronLanguages/main/issues/1663">bug</a> which makes them unusable in PyDev.</li>
+</ul>
+<p>and</p>
+<ul class="simple">
+<li><a class="reference external" href="http://www.eclipse.org/">Eclipse 4.6 (Neon) onwards</a></li>
+</ul>
+<p><strong>Note</strong> if using Eclipse standalone: <a class="reference external" href="http://www.python.org/">Python</a>
+and
+<a class="reference external" href="http://www.codeplex.com/Wiki/View.aspx?ProjectName=IronPython">IronPython</a>
+require only the <a class="reference external" href="http://download.eclipse.org/eclipse/downloads/">Platform Runtime
+Binary</a> (get from <a class="reference external" href="http://download.eclipse.org/eclipse/downloads">http://download.eclipse.org/eclipse/downloads</a> - download
+around 45-50 MB), and <a class="reference external" href="http://www.jython.org/">Jython</a> also requires
+<a class="reference external" href="http://www.eclipse.org/jdt/">JDT</a>.</p>
+</div>
+<div class="section" id="requirements-for-profiling">
+<h2>Requirements for Profiling</h2>
+<p>To profile your programs, <a class="reference external" href="http://www.pyvmmonitor.com/">PyVmMonitor</a> is required and integrated through the
+profile view inside PyDev (window &gt; show view &gt; other &gt; PyDev &gt; profile).</p>
+</div>
+<div class="section" id="troubleshooting-install-problems">
+<h2>Troubleshooting install problems</h2>
+<p>To troubleshoot install problems, please visit the <a class="reference external" href="manual_101_install.html">Getting Started Guide &gt; Install</a> page.</p>
+</div>
+<div class="section" id="need-to-use-older-eclipse-java-python">
+<h2>Need to use older Eclipse/Java/Python</h2>
+<p>If you need to use an older version of Eclipse/Java/Python, below is the latest PyDev version to be used based on your requisites.</p>
+<ul class="simple">
+<li>Eclipse 4.5, Java 8: PyDev 5.2.0</li>
+<li>Eclipse 3.8, Java 7: PyDev 4.5.5</li>
+<li>Eclipse 3.x, Java 6: PyDev 2.8.2</li>
+<li>Python 2.5 or older: PyDev 5.5.0</li>
+</ul>
+</div>
+<div class="section" id="urls-for-pydev-as-eclipse-plugin">
+<h2>URLs for PyDev as Eclipse plugin</h2>
+<p>Urls to use when updating with the Eclipse update manager:</p>
+<p>Latest version:</p>
+<ul class="simple">
+<li><a class="reference external" href="http://www.pydev.org/updates">http://www.pydev.org/updates</a></li>
+</ul>
+<p>Nightly builds:</p>
+<ul class="simple">
+<li><a class="reference external" href="http://www.pydev.org/nightly">http://www.pydev.org/nightly</a></li>
+</ul>
+<p>Browse other versions <strong>(open in browser to select URL for Eclipse)</strong>:</p>
+<ul class="simple">
+<li><a class="reference external" href="http://www.pydev.org/update_sites">http://www.pydev.org/update_sites</a></li>
+</ul>
+</div>
+<div class="section" id="get-zip-releases">
+<h2>Get zip releases</h2>
+<ul class="simple">
+<li><a class="reference external" href="http://sourceforge.net/projects/pydev/files/">SourceForge
+download</a></li>
+</ul>
+</div>
+</div>
+</contents_area>
+
+
+
+</doc>
+

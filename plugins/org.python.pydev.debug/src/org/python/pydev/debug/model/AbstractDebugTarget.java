@@ -8,8 +8,10 @@ package org.python.pydev.debug.model;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IMarker;
@@ -42,6 +44,7 @@ import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.internal.console.IOConsolePartition;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
+import org.python.pydev.ast.location.FindWorkspaceFiles;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.IConsoleInputListener;
@@ -58,16 +61,18 @@ import org.python.pydev.debug.model.remote.SendPyExceptionCommand;
 import org.python.pydev.debug.model.remote.SetBreakpointCommand;
 import org.python.pydev.debug.model.remote.SetDjangoExceptionBreakpointCommand;
 import org.python.pydev.debug.model.remote.SetDontTraceEnabledCommand;
+import org.python.pydev.debug.model.remote.SetJinja2ExceptionBreakpointCommand;
 import org.python.pydev.debug.model.remote.SetPropertyTraceCommand;
+import org.python.pydev.debug.model.remote.SetShowReturnValuesEnabledCommand;
 import org.python.pydev.debug.model.remote.ThreadListCommand;
 import org.python.pydev.debug.model.remote.VersionCommand;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
-import org.python.pydev.editor.preferences.PydevEditorPrefs;
-import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.utils.ArrayUtils;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 /**
@@ -106,20 +111,12 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
      */
     protected ILaunch launch;
 
-    /**
-     * Class used to check for modifications in the values already found.
-     */
-    private ValueModificationChecker modificationChecker;
-
     private PyRunToLineTarget runToLineTarget;
 
     public AbstractDebugTarget() {
-        modificationChecker = new ValueModificationChecker();
     }
 
-    public ValueModificationChecker getModificationChecker() {
-        return modificationChecker;
-    }
+    private Set<Integer> currentBreakpointsAdded = new HashSet<>();
 
     @Override
     public abstract boolean canTerminate();
@@ -351,6 +348,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
                     if (file2 == null || line == null) {
                         Log.log("Trying to add breakpoint with invalid file: " + file2 + " or line: " + line);
                     } else {
+                        this.currentBreakpointsAdded.add(b.breakpointId);
                         SetBreakpointCommand cmd = new SetBreakpointCommand(this, b.breakpointId, file2, line,
                                 condition, b.getFunctionName(), b.getType());
                         this.postCommand(cmd);
@@ -369,8 +367,12 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
     public void breakpointRemoved(IBreakpoint breakpoint, IMarkerDelta delta) {
         if (breakpoint instanceof PyBreakpoint) {
             PyBreakpoint b = (PyBreakpoint) breakpoint;
-            RemoveBreakpointCommand cmd = new RemoveBreakpointCommand(this, b.breakpointId, b.getFile(), b.getType());
-            this.postCommand(cmd);
+            if (currentBreakpointsAdded.contains(b.breakpointId)) {
+                currentBreakpointsAdded.remove(b.breakpointId);
+                RemoveBreakpointCommand cmd = new RemoveBreakpointCommand(this, b.breakpointId, b.getFile(),
+                        b.getType());
+                this.postCommand(cmd);
+            }
         }
     }
 
@@ -438,6 +440,24 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
 
             } else if (cmdCode == AbstractDebuggerCommand.CMD_SEND_CURR_EXCEPTION_TRACE_PROCEEDED) {
                 processCaughtExceptionTraceProceededSent(payload);
+
+            } else if (cmdCode == AbstractDebuggerCommand.CMD_INPUT_REQUESTED) {
+                if ("true".equalsIgnoreCase(payload.trim())) {
+                    this.setWaitingForInput(true);
+
+                } else if ("false".equalsIgnoreCase(payload.trim())) {
+                    this.setWaitingForInput(false);
+
+                } else {
+                    PydevDebugPlugin.log(IStatus.WARNING, "Unexpected payload for CMD_INPUT_REQUESTED" +
+                            "\npayload:" + payload, null);
+                }
+
+            } else if (cmdCode == AbstractDebuggerCommand.CMD_SET_PROTOCOL) {
+                // Just ignore
+
+            } else if (cmdCode == AbstractDebuggerCommand.CMD_PROCESS_CREATED) {
+                // We don't really need to handle process created for now.
 
             } else {
                 PydevDebugPlugin.log(IStatus.WARNING, "Unexpected debugger command:" + sCmdCode +
@@ -523,16 +543,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
             threads = newThreads;
 
         } else {
-            PyThread[] combined = new PyThread[threads.length + newThreads.length];
-            int i = 0;
-            for (i = 0; i < threads.length; i++) {
-                combined[i] = threads[i];
-            }
-
-            for (int j = 0; j < newThreads.length; i++, j++) {
-                combined[i] = newThreads[j];
-            }
-            threads = combined;
+            threads = ArrayUtils.concatArrays(threads, newThreads);
         }
         // Now notify debugger that new threads were added
         for (int i = 0; i < newThreads.length; i++) {
@@ -604,14 +615,15 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
             } else if (stopReason_i == AbstractDebuggerCommand.CMD_SET_BREAK) {
                 reason = DebugEvent.BREAKPOINT;
 
+            } else if (stopReason_i == AbstractDebuggerCommand.CMD_ADD_EXCEPTION_BREAK) {
+                reason = DebugEvent.BREAKPOINT; // exception breakpoint
+
             } else {
-                PydevDebugPlugin.log(IStatus.ERROR, "Unexpected reason for suspension", null);
+                PydevDebugPlugin.log(IStatus.ERROR, "Unexpected reason for suspension: " + stopReason_i, null);
                 reason = DebugEvent.UNSPECIFIED;
             }
         }
         if (t != null) {
-            modificationChecker.onlyLeaveThreads(this.threads);
-
             IStackFrame stackFrame[] = threadNstack.stack;
             t.setSuspended(true, stackFrame);
             fireEvent(new DebugEvent(t, DebugEvent.SUSPEND, reason));
@@ -770,11 +782,17 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         @Override
         public void propertyChange(PropertyChangeEvent event) {
             String property = event.getProperty();
-            if (property.equals(PydevEditorPrefs.DONT_TRACE_ENABLED)) {
+            if (property.equals(PyDevEditorPreferences.DONT_TRACE_ENABLED)) {
                 sendDontTraceEnabledCommand();
 
-            } else if (property.equals(PydevEditorPrefs.TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS)) {
+            } else if (property.equals(PyDevEditorPreferences.SHOW_RETURN_VALUES)) {
+                sendShowReturnValuesEnabledCommand();
+
+            } else if (property.equals(PyDevEditorPreferences.TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS)) {
                 sendSetDjangoExceptionBreakpointCommand();
+
+            } else if (property.equals(PyDevEditorPreferences.TRACE_JINJA2_TEMPLATE_RENDER_EXCEPTIONS)) {
+                sendSetJinja2ExceptionBreakpointCommand();
             }
         }
     };
@@ -798,7 +816,9 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         this.onSetPropertyTraceConfiguration();
         this.onUpdateIgnoreThrownExceptions();
         this.sendSetDjangoExceptionBreakpointCommand();
+        this.sendSetJinja2ExceptionBreakpointCommand();
         this.sendDontTraceEnabledCommand();
+        this.sendShowReturnValuesEnabledCommand();
 
         IPreferenceStore pyPrefsStore = PydevPlugin.getDefault().getPreferenceStore();
         pyPrefsStore.addPropertyChangeListener(listener);
@@ -811,14 +831,28 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
     private void sendDontTraceEnabledCommand() {
         IPreferenceStore pyPrefsStore = PydevPlugin.getDefault().getPreferenceStore();
         SetDontTraceEnabledCommand cmd = new SetDontTraceEnabledCommand(this,
-                pyPrefsStore.getBoolean(PydevEditorPrefs.DONT_TRACE_ENABLED));
+                pyPrefsStore.getBoolean(PyDevEditorPreferences.DONT_TRACE_ENABLED));
+        this.postCommand(cmd);
+    }
+
+    private void sendShowReturnValuesEnabledCommand() {
+        IPreferenceStore pyPrefsStore = PydevPlugin.getDefault().getPreferenceStore();
+        SetShowReturnValuesEnabledCommand cmd = new SetShowReturnValuesEnabledCommand(this,
+                pyPrefsStore.getBoolean(PyDevEditorPreferences.SHOW_RETURN_VALUES));
         this.postCommand(cmd);
     }
 
     private void sendSetDjangoExceptionBreakpointCommand() {
         IPreferenceStore pyPrefsStore = PydevPlugin.getDefault().getPreferenceStore();
         SetDjangoExceptionBreakpointCommand cmd = new SetDjangoExceptionBreakpointCommand(
-                this, pyPrefsStore.getBoolean(PydevEditorPrefs.TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS));
+                this, pyPrefsStore.getBoolean(PyDevEditorPreferences.TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS));
+        this.postCommand(cmd);
+    }
+
+    private void sendSetJinja2ExceptionBreakpointCommand() {
+        IPreferenceStore pyPrefsStore = PydevPlugin.getDefault().getPreferenceStore();
+        SetJinja2ExceptionBreakpointCommand cmd = new SetJinja2ExceptionBreakpointCommand(
+                this, pyPrefsStore.getBoolean(PyDevEditorPreferences.TRACE_JINJA2_TEMPLATE_RENDER_EXCEPTIONS));
         this.postCommand(cmd);
     }
 
@@ -866,11 +900,18 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
             final List<IConsoleInputListener> participants = ExtensionHelper
                     .getParticipants(ExtensionHelper.PYDEV_DEBUG_CONSOLE_INPUT_LISTENER);
             final AbstractDebugTarget target = this;
+
+            target.addProcessConsole(c);
+
             //let's listen the doc for the changes
             c.getDocument().addDocumentListener(new IDocumentListener() {
 
                 @Override
                 public void documentAboutToBeChanged(DocumentEvent event) {
+                    if (target.isWaitingForInput()) {
+                        return;
+                    }
+
                     //only report when we have a new line
                     if (event.fText.indexOf('\r') != -1 || event.fText.indexOf('\n') != -1) {
                         try {
@@ -899,6 +940,10 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
 
                 @Override
                 public void documentChanged(DocumentEvent event) {
+                    if (target.isWaitingForInput()) {
+                        return;
+                    }
+
                     //only report when we have a new line
                     if (event.fText.indexOf('\r') != -1 || event.fText.indexOf('\n') != -1) {
                         try {
@@ -935,7 +980,6 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
     @Override
     public void disconnect() throws DebugException {
         this.terminate();
-        modificationChecker = null;
     }
 
     @Override
@@ -955,7 +999,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         } else if (adapter.equals(IResource.class)) {
             // used by Variable ContextManager, and Project:Properties menu item
             if (file != null && file.length > 0) {
-                return (T) new PySourceLocatorBase().getFileForLocation(file[0], null);
+                return (T) FindWorkspaceFiles.getFileForLocation(file[0], null);
             } else {
                 return null;
             }

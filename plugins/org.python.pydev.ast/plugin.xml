@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+
+   <extension-point id="org.python.pydev.pydev_completion" name="PyDev completion" schema="schema/org.python.pydev.pydev_completion.exsd"/>
+   <extension-point id="org.python.pydev.pydev_manager_observer" name="PyDev code completion manager observer" schema="schema/org.python.pydev.pydev_manager_observer.exsd"/>
+   <extension-point id="org.python.pydev.pydev_builder" name="PyDev Builder" schema="schema/org.python.pydev.pydev_builder.exsd"/>
+   <extension-point id="org.python.pydev.pydev_modules_observer" name="PyDev modules observer" schema="schema/org.python.pydev.pydev_modules_observer.exsd"/>
+   <extension-point id="org.python.pydev.pydev_interpreter_observer" name="PyDev Interpreter Observer" schema="schema/org.python.pydev.pydev_interpreter_observer.exsd"/>
+   <extension-point id="org.python.pydev.pydev_interpreter_new_custom_entries" name="PyDev Interpreter New Custom Entries" schema="schema/org.python.pydev.pydev_interpreter_new_custom_entries.exsd"/>
+   <extension-point id="org.python.pydev.pydev_simpleassist" name="PyDev Simple Assist" schema="schema/org.python.pydev.pydev_simpleassist.exsd"/>
+   <extension-point id="org.python.pydev.pydev_refactoring" name="PyDev Refactoring" schema="schema/org.python.pydev.pydev_refactoring.exsd"/>
+   <extension-point id="org.python.pydev.pydev_interpreter_info_builder" name="PyDev interpreter info builder" schema="schema/org.python.pydev.pydev_interpreter_info_builder.exsd"/>
+   <extension-point id="org.python.pydev.pydev_python_module_resolver" name="Python module resolver" schema="schema/org.python.pydev.pydev_python_module_resolver.exsd"/>
+   <extension-point id="org.python.pydev.pydev_pythonpath_contrib" name="Python Path Contributor" schema="schema/org.python.pydev.pydev_pythonpath_contrib.exsd"/>
+
+<!-- Nature for pydev -->
+   <extension
+         id="org.python.pydev.pythonNature"
+         name="Python Nature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run
+               class="org.python.pydev.plugin.nature.PythonNature">
+         </run>
+      </runtime>
+   </extension>
+
+<!-- Builder for pydev -->
+    <extension
+         id="org.python.pydev.PyDevBuilder"
+         name="PyDev Builder"
+         point="org.eclipse.core.resources.builders">
+      <builder>
+         <run class="org.python.pydev.ast.builder.PyDevBuilder"/>
+      </builder>
+    </extension>
+
+</plugin>

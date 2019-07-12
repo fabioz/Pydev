@@ -13,7 +13,7 @@ import org.eclipse.osgi.util.NLS;
 
 public class ScriptConsoleMessages extends NLS {
 
-    private static final String BUNDLE_NAME = "org.python.pydev.shared_interactive_console.console.ui.internal.ScriptConsoleMessages"; //$NON-NLS-1$
+    private static final String BUNDLE_NAME = ScriptConsoleMessages.class.getName();
 
     public static String SaveSessionAction;
 
@@ -30,6 +30,14 @@ public class ScriptConsoleMessages extends NLS {
     public static String InterruptConsoleAction;
 
     public static String InterruptConsoleTooltip;
+
+    public static String WordWrapConsoleAction;
+
+    public static String WordWrapConsoleTooltip;
+
+    public static String ScrollLockConsoleAction;
+
+    public static String ScrollLockConsoleTooltip;
 
     static {
         NLS.initializeMessages(BUNDLE_NAME, ScriptConsoleMessages.class);

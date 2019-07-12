@@ -456,7 +456,7 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
             StyledText textWidget = fTextViewer.getTextWidget();
             //Calling setBackground/setForeground leads to a repaint on some Linux variants (ubuntu 12), so
             //we must only call it if it actually changed to prevent a repaint.
-            //View: https://sw-brainwy.rhcloud.com/tracker/LiClipse/120
+            //View: https://www.brainwy.com/tracker/LiClipse/120
             Color background = textWidget.getBackground();
             if (lastBackground == null || !lastBackground.equals(background)) {
                 fCanvas.setBackground(background);

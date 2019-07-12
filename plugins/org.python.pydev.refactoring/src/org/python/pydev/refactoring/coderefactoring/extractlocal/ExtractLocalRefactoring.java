@@ -30,7 +30,6 @@ import java.util.List;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.Document;
-import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.jython.ParseException;
@@ -48,6 +47,7 @@ import org.python.pydev.refactoring.core.change.IChangeProcessor;
 import org.python.pydev.refactoring.core.validator.NameValidator;
 import org.python.pydev.refactoring.messages.Messages;
 import org.python.pydev.refactoring.utils.ListUtils;
+import org.python.pydev.shared_core.string.ICoreTextSelection;
 import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 import org.python.pydev.shared_core.structure.Tuple;
 
@@ -68,22 +68,23 @@ public class ExtractLocalRefactoring extends AbstractPythonRefactoring {
 
     @Override
     public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException {
-        List<Tuple<ITextSelection, ModuleAdapter>> selections = new LinkedListWarningOnSlowOperations<Tuple<ITextSelection, ModuleAdapter>>();
+        List<Tuple<ICoreTextSelection, ModuleAdapter>> selections = new LinkedListWarningOnSlowOperations<Tuple<ICoreTextSelection, ModuleAdapter>>();
 
         /* Use different approaches to find a valid selection */
         selections
-                .add(new Tuple<ITextSelection, ModuleAdapter>(info.getUserSelection(), info.getParsedUserSelection()));
+                .add(new Tuple<ICoreTextSelection, ModuleAdapter>(info.getUserSelection(),
+                        info.getParsedUserSelection()));
 
-        selections.add(new Tuple<ITextSelection, ModuleAdapter>(info.getExtendedSelection(), info
+        selections.add(new Tuple<ICoreTextSelection, ModuleAdapter>(info.getExtendedSelection(), info
                 .getParsedExtendedSelection()));
 
-        selections.add(new Tuple<ITextSelection, ModuleAdapter>(info.getUserSelection(),
+        selections.add(new Tuple<ICoreTextSelection, ModuleAdapter>(info.getUserSelection(),
                 getParsedMultilineSelection(info.getUserSelection())));
 
         /* Find a valid selection */
-        ITextSelection selection = null;
+        ICoreTextSelection selection = null;
         exprType expression = null;
-        for (Tuple<ITextSelection, ModuleAdapter> s : selections) {
+        for (Tuple<ICoreTextSelection, ModuleAdapter> s : selections) {
             /* Is selection valid? */
             if (s != null) {
                 expression = extractExpression(s.o2);
@@ -108,7 +109,7 @@ public class ExtractLocalRefactoring extends AbstractPythonRefactoring {
         return status;
     }
 
-    private ModuleAdapter getParsedMultilineSelection(ITextSelection selection) {
+    private ModuleAdapter getParsedMultilineSelection(ICoreTextSelection selection) {
         String source = selection.getText();
         source = source.replaceAll("\n", "");
         source = source.replaceAll("\r", "");

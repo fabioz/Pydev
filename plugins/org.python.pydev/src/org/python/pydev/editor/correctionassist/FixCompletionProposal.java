@@ -19,14 +19,17 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
+import org.python.pydev.shared_core.image.IImageHandle;
+import org.python.pydev.shared_ui.ImageCache;
 
 /**
  * A new Completion proposal because the default is final.
  * This differs because we can specify a line to be deleted after the completion is processed.
- * 
+ *
  * @author Fabio Zadrozny
  */
-public class FixCompletionProposal implements ICompletionProposal {
+public class FixCompletionProposal implements ICompletionProposal, ICompletionProposalHandle {
 
     /** The string to be displayed in the completion proposal popup. */
     private String fDisplayString;
@@ -39,27 +42,12 @@ public class FixCompletionProposal implements ICompletionProposal {
     /** The cursor position after this proposal has been applied. */
     private int fCursorPosition;
     /** The image to be displayed in the completion proposal popup. */
-    private Image fImage;
+    private IImageHandle fImage;
     /** The context information of this proposal. */
     private IContextInformation fContextInformation;
     /** The additional info of this proposal. */
     private String fAdditionalProposalInfo;
     private int lineToRemove;
-
-    /**
-     * Creates a new completion proposal based on the provided information. The replacement string is
-     * considered being the display string too. All remaining fields are set to <code>null</code>.
-     *
-     * @param replacementString the actual string to be inserted into the document
-     * @param replacementOffset the offset of the text to be replaced
-     * @param replacementLength the length of the text to be replaced
-     * @param cursorPosition the position of the cursor following the insert relative to replacementOffset
-     */
-    public FixCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
-            int cursorPosition, int lineToRemove) {
-        this(replacementString, replacementOffset, replacementLength, cursorPosition, null, null, null, null,
-                lineToRemove);
-    }
 
     /**
      * Creates a new completion proposal. All fields are initialized based on the provided information.
@@ -74,7 +62,7 @@ public class FixCompletionProposal implements ICompletionProposal {
      * @param additionalProposalInfo the additional information associated with this proposal
      */
     public FixCompletionProposal(String replacementString, int replacementOffset, int replacementLength,
-            int cursorPosition, Image image, String displayString, IContextInformation contextInformation,
+            int cursorPosition, IImageHandle image, String displayString, IContextInformation contextInformation,
             String additionalProposalInfo, int lineToRemove) {
         Assert.isNotNull(replacementString);
         Assert.isTrue(replacementOffset >= 0);
@@ -139,7 +127,7 @@ public class FixCompletionProposal implements ICompletionProposal {
      */
     @Override
     public Image getImage() {
-        return fImage;
+        return ImageCache.asImage(fImage);
     }
 
     /*
@@ -147,8 +135,9 @@ public class FixCompletionProposal implements ICompletionProposal {
      */
     @Override
     public String getDisplayString() {
-        if (fDisplayString != null)
+        if (fDisplayString != null) {
             return fDisplayString;
+        }
         return fReplacementString;
     }
 

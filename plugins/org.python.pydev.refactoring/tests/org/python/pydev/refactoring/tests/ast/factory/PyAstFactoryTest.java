@@ -51,6 +51,11 @@ public class PyAstFactoryTest extends PyParserTestBase {
             public int getGrammarVersion() throws MisconfigurationException {
                 return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
             }
+
+            @Override
+            public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions() throws MisconfigurationException {
+                return null;
+            }
         }));
     }
 
@@ -192,6 +197,12 @@ public class PyAstFactoryTest extends PyParserTestBase {
                     @Override
                     public int getGrammarVersion() throws MisconfigurationException {
                         return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
+                    }
+
+                    @Override
+                    public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions()
+                            throws MisconfigurationException {
+                        return null;
                     }
                 }));
         String result = printer.print(functionDef);

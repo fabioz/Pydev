@@ -28,14 +28,14 @@ import java.io.File;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.ITextSelection;
+import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISourceModule;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.core.preferences.FileTypesPreferences;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -53,13 +53,14 @@ import org.python.pydev.refactoring.ast.visitors.selection.SelectionExtenderVisi
 import org.python.pydev.refactoring.ast.visitors.selection.SelectionValidationVisitor;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
-import org.python.pydev.ui.filetypes.FileTypesPreferencesPage;
+import org.python.pydev.shared_core.string.ICoreTextSelection;
 
 public final class VisitorFactory {
     private VisitorFactory() {
     }
 
-    public static ITextSelection createSelectionExtension(AbstractScopeNode<?> scope, ITextSelection selection) {
+    public static ICoreTextSelection createSelectionExtension(AbstractScopeNode<?> scope,
+            ICoreTextSelection selection) {
         SelectionExtenderVisitor visitor = null;
         try {
             visitor = new SelectionExtenderVisitor(scope.getModule(), selection);
@@ -116,12 +117,18 @@ public final class VisitorFactory {
     public static ModuleAdapter createModuleAdapter(PythonModuleManager pythonModuleManager, File file, IDocument doc,
             IPythonNature nature, IGrammarVersionProvider versionProvider) throws Throwable {
         if (file != null && file.exists()) {
-            if (FileTypesPreferencesPage.isCythonFile(file.getName())) {
+            if (FileTypesPreferences.isCythonFile(file.getName())) {
                 versionProvider = new IGrammarVersionProvider() {
 
                     @Override
                     public int getGrammarVersion() throws MisconfigurationException {
                         return IPythonNature.GRAMMAR_PYTHON_VERSION_CYTHON;
+                    }
+
+                    @Override
+                    public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions()
+                            throws MisconfigurationException {
+                        return null;
                     }
                 };
             }
@@ -156,8 +163,7 @@ public final class VisitorFactory {
 
     public static Module getRootNode(IDocument doc, IGrammarVersionProvider versionProvider) throws ParseException,
             MisconfigurationException {
-        ParseOutput objects = PyParser.reparseDocument(new PyParser.ParserInfo(doc, versionProvider
-                .getGrammarVersion()));
+        ParseOutput objects = PyParser.reparseDocument(new PyParser.ParserInfo(doc, versionProvider));
         Throwable exception = objects.error;
 
         if (exception != null) {
@@ -181,7 +187,7 @@ public final class VisitorFactory {
     /**
      * Provides a way to find duplicates of a given expression.
      */
-    public static FindDuplicatesVisitor createDuplicatesVisitor(ITextSelection selection, SimpleNode nodeToVisit,
+    public static FindDuplicatesVisitor createDuplicatesVisitor(ICoreTextSelection selection, SimpleNode nodeToVisit,
             exprType expression, AbstractScopeNode node, IDocument doc) {
         FindDuplicatesVisitor visitor = new FindDuplicatesVisitor(selection, expression, doc);
         try {

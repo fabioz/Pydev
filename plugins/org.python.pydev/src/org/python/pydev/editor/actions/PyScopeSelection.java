@@ -11,6 +11,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.shared_core.log.Log;
+import org.python.pydev.shared_core.string.CoreTextSelection;
 import org.python.pydev.shared_ui.actions.ScopeSelectionAction;
 
 /**
@@ -26,7 +27,8 @@ public class PyScopeSelection extends PyAction {
             IDocument doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
             ITextSelection selection = (ITextSelection) editor.getSelectionProvider().getSelection();
 
-            new ScopeSelectionAction().perform(doc, selection, editor);
+            new ScopeSelectionAction().perform(doc,
+                    new CoreTextSelection(doc, selection.getOffset(), selection.getLength()), editor);
         } catch (Exception e) {
             Log.log(e);
         }

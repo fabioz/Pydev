@@ -22,7 +22,7 @@ import org.python.pydev.plugin.PydevPlugin;
 
 /**
  * Abstract preference page which is used to wrap a
- * {@link org.python.pydev.plugin.preferences.IPreferenceConfigurationBlock}.
+ * {@link org.python.pydev.core.preferences.IPreferenceConfigurationBlock}.
  *
  * @since 3.0
  */

@@ -2,28 +2,33 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Parser Plug-in
 Bundle-SymbolicName: org.python.pydev.parser; singleton:=true
-Bundle-Version: 5.0.0.qualifier
+Bundle-Version: 7.2.1.qualifier
 Bundle-ClassPath: parser.jar
 Bundle-Activator: org.python.pydev.parser.ParserPlugin
-Bundle-Localization: plugin
 Eclipse-BundleShape: dir
 Require-Bundle: org.junit;bundle-version="4.0.0";resolution:=optional,
- org.eclipse.ui,
- org.eclipse.ui.ide,
  org.eclipse.core.runtime,
  org.eclipse.core.resources,
- org.eclipse.jface.text,
- org.python.pydev.core;bundle-version="[5.0.0,5.0.1)",
- org.eclipse.ui.editors,
- org.eclipse.ui.workbench.texteditor
+ org.eclipse.text,
+ org.python.pydev.core;bundle-version="[7.2.1,7.2.2)"
 Bundle-ActivationPolicy: lazy
-Export-Package: org.python.pydev.parser,org.python.pydev.parser.fastpa
- rser,org.python.pydev.parser.grammar24,org.python.pydev.parser.gramma
- r25,org.python.pydev.parser.grammar26,org.python.pydev.parser.grammar
- 27,org.python.pydev.parser.grammar30,org.python.pydev.parser.grammarc
- ommon,org.python.pydev.parser.jython,org.python.pydev.parser.jython.a
- st,org.python.pydev.parser.jython.ast.factory,org.python.pydev.parser
- .prettyprinter,org.python.pydev.parser.prettyprinterv2,org.python.pyd
- ev.parser.profile,org.python.pydev.parser.visitors,org.python.pydev.p
- arser.visitors.comparator,org.python.pydev.parser.visitors.scope
+Export-Package: org.python.pydev.parser,
+ org.python.pydev.parser.fastparser,
+ org.python.pydev.parser.fastparser.grammar_fstrings_common,
+ org.python.pydev.parser.grammar25,
+ org.python.pydev.parser.grammar26,
+ org.python.pydev.parser.grammar27,
+ org.python.pydev.parser.grammar30,
+ org.python.pydev.parser.grammar36,
+ org.python.pydev.parser.grammar_fstrings,
+ org.python.pydev.parser.grammarcommon,
+ org.python.pydev.parser.jython,
+ org.python.pydev.parser.jython.ast,
+ org.python.pydev.parser.jython.ast.factory,
+ org.python.pydev.parser.preferences,
+ org.python.pydev.parser.prettyprinter,
+ org.python.pydev.parser.prettyprinterv2,
+ org.python.pydev.parser.visitors,
+ org.python.pydev.parser.visitors.comparator,
+ org.python.pydev.parser.visitors.scope
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

@@ -12,7 +12,7 @@ import org.eclipse.debug.ui.EnvironmentTab;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.debug.ui.RefreshTab;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
 
 /**
  * Create tabs for the unittest setup.
@@ -24,7 +24,7 @@ public class IronpythonUnittestTabGroup extends AbstractLaunchConfigurationTabGr
         MainModuleTab mainModuleTab = new MainModuleTab();
         ILaunchConfigurationTab[] tabs = new ILaunchConfigurationTab[] { mainModuleTab,
                 new UnittestArgumentsTab(mainModuleTab),
-                new InterpreterTab(PydevPlugin.getIronpythonInterpreterManager()), new RefreshTab(),
+                new InterpreterTab(InterpreterManagersAPI.getIronpythonInterpreterManager()), new RefreshTab(),
                 new EnvironmentTab(), new CommonTab() };
         setTabs(tabs);
     }

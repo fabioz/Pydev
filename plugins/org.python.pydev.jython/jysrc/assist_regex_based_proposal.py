@@ -27,7 +27,7 @@ from org.python.pydev.editor.actions import PyAction #@UnresolvedImport
 import assist_proposal
 
 class RegexBasedAssistProposal(assist_proposal.AssistProposal):
-    """Base class for regex driven Quick Assist proposals.
+    r"""Base class for regex driven Quick Assist proposals.
     
     More docs available in base class source.
         

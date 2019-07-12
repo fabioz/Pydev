@@ -150,4 +150,8 @@ public class LinkFieldEditor extends FieldEditor {
         //super.setEnabled(enabled, parent); -- don't call super!
         link.setEnabled(enabled);
     }
+
+    public void setVisible(boolean visible) {
+        link.setVisible(visible);
+    }
 }

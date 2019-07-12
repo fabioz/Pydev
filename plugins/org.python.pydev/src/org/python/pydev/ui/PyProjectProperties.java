@@ -6,7 +6,7 @@
  */
 /*
  * Created on Mar 11, 2004
- * 
+ *
  * @author Fabio Zadrozny
  */
 package org.python.pydev.ui;
@@ -33,10 +33,11 @@ import org.eclipse.ui.dialogs.PropertyPage;
 import org.eclipse.ui.dialogs.ResourceSelectionDialog;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_core.string.StringUtils;
-import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.ui.dialogs.ProjectFolderSelectionDialog;
 import org.python.pydev.ui.editors.TreeWithAddRemove;
 
@@ -61,7 +62,7 @@ public class PyProjectProperties extends PropertyPage {
     private TreeWithAddRemove treeExternalLibs;
 
     /**
-     * Variables are edited here 
+     * Variables are edited here
      */
     private TabVariables tabVariables;
 
@@ -75,7 +76,7 @@ public class PyProjectProperties extends PropertyPage {
      */
     @Override
     protected Control createContents(Composite p) {
-        project = (IProject) getElement().getAdapter(IProject.class);
+        project = getElement().getAdapter(IProject.class);
 
         Composite topComp = new Composite(p, SWT.NONE);
         GridLayout innerLayout = new GridLayout();
@@ -136,7 +137,7 @@ public class PyProjectProperties extends PropertyPage {
         TabItem tabItem = new TabItem(tabFolder, SWT.None);
         tabItem.setText("External Libraries");
         Composite topComp = new Composite(tabFolder, SWT.None);
-        tabItem.setImage(PydevPlugin.getImageCache().get(UIConstants.LIB_SYSTEM));
+        tabItem.setImage(ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.LIB_SYSTEM)));
         topComp.setLayout(new GridLayout(1, false));
 
         GridData gd;
@@ -205,7 +206,7 @@ public class PyProjectProperties extends PropertyPage {
     private void createTabProjectSourceFolders(String sourcePath) {
         TabItem tabItem = new TabItem(tabFolder, SWT.None);
         tabItem.setText("Source Folders");
-        tabItem.setImage(PydevPlugin.getImageCache().get(UIConstants.SOURCE_FOLDER_ICON));
+        tabItem.setImage(ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.SOURCE_FOLDER_ICON)));
         Composite topComp = new Composite(tabFolder, SWT.None);
         topComp.setLayout(new GridLayout(1, false));
 
@@ -274,7 +275,7 @@ public class PyProjectProperties extends PropertyPage {
 
     /**
      * Apply only saves the new value. does not do code completion update.
-     * 
+     *
      * @see org.eclipse.jface.preference.PreferencePage#performApply()
      */
     @Override
@@ -283,7 +284,7 @@ public class PyProjectProperties extends PropertyPage {
     }
 
     /**
-     * Saves values into the project and updates the code completion. 
+     * Saves values into the project and updates the code completion.
      */
     @Override
     public boolean performOk() {

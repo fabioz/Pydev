@@ -6,9 +6,12 @@
  */
 package org.python.pydev.outline;
 
+import java.util.List;
+
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.parser.PyParserTestBase;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
 import org.python.pydev.parser.visitors.scope.OutlineCreatorVisitor;
 
@@ -163,5 +166,29 @@ public class ParsedItemTest extends PyParserTestBase {
         ParsedItem item2 = new ParsedItem(visitor2.getAll().toArray(new ASTEntryWithChildren[0]), null);
 
         item.updateTo(item2);
+    }
+
+    public void testCommentsSkippedOnTryExcept() throws Exception {
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7);
+        String str = "" +
+                "if ( False ):\n" +
+                "    pass\n" +
+                "#--- comment4 is shown in outline, as expected\n" +
+                "\n" +
+                "try:\n" +
+                "    pass\n" +
+                "except NameError:\n" +
+                "    pass\n" +
+                "\n" +
+                "#--- comment5 is not shown in outline !!! Why is that???\n" +
+                "\n" +
+                "pass\n" +
+                "#--- comment6 is shown in outline, as expected" +
+                "";
+
+        SimpleNode node = parseLegalDocStr(str);
+        OutlineCreatorVisitor visitor = OutlineCreatorVisitor.create(node);
+        List<ASTEntry> all = visitor.getAll();
+        assertEquals(3, all.size());
     }
 }

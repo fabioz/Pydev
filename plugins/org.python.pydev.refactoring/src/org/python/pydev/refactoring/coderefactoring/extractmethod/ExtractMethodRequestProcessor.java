@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.eclipse.jface.text.ITextSelection;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
@@ -37,6 +36,7 @@ import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
 import org.python.pydev.refactoring.coderefactoring.extractmethod.edit.ParameterReturnDeduce;
 import org.python.pydev.refactoring.coderefactoring.extractmethod.request.ExtractMethodRequest;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
+import org.python.pydev.shared_core.string.ICoreTextSelection;
 
 public class ExtractMethodRequestProcessor implements IRequestProcessor<ExtractMethodRequest> {
 
@@ -54,17 +54,17 @@ public class ExtractMethodRequestProcessor implements IRequestProcessor<ExtractM
 
     private List<String> parameterOrder;
 
-    private ITextSelection selection;
+    private ICoreTextSelection selection;
 
     private AdapterPrefs adapterPrefs;
 
     public ExtractMethodRequestProcessor(AbstractScopeNode<?> scopeAdapter, ModuleAdapter parsedSelection,
-            ModuleAdapter module, ITextSelection selection) {
+            ModuleAdapter module, ICoreTextSelection selection) {
         initProcessor(scopeAdapter, parsedSelection, module, selection);
     }
 
     public void initProcessor(AbstractScopeNode<?> scopeAdapter, ModuleAdapter parsedSelection, ModuleAdapter module,
-            ITextSelection selection) {
+            ICoreTextSelection selection) {
         this.methodName = "pepticMethod";
         this.scopeAdapter = scopeAdapter;
         this.selection = selection;

@@ -11,7 +11,15 @@
  */
 package org.python.pydev.ui;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -20,7 +28,9 @@ import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.PreferenceDialog;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
@@ -30,34 +40,50 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.dialogs.PropertyPage;
+import org.python.pydev.ast.interpreter_managers.IInterpreterProviderFactory.InterpreterType;
+import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
+import org.python.pydev.core.IGrammarVersionProvider;
+import org.python.pydev.core.IGrammarVersionProvider.AdditionalGrammarVersionsToCheck;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.plugin.nature.PipenvHelper;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
+import org.python.pydev.shared_core.callbacks.ICallback0;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.utils.ArrayUtils;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
+import org.python.pydev.ui.dialogs.SelectNDialog;
+import org.python.pydev.ui.pythonpathconf.AbstractInterpreterPreferencesPage;
 import org.python.pydev.ui.pythonpathconf.AutoConfigMaker;
-import org.python.pydev.ui.pythonpathconf.IInterpreterProviderFactory.InterpreterType;
 import org.python.pydev.ui.pythonpathconf.InterpreterConfigHelpers;
-import org.python.pydev.utils.ICallback;
+import org.python.pydev.ui.pythonpathconf.ObtainInterpreterInfoOperation;
 
 /**
  * @author Fabio Zadrozny
  */
 public class PyProjectPythonDetails extends PropertyPage {
 
+    private static final String ADDITIONAL_SYNTAX_PREFIX = "Additional syntax validation: ";
+    private static final String ADDITIONAL_SYNTAX_NO_SELECTED = ADDITIONAL_SYNTAX_PREFIX
+            + "<no additional grammars selected>.";
+
     /**
      * This class provides a way to show to the user the options available to configure a project with the
      * correct interpreter and grammar.
      */
     public static class ProjectInterpreterAndGrammarConfig {
+        private static final String DEFAULT_PREFIX = IPythonNature.DEFAULT_INTERPRETER + "  --  currently: ";
         private static final String INTERPRETER_NOT_CONFIGURED_MSG = "<a>Please configure an interpreter before proceeding.</a>";
         public Button radioPy;
         public Button radioJy;
@@ -67,19 +93,28 @@ public class PyProjectPythonDetails extends PropertyPage {
         public Combo interpretersChoice;
         private Link interpreterNoteText;
         private SelectionListener selectionListener;
-        private ICallback onSelectionChanged;
+        private ICallback0<Object> onSelectionChanged;
         private Label interpreterLabel;
+        private Label labelAdditionalGrammarsSelected;
+        private ICallback0<String> getProjectLocation;
 
-        public ProjectInterpreterAndGrammarConfig() {
+        public ProjectInterpreterAndGrammarConfig(ICallback0<String> getProjectLocation) {
             //Don't want to display "config interpreter" dialog when this dialog does that already.
             PyDialogHelpers.enableAskInterpreterStep(false);
+            this.getProjectLocation = getProjectLocation;
         }
 
         /**
          * Optionally, a callback may be passed to be called whenever the selection of the project type changes.
          */
-        public ProjectInterpreterAndGrammarConfig(ICallback callback) {
-            this.onSelectionChanged = callback;
+        public ProjectInterpreterAndGrammarConfig(ICallback0<Object> onSelectionChanged,
+                ICallback0<String> getProjectLocation, CallbackWithListeners<Event> onLocationChanged) {
+            this.onSelectionChanged = onSelectionChanged;
+            this.getProjectLocation = getProjectLocation;
+            onLocationChanged.registerListener((event) -> {
+                updateInterpretersAndDefaultInCombo();
+                return null;
+            });
         }
 
         public Control doCreateContents(Composite p) {
@@ -155,22 +190,25 @@ public class PyProjectPythonDetails extends PropertyPage {
                         }
                     }
 
-                    IInterpreterManager interpreterManager;
-
-                    if (radioJy.getSelection()) {
-                        interpreterManager = PydevPlugin.getJythonInterpreterManager();
-
-                    } else if (radioIron.getSelection()) {
-                        interpreterManager = PydevPlugin.getIronpythonInterpreterManager();
-
-                    } else {
-                        interpreterManager = PydevPlugin.getPythonInterpreterManager();
-                    }
+                    IInterpreterManager interpreterManager = getInterpreterManager();
+                    int interpreterType = interpreterManager.getInterpreterType();
 
                     IInterpreterInfo[] interpretersInfo = interpreterManager.getInterpreterInfos();
                     if (interpretersInfo.length > 0) {
+                        String defaultEntry = DEFAULT_PREFIX + interpretersInfo[0].getName();
+
+                        if (interpreterType == IInterpreterManager.INTERPRETER_TYPE_PYTHON) {
+                            File projectlocation = new File(getProjectLocation.call());
+                            IInterpreterInfo pipenvInterpreterInfoForProjectLocation = PipenvHelper
+                                    .getPipenvInterpreterInfoForProjectLocation(interpretersInfo, projectlocation,
+                                            interpreterManager);
+                            if (pipenvInterpreterInfoForProjectLocation != null) {
+                                defaultEntry = DEFAULT_PREFIX + pipenvInterpreterInfoForProjectLocation.getName();
+                            }
+                        }
+
                         ArrayList<String> interpretersWithDefault = new ArrayList<String>();
-                        interpretersWithDefault.add(IPythonNature.DEFAULT_INTERPRETER);
+                        interpretersWithDefault.add(defaultEntry);
                         for (IInterpreterInfo info : interpretersInfo) {
                             interpretersWithDefault.add(info.getName());
                         }
@@ -178,7 +216,7 @@ public class PyProjectPythonDetails extends PropertyPage {
 
                         interpretersChoice.setVisible(true);
                         interpreterNoteText.setText("<a>Click here to configure an interpreter not listed.</a>");
-                        interpretersChoice.setText(IPythonNature.DEFAULT_INTERPRETER);
+                        interpretersChoice.setText(defaultEntry);
 
                     } else {
                         interpretersChoice.setVisible(false);
@@ -186,24 +224,8 @@ public class PyProjectPythonDetails extends PropertyPage {
 
                     }
                     //config which preferences page should be opened!
-                    switch (interpreterManager.getInterpreterType()) {
-                        case IInterpreterManager.INTERPRETER_TYPE_PYTHON:
-                            idToConfig[0] = "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPagePython";
-                            break;
-
-                        case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
-                            idToConfig[0] = "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageJython";
-                            break;
-
-                        case IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON:
-                            idToConfig[0] = "org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageIronpython";
-                            break;
-
-                        default:
-                            throw new RuntimeException("Cannot recognize type: "
-                                    + interpreterManager.getInterpreterType());
-
-                    }
+                    String configPageId = InterpreterConfigHelpers.getConfigPageIdFromInterpreterType(interpreterType);
+                    idToConfig[0] = configPageId;
                     triggerCallback();
                 }
             };
@@ -223,57 +245,88 @@ public class PyProjectPythonDetails extends PropertyPage {
                 public void widgetSelected(SelectionEvent e) {
                     String interpreterName = getProjectInterpreter();
                     if (interpreterName != null) {
+                        IInterpreterManager interpreterManager = getInterpreterManager();
+                        int interpreterType = interpreterManager.getInterpreterType();
+                        if (interpreterType == IPythonNature.INTERPRETER_TYPE_PYTHON) {
+                            // Let's see if it's from pipenv
+                            final String projectLocation = getProjectLocation.call();
+                            int USE_PIPENV = 1;
+                            int openQuestionWithChoices = PyDialogHelpers.openQuestionWithChoices(
+                                    "How to config interpreter?",
+                                    "How would you like to add a new interpreter?",
+                                    "Open interpreter preferences page", // 0
+                                    "Create using pipenv"); // 1
+
+                            if (openQuestionWithChoices == -1) { // Cancelled.
+                                return;
+                            }
+                            if (openQuestionWithChoices == USE_PIPENV) {
+                                IInterpreterInfo[] interpreterInfos = interpreterManager.getInterpreterInfos();
+                                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                                PrintWriter logger = new PrintWriter(out);
+                                Map<String, IInterpreterInfo> nameToInfo = new HashMap<String, IInterpreterInfo>();
+                                for (IInterpreterInfo info : interpreterInfos) {
+                                    nameToInfo.put(info.getName(), info);
+                                }
+                                try {
+                                    ObtainInterpreterInfoOperation operation = InterpreterConfigHelpers
+                                            .createPipenvInterpreter(interpreterInfos,
+                                                    interpreterNoteText.getShell(), logger, nameToInfo,
+                                                    projectLocation, interpreterManager);
+                                    if (operation != null) {
+                                        interpreterNoteText.setText("Configuration in progress...");
+                                        AutoConfigMaker.applyOperation(createOnJobComplete(), operation,
+                                                interpreterManager,
+                                                null, false);
+                                    }
+                                } catch (Exception e1) {
+                                    Log.log(e1);
+                                }
+                                String s = out.toString();
+                                if (!s.isEmpty()) {
+                                    Log.logInfo(s);
+                                }
+                                return;
+                            }
+
+                            // Continue to show interpreters page.
+                        }
+
+                        // Default is just showing preferences editor.
+
                         PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(
                                 null, idToConfig[0], null, null);
+                        AbstractInterpreterPreferencesPage selectedPage = (AbstractInterpreterPreferencesPage) dialog
+                                .getSelectedPage();
+                        selectedPage.setDefaultProjectLocation(getProjectLocation.call());
                         dialog.open();
                         //just to re-update it again
-                        selectionListener.widgetSelected(null);
+                        updateInterpretersAndDefaultInCombo();
+
                     } else {
+                        // None there yet...
                         MessageDialog mdialog = new MessageDialog(null, "Configure interpreter", null,
                                 "How would you like to configure the interpreter?", MessageDialog.QUESTION,
-                                InterpreterConfigHelpers.CONFIG_NAMES, 0);
+                                InterpreterConfigHelpers.CONFIG_NAMES_FOR_FIRST_INTERPRETER, 0);
                         int open = mdialog.open();
                         if (open == InterpreterConfigHelpers.CONFIG_MANUAL) {
                             PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(null,
                                     idToConfig[0], null, null);
                             dialog.open();
                             //just to re-update it again
-                            selectionListener.widgetSelected(null);
+                            updateInterpretersAndDefaultInCombo();
                         } else if (open != PyDialogHelpers.INTERPRETER_CANCEL_CONFIG) {
                             //auto-config
-                            InterpreterType interpreterType;
-                            if (radioJy.getSelection()) {
-                                interpreterType = InterpreterType.JYTHON;
-                            } else if (radioIron.getSelection()) {
-                                interpreterType = InterpreterType.IRONPYTHON;
-                            } else {
-                                interpreterType = InterpreterType.PYTHON;
-                            }
-
-                            JobChangeAdapter onJobComplete = new JobChangeAdapter() {
-                                @Override
-                                public void done(IJobChangeEvent event) {
-                                    //Update the display when the configuration has ended.
-                                    Display.getDefault().asyncExec(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            //Only update if the page is still there.
-                                            //If something is disposed, it has been closed.
-                                            if (!interpreterNoteText.isDisposed()) {
-                                                selectionListener.widgetSelected(null);
-                                            }
-                                        }
-                                    });
-                                };
-                            };
-
                             interpreterNoteText.setText("Configuration in progress...");
+
+                            InterpreterType interpreterType = getInterpreterType();
+
                             boolean advanced = open == InterpreterConfigHelpers.CONFIG_ADV_AUTO;
                             AutoConfigMaker a = new AutoConfigMaker(interpreterType, advanced, null, null);
-                            if (a.autoConfigSingleApply(onJobComplete)) {
+                            if (a.autoConfigSingleApply(createOnJobComplete())) {
                                 triggerCallback();
                             } else {
-                                selectionListener.widgetSelected(null);
+                                updateInterpretersAndDefaultInCombo();
                             }
                         }
                     }
@@ -284,13 +337,52 @@ public class PyProjectPythonDetails extends PropertyPage {
                 }
             });
 
+            //Additional grammar validations
+            Composite composite = new Composite(topComp, SWT.NONE);
+            composite.setLayout(new GridLayout(2, false));
+
+            labelAdditionalGrammarsSelected = new Label(composite, SWT.NONE);
+
+            labelAdditionalGrammarsSelected.setText(ADDITIONAL_SYNTAX_NO_SELECTED);
+
+            gd = new GridData(GridData.FILL_HORIZONTAL);
+            labelAdditionalGrammarsSelected.setLayoutData(gd);
+
+            Button button = new Button(composite, SWT.PUSH);
+            button.setText("...");
+            gd = new GridData();
+            button.setLayoutData(gd);
+            button.addSelectionListener(new SelectionAdapter() {
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                    List<String> grammarversionsrep = new ArrayList<>(IGrammarVersionProvider.grammarVersionsRep);
+                    final String NO_VALIDATION = "No additional syntax validation";
+                    grammarversionsrep.add(NO_VALIDATION);
+                    String[] selected = SelectNDialog.selectMulti(grammarversionsrep,
+                            new LabelProvider(),
+                            "Select additional grammars for syntax validation");
+                    if (ArrayUtils.contains(selected, NO_VALIDATION)) {
+                        selected = null;
+                    }
+                    if (selected == null || selected.length == 0) {
+                        labelAdditionalGrammarsSelected.setText(ADDITIONAL_SYNTAX_NO_SELECTED);
+                    } else {
+                        labelAdditionalGrammarsSelected
+                                .setText(ADDITIONAL_SYNTAX_PREFIX + StringUtils.join(", ", selected));
+                    }
+                }
+            });
+
+            gd = new GridData(GridData.FILL_HORIZONTAL);
+            composite.setLayoutData(gd);
+
             return topComp;
         }
 
         private void triggerCallback() {
             if (onSelectionChanged != null) {
                 try {
-                    onSelectionChanged.call(null);
+                    onSelectionChanged.call();
                 } catch (Exception e1) {
                     Log.log(e1);
                 }
@@ -326,19 +418,85 @@ public class PyProjectPythonDetails extends PropertyPage {
             if (INTERPRETER_NOT_CONFIGURED_MSG.equals(interpreterNoteText.getText())) {
                 return null;
             }
-            return interpretersChoice.getText();
+            String ret = interpretersChoice.getText();
+            if (ret.startsWith(DEFAULT_PREFIX)) {
+                return IPythonNature.DEFAULT_INTERPRETER;
+            }
+            return ret;
         }
 
         public void setDefaultSelection() {
             radioPy.setSelection(true);
-            comboGrammarVersion.setText(numberToUi(IPythonNature.Versions.LAST_VERSION_NUMBER));
+            comboGrammarVersion.setText(numberToUi(IPythonNature.Versions.INTERPRETER_VERSION));
             //Just to update things
             this.selectionListener.widgetSelected(null);
+        }
+
+        public String getAdditionalGrammarValidation() {
+            String text = labelAdditionalGrammarsSelected.getText();
+            if (text.equals(ADDITIONAL_SYNTAX_NO_SELECTED)) {
+                return null;
+            }
+            return text.substring(ADDITIONAL_SYNTAX_PREFIX.length());
+        }
+
+        private IInterpreterManager getInterpreterManager() {
+            IInterpreterManager interpreterManager;
+
+            if (radioJy.getSelection()) {
+                interpreterManager = InterpreterManagersAPI.getJythonInterpreterManager();
+
+            } else if (radioIron.getSelection()) {
+                interpreterManager = InterpreterManagersAPI.getIronpythonInterpreterManager();
+
+            } else {
+                interpreterManager = InterpreterManagersAPI.getPythonInterpreterManager();
+            }
+            return interpreterManager;
+        }
+
+        private InterpreterType getInterpreterType() {
+            InterpreterType interpreterType;
+            if (radioJy.getSelection()) {
+                interpreterType = InterpreterType.JYTHON;
+            } else if (radioIron.getSelection()) {
+                interpreterType = InterpreterType.IRONPYTHON;
+            } else {
+                interpreterType = InterpreterType.PYTHON;
+            }
+            return interpreterType;
+        }
+
+        private void updateInterpretersAndDefaultInCombo() {
+            selectionListener.widgetSelected(null);
+        }
+
+        private JobChangeAdapter createOnJobComplete() {
+            JobChangeAdapter onJobComplete = new JobChangeAdapter() {
+                @Override
+                public void done(IJobChangeEvent event) {
+                    //Update the display when the configuration has ended.
+                    Display.getDefault().asyncExec(new Runnable() {
+                        @Override
+                        public void run() {
+                            //Only update if the page is still there.
+                            //If something is disposed, it has been closed.
+                            if (!interpreterNoteText.isDisposed()) {
+                                updateInterpretersAndDefaultInCombo();
+                            }
+                        }
+                    });
+                };
+            };
+            return onJobComplete;
         }
 
     }
 
     static String numberFromUi(String s) {
+        if ("Same as interpreter".equals(s)) {
+            return IPythonNature.Versions.INTERPRETER_VERSION;
+        }
         if ("3.0 - 3.5".equals(s)) {
             s = "3.0";
         }
@@ -346,6 +504,9 @@ public class PyProjectPythonDetails extends PropertyPage {
     }
 
     static String numberToUi(String s) {
+        if (IPythonNature.Versions.INTERPRETER_VERSION.equals(s)) {
+            return "Same as interpreter";
+        }
         if ("3.0".equals(s)) {
             s = "3.0 - 3.5";
         }
@@ -356,7 +517,10 @@ public class PyProjectPythonDetails extends PropertyPage {
      * The element.
      */
     public IAdaptable element;
-    public ProjectInterpreterAndGrammarConfig projectConfig = new ProjectInterpreterAndGrammarConfig();
+    public ProjectInterpreterAndGrammarConfig projectConfig = new ProjectInterpreterAndGrammarConfig(
+            () -> {
+                return getProject().getLocation().toOSString();
+            });
 
     /*
      *  (non-Javadoc)
@@ -392,18 +556,20 @@ public class PyProjectPythonDetails extends PropertyPage {
         PythonNature pythonNature = PythonNature.getPythonNature(getProject());
         try {
             //Set whether it's Python/Jython
-            String version = pythonNature.getVersion();
-            if (IPythonNature.Versions.ALL_PYTHON_VERSIONS.contains(version)) {
+            String version = pythonNature.getVersion(false);
+            if (version.startsWith(IPythonNature.Versions.PYTHON_PREFIX)) {
                 projectConfig.radioPy.setSelection(true);
 
-            } else if (IPythonNature.Versions.ALL_IRONPYTHON_VERSIONS.contains(version)) {
-                projectConfig.radioIron.setSelection(true);
-
-            } else if (IPythonNature.Versions.ALL_JYTHON_VERSIONS.contains(version)) {
+            } else if (version.startsWith(IPythonNature.Versions.JYTHON_PREFIX)) {
                 projectConfig.radioJy.setSelection(true);
+
+            } else if (version.startsWith(IPythonNature.Versions.IRONYTHON_PREFIX)) {
+                projectConfig.radioIron.setSelection(true);
+            } else {
+                Log.log("Could not recognize version: " + version + " for project: " + getProject());
             }
 
-            //We must set the grammar version too (that's from a string in the format "Python 2.4" and we only want
+            //We must set the grammar version too (that's from a string in the format "Python 2.4" or "Python interpreter" and we only want
             //the version).
             String v = StringUtils.split(version, ' ').get(1);
             projectConfig.comboGrammarVersion.setText(numberToUi(v));
@@ -413,6 +579,33 @@ public class PyProjectPythonDetails extends PropertyPage {
             String configuredInterpreter = pythonNature.getProjectInterpreterName();
             if (configuredInterpreter != null) {
                 projectConfig.interpretersChoice.setText(configuredInterpreter);
+            }
+
+            AdditionalGrammarVersionsToCheck additionalGrammarVersions = null;
+            try {
+                additionalGrammarVersions = pythonNature.getAdditionalGrammarVersions();
+            } catch (MisconfigurationException e) {
+
+            }
+            FastStringBuffer buf = new FastStringBuffer();
+            if (additionalGrammarVersions != null) {
+                Set<Integer> grammarVersions = additionalGrammarVersions.getGrammarVersions();
+                if (grammarVersions != null) {
+                    for (Integer grammarV : new TreeSet<Integer>(grammarVersions)) {
+                        String rep = IGrammarVersionProvider.grammarVersionToRep.get(grammarV);
+                        if (rep != null) {
+                            if (buf.length() > 0) {
+                                buf.append(", ");
+                            }
+                            buf.append(rep);
+                        }
+                    }
+                }
+            }
+            if (buf.length() == 0) {
+                projectConfig.labelAdditionalGrammarsSelected.setText(ADDITIONAL_SYNTAX_NO_SELECTED);
+            } else {
+                projectConfig.labelAdditionalGrammarsSelected.setText(ADDITIONAL_SYNTAX_PREFIX + buf.toString());
             }
 
         } catch (CoreException e) {
@@ -449,6 +642,7 @@ public class PyProjectPythonDetails extends PropertyPage {
                     return false;
                 }
                 pythonNature.setVersion(projectConfig.getSelectedPythonOrJythonAndGrammarVersion(), projectInterpreter);
+                pythonNature.setAdditionalGrammarValidation(projectConfig.getAdditionalGrammarValidation());
             } catch (CoreException e) {
                 Log.log(e);
             }

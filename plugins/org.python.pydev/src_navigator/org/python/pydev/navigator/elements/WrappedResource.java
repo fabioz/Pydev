@@ -12,8 +12,8 @@ import org.eclipse.ui.IContributorResourceAdapter;
 import org.eclipse.ui.model.IWorkbenchAdapter;
 import org.eclipse.ui.model.IWorkbenchAdapter2;
 import org.eclipse.ui.progress.IDeferredWorkbenchAdapter;
-import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.FullRepIterable;
 
 /**
  * This class represents a resource that is wrapped for the python model.

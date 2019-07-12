@@ -21,11 +21,13 @@ import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Num;
+import org.python.pydev.parser.jython.ast.Starred;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.modType;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.parser.jython.ast.Await;
 
 /** Token Manager. */
 @SuppressWarnings("unused") public final class PythonGrammar30TokenManager extends AbstractTokenManager implements PythonGrammar30Constants

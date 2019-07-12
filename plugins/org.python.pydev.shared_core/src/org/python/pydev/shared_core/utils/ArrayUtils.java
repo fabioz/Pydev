@@ -7,7 +7,10 @@
 package org.python.pydev.shared_core.utils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.runtime.Assert;
 import org.python.pydev.shared_core.callbacks.ICallback;
@@ -48,17 +51,6 @@ public class ArrayUtils {
         return mergedArray;
     }
 
-    public static void reverse(Object[] array) {
-        Object temp;
-        int size = array.length;
-
-        for (int i = 0; i < size / 2; i++) {
-            temp = array[i];
-            array[i] = array[size - i - 1];
-            array[size - 1 - i] = temp;
-        }
-    }
-
     public static <T> T[] remove(T[] original, int element, Class componentType) {
         final T[] n = (T[]) java.lang.reflect.Array.newInstance(componentType,
                 original.length - 1);
@@ -75,5 +67,32 @@ public class ArrayUtils {
             }
         }
         return -1;
+    }
+
+    public static boolean contains(Object[] array, Object o) {
+        if (array == null) {
+            return false;
+        }
+        return Arrays.asList(array).contains(o);
+    }
+
+    public static <T> Set<T> asSet(T... objects) {
+        return new HashSet<>(Arrays.asList(objects));
+    }
+
+    public static int[] reversedCopy(int[] regionsForSave) {
+        int[] copyOf = Arrays.copyOf(regionsForSave, regionsForSave.length);
+        reverse(copyOf);
+        return copyOf;
+    }
+
+    private static void reverse(int[] copyOf) {
+        int length = copyOf.length;
+        int middle = length / 2;
+        for (int i = 0; i < middle; i++) {
+            int temp = copyOf[i];
+            copyOf[i] = copyOf[length - i - 1];
+            copyOf[length - i - 1] = temp;
+        }
     }
 }

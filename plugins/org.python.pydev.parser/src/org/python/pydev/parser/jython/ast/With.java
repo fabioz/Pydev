@@ -7,10 +7,12 @@ import java.util.Arrays;
 public final class With extends stmtType {
     public WithItemType[] with_item;
     public suiteType body;
+    public boolean async;
 
-    public With(WithItemType[] with_item, suiteType body) {
+    public With(WithItemType[] with_item, suiteType body, boolean async) {
         this.with_item = with_item;
         this.body = body;
+        this.async = async;
     }
 
     @Override
@@ -19,59 +21,52 @@ public final class With extends stmtType {
         int result = 1;
         result = prime * result + Arrays.hashCode(with_item);
         result = prime * result + ((body == null) ? 0 : body.hashCode());
+        result = prime * result + (async ? 17 : 137);
         return result;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
         With other = (With) obj;
-        if (!Arrays.equals(with_item, other.with_item))
-            return false;
-        if (body == null) {
-            if (other.body != null)
-                return false;
-        } else if (!body.equals(other.body))
-            return false;
+        if (!Arrays.equals(with_item, other.with_item)) return false;
+        if (body == null) { if (other.body != null) return false;}
+        else if (!body.equals(other.body)) return false;
+        if(this.async != other.async) return false;
         return true;
     }
-
     @Override
     public With createCopy() {
         return createCopy(true);
     }
-
     @Override
     public With createCopy(boolean copyComments) {
         WithItemType[] new0;
-        if (this.with_item != null) {
-            new0 = new WithItemType[this.with_item.length];
-            for (int i = 0; i < this.with_item.length; i++) {
-                new0[i] = (WithItemType) (this.with_item[i] != null ? this.with_item[i].createCopy(copyComments)
-                        : null);
-            }
-        } else {
+        if(this.with_item != null){
+        new0 = new WithItemType[this.with_item.length];
+        for(int i=0;i<this.with_item.length;i++){
+            new0[i] = (WithItemType) (this.with_item[i] != null?
+            this.with_item[i].createCopy(copyComments):null);
+        }
+        }else{
             new0 = this.with_item;
         }
-        With temp = new With(new0, body != null ? (suiteType) body.createCopy(copyComments) : null);
+        With temp = new With(new0, body!=null?(suiteType)body.createCopy(copyComments):null, async);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if (this.specialsBefore != null && copyComments) {
-            for (Object o : this.specialsBefore) {
-                if (o instanceof commentType) {
+        if(this.specialsBefore != null && copyComments){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
                     commentType commentType = (commentType) o;
                     temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if (this.specialsAfter != null && copyComments) {
-            for (Object o : this.specialsAfter) {
-                if (o instanceof commentType) {
+        if(this.specialsAfter != null && copyComments){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
                     commentType commentType = (commentType) o;
                     temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }
@@ -88,6 +83,9 @@ public final class With extends stmtType {
         sb.append(", ");
         sb.append("body=");
         sb.append(dumpThis(this.body));
+        sb.append(", ");
+        sb.append("async=");
+        sb.append(dumpThis(this.async));
         sb.append("]");
         return sb.toString();
     }

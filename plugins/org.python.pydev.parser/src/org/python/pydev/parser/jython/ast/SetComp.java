@@ -24,54 +24,45 @@ public final class SetComp extends exprType {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
         SetComp other = (SetComp) obj;
-        if (elt == null) {
-            if (other.elt != null)
-                return false;
-        } else if (!elt.equals(other.elt))
-            return false;
-        if (!Arrays.equals(generators, other.generators))
-            return false;
+        if (elt == null) { if (other.elt != null) return false;}
+        else if (!elt.equals(other.elt)) return false;
+        if (!Arrays.equals(generators, other.generators)) return false;
         return true;
     }
-
     @Override
     public SetComp createCopy() {
         return createCopy(true);
     }
-
     @Override
     public SetComp createCopy(boolean copyComments) {
         comprehensionType[] new0;
-        if (this.generators != null) {
-            new0 = new comprehensionType[this.generators.length];
-            for (int i = 0; i < this.generators.length; i++) {
-                new0[i] = (comprehensionType) (this.generators[i] != null ? this.generators[i].createCopy(copyComments)
-                        : null);
-            }
-        } else {
+        if(this.generators != null){
+        new0 = new comprehensionType[this.generators.length];
+        for(int i=0;i<this.generators.length;i++){
+            new0[i] = (comprehensionType) (this.generators[i] != null?
+            this.generators[i].createCopy(copyComments):null);
+        }
+        }else{
             new0 = this.generators;
         }
-        SetComp temp = new SetComp(elt != null ? (exprType) elt.createCopy(copyComments) : null, new0);
+        SetComp temp = new SetComp(elt!=null?(exprType)elt.createCopy(copyComments):null, new0);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if (this.specialsBefore != null && copyComments) {
-            for (Object o : this.specialsBefore) {
-                if (o instanceof commentType) {
+        if(this.specialsBefore != null && copyComments){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
                     commentType commentType = (commentType) o;
                     temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if (this.specialsAfter != null && copyComments) {
-            for (Object o : this.specialsAfter) {
-                if (o instanceof commentType) {
+        if(this.specialsAfter != null && copyComments){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
                     commentType commentType = (commentType) o;
                     temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }

@@ -18,15 +18,19 @@ import java.util.Set;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.ast.analysis.IAnalysisPreferences;
+import org.python.pydev.ast.analysis.messages.CompositeMessage;
+import org.python.pydev.ast.analysis.messages.IMessage;
+import org.python.pydev.ast.analysis.messages.Message;
+import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.ast.codecompletion.revisited.visitors.AbstractVisitor;
+import org.python.pydev.ast.codecompletion.revisited.visitors.AbstractVisitor.ImportPartSourceToken;
+import org.python.pydev.core.CheckAnalysisErrors;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
-import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
-import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor.ImportPartSourceToken;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.Expr;
@@ -40,12 +44,8 @@ import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.structure.Tuple;
-
-import com.python.pydev.analysis.IAnalysisPreferences;
-import com.python.pydev.analysis.messages.CompositeMessage;
-import com.python.pydev.analysis.messages.IMessage;
-import com.python.pydev.analysis.messages.Message;
 
 public final class MessagesManager {
 
@@ -137,18 +137,23 @@ public final class MessagesManager {
         doAddMessage(msgs, messageToAdd);
     }
 
-    private void doAddMessage(List<IMessage> msgs, Message messageToAdd) {
+    private void doAddMessage(List<IMessage> msgs, IMessage messageToAdd) {
         String messageToIgnore = prefs.getRequiredMessageToIgnore(messageToAdd.getType());
         if (messageToIgnore != null) {
             int startLine = messageToAdd.getStartLine(document) - 1;
             String line = PySelection.getLine(document, startLine);
-            if (line.indexOf(messageToIgnore) != -1) {
+            if (CheckAnalysisErrors.isCodeAnalysisErrorHandled(line, messageToIgnore)) {
                 //keep going... nothing to see here...
                 return;
             }
         }
 
         msgs.add(messageToAdd);
+    }
+
+    public void addMessage(IToken token, IMessage message) {
+        List<IMessage> msgs = getMsgsList(token);
+        doAddMessage(msgs, message);
     }
 
     /**
@@ -218,7 +223,7 @@ public final class MessagesManager {
         if (tokenRepresentation != null) {
             String firstPart = FullRepIterable.getFirstPart(tokenRepresentation);
             if (this.prefs.getTokensAlwaysInGlobals().contains(firstPart)) {
-                return new Tuple<Boolean, String>(false, firstPart); //ok firstPart in not really undefined... 
+                return new Tuple<Boolean, String>(false, firstPart); //ok firstPart in not really undefined...
             }
         }
 
@@ -255,7 +260,7 @@ public final class MessagesManager {
             if (openParensPos != -1) {
                 int closeParensPos = parsingUtils.eatPar(openParensPos, null);
                 if (closeParensPos != -1) {
-                    int startLine = PySelection.getLineOfOffset(document, openParensPos) + 1; //+1: from document to ast 
+                    int startLine = PySelection.getLineOfOffset(document, openParensPos) + 1; //+1: from document to ast
                     int endLine = PySelection.getLineOfOffset(document, closeParensPos) + 1;
                     int startCol = openParensPos - document.getLineInformationOfOffset(openParensPos).getOffset() + 1;
 
@@ -280,7 +285,7 @@ public final class MessagesManager {
 
     /**
      * adds a message for something that was not used
-     * 
+     *
      * @param node the node representing the scope being closed when adding the
      *             unused message
      */
@@ -348,7 +353,7 @@ public final class MessagesManager {
                             break;
                         }
                     }
-                }//END if (type == IAnalysisPreferences.TYPE_UNUSED_PARAMETER)
+                } //END if (type == IAnalysisPreferences.TYPE_UNUSED_PARAMETER)
 
                 if (addMessage) {
                     addMessage(type, g.generator, g.tok);
@@ -422,7 +427,7 @@ public final class MessagesManager {
                 IMessage message = l.get(0);
 
                 //messages are grouped by type, and the severity is set by type, so, this is ok...
-                if (message.getSeverity() == IMarker.SEVERITY_INFO) {
+                if (message.getSeverity() < IMarker.SEVERITY_INFO) {
                     if (doIgnoreMessageIfJustInformational(message.getType())) {
                         //ok, let's ignore it for real (and don't add it) as those are not likely to be
                         //used anyways for other actions)
@@ -462,7 +467,7 @@ public final class MessagesManager {
         }
 
         for (IMessage message : independentMessages) {
-            if (message.getSeverity() == IMarker.SEVERITY_INFO) {
+            if (message.getSeverity() < IMarker.SEVERITY_INFO) {
                 if (doIgnoreMessageIfJustInformational(message.getType())) {
                     //ok, let's ignore it for real (and don't add it) as those are not likely to be
                     //used anyways for other actions)
@@ -526,7 +531,7 @@ public final class MessagesManager {
 
     /**
      * @return a map with the messages separated by type (keys are the type)
-     * 
+     *
      * the values are guaranteed to have size at least equal to 1
      */
     private Map<Integer, List<IMessage>> getMessagesByType(List<IMessage> l) {

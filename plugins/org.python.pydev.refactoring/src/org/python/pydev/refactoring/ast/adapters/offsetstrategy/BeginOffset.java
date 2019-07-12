@@ -35,7 +35,6 @@ import org.python.pydev.parser.visitors.FindLastLineVisitor;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
 
-
 public class BeginOffset extends AbstractOffsetStrategy {
 
     public BeginOffset(IASTNodeAdapter<? extends SimpleNode> adapter, IDocument doc, AdapterPrefs adapterPrefs) {
@@ -76,7 +75,7 @@ public class BeginOffset extends AbstractOffsetStrategy {
 
         }
 
-        int startLine = adapter.getNodeFirstLine() - 1;
+        int startLine = adapter.getNodeFirstLine(true) - 1;
         if (startLine < 0) {
             startLine = 0;
         }

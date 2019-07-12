@@ -1,0 +1,53 @@
+<doc>
+    <contents_area>
+        There are some simple things which everyone should know when writing code on PyDev:<br>
+        <br>
+        1. Want to write a new line? Use <b>Shift+Enter</b>: This is what should be almost always used in PyDev instead of the plain enter to enter a new line.
+        <br>
+        <br>
+        <span class="Apple-tab-span" style="white-space: pre;"> </span><b>How it works</b>: It'll emulate moving to the end of the line and pressing enter there (so, it 
+        can be used from any position in the line).<br>
+        <span class="Apple-tab-span" style="white-space: pre;"> </span><br>
+        <span class="Apple-tab-span" style="white-space: pre;"> </span><b>Tip</b>: It can be used when there's a completion to avoid applying it while going to the next line 
+        (as Enter is also used to apply a completion if you don't use Shift+Enter you have to press ESC before to avoid applying it if you use a plain Enter).<br>
+        <br>
+        2. Want to copy or move some lines? <b>Ctrl+Alt+Up</b> will copy the lines up and <b>Ctrl+Alt+Down</b> will copy them down and then <b>Alt+Up</b> or <b>Alt+Down</b> can be used to move them up or down (so, it's a line-oriented copy/paste which is <b>really</b> handy).<br>
+        <span class="Apple-tab-span" style="white-space: pre;"> </span><br>
+        3. Is there a string or comment which is too big and you want to wrap it? Use <b>Ctrl+2, W</b> and it'll wrap it for you (using the number of columns assigned in the print margin preferences).<br>
+        <br>
+        4. Want to create a docstring for the parameters of a method? <b>Ctrl+1 -&gt; Make Docstring</b> (in a line with the method declaration).<br>
+        <br>
+        5. Assign parameters to variables? <b>Ctrl+1 -&gt; Assign parameters to attributes</b> (in a line with the method declaration in a class). Alternatively use <b>Ctrl+2, A</b>.<br>
+        <br>
+        6. Want to select the current word? <b>Shift+Alt+Up</b> will select the current word for you (and if you keep using <b>Shift+Alt+Up</b> it'll then select the enclosing context and <b>Shift+Alt+Down</b> will deselect it again).<br>
+        <br>
+        7. Rectangular selection: <b>Shift+Alt+A</b>.<br>
+        <br>
+        8. Want to rename a local token? To do that use <b>Ctrl+2, R </b>(note that for renaming a token in multiple modules you'd use <b>Shift+Alt+R</b> or a package/module in the PyDev Package Explorer would be renamed with <b>F2</b>).<br>
+        <br>
+        9. To rename something that's not a token (such as a comma) -- if you're in LiClipse (which adds this feature) -- you can do <b>Ctrl+K </b>(or <b>Ctrl+Shift+K</b> to go backwards) multiple times to mark the places you want to rename and then go on to rename it (as a note, <b>Ctrl+Alt+K</b> will unlink one of the occurrences). This can also be used for a substring -- or any character combination for that matter.<br>
+        <br>
+        10. Do you have some code with multiple tokens that are not found and need to be imported? <b>Ctrl+Shift+O</b> can be used to resolve the multiple missing tokens. Alternatively you could also use <b>Ctrl+1</b> on a line with a missing import to get the suggestion to add it (if it wasn't already added in a code-completion which added it for you automatically).<br>
+        <br>
+        11. Like TDD coding? i.e.: write the test first and do the code later. If so, you can usually write the test and use <b>Ctrl+1</b> to provide a suggestion to create the missing method, module or attribute.<br>
+        <br>
+        12. PyDev doesn't automatically re-analyze dependent modules when one module changes, so, I've seen people just add some space and save the file again just to force a new code analysis... while this works, there's a specific keybinding: <b>Ctrl+2, C</b> which will force a code-analysis in the current module.<br>
+        <br>
+        13. When there are many contiguous lines commented and you want to uncomment them, do you see yourself selecting all those lines to uncomment it? Did you know that <b>Ctrl+5</b> does that promptly for you from any line of that block?<br>
+        <br>
+        14. Just edited something but don't remember where it was? <b>Ctrl+Q</b> can be used to go to the last place you edited some code.<br>
+        <br>
+        15. Do you have some code you just copied from somewhere and want to create a module with it? Go to the PyDev package explorer and just paste the code (<b>Ctrl+V</b>) there to create a new module with those contents.<br>
+        <br>
+        16. Do you have some method call or variable that you want to add to another local variable or field? Use <b>Ctrl+1</b> (on a line that still doesn't have an assign) and choose assign to local or assign to field.<br>
+        <br>
+        Besides those tips, print the bindings from: <a href="manual_adv_keybindings.html">Keybindings quick-reference</a> and leave it by your side until you don't master them :)<br>
+        <br>
+        <br>
+        Happy coding!
+        <br>
+    </contents_area>
+    <right_area></right_area>
+    <image_area>manual.png</image_area>
+    <quote_area></quote_area>
+</doc>

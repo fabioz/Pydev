@@ -334,7 +334,7 @@ public final class FastParser {
             args = new argumentsType(EMTPY_EXPR_TYPE, null, null, EMTPY_EXPR_TYPE, null, null, null, null,
                     null, null);
         }
-        FunctionDef functionDef = new FunctionDef(nameTok, args, EMTPY_STMT_TYPE, EMTPY_DECORATORS_TYPE, null);
+        FunctionDef functionDef = new FunctionDef(nameTok, args, EMTPY_STMT_TYPE, EMTPY_DECORATORS_TYPE, null, false);
         functionDef.beginLine = lastReturnedLine + 1;
         functionDef.beginColumn = matchedCol + 1;
         return functionDef;

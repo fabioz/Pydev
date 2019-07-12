@@ -223,7 +223,7 @@ public class PyParser25Test extends PyParserTestBase {
     public void testNewWithStmtError() {
         setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
         String str = "" +
-                //"from __future__ import with_statement\n"  -- as it is not specified, it should throw an error
+        //"from __future__ import with_statement\n"  -- as it is not specified, it should throw an error
                 "with foo as x:\n" +
                 "    print 'bla'\n" +
                 "";
@@ -260,17 +260,8 @@ public class PyParser25Test extends PyParserTestBase {
     /**
      * This test checks that the old version still gives an error
      */
-    public void testConditionalExp1err() {
-        setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_4);
-        String str = "a = 1 if True else 2\n";
-        parseILegalDoc(new Document(str));
-    }
-
-    /**
-     * This test checks that the old version still gives an error
-     */
     public void testWith() {
-        setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_4);
+        setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
         String str = "" +
                 "with foo:\n" +
                 "    print 'bla'\n" +

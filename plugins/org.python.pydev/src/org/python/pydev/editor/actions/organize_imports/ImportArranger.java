@@ -26,8 +26,8 @@ import org.python.pydev.core.docutils.ImportHandle.ImportHandleInfo;
 import org.python.pydev.core.docutils.PyImportsHandling;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.actions.PyFormatStd;
-import org.python.pydev.plugin.preferences.PydevPrefs;
+import org.python.pydev.editor.actions.PyFormatAction;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -190,7 +190,7 @@ public class ImportArranger {
             if (SharedCorePlugin.inTestMode()) {
                 maxCols = 80;
             } else {
-                IPreferenceStore chainedPrefStore = PydevPrefs.getChainedPrefStore();
+                IPreferenceStore chainedPrefStore = PyDevUiPrefs.getChainedPrefStore();
                 maxCols = chainedPrefStore
                         .getInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLUMN);
             }
@@ -274,20 +274,10 @@ public class ImportArranger {
         sortImports(list);
 
         //now, re-add the imports
-        FastStringBuffer all = new FastStringBuffer();
-
-        if (!groupFromImports) {
-            writeImports(list, all);
-
-        } else { //we have to group the imports!
-
-            groupAndWriteImports(list, all);
-        }
-
-        String finalStr = all.toString();
+        String finalStr = createImportsStr(groupFromImports, list);
 
         if (executeOnlyIfChanged) {
-            //If going automatic, let's check the contents before actually doing the organize 
+            //If going automatic, let's check the contents before actually doing the organize
             //(and skip if the order is ok).
             ArrayList<String> list2 = new ArrayList<String>();
             for (Tuple<Integer, String> tup : linesToDelete) {
@@ -311,7 +301,7 @@ public class ImportArranger {
         }
 
         try {
-            PyFormatStd std = new PyFormatStd();
+            PyFormatAction std = new PyFormatAction();
             boolean throwSyntaxError = false;
             ISelectionProvider selectionProvider = null;
             int[] regionsToFormat = null;
@@ -320,7 +310,7 @@ public class ImportArranger {
             std.applyFormatAction(edit, ps, regionsToFormat, throwSyntaxError, selectionProvider);
             finalStr = psDoc.get();
             if (addNewLinesToImports) {
-                // Leave 2 empty new lines separating imports from code 
+                // Leave 2 empty new lines separating imports from code
                 String expectedEnd = endLineDelim + endLineDelim + endLineDelim;
                 while (!finalStr.endsWith(expectedEnd)) {
                     finalStr += endLineDelim;
@@ -332,6 +322,21 @@ public class ImportArranger {
 
         PySelection.addLine(doc, endLineDelim, finalStr, lineForNewImports);
 
+    }
+
+    private String createImportsStr(boolean groupFromImports, List<Tuple3<Integer, String, ImportHandle>> list) {
+        FastStringBuffer all = new FastStringBuffer();
+
+        if (!groupFromImports) {
+            writeImports(list, all);
+
+        } else { //we have to group the imports!
+
+            groupAndWriteImports(list, all);
+        }
+
+        String finalStr = all.toString();
+        return finalStr;
     }
 
     private void pruneEmptyImports(List<Tuple3<Integer, String, ImportHandle>> list) {
@@ -429,7 +434,7 @@ public class ImportArranger {
 
             List<ImportHandleInfo> importInfo = element.o3.getImportInfo();
             for (ImportHandleInfo importHandleInfo : importInfo) {
-                String fromImportStr = importHandleInfo.getFromImportStr();
+                String fromImportStr = importHandleInfo.getFromImportStrWithoutUnwantedChars();
                 if (fromImportStr == null) {
                     importsWithoutFrom.add(importHandleInfo);
                 } else {
@@ -513,7 +518,7 @@ public class ImportArranger {
         //Gather imports in a structure we can work on.
         PyImportsHandling pyImportsHandling = new PyImportsHandling(doc, true, this.removeUnusedImports);
         for (ImportHandle imp : pyImportsHandling) {
-            if (imp.importFound.contains("@NoMove")) {
+            if (imp.importFound.contains("@NoMove") || imp.importFound.contains("isort:skip")) {
                 continue;
             }
             list.add(new Tuple3<Integer, String, ImportHandle>(imp.startFoundLine, imp.importFound, imp));

@@ -7,8 +7,8 @@
 package org.python.pydev.editor.actions;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.autoedit.TestIndentPrefs;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.autoedit.TestIndentPrefs;
 
 import junit.framework.TestCase;
 
@@ -54,7 +54,7 @@ public class PyPeerLinkerTest extends TestCase {
         Document doc = new Document("");
         PySelection ps = new PySelection(doc, 0, 0);
 
-        peerLinker.perform(ps, '\'', null);
+        assertTrue(peerLinker.perform(ps, '\'', null));
         assertEquals("''", doc.get());
         assertEquals(1, peerLinker.getLinkOffset());
         assertEquals(0, peerLinker.getLinkLen());
@@ -65,8 +65,8 @@ public class PyPeerLinkerTest extends TestCase {
         Document doc = new Document("'");
         PySelection ps = new PySelection(doc, 0, doc.getLength(), 0);
 
-        peerLinker.perform(ps, '\'', null);
-        assertEquals("'", doc.get()); //Don't do anything (leave it to the auto indent)
+        assertFalse(peerLinker.perform(ps, '\'', null)); //Don't do anything (leave it to the auto indent)
+        assertEquals("'", doc.get());
         assertEquals(-1, peerLinker.getLinkOffset());
         assertEquals(-1, peerLinker.getLinkExitPos());
     }
@@ -75,7 +75,7 @@ public class PyPeerLinkerTest extends TestCase {
         Document doc = new Document("a");
         PySelection ps = new PySelection(doc, 0, 0, doc.getLength());
 
-        peerLinker.perform(ps, '\'', null);
+        assertTrue(peerLinker.perform(ps, '\'', null));
         assertEquals("'a'", doc.get());
         assertEquals(1, peerLinker.getLinkOffset());
         assertEquals(1, peerLinker.getLinkLen());
@@ -86,7 +86,7 @@ public class PyPeerLinkerTest extends TestCase {
         Document doc = new Document("')'  ");
         PySelection ps = new PySelection(doc, 0, doc.getLength());
 
-        peerLinker.perform(ps, '\'', null);
+        assertTrue(peerLinker.perform(ps, '\'', null));
         assertEquals("')'  ''", doc.get());
         assertEquals(6, peerLinker.getLinkOffset());
         assertEquals(0, peerLinker.getLinkLen());
@@ -97,7 +97,7 @@ public class PyPeerLinkerTest extends TestCase {
         Document doc = new Document("");
         PySelection ps = new PySelection(doc, 0, 0);
 
-        peerLinker.perform(ps, '[', null);
+        assertTrue(peerLinker.perform(ps, '[', null));
         assertEquals("[]", doc.get());
         assertEquals(1, peerLinker.getLinkOffset());
         assertEquals(0, peerLinker.getLinkLen());
@@ -108,7 +108,7 @@ public class PyPeerLinkerTest extends TestCase {
         Document doc = new Document("");
         PySelection ps = new PySelection(doc, 0, 0);
 
-        peerLinker.perform(ps, '(', null);
+        assertTrue(peerLinker.perform(ps, '(', null));
         assertEquals("()", doc.get());
         assertEquals(1, peerLinker.getLinkOffset());
         assertEquals(0, peerLinker.getLinkLen());
@@ -119,7 +119,7 @@ public class PyPeerLinkerTest extends TestCase {
         Document doc = new Document(")");
         PySelection ps = new PySelection(doc, 0, 0);
 
-        peerLinker.perform(ps, '(', null);
+        assertTrue(peerLinker.perform(ps, '(', null));
         assertEquals("()", doc.get());
         assertEquals(-1, peerLinker.getLinkOffset());
         assertEquals(-1, peerLinker.getLinkExitPos());
@@ -131,11 +131,19 @@ public class PyPeerLinkerTest extends TestCase {
         Document doc = new Document(initial);
         PySelection ps = new PySelection(doc, 1, 10);
 
-        peerLinker.perform(ps, '(', null);
+        assertTrue(peerLinker.perform(ps, '(', null));
         assertEquals(initial +
                 "(self):", doc.get());
         assertEquals(26, peerLinker.getLinkOffset());
         assertEquals(28, peerLinker.getLinkExitPos());
+    }
+
+    public void testParens4() throws Exception {
+        String initial = "call()";
+        Document doc = new Document(initial);
+        PySelection ps = new PySelection(doc, 0, 5);
+
+        assertFalse(peerLinker.perform(ps, ']', null)); //Don't do anything (leave it to the auto indent)
     }
 
 }

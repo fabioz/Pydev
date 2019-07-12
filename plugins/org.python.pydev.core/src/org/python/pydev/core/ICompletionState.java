@@ -9,8 +9,7 @@
  */
 package org.python.pydev.core;
 
-import java.util.List;
-
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.core.structure.CompletionRecursionException;
 
 public interface ICompletionState extends ICompletionCache {
@@ -103,28 +102,26 @@ public interface ICompletionState extends ICompletionCache {
 
     boolean getIsInCalltip();
 
-    public static final int LOOKING_FOR_INSTANCE_UNDEFINED = 0;
-    public static final int LOOKING_FOR_INSTANCED_VARIABLE = 1;
-    public static final int LOOKING_FOR_UNBOUND_VARIABLE = 2;
-    public static final int LOOKING_FOR_CLASSMETHOD_VARIABLE = 3;
-    public static final int LOOKING_FOR_ASSIGN = 4;
+    public enum LookingFor {
+        LOOKING_FOR_INSTANCE_UNDEFINED, LOOKING_FOR_INSTANCED_VARIABLE, LOOKING_FOR_UNBOUND_VARIABLE, LOOKING_FOR_CLASSMETHOD_VARIABLE, LOOKING_FOR_ASSIGN
+    };
 
     /**
      * Identifies if we should be looking for an instance (in which case, self should not
      * be added to the parameters -- otherwise, it should)
      */
-    void setLookingFor(int lookingFor);
+    void setLookingFor(LookingFor lookingFor);
 
     /**
      * Used so that we can force it...
      */
-    void setLookingFor(int lookingFor, boolean force);
+    void setLookingFor(LookingFor lookingFor, boolean force);
 
     ICompletionState getCopyWithActTok(String value);
 
     String getQualifier();
 
-    int getLookingFor();
+    LookingFor getLookingFor();
 
     void setIsInCalltip(boolean isInCalltip);
 
@@ -140,12 +137,12 @@ public interface ICompletionState extends ICompletionCache {
      * The attribute that stores it will not be copied when a copy is gotten.
      * If already set, this function should not override a previous value.
      */
-    void setTokenImportedModules(List<IToken> tokenImportedModules);
+    void setTokenImportedModules(TokensList tokenImportedModules);
 
     /**
      * May be null
      */
-    public List<IToken> getTokenImportedModules();
+    public TokensList getTokenImportedModules();
 
     int pushAssign();
 
@@ -156,5 +153,33 @@ public interface ICompletionState extends ICompletionCache {
     void pushGetCompletionsUnpackingObject() throws CompletionRecursionException;
 
     void popGetCompletionsUnpackingObject();
+
+    void setCancelMonitor(IProgressMonitor cancelMonitor);
+
+    public static class ModuleHandleOrNotGotten {
+
+        private IModule module;
+
+        /**
+         * @param module may be null.
+         */
+        public ModuleHandleOrNotGotten(IModule module) {
+            this.module = module;
+        }
+
+        public IModule get() {
+            return module;
+        }
+
+    }
+
+    /**
+     * Return the previously cached version.
+     */
+    ModuleHandleOrNotGotten getPyiStubModule(IModule module);
+
+    void setPyIStubModule(IModule module, IModule pyIModule);
+
+    NoExceptionCloseable pushLookingFor(LookingFor lookingForInstancedVariable);
 
 }

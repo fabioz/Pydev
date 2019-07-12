@@ -22,10 +22,10 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.ui.IWorkbench;
+import org.python.pydev.ast.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
 import org.python.pydev.core.TestCaseUtils;
 import org.python.pydev.debug.ui.launching.LaunchShortcut;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
 import org.python.pydev.editorinput.PyOpenEditor;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -50,7 +50,7 @@ public class PyCodeCoverageTestWorkbench extends AbstractWorkbenchTestCase {
     private IFile modCov;
 
     /* (non-Javadoc)
-     * @see org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase#setUp()
+     * @see org.python.pydev.ast.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase#setUp()
      */
     @Override
     protected void setUp() throws Exception {

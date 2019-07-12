@@ -8,9 +8,9 @@ package org.python.pydev.django.debug.ui.actions;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.python.pydev.ast.runners.SimpleRunner;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.runners.SimpleRunner;
 
 public class DjangoWar extends DjangoAction {
 

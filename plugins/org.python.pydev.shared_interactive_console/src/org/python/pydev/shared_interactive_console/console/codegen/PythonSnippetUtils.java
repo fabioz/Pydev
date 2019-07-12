@@ -1,5 +1,5 @@
 /******************************************************************************
-* Copyright (C) 2012-2013  Jonah Graham and others
+* Copyright (C) 2012-2018  Jonah Graham and others
 *
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
@@ -14,7 +14,7 @@ package org.python.pydev.shared_interactive_console.console.codegen;
 
 import java.io.File;
 
-import org.eclipse.ui.ide.ResourceUtil;
+import org.eclipse.core.runtime.Adapters;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 
@@ -94,7 +94,7 @@ public final class PythonSnippetUtils {
         if (object instanceof IScriptConsoleCodeGenerator) {
             return (IScriptConsoleCodeGenerator) object;
         }
-        Object adaptedNode = ResourceUtil.getAdapter(object, IScriptConsoleCodeGenerator.class, true);
+        Object adaptedNode = Adapters.adapt(object, IScriptConsoleCodeGenerator.class, true);
         if (adaptedNode instanceof IScriptConsoleCodeGenerator) {
             return (IScriptConsoleCodeGenerator) adaptedNode;
         }

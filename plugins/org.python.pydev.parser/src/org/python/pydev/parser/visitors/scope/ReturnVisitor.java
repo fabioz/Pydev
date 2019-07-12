@@ -6,7 +6,6 @@
  */
 package org.python.pydev.parser.visitors.scope;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.python.pydev.parser.jython.SimpleNode;
@@ -15,6 +14,7 @@ import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Return;
 import org.python.pydev.parser.jython.ast.VisitorBase;
 import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.shared_core.structure.LowMemoryArrayList;
 
 public class ReturnVisitor extends VisitorBase {
 
@@ -42,7 +42,7 @@ public class ReturnVisitor extends VisitorBase {
         return visitor.ret;
     }
 
-    private ArrayList<Return> ret = new ArrayList<Return>(3); //Start considering 3 returns.
+    private List<Return> ret = new LowMemoryArrayList<>();
 
     @Override
     public Object visitReturn(Return node) throws Exception {

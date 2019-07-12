@@ -17,6 +17,7 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.ListenerList;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IVariable;
@@ -27,10 +28,12 @@ import org.eclipse.debug.ui.IValueDetailListener;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.ide.IDE;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
-import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editorinput.EditorInputFactory;
+import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.ImageCache;
 
@@ -74,7 +77,7 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
      */
     @Override
     public Image getImage(Object element) {
-        ImageCache imageCache = PydevDebugPlugin.getImageCache();
+        IImageCache imageCache = PydevDebugPlugin.getImageCache();
 
         if (element instanceof PyBreakpoint) {
             try {
@@ -82,24 +85,24 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
 
                 if (pyBreakpoint.isEnabled()) {
                     if (pyBreakpoint.getType().equals(PyBreakpoint.PY_BREAK_TYPE_DJANGO)) {
-                        return imageCache.get("icons/breakmarker_django.png");
+                        return ImageCache.asImage(imageCache.get("icons/breakmarker_django.png"));
 
                     } else {
                         if (pyBreakpoint.isConditionEnabled()) {
-                            return imageCache.get("icons/breakmarker_conditional.gif");
+                            return ImageCache.asImage(imageCache.get("icons/breakmarker_conditional.gif"));
                         } else {
-                            return imageCache.get("icons/breakmarker.gif");
+                            return ImageCache.asImage(imageCache.get("icons/breakmarker.gif"));
                         }
                     }
                 } else {
                     if (pyBreakpoint.getType().equals(PyBreakpoint.PY_BREAK_TYPE_DJANGO)) {
-                        return imageCache.get("icons/breakmarker_django_gray.png");
+                        return ImageCache.asImage(imageCache.get("icons/breakmarker_django_gray.png"));
 
                     } else {
                         if (pyBreakpoint.isConditionEnabled()) {
-                            return imageCache.get("icons/breakmarker_gray_conditional.gif");
+                            return ImageCache.asImage(imageCache.get("icons/breakmarker_gray_conditional.gif"));
                         } else {
-                            return imageCache.get("icons/breakmarker_gray.gif");
+                            return ImageCache.asImage(imageCache.get("icons/breakmarker_gray.gif"));
                         }
                     }
                 }
@@ -109,18 +112,26 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
             }
 
         } else if (element instanceof PyVariableCollection) {
-            return imageCache.get("icons/greendot_big.gif");
+            PyVariableCollection pyVariableCollection = (PyVariableCollection) element;
+            if (pyVariableCollection.isReturnValue()) {
+                return ImageCache.asImage(imageCache.get("icons/return_value.png"));
+            }
+            return ImageCache.asImage(imageCache.get("icons/greendot_big.gif"));
 
         } else if (element instanceof PyVariable) {
-            return imageCache.get("icons/greendot.gif");
+            PyVariable pyVariable = (PyVariable) element;
+            if (pyVariable.isReturnValue()) {
+                return ImageCache.asImage(imageCache.get("icons/return_value.png"));
+            }
+            return ImageCache.asImage(imageCache.get("icons/greendot.gif"));
 
         } else if (element instanceof CaughtException) {
-            return imageCache.get("icons/python_exception_breakpoint.png");
+            return ImageCache.asImage(imageCache.get("icons/python_exception_breakpoint.png"));
 
         } else if (element instanceof PyDebugTarget || element instanceof PyThread || element instanceof PyStackFrame) {
             if (element instanceof PyThread) {
                 if (((PyThread) element).isCustomFrame) {
-                    return imageCache.get("icons/tasklet.png");
+                    return ImageCache.asImage(imageCache.get("icons/tasklet.png"));
                 }
             }
 
@@ -292,11 +303,20 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
     }
 
     /**
-     * @see org.eclipse.debug.ui.ISourcePresentation#getEditorInput
+     * This was copied from {@link org.eclipse.jdt.internal.debug.ui.JDIModelPresentation.getEditorId(IEditorInput, Object)}.
+     * <p>
+     * Use {@link IDE#getEditorDescriptor(String)} rather than sending a static String; this'll open the editior
+     * attached to the file instead of always Python editor (which expect Python code).
+     * 
+     * @see <a href="http://git.eclipse.org/c/jdt/eclipse.jdt.debug.git/tree/org.eclipse.jdt.debug.ui/ui/org/eclipse/jdt/internal/debug/ui/JDIModelPresentation.java#n1216">JDIModelPresentation</a>
      */
     @Override
-    public String getEditorId(IEditorInput input, Object element) {
-        return PyEdit.EDITOR_ID;
+    public String getEditorId(final IEditorInput input, final Object element) {
+        try {
+            return IDE.getEditorDescriptor(input.getName(), true, false).getId();
+        } catch (@SuppressWarnings("unused") PartInitException | OperationCanceledException ignored) {
+            return null;
+        }
     }
 
     @Override

@@ -14,9 +14,9 @@ import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.shared_core.markers.PyMarkerUtils;
 import org.python.pydev.shared_ui.editor.BaseEditor;
 import org.python.pydev.shared_ui.editor.IPyEditListener;
-import org.python.pydev.shared_ui.utils.PyMarkerUtils;
 
 /**
  * @author fabioz

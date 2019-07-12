@@ -51,7 +51,7 @@ public final class PydevConsoleConstants {
     public static final String DEFAULT_INITIAL_INTERPRETER_CMDS = "import sys; print('%s %s' % (sys.executable or sys.platform, sys.version))\n";
 
     public static final String DJANGO_INTERPRETER_CMDS = "DJANGO_INTERPRETER_CMDS";
-    public static final String DEFAULT_DJANGO_INTERPRETER_CMDS = "import os; os.environ['DJANGO_SETTINGS_MODULE'] = '${DJANGO_SETTINGS_MODULE}'; import django\nif django.get_version() < '1.5':\n\tfrom django.core import management\n\timport ${DJANGO_SETTINGS_MODULE} as settings\n\tmanagement.setup_environ(settings)\nif django.get_version() >= '1.7':\n\tfrom django.core.wsgi import get_wsgi_application\n\tapplication = get_wsgi_application()\n";
+    public static final String DEFAULT_DJANGO_INTERPRETER_CMDS = "import os; os.environ['DJANGO_SETTINGS_MODULE'] = '${DJANGO_SETTINGS_MODULE}'; import django\nif django.VERSION <= (1, 5):\n\tfrom django.core import management\n\timport ${DJANGO_SETTINGS_MODULE} as settings\n\tmanagement.setup_environ(settings)\nelse:\n\tfrom django.core.wsgi import get_wsgi_application\n\tapplication = get_wsgi_application()\n";
 
     public static final String INTERACTIVE_CONSOLE_MAXIMUM_CONNECTION_ATTEMPTS = "INTERACTIVE_CONSOLE_MAXIMUM_CONNECTION_ATTEMPTS";
     public static final int DEFAULT_INTERACTIVE_CONSOLE_MAXIMUM_CONNECTION_ATTEMPTS = 50;
@@ -76,7 +76,8 @@ public final class PydevConsoleConstants {
     public static final String[][] ENTRIES_VALUES_INTERACTIVE_CONSOLE_ENABLE_GUI_ON_STARTUP = new String[][] {
             { "No GUI Enabled On Statup (none)", "none" },
             { "wxPython (wx)", "wx" },
-            { "PyQt (qt/qt4)", "qt4" },
+            { "PyQt (pyside/qt4)", "qt4" },
+            { "PyQt5 (qt5)", "qt5" },
             { "PyGTK (gtk)", "gtk" },
             { "PyGI (gtk3)", "gtk3" },
             { "Tkinter (tk)", "tk" },

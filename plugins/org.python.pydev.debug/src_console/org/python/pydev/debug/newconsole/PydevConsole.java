@@ -34,14 +34,15 @@ import org.eclipse.ui.console.IHyperlink;
 import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.eclipse.ui.console.IPatternMatchListener;
 import org.eclipse.ui.console.TextConsole;
+import org.python.pydev.ast.codecompletion.PyCodeCompletionPreferences;
+import org.python.pydev.core.autoedit.IHandleScriptAutoEditStrategy;
+import org.python.pydev.core.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.actions.LinkWithDebugSelectionAction;
 import org.python.pydev.debug.newconsole.prefs.ColorManager;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
 import org.python.pydev.debug.ui.PythonConsoleLineTracker;
-import org.python.pydev.editor.autoedit.PyAutoIndentStrategy;
-import org.python.pydev.editor.codecompletion.PyCodeCompletionPreferencesPage;
 import org.python.pydev.editor.codecompletion.PyContentAssistant;
 import org.python.pydev.editor.correctionassist.PyCorrectionAssistant;
 import org.python.pydev.plugin.PydevPlugin;
@@ -50,7 +51,6 @@ import org.python.pydev.shared_interactive_console.console.ui.DefaultScriptConso
 import org.python.pydev.shared_interactive_console.console.ui.IConsoleStyleProvider;
 import org.python.pydev.shared_interactive_console.console.ui.ScriptConsole;
 import org.python.pydev.shared_interactive_console.console.ui.ScriptConsoleUIConstants;
-import org.python.pydev.shared_interactive_console.console.ui.internal.IHandleScriptAutoEditStrategy;
 import org.python.pydev.shared_interactive_console.console.ui.internal.ScriptConsoleMessages;
 import org.python.pydev.shared_interactive_console.console.ui.internal.ScriptConsolePage;
 import org.python.pydev.shared_interactive_console.console.ui.internal.actions.AbstractHandleBackspaceAction;
@@ -121,7 +121,7 @@ public class PydevConsole extends ScriptConsole {
 
         contentAssist.enableAutoActivation(true);
         contentAssist.enableAutoInsert(false);
-        contentAssist.setAutoActivationDelay(PyCodeCompletionPreferencesPage.getAutocompleteDelay());
+        contentAssist.setAutoActivationDelay(PyCodeCompletionPreferences.getAutocompleteDelay());
 
         PyCorrectionAssistant quickAssist = new PyCorrectionAssistant();
         // next create a content assistant processor to populate the completions window

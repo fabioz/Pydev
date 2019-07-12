@@ -2,45 +2,40 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Analysis Plug-in
 Bundle-SymbolicName: com.python.pydev.analysis; singleton:=true
-Bundle-Version: 5.0.0.qualifier
+Bundle-Version: 7.2.1.qualifier
 Bundle-Activator: com.python.pydev.analysis.AnalysisPlugin
-Bundle-Vendor: Aptana
-Bundle-Localization: plugin
+Bundle-Vendor: Brainwy Software Ltda
 Eclipse-BundleShape: dir
-Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime,
- org.eclipse.jface.text,
- org.python.pydev;bundle-version="[5.0.0,5.0.1)",
- com.python.pydev;bundle-version="[5.0.0,5.0.1)",
+Require-Bundle: org.eclipse.core.runtime,
  org.junit;bundle-version="4.0";resolution:=optional,
- org.python.pydev.core;bundle-version="[5.0.0,5.0.1)",
- org.python.pydev.ast;bundle-version="[5.0.0,5.0.1)",
- org.python.pydev.parser;bundle-version="[5.0.0,5.0.1)",
+ org.eclipse.text,
+ org.python.pydev.ast;bundle-version="[7.2.1,7.2.2)",
+ org.python.pydev.core;bundle-version="[7.2.1,7.2.2)",
+ org.python.pydev.parser;bundle-version="[7.2.1,7.2.2)",
  org.eclipse.core.resources,
- org.eclipse.ui.editors,
- org.eclipse.ui.workbench.texteditor,
- org.eclipse.search,
- org.eclipse.ui.ide,
- org.python.pydev.jython;bundle-version="[5.0.0,5.0.1)",
- org.python.pydev.debug;bundle-version="[5.0.0,5.0.1)",
- org.python.pydev.shared_ui;bundle-version="[5.0.0,5.0.1)",
- org.python.pydev.shared_core;bundle-version="[5.0.0,5.0.1)",
  org.eclipse.ltk.core.refactoring,
- org.python.pydev.refactoring,
- org.eclipse.ltk.ui.refactoring
+ org.eclipse.core.filebuffers
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: analysis.jar
 Export-Package: com.python.pydev.analysis,
- com.python.pydev.analysis.actions,
  com.python.pydev.analysis.additionalinfo,
  com.python.pydev.analysis.additionalinfo.builders,
  com.python.pydev.analysis.additionalinfo.dependencies,
- com.python.pydev.analysis.builder,
- com.python.pydev.analysis.ctrl_1,
- com.python.pydev.analysis.messages,
- com.python.pydev.analysis.organizeimports,
+ com.python.pydev.analysis.external,
+ com.python.pydev.analysis.mypy,
+ com.python.pydev.analysis.pep8,
+ com.python.pydev.analysis.pylint,
+ com.python.pydev.analysis.refactoring.changes,
+ com.python.pydev.analysis.refactoring.quick_fixes,
+ com.python.pydev.analysis.refactoring.refactorer,
+ com.python.pydev.analysis.refactoring.wizards,
+ com.python.pydev.analysis.refactoring.wizards.rename,
+ com.python.pydev.analysis.refactoring.wizards.rename.visitors,
  com.python.pydev.analysis.scopeanalysis,
+ com.python.pydev.analysis.system_info_builder,
  com.python.pydev.analysis.tabnanny,
- com.python.pydev.analysis.ui,
- com.python.pydev.analysis.visitors
+ com.python.pydev.analysis.visitors,
+ com.python.pydev.codecompletion.ctxinsensitive,
+ com.python.pydev.codecompletion.participant,
+ com.python.pydev.codecompletion.simpleassist
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

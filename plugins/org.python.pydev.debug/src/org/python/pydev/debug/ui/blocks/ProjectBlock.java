@@ -36,8 +36,8 @@ import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.navigator.PythonLabelProvider;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.SharedCorePlugin;
 
 
 /**
@@ -115,7 +115,7 @@ public class ProjectBlock extends AbstractLaunchConfigurationTab {
                         String msg = "The selected project must have the python nature associated.";
                         String title = "Invalid project (no python nature associated).";
                         ErrorDialog.openError(getShell(), title, msg,
-                                PydevPlugin.makeStatus(IStatus.WARNING, title, null));
+                                SharedCorePlugin.makeStatus(IStatus.WARNING, title, null));
                     }
 
                     String projectName = project.getName();

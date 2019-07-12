@@ -15,14 +15,14 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
-import org.python.pydev.core.FullRepIterable;
+import org.python.pydev.ast.analysis.messages.AbstractMessage;
+import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.ast.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.codecompletion.revisited.modules.SourceToken;
-import org.python.pydev.editor.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -33,13 +33,13 @@ import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.FastStack;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
 import org.python.pydev.shared_core.structure.Tuple4;
 
-import com.python.pydev.analysis.messages.AbstractMessage;
 import com.python.pydev.analysis.visitors.Found;
 import com.python.pydev.analysis.visitors.GenAndTok;
 import com.python.pydev.analysis.visitors.ScopeItems;
@@ -356,7 +356,7 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
 
         List<ASTEntry> entryOccurrences = getEntryOccurrences();
         for (ASTEntry entry : entryOccurrences) {
-            ret.add(AbstractVisitor.makeToken(entry.node, moduleName));
+            ret.add(AbstractVisitor.makeToken(entry.node, moduleName, nature));
         }
         return ret;
     }

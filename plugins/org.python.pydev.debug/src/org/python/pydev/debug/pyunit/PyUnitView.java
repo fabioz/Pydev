@@ -15,6 +15,7 @@ import java.util.List;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.jface.action.IAction;
@@ -62,8 +63,8 @@ import org.python.pydev.debug.newconsole.prefs.ColorManager;
 import org.python.pydev.debug.pyunit.PyUnitViewTestsHolder.DummyPyUnitServer;
 import org.python.pydev.debug.ui.ILinkContainer;
 import org.python.pydev.debug.ui.PythonConsoleLineTracker;
+import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.plugin.preferences.PydevPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallbackWithListeners;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -151,8 +152,51 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
     public static int MAX_RUNS_TO_KEEP = PyUnitViewTestsHolder.MAX_RUNS_TO_KEEP;
 
     private PyUnitTestRun currentRun;
-    private final PythonConsoleLineTracker lineTracker = new PythonConsoleLineTracker();
     private final ActivateLinkmouseListener activateLinkmouseListener = new ActivateLinkmouseListener();
+
+    private ILinkContainer iLinkContainer = new ILinkContainer() {
+
+        @Override
+        public void addLink(IHyperlink link, int offset, int length) {
+            if (testOutputText == null) {
+                return;
+            }
+            StyleRangeWithCustomData range = new StyleRangeWithCustomData();
+            range.underline = true;
+            try {
+                range.underlineStyle = SWT.UNDERLINE_LINK;
+            } catch (Throwable e) {
+                //Ignore (not available on earlier versions of eclipse)
+            }
+
+            //Set the proper color if it's available.
+            TextAttribute textAttribute = ColorManager.getDefault().getHyperlinkTextAttribute();
+            if (textAttribute != null) {
+                range.foreground = textAttribute.getForeground();
+            } else {
+                range.foreground = JFaceColors.getHyperlinkText(Display.getDefault());
+            }
+            range.start = offset;
+            range.length = length + 1;
+            range.customData = link;
+            testOutputText.setStyleRange(range);
+        }
+
+        @Override
+        public String getContents(int lineOffset, int lineLength) throws BadLocationException {
+            if (testOutputText == null) {
+                return "";
+            }
+            if (lineLength <= 0) {
+                return "";
+            }
+            try {
+                return testOutputText.getText(lineOffset, lineOffset + lineLength);
+            } catch (IllegalArgumentException e) {
+                return ""; //thrown on invalid range.
+            }
+        }
+    };
 
     /*default*/static final int COL_INDEX = 0;
     /*default*/static final int COL_RESULT = 1;
@@ -161,10 +205,6 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
     /*default*/static final int COL_TIME = 4;
     /*default*/static final int NUMBER_OF_COLUMNS = 5;
     private static final NumberFormatException NUMBER_FORMAT_EXCEPTION = new NumberFormatException();
-
-    /*default*/PythonConsoleLineTracker getLineTracker() {
-        return lineTracker;
-    }
 
     private ColorAndStyleCache colorAndStyleCache;
 
@@ -196,6 +236,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
     private boolean disposed = false;
 
     public PyUnitView() {
+        this.currentRun = PyUnitViewTestsHolder.getCurrentTest();
         if (SharedCorePlugin.inTestMode()) {
             // leave showOnlyErrors at default under test
         } else {
@@ -205,50 +246,6 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
         }
 
         NotifyViewCreated.notifyViewCreated(this);
-
-        lineTracker.init(new ILinkContainer() {
-
-            @Override
-            public void addLink(IHyperlink link, int offset, int length) {
-                if (testOutputText == null) {
-                    return;
-                }
-                StyleRangeWithCustomData range = new StyleRangeWithCustomData();
-                range.underline = true;
-                try {
-                    range.underlineStyle = SWT.UNDERLINE_LINK;
-                } catch (Throwable e) {
-                    //Ignore (not available on earlier versions of eclipse)
-                }
-
-                //Set the proper color if it's available.
-                TextAttribute textAttribute = ColorManager.getDefault().getHyperlinkTextAttribute();
-                if (textAttribute != null) {
-                    range.foreground = textAttribute.getForeground();
-                } else {
-                    range.foreground = JFaceColors.getHyperlinkText(Display.getDefault());
-                }
-                range.start = offset;
-                range.length = length + 1;
-                range.customData = link;
-                testOutputText.setStyleRange(range);
-            }
-
-            @Override
-            public String getContents(int lineOffset, int lineLength) throws BadLocationException {
-                if (testOutputText == null) {
-                    return "";
-                }
-                if (lineLength <= 0) {
-                    return "";
-                }
-                try {
-                    return testOutputText.getText(lineOffset, lineOffset + lineLength);
-                } catch (IllegalArgumentException e) {
-                    return ""; //thrown on invalid range.
-                }
-            }
-        });
     }
 
     public PyUnitProgressBar getProgressBar() {
@@ -343,7 +340,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
         tree.setMenu(menu);
 
         if (PydevPlugin.getDefault() != null) {
-            colorAndStyleCache = new ColorAndStyleCache(PydevPrefs.getChainedPrefStore());
+            colorAndStyleCache = new ColorAndStyleCache(PyDevUiPrefs.getChainedPrefStore());
             prefListener = new IPropertyChangeListener() {
 
                 @Override
@@ -376,7 +373,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
                     }
                 }
             };
-            PydevPrefs.getChainedPrefStore().addPropertyChangeListener(prefListener);
+            PyDevUiPrefs.getChainedPrefStore().addPropertyChangeListener(prefListener);
         }
 
         StyledText text = new StyledText(sash, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.READ_ONLY);
@@ -471,7 +468,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
             this.fCounterPanel = null;
         }
         if (this.prefListener != null) {
-            PydevPrefs.getChainedPrefStore().removePropertyChangeListener(prefListener);
+            PyDevUiPrefs.getChainedPrefStore().removePropertyChangeListener(prefListener);
             this.prefListener = null;
         }
         super.dispose();
@@ -778,6 +775,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
     private final FastStringBuffer tempOnSelectResult = new FastStringBuffer();
     private final String ERRORS_HEADER = "============================= ERRORS =============================\n";
     private final String CAPTURED_OUTPUT_HEADER = "======================== CAPTURED OUTPUT =========================\n";
+    private boolean onlyCreateLinksForExistingFiles = true;
 
     /**
      * Called when a test is selected in the tree (shows its results in the text output text component).
@@ -805,7 +803,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
         String string = tempOnSelectResult.toString();
         testOutputText.setFont(JFaceResources.getFont(IDebugUIConstants.PREF_CONSOLE_FONT));
 
-        testOutputText.setText(string);
+        testOutputText.setText(string + "\n\n\n"); // Add a few lines to the test output so that we can scroll a bit more.
         testOutputText.setStyleRange(new StyleRange());
 
         if (addedErrors) {
@@ -820,6 +818,18 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
             testOutputText.setStyleRange(range);
         }
 
+        PythonConsoleLineTracker lineTracker = new PythonConsoleLineTracker();
+
+        ILaunchConfiguration launchConfiguration = null;
+        PyUnitTestRun testRun = result.getTestRun();
+        if (testRun != null) {
+            IPyUnitLaunch pyUnitLaunch = testRun.getPyUnitLaunch();
+            if (pyUnitLaunch != null) {
+                launchConfiguration = pyUnitLaunch.getLaunchConfiguration();
+            }
+        }
+        lineTracker.init(launchConfiguration, iLinkContainer);
+        lineTracker.setOnlyCreateLinksForExistingFiles(this.onlyCreateLinksForExistingFiles);
         lineTracker.splitInLinesAndAppendToLineTracker(string);
     }
 
@@ -921,6 +931,7 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
      */
     public void setCurrentRun(PyUnitTestRun testRun) {
         this.currentRun = testRun;
+        PyUnitViewTestsHolder.setCurrentTest(testRun);
         tree.setRedraw(false);
         try {
             tree.removeAll();
@@ -1029,10 +1040,14 @@ public class PyUnitView extends ViewPartWithOrientation implements IViewWithCont
             this.setCurrentRun(testRunRestored);
         } catch (Exception e) {
             Log.log(e);
-            Status status = PydevPlugin.makeStatus(IStatus.ERROR, e.getMessage(), e);
+            Status status = SharedCorePlugin.makeStatus(IStatus.ERROR, e.getMessage(), e);
             ErrorDialog.openError(EditorUtils.getShell(), "Error restoring tests from clipboard",
                     "Error restoring tests from clipboard", status);
         }
+    }
+
+    public void setOnlyCreateLinksForExistingFiles(boolean b) {
+        this.onlyCreateLinksForExistingFiles = b;
     }
 
 }

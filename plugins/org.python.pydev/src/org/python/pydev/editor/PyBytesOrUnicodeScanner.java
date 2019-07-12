@@ -14,10 +14,10 @@ package org.python.pydev.editor;
 import java.lang.ref.WeakReference;
 
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.rules.Token;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.shared_core.partitioner.Token;
 import org.python.pydev.ui.ColorAndStyleCache;
 
 public class PyBytesOrUnicodeScanner extends AbstractStringScanner {
@@ -78,7 +78,7 @@ public class PyBytesOrUnicodeScanner extends AbstractStringScanner {
         if (hasFromFutureImportUnicode) {
             return setDefaultIsUnicode(true);
         }
-        int grammarVersion = IGrammarVersionProvider.LATEST_GRAMMAR_VERSION;
+        int grammarVersion = IGrammarVersionProvider.LATEST_GRAMMAR_PY3_VERSION;
         IGrammarVersionProvider g = grammarVersionProvider;
         if (g != null) {
             try {
@@ -86,7 +86,7 @@ public class PyBytesOrUnicodeScanner extends AbstractStringScanner {
             } catch (MisconfigurationException e) {
             }
         }
-        if (grammarVersion >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0) {
+        if (grammarVersion >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5) {
             return setDefaultIsUnicode(true);
         } else {
             return setDefaultIsUnicode(false);

@@ -14,20 +14,20 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
-import org.python.pydev.shared_ui.ImageCache;
-import org.python.pydev.shared_ui.UIConstants;
+import org.python.pydev.shared_core.image.IImageCache;
+import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_ui.outline.AbstractOutlineFilterAction;
 
 /**
  * Action that will hide the fields in the outline
- * 
+ *
  * @author laurent.dore
  */
 public class OutlineHideFieldsAction extends AbstractOutlineFilterAction {
 
     private static final String PREF_HIDE_FIELDS = "org.python.pydev.OUTLINE_HIDE_FIELDS";
 
-    public OutlineHideFieldsAction(PyOutlinePage page, ImageCache imageCache) {
+    public OutlineHideFieldsAction(PyOutlinePage page, IImageCache imageCache) {
         super("Hide Fields", page, imageCache, PREF_HIDE_FIELDS, UIConstants.FIELDS_HIDE_ICON);
     }
 

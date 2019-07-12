@@ -43,6 +43,11 @@ public class CtxVisitor extends Visitor {
         visit(node);
     }
 
+    public void setCtx(SimpleNode node, int ctx) throws Exception {
+        this.ctx = ctx;
+        visit(node);
+    }
+
     public void setStore(SimpleNode[] nodes) throws Exception {
         for (int i = 0; i < nodes.length; i++) {
             setStore(nodes[i]);

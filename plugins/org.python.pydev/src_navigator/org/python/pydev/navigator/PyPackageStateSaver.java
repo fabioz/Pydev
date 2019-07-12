@@ -23,8 +23,8 @@ import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IWorkingSet;
+import org.python.pydev.ast.location.FindWorkspaceFiles;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.navigator.ui.PydevPackageExplorer.PydevCommonViewer;
 
@@ -144,9 +144,9 @@ public class PyPackageStateSaver {
 
     private Object getResourceFromPath(IMemento m) {
         IPath path = Path.fromPortableString(m.getID());
-        IResource resource = new PySourceLocatorBase().getFileForLocation(path, null);
+        IResource resource = FindWorkspaceFiles.getFileForLocation(path, null);
         if (resource == null || !resource.exists()) {
-            resource = new PySourceLocatorBase().getContainerForLocation(path, null);
+            resource = FindWorkspaceFiles.getContainerForLocation(path, null);
         }
         if (resource != null && resource.exists()) {
             return provider.getResourceInPythonModel(resource);

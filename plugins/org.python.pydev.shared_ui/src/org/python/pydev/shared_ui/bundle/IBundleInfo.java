@@ -11,27 +11,13 @@
  */
 package org.python.pydev.shared_ui.bundle;
 
-import java.io.File;
-
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
+import org.python.pydev.core.ICoreBundleInfo;
 import org.python.pydev.shared_ui.ImageCache;
 
 /**
  * @author Fabio Zadrozny
  */
-public interface IBundleInfo {
-
-    /**
-     * Should return a file from a relative path.
-     * 
-     * @param relative
-     * @return
-     * @throws CoreException
-     */
-    File getRelativePath(IPath relative) throws CoreException;
-
-    String getPluginID();
+public interface IBundleInfo extends ICoreBundleInfo {
 
     ImageCache getImageCache();
 

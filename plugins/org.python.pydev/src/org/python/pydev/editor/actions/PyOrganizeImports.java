@@ -12,7 +12,9 @@
  */
 package org.python.pydev.editor.actions;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -22,16 +24,26 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.DocumentRewriteSession;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IPyFormatStdProvider;
+import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.ISystemModulesManager;
+import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.PythonNatureWithoutProjectException;
+import org.python.pydev.core.autoedit.DefaultIndentPrefs;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.PySelectionFromEditor;
 import org.python.pydev.editor.actions.organize_imports.ImportArranger;
 import org.python.pydev.editor.actions.organize_imports.Pep8ImportArranger;
-import org.python.pydev.editor.autoedit.DefaultIndentPrefs;
+import org.python.pydev.jython.JythonModules;
 import org.python.pydev.parser.prettyprinterv2.IFormatter;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
+import org.python.pydev.shared_core.utils.DocUtils;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 
 /**
@@ -61,7 +73,7 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
 
             PyEdit pyEdit = getPyEdit();
 
-            PySelection ps = new PySelection(pyEdit);
+            PySelection ps = PySelectionFromEditor.createPySelectionFromEditor(pyEdit);
             final IDocument doc = ps.getDoc();
             if (ps.getStartLineIndex() == ps.getEndLineIndex()) {
                 organizeImports(pyEdit, doc, null, ps);
@@ -80,7 +92,8 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
     }
 
     @SuppressWarnings("unchecked")
-    private void organizeImports(PyEdit edit, final IDocument doc, IFile f, PySelection ps) {
+    private void organizeImports(PyEdit edit, final IDocument doc, IFile f, PySelection ps)
+            throws MisconfigurationException, PythonNatureWithoutProjectException {
         DocumentRewriteSession session = null;
         String endLineDelim = ps.getEndLineDelim();
         List<IOrganizeImports> participants = null;
@@ -95,7 +108,10 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
                 }
             }
         }
-
+        String fileContents = doc.get();
+        if (fileContents.contains("isort:skip_file") || fileContents.length() == 0) {
+            return;
+        }
         IAdaptable projectAdaptable = edit != null ? edit : f;
         String indentStr = edit != null ? edit.getIndentPrefs().getIndentationString()
                 : DefaultIndentPrefs.get(f).getIndentationString();
@@ -114,18 +130,82 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
                 }
             }
 
-            boolean pep8 = ImportsPreferencesPage.getPep8Imports(projectAdaptable);
+            Set<String> knownThirdParty = new HashSet<String>();
+            // isort itself already has a reasonable stdLib, so, don't do our own.
 
-            if (pep8) {
-                if (f == null) {
-                    f = edit.getIFile();
+            String importEngine = ImportsPreferencesPage.getImportEngine(projectAdaptable);
+            if (edit != null) {
+                IPythonNature pythonNature = edit.getPythonNature();
+                if (pythonNature != null) {
+                    IInterpreterInfo projectInterpreter = pythonNature.getProjectInterpreter();
+                    ISystemModulesManager modulesManager = projectInterpreter.getModulesManager();
+                    ModulesKey[] onlyDirectModules = modulesManager.getOnlyDirectModules();
+
+                    Set<String> stdLib = new HashSet<>();
+
+                    for (ModulesKey modulesKey : onlyDirectModules) {
+                        if (modulesKey.file == null) {
+                            int i = modulesKey.name.indexOf('.');
+                            String name;
+                            if (i < 0) {
+                                name = modulesKey.name;
+                            } else {
+                                name = modulesKey.name.substring(0, i);
+                            }
+                            // Add all names to std lib
+                            stdLib.add(name);
+                        }
+                    }
+                    for (ModulesKey modulesKey : onlyDirectModules) {
+                        int i = modulesKey.name.indexOf('.');
+                        String name;
+                        if (i < 0) {
+                            name = modulesKey.name;
+                        } else {
+                            name = modulesKey.name.substring(0, i);
+                        }
+
+                        // Consider all in site-packages to be third party.
+                        if (modulesKey.file != null && modulesKey.file.toString().contains("site-packages")) {
+                            stdLib.remove(name);
+                            knownThirdParty.add(name);
+                        }
+                    }
                 }
-                IProject p = f != null ? f.getProject() : null;
-                pep8PerformArrangeImports(doc, removeUnusedImports, endLineDelim, p, indentStr, automatic, edit);
+            }
 
-            } else {
-                performArrangeImports(doc, removeUnusedImports, endLineDelim, indentStr, automatic, edit);
+            switch (importEngine) {
+                case ImportsPreferencesPage.IMPORT_ENGINE_ISORT:
+                    if (fileContents.length() > 0) {
+                        String isortResult = JythonModules.makeISort(fileContents,
+                                edit != null ? edit.getEditorFile() : (f != null ? f.getRawLocation().toFile() : null),
+                                knownThirdParty);
+                        if (isortResult != null) {
+                            try {
+                                DocUtils.updateDocRangeWithContents(doc, fileContents, isortResult.toString(),
+                                        endLineDelim);
+                            } catch (Exception e) {
+                                Log.log(
+                                        StringUtils.format(
+                                                "Error trying to apply isort result. Curr doc:\n>>>%s\n<<<.\nNew doc:\\n>>>%s\\n<<<.",
+                                                fileContents, isortResult.toString()),
+                                        e);
+                            }
+                        }
+                    }
+                    break;
 
+                case ImportsPreferencesPage.IMPORT_ENGINE_REGULAR_SORT:
+                    performArrangeImports(doc, removeUnusedImports, endLineDelim, indentStr, automatic, edit);
+                    break;
+
+                default: //case ImportsPreferencesPage.IMPORT_ENGINE_PEP_8:
+                    if (f == null) {
+                        f = edit.getIFile();
+                    }
+                    IProject p = f != null ? f.getProject() : null;
+                    pep8PerformArrangeImports(doc, removeUnusedImports, endLineDelim, p, indentStr, automatic, edit);
+                    break;
             }
 
             if (participants != null) {
@@ -140,9 +220,9 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
 
     /**
      * Actually does the action in the document. Public for testing.
-     * 
+     *
      * @param doc
-     * @param removeUnusedImports 
+     * @param removeUnusedImports
      * @param endLineDelim
      */
     public static void performArrangeImports(IDocument doc, boolean removeUnusedImports, String endLineDelim,
@@ -152,9 +232,9 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
 
     /**
      * Pep8 compliant version. Actually does the action in the document.
-     * 
+     *
      * @param doc
-     * @param removeUnusedImports 
+     * @param removeUnusedImports
      * @param endLineDelim
      */
     public static void pep8PerformArrangeImports(IDocument doc, boolean removeUnusedImports, String endLineDelim,
@@ -182,8 +262,12 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
     @Override
     public void formatAll(IDocument doc, IPyFormatStdProvider edit, IFile f, boolean isOpenedFile,
             boolean throwSyntaxError)
-                    throws SyntaxErrorException {
-        organizeImports((PyEdit) edit, doc, f, new PySelection(doc));
+            throws SyntaxErrorException {
+        try {
+            organizeImports((PyEdit) edit, doc, f, new PySelection(doc));
+        } catch (MisconfigurationException | PythonNatureWithoutProjectException e) {
+            Log.log(e); // Can't do it without a configured nature/interpreter.
+        }
     }
 
     @Override

@@ -13,8 +13,8 @@ import java.util.Map;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.shared_core.structure.Tuple;
 
-import com.python.pydev.refactoring.wizards.rename.PyRenameAnyLocalProcess;
-import com.python.pydev.refactoring.wizards.rename.PyRenameAttributeProcess;
+import com.python.pydev.analysis.refactoring.wizards.rename.PyRenameAnyLocalProcess;
+import com.python.pydev.analysis.refactoring.wizards.rename.PyRenameAttributeProcess;
 
 @SuppressWarnings("rawtypes")
 public class RenameAttributeRefactoringTest extends RefactoringRenameTestBase {

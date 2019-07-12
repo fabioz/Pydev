@@ -6,8 +6,6 @@
  */
 package org.python.pydev.debug.pyunit;
 
-import junit.framework.TestCase;
-
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.layout.FillLayout;
@@ -15,6 +13,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.SharedCorePlugin;
+
+import junit.framework.TestCase;
 
 public class PyUnitViewTest extends TestCase {
 
@@ -50,7 +50,7 @@ public class PyUnitViewTest extends TestCase {
 
         StyledText text = new StyledText(composite, 0);
         pyUnitView.setTextComponent(text);
-        pyUnitView.getLineTracker().setOnlyCreateLinksForExistingFiles(false);
+        pyUnitView.setOnlyCreateLinksForExistingFiles(false);
         pyUnitView.onSelectResult(result);
 
         //uncomment below to see results.

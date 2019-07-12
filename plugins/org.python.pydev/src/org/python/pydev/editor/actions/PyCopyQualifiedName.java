@@ -16,16 +16,17 @@ import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
-import org.python.pydev.core.FullRepIterable;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.PySelectionFromEditor;
 import org.python.pydev.parser.fastparser.FastParser;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_ui.EditorUtils;
 
 public class PyCopyQualifiedName extends PyAction {
@@ -36,7 +37,7 @@ public class PyCopyQualifiedName extends PyAction {
         try {
             PyEdit pyEdit = getPyEdit();
 
-            PySelection pySelection = new PySelection(pyEdit);
+            PySelection pySelection = PySelectionFromEditor.createPySelectionFromEditor(pyEdit);
 
             IPythonNature nature = pyEdit.getPythonNature();
             File editorFile = pyEdit.getEditorFile();

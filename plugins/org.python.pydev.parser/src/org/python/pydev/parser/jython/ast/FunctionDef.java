@@ -10,13 +10,16 @@ public final class FunctionDef extends stmtType {
     public stmtType[] body;
     public decoratorsType[] decs;
     public exprType returns;
+    public boolean async;
 
-    public FunctionDef(NameTokType name, argumentsType args, stmtType[] body, decoratorsType[] decs, exprType returns) {
+    public FunctionDef(NameTokType name, argumentsType args, stmtType[] body, decoratorsType[]
+    decs, exprType returns, boolean async) {
         this.name = name;
         this.args = args;
         this.body = body;
         this.decs = decs;
         this.returns = returns;
+        this.async = async;
     }
 
     @Override
@@ -28,81 +31,69 @@ public final class FunctionDef extends stmtType {
         result = prime * result + Arrays.hashCode(body);
         result = prime * result + Arrays.hashCode(decs);
         result = prime * result + ((returns == null) ? 0 : returns.hashCode());
+        result = prime * result + (async ? 17 : 137);
         return result;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
         FunctionDef other = (FunctionDef) obj;
-        if (name == null) {
-            if (other.name != null)
-                return false;
-        } else if (!name.equals(other.name))
-            return false;
-        if (args == null) {
-            if (other.args != null)
-                return false;
-        } else if (!args.equals(other.args))
-            return false;
-        if (!Arrays.equals(body, other.body))
-            return false;
-        if (!Arrays.equals(decs, other.decs))
-            return false;
-        if (returns == null) {
-            if (other.returns != null)
-                return false;
-        } else if (!returns.equals(other.returns))
-            return false;
+        if (name == null) { if (other.name != null) return false;}
+        else if (!name.equals(other.name)) return false;
+        if (args == null) { if (other.args != null) return false;}
+        else if (!args.equals(other.args)) return false;
+        if (!Arrays.equals(body, other.body)) return false;
+        if (!Arrays.equals(decs, other.decs)) return false;
+        if (returns == null) { if (other.returns != null) return false;}
+        else if (!returns.equals(other.returns)) return false;
+        if(this.async != other.async) return false;
         return true;
     }
-
     @Override
     public FunctionDef createCopy() {
         return createCopy(true);
     }
-
     @Override
     public FunctionDef createCopy(boolean copyComments) {
         stmtType[] new0;
-        if (this.body != null) {
-            new0 = new stmtType[this.body.length];
-            for (int i = 0; i < this.body.length; i++) {
-                new0[i] = (stmtType) (this.body[i] != null ? this.body[i].createCopy(copyComments) : null);
-            }
-        } else {
+        if(this.body != null){
+        new0 = new stmtType[this.body.length];
+        for(int i=0;i<this.body.length;i++){
+            new0[i] = (stmtType) (this.body[i] != null? this.body[i].createCopy(copyComments):null);
+        }
+        }else{
             new0 = this.body;
         }
         decoratorsType[] new1;
-        if (this.decs != null) {
-            new1 = new decoratorsType[this.decs.length];
-            for (int i = 0; i < this.decs.length; i++) {
-                new1[i] = (decoratorsType) (this.decs[i] != null ? this.decs[i].createCopy(copyComments) : null);
-            }
-        } else {
+        if(this.decs != null){
+        new1 = new decoratorsType[this.decs.length];
+        for(int i=0;i<this.decs.length;i++){
+            new1[i] = (decoratorsType) (this.decs[i] != null?
+            this.decs[i].createCopy(copyComments):null);
+        }
+        }else{
             new1 = this.decs;
         }
-        FunctionDef temp = new FunctionDef(name != null ? (NameTokType) name.createCopy(copyComments) : null,
-                args != null ? (argumentsType) args.createCopy(copyComments) : null, new0, new1,
-                returns != null ? (exprType) returns.createCopy(copyComments) : null);
+        FunctionDef temp = new
+        FunctionDef(name!=null?(NameTokType)name.createCopy(copyComments):null,
+        args!=null?(argumentsType)args.createCopy(copyComments):null, new0, new1,
+        returns!=null?(exprType)returns.createCopy(copyComments):null, async);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
-        if (this.specialsBefore != null && copyComments) {
-            for (Object o : this.specialsBefore) {
-                if (o instanceof commentType) {
+        if(this.specialsBefore != null && copyComments){
+            for(Object o:this.specialsBefore){
+                if(o instanceof commentType){
                     commentType commentType = (commentType) o;
                     temp.getSpecialsBefore().add(commentType.createCopy(copyComments));
                 }
             }
         }
-        if (this.specialsAfter != null && copyComments) {
-            for (Object o : this.specialsAfter) {
-                if (o instanceof commentType) {
+        if(this.specialsAfter != null && copyComments){
+            for(Object o:this.specialsAfter){
+                if(o instanceof commentType){
                     commentType commentType = (commentType) o;
                     temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
                 }
@@ -128,6 +119,9 @@ public final class FunctionDef extends stmtType {
         sb.append(", ");
         sb.append("returns=");
         sb.append(dumpThis(this.returns));
+        sb.append(", ");
+        sb.append("async=");
+        sb.append(dumpThis(this.async));
         sb.append("]");
         return sb.toString();
     }

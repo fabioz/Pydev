@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Interactive Console Plug-in
 Bundle-SymbolicName: org.python.pydev.shared_interactive_console;singleton:=true
-Bundle-Version: 5.0.0.qualifier
+Bundle-Version: 7.2.1.qualifier
 Bundle-ClassPath: interactive_console.jar,
  commons-logging-1.1.1.jar,
  ws-commons-util-1.0.2.jar,
@@ -10,7 +10,6 @@ Bundle-ClassPath: interactive_console.jar,
  xmlrpc-common-3.1.3.jar,
  xmlrpc-server-3.1.3.jar
 Bundle-Activator: org.python.pydev.shared_interactive_console.InteractiveConsolePlugin
-Bundle-Localization: plugin
 Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
@@ -19,9 +18,10 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.debug.core,
  org.eclipse.debug.ui,
  org.eclipse.ui.workbench.texteditor,
- org.python.pydev.shared_core;bundle-version="[5.0.0,5.0.1)",
- org.eclipse.ui.ide,
- org.python.pydev.shared_ui;bundle-version="[5.0.0,5.0.1)"
+ org.python.pydev.shared_core;bundle-version="[7.2.1,7.2.2)",
+ org.python.pydev.core;bundle-version="[7.2.1,7.2.2)",
+ org.python.pydev.shared_ui;bundle-version="[7.2.1,7.2.2)",
+ org.eclipse.ui.ide
 Bundle-ActivationPolicy: lazy
 Export-Package: org.apache.commons.logging,org.apache.commons.logging.
  impl,org.apache.ws.commons.serialize,org.apache.ws.commons.util,org.a
@@ -36,5 +36,5 @@ Export-Package: org.apache.commons.logging,org.apache.commons.logging.
  python.pydev.shared_interactive_console.console.ui.internal.actions,o
  rg.python.pydev.shared_interactive_console.console.ui.internal.fromec
  lipse
-Bundle-Vendor: Appcelerator
+Bundle-Vendor: Brainwy Software Ltda
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

@@ -16,11 +16,11 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
 import org.eclipse.debug.core.model.IVariable;
+import org.python.pydev.ast.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
 import org.python.pydev.debug.model.PyDebugTarget;
 import org.python.pydev.debug.model.PyVariable;
 import org.python.pydev.debug.ui.actions.PyBreakpointRulerAction;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.codecompletion.revisited.javaintegration.AbstractWorkbenchTestCase;
 import org.python.pydev.editorinput.PyOpenEditor;
 
 public class DebuggerTestWorkbench extends AbstractWorkbenchTestCase {

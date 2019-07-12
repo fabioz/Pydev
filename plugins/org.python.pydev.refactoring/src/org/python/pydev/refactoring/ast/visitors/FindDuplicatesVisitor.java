@@ -11,8 +11,6 @@ import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.ITextSelection;
-import org.eclipse.jface.text.TextSelection;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -20,6 +18,7 @@ import org.python.pydev.parser.jython.ast.Assert;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.AugAssign;
+import org.python.pydev.parser.jython.ast.Await;
 import org.python.pydev.parser.jython.ast.BinOp;
 import org.python.pydev.parser.jython.ast.BoolOp;
 import org.python.pydev.parser.jython.ast.Break;
@@ -76,7 +75,9 @@ import org.python.pydev.parser.jython.ast.WithItem;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.shared_core.string.CoreTextSelection;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.ICoreTextSelection;
 import org.python.pydev.shared_core.structure.Tuple;
 
 /**
@@ -86,8 +87,8 @@ import org.python.pydev.shared_core.structure.Tuple;
 public class FindDuplicatesVisitor implements VisitorIF {
 
     private final exprType expression;
-    private final ITextSelection selection;
-    private final List<Tuple<ITextSelection, SimpleNode>> duplicates = new ArrayList<Tuple<ITextSelection, SimpleNode>>();
+    private final ICoreTextSelection selection;
+    private final List<Tuple<ICoreTextSelection, SimpleNode>> duplicates = new ArrayList<Tuple<ICoreTextSelection, SimpleNode>>();
 
     private final IDocument doc;
     private final PySelection ps;
@@ -96,12 +97,17 @@ public class FindDuplicatesVisitor implements VisitorIF {
     private SimpleNode lastFound = null;
     private ParsingUtils parsingUtils;
 
-    public FindDuplicatesVisitor(ITextSelection selection, exprType expression, IDocument doc) {
+    public FindDuplicatesVisitor(ICoreTextSelection selection, exprType expression, IDocument doc) {
         this.selection = selection;
         this.expression = expression;
         this.doc = doc;
         this.ps = new PySelection(this.doc, selection);
-        FastStringBuffer buf = new FastStringBuffer(ps.getSelectedText(), 0);
+        FastStringBuffer buf;
+        try {
+            buf = new FastStringBuffer(ps.getSelectedText(), 0);
+        } catch (BadLocationException e) {
+            throw new RuntimeException(e);
+        }
         ParsingUtils.removeCommentsAndWhitespaces(buf);
         buf.replaceAll("\\", ""); //Remove all the \\ 
         selectedText = buf.toCharArray();
@@ -183,8 +189,8 @@ public class FindDuplicatesVisitor implements VisitorIF {
             if (j == selectedText.length) {
 
                 if (!ps.intersects(offset, len)) {
-                    ITextSelection sel = new TextSelection(this.doc, offset, len);
-                    duplicates.add(new Tuple<ITextSelection, SimpleNode>(sel, lastFound));
+                    ICoreTextSelection sel = new CoreTextSelection(this.doc, offset, len);
+                    duplicates.add(new Tuple<ICoreTextSelection, SimpleNode>(sel, lastFound));
                 }
             }
             lastFound = null;
@@ -202,7 +208,7 @@ public class FindDuplicatesVisitor implements VisitorIF {
     /**
      * @return
      */
-    public List<Tuple<ITextSelection, SimpleNode>> getDuplicates() {
+    public List<Tuple<ICoreTextSelection, SimpleNode>> getDuplicates() {
         return duplicates;
     }
 
@@ -577,6 +583,15 @@ public class FindDuplicatesVisitor implements VisitorIF {
 
     @Override
     public Object visitYield(Yield node) throws Exception {
+        boolean ret = unhandled_node(node);
+        if (ret) {
+            traverse(node);
+        }
+        return null;
+    }
+
+    @Override
+    public Object visitAwait(Await node) throws Exception {
         boolean ret = unhandled_node(node);
         if (ret) {
             traverse(node);

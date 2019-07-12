@@ -117,17 +117,17 @@ public class AbstractIResourceStub implements IResource {
 
     @Override
     public IMarker findMarker(long id) throws CoreException {
-        throw new RuntimeException("Not implemented");
+        return null;
     }
 
     @Override
     public IMarker[] findMarkers(String type, boolean includeSubtypes, int depth) throws CoreException {
-        throw new RuntimeException("Not implemented");
+        return new IMarker[0];
     }
 
     @Override
     public int findMaxProblemSeverity(String type, boolean includeSubtypes, int depth) throws CoreException {
-        throw new RuntimeException("Not implemented");
+        return 0;
     }
 
     @Override

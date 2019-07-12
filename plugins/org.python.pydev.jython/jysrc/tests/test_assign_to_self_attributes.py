@@ -60,6 +60,8 @@ class Test(unittest.TestCase):
         self.b = b
 '''
         self.check(initial_doc, final_doc)
+        
+    def testAssignToSelfAttributes1(self):
         initial_doc = '''class A:
     def m1(self, a, b):
         pass'''
@@ -71,7 +73,7 @@ class Test(unittest.TestCase):
 '''
         self.check(initial_doc, final_doc)
         
-        self.check(initial_doc, final_doc)
+    def testAssignToSelfAttributes2(self):
         initial_doc = '''class A:
     def m1(self, a=(1,2)):
         pass'''
@@ -79,6 +81,18 @@ class Test(unittest.TestCase):
         final_doc = '''class A:
     def m1(self, a=(1,2)):
         self.a = a
+'''
+        self.check(initial_doc, final_doc)
+        
+    def testAssignToSelfAttributes3(self):
+        initial_doc = '''class A:
+    def m1(self, a, b):
+        self.a = a'''
+        
+        final_doc = '''class A:
+    def m1(self, a, b):
+        self.a = a
+        self.b = b
 '''
         self.check(initial_doc, final_doc)
         
@@ -99,7 +113,7 @@ class Test(unittest.TestCase):
 if __name__ == '__main__':
     if IS_JYTHON:
         suite = unittest.makeSuite(Test)
-        unittest.TextTestRunner(verbosity=1).run(suite)
+        unittest.TextTestRunner(verbosity=3).run(suite)
     else:
         sys.stdout.write('Not running jython tests for non-java platform: %s' % sys.platform)
 

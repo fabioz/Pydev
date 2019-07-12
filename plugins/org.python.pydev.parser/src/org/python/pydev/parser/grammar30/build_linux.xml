@@ -1,0 +1,122 @@
+<project name="jython-parser" default="parser">
+
+    <property name="javacc" value="/usr/bin/javacc" />
+	<property name="jjtree" value="/usr/bin/jjtree" />
+    <property name="python" value="/usr/bin/python2" />
+    <property name="basedir" value="." />
+    <property name="parser.dir" value="${basedir}" />
+
+    <!-- print out some usage hints -->
+    <target name="usage" description="prints a short usage">
+        <echo>
+If this build.xml is called directly, you have to make sure the property javaccHome is set correctly.
+This can be done either inside this build.xml (first top property), or on the command line.
+
+This build only handles javacc. 
+            
+Current setting is: ${javaccHome}
+        </echo>
+    </target>
+
+    <!-- checks if work to do / can be done -->
+    <target name="pre">
+        <!-- set the property parser.regen.notreq if PythonGrammer.java is more up to date than python.jjt 
+        <uptodate property="parser.regen.notreq" targetfile="${parser.dir}/PythonGrammar.java">
+            <srcfiles dir="${parser.dir}" includes="python.jjt" />
+        </uptodate>
+        -->
+        <!-- fail if generation should be done, but javacc.jar is not available -->
+        <property name="javacc.jar" value="${javacc}" />
+        <available file="${javacc}" property="javacc.jar.present" />
+        <fail message="${javacc.jar} not found: correct the javaccHome property">
+            <condition>
+                <and>
+                    <not>
+                        <isset property="parser.regen.notreq" />
+                    </not>
+                    <not>
+                        <isset property="javacc.jar.present" />
+                    </not>
+                </and>
+            </condition>
+        </fail>
+    </target>
+
+    <!-- information if up to date -->
+    <target name="uptodate" depends="pre" if="parser.regen.notreq">
+        <echo>parser generated files are up to date</echo>
+    </target>
+
+    <!-- delete the parser generated files -->
+    <target name="clean" depends="uptodate" unless="parser.regen.notreq">
+        <!-- do not delete file="${parser.dir}/TokenMgrError.java" -->
+        <!-- do not delete file="${parser.dir}/ParseException.java" -->
+        <delete file="${parser.dir}/PythonGrammar30.java" />
+        <delete file="${parser.dir}/PythonGrammar30TreeConstants.java" />
+        <delete file="${parser.dir}/PythonGrammar30TokenManager.java" />
+        <delete file="${parser.dir}/PythonGrammar30Constants.java" />
+        <!-- +++ TODO: maybe this could be allowed (checkin): -->
+        <!--<delete file="${parser.dir}/CharStream.java" />-->
+        <!-- <delete file="${parser.dir}/Token.java" /> -->
+    </target>
+
+    <!-- invoke jjtree on python.jjt -->
+    <target name="tree" depends="clean" unless="parser.regen.notreq">
+    	<exec executable="${jjtree}" dir="${parser.dir}" spawn="no">
+            <arg value="-OUTPUT_DIRECTORY=${parser.dir}" />
+            <arg file="${parser.dir}/python.jjt" />
+    		
+    	</exec>
+        <!--<java classname="jjtree" classpath="${javacc.jar}" fork="yes">
+        </java>-->
+    </target>
+
+    <!-- invoke javacc on python.jj -->
+    <target name="gen" depends="tree" unless="parser.regen.notreq">
+        <!--<java classname="javacc" classpath="${javacc.jar}" fork="yes">
+            <arg value="-OUTPUT_DIRECTORY=${parser.dir}" />
+            <arg file="${parser.dir}/python.jj" />
+        </java>-->
+    	<exec executable="javacc" dir="${parser.dir}" spawn="no">
+    		<arg value="-OUTPUT_DIRECTORY=${parser.dir}" />
+    		<arg file="${parser.dir}/python.jj" />
+    	</exec>
+        <delete file="${parser.dir}/python.jj" />
+            
+        <echo>Removing the files that are common among versions</echo>
+        <delete file="${parser.dir}/TokenMgrError.java" />
+        <delete file="${parser.dir}/Token.java" />
+        <delete file="${parser.dir}/SimpleNode.java" />
+        <delete file="${parser.dir}/ParseException.java" />
+        <delete file="${parser.dir}/Node.java" />
+        <delete file="${parser.dir}/CharStream.java" />
+        <delete file="${parser.dir}/PythonGrammar30TreeConstants.java" />
+        <delete file="${parser.dir}/JJTPythonGrammar30State.java" />
+        
+        <echo>Updating jjFillToken in file PythonGrammar30TokenManager.java</echo>
+        <replace file="${parser.dir}/PythonGrammar30TokenManager.java" token="public class PythonGrammar30TokenManager implements PythonGrammar30Constants" 
+            value="@SuppressWarnings(&quot;unused&quot;) public final class PythonGrammar30TokenManager extends AbstractTokenManager implements PythonGrammar30Constants"/>
+        
+        <echo>Updating jjtree.builder.openNode</echo>
+        <replace file="${parser.dir}/PythonGrammar30.java" token="(SimpleNode)SimpleNode.jjtCreate(this," value="jjtree.builder.openNode("/>
+        <replace file="${parser.dir}/PythonGrammar30.java" token="PythonGrammar30TreeConstants," value=""/>
+    	<replace file="${parser.dir}/PythonGrammar30.java" token="protected JJTPythonGrammar30State jjtree = new JJTPythonGrammar30State();" 
+    		value="protected final AbstractJJTPythonGrammarState jjtree = createJJTPythonGrammarState(TreeBuilder30.class);"/>
+        
+        <exec executable="${python}" dir="${parser.dir}">
+            <arg value="${parser.dir}/../grammarcommon/optimize_generated_grammar.py" />
+            <arg value="${parser.dir}" />
+        </exec>
+        
+    	<fixcrlf srcdir="${parser.dir}" eol="unix"></fixcrlf>
+    </target>
+
+    <!-- confirmation -->
+    <target name="done" depends="gen" unless="parser.regen.notreq">
+        <echo>parser generated to directory ${parser.dir}</echo>
+    </target>
+
+    <!-- default target -->
+    <target name="parser" depends="done" description="the default target" />
+
+</project>

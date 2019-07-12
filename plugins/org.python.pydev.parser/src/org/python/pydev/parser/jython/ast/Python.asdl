@@ -25,22 +25,22 @@ module Python
 	--with item because the With() construct may have multiple items in the same construct in python 3.1
 	WithItem = WithItem(expr context_expr, expr? optional_vars)
 	
-	stmt = FunctionDef(NameTok name, arguments args, stmt* body, decorators* decs, expr? returns)
+	stmt = FunctionDef(NameTok name, arguments args, stmt* body, decorators* decs, expr? returns, bool? async)
 	      | ClassDef(NameTok name, expr* bases, stmt* body, decorators* decs, keyword* keywords, expr? starargs, expr? kwargs)
 	      | Return(expr? value) 
 
 	      | Delete(expr* targets)
-	      | Assign(expr* targets, expr value)
+	      | Assign(expr* targets, expr value, expr? type)
 	      | AugAssign(expr target, operator op, expr value)
 
 	      -- not sure if bool is allowed, can always use int
  	      | Print(expr? dest, expr* values, bool nl)
 
 	      -- use 'orelse' because else is a keyword in target languages
-	      | For(expr target, expr iter, stmt* body, suite orelse)
+	      | For(expr target, expr iter, stmt* body, suite orelse, bool? async)
 	      | While(expr test, stmt* body, suite orelse)
 	      | If(expr test, stmt* body, suite orelse)
-	      | With(WithItem* with_item, suite body)
+	      | With(WithItem* with_item, suite body, bool? async)
 	      
 	      -- 'type' is a bad name
 	      | Raise(expr? type, expr? inst, expr? tback, expr? cause)
@@ -88,13 +88,14 @@ module Python
 	     | GeneratorExp(expr elt, comprehension* generators)
 	     -- yield is an expr on 2.5
 	     | Yield(expr? value, bool? yield_from)
+	     | Await(expr? value)
 	     -- need sequences for compare to distinguish between
 	     -- x < 4 < 3 and (x < 4) < 3
 	     | Compare(expr left, cmpop* ops, expr* comparators)
 	     | Call(expr func, expr* args, keyword* keywords, expr? starargs, expr? kwargs)
 	     | Repr(expr value)
 	     | Num(object n, num_type type, string num) -- a number as a PyObject.
-	     | Str(string s, str_type type, bool unicode, bool raw, bool binary) 
+	     | Str(string s, str_type type, bool unicode, bool raw, bool binary, bool fstring) 
 	     | StrJoin(expr* strs) -- the inner expr should always be of type Str
 	     -- other literals? bools?
 

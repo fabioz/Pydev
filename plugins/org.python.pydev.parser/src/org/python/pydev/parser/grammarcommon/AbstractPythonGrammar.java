@@ -39,6 +39,10 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
 
     protected final IPythonGrammarActions grammarActions;
 
+    public IPythonGrammarActions getGrammarActions() {
+        return grammarActions;
+    }
+
     protected AbstractPythonGrammar(boolean generateTree) {
         this.generateTree = generateTree;
         if (generateTree) {
@@ -53,7 +57,7 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
 
     /**
      * Opens a node scope
-     * 
+     *
      * @param n the node marking the beginning of the scope.
      */
     protected final void jjtreeOpenNodeScope(Node n) {
@@ -61,9 +65,9 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
 
     /**
      * Closes a node scope
-     * 
+     *
      * @param n the node that should have its scope closed.
-     * @throws ParseException 
+     * @throws ParseException
      */
     protected final void jjtreeCloseNodeScope(Node n) throws ParseException {
         grammarActions.jjtreeCloseNodeScope(n);
@@ -86,5 +90,9 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
      * Add before the 'next token' strategy
      */
     public static final int STRATEGY_BEFORE_NEXT = 1;
+
+    public boolean getInsideAsync() {
+        return false;
+    }
 
 }

@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.bundle.BundleUtils;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.process.ProcessUtils;
 import org.python.pydev.shared_core.utils.IProcessInfo;
 import org.python.pydev.shared_core.utils.IProcessList;
@@ -32,7 +33,7 @@ import org.python.pydev.shared_core.utils.internal.ProcessInfo;
 
 /*
  * This implementation uses a listtasks which is shipped together (so, it should always work on windows).
- * 
+ *
  * Use through PlatformUtils.
  */
 public class ProcessListWin32Internal implements IProcessList {
@@ -44,7 +45,7 @@ public class ProcessListWin32Internal implements IProcessList {
         Process p = null;
         String command = null;
         InputStream in = null;
-        Bundle bundle = Platform.getBundle(SharedCorePlugin.PLUGIN_ID);
+        Bundle bundle = Platform.getBundle(SharedCorePlugin.SHARED_CORE_PLUGIN_ID);
         IProcessInfo[] procInfos = NOPROCESS;
 
         try {
@@ -53,7 +54,7 @@ public class ProcessListWin32Internal implements IProcessList {
             file = BundleUtils.getRelative(relative, bundle);
 
             if (file != null && file.exists()) {
-                command = file.getCanonicalPath();
+                command = FileUtils.getFileAbsolutePath(file);
                 if (command != null) {
                     try {
                         p = ProcessUtils.createProcess(new String[] { command }, null, null);

@@ -18,11 +18,11 @@ import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.docutils.TabNannyDocIterator;
+import org.python.pydev.core.docutils.TabNannyDocIterator.IndentInfo;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_core.parsing.IScopesParser;
 import org.python.pydev.shared_core.parsing.Scopes;
 import org.python.pydev.shared_core.string.FastStringBuffer;
-import org.python.pydev.shared_core.structure.Tuple3;
 
 /**
  * This parser is a bit different from the others, as its output is not an AST, but a structure defining the scopes
@@ -41,8 +41,8 @@ public class ScopesParser implements IScopesParser {
         try {
             TabNannyDocIterator nannyDocIterator = new TabNannyDocIterator(doc, true, false);
             while (nannyDocIterator.hasNext()) {
-                Tuple3<String, Integer, Boolean> next = nannyDocIterator.next();
-                this.lineOffsetToIndent.put(next.o2, next.o1.length());
+                IndentInfo next = nannyDocIterator.next();
+                this.lineOffsetToIndent.put(next.startOffset, next.indent.length());
             }
         } catch (BadLocationException e1) {
             throw new RuntimeException(e1);

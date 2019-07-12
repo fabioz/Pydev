@@ -15,9 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.rules.IToken;
-import org.eclipse.jface.text.rules.ITokenScanner;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.partitioner.IToken;
+import org.python.pydev.shared_core.partitioner.ITokenScanner;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
 public class TestUtils {

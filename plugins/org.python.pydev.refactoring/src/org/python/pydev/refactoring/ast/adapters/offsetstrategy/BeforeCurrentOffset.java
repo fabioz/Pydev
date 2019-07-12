@@ -43,7 +43,7 @@ public class BeforeCurrentOffset extends BeginOffset {
     @Override
     protected int getLine() {
         if (scopeAdapter != null) {
-            return scopeAdapter.getNodeFirstLine() - 1;
+            return scopeAdapter.getNodeFirstLine(true) - 1;
         }
         return super.getLine();
     }
