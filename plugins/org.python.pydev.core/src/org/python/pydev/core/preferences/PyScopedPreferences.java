@@ -35,7 +35,7 @@ public class PyScopedPreferences {
     }
 
     public static IScopedPreferences get() {
-        return ScopedPreferences.get(SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_SCOPE);
+        return ScopedPreferences.get(SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_QUALIFIER);
     }
 
 }

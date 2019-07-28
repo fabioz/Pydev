@@ -225,7 +225,7 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
         GridData layoutData = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
         labelExample.setLayoutData(layoutData);
 
-        addField(new ScopedPreferencesFieldEditor(p, SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_SCOPE, this));
+        addField(new ScopedPreferencesFieldEditor(p, SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_QUALIFIER, this));
     }
 
     private void createTabs(Composite p) {

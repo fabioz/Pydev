@@ -1430,6 +1430,10 @@
             priority="50">
       </pyTextHover>
    </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer class="org.python.pydev.debug.model.PyVariablesPreferences"/>
+   </extension>
 
 </plugin>
 

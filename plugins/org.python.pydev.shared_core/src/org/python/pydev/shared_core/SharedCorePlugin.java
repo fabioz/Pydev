@@ -29,7 +29,7 @@ public class SharedCorePlugin extends Plugin {
 
     public static final String PYDEV_PLUGIN_ID = "org.python.pydev";
 
-    public static final String DEFAULT_PYDEV_PREFERENCES_SCOPE = "org.python.pydev";
+    public static final String DEFAULT_PYDEV_PREFERENCES_QUALIFIER = "org.python.pydev";
 
     //The shared instance.
     private static SharedCorePlugin plugin;

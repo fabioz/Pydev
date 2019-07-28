@@ -1,15 +1,17 @@
 package org.python.pydev.core.preferences;
 
+import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.osgi.service.prefs.Preferences;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.formatter.PyFormatterPreferences;
 import org.python.pydev.shared_core.SharedCorePlugin;
 
-public class PyDevCorePreferencesInitializer {
+public class PyDevCorePreferencesInitializer extends AbstractPreferenceInitializer {
 
-    public static void initializeDefaultPreferences() {
-        Preferences node = DefaultScope.INSTANCE.getNode(SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_SCOPE);
+    @Override
+    public void initializeDefaultPreferences() {
+        Preferences node = DefaultScope.INSTANCE.getNode(SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_QUALIFIER);
 
         //ironpython
         node.put(IInterpreterManager.IRONPYTHON_INTERNAL_SHELL_VM_ARGS,

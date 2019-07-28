@@ -156,7 +156,7 @@ public class ImportsPreferencesPage extends ScopedFieldEditorPreferencePage impl
                     }
                 }));
 
-        addField(new ScopedPreferencesFieldEditor(p, SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_SCOPE, this));
+        addField(new ScopedPreferencesFieldEditor(p, SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_QUALIFIER, this));
     }
 
     private void updateEnablement(Composite p, String importEngine) {

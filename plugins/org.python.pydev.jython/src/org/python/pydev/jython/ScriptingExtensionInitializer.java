@@ -12,11 +12,11 @@ import org.osgi.service.prefs.Preferences;
 import org.python.pydev.jython.ui.JyScriptingPreferencesPage;
 
 public class ScriptingExtensionInitializer extends AbstractPreferenceInitializer {
-    public static final String DEFAULT_SCOPE = "org.python.pydev.jython";
+    public static final String DEFAULT_QUALIFIER = "org.python.pydev.jython";
 
     @Override
     public void initializeDefaultPreferences() {
-        Preferences node = DefaultScope.INSTANCE.getNode(DEFAULT_SCOPE);
+        Preferences node = DefaultScope.INSTANCE.getNode(DEFAULT_QUALIFIER);
 
         node.putBoolean(JyScriptingPreferencesPage.SHOW_SCRIPTING_OUTPUT,
                 JyScriptingPreferencesPage.DEFAULT_SHOW_SCRIPTING_OUTPUT);

@@ -11,12 +11,13 @@
 ******************************************************************************/
 package org.python.pydev.debug.model;
 
+import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.shared_core.SharedCorePlugin;
 
-public class PyVariablesPreferences {
+public class PyVariablesPreferences extends AbstractPreferenceInitializer {
 
     public static final String DEBUG_UI_VARIABLES_SHOW_PRIVATE_REFERENCES = "DEBUG_UI_VARIABLES_SHOW_PRIVATE_REFERENCES";
     public static final boolean DEBUG_UI_VARIABLES_DEFAULT_SHOW_PRIVATE_REFERENCES = true;
@@ -93,7 +94,8 @@ public class PyVariablesPreferences {
         setHelper(PyVariablesPreferences.DEBUG_UI_VARIABLES_SHOW_FUNCTION_AND_MODULE_REFERENCES, value);
     }
 
-    public static void initializeDefaultPreferences() {
+    @Override
+    public void initializeDefaultPreferences() {
         setDefaultHelper(PyVariablesPreferences.DEBUG_UI_VARIABLES_SHOW_PRIVATE_REFERENCES,
                 PyVariablesPreferences.DEBUG_UI_VARIABLES_DEFAULT_SHOW_PRIVATE_REFERENCES);
         setDefaultHelper(PyVariablesPreferences.DEBUG_UI_VARIABLES_SHOW_CAPITALIZED_REFERENCES,

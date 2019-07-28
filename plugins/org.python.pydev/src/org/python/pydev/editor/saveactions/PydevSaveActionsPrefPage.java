@@ -228,7 +228,7 @@ public class PydevSaveActionsPrefPage extends ScopedFieldEditorPreferencePage im
         addField(new LabelFieldEditor("__dummy__",
                 "I.e.: __updated__=\"2010-01-01\" will be synched on save.", p));
 
-        addField(new ScopedPreferencesFieldEditor(p, SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_SCOPE, this));
+        addField(new ScopedPreferencesFieldEditor(p, SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_QUALIFIER, this));
 
     }
 

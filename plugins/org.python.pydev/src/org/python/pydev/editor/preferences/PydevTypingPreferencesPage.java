@@ -171,7 +171,7 @@ public class PydevTypingPreferencesPage extends ScopedFieldEditorPreferencePage 
         addField(new LabelFieldEditor("__UNUSED__", "Note: smart move line up/down change applied on editor restart.",
                 p));
 
-        addField(new ScopedPreferencesFieldEditor(p, SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_SCOPE, this));
+        addField(new ScopedPreferencesFieldEditor(p, SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_QUALIFIER, this));
 
     }
 

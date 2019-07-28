@@ -12,7 +12,9 @@
 
 
    <extension point="org.eclipse.core.runtime.preferences">
+      <initializer class="com.python.pydev.analysis.pylint.PyLintPrefInitializer"/>
       <initializer class="com.python.pydev.analysis.AnalysisPreferenceInitializer"/>
+      <initializer class="com.python.pydev.analysis.mypy.MypyPrefInitializer"/>
    </extension>
 
 

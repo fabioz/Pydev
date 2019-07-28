@@ -9,14 +9,16 @@
  */
 package com.python.pydev.analysis.pylint;
 
+import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.osgi.service.prefs.Preferences;
 import org.python.pydev.shared_core.SharedCorePlugin;
 
-public class PyLintPrefInitializer {
+public class PyLintPrefInitializer extends AbstractPreferenceInitializer {
 
-    public static void initializeDefaultPreferences() {
-        Preferences node = DefaultScope.INSTANCE.getNode(SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_SCOPE);
+    @Override
+    public void initializeDefaultPreferences() {
+        Preferences node = DefaultScope.INSTANCE.getNode(SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_QUALIFIER);
 
         node.put(PyLintPreferences.PYLINT_FILE_LOCATION, "");
         node.putBoolean(PyLintPreferences.USE_PYLINT, PyLintPreferences.DEFAULT_USE_PYLINT);

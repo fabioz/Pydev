@@ -42,6 +42,6 @@ public class PyTabPreferencesPage extends ScopedFieldEditorPreferencePage implem
                 "Assume tab spacing when files contain tabs?", p));
         addField(new BooleanFieldEditor(PyDevCoreEditorPreferences.TAB_STOP_IN_COMMENT, "Allow tab stops in comments?", p));
 
-        addField(new ScopedPreferencesFieldEditor(p, SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_SCOPE, this));
+        addField(new ScopedPreferencesFieldEditor(p, SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_QUALIFIER, this));
     }
 }
