@@ -910,8 +910,7 @@ public class PyFormatter {
 
                 return formatted;
             case BLACK:
-                parameters = std.blackParameters;
-                formatted = BlackRunner.formatWithBlack(nature, doc, parameters, workingDir);
+                formatted = BlackRunner.formatWithBlack(nature, doc, std, workingDir);
                 if (formatted == null) {
                     formatted = doc.get();
                 }

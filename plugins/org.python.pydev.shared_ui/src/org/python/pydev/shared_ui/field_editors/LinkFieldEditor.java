@@ -153,5 +153,9 @@ public class LinkFieldEditor extends FieldEditor {
 
     public void setVisible(boolean visible) {
         link.setVisible(visible);
+        Object layoutData = link.getLayoutData();
+        if (layoutData instanceof GridData) {
+            ((GridData) layoutData).exclude = !visible;
+        }
     }
 }

@@ -57,6 +57,13 @@ public class PyFormatterPreferences {
     public static final String BLANK_LINES_INNER = "BLANK_LINES_INNER";
     public static final int DEFAULT_BLANK_LINES_INNER = 1;
 
+    public static final String LOCATION_SEARCH = "LOCATION_SEARCH";
+    public static final String LOCATION_SPECIFY = "LOCATION_SPECIFY";
+    public static final String BLACK_FORMATTER_LOCATION_OPTION = "BLACK_FORMATTER_LOCATION_OPTION";
+    public static final String DEFAULT_BLACK_FORMATTER_LOCATION_OPTION = LOCATION_SEARCH;
+
+    public static final String BLACK_FORMATTER_FILE_LOCATION = "BLACK_FORMATTER_FILE_LOCATION";
+
     public static FormatterEnum getFormatterStyle(IAdaptable projectAdaptable) {
         String string = getString(FORMATTER_STYLE, projectAdaptable);
         if (string == null || string.isEmpty()) {
@@ -136,6 +143,15 @@ public class PyFormatterPreferences {
         return PyScopedPreferences.getInt(BLANK_LINES_INNER, projectAdaptable, 0);
     }
 
+    private static String getBlackExecutableLocation(IAdaptable projectAdaptable) {
+        return PyScopedPreferences.getString(BLACK_FORMATTER_FILE_LOCATION, projectAdaptable);
+    }
+
+    private static boolean getSearchBlackInInterpreter(IAdaptable projectAdaptable) {
+        return !PyFormatterPreferences.LOCATION_SPECIFY
+                .equals(PyScopedPreferences.getString(BLACK_FORMATTER_LOCATION_OPTION, projectAdaptable));
+    }
+
     /**
      * @return the format standard that should be used to do the formatting
      */
@@ -152,6 +168,8 @@ public class PyFormatterPreferences {
         formatStd.spacesInStartComment = getSpacesInStartComment(projectAdaptable);
         formatStd.formatterStyle = getFormatterStyle(projectAdaptable);
         formatStd.autopep8Parameters = getAutopep8Parameters(projectAdaptable);
+        formatStd.searchBlackInInterpreter = getSearchBlackInInterpreter(projectAdaptable);
+        formatStd.blackExecutableLocation = getBlackExecutableLocation(projectAdaptable);
         formatStd.blackParameters = getBlackParameters(projectAdaptable);
         formatStd.manageBlankLines = getManageBlankLines(projectAdaptable);
         formatStd.blankLinesTopLevel = getBlankLinesTopLevel(projectAdaptable);

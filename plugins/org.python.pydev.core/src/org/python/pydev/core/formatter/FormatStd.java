@@ -92,6 +92,11 @@ public class FormatStd {
      */
     public int spacesInStartComment = DONT_HANDLE_SPACES;
 
+    public boolean searchBlackInInterpreter = true;
+
+    // Used to specify black/autopep8.
+    public String blackExecutableLocation;
+
     /**
      * This method should be called after all related attributes are set when autopep8 is set to true.
      */
