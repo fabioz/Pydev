@@ -4,6 +4,26 @@
 
 <div class="section" id="history-for-pydev">
 <h1>History For PyDev</h1>
+<div class="section" id="release-7-3-0-2019-08-16">
+<h2>Release 7.3.0 (2019-08-16)</h2>
+<ul>
+<li><p class="first">Debugger improvements (updated to pydevd 1.7.1).</p>
+<blockquote>
+<ul class="simple">
+<li>Fix thread cleanup issue on fork (debugger could crash when subprocess pool was closed).</li>
+<li>Improvements in attach to pid.</li>
+<li>When setting the tracing in one thread attach it to other threads too.</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first">Make it possible to select the black executable (<strong>#PyDev-1003</strong>).</p>
+</li>
+<li><p class="first">Update debug console to work with newer versions of Eclipse (patch by Paul Pazderski).</p>
+</li>
+<li><p class="first">Fix code completion for non-english locale (patch by guyingzhao).</p>
+</li>
+</ul>
+</div>
 <div class="section" id="release-7-2-1-2019-04-26">
 <h2>Release 7.2.1 (2019-04-26)</h2>
 <ul>

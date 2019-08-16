@@ -5,6 +5,21 @@ History For PyDev
 .. _`update sites page`: update_sites/index.html
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
+
+Release 7.3.0 (2019-08-16)
+=============================
+
+* Debugger improvements (updated to pydevd 1.7.1).
+
+	* Fix thread cleanup issue on fork (debugger could crash when subprocess pool was closed).
+	* Improvements in attach to pid.
+	* When setting the tracing in one thread attach it to other threads too.
+
+* Make it possible to select the black executable (**#PyDev-1003**).
+* Update debug console to work with newer versions of Eclipse (patch by Paul Pazderski).
+* Fix code completion for non-english locale (patch by guyingzhao).
+
+
 Release 7.2.1 (2019-04-26)
 =============================
 

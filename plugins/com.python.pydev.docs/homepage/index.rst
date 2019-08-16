@@ -37,7 +37,7 @@
 
         <a href="https://lainaa-helposti.fi/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/lainaa_helposti.png" alt="laina-helposti.fi" title="https://lainaa-helposti.fi/" /></a>
 
-        <a href="https://esportbetting.eu/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/esport_betting.png" alt="eSportBetting" title="https://esportbetting.eu/" /></a>
+        <a href="https://www.websitehostingrating.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/webhostingrating.png" alt="websitehostingrating" title="https://www.websitehostingrating.com/" /></a>
 
 
 
@@ -50,7 +50,6 @@
 
         <a href="http://smålånutensikkerhet.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/skazani_logo.png" alt="http://smålånutensikkerhet.com/" title="http://smålånutensikkerhet.com/" /></a>
 
-        <a href="https://www.websitehostingrating.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/webhostingrating.png" alt="websitehostingrating" title="https://www.websitehostingrating.com/" /></a>
 
 
 
@@ -64,7 +63,6 @@
 
         <a href="https://www.scams.info/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/scams-info.png" alt="scams.info" title="https://www.scams.info/" /></a>
 
-        <a href="https://superbwebsitebuilders.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/superbwebsitebuilders.png" alt="superbwebsitebuilders" title="https://superbwebsitebuilders.com/" /></a>
 
 
 
@@ -78,7 +76,16 @@
 
         <a href="https://www.vpsserver.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/vpsserver50-50.png" alt="vpsserver" title="https://www.vpsserver.com" /></a>
 
+
+
+		<br/>
         <a href="https://smslåndirektutbetalning.se/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/smslan.png" alt="SmsLånDirektUtbetalning.se" title="https://smslåndirektutbetalning.se/" /></a>
+
+        <a href="https://gamblerspro.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/gamblerspro.png" alt="Online casino reviews" title="https://gamblerspro.com"/></a>
+
+        <a href="https://superbwebsitebuilders.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/superbwebsitebuilders.png" alt="superbwebsitebuilders" title="https://superbwebsitebuilders.com/" /></a>
+
+        <a href="https://esportbetting.eu/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/esport_betting.png" alt="eSportBetting" title="https://esportbetting.eu/" /></a>
 
         </div>
 
@@ -210,6 +217,20 @@ To show your appreciation for PyDev and to keep it going strong, help to crowdfu
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
+Release 7.3.0 (2019-08-16)
+=============================
+
+* Debugger improvements (updated to pydevd 1.7.1).
+
+	* Fix thread cleanup issue on fork (debugger could crash when subprocess pool was closed).
+	* Improvements in attach to pid.
+	* When setting the tracing in one thread attach it to other threads too.
+
+* Make it possible to select the black executable (**#PyDev-1003**).
+* Update debug console to work with newer versions of Eclipse (patch by Paul Pazderski).
+* Fix code completion for non-english locale (patch by guyingzhao).
+
+
 Release 7.2.1 (2019-04-26)
 =============================
 
@@ -231,22 +252,6 @@ Release 7.2.0 (2019-03-25)
 	* Console hook import compatibility with matplotlib and pylab fixed.
 
 * Fixed issue where pipenv executable search was being executed over and over when it was not found.
-
-
-Release 7.1.0 (2019-02-03)
-=============================
-
-* Accept **#region** / **#endregion** (for code folding) at any level.
-
-* Fixed deadlock during race-condition (**#PyDev-961**).
-
-* Fixed hover links when different pydev_link pointers are used (patch by Daniel).
-
-* Fixed issue where the auto-formatter changed only the **\\n** in a **\\r\\n** and the editor presentation became wrong.
-
-* Many debugger improvements (updated to pydevd 1.5.0).
-
-* To use the interactive console in IPython mode, the following environment variable must be set: **IPYTHONENABLE=True** (previously it was enabled whenever IPython was available).
 
 
 
