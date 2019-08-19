@@ -77,13 +77,13 @@ cd org.python.pydev.p2-repo-7.3.0-SNAPSHOT
 
 "C:\Program Files\7-Zip\7z" x ..\org.python.pydev.p2-repo-7.3.0-SNAPSHOT.zip
 
-C:\bin\Miniconda\envs\py27_tests\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-7.3.0-SNAPSHOT -d https://api.bintray.com/content/fabioz/pydev/nightly/
+C:\bin\Miniconda3\envs\py2\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-7.3.0-SNAPSHOT -d https://api.bintray.com/content/fabioz/pydev/nightly/
 Note: if unable to send: remove at https://bintray.com/fabioz/pydev/pydev/nightly/edit add back at https://bintray.com/fabioz/pydev/pydev/new/version
 
 
 Create "7.3.0" version in "https://bintray.com/fabioz/pydev/pydev/new/version"
 Add "7.3.0" in X:\release_tools\pydev_uploader_bintray.py
-C:\bin\Miniconda\envs\py27_tests\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-7.3.0-SNAPSHOT -d https://api.bintray.com/content/fabioz/pydev/7.3.0/
+C:\bin\Miniconda3\envs\py2\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-7.3.0-SNAPSHOT -d https://api.bintray.com/content/fabioz/pydev/7.3.0/
 
 		** Update homepage:
 
