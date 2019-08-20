@@ -13,7 +13,7 @@ import os
 import subprocess
 import sys
 
-miniconda_envs = os.getenv('MINICONDA_ENVS', r'C:\bin\Miniconda3\envs')
+miniconda_envs = os.getenv('MINICONDA_ENVS', r'C:\bin\Miniconda\envs')
 
 python_installations = [
     r'%s\py27_32\python.exe' % miniconda_envs,
