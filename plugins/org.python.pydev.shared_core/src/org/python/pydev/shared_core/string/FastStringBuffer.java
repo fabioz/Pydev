@@ -681,6 +681,24 @@ public final class FastStringBuffer implements CharSequence {
         return -1;
     }
 
+    public int lastIndexOf(char c) {
+        for (int i = this.count - 1; i > 0; i--) {
+            if (c == this.value[i]) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public int lastIndexOf(char c, int fromOffset) {
+        for (int i = fromOffset; i > 0; i--) {
+            if (c == this.value[i]) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     public char firstChar() {
         return this.value[0];
     }
