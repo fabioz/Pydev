@@ -97,6 +97,11 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
                 StringConverter.asString(PyDevEditorPreferences.DEFAULT_OPERATORS_COLOR));
         node.put(PyDevEditorPreferences.DOCSTRING_MARKUP_COLOR,
                 StringConverter.asString(PyDevEditorPreferences.DEFAULT_DOCSTRING_MARKUP_COLOR));
+        node.put(PyDevEditorPreferences.VARIABLE_COLOR,
+                StringConverter.asString(PyDevEditorPreferences.DEFAULT_VARIABLE_COLOR));
+        node.put(PyDevEditorPreferences.PROPERTY_COLOR,
+                StringConverter.asString(PyDevEditorPreferences.DEFAULT_PROPERTY_COLOR));
+
         //for selection colors see initializeDefaultColors()
 
         //font style
@@ -115,6 +120,8 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.putInt(PyDevEditorPreferences.OPERATORS_STYLE, PyDevEditorPreferences.DEFAULT_OPERATORS_STYLE);
         node.putInt(PyDevEditorPreferences.DOCSTRING_MARKUP_STYLE,
                 PyDevEditorPreferences.DEFAULT_DOCSTRING_MARKUP_STYLE);
+        node.putInt(PyDevEditorPreferences.VARIABLE_STYLE, PyDevEditorPreferences.DEFAULT_VARIABLE_STYLE);
+        node.putInt(PyDevEditorPreferences.PROPERTY_STYLE, PyDevEditorPreferences.DEFAULT_PROPERTY_STYLE);
 
         //Debugger
         node.putInt(PyDevEditorPreferences.CONNECT_TIMEOUT, PyDevEditorPreferences.DEFAULT_CONNECT_TIMEOUT);

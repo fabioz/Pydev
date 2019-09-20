@@ -68,6 +68,8 @@ public class PyCodeScanner extends RuleBasedScanner {
     private IToken funcNameToken;
     private IToken parensToken;
     private IToken operatorsToken;
+    private IToken variableToken;
+    private IToken propertyToken;
 
     private String[] keywords;
 
@@ -217,6 +219,10 @@ public class PyCodeScanner extends RuleBasedScanner {
 
         operatorsToken = new Token(colorCache.getOperatorsTextAttribute());
 
+        variableToken = new Token(colorCache.getVariableTextAttribute());
+
+        propertyToken = new Token(colorCache.getPropertyTextAttribute());
+
         setDefaultReturnToken(defaultToken);
         List<IRule> rules = new ArrayList<IRule>();
 
@@ -240,8 +246,8 @@ public class PyCodeScanner extends RuleBasedScanner {
         // must be before PyWordRule (to match decorator before matmul as operator).
         rules.add(new PyDecoratorRule(decoratorToken));
 
-        PyWordRule wordRule = new PyWordRule(new GreatKeywordDetector(), defaultToken, classNameToken, funcNameToken,
-                parensToken, operatorsToken);
+        PyIdentifierRule wordRule = new PyIdentifierRule(new GreatKeywordDetector(), defaultToken, classNameToken,
+                funcNameToken, parensToken, operatorsToken, variableToken, propertyToken);
         for (String keyword : keywords) {
             IToken token = defaults.get(keyword);
             if (token == null) {

@@ -45,7 +45,7 @@ public class PyWordRule implements IRule {
     /** The table of predefined words and token for this rule */
     protected Map<String, IToken> fWords = new HashMap<String, IToken>();
     /** Buffer used for pattern detection */
-    private FastStringBuffer fBuffer = new FastStringBuffer();
+    protected FastStringBuffer fBuffer = new FastStringBuffer();
 
     private IToken classNameToken;
 
@@ -110,7 +110,7 @@ public class PyWordRule implements IRule {
         fColumn = column;
     }
 
-    private String lastFound = "";
+    protected String lastFound = "";
 
     @Override
     public IToken evaluate(ICharacterScanner scanner) {

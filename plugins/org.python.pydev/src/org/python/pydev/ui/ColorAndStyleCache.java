@@ -131,6 +131,20 @@ public class ColorAndStyleCache extends ColorCache {
                 PyDevEditorPreferences.DOCSTRING_MARKUP_COLOR), null,
                 preferences.getInt(PyDevEditorPreferences.DOCSTRING_MARKUP_STYLE));
     }
+
+    public TextAttribute getVariableTextAttribute() {
+
+        return new TextAttribute(getNamedColor(
+                PyDevEditorPreferences.VARIABLE_COLOR), null,
+                preferences.getInt(PyDevEditorPreferences.VARIABLE_STYLE));
+    }
+
+    public TextAttribute getPropertyTextAttribute() {
+
+        return new TextAttribute(getNamedColor(
+                PyDevEditorPreferences.PROPERTY_COLOR), null,
+                preferences.getInt(PyDevEditorPreferences.PROPERTY_STYLE));
+    }
     //[[[end]]]
 
 }

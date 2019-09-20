@@ -370,6 +370,8 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
         localStore.setValue(PyDevEditorPreferences.PARENS_COLOR, fOverlayStore.getString(PyDevEditorPreferences.PARENS_COLOR));
         localStore.setValue(PyDevEditorPreferences.OPERATORS_COLOR, fOverlayStore.getString(PyDevEditorPreferences.OPERATORS_COLOR));
         localStore.setValue(PyDevEditorPreferences.DOCSTRING_MARKUP_COLOR, fOverlayStore.getString(PyDevEditorPreferences.DOCSTRING_MARKUP_COLOR));
+        localStore.setValue(PyDevEditorPreferences.VARIABLE_COLOR, fOverlayStore.getString(PyDevEditorPreferences.VARIABLE_COLOR));
+        localStore.setValue(PyDevEditorPreferences.PROPERTY_COLOR, fOverlayStore.getString(PyDevEditorPreferences.PROPERTY_COLOR));
 
         localStore.setValue(PyDevEditorPreferences.KEYWORD_STYLE, fOverlayStore.getInt(PyDevEditorPreferences.KEYWORD_STYLE));
         localStore.setValue(PyDevEditorPreferences.SELF_STYLE, fOverlayStore.getInt(PyDevEditorPreferences.SELF_STYLE));
@@ -385,6 +387,8 @@ public class PydevEditorPrefs extends AbstractPydevPrefs {
         localStore.setValue(PyDevEditorPreferences.PARENS_STYLE, fOverlayStore.getInt(PyDevEditorPreferences.PARENS_STYLE));
         localStore.setValue(PyDevEditorPreferences.OPERATORS_STYLE, fOverlayStore.getInt(PyDevEditorPreferences.OPERATORS_STYLE));
         localStore.setValue(PyDevEditorPreferences.DOCSTRING_MARKUP_STYLE, fOverlayStore.getInt(PyDevEditorPreferences.DOCSTRING_MARKUP_STYLE));
+        localStore.setValue(PyDevEditorPreferences.VARIABLE_STYLE, fOverlayStore.getInt(PyDevEditorPreferences.VARIABLE_STYLE));
+        localStore.setValue(PyDevEditorPreferences.PROPERTY_STYLE, fOverlayStore.getInt(PyDevEditorPreferences.PROPERTY_STYLE));
 
         this.updateLabelExample(PyFormatterPreferences.getFormatStd(null), localStore);
     }

@@ -52,7 +52,9 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
             { "Docstring markup", PyDevEditorPreferences.DOCSTRING_MARKUP_COLOR, null }, { "Comments", PyDevEditorPreferences.COMMENT_COLOR, null },
             { "Backquotes", PyDevEditorPreferences.BACKQUOTES_COLOR, null }, { "Class Name", PyDevEditorPreferences.CLASS_NAME_COLOR, null },
             { "Function Name", PyDevEditorPreferences.FUNC_NAME_COLOR, null }, { "(), [], {}", PyDevEditorPreferences.PARENS_COLOR, null },
-            { "Operators (+,-,*,...)", PyDevEditorPreferences.OPERATORS_COLOR, null }, };
+            { "Operators (+,-,*,...)", PyDevEditorPreferences.OPERATORS_COLOR, null },
+            { "Variable (approx.)", PyDevEditorPreferences.VARIABLE_COLOR, null },
+            { "Properties (approx.)", PyDevEditorPreferences.PROPERTY_COLOR, null }, };
 
     protected final String[][] fAppearanceFontListModel = new String[][] { { "Code", PyDevEditorPreferences.CODE_STYLE, null },
             { "Decorators", PyDevEditorPreferences.DECORATOR_STYLE, null }, { "Numbers", PyDevEditorPreferences.NUMBER_STYLE, null },
@@ -61,7 +63,9 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
             { "Docstring markup", PyDevEditorPreferences.DOCSTRING_MARKUP_STYLE, null }, { "Comments", PyDevEditorPreferences.COMMENT_STYLE, null },
             { "Backquotes", PyDevEditorPreferences.BACKQUOTES_STYLE, null }, { "Class Name", PyDevEditorPreferences.CLASS_NAME_STYLE, null },
             { "Function Name", PyDevEditorPreferences.FUNC_NAME_STYLE, null }, { "(), [], {}", PyDevEditorPreferences.PARENS_STYLE, null },
-            { "Operators (+,-,*,...)", PyDevEditorPreferences.OPERATORS_STYLE, null }, };
+            { "Operators (+,-,*,...)", PyDevEditorPreferences.OPERATORS_STYLE, null },
+            { "Variable (approx.)", PyDevEditorPreferences.VARIABLE_STYLE, null },
+            { "Properties (approx.)", PyDevEditorPreferences.PROPERTY_STYLE, null }, };
 
     protected OverlayPreferenceStore fOverlayStore;
 
@@ -164,6 +168,8 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, PyDevEditorPreferences.PARENS_COLOR));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, PyDevEditorPreferences.OPERATORS_COLOR));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, PyDevEditorPreferences.DOCSTRING_MARKUP_COLOR));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, PyDevEditorPreferences.VARIABLE_COLOR));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.STRING, PyDevEditorPreferences.PROPERTY_COLOR));
 
         //font style
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, PyDevEditorPreferences.CODE_STYLE));
@@ -180,6 +186,8 @@ public abstract class AbstractPydevPrefs extends PreferencePage implements IWork
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, PyDevEditorPreferences.PARENS_STYLE));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, PyDevEditorPreferences.OPERATORS_STYLE));
         overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, PyDevEditorPreferences.DOCSTRING_MARKUP_STYLE));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, PyDevEditorPreferences.VARIABLE_STYLE));
+        overlayKeys.add(new OverlayPreferenceStore.OverlayKey(OverlayPreferenceStore.INT, PyDevEditorPreferences.PROPERTY_STYLE));
 
         OverlayPreferenceStore.OverlayKey[] keys = new OverlayPreferenceStore.OverlayKey[overlayKeys.size()];
         overlayKeys.toArray(keys);

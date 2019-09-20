@@ -97,6 +97,12 @@ public class PyDevEditorPreferences {
     public static final String DOCSTRING_MARKUP_COLOR = "DOCSTRING_MARKUP_COLOR";
     public static final RGB DEFAULT_DOCSTRING_MARKUP_COLOR = new RGB(0, 170, 0);
 
+    public static final String VARIABLE_COLOR = "VARIABLE_COLOR";
+    public static final RGB DEFAULT_VARIABLE_COLOR = new RGB(0, 0, 0);
+
+    public static final String PROPERTY_COLOR = "PROPERTY_COLOR";
+    public static final RGB DEFAULT_PROPERTY_COLOR = new RGB(0, 0, 0);
+
     //see initializeDefaultColors for selection defaults
     public static final String CONNECT_TIMEOUT = "CONNECT_TIMEOUT";
     public static final int DEFAULT_CONNECT_TIMEOUT = 20000;
@@ -181,5 +187,11 @@ public class PyDevEditorPreferences {
 
     public static final String DOCSTRING_MARKUP_STYLE = "DOCSTRING_MARKUP_STYLE";
     public static final int DEFAULT_DOCSTRING_MARKUP_STYLE = SWT.BOLD;
+
+    public static final String VARIABLE_STYLE = "VARIABLE_STYLE";
+    public static final int DEFAULT_VARIABLE_STYLE = SWT.NORMAL;
+
+    public static final String PROPERTY_STYLE = "PROPERTY_STYLE";
+    public static final int DEFAULT_PROPERTY_STYLE = SWT.NORMAL;
 
 }
