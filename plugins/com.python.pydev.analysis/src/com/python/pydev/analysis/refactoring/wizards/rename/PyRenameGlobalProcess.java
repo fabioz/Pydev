@@ -39,7 +39,7 @@ public class PyRenameGlobalProcess extends AbstractRenameWorkspaceRefactorProces
             String initialName, SourceModule module) {
         SimpleNode searchStringsAt = module.getAst();
 
-        List<ASTEntry> ret = ScopeAnalysis.getLocalOccurrences(initialName, module.getAst());
+        List<ASTEntry> ret = ScopeAnalysis.getLocalOccurrences(initialName, module.getAst(), false);
         if (ret.size() > 0 && searchStringsAt != null) {
             //only add comments and strings if there's at least some other occurrence
             ret.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, searchStringsAt));
@@ -53,7 +53,7 @@ public class PyRenameGlobalProcess extends AbstractRenameWorkspaceRefactorProces
     protected void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
         SimpleNode ast = request.getAST();
         //it was found in another module, but we want to keep things local
-        List<ASTEntry> ret = ScopeAnalysis.getLocalOccurrences(request.initialName, ast);
+        List<ASTEntry> ret = ScopeAnalysis.getLocalOccurrences(request.initialName, ast, false);
         if (ret.size() > 0) {
             //only add comments and strings if there's at least some other occurrence
             ret.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, ast));
