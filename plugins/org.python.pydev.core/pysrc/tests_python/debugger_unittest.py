@@ -85,6 +85,8 @@ CMD_REDIRECT_OUTPUT = 200
 CMD_GET_NEXT_STATEMENT_TARGETS = 201
 CMD_SET_PROJECT_ROOTS = 202
 
+CMD_AUTHENTICATE = 205
+
 CMD_VERSION = 501
 CMD_RETURN = 502
 CMD_SET_PROTOCOL = 503
@@ -148,9 +150,12 @@ def overrides(method):
 
 TIMEOUT = 20
 
+try:
+    TimeoutError = TimeoutError  # @ReservedAssignment
+except NameError:
 
-class TimeoutError(RuntimeError):
-    pass
+    class TimeoutError(RuntimeError):  # @ReservedAssignment
+        pass
 
 
 def wait_for_condition(condition, msg=None, timeout=TIMEOUT, sleep=.05):
@@ -325,7 +330,16 @@ class ReaderThread(threading.Thread):
     def do_kill(self):
         self._kill = True
         if hasattr(self, 'sock'):
-            self.sock.close()
+            from socket import SHUT_RDWR
+            try:
+                self.sock.shutdown(SHUT_RDWR)
+            except:
+                pass
+            try:
+                self.sock.close()
+            except:
+                pass
+            delattr(self, 'sock')
 
 
 def read_process(stream, buffer, debug_stream, stream_name, finish):
@@ -666,12 +680,19 @@ class AbstractWriterThread(threading.Thread):
     def do_kill(self):
         if hasattr(self, 'server_socket'):
             self.server_socket.close()
+            delattr(self, 'server_socket')
 
         if hasattr(self, 'reader_thread'):
             # if it's not created, it's not there...
             self.reader_thread.do_kill()
+            delattr(self, 'reader_thread')
+
         if hasattr(self, 'sock'):
             self.sock.close()
+            delattr(self, 'sock')
+
+        if hasattr(self, 'port'):
+            delattr(self, 'port')
 
     def write_with_content_len(self, msg):
         self.log.append('write: %s' % (msg,))
@@ -994,6 +1015,12 @@ class AbstractWriterThread(threading.Thread):
     def write_set_protocol(self, protocol):
         self.write("%s\t%s\t%s" % (CMD_SET_PROTOCOL, self.next_seq(), protocol))
 
+    def write_authenticate(self, access_token, ide_access_token):
+        msg = "%s\t%s\t%s" % (CMD_AUTHENTICATE, self.next_seq(), access_token)
+        self.write(msg)
+
+        self.wait_for_message(lambda msg:ide_access_token in msg, expect_xml=False)
+
     def write_version(self):
         from _pydevd_bundle.pydevd_constants import IS_WINDOWS
         self.write("%s\t%s\t1.0\t%s\tID" % (CMD_VERSION, self.next_seq(), 'WINDOWS' if IS_WINDOWS else 'UNIX'))
@@ -1205,6 +1232,7 @@ class AbstractWriterThread(threading.Thread):
             if accept_message(last):
                 if expect_xml:
                     # Extract xml and return untangled.
+                    xml = ''
                     try:
                         xml = last[last.index('<xml>'):]
                         if isinstance(xml, bytes):

@@ -24,6 +24,7 @@ import json
 import pydevd_file_utils
 import subprocess
 import threading
+from tests_python.debug_constants import IS_PY26
 try:
     from urllib import unquote
 except ImportError:
@@ -824,13 +825,15 @@ def test_case_17a(case_setup):
     # Check dont trace return
     with case_setup.test_file('_debugger_case17a.py') as writer:
         writer.write_enable_dont_trace(True)
-        writer.write_add_breakpoint(2, 'm1')
+        break1_line = writer.get_line_index_with_content('break 1 here')
+        writer.write_add_breakpoint(break1_line, 'm1')
         writer.write_make_initial_run()
 
-        hit = writer.wait_for_breakpoint_hit(REASON_STOP_ON_BREAKPOINT, line=2)
+        hit = writer.wait_for_breakpoint_hit(REASON_STOP_ON_BREAKPOINT, line=break1_line)
 
         writer.write_step_in(hit.thread_id)
-        hit = writer.wait_for_breakpoint_hit('107', line=10)
+        break2_line = writer.get_line_index_with_content('break 2 here')
+        hit = writer.wait_for_breakpoint_hit('107', line=break2_line)
 
         # Should Skip step into properties setter
         assert hit.name == 'm3'
@@ -1296,6 +1299,82 @@ def test_check_tracer_with_exceptions(case_setup):
     with case_setup.test_file('_debugger_case_check_tracer.py', get_environ=get_environ) as writer:
         writer.write_add_exception_breakpoint_with_policy('IndexError', "1", "1", "1")
         writer.write_make_initial_run()
+        writer.finished_ok = True
+
+
+@pytest.mark.parametrize('target_file', [
+    '_debugger_case_unhandled_exceptions_generator.py',
+    '_debugger_case_unhandled_exceptions_listcomp.py',
+    ])
+@pytest.mark.parametrize('unhandled', [False, True])
+@pytest.mark.skipif(IS_JYTHON, reason='Not ok for Jython.')
+def test_case_handled_and_unhandled_exception_generator(case_setup, target_file, unhandled):
+
+    def check_test_suceeded_msg(writer, stdout, stderr):
+        # Don't call super (we have an unhandled exception in the stack trace).
+        return 'TEST SUCEEDED' in ''.join(stdout) and 'TEST SUCEEDED' in ''.join(stderr)
+
+    def additional_output_checks(writer, stdout, stderr):
+        if 'ZeroDivisionError' not in stderr:
+            raise AssertionError('Expected test to have an unhandled exception.\nstdout:\n%s\n\nstderr:\n%s' % (
+                stdout, stderr))
+
+    with case_setup.test_file(
+            target_file,
+            check_test_suceeded_msg=check_test_suceeded_msg,
+            additional_output_checks=additional_output_checks,
+            EXPECTED_RETURNCODE=1,
+        ) as writer:
+
+        if unhandled:
+            writer.write_add_exception_breakpoint_with_policy('Exception', "0", "1", "0")
+        else:
+            writer.write_add_exception_breakpoint_with_policy('Exception', "1", "0", "0")
+
+        writer.write_make_initial_run()
+
+        hit = writer.wait_for_breakpoint_hit(REASON_UNCAUGHT_EXCEPTION if unhandled else REASON_CAUGHT_EXCEPTION)
+        assert hit.line == writer.get_line_index_with_content('# exc line')
+
+        if 'generator' in target_file:
+            expected_frame_names = ['<genexpr>', 'f', '<module>']
+        else:
+            if IS_PY27 or IS_PY26:
+                expected_frame_names = ['f', '<module>']
+            else:
+                expected_frame_names = ['<listcomp>', 'f', '<module>']
+
+        writer.write_get_current_exception(hit.thread_id)
+        msg = writer.wait_for_message(accept_message=lambda msg:'exc_type="' in msg and 'exc_desc="' in msg, unquote_msg=False)
+
+        frame_names = [unquote(f['name']).replace('&lt;', '<').replace('&gt;', '>') for f in msg.thread.frame]
+        assert frame_names == expected_frame_names
+
+        writer.write_run_thread(hit.thread_id)
+
+        if not unhandled:
+            if (IS_PY26 or IS_PY27) and 'listcomp' in target_file:
+                expected_lines = [
+                    writer.get_line_index_with_content('# call exc'),
+                ]
+            else:
+                expected_lines = [
+                    writer.get_line_index_with_content('# exc line'),
+                    writer.get_line_index_with_content('# call exc'),
+                ]
+
+            for expected_line in expected_lines:
+                hit = writer.wait_for_breakpoint_hit(REASON_CAUGHT_EXCEPTION)
+                assert hit.line == expected_line
+
+                writer.write_get_current_exception(hit.thread_id)
+                msg = writer.wait_for_message(accept_message=lambda msg:'exc_type="' in msg and 'exc_desc="' in msg, unquote_msg=False)
+
+                frame_names = [unquote(f['name']).replace('&lt;', '<').replace('&gt;', '>') for f in msg.thread.frame]
+                assert frame_names == expected_frame_names
+
+                writer.write_run_thread(hit.thread_id)
+
         writer.finished_ok = True
 
 
@@ -2487,16 +2566,40 @@ def _attach_to_writer_pid(writer):
 
 
 @pytest.mark.skipif(not IS_CPYTHON, reason='CPython only test.')
-def test_attach_to_pid_no_threads(case_setup_remote):
+@pytest.mark.parametrize('reattach', [True, False])
+def test_attach_to_pid_no_threads(case_setup_remote, reattach):
     with case_setup_remote.test_file('_debugger_case_attach_to_pid_simple.py', wait_for_port=False) as writer:
         time.sleep(1)  # Give it some time to initialize to get to the while loop.
         _attach_to_writer_pid(writer)
 
         bp_line = writer.get_line_index_with_content('break here')
-        writer.write_add_breakpoint(bp_line)
+        bp_id = writer.write_add_breakpoint(bp_line)
         writer.write_make_initial_run()
 
         hit = writer.wait_for_breakpoint_hit(line=bp_line)
+
+        if reattach:
+            # This would be the same as a second attach to pid, so, the idea is closing the current
+            # connection and then doing a new attach to pid.
+            writer.write_remove_breakpoint(bp_id)
+            writer.write_run_thread(hit.thread_id)
+
+            writer.do_kill()  # This will simply close the open sockets without doing anything else.
+            time.sleep(1)
+
+            t = threading.Thread(target=writer.start_socket)
+            t.start()
+            wait_for_condition(lambda: hasattr(writer, 'port'))
+            time.sleep(1)
+            writer.process = writer.process
+            _attach_to_writer_pid(writer)
+            wait_for_condition(lambda: hasattr(writer, 'reader_thread'))
+            time.sleep(1)
+
+            bp_id = writer.write_add_breakpoint(bp_line)
+            writer.write_make_initial_run()
+
+            hit = writer.wait_for_breakpoint_hit(line=bp_line)
 
         writer.write_change_variable(hit.thread_id, hit.frame_id, 'wait', 'False')
         writer.wait_for_var('<xml><var name="" type="bool"')
@@ -2636,7 +2739,14 @@ def test_py_37_breakpoint_remote_no_import(case_setup_remote):
 
 
 @pytest.mark.skipif(not IS_CPYTHON, reason='CPython only test.')
-def test_remote_debugger_multi_proc(case_setup_remote):
+@pytest.mark.parametrize('authenticate', [True, False])
+def test_remote_debugger_multi_proc(case_setup_remote, authenticate):
+
+    access_token = None
+    ide_access_token = None
+    if authenticate:
+        access_token = 'tok123'
+        ide_access_token = 'tok456'
 
     class _SecondaryMultiProcProcessWriterThread(debugger_unittest.AbstractWriterThread):
 
@@ -2653,11 +2763,18 @@ def test_remote_debugger_multi_proc(case_setup_remote):
 
             from tests_python.debugger_unittest import ReaderThread
             self.reader_thread = ReaderThread(self.sock)
+            self.reader_thread.name = 'Secondary Reader Thread'
             self.reader_thread.start()
 
             self._sequence = -1
             # initial command is always the version
             self.write_version()
+
+            if authenticate:
+                self.wait_for_message(lambda msg:'Client not authenticated.' in msg, expect_xml=False)
+                self.write_authenticate(access_token=access_token, ide_access_token=ide_access_token)
+                self.write_version()
+
             self.log.append('start_socket')
             self.write_make_initial_run()
             time.sleep(.5)
@@ -2671,7 +2788,9 @@ def test_remote_debugger_multi_proc(case_setup_remote):
     with case_setup_remote.test_file(
             '_debugger_case_remote_1.py',
             do_kill=do_kill,
-            EXPECTED_RETURNCODE='any'
+            EXPECTED_RETURNCODE='any',
+            access_token=access_token,
+            ide_access_token=ide_access_token,
         ) as writer:
 
         # It seems sometimes it becomes flaky on the ci because the process outlives the writer thread...
@@ -2682,6 +2801,11 @@ def test_remote_debugger_multi_proc(case_setup_remote):
 
         writer.log.append('making initial run')
         writer.write_make_initial_run()
+
+        if authenticate:
+            writer.wait_for_message(lambda msg:'Client not authenticated.' in msg, expect_xml=False)
+            writer.write_authenticate(access_token=access_token, ide_access_token=ide_access_token)
+            writer.write_make_initial_run()
 
         writer.log.append('waiting for breakpoint hit')
         hit = writer.wait_for_breakpoint_hit()
@@ -2703,7 +2827,7 @@ def test_remote_debugger_multi_proc(case_setup_remote):
 
         writer.log.append('Secondary process finished!')
         try:
-            assert 5 == writer._sequence, 'Expected 5. Had: %s' % writer._sequence
+            assert writer._sequence == 5 if not authenticate else 9, 'Found: %s' % writer._sequence
         except:
             writer.log.append('assert failed!')
             raise
@@ -2869,7 +2993,12 @@ def test_custom_frames(case_setup):
 
         # Check that the frame-related threads have been killed.
         for _ in range(i):
-            writer.wait_for_message(CMD_THREAD_KILL, expect_xml=False)
+            try:
+                writer.wait_for_message(CMD_THREAD_KILL, expect_xml=False, timeout=1)
+            except debugger_unittest.TimeoutError:
+                # Flaky: sometimes the thread kill is not received because
+                # the process exists before the message is sent.
+                break
 
         writer.finished_ok = True
 
@@ -3371,6 +3500,29 @@ def test_step_over_my_code_global_setting_and_explicit_include(case_setup):
         assert hit.name == 'call_me_back1'
 
         writer.write_run_thread(hit.thread_id)
+        writer.finished_ok = True
+
+
+def test_access_token(case_setup):
+
+    def update_command_line_args(self, args):
+        args.insert(2, '--access-token')
+        args.insert(3, 'bar123')
+        args.insert(2, '--ide-access-token')
+        args.insert(3, 'foo234')
+        return args
+
+    with case_setup.test_file('_debugger_case_print.py', update_command_line_args=update_command_line_args) as writer:
+        writer.write_add_breakpoint(1, 'None')  # I.e.: should not work (not authenticated).
+
+        writer.wait_for_message(lambda msg:'Client not authenticated.' in msg, expect_xml=False)
+
+        writer.write_authenticate(access_token='bar123', ide_access_token='foo234')
+
+        writer.write_version()
+
+        writer.write_make_initial_run()
+
         writer.finished_ok = True
 
 

@@ -20,7 +20,7 @@
 						"$ref": "#/definitions/SetDebuggerPropertyArguments"
 					}
 				},
-				"required": [ "command", "arguments"  ]
+				"required": [ "command", "arguments" ]
 			}]
 		},
 		"SetDebuggerPropertyArguments": {
@@ -57,6 +57,20 @@
 			"allOf": [ { "$ref": "#/definitions/Response" }, {
 				"type": "object",
 				"description": "Response to 'setDebuggerProperty' request. This is just an acknowledgement, so no body field is required."
+			}]
+		},
+
+		"PydevdInputRequestedEvent": {
+			"allOf": [ { "$ref": "#/definitions/Event" }, {
+				"type": "object",
+				"description": "The event indicates input was requested by debuggee.",
+				"properties": {
+					"event": {
+						"type": "string",
+						"enum": [ "pydevdInputRequested" ]
+					}
+				},
+				"required": [ "event" ]
 			}]
 		},
 
@@ -228,6 +242,10 @@
 				"pid": {
 					"type": "integer",
 					"description": "Process ID for the current process."
+				},
+				"ppid": {
+					"type": "integer",
+					"description": "Parent Process ID for the current process."
 				},
 				"executable": {
 					"type": "string",
