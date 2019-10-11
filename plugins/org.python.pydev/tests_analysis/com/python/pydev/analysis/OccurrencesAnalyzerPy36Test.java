@@ -327,7 +327,16 @@ public class OccurrencesAnalyzerPy36Test extends AnalysisTestsBase {
         doc = new Document(
                 "def method():\n" +
                         "    d = {0:'zero'}\n" +
-                        "    f'{d[\ny]}'" +
+                        "    f'{d[y]}'" +
+                        "");
+        checkError("Undefined variable: y");
+    }
+
+    public void testFStringErr10() throws Exception {
+        doc = new Document(
+                "def method():\n" +
+                        "    d = {0:'zero'}\n" +
+                        "    f'''{d[\ny]}'''" +
                         "");
         checkError("Undefined variable: y");
     }

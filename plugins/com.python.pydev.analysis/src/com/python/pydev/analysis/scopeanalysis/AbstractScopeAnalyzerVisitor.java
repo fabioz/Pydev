@@ -378,6 +378,37 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
             }
         }
 
+        //visit keyword only args with defaults
+        if (args.kw_defaults != null) {
+            for (exprType expr : args.kw_defaults) {
+                if (expr != null) {
+                    expr.accept(visitor);
+                }
+            }
+        }
+
+        if (args.kwonlyargannotation != null) {
+            for (exprType expr : args.kwonlyargannotation) {
+                if (expr != null) {
+                    expr.accept(visitor);
+                }
+            }
+        }
+
+        //visit annotation
+        if (args.annotation != null) {
+            for (exprType expr : args.annotation) {
+                if (expr != null) {
+                    expr.accept(visitor);
+                }
+            }
+        }
+
+        //visit the return
+        if (node.returns != null) {
+            node.returns.accept(visitor);
+        }
+
         //then the decorators (no, still not in method scope)
         handleDecorators(node.decs);
 
@@ -405,25 +436,13 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
         //visit keyword only args
         if (args.kwonlyargs != null) {
             for (exprType expr : args.kwonlyargs) {
-                expr.accept(visitor);
-            }
-        }
-        scope.isInMethodDefinition = false;
-
-        //visit annotation
-
-        if (args.annotation != null) {
-            for (exprType expr : args.annotation) {
                 if (expr != null) {
                     expr.accept(visitor);
                 }
             }
         }
 
-        //visit the return
-        if (node.returns != null) {
-            node.returns.accept(visitor);
-        }
+        scope.isInMethodDefinition = false;
 
         //visit the body
         if (node.body != null) {

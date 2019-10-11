@@ -2701,6 +2701,99 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         printMessages(msgs, 0);
     }
 
+    public void testDefaultMarksAsUsed() {
+        int initial = GRAMMAR_TO_USE_FOR_PARSING;
+        try {
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_5;
+            doc = new Document("import threading\n" +
+                    "def method(*, t=threading):\n"
+                    + "    print(t)\n" +
+                    "");
+            analyzer = new OccurrencesAnalyzer();
+            msgs = analyzeDoc();
+
+            printMessages(msgs, 0);
+        } finally {
+            GRAMMAR_TO_USE_FOR_PARSING = initial;
+        }
+    }
+
+    public void testAnnotationNotImported() {
+        int initial = GRAMMAR_TO_USE_FOR_PARSING;
+        try {
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_5;
+            doc = new Document("\n" +
+                    "def method(*, t=threading):\n"
+                    + "    print(t)\n" +
+                    "");
+            analyzer = new OccurrencesAnalyzer();
+            msgs = analyzeDoc();
+
+            printMessages(msgs, 1);
+        } finally {
+            GRAMMAR_TO_USE_FOR_PARSING = initial;
+        }
+    }
+
+    public void testAnnotationMarksAsUsed() {
+        int initial = GRAMMAR_TO_USE_FOR_PARSING;
+        try {
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_5;
+            doc = new Document("\n" +
+                    "def method(*, t:threading=None):\n"
+                    + "    print(t)\n" +
+                    "");
+            analyzer = new OccurrencesAnalyzer();
+            msgs = analyzeDoc();
+
+            printMessages(msgs, 1);
+        } finally {
+            GRAMMAR_TO_USE_FOR_PARSING = initial;
+        }
+    }
+
+    public void testDefaultFromScope() {
+        int initial = GRAMMAR_TO_USE_FOR_PARSING;
+        try {
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_5;
+            doc = new Document("\n" +
+                    "class F(object):\n" +
+                    "    \n" +
+                    "    another = 1\n" +
+                    "    \n" +
+                    "    def method(self, *, a=another):\n" +
+                    "        print(a)\n" +
+                    "");
+            analyzer = new OccurrencesAnalyzer();
+            msgs = analyzeDoc();
+
+            printMessages(msgs, 0);
+        } finally {
+            GRAMMAR_TO_USE_FOR_PARSING = initial;
+        }
+    }
+
+    public void testAnnotationFromScope() {
+        int initial = GRAMMAR_TO_USE_FOR_PARSING;
+        try {
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_5;
+            doc = new Document("\n" +
+                    "class F(object):\n" +
+                    "    \n" +
+                    "    another = 1\n" +
+                    "    \n" +
+                    "    def method(self, *, a:another):\n" +
+                    "        print(a)\n" +
+                    "");
+            analyzer = new OccurrencesAnalyzer();
+            msgs = analyzeDoc();
+
+            printMessages(msgs, 0);
+        } finally {
+            GRAMMAR_TO_USE_FOR_PARSING = initial;
+        }
+    }
+
     public void testRelativeOnPy3() throws IOException, MisconfigurationException {
         int initial = GRAMMAR_TO_USE_FOR_PARSING;
         try {
