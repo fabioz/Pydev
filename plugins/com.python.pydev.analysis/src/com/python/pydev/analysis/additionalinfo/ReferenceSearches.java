@@ -167,11 +167,6 @@ public class ReferenceSearches implements IReferenceSearches {
         this.abstractAdditionalDependencyInfo = new WeakReference<>(abstractAdditionalDependencyInfo);
     }
 
-    @Override
-    public void dispose() {
-
-    }
-
     private void fill(FastStringBuffer bufFileContents, InputStream stream) throws IOException {
         for (int i = 0; i < 5; i++) {
             try {

@@ -12,8 +12,6 @@ import org.python.pydev.shared_core.structure.OrderedMap;
 
 public interface IReferenceSearches {
 
-    void dispose();
-
     // These are the indexed fields we use.
     public static String FIELD_MODULES_KEY_IO = "modules_key";
     public static String FIELD_MODULE_NAME = "module_name";

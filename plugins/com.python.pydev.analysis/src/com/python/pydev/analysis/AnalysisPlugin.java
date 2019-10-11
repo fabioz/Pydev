@@ -33,7 +33,6 @@ import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.shared_core.structure.Location;
 
-import com.python.pydev.analysis.additionalinfo.ReferenceSearchesLucene;
 import com.python.pydev.analysis.mypy.MypyPrefInitializer;
 import com.python.pydev.analysis.pylint.PyLintPrefInitializer;
 
@@ -121,7 +120,6 @@ public class AnalysisPlugin extends Plugin {
     @Override
     public void stop(BundleContext context) throws Exception {
         super.stop(context);
-        ReferenceSearchesLucene.disposeAll();
         plugin = null;
     }
 

@@ -48,39 +48,12 @@ import com.python.pydev.analysis.system_info_builder.InterpreterInfoBuilder;
 public class ReferenceSearchesLucene implements IReferenceSearches {
 
     private static final Object lock = new Object();
-    private static final Map<File, IndexApi> indexDirToApi = new HashMap<File, IndexApi>();
-
-    public static void disposeAll() {
-        synchronized (lock) {
-            try {
-                Set<Entry<File, IndexApi>> entrySet = indexDirToApi.entrySet();
-                for (Entry<File, IndexApi> entry : entrySet) {
-                    try {
-                        entry.getValue().dispose();
-                    } catch (Exception e) {
-                        Log.log(e);
-                    }
-                }
-            } finally {
-                indexDirToApi.clear();
-            }
-        }
-
-    }
-
+    private static final Map<File, Object> indexDirToLock = new HashMap<File, Object>();
     private static final boolean DEBUG = false;
     private WeakReference<AbstractAdditionalDependencyInfo> abstractAdditionalDependencyInfo;
-    private IndexApi indexApi;
 
     public ReferenceSearchesLucene(AbstractAdditionalDependencyInfo abstractAdditionalDependencyInfo) {
         this.abstractAdditionalDependencyInfo = new WeakReference<>(abstractAdditionalDependencyInfo);
-    }
-
-    @Override
-    public void dispose() {
-        if (indexApi != null) {
-            indexApi = null;
-        }
     }
 
     @Override
@@ -147,220 +120,231 @@ public class ReferenceSearchesLucene implements IReferenceSearches {
         // Note: we should be able to deal with entries already deleted!
         boolean applyAllDeletes = false;
 
-        if (indexApi == null) {
-            String folderToPersist = completeIndex.getFolderToPersist();
-            synchronized (lock) {
-                File indexDir = new File(folderToPersist, "lc");
-                indexApi = indexDirToApi.get(indexDir);
-                if (indexApi == null) {
-                    try {
-                        indexApi = new IndexApi(indexDir, applyAllDeletes);
-                        indexDirToApi.put(indexDir, indexApi);
-                    } catch (Exception e) {
-                        Log.log(e);
-                        return ret;
-                    }
+        String folderToPersist = completeIndex.getFolderToPersist();
+        Object indexApiLock;
+        File indexDir = new File(folderToPersist, "lc");
+        synchronized (lock) {
+            indexApiLock = indexDirToLock.get(indexDir);
+            if (indexApiLock == null) {
+                try {
+                    indexApiLock = new Object();
+                    indexDirToLock.put(indexDir, indexApiLock);
+                } catch (Exception e) {
+                    Log.log(e);
+                    return ret;
                 }
             }
         }
 
-        synchronized (indexApi.getLock()) {
-            final Map<ModulesKey, CompleteIndexKey> indexMap = new HashMap<>(); // Key to CompleteIndexKey (has modified time).
+        IndexApi indexApi = null;
+        try {
+            synchronized (indexApiLock) {
+                indexApi = new IndexApi(indexDir, applyAllDeletes);
+                final Map<ModulesKey, CompleteIndexKey> indexMap = new HashMap<>(); // Key to CompleteIndexKey (has modified time).
 
-            IDocumentsVisitor visitor = new IDocumentsVisitor() {
-
-                @Override
-                public void visit(DocumentInfo documentInfo) {
-                    ModulesKey keyFromIO = ModulesKey.fromIO(documentInfo.get(FIELD_MODULES_KEY_IO));
-                    String modifiedTime = documentInfo.get(FIELD_MODIFIED_TIME);
-                    indexMap.put(keyFromIO, new CompleteIndexKey(keyFromIO, Long.parseLong(modifiedTime)));
-                }
-            };
-            try {
-                indexApi.visitAllDocs(visitor, FIELD_MODULES_KEY_IO, FIELD_MODIFIED_TIME);
-            } catch (IOException e) {
-                Log.log(e);
-            }
-
-            incrementAndCheckProgress("Visited current index", monitor);
-
-            Set<CompleteIndexKey> docsToRemove = new HashSet<>();
-            Set<CompleteIndexKey> modulesToAdd = new HashSet<>();
-            Map<File, Set<CompleteIndexKey>> zipModulesToAdd = new HashMap<>();
-
-            // Wait for the integrity check before getting the keys!
-            abstractAdditionalDependencyInfo.waitForIntegrityCheck();
-
-            final Map<CompleteIndexKey, CompleteIndexKey> currentKeys = completeIndex.keys();
-
-            // Step 1: remove entries which were in the index but are already removed
-            // from the modules (or have a different time).
-            for (Entry<ModulesKey, CompleteIndexKey> entryInIndex : indexMap.entrySet()) {
-                CompleteIndexKey indexModule = entryInIndex.getValue();
-
-                CompleteIndexKey currentModule = currentKeys.get(indexModule);
-                if (currentModule == null || currentModule.key == null || currentModule.key.file == null) {
-                    docsToRemove.add(indexModule);
-
-                } else {
-                    // exists, but we also need to check the modified time
-                    boolean changed = currentModule.lastModified != indexModule.lastModified;
-                    if (!changed) {
-                        ModulesKey keyCurrentModule = currentModule.key;
-                        ModulesKey keyIndexModule = indexModule.key;
-                        boolean currentIsZip = keyCurrentModule instanceof ModulesKeyForZip;
-                        boolean indexIsZip = keyIndexModule instanceof ModulesKeyForZip;
-                        changed = currentIsZip != indexIsZip;
-
-                        if (!changed) {
-                            changed = !currentModule.key.file.equals(indexModule.key.file);
-                        }
-                    }
-
-                    if (changed) {
-                        // remove and add
-                        docsToRemove.add(indexModule);
-
-                        add(modulesToAdd, zipModulesToAdd, currentModule);
-                    }
-                }
-            }
-            // --- Progress
-            incrementAndCheckProgress("Updating for removal", monitor);
-
-            // Step 2: add new entries in current and not in the index
-            for (Entry<CompleteIndexKey, CompleteIndexKey> currentEntry : currentKeys.entrySet()) {
-                CompleteIndexKey completeIndexKey = currentEntry.getValue();
-                if (!indexMap.containsKey(completeIndexKey.key)) {
-                    ModulesKey modulesKey = completeIndexKey.key;
-                    if (modulesKey instanceof IModulesKeyForJava || modulesKey.file == null
-                            || !modulesKey.file.isFile()) {
-                        //ignore this one (we can't do anything with it).
-                        continue;
-                    }
-
-                    if (modulesKey instanceof ModulesKeyForZip) {
-                        ModulesKeyForZip modulesKeyForZip = (ModulesKeyForZip) modulesKey;
-                        if (!modulesKeyForZip.isFile) {
-                            continue; // Ignore folders in zips (happens for jython folders which may not have an __init__.py)
-                        }
-                    }
-
-                    add(modulesToAdd, zipModulesToAdd, completeIndexKey);
-                }
-            }
-            // --- Progress
-            incrementAndCheckProgress("Updating for addition", monitor);
-
-            Map<String, Collection<String>> fieldToValuesToRemove = new HashMap<>();
-            Collection<String> lstToRemove = new ArrayList<>(docsToRemove.size());
-
-            FastStringBuffer tempBuf = new FastStringBuffer();
-            for (Iterator<CompleteIndexKey> it = docsToRemove.iterator(); it.hasNext();) {
-                it.next().key.toIO(tempBuf.clear());
-                lstToRemove.add(tempBuf.toString());
-            }
-
-            incrementAndCheckProgress("Removing outdated entries", monitor);
-            if (lstToRemove.size() > 0) {
-                fieldToValuesToRemove.put(FIELD_MODULES_KEY_IO, lstToRemove);
-                try {
-                    mustCommitChange = true;
-                    if (DEBUG) {
-                        System.out.println("Removing: " + fieldToValuesToRemove);
-                    }
-                    indexApi.removeDocs(fieldToValuesToRemove);
-                } catch (IOException e) {
-                    Log.log(e);
-                }
-            }
-
-            incrementAndCheckProgress("Indexing new entries", monitor);
-            if (modulesToAdd.size() > 0) {
-                mustCommitChange = true;
-                for (CompleteIndexKey key : modulesToAdd) {
-                    File f = key.key.file;
-                    if (f.exists()) {
-                        if (DEBUG) {
-                            System.out.println("Indexing: " + f);
-                        }
-                        try (BufferedReader reader = new BufferedReader(new FileReader(f));) {
-                            indexApi.index(createFieldsToIndex(key, tempBuf), reader, FIELD_CONTENTS);
-                        } catch (Exception e) {
-                            Log.log(e);
-                        }
-                    }
-                }
-            }
-
-            Set<Entry<File, Set<CompleteIndexKey>>> entrySet = zipModulesToAdd.entrySet();
-            for (Entry<File, Set<CompleteIndexKey>> entry : entrySet) {
-                File f = entry.getKey();
-                if (f.exists()) {
-                    try (ZipFile zipFile = new ZipFile(f, ZipFile.OPEN_READ);) {
-                        Set<CompleteIndexKey> value = entry.getValue();
-                        for (CompleteIndexKey completeIndexKey2 : value) {
-                            ModulesKeyForZip forZip = (ModulesKeyForZip) completeIndexKey2.key;
-                            try (InputStream inputStream = zipFile
-                                    .getInputStream(zipFile.getEntry(forZip.zipModulePath));) {
-                                InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
-                                mustCommitChange = true;
-                                if (DEBUG) {
-                                    System.out.println("Indexing: " + completeIndexKey2);
-                                }
-                                indexApi.index(createFieldsToIndex(completeIndexKey2, tempBuf), reader, FIELD_CONTENTS);
-                            }
-                        }
-                    } catch (Exception e) {
-                        Log.log(e);
-                    }
-                }
-            }
-
-            incrementAndCheckProgress("Committing result", monitor);
-            if (mustCommitChange) {
-                if (DEBUG) {
-                    System.out.println("Commit result");
-                }
-                try {
-                    indexApi.commit();
-                } catch (IOException e) {
-                    Log.log(e);
-                }
-            }
-
-            // Ok, things should be in-place at this point... let's actually do the search now
-            incrementAndCheckProgress("Searching index", monitor);
-
-            try {
-                if (DEBUG) {
-                    System.out.println("Searching: " + fieldNameToValues);
-                }
-                visitor = new IDocumentsVisitor() {
+                IDocumentsVisitor visitor = new IDocumentsVisitor() {
 
                     @Override
                     public void visit(DocumentInfo documentInfo) {
-                        try {
-                            String modKey = documentInfo.get(FIELD_MODULES_KEY_IO);
-                            String modTime = documentInfo.get(FIELD_MODIFIED_TIME);
-                            if (modKey != null && modTime != null) {
-                                ModulesKey fromIO = ModulesKey.fromIO(modKey);
-                                CompleteIndexKey existing = currentKeys.get(new CompleteIndexKey(fromIO));
-                                // Deal with deleted entries still hanging around.
-                                if (existing != null && existing.lastModified == Long.parseLong(modTime)) {
-                                    // Ok, we have a match!
-                                    ret.add(existing.key);
+                        ModulesKey keyFromIO = ModulesKey.fromIO(documentInfo.get(FIELD_MODULES_KEY_IO));
+                        String modifiedTime = documentInfo.get(FIELD_MODIFIED_TIME);
+                        indexMap.put(keyFromIO, new CompleteIndexKey(keyFromIO, Long.parseLong(modifiedTime)));
+                    }
+                };
+                try {
+                    indexApi.visitAllDocs(visitor, FIELD_MODULES_KEY_IO, FIELD_MODIFIED_TIME);
+                } catch (IOException e) {
+                    Log.log(e);
+                }
+
+                incrementAndCheckProgress("Visited current index", monitor);
+
+                Set<CompleteIndexKey> docsToRemove = new HashSet<>();
+                Set<CompleteIndexKey> modulesToAdd = new HashSet<>();
+                Map<File, Set<CompleteIndexKey>> zipModulesToAdd = new HashMap<>();
+
+                // Wait for the integrity check before getting the keys!
+                abstractAdditionalDependencyInfo.waitForIntegrityCheck();
+
+                final Map<CompleteIndexKey, CompleteIndexKey> currentKeys = completeIndex.keys();
+
+                // Step 1: remove entries which were in the index but are already removed
+                // from the modules (or have a different time).
+                for (Entry<ModulesKey, CompleteIndexKey> entryInIndex : indexMap.entrySet()) {
+                    CompleteIndexKey indexModule = entryInIndex.getValue();
+
+                    CompleteIndexKey currentModule = currentKeys.get(indexModule);
+                    if (currentModule == null || currentModule.key == null || currentModule.key.file == null) {
+                        docsToRemove.add(indexModule);
+
+                    } else {
+                        // exists, but we also need to check the modified time
+                        boolean changed = currentModule.lastModified != indexModule.lastModified;
+                        if (!changed) {
+                            ModulesKey keyCurrentModule = currentModule.key;
+                            ModulesKey keyIndexModule = indexModule.key;
+                            boolean currentIsZip = keyCurrentModule instanceof ModulesKeyForZip;
+                            boolean indexIsZip = keyIndexModule instanceof ModulesKeyForZip;
+                            changed = currentIsZip != indexIsZip;
+
+                            if (!changed) {
+                                changed = !currentModule.key.file.equals(indexModule.key.file);
+                            }
+                        }
+
+                        if (changed) {
+                            // remove and add
+                            docsToRemove.add(indexModule);
+
+                            add(modulesToAdd, zipModulesToAdd, currentModule);
+                        }
+                    }
+                }
+                // --- Progress
+                incrementAndCheckProgress("Updating for removal", monitor);
+
+                // Step 2: add new entries in current and not in the index
+                for (Entry<CompleteIndexKey, CompleteIndexKey> currentEntry : currentKeys.entrySet()) {
+                    CompleteIndexKey completeIndexKey = currentEntry.getValue();
+                    if (!indexMap.containsKey(completeIndexKey.key)) {
+                        ModulesKey modulesKey = completeIndexKey.key;
+                        if (modulesKey instanceof IModulesKeyForJava || modulesKey.file == null
+                                || !modulesKey.file.isFile()) {
+                            //ignore this one (we can't do anything with it).
+                            continue;
+                        }
+
+                        if (modulesKey instanceof ModulesKeyForZip) {
+                            ModulesKeyForZip modulesKeyForZip = (ModulesKeyForZip) modulesKey;
+                            if (!modulesKeyForZip.isFile) {
+                                continue; // Ignore folders in zips (happens for jython folders which may not have an __init__.py)
+                            }
+                        }
+
+                        add(modulesToAdd, zipModulesToAdd, completeIndexKey);
+                    }
+                }
+                // --- Progress
+                incrementAndCheckProgress("Updating for addition", monitor);
+
+                Map<String, Collection<String>> fieldToValuesToRemove = new HashMap<>();
+                Collection<String> lstToRemove = new ArrayList<>(docsToRemove.size());
+
+                FastStringBuffer tempBuf = new FastStringBuffer();
+                for (Iterator<CompleteIndexKey> it = docsToRemove.iterator(); it.hasNext();) {
+                    it.next().key.toIO(tempBuf.clear());
+                    lstToRemove.add(tempBuf.toString());
+                }
+
+                incrementAndCheckProgress("Removing outdated entries", monitor);
+                if (lstToRemove.size() > 0) {
+                    fieldToValuesToRemove.put(FIELD_MODULES_KEY_IO, lstToRemove);
+                    try {
+                        mustCommitChange = true;
+                        if (DEBUG) {
+                            System.out.println("Removing: " + fieldToValuesToRemove);
+                        }
+                        indexApi.removeDocs(fieldToValuesToRemove);
+                    } catch (IOException e) {
+                        Log.log(e);
+                    }
+                }
+
+                incrementAndCheckProgress("Indexing new entries", monitor);
+                if (modulesToAdd.size() > 0) {
+                    mustCommitChange = true;
+                    for (CompleteIndexKey key : modulesToAdd) {
+                        File f = key.key.file;
+                        if (f.exists()) {
+                            if (DEBUG) {
+                                System.out.println("Indexing: " + f);
+                            }
+                            try (BufferedReader reader = new BufferedReader(new FileReader(f));) {
+                                indexApi.index(createFieldsToIndex(key, tempBuf), reader, FIELD_CONTENTS);
+                            } catch (Exception e) {
+                                Log.log(e);
+                            }
+                        }
+                    }
+                }
+
+                Set<Entry<File, Set<CompleteIndexKey>>> entrySet = zipModulesToAdd.entrySet();
+                for (Entry<File, Set<CompleteIndexKey>> entry : entrySet) {
+                    File f = entry.getKey();
+                    if (f.exists()) {
+                        try (ZipFile zipFile = new ZipFile(f, ZipFile.OPEN_READ);) {
+                            Set<CompleteIndexKey> value = entry.getValue();
+                            for (CompleteIndexKey completeIndexKey2 : value) {
+                                ModulesKeyForZip forZip = (ModulesKeyForZip) completeIndexKey2.key;
+                                try (InputStream inputStream = zipFile
+                                        .getInputStream(zipFile.getEntry(forZip.zipModulePath));) {
+                                    InputStreamReader reader = new InputStreamReader(inputStream,
+                                            StandardCharsets.UTF_8);
+                                    mustCommitChange = true;
+                                    if (DEBUG) {
+                                        System.out.println("Indexing: " + completeIndexKey2);
+                                    }
+                                    indexApi.index(createFieldsToIndex(completeIndexKey2, tempBuf), reader,
+                                            FIELD_CONTENTS);
                                 }
                             }
                         } catch (Exception e) {
                             Log.log(e);
                         }
                     }
-                };
-                indexApi.searchWildcard(fieldNameToValues, applyAllDeletes, visitor, null, FIELD_MODULES_KEY_IO,
-                        FIELD_MODIFIED_TIME);
-            } catch (Exception e) {
-                Log.log(e);
+                }
+
+                incrementAndCheckProgress("Committing result", monitor);
+                if (mustCommitChange) {
+                    if (DEBUG) {
+                        System.out.println("Commit result");
+                    }
+                    try {
+                        indexApi.commit();
+                    } catch (IOException e) {
+                        Log.log(e);
+                    }
+                }
+
+                // Ok, things should be in-place at this point... let's actually do the search now
+                incrementAndCheckProgress("Searching index", monitor);
+
+                try {
+                    if (DEBUG) {
+                        System.out.println("Searching: " + fieldNameToValues);
+                    }
+                    visitor = new IDocumentsVisitor() {
+
+                        @Override
+                        public void visit(DocumentInfo documentInfo) {
+                            try {
+                                String modKey = documentInfo.get(FIELD_MODULES_KEY_IO);
+                                String modTime = documentInfo.get(FIELD_MODIFIED_TIME);
+                                if (modKey != null && modTime != null) {
+                                    ModulesKey fromIO = ModulesKey.fromIO(modKey);
+                                    CompleteIndexKey existing = currentKeys.get(new CompleteIndexKey(fromIO));
+                                    // Deal with deleted entries still hanging around.
+                                    if (existing != null && existing.lastModified == Long.parseLong(modTime)) {
+                                        // Ok, we have a match!
+                                        ret.add(existing.key);
+                                    }
+                                }
+                            } catch (Exception e) {
+                                Log.log(e);
+                            }
+                        }
+                    };
+                    indexApi.searchWildcard(fieldNameToValues, applyAllDeletes, visitor, null, FIELD_MODULES_KEY_IO,
+                            FIELD_MODIFIED_TIME);
+                } catch (Exception e) {
+                    Log.log(e);
+                }
+            }
+        } catch (Exception e) {
+            Log.log(e);
+        } finally {
+            if (indexApi != null) {
+                indexApi.dispose();
             }
         }
         return ret;
@@ -374,7 +358,7 @@ public class ReferenceSearchesLucene implements IReferenceSearches {
         }
     }
 
-    public Map<String, String> createFieldsToIndex(CompleteIndexKey key, FastStringBuffer buf) {
+    private Map<String, String> createFieldsToIndex(CompleteIndexKey key, FastStringBuffer buf) {
         key.key.toIO(buf.clear());
         Map<String, String> fieldsToIndex = new HashMap<>();
         fieldsToIndex.put(FIELD_MODULES_KEY_IO, buf.toString());
@@ -383,7 +367,7 @@ public class ReferenceSearchesLucene implements IReferenceSearches {
         return fieldsToIndex;
     }
 
-    public void add(Set<CompleteIndexKey> modulesToAdd, Map<File, Set<CompleteIndexKey>> zipModulesToAdd,
+    private void add(Set<CompleteIndexKey> modulesToAdd, Map<File, Set<CompleteIndexKey>> zipModulesToAdd,
             CompleteIndexKey currentModule) {
         if (currentModule.key instanceof ModulesKeyForZip) {
             Set<CompleteIndexKey> set = zipModulesToAdd.get(currentModule.key.file);

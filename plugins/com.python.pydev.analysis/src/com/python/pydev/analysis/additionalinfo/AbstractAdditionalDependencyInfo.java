@@ -91,10 +91,7 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
     }
 
     public void dispose() {
-        if (this.referenceSearches != null) {
-            this.referenceSearches.dispose();
-            this.referenceSearches = null;
-        }
+        this.referenceSearches = null;
     }
 
     /**
