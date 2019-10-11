@@ -29,10 +29,9 @@
         <div class="section" id="bronze-sponsors">
         <h1>Bronze Sponsors</h1>
 
+		<a href="https://fair-laan.se/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/fair_laan_se.jpg" alt="fair-laan.se" title="https://fair-laan.se/" /></a>
+
 		<a href="https://moneypug.co.uk/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/moneypug.png" alt="moneypug.co.uk" title="https://moneypug.co.uk/" /></a>
-
-		<a href="https://nyecasinonorge.org/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/nyecasinonorge.png" alt="nyecasinonorge.org" title="https://nyecasinonorge.org/" /></a>
-
 
 		<a href="https://mrcasinova.com/no/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/mrcasinova.png" alt="nettcasino" title="https://mrcasinova.com/no/" /></a>
 
@@ -44,8 +43,8 @@
 
 
 		<br/>
-		<a href="https://rocketpayz.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/rocketpayz.png" alt="rocketpayz.com" title="https://rocketpayz.com/" /></a>
-		
+        <a href="https://lejonfinans.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/lejofinans.png" alt="LejonFinans" title="https://lejonfinans.com/" /></a>
+
 		<a href="https://www.immigrationlawofmt.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/immigrationlawofmt.png" alt="immigrationlawofmt" title="https://www.immigrationlawofmt.com" /></a>
 
         <a href="https://www.ecosecretariat.org/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/ecosecretariat.png" alt="Eco Secretariat" title="https://www.ecosecretariat.org/" /></a>
@@ -57,7 +56,7 @@
         <a href="https://www.privatkreditsofort.ch/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/privatkredit-sofort.png" alt="PrivatkreditSofort.ch" title="https://www.privatkreditsofort.ch/" /></a>
 
 		<br/>
-        <a href="https://lejonfinans.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/lejofinans.png" alt="LejonFinans" title="https://lejonfinans.com/" /></a>
+		<a href="https://rocketpayz.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/rocketpayz.png" alt="rocketpayz.com" title="https://rocketpayz.com/" /></a>
 
         <a href="https://www.codefirst.co.uk/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/codefirst.png" alt="CodeFirst" title="https://www.codefirst.co.uk/" /></a>
 
@@ -65,7 +64,7 @@
 
         <a href="https://slotcatalog.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/slotcatalog.png" alt="slotcatalog.com" title="https://slotcatalog.com" /></a>
 
-        <a href="https://www.redfin.com/city/16163/WA/Seattle" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/redfin.png" alt="Redfin" title="https://www.redfin.com/city/16163/WA/Seattle" /></a>
+		<a href="https://nyecasinonorge.org/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/nyecasinonorge.png" alt="nyecasinonorge.org" title="https://nyecasinonorge.org/" /></a>
 
         <a href="https://www.websitehostingrating.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/webhostingrating.png" alt="websitehostingrating" title="https://www.websitehostingrating.com/" /></a>
 
@@ -85,9 +84,9 @@
 
 		<br/>
 		<a href="https://gamblescope.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/gamblescope.png" alt="gamblescope.com" title="https://gamblescope.com/" /></a>
-		
+
         <a href="https://allesrefurbished.nl" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/alles_refurbished.png" alt="Alles Refurbished - overview of refurbished tablets, telephones and more (in Dutch)" title="Alles Refurbished - overview of refurbished tablets, telephones and more (in Dutch)" /></a>
-        
+
         <a href="https://netotraffic.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/netotraffic.png" alt="Netotraffic" title="https://netotraffic.com/" /></a>
 
         <a href="https://www.vpsserver.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/vpsserver50-50.png" alt="vpsserver" title="https://www.vpsserver.com" /></a>
