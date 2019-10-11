@@ -15,7 +15,7 @@ from _pydevd_bundle._debug_adapter.pydevd_schema import (
     ProcessEvent, Scope, ScopesResponseBody, SetExpressionResponseBody,
     SetVariableResponseBody, SourceBreakpoint, SourceResponseBody,
     VariablesResponseBody, SetBreakpointsResponseBody, Response, InitializeRequest, InitializeResponse,
-    Capabilities)
+    Capabilities, PydevdAuthorizeRequest)
 from _pydevd_bundle.pydevd_api import PyDevdAPI
 from _pydevd_bundle.pydevd_breakpoints import get_exception_class
 from _pydevd_bundle.pydevd_comm_constants import (
@@ -162,12 +162,10 @@ class PyDevJsonCommandProcessor(object):
                 print('Handled in pydevd: %s (in PyDevJsonCommandProcessor).\n' % (method_name,))
 
         with py_db._main_lock:
-            if request.__class__ == InitializeRequest:
-                initialize_request = request  # : :type initialize_request: InitializeRequest
-                pydevd_specific_info = initialize_request.arguments.kwargs.get('pydevd', {})
-                if pydevd_specific_info.__class__ == dict:
-                    access_token = pydevd_specific_info.get('debugServerAccessToken')
-                    py_db.authentication.login(access_token)
+            if request.__class__ == PydevdAuthorizeRequest:
+                authorize_request = request  # : :type authorize_request: PydevdAuthorizeRequest
+                access_token = authorize_request.arguments.debugServerAccessToken
+                py_db.authentication.login(access_token)
 
             if not py_db.authentication.is_authenticated():
                 response = Response(
@@ -179,6 +177,15 @@ class PyDevJsonCommandProcessor(object):
             cmd = on_request(py_db, request)
             if cmd is not None and send_response:
                 py_db.writer.add_command(cmd)
+
+    def on_pydevdauthorize_request(self, py_db, request):
+        ide_access_token = py_db.authentication.ide_access_token
+        body = {'clientAccessToken': None}
+        if ide_access_token:
+            body['clientAccessToken'] = ide_access_token
+
+        response = pydevd_base_schema.build_response(request, kwargs={'body': body})
+        return NetCommand(CMD_RETURN, 0, response, is_json=True)
 
     def on_initialize_request(self, py_db, request):
         body = Capabilities(
@@ -224,11 +231,8 @@ class PyDevJsonCommandProcessor(object):
         # Non-standard capabilities/info below.
         body['supportsDebuggerProperties'] = True
 
-        ide_access_token = py_db.authentication.ide_access_token
         body['pydevd'] = pydevd_info = {}
         pydevd_info['processId'] = os.getpid()
-        if ide_access_token:
-            pydevd_info['ideAccessToken'] = ide_access_token
         self.api.notify_initialize(py_db)
         response = pydevd_base_schema.build_response(request, kwargs={'body': body})
         return NetCommand(CMD_RETURN, 0, response, is_json=True)
@@ -256,11 +260,12 @@ class PyDevJsonCommandProcessor(object):
         '''
         :param TerminateRequest request:
         '''
-        # Force-terminate this process.
-        self._terminate_process(py_db)
+        self._request_terminate_process(py_db)
+        response = pydevd_base_schema.build_response(request)
+        return NetCommand(CMD_RETURN, 0, response, is_json=True)
 
-    def _terminate_process(self, py_db):
-        self.api.terminate_process(py_db)
+    def _request_terminate_process(self, py_db):
+        self.api.request_terminate_process(py_db)
 
     def on_completions_request(self, py_db, request):
         '''
@@ -511,8 +516,9 @@ class PyDevJsonCommandProcessor(object):
         :param DisconnectRequest request:
         '''
         if request.arguments.terminateDebuggee:
-            self._terminate_process(py_db)
-            return
+            self._request_terminate_process(py_db)
+            response = pydevd_base_schema.build_response(request)
+            return NetCommand(CMD_RETURN, 0, response, is_json=True)
 
         self._launch_or_attach_request_done = False
         py_db.enable_output_redirection(False, False)
@@ -582,7 +588,8 @@ class PyDevJsonCommandProcessor(object):
                 elif error_code == self.api.ADD_BREAKPOINT_FILE_EXCLUDED_BY_FILTERS:
                     error_msg = 'Breakpoint in file excluded by filters.'
                     if py_db.get_use_libraries_filter():
-                        error_msg += '\nNote: may be excluded because of "justMyCode" option (default == true).'
+                        error_msg += ('\nNote: may be excluded because of "justMyCode" option (default == true).'
+                                      'Try setting \"justMyCode\": false in the debug configuration (e.g., launch.json).')
 
                 else:
                     # Shouldn't get here.
