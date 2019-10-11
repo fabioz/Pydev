@@ -124,11 +124,11 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <properties>
-    <tycho-version>1.1.0</tycho-version>
-    <tycho-extras-version>1.1.0</tycho-extras-version>
+    <tycho-version>1.4.0</tycho-version>
+    <tycho-extras-version>1.4.0</tycho-extras-version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <repository.id>eclipse-oxygen</repository.id>
-    <repository.url>http://download.eclipse.org/releases/oxygen/</repository.url>
+    <repository.id>eclipse-2019-09</repository.id>
+    <repository.url>http://download.eclipse.org/releases/2019-09/</repository.url>
   </properties>
   <prerequisites>
     <maven>3.0</maven>
@@ -218,11 +218,6 @@
               <os>linux</os>
               <ws>gtk</ws>
               <arch>x86_64</arch>
-            </environment>
-            <environment>
-              <os>linux</os>
-              <ws>gtk</ws>
-              <arch>x86</arch>
             </environment>
             <environment>
               <os>win32</os>
