@@ -130,13 +130,6 @@ Export-Package: org.apache.lucene,
  org.python.pydev.shared_core.testutils,
  org.python.pydev.shared_core.threaded_objects_pool,
  org.python.pydev.shared_core.utils,
- org.yaml.snakeyaml,
- org.yaml.snakeyaml.error,
- org.yaml.snakeyaml.events,
- org.yaml.snakeyaml.nodes,
- org.yaml.snakeyaml.parser,
- org.yaml.snakeyaml.reader,
- org.yaml.snakeyaml.scanner,
- org.yaml.snakeyaml.tokens
+ org.python.pydev.shared_core.yaml
 Bundle-Vendor: Brainwy Software Ltda
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
