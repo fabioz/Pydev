@@ -29,6 +29,8 @@
         <div class="section" id="bronze-sponsors">
         <h1>Bronze Sponsors</h1>
 
+		<a href="https://slots.io/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/slots_io.png" alt="slots.io" title="https://slots.io/" /></a>
+
 		<a href="https://loanscouter.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/loanscouter.jpg" alt="loanscouter.com" title="https://loanscouter.com/" /></a>
 
 		<a href="https://fair-laan.se/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/fair_laan_se.jpg" alt="fair-laan.se" title="https://fair-laan.se/" /></a>
@@ -39,13 +41,14 @@
 
 		<a href="https://monovm.com/vps-linux/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/monovm.png" alt="monovm.com" title="https://monovm.com/vps-linux/" /></a>
 
-		<a href="https://1gbits.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/1gbits.png" alt="1gbits.com" title="https://1gbits.com" /></a>
 
 
 
 		<br/>
+		<a href="https://1gbits.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/1gbits.png" alt="1gbits.com" title="https://1gbits.com" /></a>
+
 		<a href="https://vpn.surf/buy-vpn/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/vpn_surf.png" alt="vpn.surf" title="https://vpn.surf/buy-vpn/" /></a>
-		
+
         <a href="https://lejonfinans.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/lejofinans.png" alt="LejonFinans" title="https://lejonfinans.com/" /></a>
 
 		<a href="https://www.immigrationlawofmt.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/immigrationlawofmt.png" alt="immigrationlawofmt" title="https://www.immigrationlawofmt.com" /></a>
@@ -54,12 +57,13 @@
 
         <a href="https://essayshark.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/essay_shark.png" alt="EssayShark" title="https://essayshark.com/" /></a>
 
-        <a href="https://bestwebhostingaustralia.org" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/aussie_hosting.png" alt="BestWebHostingAustralia" title="https://bestwebhostingaustralia.org" /></a>
 
 
 		<br/>
+        <a href="https://bestwebhostingaustralia.org" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/aussie_hosting.png" alt="BestWebHostingAustralia" title="https://bestwebhostingaustralia.org" /></a>
+
         <a href="https://www.privatkreditsofort.ch/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/privatkredit-sofort.png" alt="PrivatkreditSofort.ch" title="https://www.privatkreditsofort.ch/" /></a>
-        
+
 		<a href="https://rocketpayz.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/rocketpayz.png" alt="rocketpayz.com" title="https://rocketpayz.com/" /></a>
 
         <a href="https://www.codefirst.co.uk/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/codefirst.png" alt="CodeFirst" title="https://www.codefirst.co.uk/" /></a>
@@ -68,13 +72,14 @@
 
         <a href="https://slotcatalog.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/slotcatalog.png" alt="slotcatalog.com" title="https://slotcatalog.com" /></a>
 
-		<a href="https://nyecasinonorge.org/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/nyecasinonorge.png" alt="nyecasinonorge.org" title="https://nyecasinonorge.org/" /></a>
 
 
 
 		<br/>
+		<a href="https://nyecasinonorge.org/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/nyecasinonorge.png" alt="nyecasinonorge.org" title="https://nyecasinonorge.org/" /></a>
+
         <a href="https://www.websitehostingrating.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/webhostingrating.png" alt="websitehostingrating" title="https://www.websitehostingrating.com/" /></a>
-        
+
         <a href="https://lainaa-helposti.fi/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/lainaa_helposti.png" alt="laina-helposti.fi" title="https://lainaa-helposti.fi/" /></a>
 
         <a href="https://couponscorpion.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/udemy_coupons.png" alt="Udemy Coupon" title="https://couponscorpion.com/" /></a>
@@ -83,12 +88,13 @@
 
         <a href="https://smslåndirektutbetalning.se/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/smslan.png" alt="SmsLånDirektUtbetalning.se" title="https://smslåndirektutbetalning.se/" /></a>
 
-        <a href="https://esportbetting.eu/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/esport_betting.png" alt="eSportBetting" title="https://esportbetting.eu/" /></a>
 
 
 		<br/>
+        <a href="https://esportbetting.eu/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/esport_betting.png" alt="eSportBetting" title="https://esportbetting.eu/" /></a>
+
 		<a href="https://casinopiloten.com/bonus" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/casinopiloten.png" alt="casinobonus" title="https://casinopiloten.com/bonus" /></a>
-		
+
 		<a href="https://gamblescope.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/gamblescope.png" alt="gamblescope.com" title="https://gamblescope.com/" /></a>
 
         <a href="https://allesrefurbished.nl" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/alles_refurbished.png" alt="Alles Refurbished - overview of refurbished tablets, telephones and more (in Dutch)" title="Alles Refurbished - overview of refurbished tablets, telephones and more (in Dutch)" /></a>
@@ -97,10 +103,11 @@
 
         <a href="https://www.vpsserver.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/vpsserver50-50.png" alt="vpsserver" title="https://www.vpsserver.com" /></a>
 
-        <a href="https://gamblerspro.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/gamblerspro.png" alt="Online casino reviews" title="https://gamblerspro.com"/></a>
 
 
 		<br/>
+        <a href="https://gamblerspro.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/gamblerspro.png" alt="Online casino reviews" title="https://gamblerspro.com"/></a>
+
         <a href="https://superbwebsitebuilders.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/superbwebsitebuilders.png" alt="superbwebsitebuilders" title="https://superbwebsitebuilders.com/" /></a>
 
 
