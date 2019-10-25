@@ -46,8 +46,16 @@ class ModulesManager(object):
             if filename_in_utf8 in self._modules:
                 return
 
-            version = frame.f_globals.get('__version__', '')
-            package_name = frame.f_globals.get('__package__', '')
+            try:
+                version = str(frame.f_globals.get('__version__', ''))
+            except:
+                version = '<unknown>'
+
+            try:
+                package_name = str(frame.f_globals.get('__package__', ''))
+            except:
+                package_name = '<unknown>'
+
             module_id = self._next_id()
 
             module = Module(module_id, module_name, filename_in_utf8)
@@ -204,7 +212,10 @@ class NetCommandFactoryJson(NetCommandFactory):
                         py_db, frames_list
                     ):
 
-                    module_name = frame.f_globals.get('__name__', '')
+                    try:
+                        module_name = str(frame.f_globals.get('__name__', ''))
+                    except:
+                        module_name = '<unknown>'
 
                     module_events.extend(self.modules_manager.track_module(filename_in_utf8, module_name, frame))
 
@@ -356,7 +367,7 @@ class NetCommandFactoryJson(NetCommandFactory):
         msg = 'Frame skipped from debugging during step-in.'
         if py_db.get_use_libraries_filter():
             msg += ('\nNote: may have been skipped because of "justMyCode" option (default == true). '
-                    'Try setting \"justMyCode\": false in the debug configuration (e.g., launch.json).')
+                    'Try setting \"justMyCode\": false in the debug configuration (e.g., launch.json).\n')
 
         body = OutputEventBody(msg, category='console')
         event = OutputEvent(body)

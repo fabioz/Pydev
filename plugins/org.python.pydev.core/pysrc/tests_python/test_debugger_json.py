@@ -872,7 +872,7 @@ def test_case_skipping_filters(case_setup, custom_setup):
                 33, filename=other_filename, verified=False, expected_lines_in_response=[14])
             assert response.body.breakpoints == [{
                 'verified': False,
-                'message': 'Breakpoint in file excluded by filters.\nNote: may be excluded because of \"justMyCode\" option (default == true).Try setting \"justMyCode\": false in the debug configuration (e.g., launch.json).',
+                'message': 'Breakpoint in file excluded by filters.\nNote: may be excluded because of \"justMyCode\" option (default == true).Try setting \"justMyCode\": false in the debug configuration (e.g., launch.json).\n',
                 'source': {'path': other_filename},
                 'line': 14
             }]
@@ -1210,6 +1210,62 @@ def test_evaluate_unicode(case_setup):
                 'variablesReference': 0,
                 'presentationHint': {'attributes': ['rawString']},
             }
+
+        json_facade.write_continue()
+        writer.finished_ok = True
+
+
+@pytest.mark.skipif(IS_PY26, reason='Not ok on Python 2.6.')
+def test_evaluate_exec_unicode(case_setup):
+
+    def get_environ(writer):
+        env = os.environ.copy()
+
+        env["PYTHONIOENCODING"] = 'utf-8'
+        return env
+
+    with case_setup.test_file('_debugger_case_local_variables2.py', get_environ=get_environ) as writer:
+        json_facade = JsonFacade(writer)
+        writer.write_start_redirect()
+
+        writer.write_add_breakpoint(writer.get_line_index_with_content('Break here'))
+        json_facade.write_make_initial_run()
+
+        json_hit = json_facade.wait_for_thread_stopped()
+        json_hit = json_facade.get_stack_as_json_hit(json_hit.thread_id)
+
+        # Check eval
+        json_facade.evaluate(
+            "print(u'中')",
+            frameId=json_hit.frame_id,
+            context="repl",
+        )
+
+        messages = json_facade.mark_messages(
+            OutputEvent, lambda output_event: u'中' in output_event.body.output)
+        assert len(messages) == 1
+
+        # Check exec
+        json_facade.evaluate(
+            "a=10;print(u'中')",
+            frameId=json_hit.frame_id,
+            context="repl",
+        )
+
+        messages = json_facade.mark_messages(
+            OutputEvent, lambda output_event: u'中' in output_event.body.output)
+        assert len(messages) == 1
+
+        response = json_facade.evaluate(
+            "u'中'",
+            frameId=json_hit.frame_id,
+            context="repl",
+        )
+        assert response.body.result in ("u'\\u4e2d'", "'\u4e2d'")  # py2 or py3
+
+        messages = json_facade.mark_messages(
+            OutputEvent, lambda output_event: u'中' in output_event.body.output)
+        assert len(messages) == 0  # i.e.: we don't print in this case.
 
         json_facade.write_continue()
         writer.finished_ok = True
@@ -2753,16 +2809,23 @@ def test_redirect_output(case_setup):
         def _ignore_stderr_line(line):
             if original_ignore_stderr_line(line):
                 return True
+
+            binary_junk = b'\xe8\xF0\x80\x80\x80'
+            if sys.version_info[0] >= 3:
+                binary_junk = binary_junk.decode('utf-8', 'replace')
+
             return line.startswith((
                 'text',
                 'binary',
-                'a'
+                'a',
+                binary_junk,
             ))
 
         writer._ignore_stderr_line = _ignore_stderr_line
 
         # Note: writes to stdout and stderr are now synchronous (so, the order
         # must always be consistent and there's a message for each write).
+
         expected = [
             'text\n',
             'binary or text\n',
@@ -2775,6 +2838,11 @@ def test_redirect_output(case_setup):
                 'ação2\n'.encode(encoding='latin1').decode('utf-8', 'replace'),
                 'ação3\n',
             ))
+
+        binary_junk = '\xef\xbf\xbd\xef\xbf\xbd\xef\xbf\xbd\n\n'
+        if sys.version_info[0] >= 3:
+            binary_junk = "\ufffd\ufffd\ufffd\ufffd\ufffd\n\n"
+        expected.append(binary_junk)
 
         new_expected = [(x, 'stdout') for x in expected]
         new_expected.extend([(x, 'stderr') for x in expected])
@@ -2969,6 +3037,30 @@ def test_no_subprocess_patching(case_setup_multiprocessing, apply_multiprocessin
             secondary_process_thread_communication.join(10)
             if secondary_process_thread_communication.is_alive():
                 raise AssertionError('The SecondaryProcessThreadCommunication did not finish')
+        writer.finished_ok = True
+
+
+def test_module_crash(case_setup):
+    with case_setup.test_file('_debugger_case_module.py') as writer:
+        json_facade = JsonFacade(writer)
+
+        writer.write_add_breakpoint(writer.get_line_index_with_content('Break here'))
+
+        json_facade.write_make_initial_run()
+
+        stopped_event = json_facade.wait_for_json_message(StoppedEvent)
+        thread_id = stopped_event.body.threadId
+
+        json_facade.write_request(
+            pydevd_schema.StackTraceRequest(pydevd_schema.StackTraceArguments(threadId=thread_id)))
+
+        module_event = json_facade.wait_for_json_message(ModuleEvent)  # : :type module_event: ModuleEvent
+        assert 'MyName' in module_event.body.module.name
+        assert 'MyVersion' in module_event.body.module.version
+        assert 'MyPackage' in module_event.body.module.kwargs['package']
+
+        json_facade.write_continue()
+
         writer.finished_ok = True
 
 
@@ -3186,6 +3278,24 @@ def test_access_token(case_setup):
         json_facade.write_set_variable(json_hit.frame_id, 'loop', 'False')
         json_facade.write_continue()
         json_facade.wait_for_terminated()
+
+        writer.finished_ok = True
+
+
+def test_send_json_message(case_setup):
+
+    with case_setup.test_file('_debugger_case_custom_message.py') as writer:
+        json_facade = JsonFacade(writer)
+
+        json_facade.write_launch()
+
+        json_facade.write_make_initial_run()
+
+        json_facade.wait_for_json_message(
+            OutputEvent, lambda msg: msg.body.category == 'my_category' and msg.body.output == 'some output')
+
+        json_facade.wait_for_json_message(
+            OutputEvent, lambda msg: msg.body.category == 'my_category2' and msg.body.output == 'some output 2')
 
         writer.finished_ok = True
 
