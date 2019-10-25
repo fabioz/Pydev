@@ -20,8 +20,8 @@
 	<tr align="center" bgcolor="#eeeeee" valign="top">
 		<td nowrap="nowrap" class="td_top">
 		<center>
-		<p class="header_text">Last Site Update: October 22nd, 2019 |
-		Latest Version: 7.3.0</p>
+		<p class="header_text">Last Site Update: October 25th, 2019 |
+		Latest Version: 7.4.0</p>
 		</center>
 		</td>
 	</tr>
@@ -613,6 +613,31 @@ LiClipse you directly support the development of PyDev).</p>
 <p>Thank you to all PyDev supporters: <a class="reference external" href="https://www.brainwy.com/supporters/PyDev">https://www.brainwy.com/supporters/PyDev</a>.</p>
 <p>To show your appreciation for PyDev and to keep it going strong, help to crowdfund through <a class="reference external" href="https://www.patreon.com/fabioz">https://www.patreon.com/fabioz</a>.</p>
 </div>
+<div class="section" id="release-7-4-0-2019-10-25">
+<h1>Release 7.4.0 (2019-10-25)</h1>
+<ul>
+<li><p class="first">Support for the Python 3.8.</p>
+</li>
+<li><p class="first">Code analysis fix: default values properly marks variables as used (#PyDev-945).</p>
+</li>
+<li><p class="first">On the context menu to analyze files, make sure that non-python files are not analyzed (#PyDev-1008).</p>
+</li>
+<li><p class="first">Lucene indexes are not kept open (so, it's possible to delete the project metadata properly when a project is deleted).</p>
+</li>
+<li><p class="first">Debugger improvements (updated to pydevd 1.8.0).</p>
+<blockquote>
+<ul class="simple">
+<li>Support for PyPy.</li>
+<li>Support for Python 3.8.</li>
+<li>Properly show stack trace exception for unhandled exceptions with generator.</li>
+<li>Handle binary data when redirecting output.</li>
+<li>Properly evaluate unicode strings on Python 2.</li>
+<li>Fix dlopen return type for gdb 8.3.1 (patch by Vladimir Dvorak).</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</div>
 <div class="section" id="release-7-3-0-2019-08-16">
 <h1>Release 7.3.0 (2019-08-16)</h1>
 <ul>
@@ -648,22 +673,6 @@ LiClipse you directly support the development of PyDev).</p>
 <li><p class="first">Duplicate signature is no longer reported with typing.orverload (<strong>#PyDev-970</strong>).</p>
 </li>
 <li><p class="first">Fixed highlighting variables in f-strings (<strong>#PyDev-973</strong>).</p>
-</li>
-</ul>
-</div>
-<div class="section" id="release-7-2-0-2019-03-25">
-<h1>Release 7.2.0 (2019-03-25)</h1>
-<ul>
-<li><p class="first">Debugger improvements (updated to pydevd 1.6.0).</p>
-<blockquote>
-<ul class="simple">
-<li>Fixed issue quoting/unquoting parameters for subprocess.</li>
-<li>Fixed exception breakpoints for Django and Jinja2.</li>
-<li>Console hook import compatibility with matplotlib and pylab fixed.</li>
-</ul>
-</blockquote>
-</li>
-<li><p class="first">Fixed issue where pipenv executable search was being executed over and over when it was not found.</p>
 </li>
 </ul>
 <p><a class="reference external" href="history_pydev.html">View release notes for previous releases</a></p>

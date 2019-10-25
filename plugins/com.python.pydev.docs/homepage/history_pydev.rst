@@ -6,6 +6,21 @@ History For PyDev
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
+Release 7.4.0 (2019-10-25)
+=============================
+
+* Support for the Python 3.8.
+* Code analysis fix: default values properly marks variables as used (#PyDev-945).
+* On the context menu to analyze files, make sure that non-python files are not analyzed (#PyDev-1008).
+* Debugger improvements (updated to pydevd 1.8.0).
+
+	* Support for PyPy.
+	* Support for Python 3.8.
+	* Properly show stack trace exception for unhandled exceptions with generator.
+	* Handle binary data when redirecting output.
+	* Properly evaluate unicode strings on Python 2.
+	* Fix dlopen return type for gdb 8.3.1 (patch by Vladimir Dvorak).
+
 Release 7.3.0 (2019-08-16)
 =============================
 

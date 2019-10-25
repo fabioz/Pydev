@@ -242,6 +242,23 @@ To show your appreciation for PyDev and to keep it going strong, help to crowdfu
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
+Release 7.4.0 (2019-10-25)
+=============================
+
+* Support for the Python 3.8.
+* Code analysis fix: default values properly marks variables as used (#PyDev-945).
+* On the context menu to analyze files, make sure that non-python files are not analyzed (#PyDev-1008).
+* Lucene indexes are not kept open (so, it's possible to delete the project metadata properly when a project is deleted).
+* Debugger improvements (updated to pydevd 1.8.0).
+
+	* Support for PyPy.
+	* Support for Python 3.8.
+	* Properly show stack trace exception for unhandled exceptions with generator.
+	* Handle binary data when redirecting output.
+	* Properly evaluate unicode strings on Python 2.
+	* Fix dlopen return type for gdb 8.3.1 (patch by Vladimir Dvorak).
+
+
 Release 7.3.0 (2019-08-16)
 =============================
 
@@ -267,16 +284,6 @@ Release 7.2.1 (2019-04-26)
 * Duplicate signature is no longer reported with typing.orverload (**#PyDev-970**).
 * Fixed highlighting variables in f-strings (**#PyDev-973**).
 
-Release 7.2.0 (2019-03-25)
-=============================
-
-* Debugger improvements (updated to pydevd 1.6.0).
-
-	* Fixed issue quoting/unquoting parameters for subprocess.
-	* Fixed exception breakpoints for Django and Jinja2.
-	* Console hook import compatibility with matplotlib and pylab fixed.
-
-* Fixed issue where pipenv executable search was being executed over and over when it was not found.
 
 
 
