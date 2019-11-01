@@ -34,6 +34,7 @@ public interface ISimpleNodeSwitch {
     public void visit(Break node);
     public void visit(Continue node);
     public void visit(BoolOp node);
+    public void visit(NamedExpr node);
     public void visit(BinOp node);
     public void visit(UnaryOp node);
     public void visit(Lambda node);

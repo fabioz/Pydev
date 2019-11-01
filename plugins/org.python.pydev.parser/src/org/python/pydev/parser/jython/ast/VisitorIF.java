@@ -34,6 +34,7 @@ public interface VisitorIF {
     public Object visitBreak(Break node) throws Exception;
     public Object visitContinue(Continue node) throws Exception;
     public Object visitBoolOp(BoolOp node) throws Exception;
+    public Object visitNamedExpr(NamedExpr node) throws Exception;
     public Object visitBinOp(BinOp node) throws Exception;
     public Object visitUnaryOp(UnaryOp node) throws Exception;
     public Object visitLambda(Lambda node) throws Exception;

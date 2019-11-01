@@ -50,6 +50,7 @@ import org.python.pydev.parser.jython.ast.ListComp;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.NamedExpr;
 import org.python.pydev.parser.jython.ast.NonLocal;
 import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Pass;
@@ -109,7 +110,7 @@ public class FindDuplicatesVisitor implements VisitorIF {
             throw new RuntimeException(e);
         }
         ParsingUtils.removeCommentsAndWhitespaces(buf);
-        buf.replaceAll("\\", ""); //Remove all the \\ 
+        buf.replaceAll("\\", ""); //Remove all the \\
         selectedText = buf.toCharArray();
         parsingUtils = ParsingUtils.create(this.doc);
     }
@@ -179,7 +180,7 @@ public class FindDuplicatesVisitor implements VisitorIF {
                         i = parsingUtils.eatComments(null, i);
                         len += i - start;
                     } else if (!Character.isWhitespace(c) && c != '\\') {
-                        //We removed comments and whitespaces from the original, so, we can ignore it 
+                        //We removed comments and whitespaces from the original, so, we can ignore it
                         //here too, but if we found some other char, it's NOT a match...
                         break;
                     }
@@ -349,6 +350,15 @@ public class FindDuplicatesVisitor implements VisitorIF {
 
     @Override
     public Object visitIf(If node) throws Exception {
+        boolean ret = unhandled_node(node);
+        if (ret) {
+            traverse(node);
+        }
+        return null;
+    }
+
+    @Override
+    public Object visitNamedExpr(NamedExpr node) throws Exception {
         boolean ret = unhandled_node(node);
         if (ret) {
             traverse(node);

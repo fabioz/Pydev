@@ -34,6 +34,7 @@ import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.NamedExpr;
 import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.jython.ast.Set;
@@ -57,9 +58,9 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 
 /**
  * Provides the basic behavior for a tree builder (opening and closing node scopes).
- * 
+ *
  * Subclasses must provide actions where it's not common.
- * 
+ *
  * @author Fabio
  */
 public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
@@ -165,6 +166,10 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
 
             case JJTIF_STMT:
                 ret = new If(null, null, null);
+                break;
+
+            case JJTNAMEDEXPR_TEST:
+                ret = new NamedExpr(null, null);
                 break;
 
             case JJTAUG_PLUS:
@@ -627,7 +632,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
 
     /**
      * Handles a found if construct.
-     * 
+     *
      * @param n the node that opened the if scope.
      * @param arity the current number of nodes in the stack.
      * @return the If node that should close this context.

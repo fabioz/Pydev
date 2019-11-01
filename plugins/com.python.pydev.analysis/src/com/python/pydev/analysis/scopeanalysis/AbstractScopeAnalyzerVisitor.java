@@ -627,7 +627,8 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
             found = markRead(token);
         }
 
-        if (node.ctx == Name.Store || node.ctx == Name.Param || node.ctx == Name.KwOnlyParam
+        if (node.ctx == Name.Store || node.ctx == Attribute.NamedStore || node.ctx == Name.Param
+                || node.ctx == Name.KwOnlyParam
                 || (node.ctx == Name.AugStore && found)) { //if it was undefined on augstore, we do not go on to creating the token
             String rep = token.getRepresentation();
             if (checkCurrentScopeForAssignmentsToBuiltins()) {
@@ -643,6 +644,9 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
 
                 if (!rep.equals("self") && !rep.equals("cls")) {
                     scope.addToken(token, token);
+                    if (node.ctx == Attribute.NamedStore) {
+                        markRead(token);
+                    }
                 } else {
                     addToNamesToIgnore(node, false, false); //ignore self
                 }
@@ -713,7 +717,8 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
 
             String fullRep = representation;
 
-            if (node.ctx == Attribute.Store || node.ctx == Attribute.Param || node.ctx == Attribute.KwOnlyParam
+            if (node.ctx == Attribute.Store || node.ctx == Attribute.NamedStore || node.ctx == Attribute.Param
+                    || node.ctx == Attribute.KwOnlyParam
                     || node.ctx == Attribute.AugStore) {
                 //in a store attribute, the first part is always a load
                 int i = fullRep.indexOf('.', 0);

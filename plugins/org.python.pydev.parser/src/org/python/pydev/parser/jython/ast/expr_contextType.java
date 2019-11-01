@@ -11,6 +11,7 @@ public interface expr_contextType {
     public static final int Param = 6;
     public static final int Artificial = 7;
     public static final int KwOnlyParam = 8;
+    public static final int NamedStore = 9;
 
     public static final String[] expr_contextTypeNames = new String[] {
         "<undef>",
@@ -22,5 +23,6 @@ public interface expr_contextType {
         "Param",
         "Artificial",
         "KwOnlyParam",
+        "NamedStore",
     };
 }

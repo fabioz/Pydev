@@ -43,6 +43,11 @@ public class CtxVisitor extends Visitor {
         visit(node);
     }
 
+    public void setNamedStore(SimpleNode node) throws Exception {
+        this.ctx = expr_contextType.NamedStore;
+        visit(node);
+    }
+
     public void setCtx(SimpleNode node, int ctx) throws Exception {
         this.ctx = ctx;
         visit(node);
@@ -72,7 +77,7 @@ public class CtxVisitor extends Visitor {
 
     @Override
     public Object visitName(Name node) throws Exception {
-        if (ctx == expr_contextType.Store && node.reserved) {
+        if ((ctx == expr_contextType.Store || ctx == expr_contextType.NamedStore) && node.reserved) {
             String msg = StringUtils.format("Cannot assign value to %s (because it's a keyword)", node.id);
             this.stack.getGrammar().addAndReport(new ParseException(msg, node), msg);
         } else {
@@ -137,4 +142,5 @@ public class CtxVisitor extends Visitor {
     public Object unhandled_node(SimpleNode node) throws Exception {
         throw new ParseException("can't assign to operator:" + node, node);
     }
+
 }
