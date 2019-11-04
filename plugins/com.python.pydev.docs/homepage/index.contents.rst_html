@@ -154,7 +154,7 @@
                 }
                 bronzeSponsorsAHrefs.innerHTML = newHtml;
             };
-            //shuffleEntries();
+            shuffleEntries();
             </script>
 
 <br/>
