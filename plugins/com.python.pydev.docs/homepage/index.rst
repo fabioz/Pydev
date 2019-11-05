@@ -147,7 +147,7 @@
 
 			var newHtml = '';
 			for (var i=0; i< arr.length; i++){
-			    newHtml += arr[i].innerHTML;
+			    newHtml += arr[i].outerHTML;
 		    }
 		    bronzeSponsorsAHrefs.innerHTML = newHtml;
 		};
