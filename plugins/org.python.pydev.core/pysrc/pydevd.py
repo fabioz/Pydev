@@ -164,7 +164,7 @@ class PyDBCommandThread(PyDBDaemonThread):
     @overrides(PyDBDaemonThread._on_run)
     def _on_run(self):
         # Delay a bit this initialization to wait for the main program to start.
-        time.sleep(0.3)
+        self._py_db_command_thread_event.wait(0.3)
 
         if self._kill_received:
             return
@@ -620,6 +620,13 @@ class PyDB(object):
         # Stop the tracing as the last thing before the actual shutdown for a clean exit.
         atexit.register(stoptrace)
 
+    def wait_for_ready_to_run(self):
+        while not self.ready_to_run:
+            # busy wait until we receive run command
+            self.process_internal_commands()
+            self._py_db_command_thread_event.clear()
+            self._py_db_command_thread_event.wait(0.1)
+
     def on_initialize(self):
         '''
         Note: only called when using the DAP (Debug Adapter Protocol).
@@ -631,6 +638,7 @@ class PyDB(object):
         Note: only called when using the DAP (Debug Adapter Protocol).
         '''
         self._on_configuration_done_event.set()
+        self._py_db_command_thread_event.set()
 
     def is_attached(self):
         return self._on_configuration_done_event.is_set()
@@ -652,8 +660,18 @@ class PyDB(object):
         else:
             return system_exit_exc in self._ignore_system_exit_codes
 
-    def block_until_configuration_done(self, timeout=None):
-        return self._on_configuration_done_event.wait(timeout)
+    def block_until_configuration_done(self, cancel=None):
+        if cancel is None:
+            cancel = NULL
+
+        while not cancel.is_set():
+            if self._on_configuration_done_event.is_set():
+                cancel.set()  # Set cancel to prevent reuse
+                return
+
+            self.process_internal_commands()
+            self._py_db_command_thread_event.clear()
+            self._py_db_command_thread_event.wait(1 / 15.)
 
     def add_fake_frame(self, thread_id, frame_id, frame):
         self.suspended_frames_manager.add_fake_frame(thread_id, frame_id, frame)
@@ -1253,6 +1271,9 @@ class PyDB(object):
         else:
             internal_cmd = InternalThreadCommand(thread_id, method, *args, **kwargs)
         self.post_internal_command(internal_cmd, thread_id)
+        if thread_id == '*':
+            # Notify so that the command is handled as soon as possible.
+            self._py_db_command_thread_event.set()
 
     def post_internal_command(self, int_cmd, thread_id):
         """ if thread_id is *, post to the '*' queue"""
@@ -1390,57 +1411,67 @@ class PyDB(object):
                     self._running_thread_ids = {}
 
     def process_internal_commands(self):
-        '''This function processes internal commands
         '''
+        This function processes internal commands.
+        '''
+        # If this method is being called before the debugger is ready to run we should not notify
+        # about threads and should only process commands sent to all threads.
+        ready_to_run = self.ready_to_run
+
         dispose = False
         with self._main_lock:
-            self.check_output_redirect()
-
             program_threads_alive = {}
-            all_threads = threadingEnumerate()
-            program_threads_dead = []
-            with self._lock_running_thread_ids:
-                reset_cache = not self._running_thread_ids
+            if ready_to_run:
+                self.check_output_redirect()
 
-                for t in all_threads:
-                    if getattr(t, 'is_pydev_daemon_thread', False):
-                        pass  # I.e.: skip the DummyThreads created from pydev daemon threads
-                    elif isinstance(t, PyDBDaemonThread):
-                        pydev_log.error_once('Error in debugger: Found PyDBDaemonThread not marked with is_pydev_daemon_thread=True.')
+                all_threads = threadingEnumerate()
+                program_threads_dead = []
+                with self._lock_running_thread_ids:
+                    reset_cache = not self._running_thread_ids
 
-                    elif is_thread_alive(t):
-                        if reset_cache:
-                            # Fix multiprocessing debug with breakpoints in both main and child processes
-                            # (https://youtrack.jetbrains.com/issue/PY-17092) When the new process is created, the main
-                            # thread in the new process already has the attribute 'pydevd_id', so the new thread doesn't
-                            # get new id with its process number and the debugger loses access to both threads.
-                            # Therefore we should update thread_id for every main thread in the new process.
-                            clear_cached_thread_id(t)
+                    for t in all_threads:
+                        if getattr(t, 'is_pydev_daemon_thread', False):
+                            pass  # I.e.: skip the DummyThreads created from pydev daemon threads
+                        elif isinstance(t, PyDBDaemonThread):
+                            pydev_log.error_once('Error in debugger: Found PyDBDaemonThread not marked with is_pydev_daemon_thread=True.')
 
-                        thread_id = get_thread_id(t)
-                        program_threads_alive[thread_id] = t
+                        elif is_thread_alive(t):
+                            if reset_cache:
+                                # Fix multiprocessing debug with breakpoints in both main and child processes
+                                # (https://youtrack.jetbrains.com/issue/PY-17092) When the new process is created, the main
+                                # thread in the new process already has the attribute 'pydevd_id', so the new thread doesn't
+                                # get new id with its process number and the debugger loses access to both threads.
+                                # Therefore we should update thread_id for every main thread in the new process.
+                                clear_cached_thread_id(t)
 
-                        self.notify_thread_created(thread_id, t, use_lock=False)
+                            thread_id = get_thread_id(t)
+                            program_threads_alive[thread_id] = t
 
-                # Compute and notify about threads which are no longer alive.
-                thread_ids = list(self._running_thread_ids.keys())
-                for thread_id in thread_ids:
-                    if thread_id not in program_threads_alive:
-                        program_threads_dead.append(thread_id)
+                            self.notify_thread_created(thread_id, t, use_lock=False)
 
-                for thread_id in program_threads_dead:
-                    self.notify_thread_not_alive(thread_id, use_lock=False)
+                    # Compute and notify about threads which are no longer alive.
+                    thread_ids = list(self._running_thread_ids.keys())
+                    for thread_id in thread_ids:
+                        if thread_id not in program_threads_alive:
+                            program_threads_dead.append(thread_id)
+
+                    for thread_id in program_threads_dead:
+                        self.notify_thread_not_alive(thread_id, use_lock=False)
 
             # Without self._lock_running_thread_ids
-            if len(program_threads_alive) == 0:
+            if len(program_threads_alive) == 0 and ready_to_run:
                 dispose = True
             else:
                 # Actually process the commands now (make sure we don't have a lock for _lock_running_thread_ids
                 # acquired at this point as it could lead to a deadlock if some command evaluated tried to
                 # create a thread and wait for it -- which would try to notify about it getting that lock).
                 curr_thread_id = get_current_thread_id(threadingCurrentThread())
+                if ready_to_run:
+                    process_thread_ids = (curr_thread_id, '*')
+                else:
+                    process_thread_ids = ('*',)
 
-                for thread_id in (curr_thread_id, '*'):
+                for thread_id in process_thread_ids:
                     queue = self.get_internal_queue(thread_id)
 
                     # some commands must be processed by the thread itself... if that's the case,
@@ -2115,8 +2146,7 @@ class PyDB(object):
             sys.path.insert(0, os.path.split(rPath(file))[0])
 
         if set_trace:
-            while not self.ready_to_run:
-                time.sleep(0.1)  # busy wait until we receive run command
+            self.wait_for_ready_to_run()
 
             # call prepare_to_run when we already have all information about breakpoints
             self.prepare_to_run()
@@ -2414,13 +2444,7 @@ def _wait_for_attach(cancel=None):
     if py_db is None:
         raise AssertionError('Debugger still not created. Please use _enable_attach() before using _wait_for_attach().')
 
-    if cancel is None:
-        py_db.block_until_configuration_done()
-    else:
-        while not cancel.is_set():
-            if py_db.block_until_configuration_done(0.1):
-                cancel.set()  # Set cancel to prevent reuse
-                return
+    py_db.block_until_configuration_done(cancel=cancel)
 
 
 def _is_attached():
@@ -2598,11 +2622,8 @@ def _locked_settrace(
         if not wait_for_ready_to_run:
             py_db.ready_to_run = True
 
-        while not py_db.ready_to_run:
-            time.sleep(0.1)  # busy wait until we receive run command
-
+        py_db.wait_for_ready_to_run()
         py_db.start_auxiliary_daemon_threads()
-
         if trace_only_current_thread:
             py_db.enable_tracing()
         else:
