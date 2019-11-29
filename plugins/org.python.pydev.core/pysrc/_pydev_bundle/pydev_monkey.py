@@ -93,8 +93,10 @@ def _is_managed_arg(arg):
 
 def _on_forked_process(setup_tracing=True):
     pydevd_constants.after_fork()
-    pydev_log.initialize_debug_stream(force=True)
-    pydev_log.debug('pydevd on forked process: %s', os.getpid())
+    pydev_log.initialize_debug_stream(reinitialize=True)
+
+    if setup_tracing:
+        pydev_log.debug('pydevd on forked process: %s', os.getpid())
 
     import pydevd
     pydevd.threadingCurrentThread().__pydevd_main_thread = True
@@ -389,12 +391,12 @@ def warn_multiproc():
 
 def create_warn_multiproc(original_name):
 
-    def new_warn_multiproc(*args):
+    def new_warn_multiproc(*args, **kwargs):
         import os
 
         warn_multiproc()
 
-        return getattr(os, original_name)(*args)
+        return getattr(os, original_name)(*args, **kwargs)
 
     return new_warn_multiproc
 
@@ -497,6 +499,21 @@ def create_spawnve(original_name):
     return new_spawnve
 
 
+def create_posix_spawn(original_name):
+    """
+    os.posix_spawn(executable, args, env, **kwargs)
+    """
+
+    def new_posix_spawn(executable, args, env, **kwargs):
+        if _get_apply_arg_patching():
+            args = patch_args(args)
+            send_process_created_message()
+
+        return getattr(os, original_name)(executable, args, env, **kwargs)
+
+    return new_posix_spawn
+
+
 def create_fork_exec(original_name):
     """
     _posixsubprocess.fork_exec(args, executable_list, close_fds, ... (13 more))
@@ -574,8 +591,10 @@ def create_fork(original_name):
 
         apply_arg_patch = _get_apply_arg_patching()
 
+        is_subprocess_fork = False
         while frame is not None:
             if frame.f_code.co_name == '_execute_child' and 'subprocess' in frame.f_code.co_filename:
+                is_subprocess_fork = True
                 # If we're actually in subprocess.Popen creating a child, it may
                 # result in something which is not a Python process, (so, we
                 # don't want to connect with it in the forked version).
@@ -592,7 +611,7 @@ def create_fork(original_name):
         child_process = getattr(os, original_name)()  # fork
         if not child_process:
             if is_new_python_process:
-                _on_forked_process(setup_tracing=apply_arg_patch)
+                _on_forked_process(setup_tracing=apply_arg_patch and not is_subprocess_fork)
         else:
             if is_new_python_process:
                 send_process_created_message()
@@ -642,6 +661,7 @@ def patch_new_process_functions():
     monkey_patch_os('spawnve', create_spawnve)
     monkey_patch_os('spawnvp', create_spawnv)
     monkey_patch_os('spawnvpe', create_spawnve)
+    monkey_patch_os('posix_spawn', create_posix_spawn)
 
     if not IS_JYTHON:
         if not IS_WINDOWS:
@@ -677,6 +697,7 @@ def patch_new_process_functions_with_warning():
     monkey_patch_os('spawnve', create_warn_multiproc)
     monkey_patch_os('spawnvp', create_warn_multiproc)
     monkey_patch_os('spawnvpe', create_warn_multiproc)
+    monkey_patch_os('posix_spawn', create_warn_multiproc)
 
     if not IS_JYTHON:
         if not IS_WINDOWS:
