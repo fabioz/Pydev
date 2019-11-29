@@ -20,14 +20,18 @@
 		<div class="section" id="silver-sponsors">
 		<h1>Silver Sponsors</h1>
 
+        <div id="silver-sponsors-a-hrefs">
         <a href="https://businessnamegenerator.com" border=0><img class="sponsors" src="images/sponsors/bng_logo.png" style="width:150px;height:60px;" alt="businessnamegenerator.com" title="https://businessnamegenerator.com" /></a>
 
         <a href="https://makeawebsitehub.com" border=0><img class="sponsors" src="images/sponsors/websitehub.png" style="width:150px;height:60px;" alt="makeawebsitehub.com" title="https://makeawebsitehub.com" /></a>
+        </div>
 
         <div class="section" id="bronze-sponsors">
         <h1>Bronze Sponsors</h1>
 
         <div id="bronze-sponsors-a-hrefs">
+
+		<a href="https://datingpilot.dk/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/datingpilot.jpg" alt="datingpilot.dk" title="https://datingpilot.dk/" /></a>
 
 		<a href="https://fair-laan.dk/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/fair-laan.dk.jpg" alt="fair-laan.dk" title="https://fair-laan.dk/" /></a>
 
@@ -133,8 +137,8 @@
 		  return array;
 		}
 
-		shuffleEntries = function(event) {
-			var bronzeSponsorsAHrefs = document.getElementById("bronze-sponsors-a-hrefs");
+		shuffleEntries = function(name, addBr) {
+			var bronzeSponsorsAHrefs = document.getElementById(name);
 			var children = bronzeSponsorsAHrefs.getElementsByTagName('a');
 			var nChildren = children.length;
 
@@ -147,10 +151,14 @@
 			var newHtml = '';
 			for (var i=0; i< arr.length; i++){
 			    newHtml += arr[i].outerHTML;
+			    if(addBr && ((i + 1) % addBr == 0)){
+			    	newHtml += '<br class="hideWhenScreenSmall"/>';
+			    }
 		    }
 		    bronzeSponsorsAHrefs.innerHTML = newHtml;
 		};
-		shuffleEntries();
+		shuffleEntries("bronze-sponsors-a-hrefs");
+		shuffleEntries("silver-sponsors-a-hrefs");
 		</script>
 
     <br/>
@@ -253,19 +261,29 @@ Gold Sponsors
 
 .. raw:: html
 
-   <!--Added 2014-07-16-->
-   <a href="http://www.liclipse.com/" border=0><img class="sponsors" src="images/sponsors/liclipse.png" alt="LiClipse" title="http://www.liclipse.com/" /></a>
-   <!--Added 2016-04-05-->
-   <a href="http://www.tracetronic.com" border=0><img class="sponsors" src="images/sponsors/tracetronic.png" alt="Tracetronic" title="http://www.tracetronic.com/" /></a>
-   <!--Added 2019-04-24-->
-   <a href="https://websitesetup.org/" border=0><img class="sponsors" src="images/sponsors/websitesetup.png" alt="WebsiteSetup" title="https://websitesetup.org/" /></a>
+   <div id="gold-sponsors-a-hrefs">
+
+   <a href="http://www.liclipse.com/" border=0><img class="sponsors" style="width:150px;height:100px;" src="images/sponsors/liclipse.png" alt="LiClipse" title="http://www.liclipse.com/" /></a>
+
+   <a href="http://www.tracetronic.com" border=0><img class="sponsors" style="width:150px;height:100px;" src="images/sponsors/tracetronic.png" alt="Tracetronic" title="http://www.tracetronic.com/" /></a>
+
+   <a href="https://websitesetup.org/" border=0><img class="sponsors" style="width:150px;height:100px;" src="images/sponsors/websitesetup.png" alt="WebsiteSetup" title="https://websitesetup.org/" /></a>
+
+   <a href="http://www.squishlist.com/" border=0><img class="sponsors" style="width:150px;height:100px;" src="images/sponsors/squishlist.png" alt="Squishlist" title="http://www.squishlist.com/" /></a>
+
    <br class="hideWhenScreenSmall"/>
-   <!--Added 2016-04-04-->
-   <a href="http://www.squishlist.com/" border=0><img class="sponsors" src="images/sponsors/squishlist.png" alt="Squishlist" title="http://www.squishlist.com/" /></a>
-   <!--Added 2014-07-16-->
-   <a href="http://www.pyvmmonitor.com/" border=0><img class="sponsors" src="images/sponsors/pyvmmonitor.png" alt="PyVmMonitor" title="http://www.pyvmmonitor.com/" /></a>
-   <!--Added 2019-06-03-->
-   <a href="https://software.intel.com/distribution-for-python" border=0><img class="sponsors" src="images/sponsors/intel.png" alt="Intel" title="https://software.intel.com/distribution-for-python" /></a>
+
+   <a href="http://www.pyvmmonitor.com/" border=0><img class="sponsors" style="width:150px;height:100px;" src="images/sponsors/pyvmmonitor.png" alt="PyVmMonitor" title="http://www.pyvmmonitor.com/" /></a>
+
+   <a href="https://software.intel.com/distribution-for-python" border=0><img class="sponsors" style="width:150px;height:100px;" src="images/sponsors/intel.png" alt="Intel" title="https://software.intel.com/distribution-for-python" /></a>
+
+   <a href="https://cooltechzone.com/best-vpn/" border=0><img class="sponsors" style="width:150px;height:100px;" src="images/sponsors/cooltechzone.png" alt="Best VPN" title="https://cooltechzone.com/best-vpn/" /></a>
+
+   </div>
+
+   <script>
+   shuffleEntries("gold-sponsors-a-hrefs", 4);
+   </script>
 
 Supporting PyDev
 =================
