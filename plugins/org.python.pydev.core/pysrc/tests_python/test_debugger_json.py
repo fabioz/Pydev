@@ -508,6 +508,17 @@ def test_case_json_change_breaks(case_setup):
         writer.finished_ok = True
 
 
+def test_case_handled_exception_no_break_on_generator(case_setup):
+    with case_setup.test_file('_debugger_case_ignore_exceptions.py') as writer:
+        json_facade = JsonFacade(writer)
+
+        json_facade.write_launch()
+        json_facade.write_set_exception_breakpoints(['raised'])
+        json_facade.write_make_initial_run()
+
+        writer.finished_ok = True
+
+
 def test_case_handled_exception_breaks(case_setup):
     with case_setup.test_file('_debugger_case_exceptions.py') as writer:
         json_facade = JsonFacade(writer)
@@ -1082,8 +1093,39 @@ def test_stack_and_variables_dict(case_setup):
         writer.finished_ok = True
 
 
-def test_return_value(case_setup):
-    with case_setup.test_file('_debugger_case_return_value.py') as writer:
+@pytest.mark.skipif(IS_PY26, reason='__dir__ not customizable on Python 2.6')
+def test_exception_on_dir(case_setup):
+    with case_setup.test_file('_debugger_case_dir_exception.py') as writer:
+        json_facade = JsonFacade(writer)
+
+        writer.write_add_breakpoint(writer.get_line_index_with_content('Break here'))
+        json_facade.write_make_initial_run()
+
+        json_hit = json_facade.wait_for_thread_stopped()
+        json_hit = json_facade.get_stack_as_json_hit(json_hit.thread_id)
+
+        variables_response = json_facade.get_variables_response(json_hit.frame_id)
+
+        variables_references = json_facade.pop_variables_reference(variables_response.body.variables)
+        variables_response = json_facade.get_variables_response(variables_references[0])
+        assert variables_response.body.variables == [
+            {'variablesReference': 0, 'type': 'int', 'evaluateName': 'self.__dict__[var1]', 'name': 'var1', 'value': '10'}]
+
+        json_facade.write_continue()
+        writer.finished_ok = True
+
+
+@pytest.mark.parametrize('scenario', [
+    'step_in',
+    'step_next',
+    'step_out',
+])
+@pytest.mark.parametrize('asyncio', [True, False])
+def test_return_value_regular(case_setup, scenario, asyncio):
+    if IS_PY2 and asyncio:
+        raise pytest.skip('asyncio not available for python 2.')
+
+    with case_setup.test_file('_debugger_case_return_value.py' if not asyncio else '_debugger_case_return_value_asyncio.py') as writer:
         json_facade = JsonFacade(writer)
 
         break_line = writer.get_line_index_with_content('break here')
@@ -1092,8 +1134,26 @@ def test_return_value(case_setup):
         json_facade.write_make_initial_run()
 
         json_hit = json_facade.wait_for_thread_stopped()
-        json_facade.write_step_next(json_hit.thread_id)
-        json_hit = json_facade.wait_for_thread_stopped('step', name='<module>', line=break_line + 1)
+        if scenario == 'step_next':
+            json_facade.write_step_next(json_hit.thread_id)
+            json_hit = json_facade.wait_for_thread_stopped('step', name='main', line=break_line + 1)
+
+        elif scenario == 'step_in':
+            json_facade.write_step_in(json_hit.thread_id)
+            json_hit = json_facade.wait_for_thread_stopped('step', name='method1')
+
+            json_facade.write_step_in(json_hit.thread_id)
+            json_hit = json_facade.wait_for_thread_stopped('step', name='main')
+
+        elif scenario == 'step_out':
+            json_facade.write_step_in(json_hit.thread_id)
+            json_hit = json_facade.wait_for_thread_stopped('step', name='method1')
+
+            json_facade.write_step_out(json_hit.thread_id)
+            json_hit = json_facade.wait_for_thread_stopped('step', name='main')
+
+        else:
+            raise AssertionError('unhandled scenario: %s' % (scenario,))
 
         variables_response = json_facade.get_variables_response(json_hit.frame_id)
         return_variables = json_facade.filter_return_variables(variables_response.body.variables)
@@ -3320,7 +3380,7 @@ def test_access_token(case_setup):
         args.insert(1, '--json-dap-http')
         args.insert(2, '--access-token')
         args.insert(3, 'bar123')
-        args.insert(4, '--ide-access-token')
+        args.insert(4, '--client-access-token')
         args.insert(5, 'foo321')
         return args
 

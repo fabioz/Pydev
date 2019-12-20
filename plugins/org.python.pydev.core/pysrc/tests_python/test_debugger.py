@@ -17,8 +17,8 @@ from tests_python.debugger_unittest import (CMD_SET_PROPERTY_TRACE, REASON_CAUGH
     IS_APPVEYOR, wait_for_condition, CMD_GET_FRAME, CMD_GET_BREAKPOINT_EXCEPTION,
     CMD_THREAD_SUSPEND, CMD_STEP_OVER, REASON_STEP_OVER, CMD_THREAD_SUSPEND_SINGLE_NOTIFICATION,
     CMD_THREAD_RESUME_SINGLE_NOTIFICATION, REASON_STEP_RETURN, REASON_STEP_RETURN_MY_CODE,
-    REASON_STEP_OVER_MY_CODE, REASON_STEP_INTO, CMD_THREAD_KILL, IS_PYPY)
-from _pydevd_bundle.pydevd_constants import IS_WINDOWS
+    REASON_STEP_OVER_MY_CODE, REASON_STEP_INTO, CMD_THREAD_KILL, IS_PYPY, REASON_STOP_ON_START)
+from _pydevd_bundle.pydevd_constants import IS_WINDOWS, IS_PY38_OR_GREATER
 from _pydevd_bundle.pydevd_comm_constants import CMD_RELOAD_CODE
 import json
 import pydevd_file_utils
@@ -545,7 +545,7 @@ def test_case_11(case_setup):
 
         writer.write_step_over(hit.thread_id)
 
-        hit = writer.wait_for_breakpoint_hit(REASON_STEP_INTO, line=12)  # Reverts to step in
+        hit = writer.wait_for_breakpoint_hit(REASON_STEP_OVER, line=12)  # Reverts to step in
         assert hit.name == 'Method2'
 
         writer.write_step_over(hit.thread_id)
@@ -554,18 +554,17 @@ def test_case_11(case_setup):
         assert hit.name == 'Method2'
 
         writer.write_step_over(hit.thread_id)
-        hit = writer.wait_for_breakpoint_hit(REASON_STEP_INTO, line=18)  # Reverts to step in
+        hit = writer.wait_for_breakpoint_hit(REASON_STEP_OVER, line=18)  # Reverts to step in
         assert hit.name == '<module>'
 
         # Finish with a step over
         writer.write_step_over(hit.thread_id)
 
         if IS_JYTHON:
-            # Jython got to the exit functions (CPython does it builtin,
-            # so we have no traces from Python).
-            hit = writer.wait_for_breakpoint_hit(REASON_STEP_INTO)  # Reverts to step in
-            assert hit.name == '_run_exitfuncs'
             writer.write_run_thread(hit.thread_id)
+        else:
+            # Finish with a step over
+            writer.write_step_over(hit.thread_id)
 
         writer.finished_ok = True
 
@@ -2234,7 +2233,7 @@ def test_stop_on_start_regular(case_setup):
         writer.write_stop_on_start()
         writer.write_make_initial_run()
 
-        hit = writer.wait_for_breakpoint_hit(REASON_STEP_INTO_MY_CODE, file='_debugger_case_simple_calls.py', line=1)
+        hit = writer.wait_for_breakpoint_hit(REASON_STOP_ON_START, file='_debugger_case_simple_calls.py', line=1)
 
         writer.write_run_thread(hit.thread_id)
 
@@ -2292,7 +2291,7 @@ def test_stop_on_start_m_switch(case_setup_m_switch):
         writer.write_stop_on_start()
         writer.write_make_initial_run()
 
-        hit = writer.wait_for_breakpoint_hit(REASON_STEP_INTO_MY_CODE, file='_debugger_case_m_switch.py', line=1)
+        hit = writer.wait_for_breakpoint_hit(REASON_STOP_ON_START, file='_debugger_case_m_switch.py', line=1)
 
         writer.write_run_thread(hit.thread_id)
 
@@ -2305,7 +2304,7 @@ def test_stop_on_start_entry_point(case_setup_m_switch_entry_point):
         writer.write_stop_on_start()
         writer.write_make_initial_run()
 
-        hit = writer.wait_for_breakpoint_hit(REASON_STEP_INTO_MY_CODE, file='_debugger_case_module_entry_point.py', line=1)
+        hit = writer.wait_for_breakpoint_hit(REASON_STOP_ON_START, file='_debugger_case_module_entry_point.py', line=1)
 
         writer.write_run_thread(hit.thread_id)
 
@@ -2760,10 +2759,10 @@ def test_py_37_breakpoint_remote_no_import(case_setup_remote):
 def test_remote_debugger_multi_proc(case_setup_remote, authenticate):
 
     access_token = None
-    ide_access_token = None
+    client_access_token = None
     if authenticate:
         access_token = 'tok123'
-        ide_access_token = 'tok456'
+        client_access_token = 'tok456'
 
     class _SecondaryMultiProcProcessWriterThread(debugger_unittest.AbstractWriterThread):
 
@@ -2789,7 +2788,7 @@ def test_remote_debugger_multi_proc(case_setup_remote, authenticate):
 
             if authenticate:
                 self.wait_for_message(lambda msg:'Client not authenticated.' in msg, expect_xml=False)
-                self.write_authenticate(access_token=access_token, ide_access_token=ide_access_token)
+                self.write_authenticate(access_token=access_token, client_access_token=client_access_token)
                 self.write_version()
 
             self.log.append('start_socket')
@@ -2807,7 +2806,7 @@ def test_remote_debugger_multi_proc(case_setup_remote, authenticate):
             do_kill=do_kill,
             EXPECTED_RETURNCODE='any',
             access_token=access_token,
-            ide_access_token=ide_access_token,
+            client_access_token=client_access_token,
         ) as writer:
 
         # It seems sometimes it becomes flaky on the ci because the process outlives the writer thread...
@@ -2821,7 +2820,7 @@ def test_remote_debugger_multi_proc(case_setup_remote, authenticate):
 
         if authenticate:
             writer.wait_for_message(lambda msg:'Client not authenticated.' in msg, expect_xml=False)
-            writer.write_authenticate(access_token=access_token, ide_access_token=ide_access_token)
+            writer.write_authenticate(access_token=access_token, client_access_token=client_access_token)
             writer.write_make_initial_run()
 
         writer.log.append('waiting for breakpoint hit')
@@ -3040,13 +3039,13 @@ def test_gevent(case_setup):
 def test_return_value(case_setup):
     with case_setup.test_file('_debugger_case_return_value.py') as writer:
         break_line = writer.get_line_index_with_content('break here')
-        writer.write_add_breakpoint(break_line, '')
+        writer.write_add_breakpoint(break_line)
         writer.write_show_return_vars()
         writer.write_make_initial_run()
-        hit = writer.wait_for_breakpoint_hit(name='<module>', line=break_line)
+        hit = writer.wait_for_breakpoint_hit(name='main', line=break_line)
 
         writer.write_step_over(hit.thread_id)
-        hit = writer.wait_for_breakpoint_hit(REASON_STEP_OVER, name='<module>', line=break_line + 1)
+        hit = writer.wait_for_breakpoint_hit(REASON_STEP_OVER, name='main', line=break_line + 1)
         writer.write_get_frame(hit.thread_id, hit.frame_id)
         writer.wait_for_vars([
             [
@@ -3056,7 +3055,7 @@ def test_return_value(case_setup):
         ])
 
         writer.write_step_over(hit.thread_id)
-        hit = writer.wait_for_breakpoint_hit(REASON_STEP_OVER, name='<module>', line=break_line + 2)
+        hit = writer.wait_for_breakpoint_hit(REASON_STEP_OVER, name='main', line=break_line + 2)
         writer.write_get_frame(hit.thread_id, hit.frame_id)
         writer.wait_for_vars([
             [
@@ -3291,11 +3290,11 @@ def test_step_over_my_code(case_setup):
         assert hit.name == 'callback2'
 
         writer.write_step_over_my_code(hit.thread_id)
-        hit = writer.wait_for_breakpoint_hit(reason=REASON_STEP_INTO_MY_CODE)  # Note: goes from step over to step into
+        hit = writer.wait_for_breakpoint_hit(reason=REASON_STEP_OVER_MY_CODE)  # Note: goes from step over to step into
         assert hit.name == 'callback1'
 
         writer.write_step_over_my_code(hit.thread_id)
-        hit = writer.wait_for_breakpoint_hit(reason=REASON_STEP_INTO_MY_CODE)  # Note: goes from step over to step into
+        hit = writer.wait_for_breakpoint_hit(reason=REASON_STEP_OVER_MY_CODE)  # Note: goes from step over to step into
         assert hit.name == '<module>'
 
         writer.write_step_over_my_code(hit.thread_id)
@@ -3432,6 +3431,7 @@ def test_exception_on_filtered_file(case_setup):
     {'PYDEVD_FILTERS': json.dumps({'**/other.py': True})},  # specify as json
     {'PYDEVD_FILTERS': '**/other.py'},  # specify ';' separated list
 ])
+@pytest.mark.skipif(IS_JYTHON, reason='Flaky on Jython.')
 def test_step_over_my_code_global_settings(case_setup, environ, step_method):
 
     def get_environ(writer):
@@ -3442,7 +3442,7 @@ def test_step_over_my_code_global_settings(case_setup, environ, step_method):
     def do_step():
         if step_method == 'step_over':
             writer.write_step_over(hit.thread_id)
-            return REASON_STEP_INTO  # Note: goes from step over to step into
+            return REASON_STEP_OVER  # Note: goes from step over to step into
         elif step_method == 'step_return':
             writer.write_step_return(hit.thread_id)
             return REASON_STEP_RETURN
@@ -3525,7 +3525,7 @@ def test_access_token(case_setup):
     def update_command_line_args(self, args):
         args.insert(2, '--access-token')
         args.insert(3, 'bar123')
-        args.insert(2, '--ide-access-token')
+        args.insert(2, '--client-access-token')
         args.insert(3, 'foo234')
         return args
 
@@ -3534,7 +3534,7 @@ def test_access_token(case_setup):
 
         writer.wait_for_message(lambda msg:'Client not authenticated.' in msg, expect_xml=False)
 
-        writer.write_authenticate(access_token='bar123', ide_access_token='foo234')
+        writer.write_authenticate(access_token='bar123', client_access_token='foo234')
 
         writer.write_version()
 
@@ -3586,6 +3586,248 @@ def test_matplotlib_activation(case_setup):
             hit = writer.wait_for_breakpoint_hit()
             writer.write_run_thread(hit.thread_id)
 
+        writer.finished_ok = True
+
+
+_GENERATOR_FILES = [
+    '_debugger_case_generator3.py',
+]
+
+if not IS_PY2:
+    _GENERATOR_FILES.append('_debugger_case_generator.py')
+    _GENERATOR_FILES.append('_debugger_case_generator2.py')
+
+
+@pytest.mark.parametrize('target_filename', _GENERATOR_FILES)
+@pytest.mark.skipif(IS_JYTHON, reason='We do not detect generator returns on Jython.')
+def test_generator_step_over_basic(case_setup, target_filename):
+    with case_setup.test_file(target_filename) as writer:
+        line = writer.get_line_index_with_content('break here')
+        writer.write_add_breakpoint(line)
+        writer.write_make_initial_run()
+
+        hit = writer.wait_for_breakpoint_hit()
+
+        # Note: not using for so that we know which step failed in the ci if it fails.
+        writer.write_step_over(hit.thread_id)
+        hit = writer.wait_for_breakpoint_hit(
+            reason=REASON_STEP_OVER,
+            file=target_filename,
+            line=writer.get_line_index_with_content('step 1')
+        )
+
+        writer.write_step_over(hit.thread_id)
+        hit = writer.wait_for_breakpoint_hit(
+            reason=REASON_STEP_OVER,
+            file=target_filename,
+            line=writer.get_line_index_with_content('step 2')
+        )
+
+        if IS_PY38_OR_GREATER and target_filename == '_debugger_case_generator2.py':
+            # On py 3.8 it goes back to the return line.
+            writer.write_step_over(hit.thread_id)
+            hit = writer.wait_for_breakpoint_hit(
+                reason=REASON_STEP_OVER,
+                file=target_filename,
+                line=writer.get_line_index_with_content('return \\')
+            )
+
+        writer.write_step_over(hit.thread_id)
+        hit = writer.wait_for_breakpoint_hit(
+            reason=REASON_STEP_OVER,
+            file=target_filename,
+            line=writer.get_line_index_with_content('step 3')
+        )
+
+        writer.write_run_thread(hit.thread_id)
+        writer.finished_ok = True
+
+
+@pytest.mark.parametrize('target_filename', _GENERATOR_FILES)
+@pytest.mark.skipif(IS_JYTHON, reason='We do not detect generator returns on Jython.')
+def test_generator_step_return(case_setup, target_filename):
+    with case_setup.test_file(target_filename) as writer:
+        line = writer.get_line_index_with_content('break here')
+        writer.write_add_breakpoint(line)
+        writer.write_make_initial_run()
+
+        hit = writer.wait_for_breakpoint_hit()
+
+        # Note: not using for so that we know which step failed in the ci if it fails.
+        writer.write_step_return(hit.thread_id)
+        hit = writer.wait_for_breakpoint_hit(
+            reason=REASON_STEP_RETURN,
+            file=target_filename,
+            line=writer.get_line_index_with_content('generator return')
+        )
+
+        writer.write_step_over(hit.thread_id)
+        hit = writer.wait_for_breakpoint_hit(
+            reason=REASON_STEP_OVER,
+            file=target_filename,
+            line=writer.get_line_index_with_content('step 3')
+        )
+
+        writer.write_run_thread(hit.thread_id)
+        writer.finished_ok = True
+
+
+@pytest.mark.skipif(not IS_PY36_OR_GREATER, reason='Only CPython 3.6 onwards')
+def test_stepin_not_my_code_coroutine(case_setup):
+
+    def get_environ(writer):
+        environ = {'PYDEVD_FILTERS': '{"**/not_my_coroutine.py": true}'}
+        env = os.environ.copy()
+        env.update(environ)
+        return env
+
+    with case_setup.test_file('my_code/my_code_coroutine.py', get_environ=get_environ) as writer:
+        writer.write_set_project_roots([debugger_unittest._get_debugger_test_file('my_code')])
+        writer.write_add_breakpoint(writer.get_line_index_with_content('break here'))
+        writer.write_make_initial_run()
+        hit = writer.wait_for_breakpoint_hit()
+
+        writer.write_step_in(hit.thread_id)
+        hit = writer.wait_for_breakpoint_hit(reason=REASON_STEP_INTO)
+        assert hit.name == 'main'
+
+        writer.write_run_thread(hit.thread_id)
+        writer.finished_ok = True
+
+
+@pytest.mark.skipif(IS_JYTHON, reason='Flaky on Jython')
+def test_generator_step_in(case_setup):
+    with case_setup.test_file('_debugger_case_generator_step_in.py') as writer:
+        line = writer.get_line_index_with_content('stop 1')
+        writer.write_add_breakpoint(line)
+        writer.write_make_initial_run()
+
+        hit = writer.wait_for_breakpoint_hit()
+
+        for i in range(2, 5):
+            writer.write_step_in(hit.thread_id)
+            kwargs = {}
+            if not IS_JYTHON:
+                kwargs['line'] = writer.get_line_index_with_content('stop %s' % (i,))
+            hit = writer.wait_for_breakpoint_hit(
+                reason=REASON_STEP_INTO,
+                file='_debugger_case_generator_step_in.py',
+                **kwargs
+            )
+
+        writer.write_run_thread(hit.thread_id)
+        writer.finished_ok = True
+
+
+@pytest.mark.parametrize(
+    'target_filename',
+    [
+        '_debugger_case_asyncio.py',
+        '_debugger_case_trio.py',
+    ]
+)
+@pytest.mark.skipif(not IS_CPYTHON or not IS_PY36_OR_GREATER, reason='Only CPython 3.6 onwards')
+def test_asyncio_step_over_basic(case_setup, target_filename):
+    with case_setup.test_file(target_filename) as writer:
+        line = writer.get_line_index_with_content('break main')
+        writer.write_add_breakpoint(line)
+        writer.write_make_initial_run()
+
+        hit = writer.wait_for_breakpoint_hit()
+
+        writer.write_step_over(hit.thread_id)
+        hit = writer.wait_for_breakpoint_hit(
+            reason=REASON_STEP_OVER,
+            file=target_filename,
+            line=writer.get_line_index_with_content('step main')
+        )
+
+        writer.write_run_thread(hit.thread_id)
+        writer.finished_ok = True
+
+
+@pytest.mark.parametrize(
+    'target_filename',
+    [
+        '_debugger_case_asyncio.py',
+        '_debugger_case_trio.py',
+    ]
+)
+@pytest.mark.skipif(not IS_CPYTHON or not IS_PY36_OR_GREATER, reason='Only CPython 3.6 onwards')
+def test_asyncio_step_over_end_of_function(case_setup, target_filename):
+    with case_setup.test_file(target_filename) as writer:
+        line = writer.get_line_index_with_content('break count 2')
+        writer.write_add_breakpoint(line)
+        writer.write_make_initial_run()
+
+        hit = writer.wait_for_breakpoint_hit()
+
+        writer.write_step_over(hit.thread_id)
+        hit = writer.wait_for_breakpoint_hit(
+            reason=REASON_STEP_OVER,
+            name=('sleep', 'wait_task_rescheduled'),
+        )
+        writer.write_run_thread(hit.thread_id)
+        writer.finished_ok = True
+
+
+@pytest.mark.parametrize(
+    'target_filename',
+    [
+        '_debugger_case_asyncio.py',
+        '_debugger_case_trio.py',
+    ]
+)
+@pytest.mark.skipif(not IS_CPYTHON or not IS_PY36_OR_GREATER, reason='Only CPython 3.6 onwards')
+def test_asyncio_step_in(case_setup, target_filename):
+    with case_setup.test_file(target_filename) as writer:
+        line = writer.get_line_index_with_content('break count 1')
+        writer.write_add_breakpoint(line)
+        writer.write_make_initial_run()
+
+        hit = writer.wait_for_breakpoint_hit()
+
+        writer.write_step_return(hit.thread_id)
+        hit = writer.wait_for_breakpoint_hit(
+            reason=REASON_STEP_RETURN,
+            file=target_filename,
+            line=writer.get_line_index_with_content('break main')
+        )
+
+        writer.write_step_in(hit.thread_id)
+        hit = writer.wait_for_breakpoint_hit(
+            reason=REASON_STEP_INTO,
+            name=('sleep', 'wait_task_rescheduled'),
+        )
+
+        writer.write_run_thread(hit.thread_id)
+        writer.finished_ok = True
+
+
+@pytest.mark.parametrize(
+    'target_filename',
+    [
+        '_debugger_case_asyncio.py',
+        '_debugger_case_trio.py',
+    ]
+)
+@pytest.mark.skipif(not IS_CPYTHON or not IS_PY36_OR_GREATER, reason='Only CPython 3.6 onwards')
+def test_asyncio_step_return(case_setup, target_filename):
+    with case_setup.test_file(target_filename) as writer:
+        line = writer.get_line_index_with_content('break count 1')
+        writer.write_add_breakpoint(line)
+        writer.write_make_initial_run()
+
+        hit = writer.wait_for_breakpoint_hit()
+
+        writer.write_step_return(hit.thread_id)
+        hit = writer.wait_for_breakpoint_hit(
+            reason=REASON_STEP_RETURN,
+            file=target_filename,
+            line=writer.get_line_index_with_content('break main')
+        )
+
+        writer.write_run_thread(hit.thread_id)
         writer.finished_ok = True
 
 # Jython needs some vars to be set locally.

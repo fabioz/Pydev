@@ -35,7 +35,7 @@ from _pydevd_bundle.pydevd_breakpoints import ExceptionBreakpoint, get_exception
 from _pydevd_bundle.pydevd_comm_constants import (CMD_THREAD_SUSPEND, CMD_STEP_INTO, CMD_SET_BREAK,
     CMD_STEP_INTO_MY_CODE, CMD_STEP_OVER, CMD_SMART_STEP_INTO, CMD_RUN_TO_LINE,
     CMD_SET_NEXT_STATEMENT, CMD_STEP_RETURN, CMD_ADD_EXCEPTION_BREAK, CMD_STEP_RETURN_MY_CODE,
-    CMD_STEP_OVER_MY_CODE)
+    CMD_STEP_OVER_MY_CODE, constant_to_str, CMD_STEP_INTO_COROUTINE)
 from _pydevd_bundle.pydevd_constants import (IS_JYTH_LESS25, get_thread_id, get_current_thread_id,
     dict_keys, dict_iter_items, DebugInfoHolder, PYTHON_SUSPEND, STATE_SUSPEND, STATE_RUN, get_frame,
     clear_cached_thread_id, INTERACTIVE_MODE_AVAILABLE, SHOW_DEBUG_INFO_ENV, IS_PY34_OR_GREATER, IS_PY2, NULL,
@@ -72,7 +72,7 @@ from _pydevd_bundle.pydevd_process_net_command import process_net_command
 from _pydevd_bundle.pydevd_net_command import NetCommand
 
 from _pydevd_bundle.pydevd_breakpoints import stop_on_unhandled_exception
-from _pydevd_bundle.pydevd_collect_try_except_info import collect_try_except_info
+from _pydevd_bundle.pydevd_collect_bytecode_info import collect_try_except_info, collect_return_info
 from _pydevd_bundle.pydevd_suspended_frames import SuspendedFramesManager
 from socket import SHUT_RDWR
 from _pydevd_bundle.pydevd_api import PyDevdAPI
@@ -391,7 +391,7 @@ class ThreadsSuspendedSingleNotification(AbstractSingleNotificationBehavior):
 
 class _Authentication(object):
 
-    __slots__ = ['access_token', 'ide_access_token', '_authenticated', '_wrong_attempts']
+    __slots__ = ['access_token', 'client_access_token', '_authenticated', '_wrong_attempts']
 
     def __init__(self):
         # A token to be send in the command line or through the settrace api -- when such token
@@ -399,10 +399,10 @@ class _Authentication(object):
         # Note that if a disconnect is sent, the same message must be resent to authenticate.
         self.access_token = None
 
-        # This token is the one that the ide requires to accept a connection from pydevd
+        # This token is the one that the client requires to accept a connection from pydevd
         # (it's stored here and just passed back when required, it's not used internally
         # for anything else).
-        self.ide_access_token = None
+        self.client_access_token = None
 
         self._authenticated = None
 
@@ -600,6 +600,7 @@ class PyDB(object):
         self.set_additional_thread_info = set_additional_thread_info
         self.stop_on_unhandled_exception = stop_on_unhandled_exception
         self.collect_try_except_info = collect_try_except_info
+        self.collect_return_info = collect_return_info
         self.get_exception_breakpoint = get_exception_breakpoint
         self._dont_trace_get_file_type = DONT_TRACE.get
         self.PYDEV_FILE = PYDEV_FILE
@@ -734,7 +735,7 @@ class PyDB(object):
             # In Python 3.7 "<frozen ..." appears multiple times during import and should be
             # ignored for the user.
             return self.PYDEV_FILE
-        if abs_real_path_and_basename[0].startswith('<builtin'):
+        if abs_real_path_and_basename[0].startswith(('<builtin', '<attrs')):
             # In PyPy "<builtin> ..." can appear and should be ignored for the user.
             return self.PYDEV_FILE
         return self._dont_trace_get_file_type(basename)
@@ -1558,9 +1559,11 @@ class PyDB(object):
 
         return eb
 
-    def _mark_suspend(self, thread, stop_reason):
+    def _mark_suspend(self, thread, stop_reason, original_step_cmd=-1):
         info = set_additional_thread_info(thread)
         info.suspend_type = PYTHON_SUSPEND
+        if original_step_cmd != -1:
+            stop_reason = original_step_cmd
         thread.stop_reason = stop_reason
 
         # Note: don't set the 'pydev_original_step_cmd' here if unset.
@@ -1569,13 +1572,14 @@ class PyDB(object):
             # If the step command is not specified, set it to step into
             # to make sure it'll break as soon as possible.
             info.pydev_step_cmd = CMD_STEP_INTO
+            info.pydev_step_stop = None
 
         # Mark as suspend as the last thing.
         info.pydev_state = STATE_SUSPEND
 
         return info
 
-    def set_suspend(self, thread, stop_reason, suspend_other_threads=False, is_pause=False):
+    def set_suspend(self, thread, stop_reason, suspend_other_threads=False, is_pause=False, original_step_cmd=-1):
         '''
         :param thread:
             The thread which should be suspended.
@@ -1590,12 +1594,15 @@ class PyDB(object):
         :param is_pause:
             If this is a pause to suspend all threads, any thread can be considered as the 'main'
             thread paused.
+
+        :param original_step_cmd:
+            If given we may change the stop reason to this.
         '''
         self._threads_suspended_single_notification.increment_suspend_time()
         if is_pause:
             self._threads_suspended_single_notification.on_pause()
 
-        info = self._mark_suspend(thread, stop_reason)
+        info = self._mark_suspend(thread, stop_reason, original_step_cmd=original_step_cmd)
 
         if is_pause:
             # Must set tracing after setting the state to suspend.
@@ -1720,12 +1727,13 @@ class PyDB(object):
             If True we should use the line of the exception instead of the current line in the frame
             as the paused location on the top-level frame (exception info must be passed on 'arg').
         """
-        # print('do_wait_suspend %s %s %s %s' % (frame.f_lineno, frame.f_code.co_name, frame.f_code.co_filename, event))
         if USE_CUSTOM_SYS_CURRENT_FRAMES_MAP:
             _tid_to_last_frame[thread.ident] = sys._getframe()
         self.process_internal_commands()
 
         thread_id = get_current_thread_id(thread)
+
+        # print('do_wait_suspend %s %s %s %s %s %s (%s)' % (frame.f_lineno, frame.f_code.co_name, frame.f_code.co_filename, event, arg, constant_to_str(thread.additional_info.pydev_step_cmd), constant_to_str(thread.additional_info.pydev_original_step_cmd)))
 
         # Send the suspend message
         message = thread.additional_info.pydev_message
@@ -1804,9 +1812,16 @@ class PyDB(object):
 
         # process any stepping instructions
         if info.pydev_step_cmd in (CMD_STEP_INTO, CMD_STEP_INTO_MY_CODE):
-            info.pydev_step_stop = None
-            info.pydev_smart_step_stop = None
-            self.set_trace_for_frame_and_parents(frame)
+            if frame.f_code.co_flags & 0x80:  # CO_COROUTINE = 0x80
+                # When in a coroutine we switch to CMD_STEP_INTO_COROUTINE.
+                info.pydev_step_cmd = CMD_STEP_INTO_COROUTINE
+                info.pydev_step_stop = frame
+                info.pydev_smart_step_stop = None
+                self.set_trace_for_frame_and_parents(frame)
+            else:
+                info.pydev_step_stop = None
+                info.pydev_smart_step_stop = None
+                self.set_trace_for_frame_and_parents(frame)
 
         elif info.pydev_step_cmd in (CMD_STEP_OVER, CMD_STEP_OVER_MY_CODE):
             info.pydev_step_stop = frame
@@ -1819,6 +1834,7 @@ class PyDB(object):
             self.set_trace_for_frame_and_parents(frame)
 
         elif info.pydev_step_cmd == CMD_RUN_TO_LINE or info.pydev_step_cmd == CMD_SET_NEXT_STATEMENT:
+            info.pydev_step_stop = None
             self.set_trace_for_frame_and_parents(frame)
             stop = False
             response_msg = ""
@@ -2398,7 +2414,7 @@ def _enable_attach(
     dont_trace_end_patterns=(),
     patch_multiprocessing=False,
     access_token=None,
-    ide_access_token=None,
+    client_access_token=None,
     ):
     '''
     Starts accepting connections at the given host/port. The debugger will not be initialized nor
@@ -2426,7 +2442,7 @@ def _enable_attach(
         dont_trace_end_patterns=dont_trace_end_patterns,
         patch_multiprocessing=patch_multiprocessing,
         access_token=access_token,
-        ide_access_token=ide_access_token,
+        client_access_token=client_access_token,
     )
 
     py_db = get_global_debugger()
@@ -2474,7 +2490,7 @@ def settrace(
     dont_trace_start_patterns=(),
     dont_trace_end_patterns=(),
     access_token=None,
-    ide_access_token=None,
+    client_access_token=None,
     ):
     '''Sets the tracing function with the pydev debug function and initializes needed facilities.
 
@@ -2518,7 +2534,7 @@ def settrace(
     :param access_token: token to be sent from the client (i.e.: IDE) to the debugger when a connection
         is established (verified by the debugger).
 
-    :param ide_access_token: token to be sent from the debugger to the client (i.e.: IDE) when
+    :param client_access_token: token to be sent from the debugger to the client (i.e.: IDE) when
         a connection is established (verified by the client).
     '''
     with _set_trace_lock:
@@ -2536,7 +2552,7 @@ def settrace(
             dont_trace_start_patterns,
             dont_trace_end_patterns,
             access_token,
-            ide_access_token,
+            client_access_token,
         )
 
 
@@ -2557,7 +2573,7 @@ def _locked_settrace(
     dont_trace_start_patterns,
     dont_trace_end_patterns,
     access_token,
-    ide_access_token,
+    client_access_token,
     ):
     if patch_multiprocessing:
         try:
@@ -2591,9 +2607,9 @@ def _locked_settrace(
         if access_token is not None:
             py_db.authentication.access_token = access_token
             SetupHolder.setup['access-token'] = access_token
-        if ide_access_token is not None:
-            py_db.authentication.ide_access_token = ide_access_token
-            SetupHolder.setup['ide-access-token'] = ide_access_token
+        if client_access_token is not None:
+            py_db.authentication.client_access_token = client_access_token
+            SetupHolder.setup['client-access-token'] = client_access_token
 
         if block_until_connected:
             py_db.connect(host, port)  # Note: connect can raise error.
@@ -2645,8 +2661,8 @@ def _locked_settrace(
         # ok, we're already in debug mode, with all set, so, let's just set the break
         if access_token is not None:
             py_db.authentication.access_token = access_token
-        if ide_access_token is not None:
-            py_db.authentication.ide_access_token = ide_access_token
+        if client_access_token is not None:
+            py_db.authentication.client_access_token = client_access_token
 
         py_db.set_trace_for_frame_and_parents(get_frame().f_back)
 
@@ -2799,7 +2815,7 @@ def settrace_forked(setup_tracing=True):
     if setup is None:
         setup = {}
     access_token = setup.get('access-token')
-    ide_access_token = setup.get('ide-access-token')
+    client_access_token = setup.get('client-access-token')
 
     if setup_tracing:
         from _pydevd_frame_eval.pydevd_frame_eval_main import clear_thread_local_info
@@ -2823,7 +2839,7 @@ def settrace_forked(setup_tracing=True):
                     overwrite_prev_trace=True,
                     patch_multiprocessing=True,
                     access_token=access_token,
-                    ide_access_token=ide_access_token,
+                    client_access_token=client_access_token,
             )
 
 
@@ -3074,9 +3090,9 @@ def main():
     if access_token:
         debugger.authentication.access_token = access_token
 
-    ide_access_token = setup['ide-access-token']
-    if ide_access_token:
-        debugger.authentication.ide_access_token = ide_access_token
+    client_access_token = setup['client-access-token']
+    if client_access_token:
+        debugger.authentication.client_access_token = client_access_token
 
     if fix_app_engine_debug:
         sys.stderr.write("pydev debugger: google app engine integration enabled\n")

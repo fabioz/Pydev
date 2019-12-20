@@ -326,7 +326,7 @@ def case_setup_remote(debugger_runner_remote):
                 filename,
                 wait_for_port=True,
                 access_token=None,
-                ide_access_token=None,
+                client_access_token=None,
                 append_command_line_args=(),
                 **kwargs
             ):
@@ -339,9 +339,9 @@ def case_setup_remote(debugger_runner_remote):
                 if access_token is not None:
                     ret.append('--access-token')
                     ret.append(access_token)
-                if ide_access_token is not None:
-                    ret.append('--ide-access-token')
-                    ret.append(ide_access_token)
+                if client_access_token is not None:
+                    ret.append('--client-access-token')
+                    ret.append(client_access_token)
 
                 ret.extend(append_command_line_args)
                 return ret
@@ -487,10 +487,10 @@ def case_setup_django(debugger_runner_simple):
             version = [int(x) for x in django.get_version().split('.')][:2]
             if version == [1, 7]:
                 django_folder = 'my_django_proj_17'
-            elif version in ([2, 1], [2, 2]):
+            elif version in ([2, 1], [2, 2], [3, 0]):
                 django_folder = 'my_django_proj_21'
             else:
-                raise AssertionError('Can only check django 1.7, 2.1 and 2.2 right now. Found: %s' % (version,))
+                raise AssertionError('Can only check django 1.7, 2.1, 2.2 and 3.0 right now. Found: %s' % (version,))
 
             WriterThread.DJANGO_FOLDER = django_folder
             for key, value in kwargs.items():
