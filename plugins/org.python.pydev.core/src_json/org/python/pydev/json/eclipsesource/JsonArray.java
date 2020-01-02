@@ -8,7 +8,7 @@
  * Contributors:
  *    Ralf Sternberg - initial implementation and API
  ******************************************************************************/
-package com.eclipsesource.json;
+package org.python.pydev.json.eclipsesource;
 
 import java.io.IOException;
 import java.io.Reader;

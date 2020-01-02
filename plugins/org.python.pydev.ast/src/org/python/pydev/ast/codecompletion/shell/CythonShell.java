@@ -1,20 +1,10 @@
-/**
- * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
- * Licensed under the terms of the Eclipse Public License (EPL).
- * Please see the license.txt included with this distribution for details.
- * Any modifications to this file must keep this entire header intact.
- */
-/*
- * Created on Aug 16, 2004
- *
- * @author Fabio Zadrozny
- */
 package org.python.pydev.ast.codecompletion.shell;
 
 import java.io.File;
 import java.io.IOException;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Path;
 import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.ast.runners.SimplePythonRunner;
 import org.python.pydev.ast.runners.SimpleRunner;
@@ -22,12 +12,11 @@ import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.json.eclipsesource.JsonObject;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 
-/**
- * @author Fabio Zadrozny
- */
-public class PythonShell extends CompletionsShell {
+public class CythonShell extends AbstractShell {
 
     /**
      * Initialize with the default python server file.
@@ -35,8 +24,8 @@ public class PythonShell extends CompletionsShell {
      * @throws IOException
      * @throws CoreException
      */
-    public PythonShell() throws IOException, CoreException {
-        super(CorePlugin.getScriptWithinPySrc("pycompletionserver.py"));
+    public CythonShell() throws IOException, CoreException {
+        super(CorePlugin.getScriptWithinPySrc(new Path("third_party").append("cython_json.py").toString()));
     }
 
     @Override
@@ -65,4 +54,14 @@ public class PythonShell extends CompletionsShell {
                 workingDir));
     }
 
+    public String convertToJsonAst(String string) throws CoreException {
+        JsonObject object = new JsonObject();
+        object.add("command", "cython_to_json_ast");
+        object.add("contents", string);
+        FastStringBuffer writeAndGetResults = writeAndGetResults(true, object.toString());
+        if (writeAndGetResults == null) {
+            throw new RuntimeException("Error. Unable to get cython ast as json.");
+        }
+        return writeAndGetResults.toString();
+    }
 }

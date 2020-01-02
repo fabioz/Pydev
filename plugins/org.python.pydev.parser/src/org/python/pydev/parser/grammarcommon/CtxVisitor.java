@@ -29,57 +29,77 @@ public class CtxVisitor extends Visitor {
     }
 
     public void setParam(SimpleNode node) throws Exception {
-        this.ctx = expr_contextType.Param;
-        visit(node);
+        if (node != null) {
+            this.ctx = expr_contextType.Param;
+            visit(node);
+        }
     }
 
     public void setKwOnlyParam(SimpleNode node) throws Exception {
-        this.ctx = expr_contextType.KwOnlyParam;
-        visit(node);
+        if (node != null) {
+            this.ctx = expr_contextType.KwOnlyParam;
+            visit(node);
+        }
     }
 
     public void setStore(SimpleNode node) throws Exception {
-        this.ctx = expr_contextType.Store;
-        visit(node);
+        if (node != null) {
+            this.ctx = expr_contextType.Store;
+            visit(node);
+        }
     }
 
     public void setNamedStore(SimpleNode node) throws Exception {
-        this.ctx = expr_contextType.NamedStore;
-        visit(node);
+        if (node != null) {
+            this.ctx = expr_contextType.NamedStore;
+            visit(node);
+        }
     }
 
     public void setCtx(SimpleNode node, int ctx) throws Exception {
-        this.ctx = ctx;
-        visit(node);
+        if (node != null) {
+            this.ctx = ctx;
+            visit(node);
+        }
     }
 
     public void setStore(SimpleNode[] nodes) throws Exception {
-        for (int i = 0; i < nodes.length; i++) {
-            setStore(nodes[i]);
+        if (nodes != null) {
+            for (int i = 0; i < nodes.length; i++) {
+                setStore(nodes[i]);
+            }
         }
     }
 
     public void setDelete(SimpleNode node) throws Exception {
-        this.ctx = expr_contextType.Del;
-        visit(node);
+        if (node != null) {
+            this.ctx = expr_contextType.Del;
+            visit(node);
+        }
     }
 
     public void setDelete(SimpleNode[] nodes) throws Exception {
-        for (int i = 0; i < nodes.length; i++) {
-            setDelete(nodes[i]);
+        if (nodes != null) {
+            for (int i = 0; i < nodes.length; i++) {
+                setDelete(nodes[i]);
+            }
         }
     }
 
     public void setAugStore(SimpleNode node) throws Exception {
-        this.ctx = expr_contextType.AugStore;
-        visit(node);
+        if (node != null) {
+            this.ctx = expr_contextType.AugStore;
+            visit(node);
+        }
     }
 
     @Override
     public Object visitName(Name node) throws Exception {
         if ((ctx == expr_contextType.Store || ctx == expr_contextType.NamedStore) && node.reserved) {
             String msg = StringUtils.format("Cannot assign value to %s (because it's a keyword)", node.id);
-            this.stack.getGrammar().addAndReport(new ParseException(msg, node), msg);
+            if (this.stack != null) {
+                this.stack.getGrammar().addAndReport(new ParseException(msg, node), msg);
+            }
         } else {
             node.ctx = ctx;
         }
@@ -109,7 +129,9 @@ public class CtxVisitor extends Visitor {
     public Object visitList(List node) throws Exception {
         if (ctx == expr_contextType.AugStore) {
             String msg = "Augmented assign to list not possible";
-            this.stack.getGrammar().addAndReport(new ParseException(msg, node), msg);
+            if (this.stack != null) {
+                this.stack.getGrammar().addAndReport(new ParseException(msg, node), msg);
+            }
         } else {
             node.ctx = ctx;
         }
@@ -121,7 +143,9 @@ public class CtxVisitor extends Visitor {
     public Object visitTuple(Tuple node) throws Exception {
         if (ctx == expr_contextType.AugStore) {
             String msg = "Augmented assign to tuple not possible";
-            this.stack.getGrammar().addAndReport(new ParseException(msg, node), msg);
+            if (this.stack != null) {
+                this.stack.getGrammar().addAndReport(new ParseException(msg, node), msg);
+            }
         } else {
             node.ctx = ctx;
         }

@@ -14,6 +14,7 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
+import org.python.pydev.core.ShellId;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.logging.DebugSettings;
 
@@ -30,14 +31,14 @@ public class ShellsContainer {
      * @see #MAIN_THREAD_SHELL
      * @see #OTHER_THREADS_SHELL
      */
-    private static Map<String, Map<Integer, AbstractShell>> shells = new HashMap<String, Map<Integer, AbstractShell>>();
+    private static Map<String, Map<ShellId, AbstractShell>> shells = new HashMap<>();
 
     /**
      * simple stop of a shell (it may be later restarted)
      */
-    public static void stopServerShell(IInterpreterInfo interpreter, int id) {
+    public static void stopServerShell(IInterpreterInfo interpreter, ShellId id) {
         synchronized (shells) {
-            Map<Integer, AbstractShell> typeToShell = getTypeToShellFromId(interpreter);
+            Map<ShellId, AbstractShell> typeToShell = getTypeToShellFromId(interpreter);
             AbstractShell pythonShell = typeToShell.get(id);
 
             if (pythonShell != null) {
@@ -61,10 +62,10 @@ public class ShellsContainer {
                         AbstractShell.class);
             }
 
-            for (Iterator<Map<Integer, AbstractShell>> iter = shells.values().iterator(); iter.hasNext();) {
+            for (Iterator<Map<ShellId, AbstractShell>> iter = shells.values().iterator(); iter.hasNext();) {
                 AbstractShell.finishedForGood = true; //we may no longer restart shells
 
-                Map<Integer, AbstractShell> rel = iter.next();
+                Map<ShellId, AbstractShell> rel = iter.next();
                 if (rel != null) {
                     for (Iterator<AbstractShell> iter2 = rel.values().iterator(); iter2.hasNext();) {
                         AbstractShell element = iter2.next();
@@ -96,7 +97,7 @@ public class ShellsContainer {
                             AbstractShell.class);
                 }
 
-                for (Map<Integer, AbstractShell> val : shells.values()) {
+                for (Map<ShellId, AbstractShell> val : shells.values()) {
                     for (AbstractShell val2 : val.values()) {
                         if (val2 != null) {
                             val2.endIt();
@@ -129,12 +130,12 @@ public class ShellsContainer {
      * @param interpreter the interpreter whose shell we want.
      * @return a map with the type of the shell mapping to the shell itself
      */
-    private static Map<Integer, AbstractShell> getTypeToShellFromId(IInterpreterInfo interpreter) {
+    private static Map<ShellId, AbstractShell> getTypeToShellFromId(IInterpreterInfo interpreter) {
         synchronized (shells) {
-            Map<Integer, AbstractShell> typeToShell = shells.get(interpreter.getExecutableOrJar());
+            Map<ShellId, AbstractShell> typeToShell = shells.get(interpreter.getExecutableOrJar());
 
             if (typeToShell == null) {
-                typeToShell = new HashMap<Integer, AbstractShell>();
+                typeToShell = new HashMap<>();
                 shells.put(interpreter.getExecutableOrJar(), typeToShell);
             }
             return typeToShell;
@@ -151,10 +152,10 @@ public class ShellsContainer {
      *
      * @param shell the shell to register
      */
-    public static void putServerShell(IPythonNature nature, int id, AbstractShell shell) {
+    public static void putServerShell(IPythonNature nature, ShellId id, AbstractShell shell) {
         synchronized (shells) {
             try {
-                Map<Integer, AbstractShell> typeToShell = getTypeToShellFromId(nature.getProjectInterpreter());
+                Map<ShellId, AbstractShell> typeToShell = getTypeToShellFromId(nature.getProjectInterpreter());
                 typeToShell.put(id, shell);
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -162,7 +163,7 @@ public class ShellsContainer {
         }
     }
 
-    public static AbstractShell getServerShell(IPythonNature nature, int id) throws IOException,
+    public static AbstractShell getServerShell(IPythonNature nature, ShellId id) throws IOException,
             JDTNotAvailableException, CoreException, MisconfigurationException, PythonNatureWithoutProjectException {
         return getServerShell(nature.getProjectInterpreter(), nature.getInterpreterType(), id);
     }
@@ -184,7 +185,7 @@ public class ShellsContainer {
      * @throws IOException
      * @throws MisconfigurationException
      */
-    private static AbstractShell getServerShell(IInterpreterInfo interpreter, int relatedTo, int id)
+    private static AbstractShell getServerShell(IInterpreterInfo interpreter, int relatedTo, ShellId id)
             throws IOException, JDTNotAvailableException, CoreException, MisconfigurationException {
         AbstractShell pythonShell = null;
         synchronized (shells) {
@@ -209,24 +210,28 @@ public class ShellsContainer {
                                 + interpreter.getExecutableOrJar(),
                         AbstractShell.class);
             }
-            Map<Integer, AbstractShell> typeToShell = getTypeToShellFromId(interpreter);
+            Map<ShellId, AbstractShell> typeToShell = getTypeToShellFromId(interpreter);
             pythonShell = typeToShell.get(id);
 
             if (pythonShell == null) {
                 if (DebugSettings.DEBUG_CODE_COMPLETION) {
                     org.python.pydev.shared_core.log.ToLogFile.toLogFile("pythonShell == null", AbstractShell.class);
                 }
-                if (relatedTo == IPythonNature.INTERPRETER_TYPE_PYTHON) {
-                    pythonShell = new PythonShell();
-
-                } else if (relatedTo == IPythonNature.INTERPRETER_TYPE_JYTHON) {
-                    pythonShell = new JythonShell();
-
-                } else if (relatedTo == IPythonNature.INTERPRETER_TYPE_IRONPYTHON) {
-                    pythonShell = new IronpythonShell();
-
+                if (id == ShellId.CYTHON_MAIN_THREAD_SHELL || id == ShellId.CYTHON_OTHER_THREADS_SHELL) {
+                    pythonShell = new CythonShell();
                 } else {
-                    throw new RuntimeException("unknown related id");
+                    if (relatedTo == IPythonNature.INTERPRETER_TYPE_PYTHON) {
+                        pythonShell = new PythonShell();
+
+                    } else if (relatedTo == IPythonNature.INTERPRETER_TYPE_JYTHON) {
+                        pythonShell = new JythonShell();
+
+                    } else if (relatedTo == IPythonNature.INTERPRETER_TYPE_IRONPYTHON) {
+                        pythonShell = new IronpythonShell();
+
+                    } else {
+                        throw new RuntimeException("unknown related id");
+                    }
                 }
                 if (DebugSettings.DEBUG_CODE_COMPLETION) {
                     org.python.pydev.shared_core.log.ToLogFile.toLogFile("pythonShell.startIt()", AbstractShell.class);

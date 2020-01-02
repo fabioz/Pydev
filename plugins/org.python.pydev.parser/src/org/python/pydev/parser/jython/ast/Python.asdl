@@ -96,7 +96,7 @@ module Python
 	     | Call(expr func, expr* args, keyword* keywords, expr? starargs, expr? kwargs)
 	     | Repr(expr value)
 	     | Num(object n, num_type type, string num) -- a number as a PyObject.
-	     | Str(string s, str_type type, bool unicode, bool raw, bool binary, bool fstring)
+	     | Str(string s, str_type type, bool unicode, bool raw, bool binary, bool fstring, stmt* fstring_nodes)
 	     | StrJoin(expr* strs) -- the inner expr should always be of type Str
 	     -- other literals? bools?
 

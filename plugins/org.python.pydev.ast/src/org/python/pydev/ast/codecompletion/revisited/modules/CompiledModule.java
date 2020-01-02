@@ -37,6 +37,7 @@ import org.eclipse.jface.text.Document;
 import org.python.pydev.ast.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.ast.codecompletion.shell.AbstractShell;
+import org.python.pydev.ast.codecompletion.shell.CompletionsShell;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionCache;
@@ -341,7 +342,8 @@ public class CompiledModule extends AbstractModule {
             String act,
             String tokenToCompletion) throws Exception, MisconfigurationException, PythonNatureWithoutProjectException {
         IToken[] toks;
-        AbstractShell shell = AbstractShell.getServerShell(nature, CompletionProposalFactory.get().getShellId());
+        CompletionsShell shell = (CompletionsShell) AbstractShell.getServerShell(nature,
+                CompletionProposalFactory.get().getShellId());
         List<String[]> completions = shell.getImportCompletions(tokenToCompletion,
                 getCompletePythonpath(manager.getModulesManager(), nature)).o2;
 
@@ -372,7 +374,7 @@ public class CompiledModule extends AbstractModule {
             Log.log(IStatus.INFO, ("Compiled modules: getting info for:" + name), null);
         }
         final IPythonNature nature = manager.getNature();
-        AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.getShellId());
+        CompletionsShell shell = (CompletionsShell) AbstractShell.getServerShell(nature, AbstractShell.getShellId());
         Tuple<String, List<String[]>> completions = shell.getImportCompletions(name,
                 getCompletePythonpath(manager, nature)); //default
 
@@ -607,7 +609,7 @@ public class CompiledModule extends AbstractModule {
             return found;
         }
 
-        AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.getShellId());
+        CompletionsShell shell = (CompletionsShell) AbstractShell.getServerShell(nature, AbstractShell.getShellId());
         Tuple<String[], int[]> def = shell.getLineCol(this.name, token, nature.getAstManager().getModulesManager()
                 .getCompletePythonPath(nature.getProjectInterpreter(), nature.getRelatedInterpreterManager())); //default
         if (def == null) {

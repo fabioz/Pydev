@@ -226,7 +226,9 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
 
     @Override
     public Object visitStr(Str node) throws Exception {
-        if (node.fstring) {
+        if (node.fstring && (node.fstring_nodes == null || node.fstring_nodes.length == 0)) {
+            // Note: if fstring_nodes have been pre-processed (i.e.: in cython parsing), we don't parse
+            // it here and just visit those contents in super.visitStr.
             String s = node.s;
             @SuppressWarnings("rawtypes")
             List parseErrors = null;

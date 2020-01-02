@@ -34,6 +34,7 @@ import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.ast.codecompletion.revisited.visitors.FindScopeVisitor;
 import org.python.pydev.ast.codecompletion.shell.AbstractShell;
+import org.python.pydev.ast.codecompletion.shell.CompletionsShell;
 import org.python.pydev.ast.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.ast.refactoring.RefactoringRequest;
 import org.python.pydev.core.ExtensionHelper;
@@ -185,7 +186,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             } else {
                 //go to globals
                 if (request.isInCalltip) {
-                    // # SomeCall(|<- here) 
+                    // # SomeCall(|<- here)
                     state.setLookingFor(ICompletionState.LookingFor.LOOKING_FOR_INSTANCED_VARIABLE);
                 }
                 doGlobalsCompletion(request, astManager, tokensList, state);
@@ -550,7 +551,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             Log.log(e);
         }
 
-        AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.getShellId());
+        CompletionsShell shell = (CompletionsShell) AbstractShell.getServerShell(nature, AbstractShell.getShellId());
         String charset = "utf-8";
         //                    if (viewer instanceof PySourceViewer) {
         //                        PySourceViewer pySourceViewer = (PySourceViewer) viewer;

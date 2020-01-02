@@ -8,7 +8,7 @@
  * Contributors:
  *    Ralf Sternberg - initial implementation and API
  ******************************************************************************/
-package com.eclipsesource.json;
+package org.python.pydev.json.eclipsesource;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -382,6 +382,18 @@ public abstract class JsonValue {
     public String toString() {
         StringWriter stringWriter = new StringWriter();
         JsonWriter jsonWriter = new JsonWriter(stringWriter);
+        try {
+            write(jsonWriter);
+        } catch (IOException exception) {
+            // StringWriter does not throw IOExceptions
+            throw new RuntimeException(exception);
+        }
+        return stringWriter.toString();
+    }
+
+    public String toPrettyString() {
+        StringWriter stringWriter = new StringWriter();
+        PrettyJsonWriter jsonWriter = new PrettyJsonWriter(stringWriter);
         try {
             write(jsonWriter);
         } catch (IOException exception) {

@@ -46,6 +46,7 @@ import org.python.pydev.parser.grammar27.PythonGrammar27;
 import org.python.pydev.parser.grammar30.PythonGrammar30;
 import org.python.pydev.parser.grammar36.PythonGrammar36;
 import org.python.pydev.parser.grammar38.PythonGrammar38;
+import org.python.pydev.parser.grammar_cython.PyParserCython;
 import org.python.pydev.parser.jython.FastCharStream;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -363,7 +364,7 @@ public class PyParser extends BaseParser implements IPyParser {
 
     //static methods that can be used to get the ast (and error if any) --------------------------------------
 
-    public final static class ParserInfo {
+    public final static class ParserInfo implements IGrammarVersionProvider {
         public IDocument document;
 
         /**
@@ -445,6 +446,16 @@ public class PyParser extends BaseParser implements IPyParser {
             }
             buf.append("]");
             return buf.toString();
+        }
+
+        @Override
+        public int getGrammarVersion() throws MisconfigurationException {
+            return this.grammarVersion;
+        }
+
+        @Override
+        public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions() throws MisconfigurationException {
+            return additionalGrammarVersionsToCheck;
         }
     }
 
@@ -535,8 +546,7 @@ public class PyParser extends BaseParser implements IPyParser {
      */
     public static ParseOutput reparseDocument(ParserInfo info) {
         if (info.grammarVersion == IPythonNature.GRAMMAR_PYTHON_VERSION_CYTHON) {
-            IDocument doc = info.document;
-            return new ParseOutput(createCythonAst(doc), ((IDocumentExtension4) info.document).getModificationStamp());
+            return createCythonAst(info);
         }
 
         // create a stream with document's data
@@ -654,12 +664,18 @@ public class PyParser extends BaseParser implements IPyParser {
         return new ParseOutput(returnVar, modifiedTime);
     }
 
-    public static Tuple<ISimpleNode, Throwable> createCythonAst(IDocument doc) {
-        List<stmtType> classesAndFunctions = FastParser.parseCython(doc);
-        return new Tuple<ISimpleNode, Throwable>(new Module(
-                classesAndFunctions.toArray(new stmtType[classesAndFunctions
-                        .size()])),
-                null);
+    public static ParseOutput createCythonAst(ParserInfo info) {
+        PyParserCython parserCython = new PyParserCython(info);
+        ParseOutput parseOutput = parserCython.parse();
+        if (parseOutput.ast == null) {
+            // If we couldn't parse with cython, try to give something even if not really complete.
+            List<stmtType> classesAndFunctions = FastParser.parseCython(info.document);
+            Module ast = new Module(classesAndFunctions.toArray(new stmtType[classesAndFunctions
+                    .size()]));
+            parseOutput = new ParseOutput(ast, parseOutput.error, parseOutput.modificationStamp);
+        }
+        return parseOutput;
+
     }
 
     /**

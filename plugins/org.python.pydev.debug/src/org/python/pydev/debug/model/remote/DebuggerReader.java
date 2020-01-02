@@ -6,11 +6,9 @@
  */
 package org.python.pydev.debug.model.remote;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
@@ -19,8 +17,8 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.AbstractDebugTarget;
 import org.python.pydev.debug.model.AbstractDebugTargetWithTransmission;
-import org.python.pydev.shared_core.io.FileUtils;
-import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.io.HttpProtocolUtils;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
 
@@ -128,91 +126,42 @@ public class DebuggerReader implements Runnable {
      */
     @Override
     public void run() {
-        try {
-            while (!done) {
-                String contents;
-                try {
-                    if ((contents = readContents()) == null) {
-                        done = true;
-                    } else {
-                        if (contents.length() > 0) {
-                            processCommand(contents.toString());
-                        }
-                    }
-                } catch (Exception e1) {
+        HttpProtocolUtils httpProtocol = new HttpProtocolUtils();
+        ICallback<String, Object> onUnexpectedMessage = (unexpectedMessage) -> {
+            String msg = "It seems an old version of the PyDev Debugger is being used (please update the pydevd package being used).\n\nFound message:\n"
+                    + unexpectedMessage;
+            RunInUiThread.async(() -> {
+                PyDialogHelpers.openCritical("Error", msg);
+            });
+            Log.log(msg);
+            return null;
+        };
+
+        while (!done) {
+            String contents;
+            try {
+                if ((contents = httpProtocol.readContents(in, onUnexpectedMessage)) == null) {
                     done = true;
-                    //that's ok, it means that the client finished
-                    if (DEBUG) {
-                        e1.printStackTrace();
+                } else {
+                    if (contents.length() > 0) {
+                        processCommand(contents.toString());
                     }
                 }
-
-                if (done || socket == null || !socket.isConnected()) {
-                    AbstractDebugTarget target = remote;
-
-                    if (target != null) {
-                        target.terminate();
-                    }
-                    done = true;
+            } catch (Exception e1) {
+                done = true;
+                //that's ok, it means that the client finished
+                if (DEBUG) {
+                    e1.printStackTrace();
                 }
             }
-        } finally {
-            buffer = null;
-            contents = null;
-            byteArrayOutputStream = null;
-        }
-    }
 
-    private byte[] buffer = new byte[32 * 1024];
-    private FastStringBuffer contents = new FastStringBuffer();
-    private ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            if (done || socket == null || !socket.isConnected()) {
+                AbstractDebugTarget target = remote;
 
-    private String readContents() throws IOException {
-        int bytesToRead = -1;
-
-        while (true) {
-            FileUtils.readLine(in, contents.clear());
-            contents.trim(); // Remove the \r\n in the end.
-
-            if (contents.length() == 0) {
-                // Ok, real payload ahead.
-                // Read once from stdin and print result to stdout
-                if (bytesToRead == -1) {
-                    Log.log("Error. pydevd did not respect protocol (Content-Length not passed in header).");
-                    return null;
+                if (target != null) {
+                    target.terminate();
                 }
-
-                int bytesRead;
-                while ((bytesRead = in.read(buffer, 0, Math.min(bytesToRead, buffer.length))) > 0) {
-                    byteArrayOutputStream.write(buffer, 0, bytesRead);
-                    bytesToRead -= bytesRead;
-                }
-                byte[] bytes = byteArrayOutputStream.toByteArray();
-                byteArrayOutputStream.reset();
-                return new String(bytes, StandardCharsets.UTF_8);
-            } else {
-                // Header found
-                String contentLen = "Content-Length: ";
-                if (contents.startsWith(contentLen)) {
-                    if (DEBUG) {
-                        System.err.println("receive cmd: " + contents);
-                    }
-                    contents.deleteFirstChars(contentLen.length());
-                    try {
-                        bytesToRead = Integer.parseInt(contents.trim().toString());
-                    } catch (NumberFormatException e) {
-                        throw new IOException("Error getting number of bytes to load. Found: " + contents);
-                    }
-                } else {
-                    // Unexpected header.
-                    String msg = "It seems an old version of the PyDev Debugger is being used (please update the pydevd package being used).\n\nFound message:\n"
-                            + contents;
-                    RunInUiThread.async(() -> {
-                        PyDialogHelpers.openCritical("Error", msg);
-                    });
-                    Log.log(msg);
-                    return null;
-                }
+                done = true;
             }
         }
     }

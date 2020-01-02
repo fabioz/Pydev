@@ -8,7 +8,7 @@
  * Contributors:
  *    Ralf Sternberg - initial implementation and API
  ******************************************************************************/
-package com.eclipsesource.json;
+package org.python.pydev.json.eclipsesource;
 
 /**
  * An unchecked exception to indicate that an input does not qualify as valid JSON.

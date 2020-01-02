@@ -137,7 +137,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
             case JJTBINARY:
             case JJTFSTRING:
                 //the actual number will be set during the parsing (token image) -- see Num construct
-                ret = new Str(null, -1, false, false, false, false);
+                ret = new Str(null, -1, false, false, false, false, null);
                 break;
 
             case JJTFOR_STMT:

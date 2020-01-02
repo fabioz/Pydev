@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="gen_cython_ast" name="gen_cython_ast" schema="schema/gen_cython_ast.exsd"/>
+
+</plugin>

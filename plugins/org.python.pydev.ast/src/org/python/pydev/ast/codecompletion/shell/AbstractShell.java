@@ -11,39 +11,35 @@ package org.python.pydev.ast.codecompletion.shell;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
-import java.net.URLEncoder;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.charset.StandardCharsets;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.ast.codecompletion.PyCodeCompletionPreferences;
-import org.python.pydev.ast.codecompletion.revisited.modules.CompiledToken;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
+import org.python.pydev.core.ShellId;
 import org.python.pydev.core.concurrency.Semaphore;
-import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.logging.DebugSettings;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.shared_core.SharedCorePlugin;
-import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.io.HttpProtocolUtils;
 import org.python.pydev.shared_core.net.SocketUtil;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
-import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.Timer;
 
 /**
@@ -59,15 +55,11 @@ public abstract class AbstractShell {
 
     public static final int BUFFER_SIZE = 1024 * 20; //When it was just 1024 it was 8 times slower for numpy completions!
 
-    public static final int MAIN_THREAD_SHELL = 1;
-
-    public static final int OTHER_THREADS_SHELL = 2;
-
-    public static int[] getAllShellIds() {
-        return new int[] { MAIN_THREAD_SHELL, OTHER_THREADS_SHELL };
+    public static ShellId[] getAllShellIds() {
+        return ShellId.values();
     }
 
-    public static int getShellId() {
+    public static ShellId getShellId() {
         return CompletionProposalFactory.get().getShellId();
     }
 
@@ -102,6 +94,9 @@ public abstract class AbstractShell {
     private final Semaphore semaphore = new Semaphore(1);
 
     private final Object ioLock = new Object();
+
+    protected final Object lockLastPythonPath = new Object();
+    protected String lastPythonPath = null;
 
     private static void dbg(String string, int priority) {
         if (priority <= DEBUG_SHELL) {
@@ -184,7 +179,7 @@ public abstract class AbstractShell {
     /**
      * simple stop of a shell (it may be later restarted)
      */
-    public static void stopServerShell(IInterpreterInfo interpreter, int id) {
+    public static void stopServerShell(IInterpreterInfo interpreter, ShellId id) {
         ShellsContainer.stopServerShell(interpreter, id);
     }
 
@@ -214,11 +209,11 @@ public abstract class AbstractShell {
      *
      * @param shell the shell to register
      */
-    public static void putServerShell(IPythonNature nature, int id, AbstractShell shell) {
+    public static void putServerShell(IPythonNature nature, ShellId id, AbstractShell shell) {
         ShellsContainer.putServerShell(nature, id, shell);
     }
 
-    public static AbstractShell getServerShell(IPythonNature nature, int id) throws IOException,
+    public static AbstractShell getServerShell(IPythonNature nature, ShellId id) throws IOException,
             JDTNotAvailableException, CoreException, MisconfigurationException, PythonNatureWithoutProjectException {
         return ShellsContainer.getServerShell(nature, id);
     }
@@ -420,7 +415,7 @@ public abstract class AbstractShell {
      * @return
      * @throws IOException
      */
-    private FastStringBuffer read(IProgressMonitor monitor) throws IOException {
+    private FastStringBuffer read(boolean useContentLen, IProgressMonitor monitor) throws IOException {
         synchronized (ioLock) {
 
             if (finishedForGood) {
@@ -447,6 +442,12 @@ public abstract class AbstractShell {
             isInRead = true;
 
             try {
+
+                if (useContentLen) {
+                    String read = readWithContentLen(this.socket.getInputStream());
+                    return new FastStringBuffer(read, 0);
+                }
+
                 FastStringBuffer strBuf = new FastStringBuffer(AbstractShell.BUFFER_SIZE);
                 byte[] b = new byte[AbstractShell.BUFFER_SIZE];
                 int searchFrom = 0;
@@ -499,12 +500,18 @@ public abstract class AbstractShell {
         }
     }
 
+    private final HttpProtocolUtils httpProtocol = new HttpProtocolUtils();
+
+    private String readWithContentLen(InputStream in) throws IOException {
+        return httpProtocol.readContents(in, null);
+    }
+
     /**
      * @return s string with the contents read.
      * @throws IOException
      */
-    private FastStringBuffer read() throws IOException {
-        FastStringBuffer r = read(null);
+    private FastStringBuffer read(boolean useContentLen) throws IOException {
+        FastStringBuffer r = read(useContentLen, null);
         //System.out.println("RETURNING:"+URLDecoder.decode(URLDecoder.decode(r,ENCODING_UTF_8),ENCODING_UTF_8));
         return r;
     }
@@ -513,7 +520,7 @@ public abstract class AbstractShell {
      * @param str
      * @throws IOException
      */
-    private void write(String str) throws IOException {
+    private void write(boolean useContentLen, String str) throws IOException {
         synchronized (ioLock) {
 
             if (finishedForGood) {
@@ -539,10 +546,15 @@ public abstract class AbstractShell {
 
             isInWrite = true;
 
-            //dbg("WRITING:"+str);
             try {
                 OutputStream outputStream = this.socket.getOutputStream();
-                outputStream.write(str.getBytes());
+                byte[] bytes = str.getBytes(StandardCharsets.UTF_8);
+                if (useContentLen) {
+                    FastStringBuffer buf = new FastStringBuffer("Content-Length: ", 20).append(bytes.length)
+                            .append("\r\n\r\n");
+                    outputStream.write(buf.getBytes());
+                }
+                outputStream.write(bytes);
                 outputStream.flush();
             } finally {
                 isInWrite = false;
@@ -664,7 +676,7 @@ public abstract class AbstractShell {
     }
 
     @SuppressWarnings("unused")
-    private AutoCloseable acquire(String msg) {
+    protected AutoCloseable acquire(String msg) {
         final Timer timer = new Timer();
         semaphore.acquire();
         if (DEBUG_SHELL >= 1) {
@@ -685,12 +697,16 @@ public abstract class AbstractShell {
         };
     }
 
-    private FastStringBuffer writeAndGetResults(String... str) throws CoreException {
+    protected FastStringBuffer writeAndGetResults(String... str) throws CoreException {
+        return writeAndGetResults(false, str);
+    }
+
+    protected FastStringBuffer writeAndGetResults(boolean useContentLen, String... str) throws CoreException {
 
         try {
             synchronized (ioLock) {
-                this.write(StringUtils.join("", str));
-                FastStringBuffer read = this.read();
+                this.write(useContentLen, StringUtils.join("", str));
+                FastStringBuffer read = this.read(useContentLen);
                 return read;
             }
 
@@ -711,118 +727,6 @@ public abstract class AbstractShell {
                 process.clearOutput();
             }
         }
-    }
-
-    private final Object lockLastPythonPath = new Object();
-    private String lastPythonPath = null;
-
-    /**
-     * @param pythonpath
-     */
-    private void internalChangePythonPath(List<String> pythonpath) throws Exception {
-        if (finishedForGood) {
-            throw new RuntimeException(
-                    "Shells are already finished for good, so, it is an invalid state to try to change its dir.");
-        }
-        String pythonpathStr;
-
-        synchronized (lockLastPythonPath) {
-            pythonpathStr = StringUtils.join("|", pythonpath.toArray(new String[pythonpath.size()]));
-
-            if (lastPythonPath != null && lastPythonPath.equals(pythonpathStr)) {
-                return;
-            }
-            lastPythonPath = pythonpathStr;
-        }
-        try {
-            writeAndGetResults("@@CHANGE_PYTHONPATH:", URLEncoder.encode(pythonpathStr, ENCODING_UTF_8), "\nEND@@");
-        } catch (Exception e) {
-            Log.log("Error changing the pythonpath to: " + StringUtils.join("\n", pythonpath), e);
-            throw e;
-        }
-    }
-
-    /**
-     * @return list with tuples: new String[]{token, description}
-     * @throws CoreException
-     */
-    public Tuple<String, List<String[]>> getImportCompletions(String str, List<String> pythonpath)
-            throws Exception {
-        FastStringBuffer read = null;
-
-        str = URLEncoder.encode(str, ENCODING_UTF_8);
-
-        try (AutoCloseable permit = acquire(StringUtils.join("", "getImportCompletions: ", str))) {
-            internalChangePythonPath(pythonpath);
-            read = this.writeAndGetResults("@@IMPORTS:", str, "\nEND@@");
-        }
-        return ShellConvert.convertStringToCompletions(read);
-    }
-
-    /**
-     * @param moduleName the name of the module where the token is defined
-     * @param token the token we are looking for
-     * @return the file where the token was defined, its line and its column (or null if it was not found)
-     * @throws Exception
-     */
-    public Tuple<String[], int[]> getLineCol(String moduleName, String token, List<String> pythonpath)
-            throws Exception {
-        FastStringBuffer read = null;
-
-        String str = moduleName + "." + token;
-        str = URLEncoder.encode(str, ENCODING_UTF_8);
-
-        try (AutoCloseable permit = acquire("getLineCol")) {
-            internalChangePythonPath(pythonpath);
-            read = this.writeAndGetResults("@@SEARCH", str, "\nEND@@");
-        }
-
-        Tuple<String, List<String[]>> theCompletions = ShellConvert.convertStringToCompletions(read);
-
-        List<String[]> def = theCompletions.o2;
-        if (def.size() == 0) {
-            return null;
-        }
-
-        String[] comps = def.get(0);
-        if (comps.length == 0) {
-            return null;
-        }
-
-        int line = Integer.parseInt(comps[0]);
-        int col = Integer.parseInt(comps[1]);
-
-        String foundAs = comps[2];
-        return new Tuple<String[], int[]>(new String[] { theCompletions.o1, foundAs }, new int[] { line, col });
-    }
-
-    /**
-     * Gets completions for jedi library (https://github.com/davidhalter/jedi)
-     */
-    public List<IToken> getJediCompletions(File editorFile, PySelection ps, String charset,
-            List<String> pythonpath) throws Exception {
-
-        FastStringBuffer read = null;
-        String str = StringUtils.join(
-                "|",
-                new String[] { String.valueOf(ps.getCursorLine()), String.valueOf(ps.getCursorColumn()),
-                        charset, FileUtils.getFileAbsolutePath(editorFile),
-                        StringUtils.replaceNewLines(ps.getDoc().get(), "\n") });
-
-        str = URLEncoder.encode(str, ENCODING_UTF_8);
-
-        try (AutoCloseable permit = acquire("getJediCompletions")) {
-            internalChangePythonPath(pythonpath);
-            read = this.writeAndGetResults("@@MSG_JEDI:", str, "\nEND@@");
-        }
-
-        Tuple<String, List<String[]>> theCompletions = ShellConvert.convertStringToCompletions(read);
-        ArrayList<IToken> lst = new ArrayList<>(theCompletions.o2.size());
-        for (String[] s : theCompletions.o2) {
-            //new CompiledToken(rep, doc, args, parentPackage, type);
-            lst.add(new CompiledToken(s[0], s[1], "", "", Integer.parseInt(s[3]), null));
-        }
-        return lst;
     }
 
 }

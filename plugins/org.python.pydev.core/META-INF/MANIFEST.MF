@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Core Plug-in
-Bundle-SymbolicName: org.python.pydev.core; singleton:=true
+Bundle-SymbolicName: org.python.pydev.core;singleton:=true
 Bundle-Version: 7.4.0.qualifier
 Bundle-ClassPath: core.jar
 Bundle-Activator: org.python.pydev.core.CorePlugin
@@ -22,6 +22,7 @@ Export-Package: org.python.copiedfromeclipsesrc,
  org.python.pydev.core.autoedit,
  org.python.pydev.core.cache,
  org.python.pydev.core.concurrency,
+ org.python.pydev.core.cython,
  org.python.pydev.core.docutils,
  org.python.pydev.core.editor,
  org.python.pydev.core.formatter,
@@ -36,6 +37,7 @@ Export-Package: org.python.copiedfromeclipsesrc,
  org.python.pydev.core.preferences,
  org.python.pydev.core.proposals,
  org.python.pydev.core.structure,
+ org.python.pydev.json.eclipsesource,
  org.python.pydev.refactoring.core.base,
  org.python.pydev.shared_ui.search.replace
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

@@ -42,6 +42,7 @@ import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.NotConfiguredInterpreterException;
+import org.python.pydev.core.ShellId;
 import org.python.pydev.core.TokensList;
 import org.python.pydev.core.interpreters.IInterpreterObserver;
 import org.python.pydev.core.log.Log;
@@ -607,7 +608,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
             //We also need to restart our code-completion shell after doing that, as we may have new environment variables!
             //And in jython, changing the classpath also needs to restore it.
             for (IInterpreterInfo interpreter : interpreterInfos) {
-                for (int id : AbstractShell.getAllShellIds()) {
+                for (ShellId id : AbstractShell.getAllShellIds()) {
                     AbstractShell.stopServerShell(interpreter, id);
                 }
             }

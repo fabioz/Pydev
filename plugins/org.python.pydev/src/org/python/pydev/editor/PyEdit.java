@@ -101,6 +101,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ITabChangedListener;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.NotConfiguredInterpreterException;
+import org.python.pydev.core.ShellId;
 import org.python.pydev.core.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PythonPairMatcher;
@@ -557,7 +558,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             //we also want to initialize our shells...
             //we use 2: one for the main thread and one for the other threads.
             //just preemptively start the one for the main thread.
-            final int mainThreadShellId = AbstractShell.getShellId();
+            final ShellId mainThreadShellId = AbstractShell.getShellId();
             Thread thread2 = new Thread() {
                 @Override
                 public void run() {

@@ -12,6 +12,9 @@ import org.python.pydev.ast.runners.SimpleRunner;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterInfo.UnableToFindExecutableException;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.json.eclipsesource.JsonArray;
+import org.python.pydev.json.eclipsesource.JsonObject;
+import org.python.pydev.json.eclipsesource.JsonValue;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.process_window.ProcessWindow;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -21,10 +24,6 @@ import org.python.pydev.shared_core.utils.ArrayUtils;
 import org.python.pydev.shared_core.utils.PlatformUtils;
 import org.python.pydev.shared_ui.utils.UIUtils;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
-
-import com.eclipsesource.json.JsonArray;
-import com.eclipsesource.json.JsonObject;
-import com.eclipsesource.json.JsonValue;
 
 public class CondaPackageManager extends AbstractPackageManager {
 
