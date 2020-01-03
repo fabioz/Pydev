@@ -81,7 +81,7 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
     }
 
     public void testGenCythonFromCythonTests() throws Exception {
-        File cythonTestCompileDir = new File("X:\\cython\\tests\\compile");
+        File cythonTestCompileDir = new File("X:\\cython\\");
         assertTrue(cythonTestCompileDir.isDirectory());
         FileUtils.visitDirectory(cythonTestCompileDir, true, (Path path) -> {
             String p = path.toString();
@@ -101,6 +101,7 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
 
     public void testGenCythonAstCases() throws Exception {
         String[] cases = new String[] {
+                "[a for b in c if d]",
                 "import a\n"
                         + "\n"
                         + "import b\n",

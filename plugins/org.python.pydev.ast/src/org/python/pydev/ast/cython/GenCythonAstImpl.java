@@ -221,6 +221,10 @@ public class GenCythonAstImpl {
                             node = createGeneratorExpression(asObject);
                             break;
 
+                        case "Comprehension":
+                            node = createComprehension(asObject);
+                            break;
+
                         case "YieldExpr":
                             node = createYieldExpr(asObject);
                             break;
@@ -455,6 +459,10 @@ public class GenCythonAstImpl {
                             node = createSliceIndex(asObject);
                             break;
 
+                        case "ComprehensionAppend":
+                            node = createComprehensionAppend(asObject);
+                            break;
+
                         default:
                             String msg = "Don't know how to create statement from cython json: "
                                     + asObject.toPrettyString();
@@ -467,6 +475,10 @@ public class GenCythonAstImpl {
                 }
             }
             return node;
+        }
+
+        private ISimpleNode createComprehensionAppend(JsonObject asObject) {
+            return createNode(asObject.get("expr"));
         }
 
         private ISimpleNode createProperty(JsonObject asObject) {
@@ -1103,7 +1115,15 @@ public class GenCythonAstImpl {
             return str;
         }
 
-        private SimpleNode createGeneratorExpression(final JsonObject asObject) throws Exception {
+        private SimpleNode createComprehension(final JsonObject asObject) throws Exception {
+            ListComp listComp = createGeneratorExpression(asObject);
+            if (listComp != null) {
+                listComp.ctx = ListComp.ListCtx;
+            }
+            return listComp;
+        }
+
+        private ListComp createGeneratorExpression(final JsonObject asObject) throws Exception {
             JsonValue loop = asObject.get("loop");
             if (loop != null && loop.isObject()) {
                 ISimpleNode loopNode = createNode(loop);
