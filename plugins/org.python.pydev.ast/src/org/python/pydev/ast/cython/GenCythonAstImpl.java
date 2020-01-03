@@ -524,7 +524,6 @@ public class GenCythonAstImpl {
         }
 
         private excepthandlerType createExceptClause(JsonObject asObject) {
-            System.out.println(asObject.toPrettyString());
             stmtType[] body = extractStmts(asObject, "body").toArray(new stmtType[0]);
             exprType name = null;
             exprType type = null;
@@ -2490,7 +2489,9 @@ public class GenCythonAstImpl {
                 JsonValue colValue = asObject.get("col");
                 JsonValue messageValue = asObject.get("message_only");
                 ParseException exc = new ParseException(messageValue.asString(), lineValue.asInt(), colValue.asInt());
-                return new ParseOutput(null, exc, modifiedTime);
+                ParseOutput parseOutput = new ParseOutput(null, exc, modifiedTime);
+                parseOutput.isCython = true;
+                return parseOutput;
             }
             log("Expected cython ast to have StatList as root. Found json: " + cythonJson);
             return null;
@@ -2510,7 +2511,9 @@ public class GenCythonAstImpl {
                     }
                 }
                 ISimpleNode ast = builder.createModule();
-                return new ParseOutput(ast, null, modifiedTime);
+                ParseOutput parseOutput = new ParseOutput(ast, null, modifiedTime);
+                parseOutput.isCython = true;
+                return parseOutput;
             }
         }
         return null;

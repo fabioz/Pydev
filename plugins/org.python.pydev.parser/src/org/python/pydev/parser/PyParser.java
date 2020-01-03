@@ -104,6 +104,8 @@ public class PyParser extends BaseParser implements IPyParser {
      */
     private final IGrammarVersionProvider grammarVersionProvider;
 
+    public static boolean USE_NEW_CYTHON_PARSER = false;
+
     public static String getGrammarVersionStr(int grammarVersion) {
         if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5) {
             return "grammar: Python 2.5";
@@ -665,14 +667,22 @@ public class PyParser extends BaseParser implements IPyParser {
     }
 
     public static ParseOutput createCythonAst(ParserInfo info) {
-        PyParserCython parserCython = new PyParserCython(info);
-        ParseOutput parseOutput = parserCython.parse();
-        if (parseOutput.ast == null) {
+        ParseOutput parseOutput = null;
+
+        if (USE_NEW_CYTHON_PARSER) {
+            PyParserCython parserCython = new PyParserCython(info);
+            parseOutput = parserCython.parse();
+            parseOutput.isCython = true;
+        }
+        if (parseOutput == null || parseOutput.ast == null) {
             // If we couldn't parse with cython, try to give something even if not really complete.
             List<stmtType> classesAndFunctions = FastParser.parseCython(info.document);
             Module ast = new Module(classesAndFunctions.toArray(new stmtType[classesAndFunctions
                     .size()]));
-            parseOutput = new ParseOutput(ast, parseOutput.error, parseOutput.modificationStamp);
+
+            parseOutput = new ParseOutput(ast, parseOutput != null ? parseOutput.error : null,
+                    ((IDocumentExtension4) info.document).getModificationStamp());
+            parseOutput.isCython = true;
         }
         return parseOutput;
 
