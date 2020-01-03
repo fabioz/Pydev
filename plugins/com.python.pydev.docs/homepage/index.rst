@@ -31,6 +31,8 @@
 
         <div id="bronze-sponsors-a-hrefs">
 
+		<a href="https://www.onlineesports.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/onlineesports.png" alt="onlineesports.com" title="https://www.onlineesports.com/" /></a>
+
 		<a href="https://writersperhour.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/writersperhour.jpg" alt="writersperhour.com" title="https://writersperhour.com/" /></a>
 
 		<a href="https://datingpilot.dk/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/datingpilot.jpg" alt="datingpilot.dk" title="https://datingpilot.dk/" /></a>
