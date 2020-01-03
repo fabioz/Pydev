@@ -1613,7 +1613,7 @@ public class GenCythonAstImpl {
                 ClassDef classDef = astFactory.createClassDef(value.asString());
                 setLine(classDef, asObject);
                 classDef.name.beginLine = classDef.beginLine;
-                classDef.name.beginColumn = classDef.beginColumn + 7;
+                classDef.name.beginColumn = classDef.beginColumn + 6;
 
                 setBases(asObject, classDef);
 
@@ -1776,16 +1776,8 @@ public class GenCythonAstImpl {
                 FunctionDef funcDef = createCFuncDeclarator(declarator.asObject());
                 if (funcDef != null) {
                     funcDef.decs = createDecorators(asObject);
-                    //                funcDef.name.beginLine = funcDef.beginLine;
-                    //                funcDef.name.beginColumn = funcDef.beginColumn + 4;
-                    //
-                    //                funcDef.args = createArgs(asObject);
-                    //                funcDef.decs = createDecorators(asObject);
-                    //
-                    //                JsonValue isAsyncDef = asObject.get("is_async_def");
-                    //                if (isAsyncDef != null && isAsyncDef.asString().equals("True")) {
-                    //                    funcDef.async = true;
-                    //                }
+                    setLine(funcDef, asObject);
+                    setLine(funcDef.name, asObject);
                     astFactory.setBody(funcDef, extractStmts(asObject, "body").toArray());
                 }
                 return funcDef;
@@ -1889,12 +1881,13 @@ public class GenCythonAstImpl {
                             }
                             if (nameNode == null) {
                                 nameNode = createNameFromBaseType(asObject);
-
                             }
                             if (nameNode == null) {
                                 log("Unable to get arg name in: " + asObject.toPrettyString());
                                 continue;
                             }
+                            // The declarator col is at the end, set it to the start.
+                            setLine(nameNode, asObject);
 
                             boolean isKwOnly = false;
                             JsonValue kwOnlyValue = asObject.get("kw_only");
@@ -2358,6 +2351,9 @@ public class GenCythonAstImpl {
 
                     NameTok attribName = new NameTok(attr, NameTok.Attrib);
                     setLine(attribName, asObject);
+                    // The column for cython starts at the dot, so, we need to update
+                    // it for the real pos.
+                    attribName.beginColumn += 1;
 
                     Attribute attributeNode = new Attribute(
                             astFactory.asExpr(objNode), attribName, Attribute.Load);

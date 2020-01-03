@@ -9,7 +9,6 @@ public class GenCythonAst implements IGenCythonAst {
     @Override
     public ParseOutput genCythonAst(Object parserInfo) {
         return new GenCythonAstImpl((ParserInfo) parserInfo).genCythonAst();
-
     }
 
     @Override

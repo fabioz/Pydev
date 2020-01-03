@@ -423,6 +423,43 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
         compareCase(s, cython, true);
     }
 
+    public void testGenCythonAstCdef2() throws Exception {
+        String s = "def  bar(a, b): pass\r\n";
+        String cython = "cdef bar(a, b): pass\r\n";
+        compareCase(s, cython, true);
+    }
+
+    public void testGenCythonAstAttributes() throws Exception {
+        String s = "my.bar.ra = my.foo.ra";
+        compareCase(s, s, true);
+    }
+
+    public void testGenCythonAst() throws Exception {
+        String cython = "class Foo(object):\n" +
+                "\n" +
+                "    def method(self, foo):\n" +
+                "        pass\n" +
+                "\n" +
+                "\n" +
+                "cdef bar():\n" +
+                "    return Foo()\n" +
+                "\n" +
+                "b = bar()\n" +
+                "";
+        String s = "class Foo(object):\n" +
+                "\n" +
+                "    def method(self, foo):\n" +
+                "        pass\n" +
+                "\n" +
+                "\n" +
+                "def  bar():\n" +
+                "    return Foo()\n" +
+                "\n" +
+                "b = bar()\n" +
+                "";
+        compareCase(s, cython, true);
+    }
+
     public void testGenCythonAstClassCDef() throws Exception {
         String s = ""
                 + "\n"

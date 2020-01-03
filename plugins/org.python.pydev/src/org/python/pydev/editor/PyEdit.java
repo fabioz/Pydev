@@ -1575,6 +1575,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         };
     }
 
+    @Override
     public boolean isCythonFile() {
         IFile iFile = getIFile();
         String fileName = null;
