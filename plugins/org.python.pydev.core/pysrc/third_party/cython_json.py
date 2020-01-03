@@ -63,15 +63,24 @@ def node_to_dict(node, _recurse_level=0):
 
 
 def source_to_dict(source, name=None):
-    from Cython.Compiler.TreeFragment import TreeFragment
+    from Cython.Compiler.TreeFragment import parse_from_strings, StatListNode
+
     try:
-        fragment = TreeFragment(source, name=name)
+        # Note: we don't use TreeFragment because it formats the code removing empty lines
+        # (which ends up creating an AST with wrong lines).
+        if not name:
+            name = "(tree fragment)"
+
+        mod = t = parse_from_strings(name, source)
+        t = t.body # Make sure a StatListNode is at the top
+        if not isinstance(t, StatListNode):
+            t = StatListNode(pos=mod.pos, stats=[t])
+        root = t
     except CompileError as e:
         as_dict = node_to_dict(e)
         as_dict['is_error'] = True
         return as_dict
 
-    root = fragment.root
     return node_to_dict(root)
 
 

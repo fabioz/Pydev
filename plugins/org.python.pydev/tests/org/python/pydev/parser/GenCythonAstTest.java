@@ -15,6 +15,8 @@ import org.python.pydev.parser.PyParser.ParserInfo;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Module;
+import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.visitors.comparator.DifferException;
 import org.python.pydev.parser.visitors.comparator.SimpleNodeComparator;
@@ -23,6 +25,7 @@ import org.python.pydev.parser.visitors.comparator.SimpleNodeComparator.RegularL
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
+import org.python.pydev.shared_core.string.StringUtils;
 
 public class GenCythonAstTest extends CodeCompletionTestsBase {
 
@@ -98,6 +101,10 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
 
     public void testGenCythonAstCases() throws Exception {
         String[] cases = new String[] {
+                "import a\n"
+                        + "\n"
+                        + "import b\n",
+
                 "foo[:, b:c, d:e, f:g] = []",
                 "foo[:] = []",
                 "try:\n"
@@ -237,12 +244,26 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
     }
 
     public ParseOutput compareCase(String expected, String cython) throws DifferException, Exception {
+        return compareCase(expected, cython, false);
+    }
+
+    public ParseOutput compareCase(String expected, String cython, boolean checkCol) throws DifferException, Exception {
         // Suite types usually have a different start line number comparing our own with cython.
         return this.compareCase(expected, cython, new RegularLineComparator() {
             @Override
             public void compareLineCol(SimpleNode node, SimpleNode node2) throws DifferException {
                 if (!(node instanceof Suite)) {
                     super.compareLineCol(node, node2);
+
+                    if (checkCol) {
+                        if (node instanceof Name || node instanceof NameTok) {
+                            if (node.beginColumn != node2.beginColumn) {
+                                throw new DifferException(
+                                        StringUtils.format("Nodes beginColumn differ. (%s != %s) (%s -- %s)",
+                                                node.beginColumn, node2.beginColumn, node, node2));
+                            }
+                        }
+                    }
                 }
             }
         });
@@ -300,6 +321,13 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
     }
 
     public void testGenCythonAstCornerCase2() throws Exception {
+        compareCase(
+                "\n"
+                        + "def foo(int): pass",
+                "cdef extern from *:\n" +
+                        "    cdef void foo(int[]): pass\n\n",
+                false);
+
         compareCase("b = None", "cimport b");
 
         compareCase("def const_args(a): pass", "cdef const_args(const int a): pass");
@@ -321,9 +349,6 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
         compareCase("MyStructP = MyStruct\n", "ctypedef MyStruct* MyStructP\n");
 
         compareCase("\nclass MyStruct:\n  a = 10\n", "cdef extern from *:\n  struct MyStruct:\n    int a = 10\n");
-
-        compareCase("\ndef foo(int): pass", "cdef extern from *:\n" +
-                "\n    cdef void foo(int[]): pass\n\n");
 
         compareCase("def foo(a): pass", "cdef void foo(int[] a): pass\n");
         compareCase("def foo(int): pass", "cdef void foo(int[]): pass\n"); // i.e.: we just have the type.
@@ -393,9 +418,9 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
     }
 
     public void testGenCythonAstCdef() throws Exception {
-        String s = "def bar(): pass\r\n";
+        String s = "def  bar(): pass\r\n";
         String cython = "cdef bar(): pass\r\n";
-        compareCase(s, cython);
+        compareCase(s, cython, true);
     }
 
     public void testGenCythonAstClassCDef() throws Exception {
@@ -411,7 +436,7 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
                 + "    int a\n"
                 + "    def b(): pass\n"
                 + "";
-        compareCase(s, cython);
+        compareCase(s, cython, false);
     }
 
     public void testGenCythonAstClassCDef2() throws Exception {
