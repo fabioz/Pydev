@@ -434,6 +434,11 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
         compareCase(s, s, true);
     }
 
+    public void testGenCythonAstMultipleAssigns() throws Exception {
+        String s = "self.bar = bar = 10";
+        compareCase(s, s, true);
+    }
+
     public void testGenCythonAst() throws Exception {
         String cython = "class Foo(object):\n" +
                 "\n" +

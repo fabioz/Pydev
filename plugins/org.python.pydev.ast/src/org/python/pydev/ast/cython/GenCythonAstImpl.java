@@ -237,6 +237,10 @@ public class GenCythonAstImpl {
                             node = createSingleAssignment(asObject);
                             break;
 
+                        case "CascadedAssignment":
+                            node = createCascadedAssignment(asObject);
+                            break;
+
                         case "ForFromStat":
                             node = createForFromStat(asObject);
                             break;
@@ -1155,7 +1159,7 @@ public class GenCythonAstImpl {
                             for (JsonValue v : jsonValueArgs.asArray()) {
                                 ISimpleNode n = createNode(v);
                                 if (n != null) {
-                                    params.add((exprType) n);
+                                    params.add(astFactory.asExpr(n));
                                 }
                             }
                         } else if (jsonValueArgs.isObject()) {
@@ -1266,7 +1270,7 @@ public class GenCythonAstImpl {
                         for (JsonValue v : jsonValueArgs.asArray()) {
                             ISimpleNode n = createNode(v);
                             if (n != null) {
-                                params.add((exprType) n);
+                                params.add(astFactory.asExpr(n));
                             }
                         }
                     }
@@ -2059,10 +2063,30 @@ public class GenCythonAstImpl {
                     ArrayList<stmtType> lst = new ArrayList<>();
                     addToStmtsList(node, lst);
                     suite = new Suite(lst.toArray(new stmtType[0]));
-
                 }
             }
             return suite;
+        }
+
+        private SimpleNode createCascadedAssignment(JsonObject asObject) throws Exception {
+            SimpleNode node = null;
+            JsonValue lhsList = asObject.get("lhs_list");
+            JsonValue rhs = asObject.get("rhs");
+            if (lhsList != null && lhsList.isArray() && rhs != null && rhs.isObject()) {
+                JsonArray asArray = lhsList.asArray();
+                List<exprType> targets = new ArrayList<>(asArray.size());
+
+                for (JsonValue lhs : asArray) {
+                    ISimpleNode left = createNode(lhs);
+                    ctx.setStore((SimpleNode) left);
+                    targets.add(astFactory.asExpr(left));
+                }
+
+                ISimpleNode right = createNode(rhs);
+                node = new Assign(targets.toArray(new exprType[0]), astFactory.asExpr(right), null);
+                setLine(node, asObject);
+            }
+            return node;
         }
 
         private SimpleNode createSingleAssignment(JsonObject asObject) throws Exception {
@@ -2093,7 +2117,7 @@ public class GenCythonAstImpl {
 
                     }
                 } else {
-                    node = astFactory.createAssign((exprType) left, (exprType) right);
+                    node = astFactory.createAssign(astFactory.asExpr(left), astFactory.asExpr(right));
                     setLine(node, asObject);
                 }
             }
