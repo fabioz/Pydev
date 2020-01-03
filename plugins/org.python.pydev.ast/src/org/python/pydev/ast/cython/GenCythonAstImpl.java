@@ -32,6 +32,7 @@ import org.python.pydev.parser.jython.ast.Comprehension;
 import org.python.pydev.parser.jython.ast.Continue;
 import org.python.pydev.parser.jython.ast.Delete;
 import org.python.pydev.parser.jython.ast.Dict;
+import org.python.pydev.parser.jython.ast.Exec;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.ExtSlice;
 import org.python.pydev.parser.jython.ast.For;
@@ -42,6 +43,7 @@ import org.python.pydev.parser.jython.ast.IfExp;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Index;
+import org.python.pydev.parser.jython.ast.Lambda;
 import org.python.pydev.parser.jython.ast.ListComp;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
@@ -194,6 +196,7 @@ public class GenCythonAstImpl {
                             break;
 
                         case "Unicode":
+                        case "Char":
                             node = createUnicode(asObject);
                             break;
 
@@ -463,6 +466,14 @@ public class GenCythonAstImpl {
                             node = createComprehensionAppend(asObject);
                             break;
 
+                        case "Lambda":
+                            node = createLambda(asObject);
+                            break;
+
+                        case "ExecStat":
+                            node = createExec(asObject);
+                            break;
+
                         default:
                             String msg = "Don't know how to create statement from cython json: "
                                     + asObject.toPrettyString();
@@ -475,6 +486,30 @@ public class GenCythonAstImpl {
                 }
             }
             return node;
+        }
+
+        private ISimpleNode createExec(JsonObject asObject) {
+            exprType locals = null;
+            exprType globals = null;
+            exprType body = null;
+
+            JsonValue args = asObject.get("args");
+            if (args != null && args.isArray()) {
+                JsonArray asArray = args.asArray();
+                if (asArray.size() > 0) {
+                    body = astFactory.asExpr(createNode(asArray.get(0)));
+                }
+                if (asArray.size() > 1) {
+                    globals = astFactory.asExpr(createNode(asArray.get(1)));
+                }
+                if (asArray.size() > 2) {
+                    locals = astFactory.asExpr(createNode(asArray.get(2)));
+                }
+            }
+
+            Exec exec = new Exec(body, globals, locals);
+            setLine(exec, asObject);
+            return exec;
         }
 
         private ISimpleNode createComprehensionAppend(JsonObject asObject) {
@@ -1214,6 +1249,8 @@ public class GenCythonAstImpl {
                             for (ISimpleNode node : mergedDict.nodes) {
                                 if (node instanceof Name) {
                                     kwargs = (exprType) node;
+                                } else if (node instanceof Attribute) {
+                                    kwargs = (exprType) node;
                                 } else if (node instanceof Dict) {
                                     Dict dict = (Dict) node;
                                     boolean afterstarargs = starargs == null;
@@ -1758,6 +1795,14 @@ public class GenCythonAstImpl {
             return null;
         }
 
+        private ISimpleNode createLambda(JsonObject asObject) {
+            Lambda lambda = new Lambda(null, null);
+            lambda.args = createArgs(asObject);
+            lambda.body = astFactory.asExpr(createNode(asObject.get("result_expr")));
+            setLine(lambda, asObject);
+            return lambda;
+        }
+
         private FunctionDef createFunctionDef(JsonObject asObject) throws Exception {
             final JsonValue value = asObject.get("name");
             if (value != null && value.isString()) {
@@ -1976,6 +2021,13 @@ public class GenCythonAstImpl {
                     nameNode = createName(baseTypeNode.asObject());
                 }
 
+            }
+
+            if (nameNode == null && baseType.isObject()) {
+                JsonValue jsonValue = baseType.asObject().get("base_type");
+                if (jsonValue != null && jsonValue.isObject()) {
+                    return createNameFromBaseType(baseType.asObject());
+                }
             }
             return nameNode;
         }

@@ -101,6 +101,8 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
 
     public void testGenCythonAstCases() throws Exception {
         String[] cases = new String[] {
+                "a = lambda x:y",
+                "a = call(foo, foo=bar, **xx.yy)",
                 "[a for b in c if d]",
                 "import a\n"
                         + "\n"
@@ -313,7 +315,7 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
     public void compareWithAst(String code, String expectedAst) throws MisconfigurationException {
         ParserInfo parserInfo = new ParserInfo(new Document(code), grammarVersionProvider);
         ParseOutput cythonParseOutput = new GenCythonAstImpl(parserInfo).genCythonAst();
-        assertEquals(cythonParseOutput.ast.toString(), expectedAst);
+        assertEquals(expectedAst, cythonParseOutput.ast.toString());
     }
 
     public void testGenCythonAstCornerCase1() throws Exception {
@@ -322,6 +324,8 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
     }
 
     public void testGenCythonAstCornerCase2() throws Exception {
+        compareCase("a = u'>'", "a = c'>'");
+
         compareCase(
                 "\n"
                         + "def foo(int): pass",
@@ -418,6 +422,18 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
                 "Module[body=[Assign[targets=[Name[id=dtype_t_out, ctx=Store, reserved=false]], value=Name[id=npy_uint8, ctx=Load, reserved=false], type=null]]]");
     }
 
+    public void testGenCythonAstCornerCase12() throws Exception {
+        compareWithAst("cdef extern from \"Python.h\":\n"
+                + "  int method(FILE *, const char *)",
+                "Module[body=[FunctionDef[name=NameTok[id=method, ctx=FunctionName], args=arguments[args=[Name[id=FILE, ctx=Param, reserved=false], Name[id=char, ctx=Param, reserved=false]], vararg=null, kwarg=null, defaults=[null, null], kwonlyargs=[], kw_defaults=[], annotation=[null, null], varargannotation=null, kwargannotation=null, kwonlyargannotation=[]], body=null, decs=null, returns=null, async=false]]]");
+    }
+
+    public void testGenCythonAstCornerCase13() throws Exception {
+        compareWithAst("cdef extern from \"Python.h\":\n"
+                + "  void remove(const T&)",
+                "Module[body=[FunctionDef[name=NameTok[id=remove, ctx=FunctionName], args=arguments[args=[Name[id=T, ctx=Param, reserved=false]], vararg=null, kwarg=null, defaults=[null], kwonlyargs=[], kw_defaults=[], annotation=[null], varargannotation=null, kwargannotation=null, kwonlyargannotation=[]], body=null, decs=null, returns=null, async=false]]]");
+    }
+
     public void testGenCythonAstCdef() throws Exception {
         String s = "def  bar(): pass\r\n";
         String cython = "cdef bar(): pass\r\n";
@@ -480,6 +496,26 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
                 + "    def b(): pass\n"
                 + "";
         compareCase(s, cython, false);
+    }
+
+    public void testGenCythonAstExec() throws Exception {
+        grammarVersionProvider = new IGrammarVersionProvider() {
+
+            @Override
+            public int getGrammarVersion() throws MisconfigurationException {
+                // Note: this is used in reparseDocument but not when generating the cython ast as we call the internal implementation.
+                return IPythonNature.GRAMMAR_PYTHON_VERSION_2_7;
+            }
+
+            @Override
+            public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions() throws MisconfigurationException {
+                return null;
+            }
+
+        };
+
+        String s = "exec 'foo' in g, f";
+        compareCase(s, s, true);
     }
 
     public void testGenCythonAstClassCDef2() throws Exception {
