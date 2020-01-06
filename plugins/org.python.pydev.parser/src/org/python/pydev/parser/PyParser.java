@@ -104,7 +104,7 @@ public class PyParser extends BaseParser implements IPyParser {
      */
     private final IGrammarVersionProvider grammarVersionProvider;
 
-    public static boolean USE_NEW_CYTHON_PARSER = false;
+    public static boolean USE_NEW_CYTHON_PARSER = true;
 
     public static String getGrammarVersionStr(int grammarVersion) {
         if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5) {
@@ -409,9 +409,11 @@ public class PyParser extends BaseParser implements IPyParser {
             this(document, nature.getGrammarVersion(), nature.getAdditionalGrammarVersions());
         }
 
-        public ParserInfo(IDocument document, IGrammarVersionProvider nature, String moduleName, File file)
+        public ParserInfo(IDocument document, IGrammarVersionProvider grammarVersionProvider, String moduleName,
+                File file)
                 throws MisconfigurationException {
-            this(document, nature.getGrammarVersion(), moduleName, file, true, nature.getAdditionalGrammarVersions());
+            this(document, grammarVersionProvider.getGrammarVersion(), moduleName, file, true,
+                    grammarVersionProvider.getAdditionalGrammarVersions());
         }
 
         public ParserInfo(IDocument document, int grammarVersion, String name, File f, boolean generateTree,

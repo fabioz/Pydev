@@ -62,17 +62,40 @@ def node_to_dict(node, _recurse_level=0):
     return data
 
 
+
 def source_to_dict(source, name=None):
-    from Cython.Compiler.TreeFragment import TreeFragment
+    from Cython.Compiler.TreeFragment import parse_from_strings, StatListNode
+    # Right now we don't collect errors, but leave the API compatible already.
+    collected_errors = []
+
     try:
-        fragment = TreeFragment(source, name=name)
+
+        # Note: we don't use TreeFragment because it formats the code removing empty lines
+        # (which ends up creating an AST with wrong lines).
+        if not name:
+            name = "(tree fragment)"
+
+        mod = t = parse_from_strings(name, source)
+        t = t.body  # Make sure a StatListNode is at the top
+        if not isinstance(t, StatListNode):
+            t = StatListNode(pos=mod.pos, stats=[t])
+        root = t
     except CompileError as e:
-        as_dict = node_to_dict(e)
-        as_dict['is_error'] = True
+        return {
+            'ast': None,
+            'errors': [node_to_dict(e)]
+        }
+    except BaseException as e:
+        as_dict = {
+            'ast': None,
+            'errors': [{
+                '__node__': 'CompileError', 'line': 1, 'col': 1, 'message_only': str(e)
+            }]
+        }
         return as_dict
 
-    root = fragment.root
-    return node_to_dict(root)
+    result = {'ast': node_to_dict(root), 'errors': [node_to_dict(e) for e in collected_errors]}
+    return result
 
 
 from _pydev_bundle import pydev_localhost

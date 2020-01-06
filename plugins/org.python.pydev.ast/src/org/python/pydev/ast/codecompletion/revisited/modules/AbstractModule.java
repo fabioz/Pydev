@@ -36,6 +36,7 @@ import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.TokensList;
 import org.python.pydev.core.TupleN;
+import org.python.pydev.core.preferences.FileTypesPreferences;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -300,7 +301,23 @@ public abstract class AbstractModule implements IModule {
 
     public static SourceModule createModuleFromDoc(String name, File f, IDocument doc, IPythonNature nature,
             boolean checkForPath) throws MisconfigurationException {
-        return createModuleFromDoc(name, f, doc, nature, checkForPath, nature);
+        IGrammarVersionProvider grammarVersionProvider = nature;
+        if (FileTypesPreferences.isCythonFile(f.getName())) {
+            grammarVersionProvider = new IGrammarVersionProvider() {
+
+                @Override
+                public int getGrammarVersion() throws MisconfigurationException {
+                    return IPythonNature.GRAMMAR_PYTHON_VERSION_CYTHON;
+                }
+
+                @Override
+                public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions()
+                        throws MisconfigurationException {
+                    return nature.getAdditionalGrammarVersions();
+                }
+            };
+        }
+        return createModuleFromDoc(name, f, doc, nature, checkForPath, grammarVersionProvider);
     }
 
     /**

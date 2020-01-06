@@ -1069,8 +1069,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testUnusedVariable6() throws Exception {
         doc = new Document("def m():         \n" +
                 "    try:         \n" +
-                "        c = 'a'  \n"
-                +
+                "        c = 'a'  \n" +
                 "    finally:     \n" +
                 "        c = 'b'  \n" +
                 "");

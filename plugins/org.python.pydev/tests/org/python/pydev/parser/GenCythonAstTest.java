@@ -15,6 +15,8 @@ import org.python.pydev.parser.PyParser.ParserInfo;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Module;
+import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.visitors.comparator.DifferException;
 import org.python.pydev.parser.visitors.comparator.SimpleNodeComparator;
@@ -23,6 +25,7 @@ import org.python.pydev.parser.visitors.comparator.SimpleNodeComparator.RegularL
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
+import org.python.pydev.shared_core.string.StringUtils;
 
 public class GenCythonAstTest extends CodeCompletionTestsBase {
 
@@ -78,7 +81,7 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
     }
 
     public void testGenCythonFromCythonTests() throws Exception {
-        File cythonTestCompileDir = new File("X:\\cython\\tests\\compile");
+        File cythonTestCompileDir = new File("X:\\cython\\");
         assertTrue(cythonTestCompileDir.isDirectory());
         FileUtils.visitDirectory(cythonTestCompileDir, true, (Path path) -> {
             String p = path.toString();
@@ -98,6 +101,23 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
 
     public void testGenCythonAstCases() throws Exception {
         String[] cases = new String[] {
+                "def method(*args, **kwargs):\n"
+                        + "    return f(*args, **modify(kwargs))",
+                "{tuple(call(n) for n in (1, 2) if n == 2)}",
+                "{tuple(call(n) for n in (1, 2))}",
+                "[a for b in c if d]",
+                "{i: j for i, j in a}",
+                "{a, *c, d, *[1,2], [3, 4]}",
+                "[a, *c, d]",
+                "*a, b = [1, 2, 4]",
+                "def foo():\n"
+                        + "  yield from bar",
+                "a = lambda x:y",
+                "a = call(foo, foo=bar, **xx.yy)",
+                "import a\n"
+                        + "\n"
+                        + "import b\n",
+
                 "foo[:, b:c, d:e, f:g] = []",
                 "foo[:] = []",
                 "try:\n"
@@ -139,8 +159,6 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
                 "for i in range(10): break",
                 "for i in range(10): continue",
                 "3.14159",
-                "{tuple(call(n) for n in (1, 2) if n == 2)}",
-                "{tuple(call(n) for n in (1, 2))}",
                 "b = a**2",
                 "call(b=2, **kwargs)",
                 "call(1, b, a=2, c=3, *args)",
@@ -237,12 +255,30 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
     }
 
     public ParseOutput compareCase(String expected, String cython) throws DifferException, Exception {
+        try {
+            return compareCase(expected, cython, false);
+        } catch (Exception e) {
+            throw new RuntimeException("Error with cython: " + cython, e);
+        }
+    }
+
+    public ParseOutput compareCase(String expected, String cython, boolean checkCol) throws DifferException, Exception {
         // Suite types usually have a different start line number comparing our own with cython.
         return this.compareCase(expected, cython, new RegularLineComparator() {
             @Override
             public void compareLineCol(SimpleNode node, SimpleNode node2) throws DifferException {
                 if (!(node instanceof Suite)) {
                     super.compareLineCol(node, node2);
+
+                    if (checkCol) {
+                        if (node instanceof Name || node instanceof NameTok) {
+                            if (node.beginColumn != node2.beginColumn) {
+                                throw new DifferException(
+                                        StringUtils.format("Nodes beginColumn differ. (%s != %s) (%s -- %s)",
+                                                node.beginColumn, node2.beginColumn, node, node2));
+                            }
+                        }
+                    }
                 }
             }
         });
@@ -291,7 +327,7 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
     public void compareWithAst(String code, String expectedAst) throws MisconfigurationException {
         ParserInfo parserInfo = new ParserInfo(new Document(code), grammarVersionProvider);
         ParseOutput cythonParseOutput = new GenCythonAstImpl(parserInfo).genCythonAst();
-        assertEquals(cythonParseOutput.ast.toString(), expectedAst);
+        assertEquals(expectedAst, cythonParseOutput.ast.toString());
     }
 
     public void testGenCythonAstCornerCase1() throws Exception {
@@ -300,6 +336,15 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
     }
 
     public void testGenCythonAstCornerCase2() throws Exception {
+        compareCase("a = u'>'", "a = c'>'");
+
+        compareCase(
+                "\n"
+                        + "def foo(int): pass",
+                "cdef extern from *:\n" +
+                        "    cdef void foo(int[]): pass\n\n",
+                false);
+
         compareCase("b = None", "cimport b");
 
         compareCase("def const_args(a): pass", "cdef const_args(const int a): pass");
@@ -321,9 +366,6 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
         compareCase("MyStructP = MyStruct\n", "ctypedef MyStruct* MyStructP\n");
 
         compareCase("\nclass MyStruct:\n  a = 10\n", "cdef extern from *:\n  struct MyStruct:\n    int a = 10\n");
-
-        compareCase("\ndef foo(int): pass", "cdef extern from *:\n" +
-                "\n    cdef void foo(int[]): pass\n\n");
 
         compareCase("def foo(a): pass", "cdef void foo(int[] a): pass\n");
         compareCase("def foo(int): pass", "cdef void foo(int[]): pass\n"); // i.e.: we just have the type.
@@ -392,10 +434,91 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
                 "Module[body=[Assign[targets=[Name[id=dtype_t_out, ctx=Store, reserved=false]], value=Name[id=npy_uint8, ctx=Load, reserved=false], type=null]]]");
     }
 
+    public void testGenCythonAstCornerCase12() throws Exception {
+        compareWithAst("cdef extern from \"Python.h\":\n"
+                + "  int method(FILE *, const char *)",
+                "Module[body=[FunctionDef[name=NameTok[id=method, ctx=FunctionName], args=arguments[args=[Name[id=FILE, ctx=Param, reserved=false], Name[id=char, ctx=Param, reserved=false]], vararg=null, kwarg=null, defaults=[null, null], kwonlyargs=[], kw_defaults=[], annotation=[null, null], varargannotation=null, kwargannotation=null, kwonlyargannotation=[]], body=null, decs=null, returns=null, async=false]]]");
+    }
+
+    public void testGenCythonAstCornerCase13() throws Exception {
+        compareWithAst("cdef extern from \"Python.h\":\n"
+                + "  void remove(const T&)",
+                "Module[body=[FunctionDef[name=NameTok[id=remove, ctx=FunctionName], args=arguments[args=[Name[id=T, ctx=Param, reserved=false]], vararg=null, kwarg=null, defaults=[null], kwonlyargs=[], kw_defaults=[], annotation=[null], varargannotation=null, kwargannotation=null, kwonlyargannotation=[]], body=null, decs=null, returns=null, async=false]]]");
+    }
+
+    public void testGenCythonAstCornerCase14() throws Exception {
+        compareWithAst("2.0j",
+                "Module[body=[Expr[value=Num[n=2.0, type=Comp, num=2.0]]]]");
+    }
+
+    public void testGenCythonAstCornerCase15() throws Exception {
+        compareWithAst("def wrapper(*args, **kwargs):\n" +
+                "    return f(*args, more=2, **{**kwargs, 'test': 1})\n",
+                "Module[body=[FunctionDef[name=NameTok[id=wrapper, ctx=FunctionName], args=arguments[args=[], vararg=NameTok[id=args, ctx=VarArg], kwarg=NameTok[id=kwargs, ctx=KwArg], defaults=[], kwonlyargs=[], kw_defaults=[], annotation=[], varargannotation=null, kwargannotation=null, kwonlyargannotation=[]], body=[Return[value=Call[func=Name[id=f, ctx=Load, reserved=false], args=[], keywords=[keyword[arg=NameTok[id=more, ctx=KeywordName], value=Num[n=2, type=Int, num=2], afterstarargs=false]], starargs=Name[id=args, ctx=Load, reserved=false], kwargs=Dict[keys=[Name[id=kwargs, ctx=Load, reserved=false], Str[s=test, type=SingleSingle, unicode=false, raw=false, binary=false, fstring=false, fstring_nodes=null], Num[n=1, type=Int, num=1]], values=[]]]]], decs=null, returns=null, async=false]]]");
+    }
+
     public void testGenCythonAstCdef() throws Exception {
-        String s = "def bar(): pass\r\n";
+        String s = "def  bar(): pass\r\n";
         String cython = "cdef bar(): pass\r\n";
-        compareCase(s, cython);
+        compareCase(s, cython, true);
+    }
+
+    public void testGenCythonAstCdef2() throws Exception {
+        String s = "def  bar(a, b): pass\r\n";
+        String cython = "cdef bar(a, b): pass\r\n";
+        compareCase(s, cython, true);
+    }
+
+    public void testGenCythonAstAttributes() throws Exception {
+        String s = "my.bar.ra = my.foo.ra";
+        compareCase(s, s, true);
+    }
+
+    public void testGenCythonAstMultipleAssigns() throws Exception {
+        String s = "self.bar = bar = 10";
+        compareCase(s, s, true);
+    }
+
+    public void testGenCythonTupleArg() throws Exception {
+        String cython = "def func((a, b)):\n" +
+                "    return a + b";
+
+        String s = "def func( a, b ):\n" +
+                "    return a + b";
+
+        compareCase(s, cython, true);
+    }
+
+    public void testGenCythonArray() throws Exception {
+        String cython = "cdef double[:, :] foobar = <double[:10, :10]> NULL";
+        String s = "foobar = None";
+        compareCase(s, cython, false);
+    }
+
+    public void testGenCythonAst() throws Exception {
+        String cython = "class Foo(object):\n" +
+                "\n" +
+                "    def method(self, foo):\n" +
+                "        pass\n" +
+                "\n" +
+                "\n" +
+                "cdef bar():\n" +
+                "    return Foo()\n" +
+                "\n" +
+                "b = bar()\n" +
+                "";
+        String s = "class Foo(object):\n" +
+                "\n" +
+                "    def method(self, foo):\n" +
+                "        pass\n" +
+                "\n" +
+                "\n" +
+                "def  bar():\n" +
+                "    return Foo()\n" +
+                "\n" +
+                "b = bar()\n" +
+                "";
+        compareCase(s, cython, true);
     }
 
     public void testGenCythonAstClassCDef() throws Exception {
@@ -411,7 +534,36 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
                 + "    int a\n"
                 + "    def b(): pass\n"
                 + "";
-        compareCase(s, cython);
+        compareCase(s, cython, false);
+    }
+
+    public void testGenCythonBackquote() throws Exception {
+        grammarVersionProvider = PY27_GRAMMAR_VERSION_PROVIDER;
+
+        String s = "`'Hello'`";
+        compareCase(s, s, true);
+    }
+
+    IGrammarVersionProvider PY27_GRAMMAR_VERSION_PROVIDER = new IGrammarVersionProvider() {
+
+        @Override
+        public int getGrammarVersion() throws MisconfigurationException {
+            // Note: this is used in reparseDocument but not when generating the cython ast as we call the internal implementation.
+            return IPythonNature.GRAMMAR_PYTHON_VERSION_2_7;
+        }
+
+        @Override
+        public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions() throws MisconfigurationException {
+            return null;
+        }
+
+    };
+
+    public void testGenCythonAstExec() throws Exception {
+        grammarVersionProvider = PY27_GRAMMAR_VERSION_PROVIDER;
+
+        String s = "exec 'foo' in g, f";
+        compareCase(s, s, true);
     }
 
     public void testGenCythonAstClassCDef2() throws Exception {
@@ -463,7 +615,7 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
         String output = new GenCythonAstImpl(parserInfo).genCythonJson();
         JsonValue value = JsonValue.readFrom(output);
 
-        JsonValue body = value.asObject().get("stats");
+        JsonValue body = value.asObject().get("ast").asObject().get("stats");
         assertEquals(body, JsonValue.readFrom(
                 "[\n" +
                         "        {\n" +
