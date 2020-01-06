@@ -101,6 +101,12 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
 
     public void testGenCythonAstCases() throws Exception {
         String[] cases = new String[] {
+                "1.1 + 2.0j",
+                "{a, *c, d, *[1,2], [3, 4]}",
+                "[a, *c, d]",
+                "*a, b = [1, 2, 4]",
+                "def foo():\n"
+                        + "  yield from bar",
                 "a = lambda x:y",
                 "a = call(foo, foo=bar, **xx.yy)",
                 "[a for b in c if d]",
@@ -454,6 +460,16 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
     public void testGenCythonAstMultipleAssigns() throws Exception {
         String s = "self.bar = bar = 10";
         compareCase(s, s, true);
+    }
+
+    public void testGenCythonTupleArg() throws Exception {
+        String cython = "def func((a, b)):\n" +
+                "    return a + b";
+
+        String s = "def func( a, b ):\n" +
+                "    return a + b";
+
+        compareCase(s, cython, true);
     }
 
     public void testGenCythonAst() throws Exception {

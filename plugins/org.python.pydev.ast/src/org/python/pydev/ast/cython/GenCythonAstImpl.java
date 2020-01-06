@@ -56,6 +56,7 @@ import org.python.pydev.parser.jython.ast.Raise;
 import org.python.pydev.parser.jython.ast.Return;
 import org.python.pydev.parser.jython.ast.Set;
 import org.python.pydev.parser.jython.ast.Slice;
+import org.python.pydev.parser.jython.ast.Starred;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.Suite;
@@ -81,6 +82,7 @@ import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
+import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
@@ -230,6 +232,10 @@ public class GenCythonAstImpl {
 
                         case "YieldExpr":
                             node = createYieldExpr(asObject);
+                            break;
+
+                        case "YieldFromExpr":
+                            node = createYieldFromExpr(asObject);
                             break;
 
                         case "Def":
@@ -474,6 +480,18 @@ public class GenCythonAstImpl {
                             node = createExec(asObject);
                             break;
 
+                        case "StarredUnpacking":
+                            node = createStarredUnpacking(asObject);
+                            break;
+
+                        case "MergedSequence":
+                            node = createMergedSequence(asObject);
+                            break;
+
+                        case "Imag":
+                            node = createImag(asObject);
+                            break;
+
                         default:
                             String msg = "Don't know how to create statement from cython json: "
                                     + asObject.toPrettyString();
@@ -485,6 +503,58 @@ public class GenCythonAstImpl {
                     log(e);
                 }
             }
+            return node;
+        }
+
+        private ISimpleNode createMergedSequence(JsonObject asObject) {
+            JsonValue type = asObject.get("type");
+            ISimpleNode node = null;
+            if (type != null && type.isString()) {
+                String asString = type.asString();
+                if (asString.startsWith("set")) {
+                    node = new Set(null);
+
+                } else if (asString.startsWith("tuple")) {
+                    node = new Tuple(null, Tuple.Load, false);
+
+                } else if (asString.startsWith("list")) {
+                    node = new org.python.pydev.parser.jython.ast.List(null, Tuple.Load);
+
+                } else {
+                    log("Don't know how to deal with type: " + asString + " in: " + asObject.toPrettyString());
+                    return null;
+                }
+            }
+
+            List<JsonValue> bodyAsList = getBodyAsList(asObject.get("args"));
+            List<exprType> elts = new ArrayList<>();
+
+            for (JsonValue jsonValue : bodyAsList) {
+                ISimpleNode n = createNode(jsonValue);
+                if (n != null) {
+                    if (n.getClass() == node.getClass()) {
+                        exprType[] extractElts = NodeUtils.extractElts(n);
+                        for (exprType exprType : extractElts) {
+                            elts.add(exprType);
+                        }
+                    } else {
+                        Starred starred = new Starred(astFactory.asExpr(n), Starred.Load);
+                        setLine(starred, jsonValue.asObject());
+                        elts.add(starred);
+                    }
+                }
+            }
+            if (node instanceof Set) {
+                ((Set) node).elts = elts.toArray(new exprType[0]);
+
+            } else if (node instanceof Tuple) {
+                ((Tuple) node).elts = elts.toArray(new exprType[0]);
+
+            } else if (node instanceof org.python.pydev.parser.jython.ast.List) {
+                ((org.python.pydev.parser.jython.ast.List) node).elts = elts.toArray(new exprType[0]);
+
+            }
+
             return node;
         }
 
@@ -510,6 +580,13 @@ public class GenCythonAstImpl {
             Exec exec = new Exec(body, globals, locals);
             setLine(exec, asObject);
             return exec;
+        }
+
+        private ISimpleNode createStarredUnpacking(JsonObject asObject) {
+            exprType value = astFactory.asExpr(createNode(asObject.get("target")));
+            Starred starred = new Starred(value, Starred.Load);
+            setLine(starred, asObject);
+            return starred;
         }
 
         private ISimpleNode createComprehensionAppend(JsonObject asObject) {
@@ -1952,6 +2029,19 @@ public class GenCythonAstImpl {
                                 nameNode = createNameFromBaseType(asObject);
                             }
                             if (nameNode == null) {
+                                // def method((a, b)): ...
+                                List<Name> names = createNamesListFromTupleBaseType(asObject.get("base_type"));
+                                if (names != null && names.size() > 0) {
+                                    for (Name n : names) {
+                                        ctx.setParam(n);
+                                        argsList.add(n);
+                                        defaultsList.add(null);
+                                        annotationsList.add(null);
+                                    }
+                                    continue;
+                                }
+                            }
+                            if (nameNode == null) {
                                 log("Unable to get arg name in: " + asObject.toPrettyString());
                                 continue;
                             }
@@ -2002,6 +2092,29 @@ public class GenCythonAstImpl {
                 arguments.kwarg = createNameTok(kwArgValue.asObject(), NameTok.KwArg);
             }
             return arguments;
+        }
+
+        private List<Name> createNamesListFromTupleBaseType(JsonValue jsonValueBaseType) {
+            List<Name> names = new ArrayList<>();
+            if (jsonValueBaseType != null && jsonValueBaseType.isObject()) {
+                JsonObject asObject = jsonValueBaseType.asObject();
+                JsonValue node = asObject.get("__node__");
+                if (node != null && node.isString() && node.asString().equals("CTupleBaseType")) {
+                    JsonValue components = asObject.get("components");
+                    if (components != null && components.isArray()) {
+                        JsonArray asArray = components.asArray();
+                        for (JsonValue jsonValue : asArray) {
+                            if (jsonValue.isObject()) {
+                                Name name = createNameFromBaseType(jsonValue.asObject());
+                                if (name != null) {
+                                    names.add(name);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return names;
         }
 
         private Name createNameFromBaseType(JsonObject asObject) {
@@ -2506,6 +2619,12 @@ public class GenCythonAstImpl {
             return node;
         }
 
+        private Yield createYieldFromExpr(JsonObject asObject) throws Exception {
+            Yield yield = createYieldExpr(asObject);
+            yield.yield_from = true;
+            return yield;
+        }
+
         private Yield createYieldExpr(JsonObject asObject) throws Exception {
             Yield node = null;
             JsonValue value = asObject.get("arg");
@@ -2529,6 +2648,11 @@ public class GenCythonAstImpl {
                 setLine(node, asObject);
                 return node;
             }
+            return null;
+        }
+
+        private ISimpleNode createImag(JsonObject asObject) {
+            // TODO Auto-generated method stub
             return null;
         }
 

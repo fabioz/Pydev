@@ -56,6 +56,7 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.NameTokType;
 import org.python.pydev.parser.jython.ast.Num;
+import org.python.pydev.parser.jython.ast.Set;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.Suite;
@@ -81,6 +82,7 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorWithLoop;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
+import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -2122,6 +2124,19 @@ public class NodeUtils {
             }
         }
         return false;
+    }
+
+    public static exprType[] extractElts(ISimpleNode node) {
+        if (node instanceof Set) {
+            return ((Set) node).elts;
+        }
+        if (node instanceof org.python.pydev.parser.jython.ast.List) {
+            return ((org.python.pydev.parser.jython.ast.List) node).elts;
+        }
+        if (node instanceof Tuple) {
+            return ((Tuple) node).elts;
+        }
+        return null;
     }
 
 }

@@ -72,12 +72,16 @@ def source_to_dict(source, name=None):
             name = "(tree fragment)"
 
         mod = t = parse_from_strings(name, source)
-        t = t.body # Make sure a StatListNode is at the top
+        t = t.body  # Make sure a StatListNode is at the top
         if not isinstance(t, StatListNode):
             t = StatListNode(pos=mod.pos, stats=[t])
         root = t
     except CompileError as e:
         as_dict = node_to_dict(e)
+        as_dict['is_error'] = True
+        return as_dict
+    except BaseException as e:
+        as_dict = {'__node__': 'CompileError', 'line': 1, 'col': 1, 'message_only': str(e)}
         as_dict['is_error'] = True
         return as_dict
 
