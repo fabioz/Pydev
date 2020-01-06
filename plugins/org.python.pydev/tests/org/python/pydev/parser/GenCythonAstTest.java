@@ -101,6 +101,8 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
 
     public void testGenCythonAstCases() throws Exception {
         String[] cases = new String[] {
+                "def method(*args, **kwargs):\n"
+                        + "    return f(*args, **modify(kwargs))",
                 "{tuple(call(n) for n in (1, 2) if n == 2)}",
                 "{tuple(call(n) for n in (1, 2))}",
                 "[a for b in c if d]",
@@ -449,6 +451,12 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
                 "Module[body=[Expr[value=Num[n=2.0, type=Comp, num=2.0]]]]");
     }
 
+    public void testGenCythonAstCornerCase15() throws Exception {
+        compareWithAst("def wrapper(*args, **kwargs):\n" +
+                "    return f(*args, more=2, **{**kwargs, 'test': 1})\n",
+                "Module[body=[FunctionDef[name=NameTok[id=wrapper, ctx=FunctionName], args=arguments[args=[], vararg=NameTok[id=args, ctx=VarArg], kwarg=NameTok[id=kwargs, ctx=KwArg], defaults=[], kwonlyargs=[], kw_defaults=[], annotation=[], varargannotation=null, kwargannotation=null, kwonlyargannotation=[]], body=[Return[value=Call[func=Name[id=f, ctx=Load, reserved=false], args=[], keywords=[keyword[arg=NameTok[id=more, ctx=KeywordName], value=Num[n=2, type=Int, num=2], afterstarargs=false]], starargs=Name[id=args, ctx=Load, reserved=false], kwargs=Dict[keys=[Name[id=kwargs, ctx=Load, reserved=false], Str[s=test, type=SingleSingle, unicode=false, raw=false, binary=false, fstring=false, fstring_nodes=null], Num[n=1, type=Int, num=1]], values=[]]]]], decs=null, returns=null, async=false]]]");
+    }
+
     public void testGenCythonAstCdef() throws Exception {
         String s = "def  bar(): pass\r\n";
         String cython = "cdef bar(): pass\r\n";
@@ -479,6 +487,12 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
                 "    return a + b";
 
         compareCase(s, cython, true);
+    }
+
+    public void testGenCythonArray() throws Exception {
+        String cython = "cdef double[:, :] foobar = <double[:10, :10]> NULL";
+        String s = "foobar = None";
+        compareCase(s, cython, false);
     }
 
     public void testGenCythonAst() throws Exception {

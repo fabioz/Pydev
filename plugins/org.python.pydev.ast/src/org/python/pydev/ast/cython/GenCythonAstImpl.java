@@ -501,6 +501,9 @@ public class GenCythonAstImpl {
                             node = createDictComprehensionAppend(asObject);
                             break;
 
+                        case "CythonArray":
+                            return null;
+
                         default:
                             String msg = "Don't know how to create statement from cython json: "
                                     + asObject.toPrettyString();
@@ -1372,16 +1375,20 @@ public class GenCythonAstImpl {
                         } else if (dictNode instanceof MergedDict) {
                             MergedDict mergedDict = (MergedDict) dictNode;
                             for (ISimpleNode node : mergedDict.nodes) {
-                                if (node instanceof Name) {
-                                    kwargs = (exprType) node;
-                                } else if (node instanceof Attribute) {
-                                    kwargs = (exprType) node;
-                                } else if (node instanceof Dict) {
+                                if (node instanceof Dict) {
                                     Dict dict = (Dict) node;
                                     boolean afterstarargs = starargs == null;
                                     fillKeywordsFromDict(keywords, dict, afterstarargs);
+
+                                } else if (node instanceof exprType) {
+                                    kwargs = (exprType) node;
+
+                                } else if (node instanceof MergedDict) {
+                                    kwargs = convertMergedDictToDict((MergedDict) node);
+
                                 } else {
-                                    log("Don't know how to deal with merged dict in: " + asObject.toPrettyString());
+                                    log("Don't know how to deal with merged dict entry: " + node);
+                                    return null;
                                 }
                             }
 
@@ -1397,6 +1404,30 @@ public class GenCythonAstImpl {
                 }
             }
             return null;
+        }
+
+        private exprType convertMergedDictToDict(MergedDict node) {
+            List<ISimpleNode> nodes = node.nodes;
+            List<exprType> keys = new ArrayList<>();
+            List<exprType> values = new ArrayList<>();
+            for (ISimpleNode iSimpleNode : nodes) {
+                if (iSimpleNode instanceof Dict) {
+                    Dict dict = (Dict) iSimpleNode;
+                    if (dict.keys != null) {
+                        for (exprType k : dict.keys) {
+                            keys.add(k);
+                        }
+                    }
+                    if (dict.values != null) {
+                        for (exprType v : dict.values) {
+                            keys.add(v);
+                        }
+                    }
+                } else if (iSimpleNode instanceof exprType) {
+                    keys.add((exprType) iSimpleNode);
+                }
+            }
+            return new Dict(keys.toArray(new exprType[0]), values.toArray(new exprType[0]));
         }
 
         private void fillKeywordsFromDict(List<keywordType> keywords, Dict dict, boolean afterstarargs) {
