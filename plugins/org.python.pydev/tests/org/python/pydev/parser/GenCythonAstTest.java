@@ -101,7 +101,10 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
 
     public void testGenCythonAstCases() throws Exception {
         String[] cases = new String[] {
-                "1.1 + 2.0j",
+                "{tuple(call(n) for n in (1, 2) if n == 2)}",
+                "{tuple(call(n) for n in (1, 2))}",
+                "[a for b in c if d]",
+                "{i: j for i, j in a}",
                 "{a, *c, d, *[1,2], [3, 4]}",
                 "[a, *c, d]",
                 "*a, b = [1, 2, 4]",
@@ -109,7 +112,6 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
                         + "  yield from bar",
                 "a = lambda x:y",
                 "a = call(foo, foo=bar, **xx.yy)",
-                "[a for b in c if d]",
                 "import a\n"
                         + "\n"
                         + "import b\n",
@@ -155,8 +157,6 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
                 "for i in range(10): break",
                 "for i in range(10): continue",
                 "3.14159",
-                "{tuple(call(n) for n in (1, 2) if n == 2)}",
-                "{tuple(call(n) for n in (1, 2))}",
                 "b = a**2",
                 "call(b=2, **kwargs)",
                 "call(1, b, a=2, c=3, *args)",
@@ -253,7 +253,11 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
     }
 
     public ParseOutput compareCase(String expected, String cython) throws DifferException, Exception {
-        return compareCase(expected, cython, false);
+        try {
+            return compareCase(expected, cython, false);
+        } catch (Exception e) {
+            throw new RuntimeException("Error with cython: " + cython, e);
+        }
     }
 
     public ParseOutput compareCase(String expected, String cython, boolean checkCol) throws DifferException, Exception {
@@ -440,6 +444,11 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
                 "Module[body=[FunctionDef[name=NameTok[id=remove, ctx=FunctionName], args=arguments[args=[Name[id=T, ctx=Param, reserved=false]], vararg=null, kwarg=null, defaults=[null], kwonlyargs=[], kw_defaults=[], annotation=[null], varargannotation=null, kwargannotation=null, kwonlyargannotation=[]], body=null, decs=null, returns=null, async=false]]]");
     }
 
+    public void testGenCythonAstCornerCase14() throws Exception {
+        compareWithAst("2.0j",
+                "Module[body=[Expr[value=Num[n=2.0, type=Comp, num=2.0]]]]");
+    }
+
     public void testGenCythonAstCdef() throws Exception {
         String s = "def  bar(): pass\r\n";
         String cython = "cdef bar(): pass\r\n";
@@ -514,21 +523,30 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
         compareCase(s, cython, false);
     }
 
+    public void testGenCythonBackquote() throws Exception {
+        grammarVersionProvider = PY27_GRAMMAR_VERSION_PROVIDER;
+
+        String s = "`'Hello'`";
+        compareCase(s, s, true);
+    }
+
+    IGrammarVersionProvider PY27_GRAMMAR_VERSION_PROVIDER = new IGrammarVersionProvider() {
+
+        @Override
+        public int getGrammarVersion() throws MisconfigurationException {
+            // Note: this is used in reparseDocument but not when generating the cython ast as we call the internal implementation.
+            return IPythonNature.GRAMMAR_PYTHON_VERSION_2_7;
+        }
+
+        @Override
+        public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions() throws MisconfigurationException {
+            return null;
+        }
+
+    };
+
     public void testGenCythonAstExec() throws Exception {
-        grammarVersionProvider = new IGrammarVersionProvider() {
-
-            @Override
-            public int getGrammarVersion() throws MisconfigurationException {
-                // Note: this is used in reparseDocument but not when generating the cython ast as we call the internal implementation.
-                return IPythonNature.GRAMMAR_PYTHON_VERSION_2_7;
-            }
-
-            @Override
-            public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions() throws MisconfigurationException {
-                return null;
-            }
-
-        };
+        grammarVersionProvider = PY27_GRAMMAR_VERSION_PROVIDER;
 
         String s = "exec 'foo' in g, f";
         compareCase(s, s, true);
