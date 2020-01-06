@@ -2786,24 +2786,25 @@ public class GenCythonAstImpl {
     private ParseOutput jsonToParseOutput(ParserInfo p, String cythonJson, long modifiedTime) {
         JsonValue json = JsonValue.readFrom(cythonJson);
         JsonObject asObject = json.asObject();
-        JsonValue jsonValue = asObject.get("__node__");
-        if (jsonValue == null) {
-            log("Unable to deal with: " + asObject.toPrettyString());
 
-        } else if (jsonValue.isString() && !"StatList".equals(jsonValue.asString())) {
-            if (jsonValue.asString().equals("CompileError")) {
-                JsonValue lineValue = asObject.get("line");
-                JsonValue colValue = asObject.get("col");
-                JsonValue messageValue = asObject.get("message_only");
-                ParseException exc = new ParseException(messageValue.asString(), lineValue.asInt(), colValue.asInt());
-                ParseOutput parseOutput = new ParseOutput(null, exc, modifiedTime);
-                parseOutput.isCython = true;
-                return parseOutput;
-            }
-            log("Expected cython ast to have StatList as root. Found json: " + cythonJson);
-            return null;
+        JsonValue errors = asObject.get("errors");
+
+        ParseException exc = null;
+        for (JsonValue v : errors.asArray()) {
+            JsonObject objError = v.asObject();
+            JsonValue lineValue = objError.get("line");
+            JsonValue colValue = objError.get("col");
+            JsonValue messageValue = objError.get("message_only");
+            exc = new ParseException(messageValue.asString(), lineValue.asInt(), colValue.asInt());
+        }
+
+        JsonValue ast = asObject.get("ast");
+        if (ast == null || !ast.isObject()) {
+            ParseOutput parseOutput = new ParseOutput(null, exc, modifiedTime);
+            parseOutput.isCython = true;
+            return parseOutput;
         } else {
-            JsonValue body = asObject.get("stats");
+            JsonValue body = ast.asObject().get("stats");
             if (body != null && body.isArray()) {
                 // System.out.println(body.toPrettyString());
                 JsonToNodesBuilder builder = new JsonToNodesBuilder(p);
@@ -2817,8 +2818,8 @@ public class GenCythonAstImpl {
                         log("Error converting cython json to ast: " + node, e);
                     }
                 }
-                ISimpleNode ast = builder.createModule();
-                ParseOutput parseOutput = new ParseOutput(ast, null, modifiedTime);
+                ISimpleNode mod = builder.createModule();
+                ParseOutput parseOutput = new ParseOutput(mod, null, modifiedTime);
                 parseOutput.isCython = true;
                 return parseOutput;
             }

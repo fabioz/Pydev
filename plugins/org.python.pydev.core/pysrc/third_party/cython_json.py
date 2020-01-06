@@ -62,10 +62,14 @@ def node_to_dict(node, _recurse_level=0):
     return data
 
 
+
 def source_to_dict(source, name=None):
     from Cython.Compiler.TreeFragment import parse_from_strings, StatListNode
+    # Right now we don't collect errors, but leave the API compatible already.
+    collected_errors = []
 
     try:
+
         # Note: we don't use TreeFragment because it formats the code removing empty lines
         # (which ends up creating an AST with wrong lines).
         if not name:
@@ -77,15 +81,21 @@ def source_to_dict(source, name=None):
             t = StatListNode(pos=mod.pos, stats=[t])
         root = t
     except CompileError as e:
-        as_dict = node_to_dict(e)
-        as_dict['is_error'] = True
-        return as_dict
+        return {
+            'ast': None,
+            'errors': [node_to_dict(e)]
+        }
     except BaseException as e:
-        as_dict = {'__node__': 'CompileError', 'line': 1, 'col': 1, 'message_only': str(e)}
-        as_dict['is_error'] = True
+        as_dict = {
+            'ast': None,
+            'errors': [{
+                '__node__': 'CompileError', 'line': 1, 'col': 1, 'message_only': str(e)
+            }]
+        }
         return as_dict
 
-    return node_to_dict(root)
+    result = {'ast': node_to_dict(root), 'errors': [node_to_dict(e) for e in collected_errors]}
+    return result
 
 
 from _pydev_bundle import pydev_localhost

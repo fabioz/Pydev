@@ -615,7 +615,7 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
         String output = new GenCythonAstImpl(parserInfo).genCythonJson();
         JsonValue value = JsonValue.readFrom(output);
 
-        JsonValue body = value.asObject().get("stats");
+        JsonValue body = value.asObject().get("ast").asObject().get("stats");
         assertEquals(body, JsonValue.readFrom(
                 "[\n" +
                         "        {\n" +

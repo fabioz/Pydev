@@ -5,16 +5,18 @@ import json
 
 
 def test_dump_ast_error():
-    as_dict = source_to_dict("x = [a  10]")
-    assert as_dict['is_error']
-    assert as_dict['name'] == 'CompileError'
-    assert as_dict['line'] == 1
-    assert as_dict['col'] == 8
-    assert 'Expected' in as_dict['message_only']
+    as_dict = source_to_dict(u"x = [a  10]")
+    errors = as_dict['errors']
+    assert len(errors) == 1
+    error = errors[0]
+    assert error['__node__'] == 'CompileError'
+    assert error['line'] == 1
+    assert error['col'] == 8
+    assert 'Expected' in error['message_only']
 
 
 def test_dump_error():
-    contents = '''
+    contents = u'''
 from distutils import sysconfig
 '''
     if isinstance(contents, bytes):
@@ -22,7 +24,7 @@ from distutils import sysconfig
     source_to_dict(contents)
 
 def test_global():
-    contents = '''
+    contents = u'''
 def method():
   global b
   b = 10
@@ -38,47 +40,45 @@ def method():
 
 
 def test_dump_ast():
-    assert source_to_dict("x = [a, 10]") == {
-        "__version__": Cython.__version__,
-        "name": "StatList",
-        "line": 1,
-        "col": 0,
-        "stats": [
-            {
-                "name": "SingleAssignment",
+    data = source_to_dict(u"x = [a, 10]")
+    assert not data['errors']
+    assert data['ast']['stats'] == [
+        {
+            "__node__": "SingleAssignment",
+            "rhs": {
+                "__node__": "List",
                 "line": 1,
-                "col": 4,
-                "lhs": {
-                    "name": "x",
-                    "line": 1,
-                    "col": 0
-                },
-                "rhs": {
-                    "name": "List",
-                    "line": 1,
-                    "col": 4,
-                    "args": [
-                        {
-                            "name": "a",
-                            "line": 1,
-                            "col": 5
-                        },
-                        {
-                            "name": "Int",
-                            "line": 1,
-                            "col": 8,
-                            "is_c_literal": "None",
-                            "value": "10",
-                            "unsigned": "",
-                            "longness": "",
-                            "constant_result": "10",
-                            "type": "long"
-                        }
-                    ]
-                }
-            }
-        ]
-    }
+                "args": [
+                    {
+                        "__node__": "Name",
+                        "line": 1,
+                        "col": 5,
+                        "name": "a"
+                    },
+                    {
+                        "is_c_literal": "None",
+                        "unsigned": "",
+                        "value": "10",
+                        "constant_result": "10",
+                        "__node__": "Int",
+                        "line": 1,
+                        "type": "long",
+                        "col": 8,
+                        "longness": ""
+                    }
+                ],
+                "col": 4
+            },
+            "lhs": {
+                "__node__": "Name",
+                "line": 1,
+                "col": 0,
+                "name": "x"
+            },
+            "line": 1,
+            "col": 4
+        }
+    ]
 
 
 if __name__ == '__main__':
