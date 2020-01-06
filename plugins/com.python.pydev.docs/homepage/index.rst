@@ -301,6 +301,12 @@ To show your appreciation for PyDev and to keep it going strong, help to crowdfu
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
+Release 7.5.0 (2020-01-06)
+=============================
+
+* Fixed support for the Python 3.8 (which wasn't properly added to 7.4.0).
+* Using Cython to generate AST for Cython files (so, Cython needs to be available in the default interpreter).
+
 Release 7.4.0 (2019-10-25)
 =============================
 
