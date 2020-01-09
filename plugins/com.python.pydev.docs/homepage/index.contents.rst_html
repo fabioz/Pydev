@@ -34,6 +34,8 @@
 
     <div id="bronze-sponsors-a-hrefs">
 
+            <a href="http://g7r.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/g7r.png" alt="g7r.com" title="http://g7r.com/" /></a>
+
             <a href="https://www.onlineesports.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/onlineesports.png" alt="onlineesports.com" title="https://www.onlineesports.com/" /></a>
 
             <a href="https://writersperhour.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/writersperhour.jpg" alt="writersperhour.com" title="https://writersperhour.com/" /></a>
@@ -268,6 +270,13 @@ shuffleEntries("gold-sponsors-a-hrefs", 4);
 <h1>Supporting PyDev</h1>
 <p>Thank you to all PyDev supporters: <a class="reference external" href="https://www.brainwy.com/supporters/PyDev">https://www.brainwy.com/supporters/PyDev</a>.</p>
 <p>To show your appreciation for PyDev and to keep it going strong, help to crowdfund through <a class="reference external" href="https://www.patreon.com/fabioz">https://www.patreon.com/fabioz</a>.</p>
+</div>
+<div class="section" id="release-7-5-0-2020-01-06">
+<h1>Release 7.5.0 (2020-01-06)</h1>
+<ul class="simple">
+<li>Fixed support for the Python 3.8 (which wasn't properly added to 7.4.0).</li>
+<li>Using Cython to generate AST for Cython files (so, Cython needs to be available in the default interpreter).</li>
+</ul>
 </div>
 <div class="section" id="release-7-4-0-2019-10-25">
 <h1>Release 7.4.0 (2019-10-25)</h1>
