@@ -271,11 +271,29 @@ shuffleEntries("gold-sponsors-a-hrefs", 4);
 <p>Thank you to all PyDev supporters: <a class="reference external" href="https://www.brainwy.com/supporters/PyDev">https://www.brainwy.com/supporters/PyDev</a>.</p>
 <p>To show your appreciation for PyDev and to keep it going strong, help to crowdfund through <a class="reference external" href="https://www.patreon.com/fabioz">https://www.patreon.com/fabioz</a>.</p>
 </div>
-<div class="section" id="release-7-5-0-2020-01-06">
-<h1>Release 7.5.0 (2020-01-06)</h1>
+<div class="section" id="release-7-5-0-2020-01-10">
+<h1>Release 7.5.0 (2020-01-10)</h1>
+<ul>
+<li><p class="first">Fixed support for Python 3.8 (which wasn't properly added to 7.4.0).</p>
+</li>
+<li><p class="first">Improved Cython support:</p>
+<blockquote>
 <ul class="simple">
-<li>Fixed support for the Python 3.8 (which wasn't properly added to 7.4.0).</li>
-<li>Using Cython to generate AST for Cython files (so, Cython needs to be available in the default interpreter).</li>
+<li>Cython itself is used to generate the AST for Cython files.</li>
+<li>Cython needs to be available in the default interpreter.</li>
+<li>Cython does not currently support generating the AST for files with errors, so, syntax errors must be fixed for the code-completion to work properly.</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first">Debugger improvements (updated to pydevd 1.9.0).</p>
+<blockquote>
+<ul class="simple">
+<li>Improved stepping into coroutines</li>
+<li>Attach to process no longer needs to match the bitness of the target program with the interpreter.</li>
+<li>File with a relative path is searched in sys.path folders (i.e.: so, cython builds can find the source).</li>
+</ul>
+</blockquote>
+</li>
 </ul>
 </div>
 <div class="section" id="release-7-4-0-2019-10-25">
@@ -320,24 +338,6 @@ shuffleEntries("gold-sponsors-a-hrefs", 4);
 <li><p class="first">Update debug console to work with newer versions of Eclipse (patch by Paul Pazderski).</p>
 </li>
 <li><p class="first">Fix code completion for non-english locale (patch by guyingzhao).</p>
-</li>
-</ul>
-</div>
-<div class="section" id="release-7-2-1-2019-04-26">
-<h1>Release 7.2.1 (2019-04-26)</h1>
-<ul>
-<li><p class="first">Debugger improvements (updated to pydevd 1.6.1).</p>
-<blockquote>
-<ul class="simple">
-<li>IronPython is debuggable again.</li>
-</ul>
-</blockquote>
-</li>
-<li><p class="first">Improved performance of code which checked if some text was a link in the console (which was the cause for some delays when too much text was printed in the console).</p>
-</li>
-<li><p class="first">Duplicate signature is no longer reported with typing.orverload (<strong>#PyDev-970</strong>).</p>
-</li>
-<li><p class="first">Fixed highlighting variables in f-strings (<strong>#PyDev-973</strong>).</p>
 </li>
 </ul>
 <p><a class="reference external" href="history_pydev.html">View release notes for previous releases</a></p>

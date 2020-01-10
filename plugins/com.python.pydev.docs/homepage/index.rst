@@ -303,11 +303,22 @@ To show your appreciation for PyDev and to keep it going strong, help to crowdfu
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
-Release 7.5.0 (2020-01-06)
+Release 7.5.0 (2020-01-10)
 =============================
 
-* Fixed support for the Python 3.8 (which wasn't properly added to 7.4.0).
-* Using Cython to generate AST for Cython files (so, Cython needs to be available in the default interpreter).
+* Fixed support for Python 3.8 (which wasn't properly added to 7.4.0).
+* Improved Cython support:
+
+	* Cython itself is used to generate the AST for Cython files.
+	* Cython needs to be available in the default interpreter.
+	* Cython does not currently support generating the AST for files with errors, so, syntax errors must be fixed for the code-completion to work properly.
+
+* Debugger improvements (updated to pydevd 1.9.0).
+
+	* Improved stepping into coroutines
+	* Attach to process no longer needs to match the bitness of the target program with the interpreter.
+	* File with a relative path is searched in sys.path folders (i.e.: so, cython builds can find the source).
+
 
 Release 7.4.0 (2019-10-25)
 =============================
@@ -339,17 +350,6 @@ Release 7.3.0 (2019-08-16)
 * Update debug console to work with newer versions of Eclipse (patch by Paul Pazderski).
 * Fix code completion for non-english locale (patch by guyingzhao).
 
-
-Release 7.2.1 (2019-04-26)
-=============================
-
-* Debugger improvements (updated to pydevd 1.6.1).
-
-	* IronPython is debuggable again.
-
-* Improved performance of code which checked if some text was a link in the console (which was the cause for some delays when too much text was printed in the console).
-* Duplicate signature is no longer reported with typing.orverload (**#PyDev-970**).
-* Fixed highlighting variables in f-strings (**#PyDev-973**).
 
 
 

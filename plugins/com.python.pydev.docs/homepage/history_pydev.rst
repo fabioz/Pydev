@@ -6,6 +6,24 @@ History For PyDev
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
+Release 7.5.0 (2020-01-10)
+=============================
+
+* Fixed support for Python 3.8 (which wasn't properly added to 7.4.0).
+* Improved Cython support:
+
+	* Cython itself is used to generate the AST for Cython files.
+	* Cython needs to be available in the default interpreter.
+	* Cython does not currently support generating the AST for files with errors, so, syntax errors must be fixed for the code-completion to work properly.
+
+* Debugger improvements (updated to pydevd 1.9.0).
+
+	* Improved stepping into coroutines
+	* Attach to process no longer needs to match the bitness of the target program with the interpreter.
+	* File with a relative path is searched in sys.path folders (i.e.: so, cython builds can find the source).
+
+
+
 Release 7.4.0 (2019-10-25)
 =============================
 

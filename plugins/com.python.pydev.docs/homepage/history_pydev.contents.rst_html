@@ -4,6 +4,31 @@
 
 <div class="section" id="history-for-pydev">
 <h1>History For PyDev</h1>
+<div class="section" id="release-7-5-0-2020-01-10">
+<h2>Release 7.5.0 (2020-01-10)</h2>
+<ul>
+<li><p class="first">Fixed support for Python 3.8 (which wasn't properly added to 7.4.0).</p>
+</li>
+<li><p class="first">Improved Cython support:</p>
+<blockquote>
+<ul class="simple">
+<li>Cython itself is used to generate the AST for Cython files.</li>
+<li>Cython needs to be available in the default interpreter.</li>
+<li>Cython does not currently support generating the AST for files with errors, so, syntax errors must be fixed for the code-completion to work properly.</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first">Debugger improvements (updated to pydevd 1.9.0).</p>
+<blockquote>
+<ul class="simple">
+<li>Improved stepping into coroutines</li>
+<li>Attach to process no longer needs to match the bitness of the target program with the interpreter.</li>
+<li>File with a relative path is searched in sys.path folders (i.e.: so, cython builds can find the source).</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</div>
 <div class="section" id="release-7-4-0-2019-10-25">
 <h2>Release 7.4.0 (2019-10-25)</h2>
 <ul>
