@@ -152,7 +152,7 @@ class PyDBFrame:
                             if not eval_result:
                                 return False, frame
 
-                        if main_debugger.exclude_exception_by_filter(exception_breakpoint, trace, False):
+                        if main_debugger.exclude_exception_by_filter(exception_breakpoint, trace):
                             pydev_log.debug("Ignore exception %s in library %s -- (%s)" % (exception, frame.f_code.co_filename, frame.f_code.co_name))
                             return False, frame
 
@@ -666,9 +666,9 @@ class PyDBFrame:
 
                         if breakpoint.has_condition:
                             if not eval_result:
-                                return self.trace_dispatch
+                                stop = False
                         elif breakpoint.is_logpoint:
-                            return self.trace_dispatch
+                            stop = False
 
                     if is_call and frame.f_code.co_name in ('<module>', '<lambda>'):
                         # If we find a call for a module, it means that the module is being imported/executed for the

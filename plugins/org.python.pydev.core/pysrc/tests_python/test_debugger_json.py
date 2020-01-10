@@ -479,6 +479,64 @@ def test_case_json_logpoints(case_setup):
         writer.finished_ok = True
 
 
+def test_case_json_logpoint_and_step(case_setup):
+    with case_setup.test_file('_debugger_case_hit_count.py') as writer:
+        json_facade = JsonFacade(writer)
+
+        json_facade.write_launch()
+        before_loop_line = writer.get_line_index_with_content('before loop line')
+        for_line = writer.get_line_index_with_content('for line')
+        print_line = writer.get_line_index_with_content('print line')
+        json_facade.write_set_breakpoints(
+            [before_loop_line, print_line],
+            line_to_info={
+                print_line: {'log_message': 'var {repr("_a")} is {_a}'}
+        })
+        json_facade.write_make_initial_run()
+
+        json_hit = json_facade.wait_for_thread_stopped(line=before_loop_line)
+
+        json_facade.write_step_in(json_hit.thread_id)
+        json_hit = json_facade.wait_for_thread_stopped('step', line=for_line)
+
+        json_facade.write_step_in(json_hit.thread_id)
+        json_hit = json_facade.wait_for_thread_stopped('step', line=print_line)
+
+        json_facade.write_continue()
+
+        writer.finished_ok = True
+
+
+@pytest.mark.skipif(IS_PY26, reason='Failing on Python 2.6')
+def test_case_json_hit_count_and_step(case_setup):
+    with case_setup.test_file('_debugger_case_hit_count.py') as writer:
+        json_facade = JsonFacade(writer)
+
+        json_facade.write_launch()
+        for_line = writer.get_line_index_with_content('for line')
+        print_line = writer.get_line_index_with_content('print line')
+        json_facade.write_set_breakpoints(
+            [print_line],
+            line_to_info={
+                print_line: {'hit_condition': '5'}
+        })
+        json_facade.write_make_initial_run()
+
+        json_hit = json_facade.wait_for_thread_stopped(line=print_line)
+        i_local_var = json_facade.get_local_var(json_hit.frame_id, 'i')  # : :type i_local_var: pydevd_schema.Variable
+        assert i_local_var.value == '4'
+
+        json_facade.write_step_in(json_hit.thread_id)
+        json_hit = json_facade.wait_for_thread_stopped('step', line=for_line)
+
+        json_facade.write_step_in(json_hit.thread_id)
+        json_hit = json_facade.wait_for_thread_stopped('step', line=print_line)
+
+        json_facade.write_continue()
+
+        writer.finished_ok = True
+
+
 def test_case_process_event(case_setup):
     with case_setup.test_file('_debugger_case_change_breaks.py') as writer:
         json_facade = JsonFacade(writer)
@@ -536,6 +594,77 @@ def test_case_handled_exception_breaks(case_setup):
 
         # Clear so that the last one is not hit.
         json_facade.write_set_exception_breakpoints([])
+        json_facade.write_continue()
+
+        writer.finished_ok = True
+
+
+@pytest.mark.parametrize('target', [
+    'absolute',
+    'relative',
+    ])
+@pytest.mark.parametrize('just_my_code', [
+    True,
+    False,
+    ])
+def test_case_unhandled_exception_just_my_code(case_setup, target, just_my_code):
+
+    def check_test_suceeded_msg(writer, stdout, stderr):
+        # Don't call super (we have an unhandled exception in the stack trace).
+        return 'TEST SUCEEDED' in ''.join(stderr)
+
+    def additional_output_checks(writer, stdout, stderr):
+        if 'call_exception_in_exec()' not in stderr:
+            raise AssertionError('Expected test to have an unhandled exception.\nstdout:\n%s\n\nstderr:\n%s' % (
+                stdout, stderr))
+
+    def get_environ(self):
+        env = os.environ.copy()
+
+        # Note that we put the working directory in the project roots to check that when expanded
+        # the relative file that doesn't exist is still considered a library file.
+        env["IDE_PROJECT_ROOTS"] = os.path.dirname(self.TEST_FILE) + os.pathsep + os.path.abspath('.')
+        return env
+
+    def update_command_line_args(writer, args):
+        ret = debugger_unittest.AbstractWriterThread.update_command_line_args(writer, args)
+        if target == 'absolute':
+            if sys.platform == 'win32':
+                ret.append('c:/temp/folder/my_filename.pyx')
+            else:
+                ret.append('/temp/folder/my_filename.pyx')
+
+        elif target == 'relative':
+            ret.append('folder/my_filename.pyx')
+
+        else:
+            raise AssertionError('Unhandled case: %s' % (target,))
+        return args
+
+    target_filename = '_debugger_case_unhandled_just_my_code.py'
+    with case_setup.test_file(
+            target_filename,
+            check_test_suceeded_msg=check_test_suceeded_msg,
+            additional_output_checks=additional_output_checks,
+            update_command_line_args=update_command_line_args,
+            get_environ=get_environ,
+            EXPECTED_RETURNCODE=1,
+        ) as writer:
+        json_facade = JsonFacade(writer)
+
+        json_facade.write_launch(debugStdLib=False if just_my_code else True)
+        json_facade.write_set_exception_breakpoints(['uncaught'])
+        json_facade.write_make_initial_run()
+
+        json_hit = json_facade.wait_for_thread_stopped(reason='exception')
+        frames = json_hit.stack_trace_response.body.stackFrames
+        if just_my_code:
+            assert len(frames) == 1
+            assert frames[0]['source']['path'].endswith(target_filename)
+        else:
+            assert len(frames) > 1
+            assert frames[0]['source']['path'].endswith('my_filename.pyx')
+
         json_facade.write_continue()
 
         writer.finished_ok = True
@@ -1994,6 +2123,10 @@ def test_evaluate(case_setup):
         stack_frame = next(iter(stack_trace_response.body.stackFrames))
         stack_frame_id = stack_frame['id']
 
+        # Check that evaluating variable that does not exist in hover returns success == False.
+        json_facade.evaluate(
+            'var_does_not_exist', frameId=stack_frame_id, context='hover', success=False)
+
         # Test evaluate request that results in 'eval'
         eval_response = json_facade.evaluate('var_1', frameId=stack_frame_id, context='repl')
         assert eval_response.body.result == '5'
@@ -2052,7 +2185,10 @@ def test_evaluate_failures(case_setup):
             json_hit = json_facade.get_stack_as_json_hit(json_hit.thread_id)
             if i == 0:
                 first_hit = json_hit
-
+                # Check that watch exceptions are shown as string/failure.
+                response = json_facade.evaluate(
+                    'invalid_var', frameId=first_hit.frame_id, context='watch', success=False)
+                assert response.body.result == "NameError: name 'invalid_var' is not defined"
             if i == 1:
                 # Now, check with a previously existing frameId.
                 exec_request = json_facade.write_request(
