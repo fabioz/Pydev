@@ -26,7 +26,6 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.string.FullRepIterable;
 
-
 public class PyRunToLineTarget implements IRunToLineTarget {
 
     @Override
@@ -71,7 +70,7 @@ public class PyRunToLineTarget implements IRunToLineTarget {
             }
 
             try {
-                sourceModule = (SourceModule) AbstractModule.createModuleFromDoc("", null, doc, nature, true);
+                sourceModule = AbstractModule.createModuleFromDoc("", pyEdit.getEditorFile(), doc, nature, true);
             } catch (MisconfigurationException e) {
                 Log.log(e);
                 return;

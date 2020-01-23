@@ -137,7 +137,8 @@ public class PyBreakpoint extends LineBreakpoint {
             try {
                 String externalPath = (String) marker.getAttribute(PyBreakpoint.PY_BREAK_EXTERNAL_PATH_ID);
                 if (externalPath != null) {
-                    Tuple<IPythonNature, String> infoForFile = InterpreterManagersAPI.getInfoForFile(new File(externalPath));
+                    Tuple<IPythonNature, String> infoForFile = InterpreterManagersAPI
+                            .getInfoForFile(new File(externalPath));
                     if (infoForFile != null) {
                         nature = infoForFile.o1;
                     }
@@ -272,7 +273,7 @@ public class PyBreakpoint extends LineBreakpoint {
                     //the ast manager is actually restored (so, modName is None, and we have little alternative
                     //but making a parse to get the function name)
                     IDocument doc = getDocument();
-                    sourceModule = AbstractModule.createModuleFromDoc("", null, doc, nature, true);
+                    sourceModule = AbstractModule.createModuleFromDoc("", file, doc, nature, true);
                 }
 
                 int lineToUse = getLineNumber() - 1;

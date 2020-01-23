@@ -302,7 +302,8 @@ public abstract class AbstractModule implements IModule {
     public static SourceModule createModuleFromDoc(String name, File f, IDocument doc, IPythonNature nature,
             boolean checkForPath) throws MisconfigurationException {
         IGrammarVersionProvider grammarVersionProvider = nature;
-        if (FileTypesPreferences.isCythonFile(f.getName())) {
+        // In tests f may be null.
+        if (f != null && FileTypesPreferences.isCythonFile(f.getName())) {
             grammarVersionProvider = new IGrammarVersionProvider() {
 
                 @Override
