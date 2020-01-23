@@ -1,19 +1,20 @@
-PyDev 7.2.0 Released
+PyDev 7.5.0 Released
 
-PyDev 7.2.0 Release Highlights
+PyDev 7.5.0 Release Highlights
 -------------------------------
 
+* Fixed support for Python 3.8 (which wasn't properly added to 7.4.0).
+* Improved Cython support:
 
+	* Cython itself is used to generate the AST for Cython files.
+	* Cython needs to be available in the default interpreter.
+	* Cython does not currently support generating the AST for files with errors, so, syntax errors must be fixed for the code-completion to work properly.
 
-* Debugger improvements (updated to pydevd 1.6.0).
+* Debugger improvements (updated to pydevd 1.9.0).
 
-    * Fixed issue quoting/unquoting parameters for subprocess.
-    * Fixed exception breakpoints for Django and Jinja2.
-    * Console hook import compatibility with matplotlib and pylab fixed.
-
-* Fixed issue where pipenv executable search was being executed over and over when it was not found.
-
-
+	* Improved stepping into coroutines
+	* Attach to process no longer needs to match the bitness of the target program with the interpreter.
+	* File with a relative path is searched in sys.path folders (i.e.: so, cython builds can find the source).
 
 About PyDev
 ---------------------------
