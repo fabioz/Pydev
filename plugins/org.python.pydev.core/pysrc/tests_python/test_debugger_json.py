@@ -19,7 +19,7 @@ from _pydevd_bundle.pydevd_constants import (int_types, IS_64BIT_PROCESS,
     PY_VERSION_STR, PY_IMPL_VERSION_STR, PY_IMPL_NAME, IS_PY36_OR_GREATER)
 from tests_python import debugger_unittest
 from tests_python.debug_constants import TEST_CHERRYPY, IS_PY2, TEST_DJANGO, TEST_FLASK, IS_PY26, \
-    IS_PY27, IS_CPYTHON
+    IS_PY27, IS_CPYTHON, TEST_GEVENT
 from tests_python.debugger_unittest import (IS_JYTHON, IS_APPVEYOR, overrides,
     get_free_port, wait_for_condition)
 
@@ -80,8 +80,9 @@ class JsonFacade(object):
         msg = self.writer.wait_for_message(accept_json_message, unquote_msg=False, expect_xml=False)
         return from_json(msg)
 
-    def wait_for_response(self, request):
-        response_class = pydevd_base_schema.get_response_class(request)
+    def wait_for_response(self, request, response_class=None):
+        if response_class is None:
+            response_class = pydevd_base_schema.get_response_class(request)
 
         def accept_message(response):
             if isinstance(request, dict):
@@ -2748,6 +2749,38 @@ def test_wait_for_attach(case_setup_remote_attach_to):
         writer.finished_ok = True
 
 
+@pytest.mark.skipif(not TEST_GEVENT, reason='Gevent not installed.')
+def test_wait_for_attach_gevent(case_setup_remote_attach_to):
+    host_port = get_socket_name(close=True)
+
+    def get_environ(writer):
+        env = os.environ.copy()
+        env['GEVENT_SUPPORT'] = 'True'
+        return env
+
+    def check_thread_events(json_facade):
+        json_facade.write_list_threads()
+        # Check that we have the started thread event (whenever we reconnect).
+        started_events = json_facade.mark_messages(ThreadEvent, lambda x: x.body.reason == 'started')
+        assert len(started_events) == 1
+
+    with case_setup_remote_attach_to.test_file('_debugger_case_gevent.py', host_port[1], additional_args=['remote', 'as-server'], get_environ=get_environ) as writer:
+        writer.TEST_FILE = debugger_unittest._get_debugger_test_file('_debugger_case_gevent.py')
+        time.sleep(.5)  # Give some time for it to pass the first breakpoint and wait.
+        writer.start_socket_client(*host_port)
+
+        json_facade = JsonFacade(writer)
+        check_thread_events(json_facade)
+
+        break1_line = writer.get_line_index_with_content('break here')
+        json_facade.write_set_breakpoints(break1_line)
+        json_facade.write_make_initial_run()
+        json_facade.wait_for_thread_stopped(line=break1_line)
+
+        json_facade.write_disconnect()
+        writer.finished_ok = True
+
+
 @pytest.mark.skipif(IS_JYTHON, reason='Flaky on Jython.')
 def test_path_translation_and_source_reference(case_setup):
 
@@ -3607,6 +3640,50 @@ def test_debug_options(case_setup, val):
 
         assert json.loads(output.body.output) == dict((translation[key], val) for key, val in args.items())
         json_facade.wait_for_terminated()
+        writer.finished_ok = True
+
+
+def test_send_invalid_messages(case_setup):
+    with case_setup.test_file('_debugger_case_local_variables.py') as writer:
+        json_facade = JsonFacade(writer)
+
+        writer.write_add_breakpoint(writer.get_line_index_with_content('Break 2 here'))
+        json_facade.write_make_initial_run()
+
+        stopped_event = json_facade.wait_for_json_message(StoppedEvent)
+        thread_id = stopped_event.body.threadId
+
+        json_facade.write_request(
+            pydevd_schema.StackTraceRequest(pydevd_schema.StackTraceArguments(threadId=thread_id)))
+
+        # : :type response: ModulesResponse
+        # : :type modules_response_body: ModulesResponseBody
+
+        # *** Check that we accept an invalid modules request (i.e.: without arguments).
+        response = json_facade.wait_for_response(json_facade.write_request(
+            {'type': 'request', 'command': 'modules'}))
+
+        modules_response_body = response.body
+        assert len(modules_response_body.modules) == 1
+        module = next(iter(modules_response_body.modules))
+        assert module['name'] == '__main__'
+        assert module['path'].endswith('_debugger_case_local_variables.py')
+
+        # *** Check that we don't fail on request without command.
+        request = json_facade.write_request({'type': 'request'})
+        response = json_facade.wait_for_response(request, Response)
+        assert not response.success
+        assert response.command == '<unknown>'
+
+        # *** Check that we don't crash if we can't decode message.
+        json_facade.writer.write_with_content_len('invalid json here')
+
+        # *** Check that we get a failure from a completions without arguments.
+        response = json_facade.wait_for_response(json_facade.write_request(
+            {'type': 'request', 'command': 'completions'}))
+        assert not response.success
+
+        json_facade.write_continue()
         writer.finished_ok = True
 
 
