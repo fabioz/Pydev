@@ -31,6 +31,12 @@
 
         <div id="bronze-sponsors-a-hrefs">
 
+		<a href="https://casinonutansvensklicens.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/casinonutansvensklicens.png" alt="casino utan svensk licens" title="https://casinonutansvensklicens.com/" /></a>
+
+		<a href="https://bestsitesuk.casino/not-on-gamstop/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/bestsitesuk_casino.png" alt="casinos not on gamstop" title="https://bestsitesuk.casino/not-on-gamstop/" /></a>
+
+		<a href="https://www.top5credits.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/top5credits.png" alt="top5credits.com" title="https://www.top5credits.com/" /></a>
+
 		<a href="https://www.vpnranks.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/vpnranks.png" alt="vpnranks.com" title="https://www.vpnranks.com/" /></a>
 
 		<a href="http://g7r.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/g7r.png" alt="g7r.com" title="http://g7r.com/" /></a>
