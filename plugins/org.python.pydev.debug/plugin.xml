@@ -1063,6 +1063,7 @@
 <extension point="org.eclipse.ui.perspectiveExtensions">
     <perspectiveExtension targetID="org.eclipse.debug.ui.DebugPerspective">
         <showInPart id="org.eclipse.ui.views.ContentOutline"/>
+        <showInPart id="org.python.pydev.navigator.view"/>
     </perspectiveExtension>
 </extension>
 

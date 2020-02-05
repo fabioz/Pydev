@@ -1340,8 +1340,8 @@
    </extension>
    <extension point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension targetID="org.python.pydev.ui.PythonPerspective">
-         <showInPart id="org.eclipse.ui.views.ResourceNavigator"/>
          <showInPart id="org.python.pydev.navigator.view"/>
+         <showInPart id="org.eclipse.ui.navigator.ProjectExplorer"/>
          <showInPart id="org.eclipse.ui.views.ContentOutline"/>
       </perspectiveExtension>
    </extension>
