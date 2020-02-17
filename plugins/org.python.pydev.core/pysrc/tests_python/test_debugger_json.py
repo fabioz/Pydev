@@ -1223,6 +1223,37 @@ def test_stack_and_variables_dict(case_setup):
         writer.finished_ok = True
 
 
+def test_hasattr_failure(case_setup):
+    with case_setup.test_file('_debugger_case_hasattr_crash.py') as writer:
+        json_facade = JsonFacade(writer)
+
+        writer.write_add_breakpoint(writer.get_line_index_with_content('break here'))
+        json_facade.write_make_initial_run()
+
+        json_hit = json_facade.wait_for_thread_stopped()
+        json_hit = json_facade.get_stack_as_json_hit(json_hit.thread_id)
+
+        variables_response = json_facade.get_variables_response(json_hit.frame_id)
+
+        for variable in variables_response.body.variables:
+            if variable['evaluateName'] == 'obj':
+                break
+        else:
+            raise AssertionError('Did not find "obj" in %s' % (variables_response.body.variables,))
+
+        evaluate_response = json_facade.evaluate('obj', json_hit.frame_id, context='hover')
+        evaluate_response_body = evaluate_response.body.to_dict()
+        if not IS_PY2:
+            assert evaluate_response_body['result'] == 'An exception was raised: RuntimeError()'
+
+        json_facade.evaluate('not_there', json_hit.frame_id, context='hover', success=False)
+        json_facade.evaluate('not_there', json_hit.frame_id, context='watch', success=False)
+
+        json_facade.write_continue()
+
+        writer.finished_ok = True
+
+
 @pytest.mark.skipif(IS_PY26, reason='__dir__ not customizable on Python 2.6')
 def test_exception_on_dir(case_setup):
     with case_setup.test_file('_debugger_case_dir_exception.py') as writer:
@@ -1353,8 +1384,6 @@ def test_stack_and_variables_set_and_list(case_setup):
 
 @pytest.mark.skipif(IS_JYTHON, reason='Putting unicode on frame vars does not work on Jython.')
 def test_evaluate_unicode(case_setup):
-    from _pydevd_bundle._debug_adapter.pydevd_schema import EvaluateRequest
-    from _pydevd_bundle._debug_adapter.pydevd_schema import EvaluateArguments
     with case_setup.test_file('_debugger_case_local_variables.py') as writer:
         json_facade = JsonFacade(writer)
 
@@ -1364,8 +1393,7 @@ def test_evaluate_unicode(case_setup):
         json_hit = json_facade.wait_for_thread_stopped()
         json_hit = json_facade.get_stack_as_json_hit(json_hit.thread_id)
 
-        evaluate_response = json_facade.wait_for_response(
-            json_facade.write_request(EvaluateRequest(EvaluateArguments(u'\u16A0', json_hit.frame_id))))
+        evaluate_response = json_facade.evaluate(u'\u16A0', json_hit.frame_id)
 
         evaluate_response_body = evaluate_response.body.to_dict()
 
@@ -1456,6 +1484,32 @@ def test_evaluate_exec_unicode(case_setup):
         messages = json_facade.mark_messages(
             OutputEvent, lambda output_event: u'中' in output_event.body.output)
         assert len(messages) == 0  # i.e.: we don't print in this case.
+
+        json_facade.write_continue()
+        writer.finished_ok = True
+
+
+def test_evaluate_repl_redirect(case_setup):
+
+    with case_setup.test_file('_debugger_case_local_variables2.py') as writer:
+        json_facade = JsonFacade(writer)
+
+        writer.write_add_breakpoint(writer.get_line_index_with_content('Break here'))
+        json_facade.write_make_initial_run()
+
+        json_hit = json_facade.wait_for_thread_stopped()
+        json_hit = json_facade.get_stack_as_json_hit(json_hit.thread_id)
+
+        # Check eval
+        json_facade.evaluate(
+            "print('var')",
+            frameId=json_hit.frame_id,
+            context="repl",
+        )
+
+        messages = json_facade.mark_messages(
+            OutputEvent, lambda output_event: u'var' in output_event.body.output)
+        assert len(messages) == 1
 
         json_facade.write_continue()
         writer.finished_ok = True
@@ -2778,6 +2832,41 @@ def test_wait_for_attach_gevent(case_setup_remote_attach_to):
         json_facade.wait_for_thread_stopped(line=break1_line)
 
         json_facade.write_disconnect()
+        writer.finished_ok = True
+
+
+@pytest.mark.skipif(not TEST_GEVENT, reason='Gevent not installed.')
+def test_notify_gevent(case_setup, pyfile):
+
+    def get_environ(writer):
+        # I.e.: Make sure that gevent support is disabled
+        env = os.environ.copy()
+        env['GEVENT_SUPPORT'] = ''
+        return env
+
+    @pyfile
+    def case_gevent():
+        from gevent import monkey
+        monkey.patch_all()
+        print('TEST SUCEEDED')
+
+    def additional_output_checks(writer, stdout, stderr):
+        assert 'environment variable' in stderr
+        assert 'GEVENT_SUPPORT=True' in stderr
+
+    with case_setup.test_file(
+            case_gevent,
+            get_environ=get_environ,
+            additional_output_checks=additional_output_checks,
+            EXPECTED_RETURNCODE='any',
+            FORCE_KILL_PROCESS_WHEN_FINISHED_OK=True
+        ) as writer:
+        json_facade = JsonFacade(writer)
+        json_facade.write_launch()
+        json_facade.write_make_initial_run()
+
+        wait_for_condition(lambda: 'GEVENT_SUPPORT=True' in writer.get_stderr())
+
         writer.finished_ok = True
 
 
