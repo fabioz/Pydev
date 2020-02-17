@@ -31,6 +31,8 @@
 
         <div id="bronze-sponsors-a-hrefs">
 
+		<a href="https://www.jitbit.com/helpdesk/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/jitbit.png" alt="Jitbit Helpdesk Software" title="https://www.jitbit.com/helpdesk/" /></a>
+
 		<a href="https://tt.edu.au/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/tradie_training.png" alt="Tradie Training White Card" title="https://tt.edu.au/" /></a>
 
 		<a href="https://casinonutansvensklicens.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/casinonutansvensklicens.png" alt="casino utan svensk licens" title="https://casinonutansvensklicens.com/" /></a>
