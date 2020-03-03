@@ -673,8 +673,12 @@ public class PyParser extends BaseParser implements IPyParser {
 
         if (USE_NEW_CYTHON_PARSER) {
             PyParserCython parserCython = new PyParserCython(info);
-            parseOutput = parserCython.parse();
-            parseOutput.isCython = true;
+            try {
+                parseOutput = parserCython.parse();
+                parseOutput.isCython = true;
+            } catch (Exception e) {
+                Log.log(e); // If cython is not available, an error is expected.
+            }
         }
         if (parseOutput == null || parseOutput.ast == null) {
             // If we couldn't parse with cython, try to give something even if not really complete.
