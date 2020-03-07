@@ -969,6 +969,7 @@ public class PythonRunnerConfig {
             if (DebugPrefsPage.getDebugMultiprocessingEnabled()) {
                 cmdArgs.add("--multiprocess");
             }
+            cmdArgs.add("--protocol-http");
 
             cmdArgs.add("--print-in-debugger-startup");
 
