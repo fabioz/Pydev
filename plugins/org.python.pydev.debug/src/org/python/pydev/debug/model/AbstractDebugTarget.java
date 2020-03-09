@@ -816,6 +816,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         // we post version command just for fun
         // it establishes the connection
         this.postCommand(new VersionCommand(this));
+        // this.postCommand(new StopOnStartCommand(this, true));
 
         // now, register all the breakpoints in all projects
         addBreakpointsFor(ResourcesPlugin.getWorkspace().getRoot());
