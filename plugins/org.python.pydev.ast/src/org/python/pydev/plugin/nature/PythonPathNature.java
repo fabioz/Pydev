@@ -531,7 +531,7 @@ public class PythonPathNature implements IPythonPathNature {
         //no need to validate because those are always 'file-system' related
         Map<String, String> variableSubstitution2 = nature.getStore().getMapProperty(
                 PythonPathNature.getProjectVariableSubstitutionQualifiedName());
-        if (variableSubstitution2 != null) {
+        if (variableSubstitution2 != null && !variableSubstitution2.isEmpty()) {
             if (variableSubstitution != null) {
                 variableSubstitution.putAll(variableSubstitution2);
             } else {
