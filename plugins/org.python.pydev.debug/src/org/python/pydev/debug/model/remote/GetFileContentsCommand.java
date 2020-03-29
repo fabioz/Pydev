@@ -16,7 +16,7 @@ public class GetFileContentsCommand extends GetVariableCommand {
 
     @Override
     protected int getCommandId() {
-        return CMD_GET_FILE_CONTENTS;
+        return CMD_LOAD_SOURCE_FROM_FRAME_ID;
     }
 
 }

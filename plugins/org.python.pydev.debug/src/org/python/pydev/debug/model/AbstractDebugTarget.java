@@ -456,6 +456,9 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
             } else if (cmdCode == AbstractDebuggerCommand.CMD_SET_PROTOCOL) {
                 // Just ignore
 
+            } else if (cmdCode == AbstractDebuggerCommand.CMD_RELOAD_CODE) {
+                // Just ignore
+
             } else if (cmdCode == AbstractDebuggerCommand.CMD_PROCESS_CREATED) {
                 // We don't really need to handle process created for now.
 
@@ -1040,6 +1043,17 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
     @Override
     public ILaunch getLaunch() {
         return launch;
+    }
+
+    private final Set<IPath> filesLoadedFromDebugger = new HashSet<>();
+
+    public boolean isFileLoadedFromDebugger(IPath path) {
+        return filesLoadedFromDebugger.contains(path);
+    }
+
+    public void setFileLoadedFromDebugger(IPath path) {
+        filesLoadedFromDebugger.add(path);
+
     }
 
 }

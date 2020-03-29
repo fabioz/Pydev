@@ -88,6 +88,8 @@ public abstract class AbstractDebuggerCommand {
     static public final int CMD_INPUT_REQUESTED = 147;
     static public final int CMD_PROCESS_CREATED = 149;
 
+    static public final int CMD_LOAD_SOURCE_FROM_FRAME_ID = 207;
+
     static public final int CMD_ERROR = 901;
     static public final int CMD_VERSION = 501;
     static public final int CMD_RETURN = 502;

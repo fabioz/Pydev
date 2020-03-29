@@ -17,7 +17,11 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -113,7 +117,7 @@ public class XMLUtils {
         public void startElement(String uri, String localName, String qName, Attributes attributes)
                 throws SAXException {
             if (qName.equals("thread")) {
-                String name = attributes.getValue("name");
+                String name = unescape(attributes.getValue("name"));
                 String id = attributes.getValue("id");
                 name = decode(name);
                 threads.add(new PyThread(target, name, id));
@@ -173,6 +177,49 @@ public class XMLUtils {
         return var;
     }
 
+    private static final Map<String, String> ESCAPE = new HashMap<String, String>();
+    static {
+        ESCAPE.put("&amp;", "&");
+        ESCAPE.put("&apos;", "'");
+        ESCAPE.put("&quot;", "\"");
+        ESCAPE.put("&lt;", "<");
+        ESCAPE.put("&gt;", ">");
+    }
+
+    private static String unescape(final String text) {
+        // Note: doesn't escape everything, just a few common constructs.
+        if (text == null) {
+            return "";
+        }
+        FastStringBuffer result = new FastStringBuffer(text.length());
+        final int textLen = text.length();
+
+        int i = 0;
+        while (i < textLen) {
+            char c = text.charAt(i);
+            if (c != '&') {
+                result.append(c);
+                i++;
+            } else {
+                Set<Entry<String, String>> entrySet = ESCAPE.entrySet();
+                boolean found = false;
+                for (Entry<String, String> entry : entrySet) {
+                    if (text.startsWith(entry.getKey(), i)) {
+                        result.append(entry.getValue());
+                        i += entry.getKey().length();
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    result.append(c);
+                    i++;
+                }
+            }
+        }
+        return result.toString();
+    }
+
     /**
      * XMLToStack SAX traverse
      */
@@ -199,12 +246,14 @@ public class XMLUtils {
         }
 
         private void startFrame(Attributes attributes) {
-            String name = attributes.getValue("name");
+            String name = unescape(attributes.getValue("name"));
             String id = attributes.getValue("id");
             String file = attributes.getValue("file");
+
             try {
                 if (file != null) {
                     file = URLDecoder.decode(file, "UTF-8");
+                    file = unescape(file);
                     File tempFile = new File(file);
                     if (tempFile.exists()) {
                         file = FileUtils.getFileAbsolutePath(tempFile);

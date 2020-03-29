@@ -24,7 +24,7 @@ import org.python.pydev.shared_ui.EditorUtils;
 
 /**
  * Locates source files from stack elements
- * 
+ *
  */
 public class PySourceLocator implements ISourceLocator, ISourcePresentation {
 
@@ -51,7 +51,7 @@ public class PySourceLocator implements ISourceLocator, ISourcePresentation {
                 lastProject = ((PyDebugTarget) target).project;
             }
 
-            if (path != null && !path.toString().startsWith("<")) {
+            if (path != null) {
                 edInput = locatorBase.createEditorInput(path, true, pyStackFrame, lastProject);
             }
 

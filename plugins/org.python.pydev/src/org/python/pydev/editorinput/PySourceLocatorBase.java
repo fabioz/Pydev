@@ -30,7 +30,6 @@ import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import org.eclipse.ui.part.FileEditorInput;
 import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.ast.location.FindWorkspaceFiles;
-import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPyStackFrame;
 import org.python.pydev.core.editor.OpenEditors;
@@ -175,17 +174,30 @@ public class PySourceLocatorBase {
      *
      * @return the editor input found or none if None was available for the given path
      */
-    public IEditorInput createEditorInput(IPath path, boolean askIfDoesNotExist, IPyStackFrame pyStackFrame,
+    public IEditorInput createEditorInput(final IPath initialPath, boolean askIfDoesNotExist,
+            IPyStackFrame pyStackFrame,
             IProject project) {
         int onSourceNotFound = PySourceLocatorPrefs.getOnSourceNotFound();
-        IEditorInput edInput = null;
+        boolean isFileLoadedFromDebugger = pyStackFrame != null ? pyStackFrame.isFileLoadedFromDebugger(initialPath)
+                : false;
 
-        File systemFile = path.toFile();
+        if (isFileLoadedFromDebugger) {
+            if (onSourceNotFound == PySourceLocatorPrefs.ASK_FOR_FILE_GET_FROM_SERVER
+                    || onSourceNotFound == PySourceLocatorPrefs.GET_FROM_SERVER) {
+                return (IEditorInput) pyStackFrame.getEditorInputFromLoadedSource(initialPath);
+            }
+        }
+
+        File systemFile = initialPath.toFile();
         IEditorInput input = getEditorInputFromExistingEditors(systemFile);
         if (input != null) {
+            // The same filename for different frames can have a different source, so, we
+            // need to double check its contents (if it doesn't match we need to create
+            // a new file).
             return input;
         }
 
+        IPath path = initialPath;
         String pathTranslation = PySourceLocatorPrefs.getPathTranslation(path);
         if (pathTranslation != null) {
             if (!pathTranslation.equals(PySourceLocatorPrefs.DONTASK)) {
@@ -206,85 +218,57 @@ public class PySourceLocatorBase {
         //getFileForLocation() will search all projects starting with the one we pass and references,
         //so, if not found there, it is probably an external file
         if (systemFile.exists()) {
-            edInput = EditorInputFactory.create(systemFile, true);
+            // Note: no need to check if we have an exact match for the file in the local filesystem.
+            return EditorInputFactory.create(systemFile, true);
         }
 
-        if (edInput == null) {
-            //here we can do one more thing: if the file matches some opened editor, let's use it...
-            //(this is done because when debugging, we don't want to be asked over and over
-            //for the same file)
-            input = getEditorInputFromExistingEditors(systemFile.getName());
+        //here we can do one more thing: if the file matches some opened editor, let's use it...
+        //(this is done because when debugging, we don't want to be asked over and over
+        //for the same file)
+        input = getEditorInputFromExistingEditors(systemFile.getName());
+        if (input != null) {
+            return input;
+        }
+
+        if (askIfDoesNotExist
+                && (onSourceNotFound == PySourceLocatorPrefs.ASK_FOR_FILE
+                        || onSourceNotFound == PySourceLocatorPrefs.ASK_FOR_FILE_GET_FROM_SERVER)) {
+
+            //this is the last resort... First we'll try to check for a 'good' match,
+            //and if there's more than one we'll ask it to the user
+            IWorkspace w = ResourcesPlugin.getWorkspace();
+            List<IFile> likelyFiles = getLikelyFiles(path, w);
+            IFile iFile = selectWorkspaceFile(likelyFiles.toArray(new IFile[0]));
+            if (iFile != null) {
+                IPath location = iFile.getLocation();
+                if (location != null) {
+                    PySourceLocatorPrefs.addPathTranslation(path, location);
+                    return new FileEditorInput(iFile);
+                }
+            }
+
+            //ok, ask the user for any file in the computer
+            IEditorInput pydevFileEditorInput = selectFilesystemFileForPath(path);
+            input = pydevFileEditorInput;
             if (input != null) {
-                return input;
+                File file = EditorInputUtils.getFile(pydevFileEditorInput);
+                if (file != null) {
+                    PySourceLocatorPrefs.addPathTranslation(path,
+                            Path.fromOSString(FileUtils.getFileAbsolutePath(file)));
+                    return input;
+                }
             }
 
-            if (askIfDoesNotExist
-                    && (onSourceNotFound == PySourceLocatorPrefs.ASK_FOR_FILE
-                            || onSourceNotFound == PySourceLocatorPrefs.ASK_FOR_FILE_GET_FROM_SERVER)) {
-
-                //this is the last resort... First we'll try to check for a 'good' match,
-                //and if there's more than one we'll ask it to the user
-                IWorkspace w = ResourcesPlugin.getWorkspace();
-                List<IFile> likelyFiles = getLikelyFiles(path, w);
-                IFile iFile = selectWorkspaceFile(likelyFiles.toArray(new IFile[0]));
-                if (iFile != null) {
-                    IPath location = iFile.getLocation();
-                    if (location != null) {
-                        PySourceLocatorPrefs.addPathTranslation(path, location);
-                        return new FileEditorInput(iFile);
-                    }
-                }
-
-                //ok, ask the user for any file in the computer
-                IEditorInput pydevFileEditorInput = selectFilesystemFileForPath(path);
-                input = pydevFileEditorInput;
-                if (input != null) {
-                    File file = EditorInputUtils.getFile(pydevFileEditorInput);
-                    if (file != null) {
-                        PySourceLocatorPrefs.addPathTranslation(path,
-                                Path.fromOSString(FileUtils.getFileAbsolutePath(file)));
-                        return input;
-                    }
-                }
-
-                PySourceLocatorPrefs.setIgnorePathTranslation(path);
-            }
+            PySourceLocatorPrefs.setIgnorePathTranslation(path);
         }
 
-        if (edInput == null
-                && (onSourceNotFound == PySourceLocatorPrefs.ASK_FOR_FILE_GET_FROM_SERVER
-                        || onSourceNotFound == PySourceLocatorPrefs.GET_FROM_SERVER)) {
+        if (onSourceNotFound == PySourceLocatorPrefs.ASK_FOR_FILE_GET_FROM_SERVER
+                || onSourceNotFound == PySourceLocatorPrefs.GET_FROM_SERVER) {
             if (pyStackFrame != null) {
-                try {
-                    String fileContents = pyStackFrame.getFileContents();
-                    if (fileContents != null && fileContents.length() > 0) {
-                        String lastSegment = path.lastSegment();
-                        File workspaceMetadataFile = CorePlugin.getWorkspaceMetadataFile("temporary_files");
-                        if (!workspaceMetadataFile.exists()) {
-                            workspaceMetadataFile.mkdirs();
-                        }
-                        File file = new File(workspaceMetadataFile, lastSegment);
-                        try {
-                            if (file.exists()) {
-                                file.delete();
-                            }
-                        } catch (Exception e) {
-                        }
-                        FileUtils.writeStrToFile(fileContents, file);
-                        try {
-                            file.setReadOnly();
-                        } catch (Exception e) {
-                        }
-                        edInput = EditorInputFactory.create(file, true);
-                    }
-
-                } catch (Exception e) {
-                    Log.log(e);
-                }
-
+                return (IEditorInput) pyStackFrame.getEditorInputFromLoadedSource(initialPath);
             }
         }
-        return edInput;
+        return null;
     }
 
     /**
@@ -367,7 +351,16 @@ public class PySourceLocatorBase {
                     }
                 }
             } else if (resource instanceof IContainer) {
-                getLikelyFiles(path, ret, ((IContainer) resource).members());
+                if (resource instanceof IProject) {
+                    if (!((IProject) resource).isOpen()) {
+                        continue;
+                    }
+                }
+                try {
+                    getLikelyFiles(path, ret, ((IContainer) resource).members());
+                } catch (CoreException e) {
+                    Log.log(e);
+                }
             }
         }
     }
