@@ -1,10 +1,11 @@
+# coding: utf-8
 from io import StringIO
 import os.path
 import sys
 import traceback
 
 from _pydevd_bundle.pydevd_collect_bytecode_info import collect_try_except_info, \
-    collect_return_info
+    collect_return_info, code_to_bytecode_representation
 from tests_python.debugger_unittest import IS_CPYTHON, IS_PYPY
 from tests_python.debug_constants import IS_PY2
 from _pydevd_bundle.pydevd_constants import IS_PY38_OR_GREATER, IS_JYTHON
@@ -180,7 +181,7 @@ def test_collect_try_except_info(data_regression):
                         if try_except_info.except_end_line == 7:
                             try_except_info.except_end_line = 9
 
-            method_to_info[key] = [str(x) for x in info]
+            method_to_info[key] = sorted(str(x) for x in info)
 
     data_regression.check(method_to_info)
 
@@ -201,6 +202,114 @@ def test_collect_try_except_info2():
     lst = collect_try_except_info(code, use_func_first_line=True)
     if IS_CPYTHON or IS_PYPY:
         assert str(lst) == '[{try:1 except 3 end block 5 raises: 5}]'
+    else:
+        assert lst == []
+
+
+def test_collect_try_except_info3():
+
+    def method():
+        get_exc_class = lambda:AssertionError
+        try:  # SETUP_EXCEPT (to except line)
+            raise AssertionError()
+        except get_exc_class() \
+                as e:  # POP_TOP
+            raise e
+
+    code = method.__code__
+    lst = collect_try_except_info(code, use_func_first_line=True)
+    if IS_CPYTHON or IS_PYPY:
+        assert str(lst) == '[{try:2 except 4 end block 6}]'
+    else:
+        assert lst == []
+
+
+def test_collect_try_except_info4():
+
+    def method():
+        for i in range(2):
+            try:
+                raise AssertionError()
+            except AssertionError:
+                if i == 1:
+                    try:
+                        raise
+                    except:
+                        pass
+
+        _foo = 10
+
+    code = method.__code__
+
+    lst = sorted(collect_try_except_info(code, use_func_first_line=True), key=lambda t:t.try_line)
+    if IS_CPYTHON or IS_PYPY:
+        assert str(lst) == '[{try:2 except 4 end block 9 raises: 7}, {try:6 except 8 end block 9 raises: 7}]'
+    else:
+        assert lst == []
+
+
+def test_collect_try_except_info4a():
+
+    def method():
+        for i in range(2):
+            try:
+                raise AssertionError()
+            except:
+                if i == 1:
+                    try:
+                        raise
+                    except:
+                        pass
+
+        _foo = 10
+
+    code = method.__code__
+
+    lst = sorted(collect_try_except_info(code, use_func_first_line=True), key=lambda t:t.try_line)
+    if IS_CPYTHON or IS_PYPY:
+        assert str(lst) == '[{try:2 except 4 end block 9 raises: 7}, {try:6 except 8 end block 9 raises: 7}]'
+    else:
+        assert lst == []
+
+
+def test_collect_try_except_info_raise_unhandled7():
+
+    def raise_unhandled7():
+        try:
+            raise AssertionError()
+        except AssertionError:
+            try:
+                raise AssertionError()
+            except RuntimeError:
+                pass
+
+    code = raise_unhandled7.__code__
+
+    lst = sorted(collect_try_except_info(code, use_func_first_line=True), key=lambda t:t.try_line)
+    if IS_CPYTHON or IS_PYPY:
+        assert str(lst) == '[{try:1 except 3 end block 7}, {try:4 except 6 end block 7}]'
+    else:
+        assert lst == []
+
+
+def test_collect_try_except_info_raise_unhandled10():
+
+    def raise_unhandled10():
+        for i in range(2):
+            try:
+                raise AssertionError()
+            except AssertionError:
+                if i == 1:
+                    try:
+                        raise
+                    except RuntimeError:
+                        pass
+
+    code = raise_unhandled10.__code__
+
+    lst = sorted(collect_try_except_info(code, use_func_first_line=True), key=lambda t:t.try_line)
+    if IS_CPYTHON or IS_PYPY:
+        assert str(lst) == '[{try:2 except 4 end block 9 raises: 7}, {try:6 except 8 end block 9 raises: 7}]'
     else:
         assert lst == []
 
@@ -257,6 +366,158 @@ def method():
         exec(code, scope)
         assert str(collect_return_info(scope['method'].__code__, use_func_first_line=True)) == \
             '[{return: 4}, {return: 6}]'
+
+
+@pytest.mark.skipif(IS_JYTHON, reason='Jython does not have bytecode support.')
+def test_simple_code_to_bytecode_repr():
+
+    def method4():
+        return (1,
+                2,
+                3,
+                call('tnh %s' % 1))
+
+    assert code_to_bytecode_representation(method4.__code__, use_func_first_line=True).count('\n') == 4
+
+
+@pytest.mark.skipif(IS_JYTHON, reason='Jython does not have bytecode support.')
+def test_simple_code_to_bytecode_repr_many():
+
+    def method4():
+        a = call()
+        if a == 20:
+            [x for x in call()]
+
+        def method2():
+            for x in y:
+                yield x
+            raise AssertionError
+
+        return (1,
+                2,
+                3,
+                call('tnh 1' % 1))
+
+    new_repr = code_to_bytecode_representation(method4.__code__, use_func_first_line=True)
+    # print(new_repr)
+
+
+@pytest.mark.skipif(IS_JYTHON, reason='Jython does not have bytecode support.')
+def test_simple_code_to_bytecode_repr2():
+
+    def method():
+        print(10)
+
+        def method4(a, b):
+            return (1,
+                    2,
+                    3,
+                    call('somestr %s' % 1))
+
+        print(20)
+
+    s = code_to_bytecode_representation(method.__code__, use_func_first_line=True)
+    assert s.count('\n') == 9, 'Expected 9 lines. Found: %s in:>>\n%s\n<<' % (s.count('\n'), s)
+    assert 'somestr' in s  # i.e.: the contents of the inner code have been added too
+
+
+@pytest.mark.skipif(IS_JYTHON, reason='Jython does not have bytecode support.')
+def test_simple_code_to_bytecode_repr_simple_method_calls():
+
+    def method4():
+        call()
+        a = 10
+        call(1, 2, 3, a, b, "x")
+
+    new_repr = code_to_bytecode_representation(method4.__code__, use_func_first_line=True)
+    assert 'call()' in new_repr
+    assert 'call(1, 2, 3, a, b, \'x\')' in new_repr
+
+
+@pytest.mark.skipif(IS_JYTHON, reason='Jython does not have bytecode support.')
+def test_simple_code_to_bytecode_repr_assign():
+
+    def method4():
+        a = call()
+        return call()
+
+    new_repr = code_to_bytecode_representation(method4.__code__, use_func_first_line=True)
+    assert 'a = call()' in new_repr
+    assert 'return call()' in new_repr
+
+
+@pytest.mark.skipif(IS_JYTHON, reason='Jython does not have bytecode support.')
+def test_simple_code_to_bytecode_repr_tuple():
+
+    def method4():
+        return (1, 2, call(3, 4))
+
+    new_repr = code_to_bytecode_representation(method4.__code__, use_func_first_line=True)
+    assert 'return (1, 2, call(3, 4))' in new_repr
+
+
+@pytest.mark.skipif(IS_JYTHON, reason='Jython does not have bytecode support.')
+def test_build_tuple():
+
+    def method4():
+        return call(1, (call2(), 2))
+
+    new_repr = code_to_bytecode_representation(method4.__code__, use_func_first_line=True)
+    assert 'return call(1, (call2(), 2))' in new_repr
+
+
+@pytest.mark.skipif(IS_JYTHON, reason='Jython does not have bytecode support.')
+def test_simple_code_to_bytecode_repr_return_tuple():
+
+    def method4():
+        return (1, 2, 3, a)
+
+    new_repr = code_to_bytecode_representation(method4.__code__, use_func_first_line=True)
+    assert 'return (1, 2, 3, a)' in new_repr
+
+
+@pytest.mark.skipif(IS_JYTHON, reason='Jython does not have bytecode support.')
+def test_simple_code_to_bytecode_repr_return_tuple_with_call():
+
+    def method4():
+        return (1, 2, 3, a())
+
+    new_repr = code_to_bytecode_representation(method4.__code__, use_func_first_line=True)
+    assert 'return (1, 2, 3, a())' in new_repr
+
+
+@pytest.mark.skipif(IS_JYTHON, reason='Jython does not have bytecode support.')
+def test_simple_code_to_bytecode_repr_attr():
+
+    def method4():
+        call(a.b.c)
+
+    new_repr = code_to_bytecode_representation(method4.__code__, use_func_first_line=True)
+    assert 'call(a.b.c)' in new_repr
+
+
+@pytest.mark.skipif(IS_JYTHON, reason='Jython does not have bytecode support.')
+def test_simple_code_to_bytecode_cls_method():
+
+    def method4():
+
+        class B:
+
+            def method(self):
+                self.a.b.c
+
+    new_repr = code_to_bytecode_representation(method4.__code__, use_func_first_line=True)
+    assert 'self.a.b.c' in new_repr
+
+
+@pytest.mark.skipif(IS_JYTHON, reason='Jython does not have bytecode support.')
+def test_simple_code_to_bytecode_repr_unicode():
+
+    def method4():
+        return 'áéíóú'
+
+    new_repr = code_to_bytecode_representation(method4.__code__, use_func_first_line=True)
+    assert repr('áéíóú') in new_repr
 
 
 def _create_entry(instruction):
