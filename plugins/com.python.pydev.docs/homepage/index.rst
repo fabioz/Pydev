@@ -35,6 +35,10 @@
 
         <div id="bronze-sponsors-a-hrefs">
 
+		<a href="https://meindivi.de/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/meindivi.png" alt="meindivi.de" title="https://meindivi.de/" /></a>
+
+		<a href="https://www.bonusfinder.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/bonusfinder.png" alt="bonusfinder.com" title="https://www.bonusfinder.com/" /></a>
+
 		<a href="https://www.nettikasinotsuomalaisille.com/uudet-nettikasinot/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/nettikasinotsuomalaisille.png" alt="nettikasinotsuomalaisille.com" title="https://www.nettikasinotsuomalaisille.com/uudet-nettikasinot/" /></a>
 
 		<a href="https://www.nye-casino.org/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/nyecasino.png" alt="nye-casino.org" title="https://www.nye-casino.org/" /></a>
