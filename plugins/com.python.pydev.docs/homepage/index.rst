@@ -35,6 +35,10 @@
 
         <div id="bronze-sponsors-a-hrefs">
 
+		<a href="https://www.nettikasinotsuomalaisille.com/uudet-nettikasinot/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/nettikasinotsuomalaisille.png" alt="nettikasinotsuomalaisille.com" title="https://www.nettikasinotsuomalaisille.com/uudet-nettikasinot/" /></a>
+
+		<a href="https://www.nye-casino.org/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/nyecasino.png" alt="nye-casino.org" title="https://www.nye-casino.org/" /></a>
+
 		<a href="https://laina.pro/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/lainapro.png" alt="Laina.pro" title="https://laina.pro/" /></a>
 
 		<a href="https://www.bestvpn.co/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/bestvpn.png" alt="bestvpn" title="https://www.bestvpn.co/" /></a>
@@ -122,8 +126,6 @@
         <a href="https://lainaa-helposti.fi/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/lainaa_helposti.png" alt="laina-helposti.fi" title="https://lainaa-helposti.fi/" /></a>
 
         <a href="https://couponscorpion.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/udemy_coupons.png" alt="Udemy Coupon" title="https://couponscorpion.com/" /></a>
-
-        <a href="https://smslåndirektutbetalning.se/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/smslan.png" alt="SmsLånDirektUtbetalning.se" title="https://smslåndirektutbetalning.se/" /></a>
 
         <a href="https://esportbetting.eu/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/esport_betting.png" alt="eSportBetting" title="https://esportbetting.eu/" /></a>
 
@@ -305,7 +307,7 @@ Gold Sponsors
 
    <a href="https://software.intel.com/distribution-for-python" border=0><img class="sponsors" style="width:150px;height:100px;" src="images/sponsors/intel.png" alt="Intel" title="https://software.intel.com/distribution-for-python" /></a>
 
-   <a href="https://cooltechzone.com/vpn-for-android" border=0><img class="sponsors" style="width:150px;height:100px;" src="images/sponsors/cooltechzone_2020.png" alt="Best VPN" title="best VPN for Android" /></a>
+   <a href="https://cooltechzone.com/vpn-for-android" border=0><img class="sponsors" style="width:150px;height:100px;" src="images/sponsors/cooltechzone_2020.png" alt="best VPN for Android" title="best VPN for Android" /></a>
 
    </div>
 
