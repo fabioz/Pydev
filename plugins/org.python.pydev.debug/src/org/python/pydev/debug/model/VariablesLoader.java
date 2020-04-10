@@ -89,7 +89,7 @@ public class VariablesLoader implements ICommandResponseListener {
             PyVariable[] temp1 = new PyVariable[temp.length + 1];
             System.arraycopy(temp, 0, temp1, 1, temp.length);
             temp1[0] = new PyVariableCollection(target, "Globals", "frame.f_globals", "Global variables",
-                    this.parent.getGlobalLocator());
+                    this.parent.getGlobalLocator(), "");
             temp = temp1;
         }
 
@@ -101,7 +101,7 @@ public class VariablesLoader implements ICommandResponseListener {
     /**
      * Compares stack frames to check for modified variables (and mark them as modified in the new stack).
      * Tries to reuse variables from the old list so that the tree state is kept on the variables view.
-     * 
+     *
      * @returns the list to be used for the frame (which uses old variables when possible if they're compatible,
      * even updating them in-place as needed).
      */
@@ -116,7 +116,10 @@ public class VariablesLoader implements ICommandResponseListener {
         try {
             Map<String, PyVariable> map = new HashMap<String, PyVariable>();
             for (PyVariable var : oldVariables) {
-                map.put(var.getPyDBLocation(), var);
+                String pyDBLocation = var.getPyDBLocation();
+                if (pyDBLocation != null) {
+                    map.put(pyDBLocation, var);
+                }
             }
             Map<String, PyVariable> variablesAsMap = map;
 
@@ -124,33 +127,36 @@ public class VariablesLoader implements ICommandResponseListener {
             for (int i = 0; i < newFrameVariables.length; i++) {
                 newVariable = newFrameVariables[i];
 
-                PyVariable oldVariable = variablesAsMap.get(newVariable.getPyDBLocation());
+                String pyDBLocation = newVariable.getPyDBLocation();
+                if (pyDBLocation != null) {
+                    PyVariable oldVariable = variablesAsMap.get(pyDBLocation);
 
-                if (oldVariable != null) {
-                    boolean equals;
-                    if (newVariable.getClass() != oldVariable.getClass()) {
-                        // Changed from collection to simple var (or vice-versa).
-                        // If it's a new variable, we don't need to force it to get new variables
-                        // (this will happen naturally when requested).
+                    if (oldVariable != null) {
+                        boolean equals;
+                        if (newVariable.getClass() != oldVariable.getClass()) {
+                            // Changed from collection to simple var (or vice-versa).
+                            // If it's a new variable, we don't need to force it to get new variables
+                            // (this will happen naturally when requested).
+                            newVariable.setModified(true);
+                            newVarsList.add(newVariable);
+                        } else {
+                            // Same class: always use old variable (and set the value string accordingly)
+                            String newValueString = newVariable.getValueString();
+                            equals = newValueString.equals(oldVariable.getValueString());
+                            if (!equals) {
+                                oldVariable.copyValueString(newVariable);
+                            }
+                            // If it is not equal, it was modified.
+                            oldVariable.setModified(!equals);
+                            // Always force an existing variable collection to get new variables.
+                            oldVariable.forceGetNewVariables();
+                            newVarsList.add(oldVariable);
+                        }
+
+                    } else { // It didn't exist before...
                         newVariable.setModified(true);
                         newVarsList.add(newVariable);
-                    } else {
-                        // Same class: always use old variable (and set the value string accordingly)
-                        String newValueString = newVariable.getValueString();
-                        equals = newValueString.equals(oldVariable.getValueString());
-                        if (!equals) {
-                            oldVariable.copyValueString(newVariable);
-                        }
-                        // If it is not equal, it was modified.
-                        oldVariable.setModified(!equals);
-                        // Always force an existing variable collection to get new variables.
-                        oldVariable.forceGetNewVariables();
-                        newVarsList.add(oldVariable);
                     }
-
-                } else { // It didn't exist before...
-                    newVariable.setModified(true);
-                    newVarsList.add(newVariable);
                 }
             }
 

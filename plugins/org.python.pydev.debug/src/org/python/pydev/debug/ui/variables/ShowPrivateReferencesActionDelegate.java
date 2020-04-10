@@ -37,7 +37,7 @@ public class ShowPrivateReferencesActionDelegate extends AbstractShowReferencesA
     @Override
     protected boolean select(Viewer viewer, Object parentElement, PyVariable variable, String variableName) {
         if (variableName != null && variableName.startsWith("_")) {
-            // although we want to exclude _ names, don't do that on self and cls 
+            // although we want to exclude _ names, don't do that on self and cls
             if (parentElement instanceof TreePath) {
                 TreePath path = (TreePath) parentElement;
                 if (path.getSegmentCount() == 1) {

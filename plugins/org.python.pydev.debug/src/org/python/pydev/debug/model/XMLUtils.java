@@ -155,10 +155,11 @@ public class XMLUtils {
         String qualifier = decodeIgnoreError(attributes.getValue("qualifier"));
         String value = decodeIgnoreError(attributes.getValue("value"));
         String isContainer = attributes.getValue("isContainer");
+        String scope = attributes.getValue("scope");
         if ("True".equals(isContainer)) {
-            var = new PyVariableCollection(target, name, type, value, locator);
+            var = new PyVariableCollection(target, name, type, value, locator, scope);
         } else {
-            var = new PyVariable(target, name, type, value, locator);
+            var = new PyVariable(target, name, type, value, locator, scope);
         }
         var.setQualifier(qualifier);
         String isRetVal = attributes.getValue("isRetVal");
