@@ -157,6 +157,9 @@ public class VariablesLoader implements ICommandResponseListener {
                         newVariable.setModified(true);
                         newVarsList.add(newVariable);
                     }
+                } else {
+                    // no pyDBLocation, just add as is
+                    newVarsList.add(newVariable);
                 }
             }
 

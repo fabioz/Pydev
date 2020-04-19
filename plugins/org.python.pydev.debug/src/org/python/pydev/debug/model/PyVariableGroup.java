@@ -11,7 +11,7 @@ public class PyVariableGroup extends PyVariable
         implements IVariableLocator, IVariablesContainerParent {
 
     private static final PyVariable[] EMPTY_VARIABLE_ARRAY = new PyVariable[0];
-    private PyVariable[] variables;
+    private volatile PyVariable[] variables;
     private String threadId;
 
     public PyVariableGroup(AbstractDebugTarget target, String name, String type, String value, String threadId,
