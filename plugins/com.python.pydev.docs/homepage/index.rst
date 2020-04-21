@@ -35,6 +35,8 @@
 
         <div id="bronze-sponsors-a-hrefs">
 
+		<a href="https://420couponcodes.com/cbdmd/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/cbdmd.jpg" alt="https://420couponcodes.com/cbdmd/" title="https://420couponcodes.com/cbdmd/" /></a>
+
 		<a href="https://sumatosoft.com/solutions/internet-of-things-software-development" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/sumatosoft.png" alt="sumatosoft.com" title="https://sumatosoft.com/solutions/internet-of-things-software-development" /></a>
 
 		<a href="https://meindivi.de/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/meindivi.png" alt="meindivi.de" title="https://meindivi.de/" /></a>
