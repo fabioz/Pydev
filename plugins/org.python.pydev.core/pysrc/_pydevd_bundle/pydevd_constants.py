@@ -18,6 +18,12 @@ try:
 except NameError:
     int_types = (int,)
 
+# types does not include a MethodWrapperType
+try:
+    MethodWrapperType = type([].__str__)
+except:
+    MethodWrapperType = None
+
 import sys  # Note: the sys import must be here anyways (others depend on it)
 
 # Preload codecs to avoid imports to them later on which can potentially halt the debugger.
@@ -65,6 +71,7 @@ except AttributeError:
 MAXIMUM_VARIABLE_REPRESENTATION_SIZE = 1000
 # Prefix for saving functions return values in locals
 RETURN_VALUES_DICT = '__pydevd_ret_val_dict'
+GENERATED_LEN_ATTR_NAME = 'len()'
 
 import os
 

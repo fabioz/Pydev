@@ -1,5 +1,5 @@
 from _pydev_bundle import pydev_log
-from _pydevd_bundle.pydevd_utils import hasattr_checked
+from _pydevd_bundle.pydevd_utils import hasattr_checked, DAPGrouper
 try:
     import StringIO
 except:
@@ -8,7 +8,8 @@ import traceback
 from os.path import basename
 
 from functools import partial
-from _pydevd_bundle.pydevd_constants import dict_iter_items, dict_keys, xrange, IS_PY36_OR_GREATER
+from _pydevd_bundle.pydevd_constants import dict_iter_items, dict_keys, xrange, IS_PY36_OR_GREATER, \
+    MethodWrapperType, RETURN_VALUES_DICT, DebugInfoHolder, IS_PYPY, GENERATED_LEN_ATTR_NAME
 from _pydevd_bundle.pydevd_safe_repr import SafeRepr
 
 # Note: 300 is already a lot to see in the outline (after that the user should really use the shell to get things)
@@ -26,23 +27,6 @@ class UnableToResolveVariableException(Exception):
     pass
 
 
-#=======================================================================================================================
-# InspectStub
-#=======================================================================================================================
-class InspectStub:
-
-    def isbuiltin(self, _args):
-        return False
-
-    def isroutine(self, object):
-        return False
-
-
-try:
-    import inspect
-except:
-    inspect = InspectStub()
-
 try:
     from collections import OrderedDict
 except:
@@ -52,12 +36,6 @@ try:
     import java.lang  # @UnresolvedImport
 except:
     pass
-
-# types does not include a MethodWrapperType
-try:
-    MethodWrapperType = type([].__str__)
-except:
-    MethodWrapperType = None
 
 #=======================================================================================================================
 # See: pydevd_extension_api module for resolver interface
@@ -99,9 +77,16 @@ class DefaultResolver:
 
         lst = sorted(dict_iter_items(dct), key=lambda tup: sorted_attributes_key(tup[0]))
         if used___dict__:
-            return [(attr_name, attr_value, '.__dict__[%s]' % attr_name) for (attr_name, attr_value) in lst]
+            eval_name = '.__dict__[%s]'
         else:
-            return [(attr_name, attr_value, '.%s' % attr_name) for (attr_name, attr_value) in lst]
+            eval_name = '.%s'
+
+        ret = []
+        for attr_name, attr_value in lst:
+            entry = (attr_name, attr_value, eval_name % attr_name)
+            ret.append(entry)
+
+        return ret
 
     def get_dictionary(self, var, names=None, used___dict__=False):
         if MethodWrapperType:
@@ -183,11 +168,12 @@ class DefaultResolver:
         using obj.__dict__[name] instead of getattr(obj, name)
         '''
 
-        # TODO: Those should be options (would fix https://github.com/Microsoft/ptvsd/issues/66).
-        filter_private = False
-        filter_special = True
-        filter_function = True
-        filter_builtin = True
+        # On PyPy we never show functions. This is because of a corner case where PyPy becomes
+        # absurdly slow -- it takes almost half a second to introspect a single numpy function (so,
+        # the related test, "test_case_16_resolve_numpy_array", times out... this probably isn't
+        # specific to numpy, but to any library where the CPython bridge is used, but as we
+        # can't be sure in the debugger, we play it safe and don't show it at all).
+        filter_function = IS_PYPY
 
         if not names:
             names, used___dict__ = self.get_names(var)
@@ -197,43 +183,36 @@ class DefaultResolver:
         # optimize the operation by removing as many items as possible in the
         # first filters, leaving fewer items for later filters
 
-        if filter_builtin or filter_function:
-            for name in names:
-                try:
-                    name_as_str = name
-                    if name_as_str.__class__ != str:
-                        name_as_str = '%r' % (name_as_str,)
+        for name in names:
+            try:
+                name_as_str = name
+                if name_as_str.__class__ != str:
+                    name_as_str = '%r' % (name_as_str,)
 
-                    if filter_special:
-                        if name_as_str.startswith('__') and name_as_str.endswith('__'):
-                            continue
+                if not used___dict__:
+                    attr = getattr(var, name)
+                else:
+                    attr = var.__dict__[name]
 
-                    if filter_private:
-                        if name_as_str.startswith('_') or name_as_str.endswith('__'):
-                            continue
-                    if not used___dict__:
-                        attr = getattr(var, name)
-                    else:
-                        attr = var.__dict__[name]
+                # filter functions?
+                if filter_function:
+                    if inspect.isroutine(attr) or isinstance(attr, MethodWrapperType):
+                        continue
+            except:
+                # if some error occurs getting it, let's put it to the user.
+                strIO = StringIO.StringIO()
+                traceback.print_exc(file=strIO)
+                attr = strIO.getvalue()
 
-                    # filter builtins?
-                    if filter_builtin:
-                        if inspect.isbuiltin(attr):
-                            continue
-
-                    # filter functions?
-                    if filter_function:
-                        if inspect.isroutine(attr) or isinstance(attr, MethodWrapperType):
-                            continue
-                except:
-                    # if some error occurs getting it, let's put it to the user.
-                    strIO = StringIO.StringIO()
-                    traceback.print_exc(file=strIO)
-                    attr = strIO.getvalue()
-
-                d[name_as_str] = attr
+            d[name_as_str] = attr
 
         return d, used___dict__
+
+
+class DAPGrouperResolver:
+
+    def get_contents_debug_adapter_protocol(self, obj, fmt=None):
+        return obj.get_contents_debug_adapter_protocol()
 
 
 #=======================================================================================================================
@@ -244,7 +223,7 @@ class DictResolver:
     sort_keys = not IS_PY36_OR_GREATER
 
     def resolve(self, dict, key):
-        if key in ('__len__', TOO_LARGE_ATTR):
+        if key in (GENERATED_LEN_ATTR_NAME, TOO_LARGE_ATTR):
             return None
 
         if '(' not in key:
@@ -297,17 +276,17 @@ class DictResolver:
                 ret.append((TOO_LARGE_ATTR, TOO_LARGE_MSG, None))
                 break
 
-        ret.append(('__len__', len(dct), partial(_apply_evaluate_name, evaluate_name='len(%s)')))
         # in case the class extends built-in type and has some additional fields
         from_default_resolver = defaultResolver.get_contents_debug_adapter_protocol(dct, fmt)
 
         if from_default_resolver:
             ret = from_default_resolver + ret
 
-        if not self.sort_keys:
-            return ret
+        if self.sort_keys:
+            ret = sorted(ret, key=lambda tup: sorted_attributes_key(tup[0]))
 
-        return sorted(ret, key=lambda tup: sorted_attributes_key(tup[0]))
+        ret.append((GENERATED_LEN_ATTR_NAME, len(dct), partial(_apply_evaluate_name, evaluate_name='len(%s)')))
+        return ret
 
     def get_dictionary(self, dict):
         ret = self.init_dict()
@@ -322,10 +301,10 @@ class DictResolver:
                 ret[TOO_LARGE_ATTR] = TOO_LARGE_MSG
                 break
 
-        ret['__len__'] = len(dict)
         # in case if the class extends built-in type and has some additional fields
         additional_fields = defaultResolver.get_dictionary(dict)
         ret.update(additional_fields)
+        ret[GENERATED_LEN_ATTR_NAME] = len(dict)
         return ret
 
 
@@ -343,7 +322,7 @@ class TupleResolver:  # to enumerate tuples and lists
             @param var: that's the original attribute
             @param attribute: that's the key passed in the dict (as a string)
         '''
-        if attribute in ('__len__', TOO_LARGE_ATTR):
+        if attribute in (GENERATED_LEN_ATTR_NAME, TOO_LARGE_ATTR):
             return None
         try:
             return var[int(attribute)]
@@ -374,11 +353,12 @@ class TupleResolver:  # to enumerate tuples and lists
                 ret.append((TOO_LARGE_ATTR, TOO_LARGE_MSG, None))
                 break
 
-        ret.append(('__len__', len(lst), partial(_apply_evaluate_name, evaluate_name='len(%s)')))
         # Needed in case the class extends the built-in type and has some additional fields.
         from_default_resolver = defaultResolver.get_contents_debug_adapter_protocol(lst, fmt=fmt)
         if from_default_resolver:
             ret = from_default_resolver + ret
+
+        ret.append((GENERATED_LEN_ATTR_NAME, len(lst), partial(_apply_evaluate_name, evaluate_name='len(%s)')))
         return ret
 
     def get_dictionary(self, var, fmt={}):
@@ -396,10 +376,10 @@ class TupleResolver:  # to enumerate tuples and lists
                 d[TOO_LARGE_ATTR] = TOO_LARGE_MSG
                 break
 
-        d['__len__'] = len(var)
         # in case if the class extends built-in type and has some additional fields
         additional_fields = defaultResolver.get_dictionary(var)
         d.update(additional_fields)
+        d[GENERATED_LEN_ATTR_NAME] = len(var)
         return d
 
 
@@ -421,15 +401,15 @@ class SetResolver:
                 ret.append((TOO_LARGE_ATTR, TOO_LARGE_MSG, None))
                 break
 
-        ret.append(('__len__', len(obj), partial(_apply_evaluate_name, evaluate_name='len(%s)')))
         # Needed in case the class extends the built-in type and has some additional fields.
         from_default_resolver = defaultResolver.get_contents_debug_adapter_protocol(obj, fmt=fmt)
         if from_default_resolver:
             ret = from_default_resolver + ret
+        ret.append((GENERATED_LEN_ATTR_NAME, len(obj), partial(_apply_evaluate_name, evaluate_name='len(%s)')))
         return ret
 
     def resolve(self, var, attribute):
-        if attribute in ('__len__', TOO_LARGE_ATTR):
+        if attribute in (GENERATED_LEN_ATTR_NAME, TOO_LARGE_ATTR):
             return None
 
         try:
@@ -452,10 +432,10 @@ class SetResolver:
                 d[TOO_LARGE_ATTR] = TOO_LARGE_MSG
                 break
 
-        d['__len__'] = len(var)
         # in case if the class extends built-in type and has some additional fields
         additional_fields = defaultResolver.get_dictionary(var)
         d.update(additional_fields)
+        d[GENERATED_LEN_ATTR_NAME] = len(var)
         return d
 
     def change_var_from_name(self, container, name, new_value):
@@ -511,7 +491,7 @@ class JyArrayResolver:
     '''
 
     def resolve(self, var, attribute):
-        if attribute == '__len__':
+        if attribute == GENERATED_LEN_ATTR_NAME:
             return None
         return var[int(attribute)]
 
@@ -521,7 +501,7 @@ class JyArrayResolver:
         for i in xrange(len(obj)):
             ret[ i ] = obj[i]
 
-        ret['__len__'] = len(obj)
+        ret[GENERATED_LEN_ATTR_NAME] = len(obj)
         return ret
 
 
@@ -531,7 +511,7 @@ class JyArrayResolver:
 class MultiValueDictResolver(DictResolver):
 
     def resolve(self, dict, key):
-        if key in ('__len__', TOO_LARGE_ATTR):
+        if key in (GENERATED_LEN_ATTR_NAME, TOO_LARGE_ATTR):
             return None
 
         # ok, we have to iterate over the items to find the one that matches the id, because that's the only way
@@ -650,3 +630,55 @@ djangoFormResolver = DjangoFormResolver()
 dequeResolver = DequeResolver()
 orderedDictResolver = OrderedDictResolver()
 frameResolver = FrameResolver()
+dapGrouperResolver = DAPGrouperResolver()
+
+
+class InspectStub:
+
+    def isbuiltin(self, _args):
+        return False
+
+    def isroutine(self, object):
+        return False
+
+
+try:
+    import inspect
+except:
+    inspect = InspectStub()
+
+
+def get_var_scope(attr_name, attr_value, evaluate_name, handle_return_values):
+    if attr_name.startswith("'"):
+        if attr_name.endswith("'"):
+            attr_name = attr_name[1:-1]
+        else:
+            i = attr_name.find("__' (")
+            if i >= 0:
+                # Handle attr_name such as: >>'__name__' (1732494379184)<<
+                attr_name = attr_name[1: i + 2]
+
+    if handle_return_values and attr_name == RETURN_VALUES_DICT:
+        return ''
+
+    elif attr_name == GENERATED_LEN_ATTR_NAME:
+        return ''
+
+    if attr_name.startswith('__') and attr_name.endswith('__'):
+        return DAPGrouper.SCOPE_SPECIAL_VARS
+
+    if attr_name.startswith('_') or attr_name.endswith('__'):
+        return DAPGrouper.SCOPE_PROTECTED_VARS
+
+    try:
+        if inspect.isroutine(attr_value) or isinstance(attr_value, MethodWrapperType):
+            return DAPGrouper.SCOPE_FUNCTION_VARS
+
+        elif inspect.isclass(attr_value):
+            return DAPGrouper.SCOPE_CLASS_VARS
+    except:
+        # It's possible that isinstance throws an exception when dealing with user-code.
+        if DebugInfoHolder.DEBUG_TRACE_LEVEL > 0:
+            pydev_log.exception()
+
+    return ''

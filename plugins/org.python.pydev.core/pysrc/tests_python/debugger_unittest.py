@@ -511,6 +511,15 @@ class DebuggerRunner(object):
                 yield dct_with_stdout_stder
             except:
                 fail_with_message = True
+                # Let's print the actuayl exception here (it doesn't appear properly on Python 2 and
+                # on Python 3 it's hard to find because pytest output is too verbose).
+                sys.stderr.write('***********\n')
+                sys.stderr.write('***********\n')
+                sys.stderr.write('***********\n')
+                traceback.print_exc()
+                sys.stderr.write('***********\n')
+                sys.stderr.write('***********\n')
+                sys.stderr.write('***********\n')
                 raise
 
             if not writer.finished_ok:
@@ -749,11 +758,13 @@ class AbstractWriterThread(threading.Thread):
         dirname = os.path.dirname(dirname)
         return os.path.abspath(os.path.join(dirname, 'pydevconsole.py'))
 
-    def get_line_index_with_content(self, line_content):
+    def get_line_index_with_content(self, line_content, filename=None):
         '''
         :return the line index which has the given content (1-based).
         '''
-        with open(self.TEST_FILE, 'r') as stream:
+        if filename is None:
+            filename = self.TEST_FILE
+        with open(filename, 'r') as stream:
             for i_line, line in enumerate(stream):
                 if line_content in line:
                     return i_line + 1
