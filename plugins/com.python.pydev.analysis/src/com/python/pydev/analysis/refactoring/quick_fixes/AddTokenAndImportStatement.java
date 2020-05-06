@@ -207,6 +207,18 @@ public class AddTokenAndImportStatement {
                             strToAdd = "," + delimiter + computedInfo.indentString
                                     + realImportHandleInfo.getImportedStr().get(0);
                         } else {
+
+                            boolean withComma = true;
+
+                            while (withComma == true) {
+                                if (line.endsWith(",")) {
+                                    line = line.substring(0, len - 1);
+                                    len--;
+                                } else {
+                                    withComma = false;
+                                }
+                            }
+
                             strToAdd = ",\\" + delimiter + computedInfo.indentString
                                     + realImportHandleInfo.getImportedStr().get(0);
                         }
@@ -221,9 +233,22 @@ public class AddTokenAndImportStatement {
                 } else {
                     //regular addition (it won't pass the number of columns expected).
                     line = PySelection.getLineWithoutCommentsOrLiterals(line);
+                    line = line.trim();
                     int len = line.length();
-                    if (line.trim().endsWith(")")) {
+
+                    if (line.endsWith(")")) {
                         len = line.indexOf(")");
+                    }
+
+                    boolean withComma = true;
+
+                    while (withComma == true) {
+                        if (line.endsWith(",")) {
+                            line = line.substring(0, len - 1);
+                            len--;
+                        } else {
+                            withComma = false;
+                        }
                     }
 
                     int end = lineInformation.getOffset() + len;
