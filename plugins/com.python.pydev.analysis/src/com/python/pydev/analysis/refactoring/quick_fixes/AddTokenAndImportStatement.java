@@ -264,7 +264,7 @@ public class AddTokenAndImportStatement {
 
             line = line.substring(0, len - 1);
             line = line.trim();
-            len--;
+            len = line.length();
 
             while (withComma == true) {
                 if (line.endsWith(",")) {
