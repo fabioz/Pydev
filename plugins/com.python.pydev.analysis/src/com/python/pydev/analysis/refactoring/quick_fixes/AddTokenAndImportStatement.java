@@ -198,26 +198,20 @@ public class AddTokenAndImportStatement {
                 String strToAdd = ", " + realImportHandleInfo.getImportedStr().get(0);
 
                 String line = PySelection.getLine(document, endLine);
+                line = line.trim();
+                int len = line.length();
+                int commaAmount = verifyComma(line); // gets the amount of commas at end of import
+                len -= commaAmount; // update the line length aux to offset before all commas at the end of import
+
                 if (line.length() + strToAdd.length() > maxCols) {
                     if (line.indexOf('#') == -1) {
                         //no comments: just add it in the next line
-                        int len = line.length();
-                        if (line.trim().endsWith(")")) {
-                            len = line.indexOf(")");
+                        if (line.endsWith(")")) {
+
+                            len--; // define offset to before ")"
                             strToAdd = "," + delimiter + computedInfo.indentString
                                     + realImportHandleInfo.getImportedStr().get(0);
                         } else {
-
-                            boolean withComma = true;
-
-                            while (withComma == true) {
-                                if (line.endsWith(",")) {
-                                    line = line.substring(0, len - 1);
-                                    len--;
-                                } else {
-                                    withComma = false;
-                                }
-                            }
 
                             strToAdd = ",\\" + delimiter + computedInfo.indentString
                                     + realImportHandleInfo.getImportedStr().get(0);
@@ -225,7 +219,7 @@ public class AddTokenAndImportStatement {
 
                         int end = lineInformation.getOffset() + len;
                         computedInfo.importLen = strToAdd.length();
-                        computedInfo.replace(end, 0, strToAdd);
+                        computedInfo.replace(end, commaAmount, strToAdd); //replace with strToAdd all the commas at the end of import
                         return;
 
                     }
@@ -233,27 +227,14 @@ public class AddTokenAndImportStatement {
                 } else {
                     //regular addition (it won't pass the number of columns expected).
                     line = PySelection.getLineWithoutCommentsOrLiterals(line);
-                    line = line.trim();
-                    int len = line.length();
 
                     if (line.endsWith(")")) {
-                        len = line.indexOf(")");
-                    }
-
-                    boolean withComma = true;
-
-                    while (withComma == true) {
-                        if (line.endsWith(",")) {
-                            line = line.substring(0, len - 1);
-                            len--;
-                        } else {
-                            withComma = false;
-                        }
+                        len--; // define offset to before ")"
                     }
 
                     int end = lineInformation.getOffset() + len;
                     computedInfo.importLen = strToAdd.length();
-                    computedInfo.replace(end, 0, strToAdd);
+                    computedInfo.replace(end, commaAmount, strToAdd); //replace with strToAdd all the commas at the end of import
                     return;
                 }
             }
@@ -270,6 +251,47 @@ public class AddTokenAndImportStatement {
         } catch (BadLocationException x) {
             Log.log(x);
         }
+    }
+
+    // function to get the amount of commas at the end of import string
+    private int verifyComma(String line) {
+        // TODO Auto-generated method stub
+        boolean withComma = true;
+        int commaAmount = 0;
+        int len = line.length();
+
+        if (line.endsWith(")")) {
+
+            line = line.substring(0, len - 1);
+            line = line.trim();
+            len--;
+
+            while (withComma == true) {
+                if (line.endsWith(",")) {
+                    line = line.substring(0, len - 1);
+                    len--;
+                    commaAmount++;
+                } else {
+                    withComma = false;
+                    line = line.concat(")");
+                    len++;
+                }
+            }
+
+        } else {
+
+            while (withComma == true) {
+                if (line.endsWith(",")) {
+                    line = line.substring(0, len - 1);
+                    len--;
+                    commaAmount++;
+                } else {
+                    withComma = false;
+                }
+            }
+        }
+
+        return commaAmount;
     }
 
     private String delimiter;
