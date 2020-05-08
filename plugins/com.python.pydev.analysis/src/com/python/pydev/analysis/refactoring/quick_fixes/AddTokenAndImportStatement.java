@@ -140,14 +140,9 @@ public class AddTokenAndImportStatement {
                                     }
                                     if (realImportHandleInfo.getFromImportStrWithoutUnwantedChars().equals(
                                             importHandleInfo.getFromImportStrWithoutUnwantedChars())) {
-                                        List<String> commentsForImports = importHandleInfo.getCommentsForImports();
 
-                                        if (commentsForImports.size() > 0
-                                                && commentsForImports.get(commentsForImports.size() - 1)
-                                                        .length() != 0) {
-                                            groupInto = importHandleInfo;
-                                            break;
-                                        }
+                                        groupInto = importHandleInfo;
+                                        break;
                                     }
                                 }
                             }
