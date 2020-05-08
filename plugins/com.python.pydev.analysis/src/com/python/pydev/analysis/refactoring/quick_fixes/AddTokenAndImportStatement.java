@@ -140,13 +140,9 @@ public class AddTokenAndImportStatement {
                                     }
                                     if (realImportHandleInfo.getFromImportStrWithoutUnwantedChars().equals(
                                             importHandleInfo.getFromImportStrWithoutUnwantedChars())) {
-                                        List<String> commentsForImports = importHandleInfo.getCommentsForImports();
-                                        if (commentsForImports.size() > 0
-                                                && commentsForImports.get(commentsForImports.size() - 1)
-                                                        .length() == 0) {
-                                            groupInto = importHandleInfo;
-                                            break;
-                                        }
+
+                                        groupInto = importHandleInfo;
+                                        break;
                                     }
                                 }
                             }
@@ -194,41 +190,48 @@ public class AddTokenAndImportStatement {
             if (groupInto != null && realImportHandleInfo != null) {
                 //let's try to group it
                 int endLine = groupInto.getEndLine();
-                IRegion lineInformation = document.getLineInformation(endLine);
-                String strToAdd = ", " + realImportHandleInfo.getImportedStr().get(0);
-
                 String line = PySelection.getLine(document, endLine);
+                String lineWithoutComment = PySelection.getLineWithoutCommentsOrLiterals(line); // get line without comments for future uses
+
+                boolean lineContainComment = false;
+                if (line.contains("#") || line.contains("\"\"\"")) {
+                    lineContainComment = true; // realize it's import string has comments in
+                }
+                int offsetDiff = getOffsetDiff(line, lineWithoutComment, lineContainComment); // get difference of characters from real end of import and end with all commas, spaces and tabs
+
+                String lastImportedStr = groupInto.getImportedStr().get(groupInto.getImportedStr().size() - 1); // get the string from the last import
+                int offset = getOffset(line, lineWithoutComment, lineContainComment, lastImportedStr); // get offset based on the end of last import
+
+                String lastImportStrParenthesis = ""; // just get a string to add on every strToAdd definition, it will concat ')' if import string has "(xx)" style
+                // it is here because offsetDiff for standard remove all spaces and tabs after ')' if import string doesn't have comment
+                // so it's just to avoid "if" decision structures on every strToAdd definition
+                if (lineWithoutComment.trim().endsWith(")")) {
+                    lastImportStrParenthesis = ")";
+                }
+
+                String strToAdd = ", " + realImportHandleInfo.getImportedStr().get(0) + lastImportStrParenthesis;
+
                 if (line.length() + strToAdd.length() > maxCols) {
                     if (line.indexOf('#') == -1) {
                         //no comments: just add it in the next line
-                        int len = line.length();
-                        if (line.trim().endsWith(")")) {
-                            len = line.indexOf(")");
+                        if (lastImportStrParenthesis == ")") {
                             strToAdd = "," + delimiter + computedInfo.indentString
-                                    + realImportHandleInfo.getImportedStr().get(0);
+                                    + realImportHandleInfo.getImportedStr().get(0) + lastImportStrParenthesis;
                         } else {
                             strToAdd = ",\\" + delimiter + computedInfo.indentString
-                                    + realImportHandleInfo.getImportedStr().get(0);
+                                    + realImportHandleInfo.getImportedStr().get(0) + lastImportStrParenthesis;
                         }
 
-                        int end = lineInformation.getOffset() + len;
                         computedInfo.importLen = strToAdd.length();
-                        computedInfo.replace(end, 0, strToAdd);
+                        computedInfo.replace(offset, offsetDiff, strToAdd);
                         return;
 
                     }
 
                 } else {
                     //regular addition (it won't pass the number of columns expected).
-                    line = PySelection.getLineWithoutCommentsOrLiterals(line);
-                    int len = line.length();
-                    if (line.trim().endsWith(")")) {
-                        len = line.indexOf(")");
-                    }
-
-                    int end = lineInformation.getOffset() + len;
                     computedInfo.importLen = strToAdd.length();
-                    computedInfo.replace(end, 0, strToAdd);
+                    computedInfo.replace(offset, offsetDiff, strToAdd);
                     return;
                 }
             }
@@ -245,6 +248,53 @@ public class AddTokenAndImportStatement {
         } catch (BadLocationException x) {
             Log.log(x);
         }
+    }
+
+    // get the offset based on the last string from import
+    private int getOffset(String line, String lineWithoutComment, boolean lineContainComment, String lastImportedStr) {
+
+        int offset;
+
+        if (lineContainComment) {
+            offset = lineWithoutComment.indexOf(lastImportedStr) + lastImportedStr.length();
+        } else {
+            offset = line.indexOf(lastImportedStr) + lastImportedStr.length();
+        }
+
+        return offset;
+    }
+
+    // get offset difference from import end offset and offset to insert strToAdd
+    private int getOffsetDiff(String line, String lineWithoutComment, boolean lineContainComment) {
+
+        int offsetDiff = 0;
+        int end;
+
+        if (lineContainComment) {
+            line = lineWithoutComment;
+            line = line.trim();
+            end = line.length(); // define offset on the first character which isn't space or tab before comment
+        } else {
+            end = line.length(); // get the end of the line with all spaces and tabs
+            line = line.trim(); // get line trimmed
+            offsetDiff += end - line.length(); // get the amount of spaces in a line without ")" and comments
+            end = line.length();
+        }
+
+        if (line.endsWith(")")) {
+            line = line.substring(0, end - 1); // remove ')'
+            line = line.trim(); // trim spaces and tabs before ")"
+            offsetDiff += end - line.length(); // get offsetDiff of all trimmed characters
+        }
+
+        end = line.length(); // define offset on first character which isn't space or tab before ")" 
+        while (line.endsWith(",")) {
+            line = line.substring(0, end - 1);
+            end--;
+            offsetDiff++;
+        }
+
+        return offsetDiff; // return all character index difference between end and real end of import line
     }
 
     private String delimiter;
