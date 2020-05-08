@@ -190,6 +190,7 @@ public class AddTokenAndImportStatement {
             if (groupInto != null && realImportHandleInfo != null) {
                 //let's try to group it
                 int endLine = groupInto.getEndLine();
+                IRegion lineInformation = document.getLineInformation(endLine);
                 String line = PySelection.getLine(document, endLine);
                 String lineWithoutComment = PySelection.getLineWithoutCommentsOrLiterals(line); // get line without comments for future uses
 
@@ -200,7 +201,8 @@ public class AddTokenAndImportStatement {
                 int offsetDiff = getOffsetDiff(line, lineWithoutComment, lineContainComment); // get difference of characters from real end of import and end with all commas, spaces and tabs
 
                 String lastImportedStr = groupInto.getImportedStr().get(groupInto.getImportedStr().size() - 1); // get the string from the last import
-                int offset = getOffset(line, lineWithoutComment, lineContainComment, lastImportedStr); // get offset based on the end of last import
+                int offset = getOffset(line, lineWithoutComment, lineInformation.getOffset(), lineContainComment,
+                        lastImportedStr); // get offset based on the end of last import
 
                 String lastImportStrParenthesis = ""; // just get a string to add on every strToAdd definition, it will concat ')' if import string has "(xx)" style
                 // it is here because offsetDiff for standard remove all spaces and tabs after ')' if import string doesn't have comment
@@ -251,7 +253,8 @@ public class AddTokenAndImportStatement {
     }
 
     // get the offset based on the last string from import
-    private int getOffset(String line, String lineWithoutComment, boolean lineContainComment, String lastImportedStr) {
+    private int getOffset(String line, String lineWithoutComment, int endLineOffset, boolean lineContainComment,
+            String lastImportedStr) {
 
         int offset;
 
@@ -261,7 +264,7 @@ public class AddTokenAndImportStatement {
             offset = line.indexOf(lastImportedStr) + lastImportedStr.length();
         }
 
-        return offset;
+        return offset + endLineOffset;
     }
 
     // get offset difference from import end offset and offset to insert strToAdd

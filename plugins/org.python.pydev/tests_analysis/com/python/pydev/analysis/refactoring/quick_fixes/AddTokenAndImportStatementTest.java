@@ -518,5 +518,11 @@ public class AddTokenAndImportStatementTest extends TestCase {
                 "from math import (ceil, sqrt)   #foo", 80);
 
         // -- END OF TESTS WITH COMMENTS INLINE -- //
+
+        // normal situation
+        checkImport("#from math import ceil\nfrom math import sqrt", "from math import fmod",
+                "#from math import ceil\nfrom math import sqrt, fmod",
+                80);
+
     }
 }
