@@ -189,51 +189,54 @@ public class AddTokenAndImportStatement {
 
             if (groupInto != null && realImportHandleInfo != null) {
                 //let's try to group it
-                int endLine = groupInto.getEndLine();
-                IRegion lineInformation = document.getLineInformation(endLine);
-                String line = PySelection.getLine(document, endLine);
-                String lineWithoutComment = PySelection.getLineWithoutCommentsOrLiterals(line); // get line without comments for future uses
+                int endLineNum = groupInto.getEndLine(); // get the number of last line of import
+                int startLineOffset = document.getLineInformation(groupInto.getStartLine()).getOffset();
+                int endLineOffset = document.getLineInformation(endLineNum).getOffset();
+                String endLine = PySelection.getLine(document, endLineNum); // get the string of last line of import
+                String endLineWithoutComment = PySelection.getLineWithoutCommentsOrLiterals(endLine); // also get the string of last line, but without comments
 
-                boolean lineContainComment = false;
-                if (line.contains("#") || line.contains("\"\"\"")) {
-                    lineContainComment = true; // realize it's import string has comments in
+                // get the string of full import statement, from first line to the last
+                String fullImportStatement = document.get().substring(startLineOffset,
+                        endLineOffset + endLineWithoutComment.length());
+
+                int importsLen = groupInto.getImportedStr().size(); // just get how many group imports have in import declaration
+                String lastImportedStr = groupInto.getImportedStr().get(importsLen - 1); // get the string from the last import
+                String groupImportStandard = ", "; // set a standard to add before the new import
+
+                if (importsLen > 1) {
+                    String penultImportedStr = groupInto.getImportedStr().get(importsLen - 2); // if import declaration has more than 1 imports, get the penult import
+                    int penultImportedStrOffset = fullImportStatement.indexOf(penultImportedStr) + startLineOffset;
+                    int penultLineNum = document.getLineOfOffset(penultImportedStrOffset); // get the number of penult import line
+
+                    // if the penult import line doesn't surpassed columns value of document, get the standard user setted
+                    if (PySelection.getLine(document, penultLineNum).length() <= 80) {
+                        groupImportStandard = getGroupImportStandard(lastImportedStr, penultImportedStr,
+                                fullImportStatement);
+                    }
                 }
-                int offsetDiff = getOffsetDiff(line, lineWithoutComment, lineContainComment); // get difference of characters from real end of import and end with all commas, spaces and tabs
 
-                String lastImportedStr = groupInto.getImportedStr().get(groupInto.getImportedStr().size() - 1); // get the string from the last import
-                int offset = getOffset(line, lineWithoutComment, lineInformation.getOffset(), lineContainComment,
-                        lastImportedStr); // get offset based on the end of last import
+                int offset = fullImportStatement.indexOf(lastImportedStr) + startLineOffset + lastImportedStr.length(); // get offset based on the end of last import
 
-                String lastImportStrParenthesis = ""; // just get a string to add on every strToAdd definition, it will concat ')' if import string has "(xx)" style
-                // it is here because offsetDiff for standard remove all spaces and tabs after ')' if import string doesn't have comment
-                // so it's just to avoid "if" decision structures on every strToAdd definition
-                if (lineWithoutComment.trim().endsWith(")")) {
-                    lastImportStrParenthesis = ")";
-                }
+                String strToAdd = groupImportStandard + realImportHandleInfo.getImportedStr().get(0); // add the standard and the new import
 
-                String strToAdd = ", " + realImportHandleInfo.getImportedStr().get(0) + lastImportStrParenthesis;
-
-                if (line.length() + strToAdd.length() > maxCols) {
-                    if (line.indexOf('#') == -1) {
+                if (endLine.length() + strToAdd.length() > maxCols) {
+                    if (endLine.indexOf('#') == -1) {
                         //no comments: just add it in the next line
-                        if (lastImportStrParenthesis == ")") {
+                        if (endLineWithoutComment.trim().endsWith(")")) {
                             strToAdd = "," + delimiter + computedInfo.indentString
-                                    + realImportHandleInfo.getImportedStr().get(0) + lastImportStrParenthesis;
+                                    + realImportHandleInfo.getImportedStr().get(0);
                         } else {
                             strToAdd = ",\\" + delimiter + computedInfo.indentString
-                                    + realImportHandleInfo.getImportedStr().get(0) + lastImportStrParenthesis;
+                                    + realImportHandleInfo.getImportedStr().get(0);
                         }
-
                         computedInfo.importLen = strToAdd.length();
-                        computedInfo.replace(offset, offsetDiff, strToAdd);
+                        computedInfo.replace(offset, 0, strToAdd);
                         return;
-
                     }
-
                 } else {
                     //regular addition (it won't pass the number of columns expected).
                     computedInfo.importLen = strToAdd.length();
-                    computedInfo.replace(offset, offsetDiff, strToAdd);
+                    computedInfo.replace(offset, 0, strToAdd);
                     return;
                 }
             }
@@ -252,52 +255,15 @@ public class AddTokenAndImportStatement {
         }
     }
 
-    // get the offset based on the last string from import
-    private int getOffset(String line, String lineWithoutComment, int endLineOffset, boolean lineContainComment,
-            String lastImportedStr) {
+    // get the standard group import declaration style of user
+    private String getGroupImportStandard(String lastImportedStr, String penultImportedStr,
+            String fullImportStatement) {
+        // define variables just to reduce length of return
+        int lastImportedStrOffset = fullImportStatement.indexOf(lastImportedStr);
+        int penultImportedStrOffset = fullImportStatement.indexOf(penultImportedStr) + penultImportedStr.length();
 
-        int offset;
-
-        if (lineContainComment) {
-            offset = lineWithoutComment.indexOf(lastImportedStr) + lastImportedStr.length();
-        } else {
-            offset = line.indexOf(lastImportedStr) + lastImportedStr.length();
-        }
-
-        return offset + endLineOffset;
-    }
-
-    // get offset difference from import end offset and offset to insert strToAdd
-    private int getOffsetDiff(String line, String lineWithoutComment, boolean lineContainComment) {
-
-        int offsetDiff = 0;
-        int end;
-
-        if (lineContainComment) {
-            line = lineWithoutComment;
-            line = line.trim();
-            end = line.length(); // define offset on the first character which isn't space or tab before comment
-        } else {
-            end = line.length(); // get the end of the line with all spaces and tabs
-            line = line.trim(); // get line trimmed
-            offsetDiff += end - line.length(); // get the amount of spaces in a line without ")" and comments
-            end = line.length();
-        }
-
-        if (line.endsWith(")")) {
-            line = line.substring(0, end - 1); // remove ')'
-            line = line.trim(); // trim spaces and tabs before ")"
-            offsetDiff += end - line.length(); // get offsetDiff of all trimmed characters
-        }
-
-        end = line.length(); // define offset on first character which isn't space or tab before ")" 
-        while (line.endsWith(",")) {
-            line = line.substring(0, end - 1);
-            end--;
-            offsetDiff++;
-        }
-
-        return offsetDiff; // return all character index difference between end and real end of import line
+        // return the string between last imported and penult imported
+        return fullImportStatement.substring(penultImportedStrOffset, lastImportedStrOffset);
     }
 
     private String delimiter;
