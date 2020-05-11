@@ -206,10 +206,10 @@ public class AddTokenAndImportStatement {
                 if (importsLen > 1) {
                     String penultImportedStr = groupInto.getImportedStr().get(importsLen - 2); // if import declaration has more than 1 imports, get the penult import
                     int penultImportedStrOffset = fullImportStatement.indexOf(penultImportedStr) + startLineOffset;
-                    int penultLineNum = document.getLineOfOffset(penultImportedStrOffset); // get the number of penult import line
+                    int penultImportedStrLineNum = document.getLineOfOffset(penultImportedStrOffset); // get the line number of penult import
 
-                    // if the penult import line doesn't surpassed columns value of document, get the standard user setted
-                    if (PySelection.getLine(document, penultLineNum).length() <= 80) {
+                    // if the penult import line doesn't surpassed document columns value, get the setted standard import style by user
+                    if (PySelection.getLine(document, penultImportedStrLineNum).length() <= 80) {
                         groupImportStandard = getGroupImportStandard(lastImportedStr, penultImportedStr,
                                 fullImportStatement);
                     }
