@@ -196,8 +196,8 @@ public class AddTokenAndImportStatement {
                 String endLineWithoutComment = PySelection.getLineWithoutCommentsOrLiterals(endLine); // also get the string of last line, but without comments
 
                 // get the string of full import statement, from first line to the last
-                String fullImportStatement = document.get().substring(startLineOffset,
-                        endLineOffset + endLineWithoutComment.length());
+                String fullImportStatement = document.get(startLineOffset,
+                        endLineOffset + endLineWithoutComment.length() - startLineOffset);
 
                 int importsLen = groupInto.getImportedStr().size(); // just get how many group imports have in import declaration
                 String lastImportedStr = groupInto.getImportedStr().get(importsLen - 1); // get the string from the last import
