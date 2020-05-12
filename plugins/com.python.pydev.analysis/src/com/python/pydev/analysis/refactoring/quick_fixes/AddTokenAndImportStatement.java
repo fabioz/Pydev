@@ -140,13 +140,9 @@ public class AddTokenAndImportStatement {
                                     }
                                     if (realImportHandleInfo.getFromImportStrWithoutUnwantedChars().equals(
                                             importHandleInfo.getFromImportStrWithoutUnwantedChars())) {
-                                        List<String> commentsForImports = importHandleInfo.getCommentsForImports();
-                                        if (commentsForImports.size() > 0
-                                                && commentsForImports.get(commentsForImports.size() - 1)
-                                                        .length() == 0) {
-                                            groupInto = importHandleInfo;
-                                            break;
-                                        }
+
+                                        groupInto = importHandleInfo;
+                                        break;
                                     }
                                 }
                             }
@@ -193,42 +189,54 @@ public class AddTokenAndImportStatement {
 
             if (groupInto != null && realImportHandleInfo != null) {
                 //let's try to group it
-                int endLine = groupInto.getEndLine();
-                IRegion lineInformation = document.getLineInformation(endLine);
-                String strToAdd = ", " + realImportHandleInfo.getImportedStr().get(0);
+                int endLineNum = groupInto.getEndLine(); // get the number of last line of import
+                int startLineOffset = document.getLineInformation(groupInto.getStartLine()).getOffset();
+                int endLineOffset = document.getLineInformation(endLineNum).getOffset();
+                String endLine = PySelection.getLine(document, endLineNum); // get the string of last line of import
+                String endLineWithoutComment = PySelection.getLineWithoutCommentsOrLiterals(endLine); // also get the string of last line, but without comments
 
-                String line = PySelection.getLine(document, endLine);
-                if (line.length() + strToAdd.length() > maxCols) {
-                    if (line.indexOf('#') == -1) {
+                // get the string of full import statement, from first line to the last
+                String fullImportStatement = document.get(startLineOffset,
+                        endLineOffset + endLineWithoutComment.length() - startLineOffset);
+
+                int importsLen = groupInto.getImportedStr().size(); // just get how many group imports have in import declaration
+                String lastImportedStr = groupInto.getImportedStr().get(importsLen - 1); // get the string from the last import
+                String groupImportStandard = ", "; // set a standard to add before the new import
+
+                if (importsLen > 1) {
+                    String penultImportedStr = groupInto.getImportedStr().get(importsLen - 2); // if import declaration has more than 1 imports, get the penult import
+                    int penultImportedStrOffset = fullImportStatement.indexOf(penultImportedStr) + startLineOffset;
+                    int penultImportedStrLineNum = document.getLineOfOffset(penultImportedStrOffset); // get the line number of penult import
+
+                    // if the penult import line doesn't surpassed document columns value, get the setted standard import style by user
+                    if (PySelection.getLine(document, penultImportedStrLineNum).length() <= 80) {
+                        groupImportStandard = getGroupImportStandard(lastImportedStr, penultImportedStr,
+                                fullImportStatement);
+                    }
+                }
+
+                int offset = fullImportStatement.indexOf(lastImportedStr) + startLineOffset + lastImportedStr.length(); // get offset based on the end of last import
+
+                String strToAdd = groupImportStandard + realImportHandleInfo.getImportedStr().get(0); // add the standard and the new import
+
+                if (endLine.length() + strToAdd.length() > maxCols) {
+                    if (endLine.indexOf('#') == -1) {
                         //no comments: just add it in the next line
-                        int len = line.length();
-                        if (line.trim().endsWith(")")) {
-                            len = line.indexOf(")");
+                        if (endLineWithoutComment.trim().endsWith(")")) {
                             strToAdd = "," + delimiter + computedInfo.indentString
                                     + realImportHandleInfo.getImportedStr().get(0);
                         } else {
                             strToAdd = ",\\" + delimiter + computedInfo.indentString
                                     + realImportHandleInfo.getImportedStr().get(0);
                         }
-
-                        int end = lineInformation.getOffset() + len;
                         computedInfo.importLen = strToAdd.length();
-                        computedInfo.replace(end, 0, strToAdd);
+                        computedInfo.replace(offset, 0, strToAdd);
                         return;
-
                     }
-
                 } else {
                     //regular addition (it won't pass the number of columns expected).
-                    line = PySelection.getLineWithoutCommentsOrLiterals(line);
-                    int len = line.length();
-                    if (line.trim().endsWith(")")) {
-                        len = line.indexOf(")");
-                    }
-
-                    int end = lineInformation.getOffset() + len;
                     computedInfo.importLen = strToAdd.length();
-                    computedInfo.replace(end, 0, strToAdd);
+                    computedInfo.replace(offset, 0, strToAdd);
                     return;
                 }
             }
@@ -245,6 +253,17 @@ public class AddTokenAndImportStatement {
         } catch (BadLocationException x) {
             Log.log(x);
         }
+    }
+
+    // get the standard group import declaration style of user
+    private String getGroupImportStandard(String lastImportedStr, String penultImportedStr,
+            String fullImportStatement) {
+        // define variables just to reduce length of return
+        int lastImportedStrOffset = fullImportStatement.indexOf(lastImportedStr);
+        int penultImportedStrOffset = fullImportStatement.indexOf(penultImportedStr) + penultImportedStr.length();
+
+        // return the string between last imported and penult imported
+        return fullImportStatement.substring(penultImportedStrOffset, lastImportedStrOffset);
     }
 
     private String delimiter;
