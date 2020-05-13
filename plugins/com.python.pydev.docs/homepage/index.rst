@@ -21,6 +21,10 @@
 		<h1>Silver Sponsors</h1>
 
         <div id="silver-sponsors-a-hrefs">
+        <a href="https://bonuscanada.com/" border=0><img class="sponsors" style="width:150px;height:60px;" src="images/sponsors/bonuscanada.png" alt="Bonus Canada" title="https://bonuscanada.com/" /></a>
+
+        <a href="https://freespinny.com/" border=0><img class="sponsors" style="width:150px;height:60px;" src="images/sponsors/freespinny.png" alt="Free Spinny" title="https://freespinny.com/" /></a>
+
         <a href="https://binaryoptionsaustralia.com/" border=0><img class="sponsors" style="width:150px;height:60px;" src="images/sponsors/binaryoptionsaustralia.png" alt="binary options australia" title="https://binaryoptionsaustralia.com/" /></a>
 
         <a href="https://businessnamegenerator.com" border=0><img class="sponsors" src="images/sponsors/bng_logo.png" style="width:150px;height:60px;" alt="businessnamegenerator.com" title="https://businessnamegenerator.com" /></a>
@@ -35,9 +39,9 @@
 
         <div id="bronze-sponsors-a-hrefs">
 
-		<a href="https://alltimelist.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/alltimelist.png" alt="https://alltimelist.com/" title="https://alltimelist.com/" /></a>
+		<a href="https://thebeastreviews.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/thebeastreviews.jpg" alt="https://thebeastreviews.com/" title="https://thebeastreviews.com/" /></a>
 
-		<a href="https://420couponcodes.com/cbdmd/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/cbdmd.jpg" alt="https://420couponcodes.com/cbdmd/" title="https://420couponcodes.com/cbdmd/" /></a>
+		<a href="https://alltimelist.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/alltimelist.png" alt="https://alltimelist.com/" title="https://alltimelist.com/" /></a>
 
 		<a href="https://420couponcodes.com/cbdmd/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/cbdmd.jpg" alt="https://420couponcodes.com/cbdmd/" title="https://420couponcodes.com/cbdmd/" /></a>
 
