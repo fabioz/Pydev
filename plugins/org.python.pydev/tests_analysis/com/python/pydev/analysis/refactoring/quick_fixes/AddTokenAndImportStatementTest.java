@@ -259,6 +259,42 @@ public class AddTokenAndImportStatementTest extends TestCase {
 
         // -- END OF TESTS WITH COLS LIMIT EXCEDEED -- //
 
+        // -- TESTS WITH COLS LIMIT EXCEDEED WITH COMMENTS INLINE -- //
+
+        // normal situation
+        checkImport("from math import ceil#foo", "from math import sqrt", "from math import ceil,\\\r\nsqrt#foo", 20);
+
+        // test with multiple spaces and tabs -> style conserves
+        checkImport("from math import ceil      #foo", "from math import sqrt",
+                "from math import ceil,\\\r\nsqrt      #foo", 20);
+
+        // test with "(xxxx)"
+        checkImport("from math import (ceil)#foo", "from math import sqrt", "from math import (ceil,\r\nsqrt)#foo", 20);
+
+        // test with "(xxxx)" and spaces after
+        checkImport("from math import (ceil)   #foo", "from math import sqrt",
+                "from math import (ceil,\r\nsqrt)   #foo", 20);
+
+        //!! test with "(xxxx)" and multiple spaces and tabs
+        checkImport("from math import (ceil       )#foo", "from math import sqrt",
+                "from math import (ceil,\r\nsqrt       )#foo",
+                20);
+
+        //!! test with "(xxxx)", spaces after and multiple spaces and tabs
+        checkImport("from math import (ceil       )   #foo", "from math import sqrt",
+                "from math import (ceil,\r\nsqrt       )   #foo", 20);
+
+        // test with "(xxxx)" and comma
+        checkImport("from math import (ceil,)#foo", "from math import sqrt", "from math import (ceil,\r\nsqrt,)#foo",
+                20);
+
+        // test with "(xxxx)", spaces after and comma
+        checkImport("from math import (ceil,)    #foo", "from math import sqrt",
+                "from math import (ceil,\r\nsqrt,)    #foo",
+                20);
+
+        // -- TESTS WITH COLS LIMIT EXCEDEED WITH COMMENTS INLINE -- //
+
         // -- TESTS WITH MULTI-LINE DECLARATIONS -- //
 
         // normal situation

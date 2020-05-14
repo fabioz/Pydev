@@ -192,17 +192,21 @@ public class AddTokenAndImportStatement {
                 int endLineNum = groupInto.getEndLine(); // get the number of last line of import
                 int startLineOffset = document.getLineInformation(groupInto.getStartLine()).getOffset();
                 int endLineOffset = document.getLineInformation(endLineNum).getOffset();
-                String endLine = PySelection.getLine(document, endLineNum); // get the string of last line of import
-                String endLineWithoutComment = PySelection.getLineWithoutCommentsOrLiterals(endLine); // also get the string of last line, but without comments
+                String endLineWithoutComment = PySelection
+                        .getLineWithoutCommentsOrLiterals(PySelection.getLine(document, endLineNum)); // also get the string of last line, but without comments
 
                 // get the string of full import statement, from first line to the last
                 String fullImportStatement = document.get(startLineOffset,
                         endLineOffset + endLineWithoutComment.length() - startLineOffset);
 
                 int importsLen = groupInto.getImportedStr().size(); // just get how many group imports have in import declaration
-                String lastImportedStr = groupInto.getImportedStr().get(importsLen - 1); // get the string from the last import
-                String groupImportStandard = ", "; // set a standard to add before the new import
 
+                String lastImportedStr = groupInto.getImportedStr().get(importsLen - 1); // get the string from the last import
+                int lastImportedStrOffset = fullImportStatement.indexOf(lastImportedStr) + startLineOffset; // get last imported string offset just to use next line
+                int lastImportedStrLineNum = document.getLineOfOffset(lastImportedStrOffset); // get last imported string line number just to use next line
+                String lastImportedStrLine = PySelection.getLine(document, lastImportedStrLineNum); // get the full line string of last imported string
+
+                String groupImportStandard = ", "; // set a standard to add before the new import
                 if (importsLen > 1) {
                     String penultImportedStr = groupInto.getImportedStr().get(importsLen - 2); // if import declaration has more than 1 imports, get the penult import
                     int penultImportedStrOffset = fullImportStatement.indexOf(penultImportedStr) + startLineOffset;
@@ -210,29 +214,26 @@ public class AddTokenAndImportStatement {
 
                     // if the penult import line doesn't surpassed document columns value, get the setted standard import style by user
                     if (PySelection.getLine(document, penultImportedStrLineNum).length() <= 80) {
-                        groupImportStandard = getGroupImportStandard(lastImportedStr, penultImportedStr,
-                                fullImportStatement);
+                        groupImportStandard = fullImportStatement
+                                .substring(penultImportedStrOffset + penultImportedStr.length(), lastImportedStrOffset);
                     }
                 }
 
-                int offset = fullImportStatement.indexOf(lastImportedStr) + startLineOffset + lastImportedStr.length(); // get offset based on the end of last import
+                int offset = lastImportedStrOffset + lastImportedStr.length(); // get offset based on the end of last import
 
                 String strToAdd = groupImportStandard + realImportHandleInfo.getImportedStr().get(0); // add the standard and the new import
 
-                if (endLine.length() + strToAdd.length() > maxCols) {
-                    if (endLine.indexOf('#') == -1) {
-                        //no comments: just add it in the next line
-                        if (endLineWithoutComment.trim().endsWith(")")) {
-                            strToAdd = "," + delimiter + computedInfo.indentString
-                                    + realImportHandleInfo.getImportedStr().get(0);
-                        } else {
-                            strToAdd = ",\\" + delimiter + computedInfo.indentString
-                                    + realImportHandleInfo.getImportedStr().get(0);
-                        }
-                        computedInfo.importLen = strToAdd.length();
-                        computedInfo.replace(offset, 0, strToAdd);
-                        return;
+                if (lastImportedStrLine.length() + strToAdd.length() > maxCols) {
+                    if (endLineWithoutComment.trim().endsWith(")")) {
+                        strToAdd = "," + delimiter + computedInfo.indentString
+                                + realImportHandleInfo.getImportedStr().get(0);
+                    } else {
+                        strToAdd = ",\\" + delimiter + computedInfo.indentString
+                                + realImportHandleInfo.getImportedStr().get(0);
                     }
+                    computedInfo.importLen = strToAdd.length();
+                    computedInfo.replace(offset, 0, strToAdd);
+                    return;
                 } else {
                     //regular addition (it won't pass the number of columns expected).
                     computedInfo.importLen = strToAdd.length();
@@ -253,17 +254,6 @@ public class AddTokenAndImportStatement {
         } catch (BadLocationException x) {
             Log.log(x);
         }
-    }
-
-    // get the standard group import declaration style of user
-    private String getGroupImportStandard(String lastImportedStr, String penultImportedStr,
-            String fullImportStatement) {
-        // define variables just to reduce length of return
-        int lastImportedStrOffset = fullImportStatement.indexOf(lastImportedStr);
-        int penultImportedStrOffset = fullImportStatement.indexOf(penultImportedStr) + penultImportedStr.length();
-
-        // return the string between last imported and penult imported
-        return fullImportStatement.substring(penultImportedStrOffset, lastImportedStrOffset);
     }
 
     private String delimiter;
