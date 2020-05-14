@@ -75,23 +75,21 @@ public class FStringsParserTest extends TestCase {
         }
     }
 
-    private Tuple<FStringsAST, List> checkStr(String str, Set<String> exprs)
-            throws ParseException, BadLocationException {
-        Tuple<FStringsAST, List> ret = checkNoError(str);
-        IDocument doc = new Document(str);
-        // ret.o1.dump(doc);
-        Set<String> found = new HashSet<>();
-        for (SimpleNode b : ret.o1.getBalancedExpressionsToBeEvaluatedInRegularGrammar()) {
-            String contents = b.getContentsFromString(doc);
-            found.add(contents);
-        }
-
-        assertEquals(exprs.toString(), found.toString());
-        return ret;
-    }
-
     public void testFStringParsing() throws ParseException, BadLocationException {
-        checkStr("\\N{foo}", ArrayUtils.asSet(""));
+        checkExprs("\\N{foo}", ArrayUtils.asSet());
+        checkExprs("\\N{\\N{foo}}", ArrayUtils.asSet());
+        checkExprs("\\N{\\N{}}", ArrayUtils.asSet());
+        checkExprs("\\N{\\N{\\N{foo}}}", ArrayUtils.asSet());
+        checkExprs("\\N{", ArrayUtils.asSet());
+        checkExprs("\\N{foo} {foo}", ArrayUtils.asSet("foo"));
+        checkExprs("\\N{foo}{foo}", ArrayUtils.asSet("foo"));
+        checkExprs("\\N{foo}\\N{foo}", ArrayUtils.asSet());
+        checkExprs("\\N{\\N{foo}}\\N{foo}", ArrayUtils.asSet());
+        checkExprs("\\N{\\N{}} \\N{foo}", ArrayUtils.asSet());
+        checkExprs("\\N{\\N{\\N{foo}}} \\N{foo}", ArrayUtils.asSet());
+        checkExprs("\\N{foo", ArrayUtils.asSet());
+        checkExprs("\\N{foo} \\N{\\N{\\N{foo}}}", ArrayUtils.asSet());
+        checkExprs("\\N{foo} \\N{foo} {foo}", ArrayUtils.asSet("foo"));
 
         checkExprs("{val:{width}.{precision}f}", ArrayUtils.asSet("val", "width", "precision"));
         checkExprs("{a:>{width}}", ArrayUtils.asSet("a", "width"));
