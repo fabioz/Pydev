@@ -10,7 +10,7 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.parser.fastparser.grammar_fstrings_common.FStringsAST;
 import org.python.pydev.parser.fastparser.grammar_fstrings_common.SimpleNode;
 import org.python.pydev.parser.grammar_fstrings.FStringsGrammar;
-import org.python.pydev.parser.jython.FastCharStream;
+import org.python.pydev.parser.grammar_fstrings.FStringsGrammarFactory;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -21,8 +21,7 @@ import junit.framework.TestCase;
 public class FStringsParserTest extends TestCase {
 
     private Tuple<FStringsAST, List> check(String str) throws ParseException {
-        FastCharStream in = new FastCharStream(str.toCharArray());
-        FStringsGrammar fStringsGrammar = new FStringsGrammar(in);
+        FStringsGrammar fStringsGrammar = FStringsGrammarFactory.createGrammar(str);
         FStringsAST ast = fStringsGrammar.f_string();
         //Note: we always try to generate a valid AST and get any errors in getParseErrors().
         List<ParseException> parseErrors = fStringsGrammar.getParseErrors();
@@ -76,7 +75,24 @@ public class FStringsParserTest extends TestCase {
         }
     }
 
+    private Tuple<FStringsAST, List> checkStr(String str, Set<String> exprs)
+            throws ParseException, BadLocationException {
+        Tuple<FStringsAST, List> ret = checkNoError(str);
+        IDocument doc = new Document(str);
+        // ret.o1.dump(doc);
+        Set<String> found = new HashSet<>();
+        for (SimpleNode b : ret.o1.getBalancedExpressionsToBeEvaluatedInRegularGrammar()) {
+            String contents = b.getContentsFromString(doc);
+            found.add(contents);
+        }
+
+        assertEquals(exprs.toString(), found.toString());
+        return ret;
+    }
+
     public void testFStringParsing() throws ParseException, BadLocationException {
+        checkStr("\\N{foo}", ArrayUtils.asSet(""));
+
         checkExprs("{val:{width}.{precision}f}", ArrayUtils.asSet("val", "width", "precision"));
         checkExprs("{a:>{width}}", ArrayUtils.asSet("a", "width"));
         checkExprs("{a:>{{width}}}", ArrayUtils.asSet("a"));
