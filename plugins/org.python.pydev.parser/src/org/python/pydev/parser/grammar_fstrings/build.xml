@@ -2,9 +2,10 @@
 	
 	
 
-	<property name="env" value="C:\Users\olccjr"/>
-    <property name="javaccHome" value="${env}/Documents/Javacc/javacc-5.0" />
-    <property name="python" value="${env}/miniconda3/envs/py27_tests_temp/python.exe" />
+	<property environment="env"/>
+	<property name="userProfile" value="${env.USERPROFILE}"/>
+    <property name="javaccHome" value="${userProfile}\Documents\Javacc\javacc-5.0" />
+    <property name="python" value="${userProfile}\miniconda3\envs\py27_tests_temp\python.exe" />
     <property name="basedir" value="." />
     <property name="parser.dir" value="${basedir}" />
 
