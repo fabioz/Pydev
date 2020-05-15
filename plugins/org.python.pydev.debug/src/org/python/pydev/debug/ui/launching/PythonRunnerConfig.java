@@ -980,6 +980,7 @@ public class PythonRunnerConfig {
                     case "pyqt5":
                     case "pyqt4":
                     case "pyside":
+                    case "pyside2":
                         cmdArgs.add("--qt-support=" + qtThreadsDebugMode);
                         break;
                 }
