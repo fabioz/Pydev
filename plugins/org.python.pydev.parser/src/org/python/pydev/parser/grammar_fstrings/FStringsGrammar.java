@@ -673,18 +673,7 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
         while (true) {
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case TEXT:
-            label_13:
-            while (true) {
-              jj_consume_token(TEXT);
-              switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-              case TEXT:
-                ;
-                break;
-              default:
-                jj_la1[21] = jj_gen;
-                break label_13;
-              }
-            }
+            jj_consume_token(TEXT);
             break;
           case EXCLAMATION:
             jj_consume_token(EXCLAMATION);
@@ -693,7 +682,7 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
             jj_consume_token(COLON);
             break;
           default:
-            jj_la1[22] = jj_gen;
+            jj_la1[21] = jj_gen;
             jj_consume_token(-1);
             throw new ParseException();
           }
@@ -704,7 +693,7 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
             ;
             break;
           default:
-            jj_la1[23] = jj_gen;
+            jj_la1[22] = jj_gen;
             break label_12;
           }
         }
@@ -714,7 +703,7 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
                          errorBackSlashInvalidInFStrings(t);
         break;
       default:
-        jj_la1[24] = jj_gen;
+        jj_la1[23] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -756,7 +745,7 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
     try {
                 start = getToken(1);
       jj_consume_token(QUOTE);
-      label_14:
+      label_13:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case LPAREN:
@@ -773,8 +762,8 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
           ;
           break;
         default:
-          jj_la1[25] = jj_gen;
-          break label_14;
+          jj_la1[24] = jj_gen;
+          break label_13;
         }
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case TEXT:
@@ -812,7 +801,7 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
                           errorBackSlashInvalidInFStrings(t);
           break;
         default:
-          jj_la1[26] = jj_gen;
+          jj_la1[25] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
@@ -844,7 +833,7 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
     try {
                 start = getToken(1);
       jj_consume_token(QUOTE2);
-      label_15:
+      label_14:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case LPAREN:
@@ -861,8 +850,8 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
           ;
           break;
         default:
-          jj_la1[27] = jj_gen;
-          break label_15;
+          jj_la1[26] = jj_gen;
+          break label_14;
         }
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case TEXT:
@@ -900,7 +889,7 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
                           errorBackSlashInvalidInFStrings(t);
           break;
         default:
-          jj_la1[28] = jj_gen;
+          jj_la1[27] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
@@ -931,13 +920,13 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
   public Token jj_nt;
   private int jj_ntk;
   private int jj_gen;
-  final private int[] jj_la1 = new int[29];
+  final private int[] jj_la1 = new int[28];
   static private int[] jj_la1_0;
   static {
       jj_la1_init_0();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x1ffe0,0x100,0x1ffe0,0x1e2a0,0x800,0x1000,0x10000,0x1e080,0x10000,0x1e2a0,0x1e080,0x10000,0x1e2a0,0x1e2a0,0x1faa0,0x1faa0,0x1faa0,0x2a0,0x1faa0,0x1faa0,0x1faa0,0x10000,0x11800,0x11800,0x1faa0,0x1dfe0,0x1dfe0,0x1bfe0,0x1bfe0,};
+      jj_la1_0 = new int[] {0x1ffe0,0x100,0x1ffe0,0x1e2a0,0x800,0x1000,0x10000,0x1e080,0x10000,0x1e2a0,0x1e080,0x10000,0x1e2a0,0x1e2a0,0x1faa0,0x1faa0,0x1faa0,0x2a0,0x1faa0,0x1faa0,0x1faa0,0x11800,0x11800,0x1faa0,0x1dfe0,0x1dfe0,0x1bfe0,0x1bfe0,};
    }
 
   /** Constructor with user supplied FastCharStream. */
@@ -946,7 +935,7 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 29; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 28; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -958,7 +947,7 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 29; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 28; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -1017,7 +1006,7 @@ public final class FStringsGrammar extends AbstractFStringsGrammar/*@bgen(jjtree
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 29; i++) {
+    for (int i = 0; i < 28; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {

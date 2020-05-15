@@ -11,7 +11,7 @@ import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.parser.fastparser.grammar_fstrings_common.FStringsAST;
 import org.python.pydev.parser.fastparser.grammar_fstrings_common.SimpleNode;
 import org.python.pydev.parser.grammar_fstrings.FStringsGrammar;
-import org.python.pydev.parser.jython.FastCharStream;
+import org.python.pydev.parser.grammar_fstrings.FStringsGrammarFactory;
 import org.python.pydev.shared_core.partitioner.IToken;
 import org.python.pydev.shared_core.partitioner.ITokenScanner;
 import org.python.pydev.shared_core.partitioner.SubRuleToken;
@@ -64,9 +64,7 @@ public class PyFStringScanner implements ITokenScanner {
         if (buf.length() < 0) {
             return;
         }
-
-        FastCharStream in = new FastCharStream(buf.toCharArray());
-        FStringsGrammar fStringsGrammar = new FStringsGrammar(in);
+        FStringsGrammar fStringsGrammar = FStringsGrammarFactory.createGrammar(buf);
         FStringsAST ast = null;
         try {
             ast = fStringsGrammar.f_string();
