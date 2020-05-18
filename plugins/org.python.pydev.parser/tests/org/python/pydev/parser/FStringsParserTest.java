@@ -77,6 +77,26 @@ public class FStringsParserTest extends TestCase {
     }
 
     public void testFStringParsing() throws ParseException, BadLocationException {
+        checkExprs("\\N{foo}", ArrayUtils.asSet());
+        checkExprs("\\N{\\N{foo}}", ArrayUtils.asSet());
+        checkExprs("\\N{\\N{}}", ArrayUtils.asSet());
+        checkExprs("\\N{\\N{\\N{foo}}}", ArrayUtils.asSet());
+        checkExprs("\\N{", ArrayUtils.asSet());
+        checkExprs("\\N{foo} {foo}", ArrayUtils.asSet("foo"));
+        checkExprs("\\N{foo}{foo}", ArrayUtils.asSet("foo"));
+        checkExprs("\\N{foo}\\N{foo}", ArrayUtils.asSet());
+        checkExprs("\\N{\\N{foo}}\\N{foo}", ArrayUtils.asSet());
+        checkExprs("\\N{\\N{}} \\N{foo}", ArrayUtils.asSet());
+        checkExprs("\\N{\\N{\\N{foo}}} \\N{foo}", ArrayUtils.asSet());
+        checkExprs("\\N{foo", ArrayUtils.asSet());
+        checkExprs("\\N{foo} \\N{\\N{\\N{foo}}}", ArrayUtils.asSet());
+        checkExprs("\\N{foo} \\N{foo} {foo}", ArrayUtils.asSet("foo"));
+
+        checkExprs("{foo=}", ArrayUtils.asSet("foo"));
+        checkExprs("\\N{foo} {foo=}", ArrayUtils.asSet("foo"));
+        checkExprs("\\N{foo}{foo=}", ArrayUtils.asSet("foo"));
+        checkExprs("\\N{foo} \\N{foo} {foo=}", ArrayUtils.asSet("foo"));
+
         checkExprs("{val:{width}.{precision}f}", ArrayUtils.asSet("val", "width", "precision"));
         checkExprs("{a:>{width}}", ArrayUtils.asSet("a", "width"));
         checkExprs("{a:>{{width}}}", ArrayUtils.asSet("a"));
