@@ -234,6 +234,9 @@ class JsonFacade(object):
         response = self.wait_for_response(self.write_request(request))
         assert response.success
 
+    def reset_sent_launch_or_attach(self):
+        self._sent_launch_or_attach = False
+
     def _write_launch_or_attach(self, command, **arguments):
         assert not self._sent_launch_or_attach
         self._sent_launch_or_attach = True
@@ -367,6 +370,7 @@ class JsonFacade(object):
         assert len(scopes) == 2
         assert sorted(name_to_scopes.keys()) == ['Globals', 'Locals']
         assert not name_to_scopes['Locals'].expensive
+        assert name_to_scopes['Locals'].presentationHint == 'locals'
 
         return name_to_scopes
 
@@ -969,6 +973,47 @@ def test_case_path_translation_not_skipped(case_setup):
         writer.finished_ok = True
 
 
+def test_case_update_rules(case_setup):
+    with case_setup.test_file('my_code/my_code.py') as writer:
+        json_facade = JsonFacade(writer)
+        json_facade.write_launch(
+            rules=[
+                {'path': '**/other.py', 'include':False},
+            ]
+        )
+
+        break_line = writer.get_line_index_with_content('break here')
+        json_facade.write_set_breakpoints(break_line)
+        json_facade.write_make_initial_run()
+
+        json_facade.wait_for_json_message(ThreadEvent, lambda event: event.body.reason == 'started')
+
+        json_hit = json_facade.wait_for_thread_stopped(line=break_line)
+        json_facade.reset_sent_launch_or_attach()
+        json_facade.write_launch(
+            rules=[
+                {'path': '**/other.py', 'include':True},
+            ]
+        )
+        json_facade.write_step_in(json_hit.thread_id)
+        # Not how we stoppen in the file that wasn't initially included.
+        json_hit = json_facade.wait_for_thread_stopped('step', name='call_me_back1')
+
+        json_facade.reset_sent_launch_or_attach()
+        json_facade.write_launch(
+            rules=[
+                {'path': '**/other.py', 'include':False},
+            ]
+        )
+        json_facade.write_step_in(json_hit.thread_id)
+        # Not how we go back to the callback and not to the `call_me_back1` because
+        # `call_me_back1` is now excluded again.
+        json_hit = json_facade.wait_for_thread_stopped('step', name='callback1')
+
+        json_facade.write_continue()
+        writer.finished_ok = True
+
+
 @pytest.mark.parametrize("custom_setup", [
     'set_exclude_launch_module_full',
     'set_exclude_launch_module_prefix',
@@ -1501,6 +1546,7 @@ def _clear_groups(variables):
     for v in variables:
         if v['name'] in DAPGrouper.SCOPES_SORTED:
             groups_found.add(v['name'])
+            assert not v['type']
             continue
 
         else:

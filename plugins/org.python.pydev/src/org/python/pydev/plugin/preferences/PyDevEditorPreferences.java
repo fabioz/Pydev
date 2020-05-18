@@ -131,6 +131,7 @@ public class PyDevEditorPreferences {
             { "PyQt5", "pyqt5" },
             { "PyQt4", "pyqt4" },
             { "PySide", "pyside" },
+            { "PySide2", "pyside2" },
     };
 
     public static final String MAKE_LAUNCHES_WITH_M_FLAG = "MAKE_LAUNCHES_WITH_M_FLAG";

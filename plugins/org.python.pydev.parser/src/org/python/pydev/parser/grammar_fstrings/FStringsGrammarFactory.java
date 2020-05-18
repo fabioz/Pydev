@@ -46,14 +46,11 @@ public class FStringsGrammarFactory {
     }
 
     private static List<Character> removeEqualSignals(List<Character> cList) {
-
         int equalPos = cList.indexOf('=');
         while (equalPos != -1) {
             cList.remove(equalPos);
             equalPos = cList.indexOf('=');
         }
-
         return cList;
     }
-
 }

@@ -35,7 +35,7 @@ import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.fastparser.grammar_fstrings_common.FStringsAST;
 import org.python.pydev.parser.fastparser.grammar_fstrings_common.FStringsAST.FStringExpressionContent;
 import org.python.pydev.parser.grammar_fstrings.FStringsGrammar;
-import org.python.pydev.parser.jython.FastCharStream;
+import org.python.pydev.parser.grammar_fstrings.FStringsGrammarFactory;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assert;
 import org.python.pydev.parser.jython.ast.Assign;
@@ -245,8 +245,7 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
             FStringsAST ast = null;
             if (s.trim().length() > 0) {
                 try {
-                    FastCharStream in = new FastCharStream(s.toCharArray());
-                    FStringsGrammar fStringsGrammar = new FStringsGrammar(in);
+                    FStringsGrammar fStringsGrammar = FStringsGrammarFactory.createGrammar(s);
                     ast = fStringsGrammar.f_string();
                     //Note: we always try to generate a valid AST and get any errors in getParseErrors().
                     parseErrors = fStringsGrammar.getParseErrors();
