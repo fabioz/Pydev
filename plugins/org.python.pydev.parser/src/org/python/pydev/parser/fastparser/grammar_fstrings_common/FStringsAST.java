@@ -95,6 +95,11 @@ public class FStringsAST {
                 int endOffset = TextSelectionUtils.getAbsoluteCursorOffset(doc, simpleNode.endLine - 1,
                         simpleNode.endColumn);
                 String string = doc.get(startOffset, endOffset - startOffset);
+
+                if (string.endsWith("=")) {
+                    string = string.substring(0, string.length() - 1);
+                }
+
                 lst.add(new FStringExpressionContent(
                         string,
                         startOffset,
