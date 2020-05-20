@@ -141,4 +141,8 @@ public class PyParser38Test extends PyParserTestBase {
         parseLegalDocStr("a = lambda a, b=1, /, c=2, d=3, *, e=4, f=5: None");
     }
 
+    public void testFStringStartingR() {
+        parseLegalDocStr("rf'{foo}'");
+    }
+
 }
