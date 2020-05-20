@@ -8,7 +8,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.parser.fastparser.grammar_fstrings_common.FStringsAST;
-import org.python.pydev.parser.fastparser.grammar_fstrings_common.SimpleNode;
+import org.python.pydev.parser.fastparser.grammar_fstrings_common.FStringsAST.FStringExpressionContent;
 import org.python.pydev.parser.grammar_fstrings.FStringsGrammar;
 import org.python.pydev.parser.grammar_fstrings.FStringsGrammarFactory;
 import org.python.pydev.parser.jython.ParseException;
@@ -46,9 +46,8 @@ public class FStringsParserTest extends TestCase {
         IDocument doc = new Document(str);
         // ret.o1.dump(doc);
         Set<String> found = new HashSet<>();
-        for (SimpleNode b : ret.o1.getBalancedExpressionsToBeEvaluatedInRegularGrammar()) {
-            String contents = b.getContentsFromString(doc);
-            found.add(contents);
+        for (FStringExpressionContent f : ret.o1.getFStringExpressionsContent(doc)) {
+            found.add(f.string);
         }
         assertEquals(exprs, found);
         return ret;
@@ -76,6 +75,13 @@ public class FStringsParserTest extends TestCase {
     }
 
     public void testFStringParsing() throws ParseException, BadLocationException {
+        checkExprs("{foo=}", ArrayUtils.asSet("foo"));
+        checkExprs("{foo!r}", ArrayUtils.asSet("foo"));
+        checkExprs("{foo!s}", ArrayUtils.asSet("foo"));
+        checkExprs("{foo!a}", ArrayUtils.asSet("foo"));
+        checkExprs("{foo: %A}", ArrayUtils.asSet("foo"));
+        checkExprs("{foo: #06x}", ArrayUtils.asSet("foo"));
+
         checkExprs("\\N{foo}", ArrayUtils.asSet());
         checkExprs("\\N{\\N{foo}}", ArrayUtils.asSet());
         checkExprs("\\N{\\N{}}", ArrayUtils.asSet());
