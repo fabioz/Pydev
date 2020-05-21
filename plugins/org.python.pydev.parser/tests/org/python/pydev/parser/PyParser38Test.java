@@ -145,4 +145,8 @@ public class PyParser38Test extends PyParserTestBase {
         parseLegalDocStr("rf'{foo}'");
     }
 
+    public void testBStringStartingR() {
+        parseLegalDocStr("rb'{foo}'");
+    }
+
 }

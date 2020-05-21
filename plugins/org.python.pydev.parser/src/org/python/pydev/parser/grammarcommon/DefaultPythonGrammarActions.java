@@ -125,7 +125,7 @@ public final class DefaultPythonGrammarActions implements IPythonGrammarActions 
         }
 
         if (foundToken != null) {
-            if (foundAtPos <= 2 //found at correct position. 
+            if (foundAtPos <= 2 //found at correct position.
                     || searchOnLast //we already matched it... right now we're just adding it to the stack!
             ) {
                 return foundToken.asSpecialStr();
@@ -240,9 +240,9 @@ public final class DefaultPythonGrammarActions implements IPythonGrammarActions 
 
     /**
      * Closes a node scope
-     * 
+     *
      * @param n the node that should have its scope closed.
-     * @throws ParseException 
+     * @throws ParseException
      */
     @Override
     public void jjtreeCloseNodeScope(Node n) throws ParseException {
@@ -361,7 +361,7 @@ public final class DefaultPythonGrammarActions implements IPythonGrammarActions 
      * @param radix the radix in which it was found (octal=8, decimal=10, hex=16)
      * @param token this is the image of the object (the exact way it was found in the file)
      * @param numberToFill the Num object that should be set given the other parameters
-     * @throws ParseException 
+     * @throws ParseException
      */
     @Override
     public void makeInt(Token t, int radix, Token token, Num numberToFill) throws ParseException {
@@ -453,7 +453,7 @@ public final class DefaultPythonGrammarActions implements IPythonGrammarActions 
 
     /**
      * Fills the string properly according to the representation found.
-     * 
+     *
      * 0 = the string
      * 1 = boolean indicating unicode
      * 2 = boolean indicating raw
@@ -481,9 +481,23 @@ public final class DefaultPythonGrammarActions implements IPythonGrammarActions 
         }
         quoteChar = s.charAt(start);
         if (quoteChar == 'r' || quoteChar == 'R') {
-            //raw string (does not decode slashes)
-            String str = s.substring(quotes + start + 1, s.length() - quotes);
-            //System.out.println("out: "+str);
+            if (start == 0) {
+                char quoteCharAux = s.charAt(1);
+                if (quoteCharAux == 'f' || quoteCharAux == 'F') {
+                    fstring = true;
+                    start++;
+                } else if (quoteCharAux == 'b' || quoteCharAux == 'B') {
+                    bstring = true;
+                    start++;
+                }
+            }
+            String str;
+            if (bstring) {
+                str = 'b' + s.substring(quotes + start, s.length() - quotes + 1);
+            } else {
+                str = s.substring(quotes + start + 1, s.length() - quotes);
+            }
+            //System.out.println("out: " + str);
             strToFill.type = getType(s.charAt(start + 1), quotes);
             strToFill.s = str;
             strToFill.unicode = ustring;

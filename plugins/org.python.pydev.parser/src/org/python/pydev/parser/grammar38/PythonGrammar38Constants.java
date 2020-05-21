@@ -213,37 +213,37 @@ public interface PythonGrammar38Constants {
   /** RegularExpression Id. */
   int DIGIT = 107;
   /** RegularExpression Id. */
-  int SINGLE_STRING = 124;
+  int SINGLE_STRING = 132;
   /** RegularExpression Id. */
-  int SINGLE_STRING2 = 125;
+  int SINGLE_STRING2 = 133;
   /** RegularExpression Id. */
-  int TRIPLE_STRING = 126;
+  int TRIPLE_STRING = 134;
   /** RegularExpression Id. */
-  int TRIPLE_STRING2 = 127;
+  int TRIPLE_STRING2 = 135;
   /** RegularExpression Id. */
-  int SINGLE_BSTRING = 128;
+  int SINGLE_BSTRING = 136;
   /** RegularExpression Id. */
-  int SINGLE_BSTRING2 = 129;
+  int SINGLE_BSTRING2 = 137;
   /** RegularExpression Id. */
-  int TRIPLE_BSTRING = 130;
+  int TRIPLE_BSTRING = 138;
   /** RegularExpression Id. */
-  int TRIPLE_BSTRING2 = 131;
+  int TRIPLE_BSTRING2 = 139;
   /** RegularExpression Id. */
-  int SINGLE_FSTRING = 132;
+  int SINGLE_FSTRING = 140;
   /** RegularExpression Id. */
-  int SINGLE_FSTRING2 = 133;
+  int SINGLE_FSTRING2 = 141;
   /** RegularExpression Id. */
-  int TRIPLE_FSTRING = 134;
+  int TRIPLE_FSTRING = 142;
   /** RegularExpression Id. */
-  int TRIPLE_FSTRING2 = 135;
+  int TRIPLE_FSTRING2 = 143;
   /** RegularExpression Id. */
-  int SINGLE_USTRING = 136;
+  int SINGLE_USTRING = 144;
   /** RegularExpression Id. */
-  int SINGLE_USTRING2 = 137;
+  int SINGLE_USTRING2 = 145;
   /** RegularExpression Id. */
-  int TRIPLE_USTRING = 138;
+  int TRIPLE_USTRING = 146;
   /** RegularExpression Id. */
-  int TRIPLE_USTRING2 = 139;
+  int TRIPLE_USTRING2 = 147;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -432,6 +432,14 @@ public interface PythonGrammar38Constants {
     "<token of kind 121>",
     "<token of kind 122>",
     "<token of kind 123>",
+    "<token of kind 124>",
+    "<token of kind 125>",
+    "<token of kind 126>",
+    "<token of kind 127>",
+    "<token of kind 128>",
+    "<token of kind 129>",
+    "<token of kind 130>",
+    "<token of kind 131>",
     "\"\\\'\"",
     "\"\\\"\"",
     "\"\\\'\\\'\\\'\"",
@@ -448,14 +456,6 @@ public interface PythonGrammar38Constants {
     "\"\\\"\"",
     "\"\\\'\\\'\\\'\"",
     "\"\\\"\\\"\\\"\"",
-    "\"\\\\\\r\\n\"",
-    "<token of kind 141>",
-    "\"\\\\\\r\\n\"",
-    "<token of kind 143>",
-    "\"\\\\\\r\\n\"",
-    "<token of kind 145>",
-    "\"\\\\\\r\\n\"",
-    "<token of kind 147>",
     "\"\\\\\\r\\n\"",
     "<token of kind 149>",
     "\"\\\\\\r\\n\"",
@@ -464,6 +464,14 @@ public interface PythonGrammar38Constants {
     "<token of kind 153>",
     "\"\\\\\\r\\n\"",
     "<token of kind 155>",
+    "\"\\\\\\r\\n\"",
+    "<token of kind 157>",
+    "\"\\\\\\r\\n\"",
+    "<token of kind 159>",
+    "\"\\\\\\r\\n\"",
+    "<token of kind 161>",
+    "\"\\\\\\r\\n\"",
+    "<token of kind 163>",
     "\"\"",
     "\"\"",
     "\"\"",
@@ -472,13 +480,13 @@ public interface PythonGrammar38Constants {
     "\"\"",
     "\"\"",
     "\"\"",
-    "<token of kind 164>",
-    "<token of kind 165>",
+    "<token of kind 172>",
+    "<token of kind 173>",
     "\"\\r\\n\"",
     "\"\\n\"",
     "\"\\r\"",
-    "<token of kind 169>",
-    "<token of kind 170>",
+    "<token of kind 177>",
+    "<token of kind 178>",
   };
 
 }
