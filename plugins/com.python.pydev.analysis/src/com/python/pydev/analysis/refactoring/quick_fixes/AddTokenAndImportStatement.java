@@ -207,18 +207,6 @@ public class AddTokenAndImportStatement {
                 String lastImportedStrLine = PySelection.getLine(document, lastImportedStrLineNum); // get the full line string of last imported string
 
                 String groupImportStandard = ", "; // set a standard to add before the new import
-                if (importsLen > 1) {
-                    String penultImportedStr = groupInto.getImportedStr().get(importsLen - 2); // if import declaration has more than 1 imports, get the penult import
-                    int penultImportedStrOffset = fullImportStatement.indexOf(penultImportedStr) + startLineOffset;
-                    int penultImportedStrLineNum = document.getLineOfOffset(penultImportedStrOffset); // get the line number of penult import
-
-                    // if the penult import line doesn't surpassed document columns value, get the setted standard import style by user
-                    if (PySelection.getLine(document, penultImportedStrLineNum).length() <= 80) {
-                        groupImportStandard = fullImportStatement
-                                .substring(penultImportedStrOffset + penultImportedStr.length(), lastImportedStrOffset);
-                    }
-                }
-
                 int offset = lastImportedStrOffset + lastImportedStr.length(); // get offset based on the end of last import
 
                 String strToAdd = groupImportStandard + realImportHandleInfo.getImportedStr().get(0); // add the standard and the new import

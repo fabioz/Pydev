@@ -299,36 +299,36 @@ public class AddTokenAndImportStatementTest extends TestCase {
 
         // normal situation
         checkImport("from math import ceil,\\\r\nsqrt", "from math import fmod",
-                "from math import ceil,\\\r\nsqrt,\\\r\nfmod", 80);
+                "from math import ceil,\\\r\nsqrt, fmod", 80);
 
         // test with multiple spaces and tabs -> style conserves
         checkImport("from math import ceil,\\\r\nsqrt      ", "from math import fmod",
-                "from math import ceil,\\\r\nsqrt,\\\r\nfmod      ", 80);
+                "from math import ceil,\\\r\nsqrt, fmod      ", 80);
 
         // test with "(xxxx)"
         checkImport("from math import (ceil,\r\nsqrt)", "from math import fmod",
-                "from math import (ceil,\r\nsqrt,\r\nfmod)", 80);
+                "from math import (ceil,\r\nsqrt, fmod)", 80);
 
         // test with "(xxxx)" and spaces after
         checkImport("from math import (ceil,\r\nsqrt)   ", "from math import fmod",
-                "from math import (ceil,\r\nsqrt,\r\nfmod)   ", 80);
+                "from math import (ceil,\r\nsqrt, fmod)   ", 80);
 
         //!! test with "(xxxx)" and multiple spaces and tabs
         checkImport("from math import (ceil,\r\nsqrt       )", "from math import fmod",
-                "from math import (ceil,\r\nsqrt,\r\nfmod       )",
+                "from math import (ceil,\r\nsqrt, fmod       )",
                 80);
 
         //!! test with "(xxxx)", spaces after and multiple spaces and tabs
         checkImport("from math import (ceil,\r\nsqrt       )   ", "from math import fmod",
-                "from math import (ceil,\r\nsqrt,\r\nfmod       )   ", 80);
+                "from math import (ceil,\r\nsqrt, fmod       )   ", 80);
 
         // test with "(xxxx)" and comma
         checkImport("from math import (ceil,\r\nsqrt,)", "from math import fmod",
-                "from math import (ceil,\r\nsqrt,\r\nfmod,)", 80);
+                "from math import (ceil,\r\nsqrt, fmod,)", 80);
 
         // test with "(xxxx)", spaces after and comma
         checkImport("from math import (ceil,\r\nsqrt,)    ", "from math import fmod",
-                "from math import (ceil,\r\nsqrt,\r\nfmod,)    ",
+                "from math import (ceil,\r\nsqrt, fmod,)    ",
                 80);
 
         // -- END OF TESTS WITH MULTI-LINE DECLARATIONS -- //
@@ -337,23 +337,23 @@ public class AddTokenAndImportStatementTest extends TestCase {
 
         // normal situation
         checkImport("from math import ceil,\\\r\nsqrt", "from math import fmod",
-                "from math import ceil,\\\r\nsqrt,\\\r\nfmod", 20);
+                "from math import ceil,\\\r\nsqrt, fmod", 20);
 
         // test with multiple spaces and tabs -> style conserves
         checkImport("from math import ceil,\\\r\nsqrt      ", "from math import fmod",
-                "from math import ceil,\\\r\nsqrt,\\\r\nfmod      ", 20);
+                "from math import ceil,\\\r\nsqrt, fmod      ", 20);
 
         // test with "(xxxx)"
         checkImport("from math import (ceil,\r\nsqrt)", "from math import fmod",
-                "from math import (ceil,\r\nsqrt,\r\nfmod)", 20);
+                "from math import (ceil,\r\nsqrt, fmod)", 20);
 
         // test with "(xxxx)" and spaces after
         checkImport("from math import (ceil,\r\nsqrt)   ", "from math import fmod",
-                "from math import (ceil,\r\nsqrt,\r\nfmod)   ", 20);
+                "from math import (ceil,\r\nsqrt, fmod)   ", 20);
 
         //!! test with "(xxxx)" and multiple spaces and tabs
         checkImport("from math import (ceil,\r\nsqrt       )", "from math import fmod",
-                "from math import (ceil,\r\nsqrt,\r\nfmod       )",
+                "from math import (ceil,\r\nsqrt, fmod       )",
                 20);
 
         //!! test with "(xxxx)", spaces after and multiple spaces and tabs
@@ -362,11 +362,11 @@ public class AddTokenAndImportStatementTest extends TestCase {
 
         // test with "(xxxx)" and comma
         checkImport("from math import (ceil,\r\nsqrt,)", "from math import fmod",
-                "from math import (ceil,\r\nsqrt,\r\nfmod,)", 20);
+                "from math import (ceil,\r\nsqrt, fmod,)", 20);
 
         // test with "(xxxx)", spaces after and comma
         checkImport("from math import (ceil,\r\nsqrt,)    ", "from math import fmod",
-                "from math import (ceil,\r\nsqrt,\r\nfmod,)    ",
+                "from math import (ceil,\r\nsqrt, fmod,)    ",
                 20);
 
         // -- END OF TESTS WITH MULTI-LINE DECLARATIONS AND COLS LIMIT EXCEDEED -- //
