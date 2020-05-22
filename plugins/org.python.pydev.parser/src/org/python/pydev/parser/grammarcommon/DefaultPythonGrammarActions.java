@@ -492,9 +492,6 @@ public final class DefaultPythonGrammarActions implements IPythonGrammarActions 
                 }
             }
             String str = s.substring(quotes + start + 1, s.length() - quotes);
-            if (bstring) {
-                str = "b'" + str + "'";
-            }
             //System.out.println("out: " + str);
             strToFill.type = getType(s.charAt(start + 1), quotes);
             strToFill.s = str;
@@ -508,9 +505,6 @@ public final class DefaultPythonGrammarActions implements IPythonGrammarActions 
             int i = quotes + start;
 
             String str = s.substring(i, n);
-            if (bstring) {
-                str = "b'" + str + "'";
-            }
             //System.out.println("out: "+str);
             strToFill.type = getType(s.charAt(start), quotes);
             strToFill.s = str;
