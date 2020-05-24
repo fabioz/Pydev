@@ -162,11 +162,21 @@ public class PyParser38Test extends PyParserTestBase {
     public void testStr() throws Exception {
         checkStr("''", "", false, false, false, false);
         checkStr("'s'", "s", false, false, false, false);
+        checkStr("r''", "", false, false, false, true);
+        checkStr("r's'", "s", false, false, false, true);
 
         checkStr("b''", "", true, false, false, false);
         checkStr("b's'", "s", true, false, false, false);
+        checkStr("br''", "", true, false, false, true);
+        checkStr("br's'", "s", true, false, false, true);
+        checkStr("rb''", "", true, false, false, true);
+        checkStr("rb's'", "s", true, false, false, true);
 
         checkStr("f''", "", false, true, false, false);
         checkStr("f's'", "s", false, true, false, false);
+        checkStr("fr''", "", false, true, false, true);
+        checkStr("fr's'", "s", false, true, false, true);
+        checkStr("rf''", "", false, true, false, true);
+        checkStr("rf's'", "s", false, true, false, true);
     }
 }
