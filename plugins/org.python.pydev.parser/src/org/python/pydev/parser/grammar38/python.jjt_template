@@ -300,11 +300,19 @@ MORE : /* Strings */
 |   < (["b", "B"]) (["r", "R"])? "\"" > :  IN_BSTRING21
 |   < (["b", "B"]) (["r", "R"])? "'''" > :  IN_BSTRING13
 |   < (["b", "B"]) (["r", "R"])? "\"\"\"" > :  IN_BSTRING23
+|   < (["r", "R"] ["b", "B"])? "'" > :  IN_BSTRING11
+|   < (["r", "R"] ["b", "B"])? "\"" > :  IN_BSTRING21
+|   < (["r", "R"] ["b", "B"])? "'''" > :  IN_BSTRING13
+|   < (["r", "R"] ["b", "B"])? "\"\"\"" > :  IN_BSTRING23
 
 |   < (["f", "F"]) (["r", "R"])? "'" > :  IN_FSTRING11
 |   < (["f", "F"]) (["r", "R"])? "\"" > :  IN_FSTRING21
 |   < (["f", "F"]) (["r", "R"])? "'''" > :  IN_FSTRING13
 |   < (["f", "F"]) (["r", "R"])? "\"\"\"" > :  IN_FSTRING23
+|   < (["r", "R"] ["f", "F"])? "'" > :  IN_FSTRING11
+|   < (["r", "R"] ["f", "F"])? "\"" > :  IN_FSTRING21
+|   < (["r", "R"] ["f", "F"])? "'''" > :  IN_FSTRING13
+|   < (["r", "R"] ["f", "F"])? "\"\"\"" > :  IN_FSTRING23
 
 |   < (["r", "R"])? "'" > :  IN_STRING11
 |   < (["r", "R"])? "\"" > :  IN_STRING21
