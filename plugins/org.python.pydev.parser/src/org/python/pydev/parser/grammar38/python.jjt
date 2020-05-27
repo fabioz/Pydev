@@ -983,12 +983,13 @@ void yield_expr(): {Token spStr; boolean isYieldFrom=false;}
 
 //yield_arg: 'from' test | testlist_star_expr
 boolean yield_arg() #void: {}
-{ {boolean isYieldFrom;}
-  (
-  	(<FROM> {grammarActions.addSpecialToken(" from ");isYieldFrom=true;} test())
-|
-	  (
-	  	{
+{
+	{boolean isYieldFrom;}
+ 	(
+  		(<FROM> {grammarActions.addSpecialToken(" from ");isYieldFrom=true;} test())
+	|
+		(
+			{
 			grammarActions.pushStarExpr(Starred.Load);
 		}
 
@@ -996,10 +997,10 @@ boolean yield_arg() #void: {}
 		{
 			grammarActions.popStarExpr();
 		}
-	  	{isYieldFrom=false;}
-	  )
-  )
-  {return isYieldFrom;}
+			{isYieldFrom=false;}
+		)
+  	)
+	{return isYieldFrom;}
 }
 
 
