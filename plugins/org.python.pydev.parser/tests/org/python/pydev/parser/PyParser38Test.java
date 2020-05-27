@@ -179,4 +179,19 @@ public class PyParser38Test extends PyParserTestBase {
         checkStr("rf''", "", false, true, false, true);
         checkStr("rf's'", "s", false, true, false, true);
     }
+
+    public void testIterableUnpack() {
+        parseLegalDocStr("def parse():\n    return x, *y");
+        parseLegalDocStr("def parse():\n    return (x, *y)");
+        parseLegalDocStr("def parse():\n    return");
+        parseLegalDocStr("def parse():\n    return ()");
+    }
+
+    public void testIterableUnpackYield() {
+        parseLegalDocStr("def parse():\n    yield");
+        parseLegalDocStr("def parse():\n    yield x, *y");
+        parseLegalDocStr("def parse():\n    yield (x, *y)");
+        parseLegalDocStr("def parse():\n    yield ()");
+    }
+
 }

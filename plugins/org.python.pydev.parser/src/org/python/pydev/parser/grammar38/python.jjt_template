@@ -795,9 +795,16 @@ void flow_stmt() #void: {}
 |   raise_stmt()
 }
 
-//return_stmt: 'return' [testlist]
+//return_stmt: 'return' [testlist_star_expr]
 void return_stmt(): {}
-{ begin_return_stmt() [SmartTestList()] }
+{
+	begin_return_stmt()
+	[
+		{grammarActions.pushStarExpr(Starred.Load);}
+		testlist_star_expr()
+		{grammarActions.popStarExpr();}
+	]
+}
 
 void begin_return_stmt(): {}
 { <RETURN> {this.grammarActions.addToPeek("return ",false);}
@@ -815,22 +822,26 @@ void yield_expr(): {Token spStr; boolean isYieldFrom=false;}
 { spStr=<YIELD> [isYieldFrom=yield_arg()]
     {
         Yield yield = (Yield)this.grammarActions.addToPeek(spStr, false, Yield.class);
-        if(yield != null){
-            yield.yield_from = isYieldFrom;
-        }
+        if(yield != null){yield.yield_from = isYieldFrom;}
     }
 }
 
 
 //yield_arg: 'from' test | testlist_star_expr
 boolean yield_arg() #void: {}
-{ {boolean isYieldFrom;}
-  (
-  (<FROM> {grammarActions.addSpecialToken(" from ");isYieldFrom=true;} test())
-  |
-  SmartTestList(){isYieldFrom=false;}
-  )
-  {return isYieldFrom;}
+{
+	{boolean isYieldFrom;}
+ 	(
+  		(<FROM> {grammarActions.addSpecialToken(" from ");isYieldFrom=true;} test())
+	|
+		(
+			{grammarActions.pushStarExpr(Starred.Load);}
+			testlist_star_expr()
+			{grammarActions.popStarExpr();}
+			{isYieldFrom=false;}
+		)
+  	)
+	{return isYieldFrom;}
 }
 
 
