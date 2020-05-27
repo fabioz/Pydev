@@ -177,7 +177,7 @@ void f_string_expr(): {Token start, end, bStart;boolean empty=true;SimpleNode bT
 		            }
 		        )?
 		        (type_conversion())?
-		        (format_spec())*
+		        (format_spec())?
 
 		    try{
 		        end = <RBRACE>
@@ -218,7 +218,7 @@ void format_spec(): {Token start, end, bStart;boolean empty=true;SimpleNode bTex
 {
     <COLON>
     (
-    	(<TEXT>)+
+    	(<TEXT> | <COLON>)+
         |
 	    start = <LBRACE>
 		try{
