@@ -943,7 +943,20 @@ void flow_stmt() #void: {}
 
 //return_stmt: 'return' [testlist]
 void return_stmt(): {}
-{ begin_return_stmt() [SmartTestList()] }
+{
+
+	begin_return_stmt()
+
+	[{
+		grammarActions.pushStarExpr(Starred.Load);
+	}
+
+	testlist_star_expr()
+	{
+		grammarActions.popStarExpr();
+	}]
+
+}
 
 void begin_return_stmt(): {}
 { <RETURN> {this.grammarActions.addToPeek("return ",false);}
@@ -972,9 +985,19 @@ void yield_expr(): {Token spStr; boolean isYieldFrom=false;}
 boolean yield_arg() #void: {}
 { {boolean isYieldFrom;}
   (
-  (<FROM> {grammarActions.addSpecialToken(" from ");isYieldFrom=true;} test())
-  |
-  SmartTestList(){isYieldFrom=false;}
+  	(<FROM> {grammarActions.addSpecialToken(" from ");isYieldFrom=true;} test())
+|
+	  (
+	  	{
+			grammarActions.pushStarExpr(Starred.Load);
+		}
+
+		testlist_star_expr()
+		{
+			grammarActions.popStarExpr();
+		}
+	  	{isYieldFrom=false;}
+	  )
   )
   {return isYieldFrom;}
 }
