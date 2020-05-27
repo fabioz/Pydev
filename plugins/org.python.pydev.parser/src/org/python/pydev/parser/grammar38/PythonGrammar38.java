@@ -2996,7 +2996,7 @@ public final class PythonGrammar38 extends AbstractPythonGrammar implements/*@bg
     }
   }
 
-//return_stmt: 'return' [testlist]
+//return_stmt: 'return' [testlist_star_expr]
   final public void return_stmt() throws ParseException {
                      /*@bgen(jjtree) return_stmt */
   SimpleNode jjtn000 = builder.openNode( JJTRETURN_STMT);

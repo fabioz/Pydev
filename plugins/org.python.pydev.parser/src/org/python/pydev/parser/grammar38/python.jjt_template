@@ -795,7 +795,7 @@ void flow_stmt() #void: {}
 |   raise_stmt()
 }
 
-//return_stmt: 'return' [testlist]
+//return_stmt: 'return' [testlist_star_expr]
 void return_stmt(): {}
 {
 
