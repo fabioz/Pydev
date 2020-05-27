@@ -75,6 +75,8 @@ public class FStringsParserTest extends TestCase {
     }
 
     public void testFStringParsing() throws ParseException, BadLocationException {
+        checkExprs("{var1:format_1:format_2}", ArrayUtils.asSet("var1"));
+
         checkExprs("{foo=}", ArrayUtils.asSet("foo"));
         checkExprs("{foo!r}", ArrayUtils.asSet("foo"));
         checkExprs("{foo!s}", ArrayUtils.asSet("foo"));
