@@ -41,8 +41,6 @@
 
 		<a href="https://thebeastreviews.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/thebeastreviews.jpg" alt="https://thebeastreviews.com/" title="https://thebeastreviews.com/" /></a>
 
-		<a href="https://alltimelist.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/alltimelist.png" alt="https://alltimelist.com/" title="https://alltimelist.com/" /></a>
-
 		<a href="https://420couponcodes.com/cbdmd/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/cbdmd.jpg" alt="https://420couponcodes.com/cbdmd/" title="https://420couponcodes.com/cbdmd/" /></a>
 
 		<a href="https://sumatosoft.com/solutions/internet-of-things-software-development" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/sumatosoft.png" alt="sumatosoft.com" title="https://sumatosoft.com/solutions/internet-of-things-software-development" /></a>
@@ -80,10 +78,6 @@
 		<a href="https://www.top5credits.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/top5credits.png" alt="top5credits.com" title="https://www.top5credits.com/" /></a>
 
 		<a href="https://www.vpnranks.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/vpnranks.png" alt="vpnranks.com" title="https://www.vpnranks.com/" /></a>
-
-		<a href="http://g7r.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/g7r.png" alt="g7r.com" title="http://g7r.com/" /></a>
-
-		<a href="https://www.onlineesports.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/onlineesports.png" alt="onlineesports.com" title="https://www.onlineesports.com/" /></a>
 
 		<a href="https://writersperhour.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/writersperhour.jpg" alt="writersperhour.com" title="https://writersperhour.com/" /></a>
 
