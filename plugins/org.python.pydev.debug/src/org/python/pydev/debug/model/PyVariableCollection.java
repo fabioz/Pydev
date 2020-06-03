@@ -47,8 +47,8 @@ public class PyVariableCollection extends PyVariable implements IVariablesContai
 
     public static final String SCOPE_SPECIAL_VARS = "special variables";
     public static final String SCOPE_PROTECTED_VARS = "protected variables";
-    public static final String SCOPE_FUNCTION_VARS = "function variables";
     public static final String SCOPE_CLASS_VARS = "class variables";
+    public static final String SCOPE_FUNCTION_VARS = "function variables";
 
     private static final String[] SCOPES_SORTED_REVERSED = new String[] {
             SCOPE_FUNCTION_VARS,

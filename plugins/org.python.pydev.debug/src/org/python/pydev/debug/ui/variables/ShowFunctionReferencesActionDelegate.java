@@ -13,10 +13,11 @@ package org.python.pydev.debug.ui.variables;
 
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.jface.viewers.Viewer;
-import org.python.pydev.debug.model.PyVariable;
+import org.python.pydev.debug.model.PyVariableCollection;
+import org.python.pydev.debug.model.PyVariableGroup;
 import org.python.pydev.debug.model.PyVariablesPreferences;
 
-public class ShowFunctionAndModuleReferencesActionDelegate extends AbstractShowReferencesActionDelegate {
+public class ShowFunctionReferencesActionDelegate extends AbstractShowReferencesActionDelegate {
     @Override
     protected boolean isShowReference() {
         return PyVariablesPreferences.isShowFunctionAndModuleReferences();
@@ -29,7 +30,7 @@ public class ShowFunctionAndModuleReferencesActionDelegate extends AbstractShowR
 
     @Override
     protected boolean isShowReferenceProperty(String property) {
-        return PyVariablesPreferences.DEBUG_UI_VARIABLES_SHOW_FUNCTION_AND_MODULE_REFERENCES.equals(property);
+        return PyVariablesPreferences.DEBUG_UI_VARIABLES_SHOW_FUNCTION_REFERENCES.equals(property);
     }
 
     @Override
@@ -37,11 +38,11 @@ public class ShowFunctionAndModuleReferencesActionDelegate extends AbstractShowR
         if (isShowReference()) {
             return true;
         } else {
-            if (element instanceof PyVariable) {
-                PyVariable variable = (PyVariable) element;
+            if (element instanceof PyVariableGroup) {
+                PyVariableGroup variable = (PyVariableGroup) element;
                 try {
-                    String typeName = variable.getReferenceTypeName();
-                    if ("module".equals(typeName) || "function".equals(typeName)) {
+                    String name = variable.getName();
+                    if (PyVariableCollection.SCOPE_FUNCTION_VARS.equals(name)) {
                         return false;
                     }
                 } catch (DebugException e) {
