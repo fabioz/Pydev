@@ -3289,4 +3289,44 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         }
     }
 
+    public void testTypeHintAttributes() throws Exception {
+        String s;
+        String original = "" +
+                "class MyClass(object):\r\n" +
+                "    def method(self):\r\n" +
+                "        pass\r\n" +
+                "\r\n" +
+                "class AnotherClass(object):\r\n" +
+                "    def __init__(self, param):\r\n" +
+                "        #: :type self.my_var: MyClass\r\n" +
+                "        self.my_var = param\r\n" +
+                "        self.my_var.";
+        s = StringUtils.format(original, "");
+
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+        assertEquals(1, proposals.length);
+        ICompletionProposalHandle prop = proposals[0];
+        assertEquals("method()", prop.getDisplayString());
+    }
+
+    public void testTypeHintAttributes2() throws Exception {
+        String s;
+        String original = "" +
+                "class MyClass(object):\r\n" +
+                "    def method(self):\r\n" +
+                "        pass\r\n" +
+                "\r\n" +
+                "class AnotherClass(object):\r\n" +
+                "    def __init__(self, param):\r\n" +
+                "        #: :type my_var: MyClass\r\n" +
+                "        my_var = NameError\r\n" +
+                "        my_var.";
+        s = StringUtils.format(original, "");
+
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+        assertEquals(1, proposals.length);
+        ICompletionProposalHandle prop = proposals[0];
+        assertEquals("method()", prop.getDisplayString());
+    }
+
 }
