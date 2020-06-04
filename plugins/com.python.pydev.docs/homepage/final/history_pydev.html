@@ -20,8 +20,8 @@
 	<tr align="center" bgcolor="#eeeeee" valign="top">
 		<td nowrap="nowrap" class="td_top">
 		<center>
-		<p class="header_text">Last Site Update: June 3rd, 2020 |
-		Latest Version: 7.5.0</p>
+		<p class="header_text">Last Site Update: June 4th, 2020 |
+		Latest Version: 7.6.0</p>
 		</center>
 		</td>
 	</tr>
@@ -277,6 +277,41 @@
 
 <div class="section" id="history-for-pydev">
 <h1>History For PyDev</h1>
+<div class="section" id="release-7-6-0-2020-06-04">
+<h2>Release 7.6.0 (2020-06-04)</h2>
+<ul>
+<li><p class="first"><strong>Debugger improvements</strong> (updated to pydevd 1.9.1).</p>
+<blockquote>
+<ul class="simple">
+<li><strong>Variables are now grouped</strong> (special/class/function/protected) -- note: it's possible to hide groups in the variables view menu dropdown.</li>
+<li>When a launching a subprocess does not target a python executable, the original args are kept (so, quotes are no longer trimmed).</li>
+<li>A step in which would skip code won't be reported in the return if it'd reach the same location.</li>
+<li>The disassembled version of a frame may be shown if the sources are not available.</li>
+<li>PySide2 is supported to recognize QThreads/event loop in interactive console.</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><strong>Python 3.8 parsing fixes</strong></p>
+<blockquote>
+<ul class="simple">
+<li>Properly parsing f-strings with named unicode character. i.e.: <em>f&quot;N{BULLET}&quot;</em>. (<strong>#PyDev-989</strong>)</li>
+<li>Properly parsing f-strings formats using colon. i.e.: <em>f&quot;{datetime.datetime.now():%Y-%m-%d %H:%M:%S}&quot;</em>. (<strong>#PyDev-1061</strong>)</li>
+<li>Properly parsing f-strings with vars ending in equals. i.e.: <em>f'{y=}'</em>. (<strong>#PyDev-1045</strong>)</li>
+<li>Properly parsing raw f-strings such as <em>rf&quot;str&quot;</em>. (<strong>#PyDev-1020</strong>)</li>
+<li>Properly parsing iterable unpacking syntax. i.e.: <em>return lastname.upper(), *members</em>. (<strong>#PyDev-1048</strong>)</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first">Support for the latest version of PyTest (which may resolve symlinks and changed the TerminalWriter import location).</p>
+</li>
+<li><p class="first">PyDev package explorer is a bit faster (cache source project paths for a project).</p>
+</li>
+<li><p class="first">Recognizing type comments for <em>self</em> attributes. i.e.: <em>#: :type self.var: MyClass</em>. (<strong>#PyDev-520</strong>)</p>
+</li>
+<li><p class="first">Trailing commas properly recognized in automatic import. (<strong>#PyDev-542</strong>)</p>
+</li>
+</ul>
+</div>
 <div class="section" id="release-7-5-0-2020-01-10">
 <h2>Release 7.5.0 (2020-01-10)</h2>
 <ul>

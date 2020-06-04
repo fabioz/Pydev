@@ -335,6 +335,31 @@ To show your appreciation for PyDev and to keep it going strong, help to crowdfu
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
+Release 7.6.0 (2020-06-04)
+=============================
+
+* **Debugger improvements** (updated to pydevd 1.9.1).
+
+	* **Variables are now grouped** (special/class/function/protected) -- note: it's possible to hide groups in the variables view menu dropdown.
+	* When a launching a subprocess does not target a python executable, the original args are kept (so, quotes are no longer trimmed).
+	* A step in which would skip code won't be reported in the return if it'd reach the same location.
+	* The disassembled version of a frame may be shown if the sources are not available.
+	* PySide2 is supported to recognize QThreads/event loop in interactive console.
+
+* **Python 3.8 parsing fixes**
+
+	* Properly parsing f-strings with named unicode character. i.e.: *f"\N{BULLET}"*. (**#PyDev-989**)
+	* Properly parsing f-strings formats using colon. i.e.: *f"{datetime.datetime.now():%Y-%m-%d %H:%M:%S}"*. (**#PyDev-1061**)
+	* Properly parsing f-strings with vars ending in equals. i.e.: *f'{y=}'*. (**#PyDev-1045**)
+	* Properly parsing raw f-strings such as *rf"str"*. (**#PyDev-1020**)
+	* Properly parsing iterable unpacking syntax. i.e.: *return lastname.upper(), \*members*. (**#PyDev-1048**)
+
+* Support for the latest version of PyTest (which may resolve symlinks and changed the TerminalWriter import location).
+* PyDev package explorer is a bit faster (cache source project paths for a project).
+* Recognizing type comments for *self* attributes. i.e.: *#: :type self.var: MyClass*. (**#PyDev-520**)
+* Trailing commas properly recognized in automatic import. (**#PyDev-542**)
+
+
 Release 7.5.0 (2020-01-10)
 =============================
 
@@ -352,35 +377,6 @@ Release 7.5.0 (2020-01-10)
 	* File with a relative path is searched in sys.path folders (i.e.: so, cython builds can find the source).
 
 
-Release 7.4.0 (2019-10-25)
-=============================
-
-* Support for the Python 3.8.
-* Code analysis fix: default values properly marks variables as used (#PyDev-945).
-* On the context menu to analyze files, make sure that non-python files are not analyzed (#PyDev-1008).
-* Lucene indexes are not kept open (so, it's possible to delete the project metadata properly when a project is deleted).
-* Debugger improvements (updated to pydevd 1.8.0).
-
-	* Support for PyPy.
-	* Support for Python 3.8.
-	* Properly show stack trace exception for unhandled exceptions with generator.
-	* Handle binary data when redirecting output.
-	* Properly evaluate unicode strings on Python 2.
-	* Fix dlopen return type for gdb 8.3.1 (patch by Vladimir Dvorak).
-
-
-Release 7.3.0 (2019-08-16)
-=============================
-
-* Debugger improvements (updated to pydevd 1.7.1).
-
-	* Fix thread cleanup issue on fork (debugger could crash when subprocess pool was closed).
-	* Improvements in attach to pid.
-	* When setting the tracing in one thread attach it to other threads too.
-
-* Make it possible to select the black executable (**#PyDev-1003**).
-* Update debug console to work with newer versions of Eclipse (patch by Paul Pazderski).
-* Fix code completion for non-english locale (patch by guyingzhao).
 
 
 

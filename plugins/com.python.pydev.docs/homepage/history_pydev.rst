@@ -6,6 +6,32 @@ History For PyDev
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
+Release 7.6.0 (2020-06-04)
+=============================
+
+* **Debugger improvements** (updated to pydevd 1.9.1).
+
+	* **Variables are now grouped** (special/class/function/protected) -- note: it's possible to hide groups in the variables view menu dropdown.
+	* When a launching a subprocess does not target a python executable, the original args are kept (so, quotes are no longer trimmed).
+	* A step in which would skip code won't be reported in the return if it'd reach the same location.
+	* The disassembled version of a frame may be shown if the sources are not available.
+	* PySide2 is supported to recognize QThreads/event loop in interactive console.
+
+* **Python 3.8 parsing fixes**
+
+	* Properly parsing f-strings with named unicode character. i.e.: *f"\N{BULLET}"*. (**#PyDev-989**)
+	* Properly parsing f-strings formats using colon. i.e.: *f"{datetime.datetime.now():%Y-%m-%d %H:%M:%S}"*. (**#PyDev-1061**)
+	* Properly parsing f-strings with vars ending in equals. i.e.: *f'{y=}'*. (**#PyDev-1045**)
+	* Properly parsing raw f-strings such as *rf"str"*. (**#PyDev-1020**)
+	* Properly parsing iterable unpacking syntax. i.e.: *return lastname.upper(), \*members*. (**#PyDev-1048**)
+
+* Support for the latest version of PyTest (which may resolve symlinks and changed the TerminalWriter import location).
+* PyDev package explorer is a bit faster (cache source project paths for a project).
+* Recognizing type comments for *self* attributes. i.e.: *#: :type self.var: MyClass*. (**#PyDev-520**)
+* Trailing commas properly recognized in automatic import. (**#PyDev-542**)
+
+
+
 Release 7.5.0 (2020-01-10)
 =============================
 

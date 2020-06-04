@@ -3,9 +3,9 @@
 <repository name='&quot;Eclipse Project Test Site&quot;'
     type='org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository' version='1.0.0'>
   <properties size='1'>
-    <property name='p2.timestamp' value='1591192949'/>
+    <property name='p2.timestamp' value='1591278079'/>
   </properties>
  <children size='1'>
-    <child location='https://dl.bintray.com/fabioz/pydev/7.5.0'/>
+    <child location='https://dl.bintray.com/fabioz/pydev/7.6.0'/>
   </children>
 </repository>
