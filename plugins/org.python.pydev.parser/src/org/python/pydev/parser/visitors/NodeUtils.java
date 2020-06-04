@@ -406,16 +406,10 @@ public class NodeUtils {
 
                 } else {
                     //otherwise, just add another dot and keep going.
-
-                    String representationString = getRepresentationString((SimpleNode) part, true);
-                    if (representationString.contentEquals("!<MissingName>!")) {
-                        continue;
-                    }
-
                     if (buf.length() > 0) {
                         buf.append(".");
                     }
-                    buf.append(representationString);
+                    buf.append(getRepresentationString((SimpleNode) part, true));
                 }
             }
             return buf.toString();

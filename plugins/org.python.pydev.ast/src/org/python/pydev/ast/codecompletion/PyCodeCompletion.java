@@ -48,7 +48,6 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.ITokenCompletionRequest;
-import org.python.pydev.core.ITypeInfo;
 import org.python.pydev.core.IterEntry;
 import org.python.pydev.core.IterTokenEntry;
 import org.python.pydev.core.MisconfigurationException;
@@ -813,24 +812,6 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
     public static void getSelfOrClsCompletions(ILocalScope scope, ITokenCompletionRequest request, TokensList theList,
             ICompletionState state, boolean getOnlySupers) throws BadLocationException, MisconfigurationException {
         for (Iterator<SimpleNode> it = scope.iterator(); it.hasNext();) {
-
-            List<ITypeInfo> possibleClassesForActivationToken = scope
-                    .getPossibleClassesForActivationToken(request.getActivationToken());
-
-            if (possibleClassesForActivationToken != null && possibleClassesForActivationToken.size() > 0) {
-                ICodeCompletionASTManager astManager = request.getNature().getAstManager();
-                IModule module = request.getModule();
-                if (module != null) {
-                    try {
-                        TokensList completions = astManager.getCompletionsFromTokenInLocalScope(module,
-                                state.getCopyWithActTok(request.getActivationToken()), false,
-                                false, scope);
-                        theList.addAll(completions);
-                    } catch (CompletionRecursionException e) {
-                    }
-                }
-            }
-
             SimpleNode node = it.next();
             if (node instanceof ClassDef) {
                 ClassDef d = (ClassDef) node;
