@@ -80,7 +80,7 @@ from _pydevd_bundle.pydevd_api import PyDevdAPI
 if USE_CUSTOM_SYS_CURRENT_FRAMES_MAP:
     from _pydevd_bundle.pydevd_additional_thread_info_regular import _tid_to_last_frame
 
-__version_info__ = (1, 9, 0)
+__version_info__ = (1, 9, 1)
 __version_info_str__ = []
 for v in __version_info__:
     __version_info_str__.append(str(v))
@@ -151,6 +151,7 @@ file_system_encoding = getfilesystemencoding()
 _CACHE_FILE_TYPE = {}
 
 pydev_log.debug('Using GEVENT_SUPPORT: %s', pydevd_constants.SUPPORT_GEVENT)
+pydev_log.debug('pydevd __file__: %s', os.path.abspath(__file__))
 
 
 #=======================================================================================================================
@@ -496,6 +497,7 @@ class PyDB(object):
         # and later it should be assigned back (to prevent concurrency issues).
         self.break_on_uncaught_exceptions = {}
         self.break_on_caught_exceptions = {}
+        self.break_on_user_uncaught_exceptions = {}
 
         self.ready_to_run = False
         self._main_lock = thread.allocate_lock()
@@ -1562,6 +1564,7 @@ class PyDB(object):
         expression,
         notify_on_handled_exceptions,
         notify_on_unhandled_exceptions,
+        notify_on_user_unhandled_exceptions,
         notify_on_first_raise_only,
         ignore_libraries=False
         ):
@@ -1572,6 +1575,7 @@ class PyDB(object):
                 expression,
                 notify_on_handled_exceptions,
                 notify_on_unhandled_exceptions,
+                notify_on_user_unhandled_exceptions,
                 notify_on_first_raise_only,
                 ignore_libraries
             )
@@ -1592,6 +1596,13 @@ class PyDB(object):
             if DebugInfoHolder.DEBUG_TRACE_BREAKPOINTS > 0:
                 pydev_log.critical("Exceptions to hook always: %s.", cp)
             self.break_on_caught_exceptions = cp
+
+        if eb.notify_on_user_unhandled_exceptions:
+            cp = self.break_on_user_uncaught_exceptions.copy()
+            cp[exception] = eb
+            if DebugInfoHolder.DEBUG_TRACE_BREAKPOINTS > 0:
+                pydev_log.critical("Exceptions to hook on user uncaught code: %s.", cp)
+            self.break_on_user_uncaught_exceptions = cp
 
         return eb
 

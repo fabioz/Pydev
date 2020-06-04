@@ -158,17 +158,18 @@ def build():
 
 
 if __name__ == '__main__':
-    use_cython = os.getenv('PYDEVD_USE_CYTHON', None)
-    if use_cython == 'YES':
+    use_cython = os.getenv('PYDEVD_USE_CYTHON', '').lower()
+    # Note: don't import pydevd during build (so, accept just yes/no in this case).
+    if use_cython == 'yes':
         build()
-    elif use_cython == 'NO':
+    elif use_cython == 'no':
         remove_binaries(['.pyd', '.so'])
-    elif use_cython is None:
+    elif not use_cython:
         # Regular process
         if '--no-regenerate-files' not in sys.argv:
             generate_dont_trace_files()
             generate_cython_module()
         build()
     else:
-        raise RuntimeError('Unexpected value for PYDEVD_USE_CYTHON: %s (accepted: YES, NO)' % (use_cython,))
+        raise RuntimeError('Unexpected value for PYDEVD_USE_CYTHON: %s (accepted: yes, no)' % (use_cython,))
 
