@@ -2,6 +2,21 @@
 <contents_area>
 <h1 class="title">History For PyDev on VSCode</h1>
 
+<div class="section" id="release-0-2-1-2020-06-05">
+<h1>Release 0.2.1 (2020-06-05)</h1>
+<ul>
+<li><p class="first">Upgraded to PyDev 7.5.0</p>
+<blockquote>
+<ul class="simple">
+<li>Support for Python 3.8</li>
+<li>Multiple improvements in type inference</li>
+<li>Improvements in code-formatting</li>
+<li>Improvements on auto import location</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</div>
 <div class="section" id="release-0-1-5-2018-05-05">
 <h1>Release 0.1.5 (2018-05-05)</h1>
 <ul>

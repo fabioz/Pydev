@@ -2,6 +2,16 @@ History For PyDev on VSCode
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
+Release 0.2.1 (2020-06-05)
+=============================
+
+* Upgraded to PyDev 7.5.0
+
+	* Support for Python 3.8
+	* Multiple improvements in type inference
+	* Improvements in code-formatting
+	* Improvements on auto import location
+
 
 Release 0.1.5 (2018-05-05)
 =============================
