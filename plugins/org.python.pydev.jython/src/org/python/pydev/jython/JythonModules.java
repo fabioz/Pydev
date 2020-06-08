@@ -61,7 +61,6 @@ public class JythonModules {
                     + "import os\n"
                     + "add_to_pythonpath = '%s'\n"
                     + "os.chdir(add_to_pythonpath)\n"
-                    + "add_to_pythonpath = os.getcwd()\n"
                     + "if add_to_pythonpath not in sys.path:\n"
                     + "    sys.path.append(add_to_pythonpath)\n"
                     + "import isort\n"
