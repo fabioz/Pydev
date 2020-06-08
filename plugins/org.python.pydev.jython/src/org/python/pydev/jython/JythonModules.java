@@ -52,13 +52,16 @@ public class JythonModules {
     public static String makeISort(String fileContents, File f, Set<String> knownThirdParty) {
         IPythonInterpreter iPythonInterpreter = iSortThreadLocalInterpreter.get();
         IPythonInterpreter interpreter;
-        String outputLine = "output = getattr(isort.SortImports(file_contents=fileContents, settings_path=settingsPath, known_third_party=knowhThirdParty), 'output', None)\n";
+        String outputLine = "output = getattr(isort.SortImports(file_contents=fileContents, settings_path=settingsPath, known_third_party=knownThirdParty), 'output', None)\n";
         if (iPythonInterpreter == null) {
             // The first call may be slow because doing the imports is slow, but subsequent calls should be
             // fast as we'll be reusing the same interpreter.
             String s = ""
                     + "import sys\n"
+                    + "import os\n"
                     + "add_to_pythonpath = '%s'\n"
+                    + "os.chdir(add_to_pythonpath)\n"
+                    + "add_to_pythonpath = os.getcwd()\n"
                     + "if add_to_pythonpath not in sys.path:\n"
                     + "    sys.path.append(add_to_pythonpath)\n"
                     + "import isort\n"
@@ -88,7 +91,7 @@ public class JythonModules {
             } else {
                 interpreter.set("settingsPath", "");
             }
-            interpreter.set("knowhThirdParty", new PyList(knownThirdParty));
+            interpreter.set("knownThirdParty", new PyList(knownThirdParty));
             s = StringUtils.format(s, StringUtils.replaceAllSlashes(isortContainerLocation));
             interpreter.exec(s);
             iSortThreadLocalInterpreter.set(interpreter);
