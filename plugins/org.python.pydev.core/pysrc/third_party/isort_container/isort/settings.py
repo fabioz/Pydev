@@ -282,7 +282,7 @@ def _abspaths(cwd, values):
 def _get_config_data(file_path, sections):
     settings = {}
 
-    with io.open(file_path) as config_file:
+    with io.open(file_path, encoding='UTF-8') as config_file:
         if file_path.endswith('.toml'):
             if toml:
                 config = toml.load(config_file)
