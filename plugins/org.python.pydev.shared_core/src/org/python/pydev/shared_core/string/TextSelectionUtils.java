@@ -1070,7 +1070,7 @@ public class TextSelectionUtils {
      * @param docContents should be == doc.get() (just optimizing if the user already did that before).
      */
     public static void setOnlyDifferentCode(IDocument doc, String docContents, String newContents) {
-        DocUtils.updateDocRangeWithContents(doc, docContents, newContents, TextSelectionUtils.getDelimiter(doc));
+        DocUtils.updateDocRangeWithContents(doc, docContents, newContents);
     }
 
     public Tuple<String, Integer> getCurrDottedStatement(ICharacterPairMatcher2 pairMatcher)

@@ -2,6 +2,20 @@ History For PyDev on VSCode
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
+Release 0.2.4 (2020-06-13)
+=============================
+
+* Critical bugfix getting quick fixes.
+* Critical bugfix for method navigation.
+
+
+Release 0.2.3 (2020-06-09)
+=============================
+
+* Critical bugfix getting the workspace folders.
+* Critical bugfix getting settings.
+
+
 Release 0.2.1 (2020-06-05)
 =============================
 

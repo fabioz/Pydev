@@ -94,10 +94,10 @@ public class diff_match_patch {
      * Internal class for returning results from diff_linesToChars().
      * Other less paranoid languages just use a three-element array.
      */
-    protected static class LinesToCharsResult {
-        protected String chars1;
-        protected String chars2;
-        protected List<String> lineArray;
+    public static class LinesToCharsResult {
+        public String chars1;
+        public String chars2;
+        public List<String> lineArray;
 
         protected LinesToCharsResult(String chars1, String chars2,
                 List<String> lineArray) {
@@ -509,7 +509,7 @@ public class diff_match_patch {
      *     the List of unique strings.  The zeroth element of the List of
      *     unique strings is intentionally blank.
      */
-    protected LinesToCharsResult diff_linesToChars(String text1, String text2) {
+    public LinesToCharsResult diff_linesToChars(String text1, String text2) {
         List<String> lineArray = new ArrayList<String>();
         Map<String, Integer> lineHash = new HashMap<String, Integer>();
         // e.g. linearray[4] == "Hello\n"
@@ -574,7 +574,7 @@ public class diff_match_patch {
      * @param diffs List of Diff objects.
      * @param lineArray List of unique strings.
      */
-    protected void diff_charsToLines(List<Diff> diffs,
+    public void diff_charsToLines(List<Diff> diffs,
             List<String> lineArray) {
         StringBuilder text;
         for (Diff diff : diffs) {
@@ -1924,19 +1924,114 @@ public class diff_match_patch {
      *      boolean values.
      * @throws BadLocationException
      */
-    public Object[] patch_apply(LinkedList<Patch> patches, String text) throws BadLocationException {
-        return patch_apply(patches, text, new IDocumentUpdateAPI() {
+    /**
+     * Merge a set of patches onto the text.  Return a patched text, as well
+     * as an array of true/false values indicating which patches were applied.
+     * @param patches Array of Patch objects
+     * @param text Old text.
+     * @return Two element Object array, containing the new text and an array of
+     *      boolean values.
+     */
+    public Object[] patch_apply(LinkedList<Patch> patches, String text) {
+        if (patches.isEmpty()) {
+            return new Object[] { text, new boolean[0] };
+        }
 
-            @Override
-            public void set(String text) throws BadLocationException {
+        // Deep copy the patches so that no changes are made to originals.
+        patches = patch_deepCopy(patches);
 
+        String nullPadding = patch_addPadding(patches);
+        text = nullPadding + text + nullPadding;
+        patch_splitMax(patches);
+
+        int x = 0;
+        // delta keeps track of the offset between the expected and actual location
+        // of the previous patch.  If there are patches expected at positions 10 and
+        // 20, but the first patch was found at 12, delta is 2 and the second patch
+        // has an effective expected position of 22.
+        int delta = 0;
+        boolean[] results = new boolean[patches.size()];
+        for (Patch aPatch : patches) {
+            int expected_loc = aPatch.start2 + delta;
+            String text1 = diff_text1(aPatch.diffs);
+            int start_loc;
+            int end_loc = -1;
+            if (text1.length() > this.Match_MaxBits) {
+                // patch_splitMax will only provide an oversized pattern in the case of
+                // a monster delete.
+                start_loc = match_main(text,
+                        text1.substring(0, this.Match_MaxBits), expected_loc);
+                if (start_loc != -1) {
+                    end_loc = match_main(text,
+                            text1.substring(text1.length() - this.Match_MaxBits),
+                            expected_loc + text1.length() - this.Match_MaxBits);
+                    if (end_loc == -1 || start_loc >= end_loc) {
+                        // Can't find valid trailing context.  Drop this patch.
+                        start_loc = -1;
+                    }
+                }
+            } else {
+                start_loc = match_main(text, text1, expected_loc);
             }
-
-            @Override
-            public void replace(int offset, int length, String text) throws BadLocationException {
-
+            if (start_loc == -1) {
+                // No match found.  :(
+                results[x] = false;
+                // Subtract the delta for this failed patch from subsequent patches.
+                delta -= aPatch.length2 - aPatch.length1;
+            } else {
+                // Found a match.  :)
+                results[x] = true;
+                delta = start_loc - expected_loc;
+                String text2;
+                if (end_loc == -1) {
+                    text2 = text.substring(start_loc,
+                            Math.min(start_loc + text1.length(), text.length()));
+                } else {
+                    text2 = text.substring(start_loc,
+                            Math.min(end_loc + this.Match_MaxBits, text.length()));
+                }
+                if (text1.equals(text2)) {
+                    // Perfect match, just shove the replacement text in.
+                    text = text.substring(0, start_loc) + diff_text2(aPatch.diffs)
+                            + text.substring(start_loc + text1.length());
+                } else {
+                    // Imperfect match.  Run a diff to get a framework of equivalent
+                    // indices.
+                    LinkedList<Diff> diffs = diff_main(text1, text2, false);
+                    if (text1.length() > this.Match_MaxBits
+                            && diff_levenshtein(diffs) / (float) text1.length() > this.Patch_DeleteThreshold) {
+                        // The end points match, but the content is unacceptably bad.
+                        results[x] = false;
+                    } else {
+                        diff_cleanupSemanticLossless(diffs);
+                        int index1 = 0;
+                        for (Diff aDiff : aPatch.diffs) {
+                            if (aDiff.operation != Operation.EQUAL) {
+                                int index2 = diff_xIndex(diffs, index1);
+                                if (aDiff.operation == Operation.INSERT) {
+                                    // Insertion
+                                    text = text.substring(0, start_loc + index2) + aDiff.text
+                                            + text.substring(start_loc + index2);
+                                } else if (aDiff.operation == Operation.DELETE) {
+                                    // Deletion
+                                    text = text.substring(0, start_loc + index2)
+                                            + text.substring(start_loc + diff_xIndex(diffs,
+                                                    index1 + aDiff.text.length()));
+                                }
+                            }
+                            if (aDiff.operation != Operation.DELETE) {
+                                index1 += aDiff.text.length();
+                            }
+                        }
+                    }
+                }
             }
-        });
+            x++;
+        }
+        // Strip the padding off.
+        text = text.substring(nullPadding.length(), text.length()
+                - nullPadding.length());
+        return new Object[] { text, results };
     }
 
     private static class TextWrapper {

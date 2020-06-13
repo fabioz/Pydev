@@ -1,20 +1,28 @@
-PyDev 7.5.0 Released
+PyDev 7.6.0 Released
 
-PyDev 7.5.0 Release Highlights
+PyDev 7.6.0 Release Highlights
 -------------------------------
 
-* Fixed support for Python 3.8 (which wasn't properly added to 7.4.0).
-* Improved Cython support:
+* **Debugger improvements** (updated to pydevd 1.9.1).
 
-	* Cython itself is used to generate the AST for Cython files.
-	* Cython needs to be available in the default interpreter.
-	* Cython does not currently support generating the AST for files with errors, so, syntax errors must be fixed for the code-completion to work properly.
+	* **Variables are now grouped** (special/class/function/protected) -- note: it's possible to hide groups in the variables view menu dropdown.
+	* When a launching a subprocess does not target a python executable, the original args are kept (so, quotes are no longer trimmed).
+	* A step in which would skip code won't be reported in the return if it'd reach the same location.
+	* The disassembled version of a frame may be shown if the sources are not available.
+	* PySide2 is supported to recognize QThreads/event loop in interactive console.
 
-* Debugger improvements (updated to pydevd 1.9.0).
+* **Python 3.8 parsing fixes**
 
-	* Improved stepping into coroutines
-	* Attach to process no longer needs to match the bitness of the target program with the interpreter.
-	* File with a relative path is searched in sys.path folders (i.e.: so, cython builds can find the source).
+	* Properly parsing f-strings with named unicode character. i.e.: *f"\N{BULLET}"*.
+	* Properly parsing f-strings formats using colon. i.e.: *f"{datetime.datetime.now():%Y-%m-%d %H:%M:%S}"*.
+	* Properly parsing f-strings with vars ending in equals. i.e.: *f'{y=}'*.
+	* Properly parsing raw f-strings such as *rf"str"*.
+	* Properly parsing iterable unpacking syntax. i.e.: *return lastname.upper(), \*members*.
+
+* Support for the latest version of PyTest (which may resolve symlinks and changed the TerminalWriter import location).
+* PyDev package explorer is a bit faster (cache source project paths for a project).
+* Recognizing type comments for *self* attributes. i.e.: *#: :type self.var: MyClass*.
+* Trailing commas properly recognized in automatic import.
 
 About PyDev
 ---------------------------

@@ -182,8 +182,7 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
                                 knownThirdParty);
                         if (isortResult != null) {
                             try {
-                                DocUtils.updateDocRangeWithContents(doc, fileContents, isortResult.toString(),
-                                        endLineDelim);
+                                DocUtils.updateDocRangeWithContents(doc, fileContents, isortResult.toString());
                             } catch (Exception e) {
                                 Log.log(
                                         StringUtils.format(

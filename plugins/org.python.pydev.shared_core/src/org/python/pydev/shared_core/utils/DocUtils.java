@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,6 +28,8 @@ import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
+import org.python.pydev.shared_core.utils.diff_match_patch.Diff;
+import org.python.pydev.shared_core.utils.diff_match_patch.LinesToCharsResult;
 import org.python.pydev.shared_core.utils.diff_match_patch.Patch;
 
 public class DocUtils {
@@ -71,8 +74,7 @@ public class DocUtils {
     }
 
     public static void updateDocRangeWithContents(final IDocument doc, final String docContents,
-            final String newDocContents,
-            final String endLineDelimiter) {
+            final String newDocContents) {
 
         updateDocRangeWithContents(new IDocumentUpdateAPI() {
 
@@ -93,7 +95,8 @@ public class DocUtils {
 
                     String curr = doc.get(offset, length);
 
-                    for (int i = 0; i < length && tempBuf.length() > 0; i++) {
+                    int initialLen = length;
+                    for (int i = 0; i < initialLen && tempBuf.length() > 0; i++) {
                         if (curr.charAt(i) == tempBuf.charAt(0)) {
                             tempBuf.deleteFirst();
                             offset++;
@@ -119,7 +122,7 @@ public class DocUtils {
                 }
                 doc.replace(offset, length, text);
             }
-        }, doc, docContents, newDocContents, endLineDelimiter);
+        }, doc, docContents, newDocContents);
     }
 
     public static interface IDocumentUpdateAPI {
@@ -134,18 +137,34 @@ public class DocUtils {
      * @throws BadLocationException
      */
     public static void updateDocRangeWithContents(final IDocumentUpdateAPI docUpdateAPI, final IDocument docToUpdate,
-            final String docContents, final String newDocContents, final String endLineDelimiter) {
+            final String docContents, final String newDocContents) {
         diff_match_patch diff_match_patch = new diff_match_patch();
-        diff_match_patch.Diff_Timeout = 0.5f;
-        diff_match_patch.Match_Distance = 200;
-        diff_match_patch.Patch_Margin = 10;
-        diff_match_patch.Diff_EditCost = 8;
-        LinkedList<Patch> patches = diff_match_patch.patch_make(docContents, newDocContents);
+
+        LinesToCharsResult a = diff_match_patch.diff_linesToChars(docContents, newDocContents);
+        String chars1 = a.chars1;
+        String chars2 = a.chars2;
+        List<String> lineArray = a.lineArray;
+        LinkedList<Diff> diffs = diff_match_patch.diff_main(chars1, chars2, false);
+        diff_match_patch.diff_charsToLines(diffs, lineArray);
+        diff_match_patch.diff_cleanupSemantic(diffs);
+        LinkedList<Patch> patches = diff_match_patch.patch_make(diffs);
         try {
             diff_match_patch.patch_apply(patches, docContents, docUpdateAPI);
         } catch (BadLocationException e) {
             Log.log(e);
         }
+
+        // i.e.: this is not by lines
+        //        diff_match_patch.Diff_Timeout = 0.5f;
+        //        diff_match_patch.Match_Distance = 200;
+        //        diff_match_patch.Patch_Margin = 10;
+        //        diff_match_patch.Diff_EditCost = 8;
+        //        LinkedList<Patch> patches = diff_match_patch.patch_make(docContents, newDocContents);
+        //        try {
+        //            diff_match_patch.patch_apply(patches, docContents, docUpdateAPI);
+        //        } catch (BadLocationException e) {
+        //            Log.log(e);
+        //        }
     }
 
     public static class EmptyLinesComputer {
