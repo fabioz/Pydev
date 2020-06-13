@@ -2,6 +2,21 @@
 <contents_area>
 <h1 class="title">History For PyDev on VSCode</h1>
 
+<div class="section" id="release-0-2-4-2020-06-13">
+<h1>Release 0.2.4 (2020-06-13)</h1>
+<ul class="simple">
+<li>Critical bugfix getting quick fixes.</li>
+<li>Critical bugfix for method navigation.</li>
+<li>Critical bugfix for code formatting.</li>
+</ul>
+</div>
+<div class="section" id="release-0-2-3-2020-06-09">
+<h1>Release 0.2.3 (2020-06-09)</h1>
+<ul class="simple">
+<li>Critical bugfix getting the workspace folders.</li>
+<li>Critical bugfix getting settings.</li>
+</ul>
+</div>
 <div class="section" id="release-0-2-1-2020-06-05">
 <h1>Release 0.2.1 (2020-06-05)</h1>
 <ul>
@@ -16,6 +31,8 @@
 </blockquote>
 </li>
 </ul>
+<p><strong>IMPORTANT</strong>: After an update to LSP4J some functionality stopped working properly.
+Please make sure to use 0.2.4 where those issues were solved.</p>
 </div>
 <div class="section" id="release-0-1-5-2018-05-05">
 <h1>Release 0.1.5 (2018-05-05)</h1>

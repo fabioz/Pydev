@@ -7,6 +7,7 @@ Release 0.2.4 (2020-06-13)
 
 * Critical bugfix getting quick fixes.
 * Critical bugfix for method navigation.
+* Critical bugfix for code formatting.
 
 
 Release 0.2.3 (2020-06-09)
@@ -26,6 +27,8 @@ Release 0.2.1 (2020-06-05)
 	* Improvements in code-formatting
 	* Improvements on auto import location
 
+**IMPORTANT**: After an update to LSP4J some functionality stopped working properly.
+Please make sure to use 0.2.4 where those issues were solved.
 
 Release 0.1.5 (2018-05-05)
 =============================

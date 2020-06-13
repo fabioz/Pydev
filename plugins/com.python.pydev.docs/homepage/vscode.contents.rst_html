@@ -99,15 +99,7 @@ already leverage many features that make <strong>PyDev</strong> unique inside of
 <li>Navigate to previous or next class or method (Ctrl+Shift+Up, Ctrl+Shift+Down)</li>
 </ul>
 <p>See: <a class="reference external" href="history.html">History</a> for details on releases.</p>
-<div class="section" id="planned-features-soon">
-<h2>Planned features (soon)</h2>
-<ul class="simple">
-<li>Launching</li>
-<li>PyDev Debugger integration</li>
-<li>Hover</li>
-</ul>
 <p>For details on installing and getting it running, see: <a class="reference external" href="download.html">Download</a></p>
-</div>
 <div class="section" id="customizations">
 <h2>Customizations</h2>
 <p>Right now, it is possible to change the Python executable to be a different executable

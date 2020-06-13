@@ -94,16 +94,6 @@ Features
 
 See: `History`_ for details on releases.
 
-Planned features (soon)
--------------------------
-
-* Launching
-
-* PyDev Debugger integration
-
-* Hover
-
-
 .. _Download: download.html
 
 For details on installing and getting it running, see: `Download`_
