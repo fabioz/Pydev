@@ -33,6 +33,7 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.IterTokenEntry;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.ModulesKeyForFolder;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.TokensList;
 import org.python.pydev.core.TupleN;
@@ -390,6 +391,9 @@ public abstract class AbstractModule implements IModule {
             ModulesKeyForZip e = ((ModulesKeyForZip) key);
             return new EmptyModuleForZip(key.name, key.file, e.zipModulePath, e.isFile);
 
+        } else if (key instanceof ModulesKeyForFolder) {
+            ModulesKeyForFolder e = ((ModulesKeyForFolder) key);
+            return new EmptyModuleForFolder(key.name, key.file, e.folderModulePath);
         } else {
             return new EmptyModule(key.name, key.file);
         }

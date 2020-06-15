@@ -36,6 +36,7 @@ import org.python.pydev.ast.codecompletion.revisited.PyPublicTreeMap.Entry;
 import org.python.pydev.ast.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.ast.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.ast.codecompletion.revisited.modules.EmptyModule;
+import org.python.pydev.ast.codecompletion.revisited.modules.EmptyModuleForFolder;
 import org.python.pydev.ast.codecompletion.revisited.modules.EmptyModuleForZip;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.core.CorePlugin;
@@ -48,6 +49,7 @@ import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.ModulesKeyForFolder;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.preferences.FileTypesPreferences;
@@ -596,6 +598,7 @@ public abstract class ModulesManager implements IModulesManager {
 
         int j = 0;
         FastStringBuffer buffer = new FastStringBuffer();
+        ModulesKey modulesKey;
         //now, create in memory modules for all the loaded files (empty modules).
         for (Iterator<Map.Entry<File, String>> iterator = modulesFound.regularModules.entrySet().iterator(); iterator
                 .hasNext() && monitor.isCanceled() == false; j++) {
@@ -619,7 +622,12 @@ public abstract class ModulesManager implements IModulesManager {
                         continue;
                     }
                 }
-                ModulesKey modulesKey = new ModulesKey(m, f);
+
+                if (m.substring(m.lastIndexOf('.') + 1).equals("__init__")) {
+                    modulesKey = new ModulesKey(m, f);
+                } else {
+                    modulesKey = new ModulesKeyForFolder(m, f, m.replace('.', '/'));
+                }
 
                 //no conflict (easy)
                 if (!keys.containsKey(modulesKey)) {
@@ -943,6 +951,8 @@ public abstract class ModulesManager implements IModulesManager {
                                 }
                             }
 
+                        } else if (e instanceof EmptyModuleForFolder) {
+                            EmptyModuleForFolder emptyModuleForFolder = (EmptyModuleForFolder) e;
                         } else {
                             //regular case... just go on and create it.
                             try {
