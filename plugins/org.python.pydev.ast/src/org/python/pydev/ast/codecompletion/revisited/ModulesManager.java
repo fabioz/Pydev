@@ -630,7 +630,6 @@ public abstract class ModulesManager implements IModulesManager {
                 //no conflict (easy)
                 if (!keys.containsKey(modulesKey)) {
                     keys.put(modulesKey, modulesKey);
-
                 } else {
                     //we have a conflict, so, let's resolve which one to keep (the old one or this one)
                     if (PythonPathHelper.isValidSourceFile(f.getName(), dottedValidSourceFiles)) {
@@ -650,8 +649,7 @@ public abstract class ModulesManager implements IModulesManager {
             ModulesKey modulesKeyForFolder = new ModulesKeyForFolder(
                     buffer.append(packageEntry.getKey()).append(".__init__").toString(), f);
 
-            if (!keys.containsKey(modulesKeyForFolder)
-                    || PythonPathHelper.isValidSourceFile(f.getName(), dottedValidSourceFiles)) {
+            if (!keys.containsKey(modulesKeyForFolder)) {
                 keys.put(modulesKeyForFolder, modulesKeyForFolder);
             }
         }
