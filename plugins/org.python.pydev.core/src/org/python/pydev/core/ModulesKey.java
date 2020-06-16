@@ -126,16 +126,16 @@ public class ModulesKey implements Comparable<ModulesKey>, Serializable {
     }
 
     public static ModulesKey fromIO(String string) {
-        List<String> split = StringUtils.split(string, '|');
+        List<String> split = StringUtils.splitKeepEmpty(string, '|');
         int size = split.size();
         if (size == 2) {
             String f = split.get(1);
             return new ModulesKey(split.get(0), f.equals("null") ? null : new File(f));
         }
-        if (size == 3) { //zipPath was empty
+        if (size == 3) { //folderPath
             String f = split.get(1);
-            return new ModulesKeyForZip(split.get(0), f.equals("null") ? null : new File(f), "",
-                    split.get(2).equals("1") ? true : false);
+
+            return new ModulesKeyForFolder(split.get(0), f.equals("null") ? null : new File(f), split.get(2));
         }
         if (size == 4) {
             String f = split.get(1);

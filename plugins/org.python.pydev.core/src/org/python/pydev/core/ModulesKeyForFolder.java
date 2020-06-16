@@ -39,6 +39,6 @@ public class ModulesKeyForFolder extends ModulesKey {
     @Override
     public void toIO(FastStringBuffer buf) {
         super.toIO(buf);
-        buf.append('|').append(folderModulePath).append('|').append('0');
+        buf.append('|').append(folderModulePath);
     }
 }

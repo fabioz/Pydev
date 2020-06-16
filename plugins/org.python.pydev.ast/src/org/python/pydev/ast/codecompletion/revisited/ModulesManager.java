@@ -598,7 +598,8 @@ public abstract class ModulesManager implements IModulesManager {
 
         int j = 0;
         FastStringBuffer buffer = new FastStringBuffer();
-        ModulesKey modulesKey;
+        Set<Map.Entry<File, String>> packageEntries = new HashSet<Map.Entry<File, String>>();
+
         //now, create in memory modules for all the loaded files (empty modules).
         for (Iterator<Map.Entry<File, String>> iterator = modulesFound.regularModules.entrySet().iterator(); iterator
                 .hasNext() && monitor.isCanceled() == false; j++) {
@@ -623,12 +624,11 @@ public abstract class ModulesManager implements IModulesManager {
                     }
                 }
 
-                if (m.substring(m.lastIndexOf('.') + 1).equals("__init__")) {
-                    modulesKey = new ModulesKey(m, f);
-                } else {
-                    modulesKey = new ModulesKeyForFolder(m, f, m.replace('.', '/'));
+                if (!m.substring(m.lastIndexOf('.') + 1).equals("__init__")) {
+                    packageEntries.add(entry);
                 }
 
+                ModulesKey modulesKey = new ModulesKey(m, f);
                 //no conflict (easy)
                 if (!keys.containsKey(modulesKey)) {
                     keys.put(modulesKey, modulesKey);
@@ -641,6 +641,21 @@ public abstract class ModulesManager implements IModulesManager {
                         keys.put(modulesKey, modulesKey);
                     }
                 }
+            }
+        }
+
+        for (Map.Entry<File, String> packageEntry : packageEntries) {
+            buffer.clear();
+
+            String m = FullRepIterable.getParentModule(packageEntry.getValue());
+            m = buffer.append(m).append(".__init__").toString();
+            File f = packageEntry.getKey();
+
+            ModulesKey modulesKeyForFolder = new ModulesKeyForFolder(m, f, m.replace('.', '/'));
+
+            if (!keys.containsKey(modulesKeyForFolder)
+                    || PythonPathHelper.isValidSourceFile(f.getName(), dottedValidSourceFiles)) {
+                keys.put(modulesKeyForFolder, modulesKeyForFolder);
             }
         }
     }
@@ -950,9 +965,9 @@ public abstract class ModulesManager implements IModulesManager {
                                     n = null;
                                 }
                             }
-
                         } else if (e instanceof EmptyModuleForFolder) {
-                            EmptyModuleForFolder emptyModuleForFolder = (EmptyModuleForFolder) e;
+                            n = AbstractModule.createEmptyModule(keyForCacheAccess);
+                            n = decorateModule(n, nature);
                         } else {
                             //regular case... just go on and create it.
                             try {
