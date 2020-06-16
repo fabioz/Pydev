@@ -20,11 +20,6 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeSet;
 
-import org.python.pydev.ast.codecompletion.revisited.ModulesManager;
-import org.python.pydev.ast.codecompletion.revisited.ProjectModulesManager;
-import org.python.pydev.ast.codecompletion.revisited.PyPublicTreeMap;
-import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
-import org.python.pydev.ast.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.shared_core.io.FileUtils;
@@ -308,5 +303,9 @@ public class ModulesManagerTest extends CodeCompletionTestsBase {
         for (String e : expected) {
             assertTrue(result.contains(e));
         }
+    }
+
+    public void buildKeysForRegularEntriesTest() {
+
     }
 }
