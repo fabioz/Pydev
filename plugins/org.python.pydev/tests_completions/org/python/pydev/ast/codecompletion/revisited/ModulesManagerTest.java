@@ -298,16 +298,27 @@ public class ModulesManagerTest extends CodeCompletionTestsBase {
         assertEquals(0, manager.getAllDirectModulesStartingWith("ab").size());
     }
 
-    public void testGetAllModules() {
+    public void testBuildKeysForRegularEntries() {
         ProjectModulesManager modulesManager = (ProjectModulesManager) nature2.getAstManager().getModulesManager();
-        IProgressMonitor monitor = getProgressMonitor();
-        String pythonpath = TestDependent.TEST_COM_REFACTORING_PYSRC_LOC;
+        String pythonpath = TestDependent.TEST_PYSRC_TESTING_LOC + "\\testWoInit\\";
         ProjectStub project = new ProjectStub("testProjectStubRefactoring", pythonpath, new IProject[0],
                 new IProject[0]);
+        IProgressMonitor monitor = getProgressMonitor();
         modulesManager.pythonPathHelper.setPythonPath(pythonpath);
         ModulesFoundStructure modulesFound = modulesManager.pythonPathHelper.getModulesFoundStructure(project, monitor);
         PyPublicTreeMap<ModulesKey, ModulesKey> keys = ModulesManager.buildKeysFromModulesFound(monitor, modulesFound);
+
         ModulesManager.buildKeysForRegularEntries(monitor, modulesFound, keys, false);
+
+        Set<String> expectedKeyNames = new HashSet<String>();
+        expectedKeyNames.add(".__init__"); // testWoInit.__init__
+        expectedKeyNames.add("folder1.__init__");
+        expectedKeyNames.add("folder1.folder2.__init__");
+        expectedKeyNames.add("folder1.folder2.mymod");
+
+        for (ModulesKey key : keys.keySet()) {
+            assertEquals(true, expectedKeyNames.contains(key.name));
+        }
     }
 
     /**

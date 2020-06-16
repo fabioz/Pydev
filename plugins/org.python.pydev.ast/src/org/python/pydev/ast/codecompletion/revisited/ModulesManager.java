@@ -599,6 +599,8 @@ public abstract class ModulesManager implements IModulesManager {
         int j = 0;
         FastStringBuffer buffer = new FastStringBuffer();
         Map<String, File> packages = new HashMap<String, File>();
+        String packageM;
+        File packageF;
 
         //now, create in memory modules for all the loaded files (empty modules).
         for (Iterator<Map.Entry<File, String>> iterator = modulesFound.regularModules.entrySet().iterator(); iterator
@@ -624,7 +626,13 @@ public abstract class ModulesManager implements IModulesManager {
                     }
                 }
 
-                packages.put(FullRepIterable.getParentModule(m), f.getParentFile());
+                packageM = m;
+                packageF = f;
+                while (packageM != "") {
+                    packageM = FullRepIterable.getParentModule(packageM);
+                    packageF = packageF.getParentFile();
+                    packages.put(packageM, packageF);
+                }
 
                 ModulesKey modulesKey = new ModulesKey(m, f);
                 //no conflict (easy)
