@@ -8,16 +8,13 @@ public class EmptyModuleForFolder extends EmptyModule {
 
     private static final long serialVersionUID = 1L;
 
-    public String path;
-
-    public EmptyModuleForFolder(String name, File f, String path) {
+    public EmptyModuleForFolder(String name, File f) {
         super(name, f);
-        this.path = path;
     }
 
     @Override
     public String toString() {
-        return StringUtils.join(" ", "EmptyModuleForFolder[", name, " file: ", f, " path: ", path, "]");
+        return StringUtils.join(" ", "EmptyModuleForFolder[", name, " file: ", f, "]");
     }
 
     @Override
@@ -44,14 +41,6 @@ public class EmptyModuleForFolder extends EmptyModule {
         } else if (!f.equals(m.f)) {
             return false;
         }
-        if (path == null || m.path == null) {
-            if (path != m.path) {
-                return false;
-            }
-            //both null at this point
-        } else if (!path.equals(m.path)) {
-            return false;
-        }
 
         return true;
     }
@@ -64,9 +53,6 @@ public class EmptyModuleForFolder extends EmptyModule {
         }
         if (name != null) {
             hash += name.hashCode();
-        }
-        if (path != null) {
-            hash += path.hashCode();
         }
         return hash;
     }
