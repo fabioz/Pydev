@@ -598,7 +598,7 @@ public abstract class ModulesManager implements IModulesManager {
 
         int j = 0;
         FastStringBuffer buffer = new FastStringBuffer();
-        Set<Map.Entry<File, String>> packageEntries = new HashSet<Map.Entry<File, String>>();
+        Map<String, File> packages = new HashMap<String, File>();
 
         //now, create in memory modules for all the loaded files (empty modules).
         for (Iterator<Map.Entry<File, String>> iterator = modulesFound.regularModules.entrySet().iterator(); iterator
@@ -624,9 +624,7 @@ public abstract class ModulesManager implements IModulesManager {
                     }
                 }
 
-                if (!m.substring(m.lastIndexOf('.') + 1).equals("__init__")) {
-                    packageEntries.add(entry);
-                }
+                packages.put(FullRepIterable.getParentModule(m), f.getParentFile());
 
                 ModulesKey modulesKey = new ModulesKey(m, f);
                 //no conflict (easy)
@@ -644,14 +642,13 @@ public abstract class ModulesManager implements IModulesManager {
             }
         }
 
-        for (Map.Entry<File, String> packageEntry : packageEntries) {
+        for (Map.Entry<String, File> packageEntry : packages.entrySet()) {
             buffer.clear();
 
-            String m = FullRepIterable.getParentModule(packageEntry.getValue());
-            m = buffer.append(m).append(".__init__").toString();
-            File f = packageEntry.getKey();
+            File f = packageEntry.getValue();
 
-            ModulesKey modulesKeyForFolder = new ModulesKeyForFolder(m, f, m.replace('.', '/'));
+            ModulesKey modulesKeyForFolder = new ModulesKeyForFolder(
+                    buffer.append(packageEntry.getKey()).append(".__init__").toString(), f);
 
             if (!keys.containsKey(modulesKeyForFolder)
                     || PythonPathHelper.isValidSourceFile(f.getName(), dottedValidSourceFiles)) {
