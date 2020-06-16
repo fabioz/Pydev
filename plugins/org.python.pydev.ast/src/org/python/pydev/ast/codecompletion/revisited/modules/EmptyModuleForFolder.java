@@ -47,7 +47,7 @@ public class EmptyModuleForFolder extends EmptyModule {
 
     @Override
     public int hashCode() {
-        int hash = 123;
+        int hash = 1797;
         if (f != null) {
             hash += f.hashCode();
         }
