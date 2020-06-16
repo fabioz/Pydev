@@ -310,15 +310,11 @@ public class ModulesManagerTest extends CodeCompletionTestsBase {
 
         ModulesManager.buildKeysForRegularEntries(monitor, modulesFound, keys, false);
 
-        Set<String> expectedKeyNames = new HashSet<String>();
-        expectedKeyNames.add(".__init__"); // testWoInit.__init__
-        expectedKeyNames.add("folder1.__init__");
-        expectedKeyNames.add("folder1.folder2.__init__");
-        expectedKeyNames.add("folder1.folder2.mymod");
+        assertTrue(keys.containsKey(new ModulesKey("folder1.__init__", null)));
+        assertTrue(keys.containsKey(new ModulesKey("folder1.folder2.__init__", null)));
+        assertTrue(keys.containsKey(new ModulesKey("folder1.folder2.mymod", null)));
 
-        for (ModulesKey key : keys.keySet()) {
-            assertEquals(true, expectedKeyNames.contains(key.name));
-        }
+        assertFalse(keys.containsKey(new ModulesKey(".__init__", null)));
     }
 
     /**

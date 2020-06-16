@@ -90,7 +90,7 @@ public abstract class ModulesManager implements IModulesManager {
 
     private final static boolean DEBUG_BUILD = false;
 
-    private final static boolean DEBUG_TEMPORARY_MODULES = false;
+    private final static boolean DEBUG_TEMPORARY_MODULES = true;
 
     private final static boolean DEBUG_ZIP = false;
 
@@ -626,12 +626,12 @@ public abstract class ModulesManager implements IModulesManager {
                     }
                 }
 
-                packageM = m;
-                packageF = f;
-                while (packageM != "") {
+                packageM = FullRepIterable.getParentModule(m);
+                packageF = f.getParentFile();
+                while (!packageM.isEmpty()) {
+                    packages.put(packageM, packageF);
                     packageM = FullRepIterable.getParentModule(packageM);
                     packageF = packageF.getParentFile();
-                    packages.put(packageM, packageF);
                 }
 
                 ModulesKey modulesKey = new ModulesKey(m, f);
