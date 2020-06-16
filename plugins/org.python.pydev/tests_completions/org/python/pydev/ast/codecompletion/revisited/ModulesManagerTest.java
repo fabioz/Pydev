@@ -20,8 +20,11 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeSet;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
+import org.python.pydev.core.TestDependent;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
@@ -295,6 +298,18 @@ public class ModulesManagerTest extends CodeCompletionTestsBase {
         assertEquals(0, manager.getAllDirectModulesStartingWith("ab").size());
     }
 
+    public void testGetAllModules() {
+        ProjectModulesManager modulesManager = (ProjectModulesManager) nature2.getAstManager().getModulesManager();
+        IProgressMonitor monitor = getProgressMonitor();
+        String pythonpath = TestDependent.TEST_COM_REFACTORING_PYSRC_LOC;
+        ProjectStub project = new ProjectStub("testProjectStubRefactoring", pythonpath, new IProject[0],
+                new IProject[0]);
+        modulesManager.pythonPathHelper.setPythonPath(pythonpath);
+        ModulesFoundStructure modulesFound = modulesManager.pythonPathHelper.getModulesFoundStructure(project, monitor);
+        PyPublicTreeMap<ModulesKey, ModulesKey> keys = ModulesManager.buildKeysFromModulesFound(monitor, modulesFound);
+        ModulesManager.buildKeysForRegularEntries(monitor, modulesFound, keys, false);
+    }
+
     /**
      * Helper to check for membership.
      */
@@ -305,7 +320,4 @@ public class ModulesManagerTest extends CodeCompletionTestsBase {
         }
     }
 
-    public void buildKeysForRegularEntriesTest() {
-
-    }
 }
