@@ -69,17 +69,13 @@ public class ModulesKeyTest extends TestCase {
         assertEquals(key.zipModulePath, "");
     }
 
-    public void testToIo5() throws Exception {
-        ModulesKeyForFolder key = new ModulesKeyForFolder("bar.a", new File("f.py"), "");
+    public void testToIo3Folder() throws Exception {
+        ModulesKeyForFolder key = new ModulesKeyForFolder("bar.a", new File("f.py"));
 
         FastStringBuffer buf = new FastStringBuffer();
         key.toIO(buf);
         ModulesKeyForFolder newKey = (ModulesKeyForFolder) ModulesKey.fromIO(buf.toString());
-        System.out.println(buf.toString());
-        assertTrue(newKey.getClass() == ModulesKeyForFolder.class);
 
         assertEquals(key.file, newKey.file);
-        assertEquals(key.folderModulePath, "");
     }
-
 }
