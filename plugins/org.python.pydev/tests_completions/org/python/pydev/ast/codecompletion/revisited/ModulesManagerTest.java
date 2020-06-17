@@ -300,7 +300,7 @@ public class ModulesManagerTest extends CodeCompletionTestsBase {
 
     public void testBuildKeysForRegularEntries() {
         ProjectModulesManager modulesManager = (ProjectModulesManager) nature2.getAstManager().getModulesManager();
-        String pythonpath = TestDependent.TEST_PYSRC_TESTING_LOC + "\\testWoInit\\";
+        String pythonpath = TestDependent.TEST_PYSRC_TESTING_LOC + "namespace_pkg/";
         ProjectStub project = new ProjectStub("testProjectStubRefactoring", pythonpath, new IProject[0],
                 new IProject[0]);
         IProgressMonitor monitor = getProgressMonitor();
