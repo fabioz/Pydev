@@ -10,7 +10,7 @@ import org.eclipse.core.resources.IProject;
 
 /**
  * Basically, this class represents a project when it is specified as a source folder.
- * 
+ *
  * @author Fabio
  */
 public class PythonProjectSourceFolder extends PythonSourceFolder {
@@ -19,4 +19,8 @@ public class PythonProjectSourceFolder extends PythonSourceFolder {
         super(parentElement, project);
     }
 
+    @Override
+    public int getRank() {
+        return ISortedElement.RANK_PROJECT;
+    }
 }

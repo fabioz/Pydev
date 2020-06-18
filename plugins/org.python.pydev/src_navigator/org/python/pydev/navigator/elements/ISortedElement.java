@@ -19,6 +19,8 @@ public interface ISortedElement {
 
     int RANK_ERROR = counter.next();
 
+    int RANK_PROJECT = counter.next();
+
     int RANK_SOURCE_FOLDER = counter.next();
     int RANK_PYTHON_FOLDER = counter.next();
 
