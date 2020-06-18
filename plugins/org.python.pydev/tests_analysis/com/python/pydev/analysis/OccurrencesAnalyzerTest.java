@@ -2875,7 +2875,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
 
     public void testNamespacePackages() throws IOException, MisconfigurationException {
-        doc = new Document("import folder1.folder2");
+        doc = new Document("import namespace_pkg.folder1.folder2");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 

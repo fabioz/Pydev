@@ -30,6 +30,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.ast.codecompletion.revisited.ModulesFoundStructure.ZipContents;
 import org.python.pydev.ast.codecompletion.revisited.PyPublicTreeMap.Entry;
@@ -969,8 +970,14 @@ public abstract class ModulesManager implements IModulesManager {
                                 }
                             }
                         } else if (e instanceof EmptyModuleForFolder) {
-                            n = AbstractModule.createEmptyModule(keyForCacheAccess);
-                            n = decorateModule(n, nature);
+                            try {
+                                n = AbstractModule.createModuleFromDoc(name, null, new Document(""), this.getNature(),
+                                        false);
+                                n = decorateModule(n, nature);
+                            } catch (MisconfigurationException e1) {
+                                Log.log(e1);
+                                n = null;
+                            }
                         } else {
                             //regular case... just go on and create it.
                             try {
