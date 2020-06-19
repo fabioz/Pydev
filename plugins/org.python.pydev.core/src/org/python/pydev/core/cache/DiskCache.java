@@ -124,7 +124,7 @@ public final class DiskCache {
                                 break;
                             case 3:
                                 //regular folder path or zip path
-                                if (buf.toString().equals("|^")) {
+                                if (buf.endsWith("|^")) {
                                     key.key = new ModulesKeyForFolder(key.key.name, key.key.file);
                                 } else {
                                     key.key = new ModulesKeyForZip(key.key.name, key.key.file,
