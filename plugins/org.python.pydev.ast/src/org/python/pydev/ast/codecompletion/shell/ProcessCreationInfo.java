@@ -68,8 +68,8 @@ public class ProcessCreationInfo {
             osName = "Unknown OS!";
         }
 
-        String stdContents = stdReader.getContents();
-        String errContents = errReader.getContents();
+        String stdContents = stdReader != null ? stdReader.getContents() : "";
+        String errContents = errReader != null ? errReader.getContents() : "";
 
         //Pre-allocate it in a proper size.
         String[] splitted = new String[] { "ProcessInfo:\n\n - Executed: ", joinedParams, "\n\n - Environment:\n",
@@ -80,8 +80,8 @@ public class ProcessCreationInfo {
     }
 
     public String getAndClearContents() {
-        String stdContents = stdReader.getContents();
-        String errContents = errReader.getContents();
+        String stdContents = stdReader != null ? stdReader.getContents() : "";
+        String errContents = errReader != null ? errReader.getContents() : "";
 
         return StringUtils.join("", "STDOUT: ", stdContents, "\nESTDERR: ", errContents, "\n");
     }
