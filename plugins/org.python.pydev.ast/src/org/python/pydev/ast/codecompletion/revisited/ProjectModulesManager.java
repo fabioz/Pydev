@@ -347,7 +347,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
     private synchronized IModulesManager[] getManagers(boolean checkSystemManager, boolean referenced) {
         CompletionCache localCompletionCache = this.completionCache;
         if (localCompletionCache != null) {
-            IModulesManager[] ret = localCompletionCache.getManagers(referenced);
+            IModulesManager[] ret = localCompletionCache.getManagers(referenced, checkSystemManager);
             if (ret != null) {
                 return ret;
             }
@@ -386,7 +386,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
 
         IModulesManager[] ret = list.toArray(new IModulesManager[list.size()]);
         if (localCompletionCache != null) {
-            localCompletionCache.setManagers(ret, referenced);
+            localCompletionCache.setManagers(ret, referenced, checkSystemManager);
         }
         return ret;
     }

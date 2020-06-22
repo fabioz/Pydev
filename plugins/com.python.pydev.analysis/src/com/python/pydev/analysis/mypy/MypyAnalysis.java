@@ -9,7 +9,9 @@ package com.python.pydev.analysis.mypy;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -24,15 +26,19 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.ast.runners.SimpleRunner;
+import org.python.pydev.core.IModulesManager;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.markers.PyMarkerUtils;
 import org.python.pydev.shared_core.process.ProcessUtils;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.utils.ArrayUtils;
 
 import com.python.pydev.analysis.external.ExternalAnalizerProcessWatchDoc;
 import com.python.pydev.analysis.external.IExternalAnalyzer;
@@ -69,7 +75,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
             throws CoreException,
             MisconfigurationException, PythonNatureWithoutProjectException {
         String mypyExecutable = FileUtils.getFileAbsolutePath(mypyLocation);
-        String target = FileUtils.getFileAbsolutePath(new File(location.toOSString()));
+        String target = location.toOSString();
 
         ArrayList<String> cmdList = new ArrayList<String>();
         cmdList.add(mypyExecutable);
@@ -78,6 +84,16 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
         List<String> userArgsAsList = new ArrayList<>(Arrays.asList(ProcessUtils.parseArguments(userArgs)));
         if (!userArgsAsList.contains("--show-column-numbers")) {
             userArgsAsList.add("--show-column-numbers");
+        }
+        boolean foundFollowImports = false;
+        for (String arg : userArgsAsList) {
+            if (arg.startsWith("--follow-imports=skip")) {
+                foundFollowImports = true;
+            }
+        }
+        if (!foundFollowImports) {
+            // We just want warnings for the current file.
+            userArgsAsList.add("--follow-imports=skip");
         }
         cmdList.addAll(userArgsAsList);
         cmdList.add(target);
@@ -91,8 +107,45 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
         // run executable command (mypy or mypy.bat or mypy.exe)
         WriteToStreamHelper.write("Mypy: Executing command line:", out, (Object) args);
         SimpleRunner simpleRunner = new SimpleRunner();
-        Tuple<Process, String> r = simpleRunner.run(args, workingDir, PythonNature.getPythonNature(project),
-                null);
+
+        IPythonNature nature = PythonNature.getPythonNature(project);
+        ICallback<String[], String[]> updateEnv = null;
+
+        if (MypyPreferences.getAddProjectFoldersToMyPyPath(resource)) {
+            Collection<String> addToMypyPath = new HashSet<String>();
+            IModulesManager[] managersInvolved = nature.getAstManager().getModulesManager().getManagersInvolved(false);
+            for (IModulesManager iModulesManager : managersInvolved) {
+                for (String s : StringUtils
+                        .split(iModulesManager.getNature().getPythonPathNature().getOnlyProjectPythonPathStr(true),
+                                "|")) {
+                    if (!s.isEmpty()) {
+                        addToMypyPath.add(s);
+                    }
+                }
+            }
+            if (addToMypyPath.size() > 0) {
+                updateEnv = new ICallback<String[], String[]>() {
+
+                    @Override
+                    public String[] call(String[] arg) {
+                        for (int i = 0; i < arg.length; i++) {
+                            // Update var
+                            if (arg[i].startsWith("MYPYPATH=")) {
+                                arg[i] = arg[i] + SimpleRunner.getPythonPathSeparator()
+                                        + StringUtils.join(SimpleRunner.getPythonPathSeparator(), addToMypyPath);
+                                return arg;
+                            }
+                        }
+
+                        // Create new var.
+                        return ArrayUtils.concatArrays(arg, new String[] {
+                                "MYPYPATH=" + StringUtils.join(SimpleRunner.getPythonPathSeparator(), addToMypyPath) });
+                    }
+                };
+            }
+        }
+        Tuple<Process, String> r = simpleRunner.run(args, workingDir, nature,
+                null, updateEnv);
         process = r.o1;
         this.processWatchDoc = new ExternalAnalizerProcessWatchDoc(out, monitor, process, this);
         this.processWatchDoc.start();

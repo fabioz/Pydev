@@ -20,6 +20,7 @@ public class MypyPrefInitializer {
 
         node.putBoolean(MypyPreferences.MYPY_USE_CONSOLE, MypyPreferences.DEFAULT_MYPY_USE_CONSOLE);
         node.put(MypyPreferences.MYPY_ARGS, MypyPreferences.DEFAULT_MYPY_ARGS);
+        node.putBoolean(MypyPreferences.MYPY_ADD_PROJECT_FOLDERS_TO_MYPYPATH, MypyPreferences.DEFAULT_MYPY_ADD_PROJECT_FOLDERS_TO_MYPYPATH);
 
     }
 

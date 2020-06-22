@@ -58,6 +58,8 @@ public class MypyPrefPage extends FieldEditorPreferencePage implements IWorkbenc
         parent.setLayout(new GridLayout(1, false));
 
         addField(new BooleanFieldEditor(MypyPreferences.USE_MYPY, "Use Mypy?", parent));
+        addField(new BooleanFieldEditor(MypyPreferences.MYPY_ADD_PROJECT_FOLDERS_TO_MYPYPATH,
+                "Add project source folders to MYPYPATH?", parent));
         addField(new BooleanFieldEditor(MypyPreferences.MYPY_USE_CONSOLE, "Redirect Mypy output to console?", parent));
 
         searchMypyLocation = new RadioGroupFieldEditor(MypyPreferences.SEARCH_MYPY_LOCATION,

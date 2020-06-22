@@ -114,14 +114,18 @@ public abstract class ModulesManager implements IModulesManager {
      * It will not actually make any computations (the managers must be set from the outside)
      */
     protected static class CompletionCache {
-        public IModulesManager[] referencedManagers;
+        public IModulesManager[] referencedManagersWithoutSystem;
 
-        public IModulesManager[] referredManagers;
+        public IModulesManager[] referredManagersWithoutSystem;
+
+        public IModulesManager[] referencedManagersWithSystem;
+
+        public IModulesManager[] referredManagersWithSystem;
 
         private long creationTime;
         private int calls = 0;
 
-        public IModulesManager[] getManagers(boolean referenced) {
+        public IModulesManager[] getManagers(boolean referenced, boolean checkSystemManager) {
             calls += 1;
             if (calls % 30 == 0) {
                 long diff = System.currentTimeMillis() - creationTime;
@@ -133,20 +137,37 @@ public abstract class ModulesManager implements IModulesManager {
                 }
             }
             if (referenced) {
-                return this.referencedManagers;
+                if (checkSystemManager) {
+                    return this.referencedManagersWithSystem;
+                } else {
+                    return this.referencedManagersWithoutSystem;
+                }
             } else {
-                return this.referredManagers;
+                if (checkSystemManager) {
+                    return this.referredManagersWithSystem;
+                } else {
+                    return this.referredManagersWithoutSystem;
+                }
             }
         }
 
-        public void setManagers(IModulesManager[] ret, boolean referenced) {
+        public void setManagers(IModulesManager[] ret, boolean referenced, boolean checkSystemManager) {
             if (this.creationTime == 0) {
                 this.creationTime = System.currentTimeMillis();
             }
             if (referenced) {
-                this.referencedManagers = ret;
+                if (checkSystemManager) {
+                    this.referencedManagersWithSystem = ret;
+
+                } else {
+                    this.referencedManagersWithoutSystem = ret;
+                }
             } else {
-                this.referredManagers = ret;
+                if (checkSystemManager) {
+                    this.referredManagersWithSystem = ret;
+                } else {
+                    this.referredManagersWithoutSystem = ret;
+                }
             }
         }
     }
