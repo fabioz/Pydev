@@ -91,7 +91,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
             cmdList.add(token);
         }
         cmdList.add("--output-format=text");
-        cmdList.add("--msg-template='{C}:{line:3d},{column:2d}: {msg} ({symbol})'");
+        cmdList.add("--msg-template='{C}:{line:3d},{column:2d}: ({symbol}) {msg}'");
         // target file to be linted
         cmdList.add(target);
         String[] args = cmdList.toArray(new String[0]);
@@ -239,7 +239,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
     // \Z = end of the input
 
     private static Pattern PYLINT_MATCH_PATTERN = Pattern
-            .compile("\\A[CRWEFI]:\\s*(\\d+)\\s*,\\s*(\\d+)\\s*:((.|\\n)*)\\((.*)\\)\\s*\\Z");
+            .compile("\\A[CRWEFI]:\\s*(\\d+)\\s*,\\s*(\\d+)\\s*: \\((.*)\\) ((.|\\n)*)\\Z");
 
     private void addToMarkers(String tok, int priority, String id, int line, int column, String lineContents) {
         Map<String, Object> additionalInfo = new HashMap<>();
