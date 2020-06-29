@@ -146,6 +146,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
         int fSeverity = PyLintPreferences.fSeverity();
         int cSeverity = PyLintPreferences.cSeverity();
         int rSeverity = PyLintPreferences.rSeverity();
+        int iSeverity = PyLintPreferences.iSeverity();
 
         if (monitor.isCanceled()) {
             return;
@@ -190,6 +191,9 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                         break;
                     case 'F':
                         priority = fSeverity;
+                        break;
+                    case 'I':
+                        priority = iSeverity;
                         break;
                 }
 
