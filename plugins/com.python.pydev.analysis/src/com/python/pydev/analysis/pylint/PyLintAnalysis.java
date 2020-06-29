@@ -239,7 +239,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
     // \Z = end of the input
 
     private static Pattern PYLINT_MATCH_PATTERN = Pattern
-            .compile("\\A[CRWEF]:\\s*(\\d+)\\s*,\\s*(\\d+)\\s*:(.*)\\((.*)\\)\\s*\\Z");
+            .compile("\\A[CRWEFI]:\\s*(\\d+)\\s*,\\s*(\\d+)\\s*:((.|\\s)*)\\((.*)\\)\\s*\\Z");
 
     private void addToMarkers(String tok, int priority, String id, int line, int column, String lineContents) {
         Map<String, Object> additionalInfo = new HashMap<>();
