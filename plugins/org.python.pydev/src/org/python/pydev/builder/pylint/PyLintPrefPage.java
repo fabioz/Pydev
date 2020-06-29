@@ -103,7 +103,7 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
         addField(new RadioGroupFieldEditor(PyLintPreferences.SEVERITY_REFACTOR, "REFACTOR Severity", COLS,
                 LABEL_AND_VALUE, parent, true));
 
-        addField(new RadioGroupFieldEditor(PyLintPreferences.SEVERITY_INFORMATIONAL, "INFORMATIONAL Severity", COLS,
+        addField(new RadioGroupFieldEditor(PyLintPreferences.SEVERITY_INFO, "INFORMATIONAL Severity", COLS,
                 LABEL_AND_VALUE, parent, true));
 
         CustomizableFieldEditor stringFieldEditor = new CustomizableFieldEditor(PyLintPreferences.PYLINT_ARGS,
