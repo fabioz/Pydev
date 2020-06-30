@@ -206,8 +206,8 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                         if (m.matches()) {
                             line = Integer.parseInt(tok.substring(m.start(1), m.end(1)));
                             column = Integer.parseInt(tok.substring(m.start(2), m.end(2)));
-                            messageId = tok.substring(m.start(4), m.end(4)).trim();
-                            tok = tok.substring(m.start(3), m.end(3)).trim();
+                            messageId = tok.substring(m.start(3), m.end(3)).trim();
+                            tok = tok.substring(m.start(4), m.end(4)).trim();
                         } else {
                             continue;
                         }
