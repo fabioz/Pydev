@@ -30,7 +30,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.ast.codecompletion.revisited.ModulesFoundStructure.ZipContents;
 import org.python.pydev.ast.codecompletion.revisited.PyPublicTreeMap.Entry;
@@ -39,6 +38,7 @@ import org.python.pydev.ast.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.ast.codecompletion.revisited.modules.EmptyModule;
 import org.python.pydev.ast.codecompletion.revisited.modules.EmptyModuleForFolder;
 import org.python.pydev.ast.codecompletion.revisited.modules.EmptyModuleForZip;
+import org.python.pydev.ast.codecompletion.revisited.modules.InitFromDirModule;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.FileUtilsFileBuffer;
@@ -992,10 +992,10 @@ public abstract class ModulesManager implements IModulesManager {
                             }
                         } else if (e instanceof EmptyModuleForFolder) {
                             try {
-                                n = AbstractModule.createModuleFromDoc(name, null, new Document(""), this.getNature(),
-                                        false);
+                                n = new InitFromDirModule(name, e.f, new Module(new stmtType[0]), null,
+                                        this.getNature());
                                 n = decorateModule(n, nature);
-                            } catch (MisconfigurationException e1) {
+                            } catch (Exception e1) {
                                 Log.log(e1);
                                 n = null;
                             }
