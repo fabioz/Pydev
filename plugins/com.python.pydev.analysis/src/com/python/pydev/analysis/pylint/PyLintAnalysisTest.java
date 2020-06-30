@@ -77,7 +77,7 @@ public class PyLintAnalysisTest extends TestCase {
 
         for (MarkerInfo marker : pyLintAnalysis.markers) {
             markersMessageInfo.add(new Tuple<Integer, String>(marker.lineStart,
-                    (String) marker.additionalInfo.get("pylint_message_id")));
+                    (String) marker.additionalInfo.get(PyLintVisitor.PYLINT_MESSAGE_ID)));
 
             // checks if it is getting marker region right (single line matches)
             assertEquals(marker.lineStart, marker.lineEnd);
