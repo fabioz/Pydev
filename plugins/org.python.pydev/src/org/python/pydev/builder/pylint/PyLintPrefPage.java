@@ -39,7 +39,8 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
 
     public static final String[][] LABEL_AND_VALUE = new String[][] {
             { "Error", String.valueOf(IMarker.SEVERITY_ERROR) },
-            { "Warning", String.valueOf(IMarker.SEVERITY_WARNING) }, { "Info", String.valueOf(IMarker.SEVERITY_INFO) },
+            { "Warning", String.valueOf(IMarker.SEVERITY_WARNING) },
+            { "Info", String.valueOf(IMarker.SEVERITY_INFO) },
             { "Ignore", String.valueOf(PyLintPreferences.SEVERITY_IGNORE) }, };
 
     public static final String[][] SEARCH_PYLINT_LOCATION_OPTIONS = new String[][] {
@@ -87,19 +88,23 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
                 true, parent);
         addField(fileField);
 
-        addField(new RadioGroupFieldEditor(PyLintPreferences.SEVERITY_FATAL, "FATAL Severity", COLS, LABEL_AND_VALUE, parent, true));
+        addField(new RadioGroupFieldEditor(PyLintPreferences.SEVERITY_FATAL, "FATAL Severity", COLS, LABEL_AND_VALUE,
+                parent, true));
 
-        addField(new RadioGroupFieldEditor(PyLintPreferences.SEVERITY_ERRORS, "ERRORS Severity", COLS, LABEL_AND_VALUE, parent, true));
+        addField(new RadioGroupFieldEditor(PyLintPreferences.SEVERITY_ERRORS, "ERRORS Severity", COLS, LABEL_AND_VALUE,
+                parent, true));
 
-        addField(
-                new RadioGroupFieldEditor(PyLintPreferences.SEVERITY_WARNINGS, "WARNINGS Severity", COLS, LABEL_AND_VALUE, parent, true));
+        addField(new RadioGroupFieldEditor(PyLintPreferences.SEVERITY_WARNINGS, "WARNINGS Severity", COLS,
+                LABEL_AND_VALUE, parent, true));
 
-        addField(new RadioGroupFieldEditor(PyLintPreferences.SEVERITY_CODING_STANDARD, "CONVENTIONS Severity", COLS, LABEL_AND_VALUE,
-                parent,
-                true));
+        addField(new RadioGroupFieldEditor(PyLintPreferences.SEVERITY_CODING_STANDARD, "CONVENTIONS Severity", COLS,
+                LABEL_AND_VALUE, parent, true));
 
-        addField(
-                new RadioGroupFieldEditor(PyLintPreferences.SEVERITY_REFACTOR, "REFACTOR Severity", COLS, LABEL_AND_VALUE, parent, true));
+        addField(new RadioGroupFieldEditor(PyLintPreferences.SEVERITY_REFACTOR, "REFACTOR Severity", COLS,
+                LABEL_AND_VALUE, parent, true));
+
+        addField(new RadioGroupFieldEditor(PyLintPreferences.SEVERITY_INFO, "INFORMATIONAL Severity", COLS,
+                LABEL_AND_VALUE, parent, true));
 
         CustomizableFieldEditor stringFieldEditor = new CustomizableFieldEditor(PyLintPreferences.PYLINT_ARGS,
                 "Arguments to pass to the pylint command (customize its output):\n"

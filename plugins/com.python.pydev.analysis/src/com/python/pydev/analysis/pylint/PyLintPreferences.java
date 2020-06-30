@@ -41,6 +41,10 @@ public class PyLintPreferences {
     public static final String SEVERITY_REFACTOR = "SEVERITY_REFACTOR";
     public static final int DEFAULT_SEVERITY_REFACTOR = SEVERITY_IGNORE;
 
+    //informational
+    public static final String SEVERITY_INFO = "SEVERITY_INFO";
+    public static final int DEFAULT_SEVERITY_INFO = IMarker.SEVERITY_INFO;
+
     //console
     public static final String USE_CONSOLE = "USE_CONSOLE";
     public static final boolean DEFAULT_USE_CONSOLE = false;
@@ -102,6 +106,10 @@ public class PyLintPreferences {
 
     public static int rSeverity() {
         return PydevPrefs.getEclipsePreferences().getInt(SEVERITY_REFACTOR, DEFAULT_SEVERITY_REFACTOR);
+    }
+
+    public static int iSeverity() {
+        return PydevPrefs.getEclipsePreferences().getInt(SEVERITY_INFO, DEFAULT_SEVERITY_INFO);
     }
 
     public static ICallback0<IExternalCodeAnalysisStream> createPyLintStream = (() -> {

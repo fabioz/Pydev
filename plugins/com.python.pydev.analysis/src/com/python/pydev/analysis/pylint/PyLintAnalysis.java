@@ -91,7 +91,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
             cmdList.add(token);
         }
         cmdList.add("--output-format=text");
-        cmdList.add("--msg-template='{C}:{line:3d},{column:2d}: {msg} ({symbol})'");
+        cmdList.add("--msg-template='{C}:{line:3d},{column:2d}: ({symbol}) {msg}'");
         // target file to be linted
         cmdList.add(target);
         String[] args = cmdList.toArray(new String[0]);
@@ -146,6 +146,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
         int fSeverity = PyLintPreferences.fSeverity();
         int cSeverity = PyLintPreferences.cSeverity();
         int rSeverity = PyLintPreferences.rSeverity();
+        int iSeverity = PyLintPreferences.iSeverity();
 
         if (monitor.isCanceled()) {
             return;
@@ -191,6 +192,9 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                     case 'F':
                         priority = fSeverity;
                         break;
+                    case 'I':
+                        priority = iSeverity;
+                        break;
                 }
 
                 if (priority > -1) { // priority == -1: ignore, 0=info, 1=warning, 2=error.
@@ -202,8 +206,8 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                         if (m.matches()) {
                             line = Integer.parseInt(tok.substring(m.start(1), m.end(1)));
                             column = Integer.parseInt(tok.substring(m.start(2), m.end(2)));
-                            messageId = tok.substring(m.start(4), m.end(4)).trim();
-                            tok = tok.substring(m.start(3), m.end(3)).trim();
+                            messageId = tok.substring(m.start(3), m.end(3)).trim();
+                            tok = tok.substring(m.start(4), m.end(4)).trim();
                         } else {
                             continue;
                         }
@@ -235,7 +239,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
     // \Z = end of the input
 
     private static Pattern PYLINT_MATCH_PATTERN = Pattern
-            .compile("\\A[CRWEF]:\\s*(\\d+)\\s*,\\s*(\\d+)\\s*:(.*)\\((.*)\\)\\s*\\Z");
+            .compile("\\A[CRWEFI]:\\s*(\\d+)\\s*,\\s*(\\d+)\\s*:\\s*\\((.*)\\)(.*)\\Z");
 
     private void addToMarkers(String tok, int priority, String id, int line, int column, String lineContents) {
         Map<String, Object> additionalInfo = new HashMap<>();
