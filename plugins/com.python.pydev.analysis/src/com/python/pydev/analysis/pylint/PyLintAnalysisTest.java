@@ -12,12 +12,13 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.preferences.PydevPrefs;
 import org.python.pydev.shared_core.markers.PyMarkerUtils.MarkerInfo;
+import org.python.pydev.shared_core.structure.Tuple;
 
 import junit.framework.TestCase;
 
 public class PyLintAnalysisTest extends TestCase {
 
-    public void testMessageOutput()
+    public void testMarkersInfoOutput()
             throws UnableToFindExecutableException, MisconfigurationException, PythonNatureWithoutProjectException {
 
         IDocument document = new Document(
@@ -72,21 +73,25 @@ public class PyLintAnalysisTest extends TestCase {
 
         pyLintAnalysis.afterRunProcess(output, "No config file found, using default configuration\n", null);
 
-        List<String> markersMessage = new ArrayList<String>();
+        List<Tuple<Integer, String>> markersMessageInfo = new ArrayList<Tuple<Integer, String>>();
 
         for (MarkerInfo marker : pyLintAnalysis.markers) {
-            markersMessage.add(marker.message);
+            markersMessageInfo.add(new Tuple<Integer, String>(marker.lineStart,
+                    (String) marker.additionalInfo.get("pylint_message_id")));
+
+            // checks if it is getting marker region right (single line matches)
+            assertEquals(marker.lineStart, marker.lineEnd);
         }
 
-        assertEquals("PyLint: bad-whitespace", markersMessage.get(0));
-        assertEquals("PyLint: missing-final-newline", markersMessage.get(1));
-        assertEquals("PyLint: superfluous-parens", markersMessage.get(2));
-        assertEquals("PyLint: missing-docstring", markersMessage.get(3));
-        assertEquals("PyLint: invalid-name", markersMessage.get(4));
-        assertEquals("PyLint: invalid-name", markersMessage.get(5));
-        assertEquals("PyLint: invalid-name", markersMessage.get(6));
-        assertEquals("PyLint: invalid-name", markersMessage.get(7));
-        assertEquals("PyLint: invalid-name", markersMessage.get(8));
+        assertEquals(new Tuple<Integer, String>(13, "bad-whitespace"), markersMessageInfo.get(0));
+        assertEquals(new Tuple<Integer, String>(21, "missing-final-newline"), markersMessageInfo.get(1));
+        assertEquals(new Tuple<Integer, String>(21, "superfluous-parens"), markersMessageInfo.get(2));
+        assertEquals(new Tuple<Integer, String>(0, "missing-docstring"), markersMessageInfo.get(3));
+        assertEquals(new Tuple<Integer, String>(2, "invalid-name"), markersMessageInfo.get(4));
+        assertEquals(new Tuple<Integer, String>(3, "invalid-name"), markersMessageInfo.get(5));
+        assertEquals(new Tuple<Integer, String>(4, "invalid-name"), markersMessageInfo.get(6));
+        assertEquals(new Tuple<Integer, String>(5, "invalid-name"), markersMessageInfo.get(7));
+        assertEquals(new Tuple<Integer, String>(6, "invalid-name"), markersMessageInfo.get(8));
     }
 
 }
