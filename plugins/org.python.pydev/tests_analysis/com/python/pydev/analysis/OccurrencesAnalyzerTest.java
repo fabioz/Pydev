@@ -2873,4 +2873,12 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 
         printMessages(msgs, 0); //No errors in Python 2.x
     }
+
+    public void testNamespacePackages() throws IOException, MisconfigurationException {
+        doc = new Document("import namespace_pkg.folder1.folder2");
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+
+        printMessages(msgs, 1);
+    }
 }

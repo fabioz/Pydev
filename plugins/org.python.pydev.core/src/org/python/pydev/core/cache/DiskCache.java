@@ -13,6 +13,7 @@ import java.util.Map;
 
 import org.python.pydev.core.FastBufferedReader;
 import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.ModulesKeyForFolder;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.ObjectsInternPool;
 import org.python.pydev.core.ObjectsInternPool.ObjectsPoolMap;
@@ -66,6 +67,9 @@ public final class DiskCache {
                 tempBuf.append(modulesKeyForZip.zipModulePath);
                 tempBuf.append('|');
                 tempBuf.append(modulesKeyForZip.isFile ? '0' : '1');
+            } else if (modKey instanceof ModulesKeyForFolder) {
+                tempBuf.append('|');
+                tempBuf.append('^');
             }
             tempBuf.append('\n');
         }
@@ -119,9 +123,13 @@ public final class DiskCache {
                                 }
                                 break;
                             case 3:
-                                //path in zip
-                                key.key = new ModulesKeyForZip(key.key.name, key.key.file,
-                                        ObjectsInternPool.internLocal(objectsPoolMap, buf.toString()), true);
+                                //regular folder path or zip path
+                                if (buf.endsWith("|^")) {
+                                    key.key = new ModulesKeyForFolder(key.key.name, key.key.file);
+                                } else {
+                                    key.key = new ModulesKeyForZip(key.key.name, key.key.file,
+                                            ObjectsInternPool.internLocal(objectsPoolMap, buf.toString()), true);
+                                }
                                 break;
                             case 4:
                                 //isfile in zip

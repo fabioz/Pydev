@@ -3329,4 +3329,11 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals("method()", prop.getDisplayString());
     }
 
+    public void testNamespacePackageImportCompletion() throws Exception {
+        assertEquals(6, requestCompl("from namespace_pkg.folder1 import ",
+                new String[] { "folder2", "__dict__", "__file__", "__init__", "__name__", "__path__" }).length);
+
+        assertEquals(6, requestCompl("from namespace_pkg.folder1.folder2 import ",
+                new String[] { "mymod", "__dict__", "__file__", "__init__", "__name__", "__path__" }).length);
+    }
 }

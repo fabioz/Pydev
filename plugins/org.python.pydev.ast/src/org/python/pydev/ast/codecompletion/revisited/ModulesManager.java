@@ -30,12 +30,14 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.ast.codecompletion.revisited.ModulesFoundStructure.ZipContents;
 import org.python.pydev.ast.codecompletion.revisited.PyPublicTreeMap.Entry;
 import org.python.pydev.ast.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.ast.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.ast.codecompletion.revisited.modules.EmptyModule;
+import org.python.pydev.ast.codecompletion.revisited.modules.EmptyModuleForFolder;
 import org.python.pydev.ast.codecompletion.revisited.modules.EmptyModuleForZip;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.core.CorePlugin;
@@ -48,6 +50,7 @@ import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.ModulesKeyForFolder;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.preferences.FileTypesPreferences;
@@ -617,6 +620,10 @@ public abstract class ModulesManager implements IModulesManager {
 
         int j = 0;
         FastStringBuffer buffer = new FastStringBuffer();
+        Map<String, File> packages = new HashMap<String, File>();
+        String packageM;
+        File packageF;
+
         //now, create in memory modules for all the loaded files (empty modules).
         for (Iterator<Map.Entry<File, String>> iterator = modulesFound.regularModules.entrySet().iterator(); iterator
                 .hasNext() && monitor.isCanceled() == false; j++) {
@@ -640,12 +647,19 @@ public abstract class ModulesManager implements IModulesManager {
                         continue;
                     }
                 }
-                ModulesKey modulesKey = new ModulesKey(m, f);
 
+                packageM = FullRepIterable.getParentModule(m);
+                packageF = f.getParentFile();
+                while (!packageM.isEmpty()) {
+                    packages.put(packageM, packageF);
+                    packageM = FullRepIterable.getParentModule(packageM);
+                    packageF = packageF.getParentFile();
+                }
+
+                ModulesKey modulesKey = new ModulesKey(m, f);
                 //no conflict (easy)
                 if (!keys.containsKey(modulesKey)) {
                     keys.put(modulesKey, modulesKey);
-
                 } else {
                     //we have a conflict, so, let's resolve which one to keep (the old one or this one)
                     if (PythonPathHelper.isValidSourceFile(f.getName(), dottedValidSourceFiles)) {
@@ -654,6 +668,19 @@ public abstract class ModulesManager implements IModulesManager {
                         keys.put(modulesKey, modulesKey);
                     }
                 }
+            }
+        }
+
+        for (Map.Entry<String, File> packageEntry : packages.entrySet()) {
+            buffer.clear();
+
+            File f = packageEntry.getValue();
+
+            ModulesKey modulesKeyForFolder = new ModulesKeyForFolder(
+                    buffer.append(packageEntry.getKey()).append(".__init__").toString(), f);
+
+            if (!keys.containsKey(modulesKeyForFolder)) {
+                keys.put(modulesKeyForFolder, modulesKeyForFolder);
             }
         }
     }
@@ -963,7 +990,15 @@ public abstract class ModulesManager implements IModulesManager {
                                     n = null;
                                 }
                             }
-
+                        } else if (e instanceof EmptyModuleForFolder) {
+                            try {
+                                n = AbstractModule.createModuleFromDoc(name, null, new Document(""), this.getNature(),
+                                        false);
+                                n = decorateModule(n, nature);
+                            } catch (MisconfigurationException e1) {
+                                Log.log(e1);
+                                n = null;
+                            }
                         } else {
                             //regular case... just go on and create it.
                             try {

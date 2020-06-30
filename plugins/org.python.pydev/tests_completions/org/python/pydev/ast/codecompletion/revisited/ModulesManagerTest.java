@@ -20,13 +20,11 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeSet;
 
-import org.python.pydev.ast.codecompletion.revisited.ModulesManager;
-import org.python.pydev.ast.codecompletion.revisited.ProjectModulesManager;
-import org.python.pydev.ast.codecompletion.revisited.PyPublicTreeMap;
-import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
-import org.python.pydev.ast.codecompletion.revisited.SystemModulesManager;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.ModulesKeyForZip;
+import org.python.pydev.core.TestDependent;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
@@ -300,6 +298,25 @@ public class ModulesManagerTest extends CodeCompletionTestsBase {
         assertEquals(0, manager.getAllDirectModulesStartingWith("ab").size());
     }
 
+    public void testBuildKeysForRegularEntries() {
+        ProjectModulesManager modulesManager = (ProjectModulesManager) nature2.getAstManager().getModulesManager();
+        String pythonpath = TestDependent.TEST_PYSRC_TESTING_LOC + "namespace_pkg/";
+        ProjectStub project = new ProjectStub("testProjectStubRefactoring", pythonpath, new IProject[0],
+                new IProject[0]);
+        IProgressMonitor monitor = getProgressMonitor();
+        modulesManager.pythonPathHelper.setPythonPath(pythonpath);
+        ModulesFoundStructure modulesFound = modulesManager.pythonPathHelper.getModulesFoundStructure(project, monitor);
+        PyPublicTreeMap<ModulesKey, ModulesKey> keys = ModulesManager.buildKeysFromModulesFound(monitor, modulesFound);
+
+        ModulesManager.buildKeysForRegularEntries(monitor, modulesFound, keys, false);
+
+        assertTrue(keys.containsKey(new ModulesKey("folder1.__init__", null)));
+        assertTrue(keys.containsKey(new ModulesKey("folder1.folder2.__init__", null)));
+        assertTrue(keys.containsKey(new ModulesKey("folder1.folder2.mymod", null)));
+
+        assertFalse(keys.containsKey(new ModulesKey(".__init__", null)));
+    }
+
     /**
      * Helper to check for membership.
      */
@@ -309,4 +326,5 @@ public class ModulesManagerTest extends CodeCompletionTestsBase {
             assertTrue(result.contains(e));
         }
     }
+
 }
