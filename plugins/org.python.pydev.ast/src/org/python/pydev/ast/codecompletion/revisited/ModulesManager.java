@@ -279,6 +279,12 @@ public abstract class ModulesManager implements IModulesManager {
                             buf.append("|");
                             buf.append(modulesKeyForZip.isFile ? '1' : '0');
                         }
+                    } else if (next instanceof ModulesKeyForFolder) {
+                        ModulesKeyForFolder modulesKeyForFolder = (ModulesKeyForFolder) next;
+                        if (modulesKeyForFolder.file != null) {
+                            buf.append(modulesKeyForFolder.file.toString());
+                            buf.append("|^");
+                        }
                     } else {
                         buf.append(next.file.toString());
                     }
@@ -515,6 +521,13 @@ public abstract class ModulesManager implements IModulesManager {
                 //restore with empty modules.
                 lst.add(key);
 
+            } else if (size == 3) {
+                try {
+                    key = new ModulesKeyForFolder(split[0], new File(split[1]));
+                    lst.add(key);
+                } catch (NumberFormatException e) {
+                    Log.log(e);
+                }
             } else if (size == 4) {
                 try {
                     key = new ModulesKeyForZip(split[0], //module name
