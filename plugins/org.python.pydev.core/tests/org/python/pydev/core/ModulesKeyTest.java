@@ -70,7 +70,7 @@ public class ModulesKeyTest extends TestCase {
     }
 
     public void testToIo3Folder() throws Exception {
-        ModulesKeyForFolder key = new ModulesKeyForFolder("bar.a", new File("f.py"));
+        ModulesKeyForFolder key = new ModulesKeyForFolder("bar.a.__init__", new File("bar/a"));
 
         FastStringBuffer buf = new FastStringBuffer();
         key.toIO(buf);
