@@ -45,6 +45,7 @@ import org.python.pydev.ast.listing_utils.PyFileListing.PyFileInfo;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.ModulesKeyForFolder;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.preferences.FileTypesPreferences;
@@ -676,6 +677,9 @@ public final class PythonPathHelper implements IPythonPathHelper {
 
     public static boolean canAddAstInfoForSourceModule(ModulesKey key) {
         if (key.file != null && key.file.exists()) {
+            if (key instanceof ModulesKeyForFolder) {
+                return true;
+            }
 
             if (PythonPathHelper.isValidSourceFile(key.file.getName())) {
                 return true;

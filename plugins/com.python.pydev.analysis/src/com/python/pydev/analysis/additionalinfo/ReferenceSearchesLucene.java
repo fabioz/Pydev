@@ -255,7 +255,7 @@ public class ReferenceSearchesLucene implements IReferenceSearches {
                     mustCommitChange = true;
                     for (CompleteIndexKey key : modulesToAdd) {
                         File f = key.key.file;
-                        if (f.exists()) {
+                        if (f.isFile()) {
                             if (DEBUG) {
                                 System.out.println("Indexing: " + f);
                             }

@@ -29,7 +29,8 @@ public final class DiskCache {
 
     private static final boolean DEBUG = false;
 
-    public static final int VERSION = 2;
+    // Version 3: add support for namespace packages.
+    public static final int VERSION = 3;
 
     private final Object lock = new Object();
 

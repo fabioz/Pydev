@@ -85,9 +85,10 @@ import org.python.pydev.shared_core.structure.Tuple;
 public abstract class ModulesManager implements IModulesManager {
 
     /**
-     * Note: MODULES_MANAGER_V1 had a bug when writing/reading ModulesKeyForZip entries.
+     * MODULES_MANAGER_V3: fixed a bug when writing/reading ModulesKeyForZip entries.
+     * MODULES_MANAGER_V3: support for namespace packages.
      */
-    private static final String MODULES_MANAGER_V2 = "MODULES_MANAGER_V2\n";
+    private static final String MODULES_MANAGER_V3 = "MODULES_MANAGER_V3\n";
 
     private final static boolean DEBUG_BUILD = false;
 
@@ -256,7 +257,7 @@ public abstract class ModulesManager implements IModulesManager {
 
         synchronized (modulesKeysLock) {
             buf = new FastStringBuffer(this.modulesKeys.size() * 50);
-            buf.append(MODULES_MANAGER_V2);
+            buf.append(MODULES_MANAGER_V3);
 
             for (Iterator<ModulesKey> iter = this.modulesKeys.keySet().iterator(); iter.hasNext();) {
                 ModulesKey next = iter.next();
@@ -294,7 +295,7 @@ public abstract class ModulesManager implements IModulesManager {
         }
         if (commonTokens.size() > 0) {
             FastStringBuffer header = new FastStringBuffer(buf.length() + (commonTokens.size() * 50));
-            header.append(MODULES_MANAGER_V2);
+            header.append(MODULES_MANAGER_V3);
             header.append("--COMMON--\n");
             for (Map.Entry<String, Integer> entries : commonTokens.entrySet()) {
                 header.append(entries.getValue());
@@ -330,13 +331,13 @@ public abstract class ModulesManager implements IModulesManager {
         }
 
         String fileContents = FileUtils.getFileContents(modulesKeysFile);
-        if (!fileContents.startsWith(MODULES_MANAGER_V2)) {
+        if (!fileContents.startsWith(MODULES_MANAGER_V3)) {
             throw new RuntimeException(
                     "Could not load modules manager from " + modulesKeysFile + " (version changed).");
         }
 
         HashMap<Integer, String> intToString = new HashMap<Integer, String>();
-        fileContents = fileContents.substring(MODULES_MANAGER_V2.length());
+        fileContents = fileContents.substring(MODULES_MANAGER_V3.length());
         if (fileContents.startsWith("--COMMON--\n")) {
             String header = fileContents.substring("--COMMON--\n".length());
             header = header.substring(0, header.indexOf("--END-COMMON--\n"));
@@ -356,8 +357,8 @@ public abstract class ModulesManager implements IModulesManager {
                 }
 
             }
-            if (fileContents.startsWith(MODULES_MANAGER_V2)) {
-                fileContents = fileContents.substring(MODULES_MANAGER_V2.length());
+            if (fileContents.startsWith(MODULES_MANAGER_V3)) {
+                fileContents = fileContents.substring(MODULES_MANAGER_V3.length());
             }
         }
 
