@@ -457,6 +457,11 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
                 "Module[body=[FunctionDef[name=NameTok[id=wrapper, ctx=FunctionName], args=arguments[args=[], vararg=NameTok[id=args, ctx=VarArg], kwarg=NameTok[id=kwargs, ctx=KwArg], defaults=[], kwonlyargs=[], kw_defaults=[], annotation=[], varargannotation=null, kwargannotation=null, kwonlyargannotation=[]], body=[Return[value=Call[func=Name[id=f, ctx=Load, reserved=false], args=[], keywords=[keyword[arg=NameTok[id=more, ctx=KeywordName], value=Num[n=2, type=Int, num=2], afterstarargs=false]], starargs=Name[id=args, ctx=Load, reserved=false], kwargs=Dict[keys=[Name[id=kwargs, ctx=Load, reserved=false], Str[s=test, type=SingleSingle, unicode=false, raw=false, binary=false, fstring=false, fstring_nodes=null], Num[n=1, type=Int, num=1]], values=[]]]]], decs=null, returns=null, async=false]]]");
     }
 
+    public void testGenCythonAstCornerCase16() throws Exception {
+        compareWithAst("cdef fused memslice_fused:\n  float[:]",
+                "Module[body=[Assign[targets=[Name[id=memslice_fused, ctx=Store, reserved=false]], value=Name[id=None, ctx=Load, reserved=true], type=null]]]");
+    }
+
     public void testGenCythonAstCdef() throws Exception {
         String s = "def  bar(): pass\r\n";
         String cython = "cdef bar(): pass\r\n";

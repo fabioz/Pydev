@@ -504,6 +504,9 @@ public class GenCythonAstImpl {
                         case "CythonArray":
                             return null;
 
+                        case "MemoryViewSliceType":
+                            return null;
+
                         default:
                             String msg = "Don't know how to create statement from cython json: "
                                     + asObject.toPrettyString();
