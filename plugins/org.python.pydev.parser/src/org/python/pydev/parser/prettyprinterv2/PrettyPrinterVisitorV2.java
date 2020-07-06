@@ -122,18 +122,27 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         java.util.List<ILinePart> recordChanges = null;
         org.python.pydev.shared_core.structure.Tuple<ILinePart, ILinePart> lowerAndHigher = null;
 
-        for (int i = 0; i < node.targets.length; i++) {
-            exprType target = node.targets[i];
-            if (i >= 1) { //more than one assign
-                doc.add(lowerAndHigher.o2.getLine(), lowerAndHigher.o2.getBeginCol(),
-                        this.prefs.getAssignPunctuation(), node);
+        String punctuation = this.prefs.getAssignPunctuation();
+        if (node.targets.length > 0) {
+            for (int i = 0; i < node.targets.length; i++) {
+                exprType target = node.targets[i];
+                if (i >= 1) { //more than one assign
+                    doc.add(lowerAndHigher.o2.getLine(), lowerAndHigher.o2.getBeginCol(),
+                            this.prefs.getAssignPunctuation(), node);
+                }
+                id = this.doc.pushRecordChanges();
+                target.accept(this);
+                recordChanges = this.doc.popRecordChanges(id);
+                lowerAndHigher = doc.getLowerAndHigerFound(recordChanges);
             }
+        } else {
             id = this.doc.pushRecordChanges();
-            target.accept(this);
+            node.type.accept(this);
             recordChanges = this.doc.popRecordChanges(id);
             lowerAndHigher = doc.getLowerAndHigerFound(recordChanges);
+            punctuation = this.prefs.getAssignPunctuationColon();
         }
-        doc.add(lowerAndHigher.o2.getLine(), lowerAndHigher.o2.getBeginCol(), this.prefs.getAssignPunctuation(), node);
+        doc.add(lowerAndHigher.o2.getLine(), lowerAndHigher.o2.getBeginCol(), punctuation, node);
 
         node.value.accept(this);
         afterNode(node);
