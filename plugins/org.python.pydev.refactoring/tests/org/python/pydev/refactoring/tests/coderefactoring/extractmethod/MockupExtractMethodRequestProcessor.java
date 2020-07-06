@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.python.pydev.core.IGrammarVersionProvider;
-import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
@@ -46,7 +45,10 @@ public class MockupExtractMethodRequestProcessor implements IRequestProcessor<Ex
 
     private ICoreTextSelection selection;
 
+    private IGrammarVersionProvider versionProvider;
+
     public MockupExtractMethodRequestProcessor(AbstractScopeNode<?> scopeAdapter, ICoreTextSelection selection,
+            IGrammarVersionProvider versionProvider,
             ModuleAdapter parsedSelection, ParameterReturnDeduce deducer, Map<String, String> renameMap,
             int offsetStrategy) {
 
@@ -56,6 +58,7 @@ public class MockupExtractMethodRequestProcessor implements IRequestProcessor<Ex
         this.offsetStrategy = offsetStrategy;
         this.deducer = deducer;
         this.renameMap = renameMap;
+        this.versionProvider = versionProvider;
     }
 
     @Override
@@ -63,19 +66,7 @@ public class MockupExtractMethodRequestProcessor implements IRequestProcessor<Ex
         List<ExtractMethodRequest> requests = new ArrayList<ExtractMethodRequest>();
         ExtractMethodRequest req = new ExtractMethodRequest("extracted_method", this.selection, this.scopeAdapter,
                 this.parsedSelection, deducer.getParameters(), deducer.getReturns(), this.renameMap,
-                this.offsetStrategy, new AdapterPrefs("\n", new IGrammarVersionProvider() {
-
-                    @Override
-                    public int getGrammarVersion() throws MisconfigurationException {
-                        return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
-                    }
-
-                    @Override
-                    public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions()
-                            throws MisconfigurationException {
-                        return null;
-                    }
-                }));
+                this.offsetStrategy, new AdapterPrefs("\n", versionProvider));
         requests.add(req);
 
         return requests;
