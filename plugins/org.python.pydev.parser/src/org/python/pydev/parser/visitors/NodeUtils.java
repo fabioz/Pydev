@@ -482,10 +482,16 @@ public class NodeUtils {
             }
         }
         if (ast2 instanceof FunctionDef) {
-            return ((FunctionDef) ast2).name.beginLine;
+            NameTokType name = ((FunctionDef) ast2).name;
+            if (name != null) {
+                return name.beginLine;
+            }
         }
         if (ast2 instanceof ClassDef) {
-            return ((ClassDef) ast2).name.beginLine;
+            NameTokType name = ((ClassDef) ast2).name;
+            if (name != null) {
+                return name.beginLine;
+            }
         }
         return ast2.beginLine;
     }
