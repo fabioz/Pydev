@@ -20,7 +20,8 @@ class MyClass2(MyClass):
 class MyClass2(MyClass):
 
     def extracted_method(self, a):
-        return [1, 
+        return [
+            1, 
             2, 
             self.call(*a)]
 
