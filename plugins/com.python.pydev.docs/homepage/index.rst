@@ -313,7 +313,7 @@ Gold Sponsors
 
    <a href="https://software.intel.com/distribution-for-python" border=0><img class="sponsors" style="width:150px;height:100px;" src="images/sponsors/intel.png" alt="Intel" title="https://software.intel.com/distribution-for-python" /></a>
 
-   <a href="https://cooltechzone.com/vpn-for-android" border=0><img class="sponsors" style="width:150px;height:100px;" src="images/sponsors/cooltechzone_2020.png" alt="best VPN for Android" title="best VPN for Android" /></a>
+   <a href="https://vpn-review.com/vpn-for-android" border=0><img class="sponsors" style="width:150px;height:100px;" src="images/sponsors/vpn-review.png" alt="best VPN for Android" title="best VPN for Android" /></a>
 
    </div>
 
