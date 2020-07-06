@@ -19,7 +19,7 @@ class A:
             e: ValueError
 
     def test(self):
-        self.extracted_method(attribute)
+        self.extracted_method()
 
 a = A()
 a.test()
