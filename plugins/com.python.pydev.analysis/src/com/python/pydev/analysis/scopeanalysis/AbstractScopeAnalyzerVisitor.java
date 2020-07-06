@@ -816,7 +816,9 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
         } else if (value instanceof Attribute) {
             return visitNeededValues(((Attribute) value).value, base);
         } else {
-            value.accept(base);
+            if (value != null) {
+                value.accept(base);
+            }
             return true;
         }
     }
