@@ -92,9 +92,12 @@ public class IndentVisitor extends VisitorBase {
     public Object visitAssign(Assign node) throws Exception {
         if (node.targets.length > 0) {
             visit(node.targets[0]);
-        } else {
+        }
+
+        if (node.type != null) {
             visit(node.type);
         }
+
         return null;
     }
 

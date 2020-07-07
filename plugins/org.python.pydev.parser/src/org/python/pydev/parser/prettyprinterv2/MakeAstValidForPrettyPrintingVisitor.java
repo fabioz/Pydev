@@ -176,15 +176,14 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
     public Object visitAssign(Assign node) throws Exception {
         fixNode(node);
 
-        if (node.targets.length > 0) {
-            for (int i = 0; i < node.targets.length; i++) {
-                exprType target = node.targets[i];
-                target.accept(this);
-                nextCol();
-            }
-        } else {
-            node.type.accept(this);
+        for (int i = 0; i < node.targets.length; i++) {
+            exprType target = node.targets[i];
+            target.accept(this);
             nextCol();
+        }
+
+        if (node.type != null) {
+            node.type.accept(this);
         }
 
         if (node.value != null) {
