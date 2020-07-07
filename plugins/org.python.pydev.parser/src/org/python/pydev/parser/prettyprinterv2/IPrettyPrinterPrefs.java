@@ -34,7 +34,7 @@ public interface IPrettyPrinterPrefs extends IGrammarVersionProvider {
 
     String getAssignPunctuation();
 
-    String getAssignPunctuationColon();
+    String getTypePunctuationColon();
 
     String getCmpOp(int op);
 

@@ -188,7 +188,7 @@ public class PrettyPrinterPrefsV2 implements IPrettyPrinterPrefs {
     }
 
     @Override
-    public String getAssignPunctuationColon() {
+    public String getTypePunctuationColon() {
         return ": ";
     }
 
