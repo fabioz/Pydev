@@ -93,11 +93,6 @@ public class IndentVisitor extends VisitorBase {
         if (node.targets.length > 0) {
             visit(node.targets[0]);
         }
-
-        if (node.type != null) {
-            visit(node.type);
-        }
-
         return null;
     }
 
