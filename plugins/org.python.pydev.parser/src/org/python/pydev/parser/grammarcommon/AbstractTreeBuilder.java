@@ -13,6 +13,7 @@ import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
+import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.AugAssign;
 import org.python.pydev.parser.jython.ast.BinOp;
@@ -831,6 +832,24 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
         addSpecialsAndClearOriginal(suite, s);
 
         return new With(items, s, stack.getGrammar().getInsideAsync());
+    }
+
+    public final Assign typedDeclaration(int arity, JJTPythonGrammarState stack, CtxVisitor ctx)
+            throws Exception {
+        exprType type;
+        exprType[] exprs;
+        if (arity >= 3) {
+            exprType value = (exprType) stack.popNode();
+            type = (exprType) stack.popNode();
+            exprs = makeExprs(arity - 2);
+            ctx.setStore(exprs);
+            return new Assign(exprs, value, type);
+        } else {
+            type = (exprType) stack.popNode();
+            exprs = makeExprs(arity - 1);
+            ctx.setStore(exprs);
+            return new Assign(exprs, null, type);
+        }
     }
 
 }
