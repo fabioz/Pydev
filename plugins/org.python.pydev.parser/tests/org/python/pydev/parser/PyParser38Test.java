@@ -203,9 +203,9 @@ public class PyParser38Test extends PyParserTestBase {
         assertTrue(node instanceof Module);
 
         Module m = (Module) node;
+
         assertEquals(1, m.body.length);
         assertTrue(m.body[0] instanceof Assign);
-
         Assign a = (Assign) m.body[0];
 
         assertTrue(a.type instanceof Name);
@@ -230,9 +230,9 @@ public class PyParser38Test extends PyParserTestBase {
         assertTrue(node instanceof Module);
 
         Module m = (Module) node;
+
         assertEquals(1, m.body.length);
         assertTrue(m.body[0] instanceof Assign);
-
         Assign a = (Assign) m.body[0];
 
         assertTrue(a.type instanceof Name);
