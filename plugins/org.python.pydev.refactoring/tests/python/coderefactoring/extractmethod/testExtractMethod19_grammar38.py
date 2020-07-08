@@ -11,13 +11,13 @@ a.test()
 
 class A:
 
-    def extracted_method(self, attribute):
+    def extracted_method(self):
         attribute: str
         attribute = "hello"
         print(attribute)
 
     def test(self):
-        self.extracted_method(attribute)
+        self.extracted_method()
 
 a = A()
 a.test()
