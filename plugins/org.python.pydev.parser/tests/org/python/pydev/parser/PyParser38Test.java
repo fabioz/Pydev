@@ -9,6 +9,7 @@ package org.python.pydev.parser;
 import java.util.List;
 
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
@@ -192,6 +193,20 @@ public class PyParser38Test extends PyParserTestBase {
         parseLegalDocStr("def parse():\n    yield x, *y");
         parseLegalDocStr("def parse():\n    yield (x, *y)");
         parseLegalDocStr("def parse():\n    yield ()");
+    }
+
+    public void testTypeDeclaration() {
+        SimpleNode node = parseLegalDocStr("attribute: str");
+        assertEquals(
+                "Module[body=[Assign[targets=[Name[id=attribute, ctx=Store, reserved=false]], value=null, type=Name[id=str, ctx=Load, reserved=false]]]]",
+                node.toString());
+    }
+
+    public void testTypeAssignDeclaration() {
+        SimpleNode node = parseLegalDocStr("attribute: str = 'something'");
+        assertEquals(
+                "Module[body=[Assign[targets=[Name[id=attribute, ctx=Store, reserved=false]], value=Str[s=something, type=SingleSingle, unicode=false, raw=false, binary=false, fstring=false, fstring_nodes=null], type=Name[id=str, ctx=Load, reserved=false]]]]",
+                node.toString());
     }
 
 }
