@@ -133,9 +133,22 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
             recordChanges = this.doc.popRecordChanges(id);
             lowerAndHigher = doc.getLowerAndHigerFound(recordChanges);
         }
-        doc.add(lowerAndHigher.o2.getLine(), lowerAndHigher.o2.getBeginCol(), this.prefs.getAssignPunctuation(), node);
 
-        node.value.accept(this);
+        if (node.type != null) {
+            doc.add(lowerAndHigher.o2.getLine(), lowerAndHigher.o2.getBeginCol(),
+                    this.prefs.getTypePunctuationColon(), node);
+            id = this.doc.pushRecordChanges();
+            node.type.accept(this);
+            recordChanges = this.doc.popRecordChanges(id);
+            lowerAndHigher = doc.getLowerAndHigerFound(recordChanges);
+        }
+
+        if (node.value != null) {
+            doc.add(lowerAndHigher.o2.getLine(), lowerAndHigher.o2.getBeginCol(), this.prefs.getAssignPunctuation(),
+                    node);
+            node.value.accept(this);
+        }
+
         afterNode(node);
         return null;
     }

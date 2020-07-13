@@ -1554,14 +1554,11 @@ public class NodeUtils {
             stmtType stmtType = body[i];
             if (stmtType instanceof Assign) {
                 Assign assign = (Assign) stmtType;
-                if (assign.type != null) {
-                    String representationString = getRepresentationString(assign.type);
-                    if (attributeWithoutSelf.equals(representationString)) {
-                        return new TypeInfo(assign.value);
-                    }
-                }
                 if (assign.targets != null && assign.targets.length == 1) {
                     if (attributeWithoutSelf.equals(getRepresentationString(assign.targets[0]))) {
+                        if (assign.type != null) {
+                            return new TypeInfo(assign.type);
+                        }
                         ArrayList<commentType> collectComments = NodeUtils.collectComments(stmtType);
                         for (commentType commentType : collectComments) {
                             if (commentType.id != null) {

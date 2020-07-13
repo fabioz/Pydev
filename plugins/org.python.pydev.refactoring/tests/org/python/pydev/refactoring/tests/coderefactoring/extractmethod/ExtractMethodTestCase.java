@@ -62,7 +62,8 @@ public class ExtractMethodTestCase extends AbstractIOTestCase {
         MockupExtractMethodConfig config = initConfig();
 
         IDocument doc = new Document(data.source);
-        Module astModule = VisitorFactory.getRootNode(doc, createVersionProvider());
+        IGrammarVersionProvider versionProvider = createVersionProvider();
+        Module astModule = VisitorFactory.getRootNode(doc, versionProvider);
         String name = data.file.getName();
         name = name.substring(0, name.length() - EXTENSION);
         ModuleAdapter module = new ModuleAdapter(null, data.file, doc, astModule, new PythonNatureStub());
@@ -73,18 +74,7 @@ public class ExtractMethodTestCase extends AbstractIOTestCase {
         ICoreTextSelection selection = new CoreTextSelection(doc, data.sourceSelection.getOffset(),
                 data.sourceSelection.getLength());
 
-        RefactoringInfo info = new RefactoringInfo(doc, selection, new IGrammarVersionProvider() {
-
-            @Override
-            public int getGrammarVersion() throws MisconfigurationException {
-                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
-            }
-
-            @Override
-            public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions() throws MisconfigurationException {
-                return null;
-            }
-        });
+        RefactoringInfo info = new RefactoringInfo(doc, selection, versionProvider);
 
         MockupExtractMethodRequestProcessor requestProcessor = setupRequestProcessor(config, module, info);
 
@@ -127,7 +117,8 @@ public class ExtractMethodTestCase extends AbstractIOTestCase {
             renameMap.put(variable, newName);
         }
 
-        return new MockupExtractMethodRequestProcessor(scope, info.getExtendedSelection(), parsedSelection, deducer,
+        return new MockupExtractMethodRequestProcessor(scope, info.getExtendedSelection(), info.getVersionProvider(),
+                parsedSelection, deducer,
                 renameMap, config.getOffsetStrategy());
     }
 

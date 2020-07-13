@@ -182,6 +182,11 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
             nextCol();
         }
 
+        if (node.type != null) {
+            node.type.accept(this);
+            nextCol();
+        }
+
         if (node.value != null) {
             node.value.accept(this);
         }

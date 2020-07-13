@@ -46,6 +46,8 @@ public class AssignDefinition extends Definition {
      */
     public final exprType nodeValue;
 
+    public final exprType nodeType;
+
     /**
      * If it's an assign we should unpack.
      *
@@ -66,12 +68,13 @@ public class AssignDefinition extends Definition {
      * @param nodeValue
      * @param unpackPos
      */
-    public AssignDefinition(String value, String target, int targetPos, Assign ast, int line, int col,
-            ILocalScope scope, IModule module, exprType nodeValue, int unpackPos) {
-        super(line, col, value, ast, scope, module);
+    public AssignDefinition(String value, String type, String target, int targetPos, Assign ast, int line, int col,
+            ILocalScope scope, IModule module, exprType nodeValue, exprType nodeType, int unpackPos) {
+        super(line, col, value, type, nodeType, ast, scope, module);
         this.target = target;
         this.targetPos = targetPos;
         this.nodeValue = nodeValue;
+        this.nodeType = nodeType;
         this.unpackPos = unpackPos;
     }
 }

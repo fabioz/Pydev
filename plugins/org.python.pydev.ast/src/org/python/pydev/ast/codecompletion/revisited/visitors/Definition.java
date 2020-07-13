@@ -25,6 +25,8 @@ import org.python.pydev.core.ITypeInfo;
 import org.python.pydev.core.IterTokenEntry;
 import org.python.pydev.core.TokensList;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Assign;
+import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.FullRepIterable;
@@ -49,10 +51,26 @@ public class Definition implements IDefinition {
      *
      * e.g.
      * tok = ClassA()
+     * or
+     * tok:type = ClassA()
      *
      * the value equals ClassA
      */
     public final String value;
+
+    /**
+     * Type of the token.
+     *
+     * e.g.
+     * tok: type
+     * or
+     * tok: type = ClassA()
+     *
+     * the type equals type
+     */
+    public final String type;
+
+    public final exprType nodeType;
 
     /**
      * This is the module where the definition is.
@@ -83,6 +101,14 @@ public class Definition implements IDefinition {
         this(line, col, value, ast, scope, module, false);
     }
 
+    public Definition(int line, int col, String value, String type, SimpleNode ast, ILocalScope scope, IModule module) {
+        this(line, col, value, type, ast, scope, module, false);
+    }
+
+    public Definition(int line, int col, String value, String type, exprType nodeType, SimpleNode ast,
+            ILocalScope scope, IModule module) {
+        this(line, col, value, type, nodeType, ast, scope, module, false);
+    }
     /**
      * The ast and scope may be null if the definition points to the module (and not some token defined
      * within it).
@@ -101,6 +127,57 @@ public class Definition implements IDefinition {
         this.line = line;
         this.col = col;
         this.value = value;
+        this.type = "";
+        if (ast instanceof Assign) {
+            this.nodeType = ((Assign) ast).type;
+        } else {
+            this.nodeType = null;
+        }
+        this.ast = ast;
+        this.scope = scope;
+        this.module = module;
+        this.foundAsLocal = foundAsLocal;
+    }
+
+    public Definition(int line, int col, String value, String type, SimpleNode ast, ILocalScope scope, IModule module,
+            boolean foundAsLocal) {
+        Assert.isNotNull(value, "Invalid value.");
+        Assert.isNotNull(module, "Invalid Module.");
+
+        if (scope == null) {
+            scope = new LocalScope(module.getNature());
+        }
+
+        this.line = line;
+        this.col = col;
+        this.value = value;
+        this.type = type;
+        if (ast instanceof Assign) {
+            this.nodeType = ((Assign) ast).type;
+        } else {
+            this.nodeType = null;
+        }
+        this.ast = ast;
+        this.scope = scope;
+        this.module = module;
+        this.foundAsLocal = foundAsLocal;
+    }
+
+    public Definition(int line, int col, String value, String type, exprType nodeType, SimpleNode ast,
+            ILocalScope scope, IModule module,
+            boolean foundAsLocal) {
+        Assert.isNotNull(value, "Invalid value.");
+        Assert.isNotNull(module, "Invalid Module.");
+
+        if (scope == null) {
+            scope = new LocalScope(module.getNature());
+        }
+
+        this.line = line;
+        this.col = col;
+        this.value = value;
+        this.type = type;
+        this.nodeType = nodeType;
         this.ast = ast;
         this.scope = scope;
         this.module = module;
@@ -118,12 +195,18 @@ public class Definition implements IDefinition {
         this.line = tok.getLineDefinition();
         this.col = tok.getColDefinition();
         this.value = tok.getRepresentation();
+        this.type = "";
         if (tok instanceof SourceToken) {
             this.ast = ((SourceToken) tok).getAst();
         } else {
             this.ast = null;
         }
 
+        if (ast instanceof Assign) {
+            this.nodeType = ((Assign) ast).type;
+        } else {
+            this.nodeType = null;
+        }
         if (scope == null) {
             scope = new LocalScope(module.getNature());
         }

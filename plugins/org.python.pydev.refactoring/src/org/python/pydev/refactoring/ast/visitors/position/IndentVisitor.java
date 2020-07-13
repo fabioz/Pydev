@@ -90,7 +90,9 @@ public class IndentVisitor extends VisitorBase {
 
     @Override
     public Object visitAssign(Assign node) throws Exception {
-        visit(node.targets[0]);
+        if (node.targets.length > 0) {
+            visit(node.targets[0]);
+        }
         return null;
     }
 

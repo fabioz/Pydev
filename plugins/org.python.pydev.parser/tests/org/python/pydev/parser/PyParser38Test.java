@@ -9,6 +9,10 @@ package org.python.pydev.parser;
 import java.util.List;
 
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Assign;
+import org.python.pydev.parser.jython.ast.Module;
+import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
@@ -192,6 +196,63 @@ public class PyParser38Test extends PyParserTestBase {
         parseLegalDocStr("def parse():\n    yield x, *y");
         parseLegalDocStr("def parse():\n    yield (x, *y)");
         parseLegalDocStr("def parse():\n    yield ()");
+    }
+
+    public void testTypeDeclaration() {
+        SimpleNode node = parseLegalDocStr("attribute: str");
+        assertTrue(node instanceof Module);
+
+        Module m = (Module) node;
+
+        assertEquals(1, m.body.length);
+        assertTrue(m.body[0] instanceof Assign);
+        Assign a = (Assign) m.body[0];
+
+        assertTrue(a.type instanceof Name);
+        Name type = (Name) a.type;
+        assertEquals("str", type.id);
+        assertEquals(1, type.beginLine);
+        assertEquals(12, type.beginColumn);
+
+        assertEquals(null, a.value);
+
+        assertEquals(1, a.targets.length);
+        assertTrue(a.targets[0] instanceof Name);
+        Name target = (Name) a.targets[0];
+        assertEquals("attribute", target.id);
+        assertEquals(1, target.beginLine);
+        assertEquals(1, target.beginColumn);
+
+    }
+
+    public void testTypeAssignDeclaration() {
+        SimpleNode node = parseLegalDocStr("attribute: str = 'something'");
+        assertTrue(node instanceof Module);
+
+        Module m = (Module) node;
+
+        assertEquals(1, m.body.length);
+        assertTrue(m.body[0] instanceof Assign);
+        Assign a = (Assign) m.body[0];
+
+        assertTrue(a.type instanceof Name);
+        Name type = (Name) a.type;
+        assertEquals("str", type.id);
+        assertEquals(1, type.beginLine);
+        assertEquals(12, type.beginColumn);
+
+        assertTrue(a.value instanceof Str);
+        Str value = (Str) a.value;
+        assertEquals("something", value.s);
+        assertEquals(1, value.beginLine);
+        assertEquals(18, value.beginColumn);
+
+        assertEquals(1, a.targets.length);
+        assertTrue(a.targets[0] instanceof Name);
+        Name target = (Name) a.targets[0];
+        assertEquals("attribute", target.id);
+        assertEquals(1, target.beginLine);
+        assertEquals(1, target.beginColumn);
     }
 
 }
