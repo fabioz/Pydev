@@ -838,7 +838,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
             throws Exception {
         exprType type;
         exprType[] exprs;
-        if (arity >= 3 || stack.nodes.size() >= 3) {
+        if (arity >= 3) {
             exprType value = (exprType) stack.popNode();
             type = (exprType) stack.popNode();
             exprs = makeExprs(arity - 2);
