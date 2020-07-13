@@ -375,9 +375,16 @@ public class AssignAnalysis {
                 }
 
                 if (lookForAssign) {
-                    TokensList tokens = searchInLocalTokens(manager, state, lookForAssign,
-                            definition.line, definition.col, definition.module, assignDefinition.scope,
-                            assignDefinition.value);
+                    TokensList tokens = null;
+                    if (assign.type != null) {
+                        tokens = searchInLocalTokens(manager, state, lookForAssign,
+                                definition.line, definition.col, definition.module, assignDefinition.scope,
+                                assignDefinition.type);
+                    } else if (assign.value != null) {
+                        tokens = searchInLocalTokens(manager, state, lookForAssign,
+                                definition.line, definition.col, definition.module, assignDefinition.scope,
+                                assignDefinition.value);
+                    }
                     if (tokens != null && tokens.size() > 0) {
                         ret.addAll(tokens);
                         lookForAssign = false;
