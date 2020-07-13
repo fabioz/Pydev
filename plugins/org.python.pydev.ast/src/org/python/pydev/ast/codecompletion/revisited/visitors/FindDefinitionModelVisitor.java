@@ -359,17 +359,22 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
 
                 if (tokenToFind.equals(rep)) { //note, order of equals is important (because one side may be null).
                     exprType nodeValue = node.value;
+                    exprType nodeType = node.type;
                     String value = NodeUtils.getFullRepresentationString(nodeValue);
+                    String type = NodeUtils.getFullRepresentationString(nodeType);
                     if (value == null) {
                         value = "";
+                    }
+                    if (type == null) {
+                        type = "";
                     }
 
                     //get the line and column correspondent to the target
                     int line = NodeUtils.getLineDefinition(target);
                     int col = NodeUtils.getColDefinition(target);
 
-                    AssignDefinition definition = new AssignDefinition(value, rep, i, node, line, col, scope,
-                            module.get(), nodeValue, unpackPos);
+                    AssignDefinition definition = new AssignDefinition(value, type, rep, i, node, line, col, scope,
+                            module.get(), nodeValue, nodeType, unpackPos);
 
                     //mark it as global (if it was found as global in some of the previous contexts).
                     for (Set<String> globals : globalDeclarationsStack) {

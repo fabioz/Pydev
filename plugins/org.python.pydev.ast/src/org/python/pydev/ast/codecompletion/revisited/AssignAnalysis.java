@@ -391,6 +391,13 @@ public class AssignAnalysis {
                 ICompletionState copy = state.getCopy();
                 if (definition.ast instanceof Attribute) {
                     copy.setActivationToken(NodeUtils.getFullRepresentationString(definition.ast));
+                } else if (definition.ast instanceof Assign) {
+                    Assign assign = (Assign) definition.ast;
+                    if (assign.value != null) {
+                        copy.setActivationToken(definition.value);
+                    } else if (assign.type != null) {
+                        copy.setActivationToken(definition.type);
+                    }
                 } else {
                     copy.setActivationToken(definition.value);
                 }

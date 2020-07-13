@@ -1549,9 +1549,11 @@ public class NodeUtils {
             if (stmtType instanceof Assign) {
                 Assign assign = (Assign) stmtType;
                 if (assign.type != null) {
-                    String representationString = getRepresentationString(assign.type);
-                    if (attributeWithoutSelf.equals(representationString)) {
-                        return new TypeInfo(assign.value);
+                    for (exprType target : assign.targets) {
+                        String representationString = getRepresentationString(target);
+                        if (attributeWithoutSelf.equals(representationString)) {
+                            return new TypeInfo(assign.type);
+                        }
                     }
                 }
                 if (assign.targets != null && assign.targets.length == 1) {

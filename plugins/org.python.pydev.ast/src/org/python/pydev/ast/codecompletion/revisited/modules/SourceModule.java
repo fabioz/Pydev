@@ -502,8 +502,11 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                     if (assign.value instanceof Call) {
                                         lookingFor = LookingFor.LOOKING_FOR_INSTANCED_VARIABLE;
                                     }
-                                    value = NodeUtils.getRepresentationString(assign.value);
-                                    definitions = findDefinition(initialState.getCopyWithActTok(value), d.line, d.col,
+                                    if (assign.value != null) {
+                                        value = NodeUtils.getRepresentationString(assign.value);
+                                    }
+                                    definitions = findDefinition(initialState.getCopyWithActTok(value), d.line,
+                                            d.col,
                                             manager.getNature());
                                 } else if (d.ast instanceof ClassDef) {
                                     TokensList toks = ((SourceModule) d.module).getClassToks(initialState,
