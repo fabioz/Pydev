@@ -350,7 +350,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
                     org.python.pydev.parser.jython.ast.List valueList = (org.python.pydev.parser.jython.ast.List) node.value;
                     checkTupleAssignTarget(targetTuple, valueList.elts, false);
 
-                } else {
+                } else if (node.value != null) {
                     checkTupleAssignTarget(targetTuple, new exprType[] { node.value }, true);
                 }
 

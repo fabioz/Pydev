@@ -57,7 +57,9 @@ public class PropertyVisitor extends AbstractContextVisitor<PropertyAdapter> {
     public Object visitAssign(Assign node) throws Exception {
         if (nodeHelper.isPropertyAssign(node)) {
             stack.push(node);
-            visit(node.value);
+            if (node.value != null) {
+                visit(node.value);
+            }
             stack.pop();
         }
         return null;
