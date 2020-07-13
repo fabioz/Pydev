@@ -105,6 +105,10 @@ public class Definition implements IDefinition {
         this(line, col, value, type, ast, scope, module, false);
     }
 
+    public Definition(int line, int col, String value, String type, exprType nodeType, SimpleNode ast,
+            ILocalScope scope, IModule module) {
+        this(line, col, value, type, nodeType, ast, scope, module, false);
+    }
     /**
      * The ast and scope may be null if the definition points to the module (and not some token defined
      * within it).

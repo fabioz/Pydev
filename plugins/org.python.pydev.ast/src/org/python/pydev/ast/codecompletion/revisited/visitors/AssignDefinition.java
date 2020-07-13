@@ -70,7 +70,7 @@ public class AssignDefinition extends Definition {
      */
     public AssignDefinition(String value, String type, String target, int targetPos, Assign ast, int line, int col,
             ILocalScope scope, IModule module, exprType nodeValue, exprType nodeType, int unpackPos) {
-        super(line, col, value, type, ast, scope, module);
+        super(line, col, value, type, nodeType, ast, scope, module);
         this.target = target;
         this.targetPos = targetPos;
         this.nodeValue = nodeValue;
