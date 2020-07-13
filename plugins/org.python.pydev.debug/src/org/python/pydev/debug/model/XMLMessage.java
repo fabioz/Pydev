@@ -7,7 +7,7 @@
 /*
  * Created on May 20, 2006
  */
-package com.python.pydev.debug.model;
+package org.python.pydev.debug.model;
 
 import java.io.ByteArrayInputStream;
 import java.net.URLDecoder;

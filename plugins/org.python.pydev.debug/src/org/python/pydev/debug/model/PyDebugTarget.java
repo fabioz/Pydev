@@ -10,6 +10,8 @@
  */
 package org.python.pydev.debug.model;
 
+import java.io.IOException;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.debug.core.DebugException;
@@ -17,23 +19,29 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IBreakpointManager;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IProcess;
+import org.eclipse.debug.ui.DebugUITools;
+import org.eclipse.debug.ui.IDebugUIConstants;
+import org.eclipse.ui.console.IConsole;
+import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.console.ConsoleCompletionsPageParticipant;
+import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import org.python.pydev.debug.model.remote.AbstractRemoteDebugger;
+import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * Debugger class that represents a single python process.
- * 
+ *
  * It deals with events from RemoteDebugger.
  * Breakpoint updating.
  */
 public class PyDebugTarget extends AbstractDebugTarget {
     //private ILaunch launch;
     public volatile IProcess process;
-    /** 
+    /**
      * TODO consider instead of global access to project, have {@link ConsoleCompletionsPageParticipant#init(org.eclipse.ui.part.IPageBookViewPage, org.eclipse.ui.console.IConsole)
      * instead call something like getInterpreterInfo which then PyDebugTargetConsole (which isn't connected to a project)
-     * has some hope of resolving 
+     * has some hope of resolving
      */
     public final IProject project;
     public volatile boolean finishedInit = false;
@@ -102,6 +110,37 @@ public class PyDebugTarget extends AbstractDebugTarget {
             return true;
         }
         return process.isTerminated();
+    }
+
+    @Override
+    public void processCommand(String sCmdCode, String sSeqCode, String payload) {
+        if (Integer.parseInt(sCmdCode) == AbstractDebuggerCommand.CMD_WRITE_TO_CONSOLE) {
+            IConsole console = DebugUITools.getConsole(this.getProcess());
+            if (console instanceof org.eclipse.debug.ui.console.IConsole) {
+                //payload = <xml><io s="%s" ctx="%s"/></xml>
+                try {
+                    org.eclipse.debug.ui.console.IConsole processConsole = (org.eclipse.debug.ui.console.IConsole) console;
+                    Tuple<String, Integer> message = XMLMessage.getMessage(payload);
+                    if (!message.o1.isEmpty()) {
+                        IOConsoleOutputStream stream;
+                        if (message.o2 == 1) {
+                            stream = processConsole.getStream(IDebugUIConstants.ID_STANDARD_OUTPUT_STREAM);
+                        } else {
+                            stream = processConsole.getStream(IDebugUIConstants.ID_STANDARD_ERROR_STREAM);
+                        }
+                        if (stream != null) {
+                            stream.write(message.o1);
+                        } else {
+                            Log.log("Unable to find stream for context: " + message.o2);
+                        }
+                    }
+                } catch (IOException e) {
+                    Log.log(e);
+                }
+            }
+        } else {
+            super.processCommand(sCmdCode, sSeqCode, payload);
+        }
     }
 
     @Override
