@@ -46,6 +46,8 @@ public class AssignDefinition extends Definition {
      */
     public final exprType nodeValue;
 
+    public final exprType nodeType;
+
     /**
      * If it's an assign we should unpack.
      *
