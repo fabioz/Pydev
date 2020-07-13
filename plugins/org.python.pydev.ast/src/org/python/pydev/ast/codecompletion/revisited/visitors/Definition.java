@@ -25,6 +25,8 @@ import org.python.pydev.core.ITypeInfo;
 import org.python.pydev.core.IterTokenEntry;
 import org.python.pydev.core.TokensList;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Assign;
+import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.FullRepIterable;
@@ -67,6 +69,8 @@ public class Definition implements IDefinition {
      * the type equals type
      */
     public final String type;
+
+    public final exprType nodeType;
 
     /**
      * This is the module where the definition is.
@@ -120,6 +124,11 @@ public class Definition implements IDefinition {
         this.col = col;
         this.value = value;
         this.type = "";
+        if (ast instanceof Assign) {
+            this.nodeType = ((Assign) ast).type;
+        } else {
+            this.nodeType = null;
+        }
         this.ast = ast;
         this.scope = scope;
         this.module = module;
@@ -139,6 +148,32 @@ public class Definition implements IDefinition {
         this.col = col;
         this.value = value;
         this.type = type;
+        if (ast instanceof Assign) {
+            this.nodeType = ((Assign) ast).type;
+        } else {
+            this.nodeType = null;
+        }
+        this.ast = ast;
+        this.scope = scope;
+        this.module = module;
+        this.foundAsLocal = foundAsLocal;
+    }
+
+    public Definition(int line, int col, String value, String type, exprType nodeType, SimpleNode ast,
+            ILocalScope scope, IModule module,
+            boolean foundAsLocal) {
+        Assert.isNotNull(value, "Invalid value.");
+        Assert.isNotNull(module, "Invalid Module.");
+
+        if (scope == null) {
+            scope = new LocalScope(module.getNature());
+        }
+
+        this.line = line;
+        this.col = col;
+        this.value = value;
+        this.type = type;
+        this.nodeType = nodeType;
         this.ast = ast;
         this.scope = scope;
         this.module = module;
@@ -163,6 +198,11 @@ public class Definition implements IDefinition {
             this.ast = null;
         }
 
+        if (ast instanceof Assign) {
+            this.nodeType = ((Assign) ast).type;
+        } else {
+            this.nodeType = null;
+        }
         if (scope == null) {
             scope = new LocalScope(module.getNature());
         }
