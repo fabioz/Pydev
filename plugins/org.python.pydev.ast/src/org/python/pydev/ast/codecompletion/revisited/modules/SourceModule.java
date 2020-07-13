@@ -502,7 +502,10 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                     if (assign.value instanceof Call) {
                                         lookingFor = LookingFor.LOOKING_FOR_INSTANCED_VARIABLE;
                                     }
-                                    if (assign.value != null) {
+                                    if (assign.type != null) {
+                                        value = NodeUtils.getRepresentationString(assign.type);
+                                        lookingFor = LookingFor.LOOKING_FOR_INSTANCED_VARIABLE;
+                                    } else if (assign.value != null) {
                                         value = NodeUtils.getRepresentationString(assign.value);
                                     }
                                     definitions = findDefinition(initialState.getCopyWithActTok(value), d.line,
