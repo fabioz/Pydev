@@ -830,7 +830,11 @@ public final class PyAutoIndentStrategy implements IHandleScriptAutoEditStrategy
                         }
                     }
                     if (addRegular) {
-                        command.setText("(self):");
+                        if (line.endsWith("__exit__")) {
+                            command.setText("(self, exc_type, exc_val, exc_tb):");
+                        } else {
+                            command.setText("(self):");
+                        }
                         command.setCaretOffset(command.getOffset() + 5);
                     } else {
                         command.setText("():");
@@ -838,11 +842,7 @@ public final class PyAutoIndentStrategy implements IHandleScriptAutoEditStrategy
                     }
                 }
             } else if (hasMethodDef) {
-                if (line.endsWith("__exit__")) {
-                    command.setText("(self, exc_type, exc_val, exc_tb):");
-                } else {
-                    command.setText("():");
-                }
+                command.setText("():");
                 command.setCaretOffset(command.getOffset() + 1);
             } else {
                 throw new RuntimeException(PyAutoIndentStrategy.class.toString()

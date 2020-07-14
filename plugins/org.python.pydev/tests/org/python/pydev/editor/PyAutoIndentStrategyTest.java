@@ -1299,7 +1299,9 @@ public class PyAutoIndentStrategyTest extends TestCase {
 
     public void testExitAutoSelf() {
         strategy.setIndentPrefs(new TestIndentPrefs(false, 4, true));
-        String doc = "def __exit__";
+        String doc = ""
+                + "class A:\r\n" +
+                "    def __exit__";
         DocCmd docCmd = new DocCmd(doc.length(), 0, "(");
         strategy.customizeDocumentCommand(new Document(doc), docCmd);
         String expected = "(self, exc_type, exc_val, exc_tb):";
