@@ -1297,6 +1297,15 @@ public class PyAutoIndentStrategyTest extends TestCase {
         assertEquals(expected, docCmd.text);
     }
 
+    public void testExitAutoSelf() {
+        strategy.setIndentPrefs(new TestIndentPrefs(false, 4, true));
+        String doc = "def __exit__";
+        DocCmd docCmd = new DocCmd(doc.length(), 0, "(");
+        strategy.customizeDocumentCommand(new Document(doc), docCmd);
+        String expected = "(self, exc_type, exc_val, exc_tb):";
+        assertEquals(expected, docCmd.text);
+    }
+
     public void testAutoCls() {
         TestIndentPrefs testIndentPrefs = new TestIndentPrefs(false, 4, true);
         strategy.setIndentPrefs(testIndentPrefs);
