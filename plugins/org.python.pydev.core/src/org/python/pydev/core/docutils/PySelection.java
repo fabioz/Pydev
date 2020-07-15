@@ -743,6 +743,9 @@ public final class PySelection extends TextSelectionUtils {
 
         String foundDedent = null;
         String lowestStr = null;
+        boolean quotesOpen = false;
+        boolean singleQuotesOpen = false;
+        Tuple<Boolean, Boolean> isStringOpen;
 
         while (iterator.hasNext()) {
             if (mustHaveIndentLowerThan == 0) {
@@ -751,7 +754,13 @@ public final class PySelection extends TextSelectionUtils {
             String line = iterator.next();
             String trimmed = line.trim();
 
-            if (trimmed.startsWith("#")) {
+            isStringOpen = isLineStringOpen(line, quotesOpen, singleQuotesOpen);
+            if (isStringOpen != null) {
+                quotesOpen = isStringOpen.o1;
+                singleQuotesOpen = isStringOpen.o2;
+            }
+
+            if (quotesOpen || singleQuotesOpen || trimmed.startsWith("#")) {
                 continue;
             }
 
@@ -1619,4 +1628,33 @@ public final class PySelection extends TextSelectionUtils {
         return -1;
     }
 
+    public Tuple<Boolean, Boolean> isLineStringOpen(String line, boolean openQuotes, boolean openSingleQuotes) {
+        FastStringBuffer buf = new FastStringBuffer(line.trim(), -1);
+        boolean hasQuotes = false;
+        boolean hasSingleQuotes = false;
+        while (!buf.isEmpty()) {
+            if (buf.endsWith("\"\"\"")) {
+                openQuotes = !openQuotes;
+                hasQuotes = true;
+            } else if (buf.endsWith("'''")) {
+                if (!openQuotes) {
+                    openSingleQuotes = !openSingleQuotes;
+                    hasSingleQuotes = true;
+                }
+            } else {
+                buf.deleteLast();
+                continue;
+            }
+            buf.deleteLastChars(3);
+        }
+        if (hasQuotes || hasSingleQuotes) {
+            if (openQuotes && openSingleQuotes) {
+                //in case it has something like """ """ ''' """ '''
+                openSingleQuotes = false;
+            }
+            return new Tuple<Boolean, Boolean>(openQuotes, openSingleQuotes);
+        } else {
+            return null;
+        }
+    }
 }
