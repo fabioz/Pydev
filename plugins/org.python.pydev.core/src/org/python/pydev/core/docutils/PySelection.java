@@ -1177,7 +1177,7 @@ public final class PySelection extends TextSelectionUtils {
     }
 
     //spaces* 'def' space+ identifier space* ( (space|char|.|,|=|*|(|)|'|")* ):
-    private static final Pattern FunctionPattern = Pattern.compile("\\s*def\\s+\\w*.*", Pattern.DOTALL);
+    private static final Pattern FunctionPattern = Pattern.compile("\\s*def\\s+(\\w*).*", Pattern.DOTALL);
 
     //spaces* 'class' space+ identifier space* (? (.|char|space |,)* )?
     private static final Pattern ClassPattern = Pattern.compile("\\s*class\\s+\\w*.*", Pattern.DOTALL);
@@ -1627,7 +1627,15 @@ public final class PySelection extends TextSelectionUtils {
         }
         return -1;
     }
-
+  
+    public String getFunctionName(String line) {
+        Matcher m = FunctionPattern.matcher(line);
+        if (m.matches()) {
+            return line.substring(m.start(1), m.end(1));
+        }
+        return null;
+    }
+  
     public Tuple<Boolean, Boolean> isLineStringOpen(String line, boolean openQuotes, boolean openSingleQuotes) {
         FastStringBuffer buf = new FastStringBuffer(line.trim(), -1);
         boolean hasQuotes = false;

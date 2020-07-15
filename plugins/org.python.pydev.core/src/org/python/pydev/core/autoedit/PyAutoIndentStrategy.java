@@ -830,7 +830,11 @@ public final class PyAutoIndentStrategy implements IHandleScriptAutoEditStrategy
                         }
                     }
                     if (addRegular) {
-                        command.setText("(self):");
+                        if ("__exit__".equals(ps.getFunctionName(line))) {
+                            command.setText("(self, exc_type, exc_val, exc_tb):");
+                        } else {
+                            command.setText("(self):");
+                        }
                         command.setCaretOffset(command.getOffset() + 5);
                     } else {
                         command.setText("():");
