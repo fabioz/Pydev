@@ -442,6 +442,28 @@ public class AddTokenAndImportStatementTest extends TestCase {
                 "def method2():\r\n" +
                 "    \"\"\"Some docstring here\"\"\"\r\n" +
                 "\r\n" +
+                "    sys";
+        String expectedDoc = "def method():\r\n" +
+                "    pass\r\n" +
+                "\r\n" +
+                "\r\n" +
+                "def method2():\r\n" +
+                "    \"\"\"Some docstring here\"\"\"\r\n" +
+                "    import sys\r\n" +
+                "\r\n" +
+                "    sys";
+
+        checkLocalImport(baseDoc, "import sys", expectedDoc, true);
+    }
+
+    public void testLocalImportAfterDocString2() throws Exception {
+        String baseDoc = "def method():\r\n" +
+                "    pass\r\n" +
+                "\r\n" +
+                "\r\n" +
+                "def method2():\r\n" +
+                "    \"\"\"Some docstring here\"\"\"\r\n" +
+                "\r\n" +
                 "    x = \"\"\"\r\n" +
                 "some string\r\n" +
                 "\"\"\"\r\n" +
@@ -462,7 +484,7 @@ public class AddTokenAndImportStatementTest extends TestCase {
         checkLocalImport(baseDoc, "import sys", expectedDoc, true);
     }
 
-    public void testLocalImportAfterDocString2() throws Exception {
+    public void testLocalImportAfterDocString3() throws Exception {
         String baseDoc = "def method():\r\n" +
                 "    pass\r\n" +
                 "\r\n" +
