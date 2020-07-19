@@ -9,8 +9,9 @@ package org.python.pydev.shared_ui.quick_outline;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.python.pydev.shared_core.structure.DataAndImageTreeNode;
+import org.python.pydev.shared_ui.dialogs.ISizableContentProvider;
 
-public class DataAndImageTreeNodeContentProvider implements ITreeContentProvider {
+public class DataAndImageTreeNodeContentProvider implements ITreeContentProvider, ISizableContentProvider {
 
     @Override
     public void dispose() {
@@ -47,6 +48,35 @@ public class DataAndImageTreeNodeContentProvider implements ITreeContentProvider
         @SuppressWarnings("rawtypes")
         DataAndImageTreeNode m = (DataAndImageTreeNode) element;
         return m.hasChildren();
+    }
+
+    @SuppressWarnings("rawtypes")
+    @Override
+    public boolean isBig(Object parent) {
+        final Counter counter = new Counter();
+        if (parent == null) {
+            return false;
+        }
+        // We consider a tree with a size of 400 items to be big.
+        int SIZE_TO_CONSIDER_BIG = 400;
+        DataAndImageTreeNode m = (DataAndImageTreeNode) parent;
+        m.traverse((DataAndImageTreeNode c) -> {
+            counter.increment(c.childrenCount());
+            if (counter.count > SIZE_TO_CONSIDER_BIG) {
+                return false;
+            }
+            return true;
+        });
+        return counter.count > SIZE_TO_CONSIDER_BIG;
+    }
+
+}
+
+final class Counter {
+    public int count;
+
+    public void increment(int childrenCount) {
+        count += childrenCount;
     }
 
 }

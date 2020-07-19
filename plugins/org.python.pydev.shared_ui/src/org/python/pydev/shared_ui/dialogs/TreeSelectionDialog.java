@@ -12,6 +12,7 @@ package org.python.pydev.shared_ui.dialogs;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
@@ -46,22 +47,22 @@ import org.python.pydev.shared_ui.utils.IViewWithControls;
 /**
  * This class extends the 'default' element tree selection dialog so that the user is able to filter the matches
  * on the tree (As the org.eclipse.ui.dialogs.ElementListSelectionDialog).
- * 
+ *
  * @author Fabio
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class TreeSelectionDialog extends ElementTreeSelectionDialog implements IViewWithControls {
 
-    private ILabelProvider labelProvider;
-    protected DefaultFilterMatcher fFilterMatcher = new DefaultFilterMatcher();
-    protected ITreeContentProvider contentProvider;
+    private final ILabelProvider labelProvider;
+    protected final DefaultFilterMatcher fFilterMatcher = new DefaultFilterMatcher();
+    protected final ITreeContentProvider contentProvider;
     protected String initialFilter = "";
 
     public final ICallbackWithListeners onControlCreated = new CallbackWithListeners();
     public final ICallbackWithListeners onControlDisposed = new CallbackWithListeners();
 
     /**
-     * Give subclasses a chance to decide if they want to update the contents of the tree in a thread or not. 
+     * Give subclasses a chance to decide if they want to update the contents of the tree in a thread or not.
      */
     protected boolean updateInThread = true;
 
@@ -120,6 +121,7 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog implements I
 
     public TreeSelectionDialog(Shell parent, ILabelProvider labelProvider, ITreeContentProvider contentProvider) {
         super(parent, labelProvider, contentProvider);
+        Assert.isNotNull(contentProvider);
 
         this.labelProvider = labelProvider;
         this.contentProvider = contentProvider;
@@ -158,7 +160,20 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog implements I
             }
         });
         treeViewer.setAutoExpandLevel(AbstractTreeViewer.ALL_LEVELS);
-        treeViewer.expandAll();
+        boolean isBig;
+        if (contentProvider instanceof ISizableContentProvider) {
+            isBig = ((ISizableContentProvider) contentProvider).isBig(treeViewer.getInput());
+        } else {
+            // This isn't a good heuristic (because we don't check for internal items), so,
+            // if some place may have too many items, it's recommended that ISizableContentProvider
+            // is implemented.
+            Object[] children = contentProvider.getChildren(treeViewer.getInput());
+            isBig = children != null && children.length < 100;
+        }
+        if (!isBig) {
+            // i.e.: This may be slow, so, do it only if it's not really that big.
+            treeViewer.expandAll();
+        }
 
         if (this.initialFilter.length() > 0) {
             this.text.setText(this.initialFilter);
@@ -298,7 +313,9 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog implements I
                 if (monitor.isCanceled()) {
                     return;
                 }
-                treeViewer.expandAll();
+                if (text != null && !text.isEmpty()) {
+                    treeViewer.expandAll();
+                }
             } finally {
                 tree.setRedraw(true);
                 tree.getParent().setRedraw(true);
