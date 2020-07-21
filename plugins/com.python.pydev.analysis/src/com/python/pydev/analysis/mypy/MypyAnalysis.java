@@ -86,22 +86,31 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
             userArgsAsList.add("--show-column-numbers");
         }
         boolean foundFollowImports = false;
+        boolean foundCacheDir = false;
         for (String arg : userArgsAsList) {
             if (arg.startsWith("--follow-imports=silent")) {
                 foundFollowImports = true;
+            }
+            if (arg.startsWith("--cache-dir")) {
+                foundCacheDir = true;
             }
         }
         if (!foundFollowImports) {
             // We just want warnings for the current file.
             userArgsAsList.add("--follow-imports=silent");
         }
+        // run mypy in project location
+        IProject project = resource.getProject();
+        File workingDir = project.getLocation().toFile();
+        if (!foundCacheDir) {
+            // Set a cache dir if one is not given.
+            userArgsAsList.add("--cache-dir=" + new File(workingDir, ".mypy_cache").toString());
+        }
+
         cmdList.addAll(userArgsAsList);
         cmdList.add(target);
         String[] args = cmdList.toArray(new String[0]);
 
-        // run mypy in project location
-        IProject project = resource.getProject();
-        File workingDir = project.getLocation().toFile();
         Process process;
 
         // run executable command (mypy or mypy.bat or mypy.exe)
