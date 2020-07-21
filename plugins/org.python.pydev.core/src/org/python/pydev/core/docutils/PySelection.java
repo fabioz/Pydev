@@ -743,9 +743,6 @@ public final class PySelection extends TextSelectionUtils {
 
         String foundDedent = null;
         String lowestStr = null;
-        boolean quotesOpen = false;
-        boolean singleQuotesOpen = false;
-        Tuple<Boolean, Boolean> isStringOpen;
 
         while (iterator.hasNext()) {
             if (mustHaveIndentLowerThan == 0) {
@@ -753,16 +750,6 @@ public final class PySelection extends TextSelectionUtils {
             }
             String line = iterator.next();
             String trimmed = line.trim();
-
-            isStringOpen = isLineStringOpen(line, quotesOpen, singleQuotesOpen);
-            if (isStringOpen != null) {
-                quotesOpen = isStringOpen.o1;
-                singleQuotesOpen = isStringOpen.o2;
-            }
-
-            if (quotesOpen || singleQuotesOpen || trimmed.startsWith("#")) {
-                continue;
-            }
 
             for (String dedent : indentTokens) {
                 if (trimmed.startsWith(dedent)) {
@@ -1627,42 +1614,12 @@ public final class PySelection extends TextSelectionUtils {
         }
         return -1;
     }
-  
+
     public String getFunctionName(String line) {
         Matcher m = FunctionPattern.matcher(line);
         if (m.matches()) {
             return line.substring(m.start(1), m.end(1));
         }
         return null;
-    }
-  
-    public Tuple<Boolean, Boolean> isLineStringOpen(String line, boolean openQuotes, boolean openSingleQuotes) {
-        FastStringBuffer buf = new FastStringBuffer(line.trim(), -1);
-        boolean hasQuotes = false;
-        boolean hasSingleQuotes = false;
-        while (!buf.isEmpty()) {
-            if (buf.endsWith("\"\"\"")) {
-                openQuotes = !openQuotes;
-                hasQuotes = true;
-            } else if (buf.endsWith("'''")) {
-                if (!openQuotes) {
-                    openSingleQuotes = !openSingleQuotes;
-                    hasSingleQuotes = true;
-                }
-            } else {
-                buf.deleteLast();
-                continue;
-            }
-            buf.deleteLastChars(3);
-        }
-        if (hasQuotes || hasSingleQuotes) {
-            if (openQuotes && openSingleQuotes) {
-                //in case it has something like """ """ ''' """ '''
-                openSingleQuotes = false;
-            }
-            return new Tuple<Boolean, Boolean>(openQuotes, openSingleQuotes);
-        } else {
-            return null;
-        }
     }
 }
