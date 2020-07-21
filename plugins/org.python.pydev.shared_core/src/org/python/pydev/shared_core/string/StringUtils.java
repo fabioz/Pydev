@@ -1635,6 +1635,36 @@ public final class StringUtils {
         return false;
     }
 
+    public static boolean beginsWith(FastStringBuffer str, char c) {
+        if (str.length() == 0) {
+            return false;
+        }
+        if (str.charAt(0) == c) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean beginsWith(final String str, char c) {
+        if (str.length() == 0) {
+            return false;
+        }
+        if (str.charAt(0) == c) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean beginsWith(final StringBuffer str, char c) {
+        if (str.length() == 0) {
+            return false;
+        }
+        if (str.charAt(0) == c) {
+            return true;
+        }
+        return false;
+    }
+
     public static String safeDecodeByteArray(byte[] b, String baseCharset) {
         try {
             if (baseCharset == null) {

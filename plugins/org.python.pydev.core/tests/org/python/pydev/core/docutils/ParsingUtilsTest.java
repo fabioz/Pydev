@@ -487,6 +487,102 @@ public class ParsingUtilsTest extends TestCase {
         assertEquals(false, it.hasNext());
     }
 
+    public void testReverseIterator1() throws Exception {
+        String str = "" +
+                "class Foo:\n" +
+                "    '''\n" +
+                "    \"\n" +
+                "    b\n" +
+                "    '''a\n" +
+                "    pass\n" +
+                "\n" +
+                "x = 10";
+        Document d = new Document(str);
+        ReversePyDocIterator it = new ReversePyDocIterator(d, false, true, true);
+        assertEquals(-1, it.getLastReturnedLine());
+        assertEquals(true, it.hasNext());
+
+        assertEquals("x = 10", it.next());
+        assertEquals(7, it.getLastReturnedLine());
+        assertEquals(true, it.hasNext());
+
+        assertEquals("", it.next());
+        assertEquals(6, it.getLastReturnedLine());
+        assertEquals(true, it.hasNext());
+
+        assertEquals("    pass", it.next());
+        assertEquals(5, it.getLastReturnedLine());
+        assertEquals(true, it.hasNext());
+
+        assertEquals("       a", it.next());
+        assertEquals(4, it.getLastReturnedLine());
+        assertEquals(true, it.hasNext());
+
+        assertEquals("     ", it.next());
+        assertEquals(3, it.getLastReturnedLine());
+        assertEquals(true, it.hasNext());
+
+        assertEquals("     ", it.next());
+        assertEquals(2, it.getLastReturnedLine());
+        assertEquals(true, it.hasNext());
+
+        assertEquals("       ", it.next());
+        assertEquals(1, it.getLastReturnedLine());
+        assertEquals(true, it.hasNext());
+
+        assertEquals("class Foo:", it.next());
+        assertEquals(0, it.getLastReturnedLine());
+        assertEquals(false, it.hasNext());
+    }
+
+    public void testReverseIterator2() throws Exception {
+        String str = "" +
+                "class Foo:\n" +
+                "    '''\n" +
+                "    \"\n" +
+                "    b\n" +
+                "    '''a\n" +
+                "    pass\n" +
+                "\n" +
+                "x = 10";
+        Document d = new Document(str);
+        ReversePyDocIterator it = new ReversePyDocIterator(d, false, true, true, false, false);
+        assertEquals(-1, it.getLastReturnedLine());
+        assertEquals(true, it.hasNext());
+
+        assertEquals("x = 10", it.next());
+        assertEquals(7, it.getLastReturnedLine());
+        assertEquals(true, it.hasNext());
+
+        assertEquals("", it.next());
+        assertEquals(6, it.getLastReturnedLine());
+        assertEquals(true, it.hasNext());
+
+        assertEquals("    pass", it.next());
+        assertEquals(5, it.getLastReturnedLine());
+        assertEquals(true, it.hasNext());
+
+        assertEquals("       ", it.next());
+        assertEquals(4, it.getLastReturnedLine());
+        assertEquals(true, it.hasNext());
+
+        assertEquals("     ", it.next());
+        assertEquals(3, it.getLastReturnedLine());
+        assertEquals(true, it.hasNext());
+
+        assertEquals("     ", it.next());
+        assertEquals(2, it.getLastReturnedLine());
+        assertEquals(true, it.hasNext());
+
+        assertEquals("       ", it.next());
+        assertEquals(1, it.getLastReturnedLine());
+        assertEquals(true, it.hasNext());
+
+        assertEquals("class Foo:", it.next());
+        assertEquals(0, it.getLastReturnedLine());
+        assertEquals(false, it.hasNext());
+    }
+
     public void testMakeParseable() throws Exception {
         assertEquals("a=1\r\n", ParsingUtils.makePythonParseable("a=1", "\r\n"));
 
