@@ -37,7 +37,7 @@ public class MypyPreferences {
     public static final String DEFAULT_SEARCH_MYPY_LOCATION = LOCATION_SEARCH;
 
     public static final String MYPY_ARGS = "MYPY_ARGS";
-    public static final String DEFAULT_MYPY_ARGS = "--follow-imports=skip --show-column-numbers";
+    public static final String DEFAULT_MYPY_ARGS = "--follow-imports=silent --show-column-numbers";
 
     public static boolean useMypy(IAdaptable projectAdaptable) {
         return PyScopedPreferences.getBoolean(USE_MYPY, projectAdaptable);

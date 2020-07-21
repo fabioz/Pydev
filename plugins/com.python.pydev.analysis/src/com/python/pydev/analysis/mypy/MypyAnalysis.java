@@ -87,13 +87,13 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
         }
         boolean foundFollowImports = false;
         for (String arg : userArgsAsList) {
-            if (arg.startsWith("--follow-imports=skip")) {
+            if (arg.startsWith("--follow-imports=silent")) {
                 foundFollowImports = true;
             }
         }
         if (!foundFollowImports) {
             // We just want warnings for the current file.
-            userArgsAsList.add("--follow-imports=skip");
+            userArgsAsList.add("--follow-imports=silent");
         }
         cmdList.addAll(userArgsAsList);
         cmdList.add(target);
