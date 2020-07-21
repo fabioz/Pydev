@@ -167,7 +167,7 @@ public class TreeSelectionDialog extends ElementTreeSelectionDialog implements I
             // This isn't a good heuristic (because we don't check for internal items), so,
             // if some place may have too many items, it's recommended that ISizableContentProvider
             // is implemented.
-            Object[] children = contentProvider.getChildren(treeViewer.getInput());
+            Object[] children = contentProvider.getElements(treeViewer.getInput());
             isBig = children != null && children.length < 100;
         }
         if (!isBig) {

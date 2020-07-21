@@ -52,14 +52,14 @@ public class DataAndImageTreeNodeContentProvider implements ITreeContentProvider
 
     @SuppressWarnings("rawtypes")
     @Override
-    public boolean isBig(Object parent) {
+    public boolean isBig(Object input) {
         final Counter counter = new Counter();
-        if (parent == null) {
+        if (input == null) {
             return false;
         }
         // We consider a tree with a size of 400 items to be big.
         int SIZE_TO_CONSIDER_BIG = 400;
-        DataAndImageTreeNode m = (DataAndImageTreeNode) parent;
+        DataAndImageTreeNode m = (DataAndImageTreeNode) input;
         m.traverse((DataAndImageTreeNode c) -> {
             counter.increment(c.childrenCount());
             if (counter.count > SIZE_TO_CONSIDER_BIG) {
