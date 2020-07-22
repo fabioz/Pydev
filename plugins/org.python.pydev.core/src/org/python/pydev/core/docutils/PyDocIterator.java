@@ -6,13 +6,11 @@
  */
 package org.python.pydev.core.docutils;
 
-import java.util.Iterator;
-
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.shared_core.string.StringUtils;
 
-public class PyDocIterator implements Iterator<String> {
+public class PyDocIterator implements IPyDocIterator {
 
     private int offset;
     private IDocument doc;
@@ -24,6 +22,7 @@ public class PyDocIterator implements Iterator<String> {
     private boolean changeLiteralsForSpaces = false;
     private int lastReturned = -1;
     private boolean addComments = false;
+    private boolean considerAfterLiteralEnd = true;
 
     public PyDocIterator(IDocument doc, boolean addNewLinesToRet) {
         this(doc, addNewLinesToRet, false, false);
@@ -41,13 +40,20 @@ public class PyDocIterator implements Iterator<String> {
      * @param changeLiteralsForSpaces whether we should replace the literals with spaces (so that we don't loose offset information)
      * @param addComments if true, comments found will be yielded (otherwise, no comments will be shown)
      */
+
     public PyDocIterator(IDocument doc, boolean addNewLinesToRet, boolean returnNewLinesOnLiterals,
             boolean changeLiteralsForSpaces, boolean addComments) {
+        this(doc, addNewLinesToRet, returnNewLinesOnLiterals, changeLiteralsForSpaces, addComments, true);
+    }
+
+    public PyDocIterator(IDocument doc, boolean addNewLinesToRet, boolean returnNewLinesOnLiterals,
+            boolean changeLiteralsForSpaces, boolean addComments, boolean considerAfterLiteralEnd) {
         this(doc);
         this.addNewLinesToRet = addNewLinesToRet;
         this.returnNewLinesOnLiterals = returnNewLinesOnLiterals;
         this.changeLiteralsForSpaces = changeLiteralsForSpaces;
         this.addComments = addComments;
+        this.considerAfterLiteralEnd = considerAfterLiteralEnd;
     }
 
     public PyDocIterator(IDocument doc) {
@@ -57,12 +63,18 @@ public class PyDocIterator implements Iterator<String> {
     /**
      * Changes the current offset in the document. Note: this method is not safe for use after the iteration
      * started!
-     * 
-     * @param offset the offset where this class should start parsing (note: the offset must be a 
+     *
+     * @param offset the offset where this class should start parsing (note: the offset must be a
      * code partition, otherwise the yielded values will be wrong).
      */
+    @Override
     public void setStartingOffset(int offset) {
         this.offset = offset;
+    }
+
+    @Override
+    public void setStartingLine(int line) throws BadLocationException {
+        this.offset = doc.getLineOffset(line + 1);
     }
 
     @Override
@@ -70,6 +82,7 @@ public class PyDocIterator implements Iterator<String> {
         return offset < doc.getLength();
     }
 
+    @Override
     public int getLastReturnedLine() {
         try {
             lastReturned = doc.getLineOfOffset(offset - 1);
@@ -135,6 +148,11 @@ public class PyDocIterator implements Iterator<String> {
                         buf.append(ret);
                         return ret;
                     } else {
+                        if (!inLiteral && !considerAfterLiteralEnd) {
+                            int line = doc.getLineOfOffset(offset);
+                            offset = doc.getLineOffset(line) + doc.getLineLength(line);
+                            return ret;
+                        }
                         buf.append(ret);
                     }
                 }
