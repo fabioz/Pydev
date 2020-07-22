@@ -6,13 +6,11 @@
  */
 package org.python.pydev.core.docutils;
 
-import java.util.Iterator;
-
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.shared_core.string.StringUtils;
 
-public class ReversePyDocIterator implements Iterator<String> {
+public class ReversePyDocIterator implements IPyDocIterator {
 
     private int offset;
     private IDocument doc;
@@ -70,12 +68,14 @@ public class ReversePyDocIterator implements Iterator<String> {
      * @param offset the offset where this class should start parsing (note: the offset must be a
      * code partition, otherwise the yielded values will be wrong).
      */
+    @Override
     public void setStartingOffset(int offset) {
         this.offset = offset;
     }
 
+    @Override
     public void setStartingLine(int line) throws BadLocationException {
-        this.offset = doc.getLineOffset(line);
+        this.offset = doc.getLineOffset(line + 1) + doc.getLineLength(line + 1) - 1;
     }
 
     @Override
@@ -83,11 +83,14 @@ public class ReversePyDocIterator implements Iterator<String> {
         return offset >= 0;
     }
 
+    @Override
     public int getLastReturnedLine() {
-        try {
-            lastReturned = doc.getLineOfOffset(offset + 2);
-        } catch (BadLocationException e) {
-            //ignore (keep the last one)
+        if (offset + 1 != doc.getLength()) {
+            try {
+                lastReturned = doc.getLineOfOffset(offset + 1);
+            } catch (BadLocationException e) {
+                //ignore (keep the last one)
+            }
         }
         return lastReturned;
     }
@@ -97,30 +100,27 @@ public class ReversePyDocIterator implements Iterator<String> {
         try {
 
             char ch = doc.getChar(offset);
+            if (ch == '\n') {
+                offset--;
+                if (doc.getChar(offset) == '\r') {
+                    offset--;
+                }
+                buf.append(ch);
+                ch = doc.getChar(offset);
+            }
+
             while (offset >= literalStart && ch != '\n' && ch != '\r') {
                 ch = doc.getChar(offset);
-                offset--;
-                if (changeLiteralsForSpaces && ch != '\n' && ch != '\r') {
-                    buf.insert(0, ' ');
+                if (ch != '\n' && ch != '\r') {
+                    offset--;
+                    if (changeLiteralsForSpaces) {
+                        buf.insert(0, ' ');
+                    }
                 }
             }
             if (offset < literalStart) {
                 inLiteral = false;
-                offset--;
-                if (changeLiteralsForSpaces) {
-                    buf.insert(0, ' ');
-                }
-                return buf.toString();
             }
-
-            if (ch == '\r') {
-                ch = doc.getChar(offset - 1);
-                if (ch == '\n') {
-                    offset--;
-                    ch = '\n';
-                }
-            }
-            buf.insert(0, ch);
             return buf.toString();
 
         } catch (Exception e) {
@@ -141,19 +141,40 @@ public class ReversePyDocIterator implements Iterator<String> {
                 int initialOffset = offset;
                 String ret = nextInLiteral();
                 if (ret.length() > 0 && initialOffset >= offset) { //if it didn't move in the offset, disregard the results
-                    if (StringUtils.beginsWith(ret, '\r') || StringUtils.beginsWith(ret, '\n')) {
+                    if (StringUtils.endsWith(ret, '\r') || StringUtils.endsWith(ret, '\n')) {
                         if (!addNewLinesToRet) {
-                            ret = ret.substring(1, ret.length());
+                            ret = ret.substring(0, ret.length() - 1);
                         }
                         buf.insert(0, ret);
-                        return ret;
+                        if (inLiteral) {
+                            return ret;
+                        }
                     } else {
                         buf.insert(0, ret);
                     }
                 }
             }
 
-            char ch = 0;
+            char ch = doc.getChar(offset);
+
+            //handle the \r, \n or \r\n
+            if (ch == '\n' || ch == '\r') {
+                if (addNewLinesToRet) {
+                    buf.append(ch);
+                }
+                offset--;
+                ch = doc.getChar(offset);
+                if (ch == '\n') {
+                    if (offset >= 0 && ch == '\r') {
+                        offset--;
+                        ch = doc.getChar(offset);
+                        if (addNewLinesToRet) {
+                            buf.append('\n');
+                        }
+                    }
+                }
+
+            }
 
             ParsingUtils parsingUtils = ParsingUtils.create(doc);
             while (ch != '\r' && ch != '\n' && offset >= 0) {
@@ -174,19 +195,11 @@ public class ReversePyDocIterator implements Iterator<String> {
                         literalStart = parsingUtils.getLiteralStart(offset, ch);
                         String ret = nextInLiteral();
                         if (ret.length() > 0) {
-                            if (StringUtils.beginsWith(ret, '\r') || StringUtils.beginsWith(ret, '\n')) {
-                                if (!addNewLinesToRet) {
-                                    ret = ret.substring(1, ret.length());
-                                }
-                                if (considerAfterLiteralEnd) {
-                                    buf.insert(0, ret);
-                                    return buf.toString();
-                                } else {
-                                    return ret;
-                                }
-
-                            } else {
+                            if (considerAfterLiteralEnd) {
                                 buf.insert(0, ret);
+                                return buf.toString();
+                            } else {
+                                return ret;
                             }
                         }
                     } else {
@@ -201,25 +214,9 @@ public class ReversePyDocIterator implements Iterator<String> {
                     //will be added later
                     buf.insert(0, ch);
                     offset--;
-                } else {
-                    offset--;
                 }
             }
 
-            //handle the \r, \n or \r\n
-            if (ch == '\n' || ch == '\r') {
-                if (addNewLinesToRet) {
-                    buf.insert(0, ch);
-                }
-                if (ch == '\r') {
-                    if (offset >= 0 && doc.getChar(offset) == '\n') {
-                        offset--;
-                        if (addNewLinesToRet) {
-                            buf.insert(0, '\n');
-                        }
-                    }
-                }
-            }
             return buf.toString();
 
         } catch (Exception e) {
