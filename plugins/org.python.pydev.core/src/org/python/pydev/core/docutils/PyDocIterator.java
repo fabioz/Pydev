@@ -60,6 +60,16 @@ public class PyDocIterator implements IPyDocIterator {
         this.doc = doc;
     }
 
+    public PyDocIterator(IDocument doc, int startingLine) throws BadLocationException {
+        this.doc = doc;
+        this.offset = doc.getLineOffset(startingLine);
+        this.addNewLinesToRet = false;
+        this.returnNewLinesOnLiterals = true;
+        this.changeLiteralsForSpaces = false;
+        this.addComments = false;
+        this.considerAfterLiteralEnd = false;
+    }
+
     /**
      * Changes the current offset in the document. Note: this method is not safe for use after the iteration
      * started!
@@ -67,14 +77,8 @@ public class PyDocIterator implements IPyDocIterator {
      * @param offset the offset where this class should start parsing (note: the offset must be a
      * code partition, otherwise the yielded values will be wrong).
      */
-    @Override
     public void setStartingOffset(int offset) {
         this.offset = offset;
-    }
-
-    @Override
-    public void setStartingLine(int line) throws BadLocationException {
-        this.offset = doc.getLineOffset(line + 1);
     }
 
     @Override
