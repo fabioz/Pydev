@@ -434,6 +434,34 @@ public class AddTokenAndImportStatementTest extends TestCase {
         checkLocalImport(baseDoc, "import sys", expectedDoc, true);
     }
 
+    public void testLocalImport2() throws Exception {
+        String baseDoc = "def method():\r\n" +
+                "    pass\r\n" +
+                "\r\n" +
+                "\r\n" +
+                "def method2():\r\n" +
+                "\r\n" +
+                "    s = '''\r\n" +
+                "testing %(x)s\r\n" +
+                "''' % (dict(x=10))\r\n" +
+                "\r\n" +
+                "    sys";
+        String expectedDoc = "def method():\r\n" +
+                "    pass\r\n" +
+                "\r\n" +
+                "\r\n" +
+                "def method2():\r\n" +
+                "\r\n" +
+                "    import sys\r\n" +
+                "    s = '''\r\n" +
+                "testing %(x)s\r\n" +
+                "''' % (dict(x=10))\r\n" +
+                "\r\n" +
+                "    sys";
+
+        checkLocalImport(baseDoc, "import sys", expectedDoc, true);
+    }
+
     public void testLocalImportAfterDocString1() throws Exception {
         String baseDoc = "def method():\r\n" +
                 "    pass\r\n" +

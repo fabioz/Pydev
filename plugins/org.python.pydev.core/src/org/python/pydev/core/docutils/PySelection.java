@@ -734,11 +734,19 @@ public final class PySelection extends TextSelectionUtils {
      */
     public LineStartingScope getLineThatStartsScope(boolean forward, String[] indentTokens, int lineToStart,
             int mustHaveIndentLowerThan) {
-        final DocIterator iterator;
-        if (lineToStart == -1) {
-            iterator = new DocIterator(forward, this);
+        IPyDocIterator iterator;
+        if (!forward) {
+            iterator = new ReversePyDocIterator(getDoc(), false, true, false, false, false);
         } else {
-            iterator = new DocIterator(forward, this, lineToStart, false);
+            iterator = new PyDocIterator(getDoc(), false, true, false, false, false);
+        }
+
+        if (lineToStart != -1) {
+            try {
+                iterator.setStartingLine(lineToStart);
+            } catch (BadLocationException e) {
+                return null;
+            }
         }
 
         String foundDedent = null;
