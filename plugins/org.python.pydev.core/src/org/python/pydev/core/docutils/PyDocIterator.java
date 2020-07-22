@@ -65,7 +65,7 @@ public class PyDocIterator implements IPyDocIterator {
         this.offset = doc.getLineOffset(startingLine);
         this.addNewLinesToRet = false;
         this.returnNewLinesOnLiterals = true;
-        this.changeLiteralsForSpaces = false;
+        this.changeLiteralsForSpaces = true;
         this.addComments = false;
         this.considerAfterLiteralEnd = false;
     }
@@ -118,7 +118,7 @@ public class PyDocIterator implements IPyDocIterator {
             }
 
             if (ch == '\r') {
-                ch = doc.getChar(offset + 1);
+                ch = doc.getChar(offset);
                 if (ch == '\n') {
                     offset++;
                     ch = '\n';
