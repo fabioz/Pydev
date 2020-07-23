@@ -736,14 +736,22 @@ public final class PySelection extends TextSelectionUtils {
             int mustHaveIndentLowerThan) {
         IPyDocIterator iterator;
         if (!forward) {
-            iterator = new ReversePyDocIterator(getDoc(), false, true, false, false, false);
-        } else {
-            iterator = new PyDocIterator(getDoc(), false, true, false, false, false);
-        }
-
-        if (lineToStart != -1) {
             try {
-                iterator.setStartingLine(lineToStart);
+                if (lineToStart != -1) {
+                    iterator = new ReversePyDocIterator(getDoc(), lineToStart);
+                } else {
+                    iterator = new ReversePyDocIterator(getDoc(), getCursorLine());
+                }
+            } catch (BadLocationException e) {
+                return null;
+            }
+        } else {
+            try {
+                if (lineToStart != -1) {
+                    iterator = new PyDocIterator(getDoc(), lineToStart);
+                } else {
+                    iterator = new PyDocIterator(getDoc(), getCursorLine());
+                }
             } catch (BadLocationException e) {
                 return null;
             }
