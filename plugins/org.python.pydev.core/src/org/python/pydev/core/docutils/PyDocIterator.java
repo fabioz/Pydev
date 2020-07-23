@@ -22,7 +22,6 @@ public class PyDocIterator implements IPyDocIterator {
     private boolean changeLiteralsForSpaces = false;
     private int lastReturned = -1;
     private boolean addComments = false;
-    private boolean considerAfterLiteralEnd = true;
 
     public PyDocIterator(IDocument doc, boolean addNewLinesToRet) {
         this(doc, addNewLinesToRet, false, false);
@@ -43,17 +42,11 @@ public class PyDocIterator implements IPyDocIterator {
 
     public PyDocIterator(IDocument doc, boolean addNewLinesToRet, boolean returnNewLinesOnLiterals,
             boolean changeLiteralsForSpaces, boolean addComments) {
-        this(doc, addNewLinesToRet, returnNewLinesOnLiterals, changeLiteralsForSpaces, addComments, true);
-    }
-
-    public PyDocIterator(IDocument doc, boolean addNewLinesToRet, boolean returnNewLinesOnLiterals,
-            boolean changeLiteralsForSpaces, boolean addComments, boolean considerAfterLiteralEnd) {
         this(doc);
         this.addNewLinesToRet = addNewLinesToRet;
         this.returnNewLinesOnLiterals = returnNewLinesOnLiterals;
         this.changeLiteralsForSpaces = changeLiteralsForSpaces;
         this.addComments = addComments;
-        this.considerAfterLiteralEnd = considerAfterLiteralEnd;
     }
 
     public PyDocIterator(IDocument doc) {
@@ -67,7 +60,6 @@ public class PyDocIterator implements IPyDocIterator {
         this.returnNewLinesOnLiterals = true;
         this.changeLiteralsForSpaces = true;
         this.addComments = false;
-        this.considerAfterLiteralEnd = false;
     }
 
     /**
@@ -152,11 +144,6 @@ public class PyDocIterator implements IPyDocIterator {
                         buf.append(ret);
                         return ret;
                     } else {
-                        if (!inLiteral && !considerAfterLiteralEnd) {
-                            int line = doc.getLineOfOffset(offset);
-                            offset = doc.getLineOffset(line) + doc.getLineLength(line);
-                            return ret;
-                        }
                         buf.append(ret);
                     }
                 }
