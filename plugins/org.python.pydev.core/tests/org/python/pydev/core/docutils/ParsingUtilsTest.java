@@ -412,7 +412,7 @@ public class ParsingUtilsTest extends TestCase {
                 "    pass\n" +
                 "\n";
         Document d = new Document(str);
-        PyDocIterator it = new PyDocIterator(d, false, true, true, false, false);
+        PyDocIterator it = new PyDocIterator(d, 0);
         assertEquals(-1, it.getLastReturnedLine());
         assertEquals(true, it.hasNext());
 
@@ -432,7 +432,7 @@ public class ParsingUtilsTest extends TestCase {
         assertEquals(3, it.getLastReturnedLine());
         assertEquals(true, it.hasNext());
 
-        assertEquals("       ", it.next());
+        assertEquals("       a", it.next());
         assertEquals(4, it.getLastReturnedLine());
         assertEquals(true, it.hasNext());
 
@@ -475,7 +475,7 @@ public class ParsingUtilsTest extends TestCase {
         assertEquals(3, it.getLastReturnedLine());
         assertEquals(true, it.hasNext());
 
-        assertEquals("       ", it.next());
+        assertEquals("       a", it.next());
         assertEquals(4, it.getLastReturnedLine());
         assertEquals(true, it.hasNext());
 
@@ -706,7 +706,7 @@ public class ParsingUtilsTest extends TestCase {
         assertEquals(5, it.getLastReturnedLine());
         assertEquals(true, it.hasNext());
 
-        assertEquals("       ", it.next());
+        assertEquals("       a", it.next());
         assertEquals(4, it.getLastReturnedLine());
         assertEquals(true, it.hasNext());
 
