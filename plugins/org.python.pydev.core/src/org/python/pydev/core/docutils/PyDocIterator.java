@@ -110,8 +110,7 @@ public class PyDocIterator implements IPyDocIterator {
             }
 
             if (ch == '\r') {
-                ch = doc.getChar(offset);
-                if (ch == '\n') {
+                if (doc.getChar(offset) == '\n') {
                     offset++;
                     ch = '\n';
                 }
