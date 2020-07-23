@@ -58,12 +58,8 @@ public class ReversePyDocIterator implements IPyDocIterator {
             //handle the \r, \n or \r\n
             if (ch == '\n' || ch == '\r') {
                 offset--;
-                if (ch == '\n') {
-                    ch = doc.getChar(offset);
-                    if (offset >= 0 && ch == '\r') {
-                        offset--;
-                        ch = doc.getChar(offset);
-                    }
+                if (offset >= 0 && ch == '\n' && doc.getChar(offset) == '\r') {
+                    offset--;
                 }
             }
             while (offset >= 0) {
