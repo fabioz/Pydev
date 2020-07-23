@@ -1,81 +1,31 @@
 /**
- * Copyright (c) 2005-2012 by Appcelerator, Inc. All Rights Reserved.
- * Licensed under the terms of the Eclipse Public License (EPL).
- * Please see the license.txt included with this distribution for details.
- * Any modifications to this file must keep this entire header intact.
+ * Copyright (c) 2020 by Brainwy Software Ltda
  */
 package org.python.pydev.core.docutils;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.core.IPythonPartitions;
+import org.python.pydev.core.partition.PyPartitionScanner;
+import org.python.pydev.shared_core.partitioner.FastPartitioner;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 
 public class ReversePyDocIterator implements IPyDocIterator {
 
     private int offset;
     private IDocument doc;
 
-    private boolean addNewLinesToRet = true;
-    private boolean returnNewLinesOnLiterals = false;
-    private boolean inLiteral = false;
-    private int literalStart = 0;
-    private boolean changeLiteralsForSpaces = false;
     private int lastReturned = -1;
-    private boolean addComments = false;
-    private boolean considerAfterLiteralEnd = true;
+    private FastPartitioner fastPartitioner;
 
-    public ReversePyDocIterator(IDocument doc, boolean addNewLinesToRet) {
-        this(doc, addNewLinesToRet, false, false);
+    public ReversePyDocIterator(IDocument doc) throws BadLocationException {
+        this(doc, doc.getLineOfOffset(doc.getLength() - 1));
     }
 
-    public ReversePyDocIterator(IDocument doc, boolean addNewLinesToRet, boolean returnNewLinesOnLiterals,
-            boolean changeLiteralsForSpaces) {
-        this(doc, addNewLinesToRet, returnNewLinesOnLiterals, changeLiteralsForSpaces, false);
-    }
-
-    /**
-     * @param doc the document where we will iterate
-     * @param addNewLinesToRet whether the new line character should be added to the return
-     * @param returnNewLinesOnLiterals whether we should return the new lines found in the literals (not the char, but the line itself)
-     * @param changeLiteralsForSpaces whether we should replace the literals with spaces (so that we don't loose offset information)
-     * @param addComments if true, comments found will be yielded (otherwise, no comments will be shown)
-     */
-
-    public ReversePyDocIterator(IDocument doc, boolean addNewLinesToRet, boolean returnNewLinesOnLiterals,
-            boolean changeLiteralsForSpaces, boolean addComments) {
-        this(doc, addNewLinesToRet, returnNewLinesOnLiterals, changeLiteralsForSpaces, addComments, true);
-    }
-
-    public ReversePyDocIterator(IDocument doc, boolean addNewLinesToRet, boolean returnNewLinesOnLiterals,
-            boolean changeLiteralsForSpaces, boolean addComments, boolean considerAfterLiteralEnd) {
-        this(doc);
-        this.addNewLinesToRet = addNewLinesToRet;
-        this.returnNewLinesOnLiterals = returnNewLinesOnLiterals;
-        this.changeLiteralsForSpaces = changeLiteralsForSpaces;
-        this.addComments = addComments;
-        this.considerAfterLiteralEnd = considerAfterLiteralEnd;
-    }
-
-    public ReversePyDocIterator(IDocument doc) {
+    public ReversePyDocIterator(IDocument doc, int startingLine) throws BadLocationException {
         this.doc = doc;
-        this.offset = doc.getLength() - 1;
-    }
-
-    /**
-     * Changes the current offset in the document. Note: this method is not safe for use after the iteration
-     * started!
-     *
-     * @param offset the offset where this class should start parsing (note: the offset must be a
-     * code partition, otherwise the yielded values will be wrong).
-     */
-    @Override
-    public void setStartingOffset(int offset) {
-        this.offset = offset;
-    }
-
-    @Override
-    public void setStartingLine(int line) throws BadLocationException {
-        this.offset = doc.getLineOffset(line + 1) + doc.getLineLength(line + 1) - 1;
+        this.offset = doc.getLineOffset(startingLine) + doc.getLineLength(startingLine) - 1;
+        this.fastPartitioner = (FastPartitioner) PyPartitionScanner.checkPartitionScanner(doc);
     }
 
     @Override
@@ -85,7 +35,7 @@ public class ReversePyDocIterator implements IPyDocIterator {
 
     @Override
     public int getLastReturnedLine() {
-        if (offset + 1 != doc.getLength()) {
+        if (offset < doc.getLength() - 1) {
             try {
                 lastReturned = doc.getLineOfOffset(offset + 1);
             } catch (BadLocationException e) {
@@ -95,131 +45,79 @@ public class ReversePyDocIterator implements IPyDocIterator {
         return lastReturned;
     }
 
-    private String nextInLiteral() {
-        StringBuffer buf = new StringBuffer();
-        try {
-
-            char ch = doc.getChar(offset);
-            if (ch == '\n') {
-                offset--;
-                if (doc.getChar(offset) == '\r') {
-                    offset--;
-                }
-                buf.append(ch);
-                ch = doc.getChar(offset);
-            }
-
-            while (offset >= literalStart && ch != '\n' && ch != '\r') {
-                ch = doc.getChar(offset);
-                if (ch != '\n' && ch != '\r') {
-                    offset--;
-                    if (changeLiteralsForSpaces) {
-                        buf.insert(0, ' ');
-                    }
-                }
-            }
-            if (offset < literalStart) {
-                inLiteral = false;
-            }
-            return buf.toString();
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     /**
      * @return the next line in the document
      */
     @Override
     public String next() {
-
+        FastStringBuffer buf = new FastStringBuffer();
+        FastStringBuffer convertedLiteralsBuf = new FastStringBuffer();
+        boolean gotContents = false;
+        boolean gotLiterals = false;
         try {
-            StringBuffer buf = new StringBuffer();
-
-            if (inLiteral) {
-                int initialOffset = offset;
-                String ret = nextInLiteral();
-                if (ret.length() > 0 && initialOffset >= offset) { //if it didn't move in the offset, disregard the results
-                    if (StringUtils.endsWith(ret, '\r') || StringUtils.endsWith(ret, '\n')) {
-                        if (!addNewLinesToRet) {
-                            ret = ret.substring(0, ret.length() - 1);
-                        }
-                        buf.insert(0, ret);
-                        if (inLiteral) {
-                            return ret;
-                        }
-                    } else {
-                        buf.insert(0, ret);
-                    }
-                }
-            }
-
             char ch = doc.getChar(offset);
-
             //handle the \r, \n or \r\n
             if (ch == '\n' || ch == '\r') {
-                if (addNewLinesToRet) {
-                    buf.append(ch);
-                }
                 offset--;
                 ch = doc.getChar(offset);
-                if (ch == '\n') {
-                    if (offset >= 0 && ch == '\r') {
-                        offset--;
-                        ch = doc.getChar(offset);
-                        if (addNewLinesToRet) {
-                            buf.append('\n');
-                        }
-                    }
-                }
-
-            }
-
-            ParsingUtils parsingUtils = ParsingUtils.create(doc);
-            while (ch != '\r' && ch != '\n' && offset >= 0) {
-                ch = doc.getChar(offset);
-                if (ch == '#') {
-
-                    while (offset >= 0 && ch != '\n' && ch != '\r') {
-                        ch = doc.getChar(offset);
-                        if (addComments && ch != '\n' && ch != '\r') {
-                            buf.insert(0, ch);
-                        }
-                        offset--;
-                    }
-
-                } else if (ch == '\'' || ch == '"') {
-                    if (returnNewLinesOnLiterals) {
-                        inLiteral = true;
-                        literalStart = parsingUtils.getLiteralStart(offset, ch);
-                        String ret = nextInLiteral();
-                        if (ret.length() > 0) {
-                            if (considerAfterLiteralEnd) {
-                                buf.insert(0, ret);
-                                return buf.toString();
-                            } else {
-                                return ret;
-                            }
-                        }
-                    } else {
-                        if (this.changeLiteralsForSpaces) {
-                            throw new RuntimeException("Not supported in this case.");
-                        }
-                        offset = parsingUtils.getLiteralStart(offset, ch);
-                        offset--;
-                    }
-
-                } else if (ch != '\n' && ch != '\r') {
-                    //will be added later
-                    buf.insert(0, ch);
+                if (offset >= 0 && ch == '\r') {
                     offset--;
+                    ch = doc.getChar(offset);
                 }
             }
 
-            return buf.toString();
+            while (offset >= 0) {
+                ch = doc.getChar(offset);
+                if (ch == '\n') {
+                    break;
+                }
 
-        } catch (Exception e) {
+                if (fastPartitioner.getContentType(offset) != IPythonPartitions.PY_DEFAULT) {
+                    convertedLiteralsBuf.insert(0, ' ');
+                    gotLiterals = true;
+                } else {
+                    buf.insert(0, ch);
+                    gotContents = true;
+                }
+                offset--;
+            }
+
+            if (gotContents && gotLiterals) {
+                // checks if line starts with contents, has literals in the middle and then has contents again at the end
+                // e.g.: s = """ something """ some random content
+                // because it may return a shuffled string if line is not properly handled like that
+                // using the above example, a return like: "s = some random content" + "                 "
+                boolean gotStartingContents = fastPartitioner
+                        .getContentType(offset + 1) == IPythonPartitions.PY_DEFAULT;
+                boolean gotEndingContents = fastPartitioner
+                        .getContentType(
+                                offset + doc.getLineLength(getLastReturnedLine())) == IPythonPartitions.PY_DEFAULT;
+                if (gotStartingContents && gotEndingContents) {
+                    // if line has both contents and literals and start and end with contents, just return the whole line...
+                    FastStringBuffer alterBuf = new FastStringBuffer();
+                    for (int o = offset + 1; o < offset + doc.getLineLength(getLastReturnedLine()); o++) {
+                        alterBuf.append(doc.getChar(o));
+                    }
+                    return alterBuf.toString();
+                } else if (gotStartingContents) {
+                    // if line only starts with content, concat both buffer strings on return
+                    return buf.toString() + convertedLiteralsBuf.toString();
+                } else {
+                    // just ignore the content at the end
+                    return convertedLiteralsBuf.toString();
+                }
+            }
+
+            if (gotContents) {
+                // line does not have literals
+                return buf.toString();
+            }
+
+            // line is inside a literal
+            return convertedLiteralsBuf.toString();
+        } catch (
+
+        Exception e) {
             throw new RuntimeException(e);
         }
     }
