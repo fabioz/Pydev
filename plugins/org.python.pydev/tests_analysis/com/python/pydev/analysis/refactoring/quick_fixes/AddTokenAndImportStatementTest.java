@@ -47,6 +47,43 @@ public class AddTokenAndImportStatementTest extends TestCase {
         assertEquals(expectedDoc, document.get());
     }
 
+    public void checkLocalImport(String baseDoc, String importToAdd, String expectedDoc,
+            boolean addLocalImportsOnTopOfMethod) throws Exception {
+
+        Document document = new Document(baseDoc);
+
+        char trigger = '\n';
+        int offset = baseDoc.length();
+        boolean addLocalImport = true;
+        boolean groupImports = true;
+
+        AddTokenAndImportStatement stmt = new AddTokenAndImportStatement(document, trigger, offset, addLocalImport,
+                addLocalImportsOnTopOfMethod,
+                groupImports, 80);
+
+        String realImportRep = importToAdd;
+        int fReplacementOffset = offset;
+        int fLen = 0;
+        String indentString = "    ";
+        String fReplacementString = "";
+        boolean appliedWithTrigger = false;
+        int importLen = 0;
+
+        ComputedInfo computedInfo = new ComputedInfo(realImportRep, fReplacementOffset, fLen, indentString,
+                fReplacementString, appliedWithTrigger, importLen, document);
+        stmt.createTextEdit(computedInfo);
+
+        for (ReplaceEdit edit : computedInfo.replaceEdit) {
+            try {
+                edit.apply(document);
+            } catch (Exception e) {
+                Log.log(e);
+            }
+        }
+
+        assertEquals(expectedDoc, document.get());
+    }
+
     // test all possibility cases
     public void testAllCases() throws Exception {
 
@@ -371,5 +408,255 @@ public class AddTokenAndImportStatementTest extends TestCase {
 
         // -- END OF TESTS WITH MULTI-LINE DECLARATIONS AND COLS LIMIT EXCEDEED -- //
 
+    }
+
+    public void testLocalImport() throws Exception {
+        String baseDoc = "def method():\r\n" +
+                "    pass\r\n" +
+                "\r\n" +
+                "\r\n" +
+                "def method2():\r\n" +
+                "    x = \"\"\"\r\n" +
+                "some string\r\n" +
+                "\"\"\"\r\n" +
+                "    sys";
+        String expectedDoc = "def method():\r\n" +
+                "    pass\r\n" +
+                "\r\n" +
+                "\r\n" +
+                "def method2():\r\n" +
+                "    import sys\r\n" +
+                "    x = \"\"\"\r\n" +
+                "some string\r\n" +
+                "\"\"\"\r\n" +
+                "    sys";
+
+        checkLocalImport(baseDoc, "import sys", expectedDoc, true);
+    }
+
+    public void testLocalImport2() throws Exception {
+        String baseDoc = "def method():\r\n" +
+                "    pass\r\n" +
+                "\r\n" +
+                "\r\n" +
+                "def method2():\r\n" +
+                "\r\n" +
+                "    s = '''\r\n" +
+                "testing %(x)s\r\n" +
+                "''' % (dict(x=10))\r\n" +
+                "\r\n" +
+                "    sys";
+        String expectedDoc = "def method():\r\n" +
+                "    pass\r\n" +
+                "\r\n" +
+                "\r\n" +
+                "def method2():\r\n" +
+                "\r\n" +
+                "    import sys\r\n" +
+                "    s = '''\r\n" +
+                "testing %(x)s\r\n" +
+                "''' % (dict(x=10))\r\n" +
+                "\r\n" +
+                "    sys";
+
+        checkLocalImport(baseDoc, "import sys", expectedDoc, true);
+    }
+
+    public void testLocalImport3() throws Exception {
+        String baseDoc = "def method():\r\n" +
+                "    pass\r\n" +
+                "\r\n" +
+                "def method2(): \r\n" +
+                "    \r\n" +
+                "    \r\n" +
+                "    s = '''\r\n" +
+                "\\''' something\r\n" +
+                "'''\r\n" +
+                "\r\n" +
+                "    sys";
+        String expectedDoc = "def method():\r\n" +
+                "    pass\r\n" +
+                "\r\n" +
+                "def method2(): \r\n" +
+                "    \r\n" +
+                "    \r\n" +
+                "    import sys\r\n" +
+                "    s = '''\r\n" +
+                "\\''' something\r\n" +
+                "'''\r\n" +
+                "\r\n" +
+                "    sys";
+
+        checkLocalImport(baseDoc, "import sys", expectedDoc, true);
+    }
+
+    public void testLocalImport4() throws Exception {
+        String baseDoc = "def method():\r\n" +
+                "    pass\r\n" +
+                "\r\n" +
+                "def method2():\r\n" +
+                "\r\n" +
+                "\r\n" +
+                "    s = '''\r\n" +
+                "\"\"\" something\r\n" +
+                "'''\r\n" +
+                "\r\n" +
+                "    sys";
+        String expectedDoc = "def method():\r\n" +
+                "    pass\r\n" +
+                "\r\n" +
+                "def method2():\r\n" +
+                "\r\n" +
+                "\r\n" +
+                "    import sys\r\n" +
+                "    s = '''\r\n" +
+                "\"\"\" something\r\n" +
+                "'''\r\n" +
+                "\r\n" +
+                "    sys";
+
+        checkLocalImport(baseDoc, "import sys", expectedDoc, true);
+    }
+
+    public void testLocalImport5() throws Exception {
+        String baseDoc = "def method():\r\n" +
+                "    pass\r\n" +
+                "\r\n" +
+                "def method2():\r\n" +
+                "\r\n" +
+                "\r\n" +
+                "    s = '''\r\n" +
+                "# this is a literal'''\r\n" +
+                "\r\n" +
+                "    sys";
+        String expectedDoc = "def method():\r\n" +
+                "    pass\r\n" +
+                "\r\n" +
+                "def method2():\r\n" +
+                "\r\n" +
+                "\r\n" +
+                "    import sys\r\n" +
+                "    s = '''\r\n" +
+                "# this is a literal'''\r\n" +
+                "\r\n" +
+                "    sys";
+
+        checkLocalImport(baseDoc, "import sys", expectedDoc, true);
+    }
+
+    public void testLocalImportAfterDocString1() throws Exception {
+        String baseDoc = "def method():\r\n" +
+                "    pass\r\n" +
+                "\r\n" +
+                "\r\n" +
+                "def method2():\r\n" +
+                "    \"\"\"Some docstring here\"\"\"\r\n" +
+                "\r\n" +
+                "    sys";
+        String expectedDoc = "def method():\r\n" +
+                "    pass\r\n" +
+                "\r\n" +
+                "\r\n" +
+                "def method2():\r\n" +
+                "    \"\"\"Some docstring here\"\"\"\r\n" +
+                "    import sys\r\n" +
+                "\r\n" +
+                "    sys";
+
+        checkLocalImport(baseDoc, "import sys", expectedDoc, true);
+    }
+
+    public void testLocalImportAfterDocString2() throws Exception {
+        String baseDoc = "def method():\r\n" +
+                "    pass\r\n" +
+                "\r\n" +
+                "\r\n" +
+                "def method2():\r\n" +
+                "    \"\"\"Some docstring here\"\"\"\r\n" +
+                "\r\n" +
+                "    x = \"\"\"\r\n" +
+                "some string\r\n" +
+                "\"\"\"\r\n" +
+                "    sys";
+        String expectedDoc = "def method():\r\n" +
+                "    pass\r\n" +
+                "\r\n" +
+                "\r\n" +
+                "def method2():\r\n" +
+                "    \"\"\"Some docstring here\"\"\"\r\n" +
+                "    import sys\r\n" +
+                "\r\n" +
+                "    x = \"\"\"\r\n" +
+                "some string\r\n" +
+                "\"\"\"\r\n" +
+                "    sys";
+
+        checkLocalImport(baseDoc, "import sys", expectedDoc, true);
+    }
+
+    public void testLocalImportAfterDocString3() throws Exception {
+        String baseDoc = "def method():\r\n" +
+                "    pass\r\n" +
+                "\r\n" +
+                "\r\n" +
+                "def method2():\r\n" +
+                "    \"\"\"\r\n" +
+                "    Some\r\n" +
+                "    docstring\r\n" +
+                "    here\r\n" +
+                "    \"\"\"\r\n" +
+                "\r\n" +
+                "    x = \"\"\"\r\n" +
+                "some string\r\n" +
+                "\"\"\"\r\n" +
+                "    sys";
+        String expectedDoc = "def method():\r\n" +
+                "    pass\r\n" +
+                "\r\n" +
+                "\r\n" +
+                "def method2():\r\n" +
+                "    \"\"\"\r\n" +
+                "    Some\r\n" +
+                "    docstring\r\n" +
+                "    here\r\n" +
+                "    \"\"\"\r\n" +
+                "    import sys\r\n" +
+                "\r\n" +
+                "    x = \"\"\"\r\n" +
+                "some string\r\n" +
+                "\"\"\"\r\n" +
+                "    sys";
+
+        checkLocalImport(baseDoc, "import sys", expectedDoc, true);
+    }
+
+    public void testLocalImportAfterSpacesAndTabs() throws Exception {
+        String baseDoc = "def method():\r\n" +
+                "    pass\r\n" +
+                "\r\n" +
+                "\r\n" +
+                "def method2():\r\n" +
+                "\r\n" +
+                "\r\n" +
+                "\r\n" +
+                "    x = \"\"\"\r\n" +
+                "some string\r\n" +
+                "\"\"\"\r\n" +
+                "    sys";
+        String expectedDoc = "def method():\r\n" +
+                "    pass\r\n" +
+                "\r\n" +
+                "\r\n" +
+                "def method2():\r\n" +
+                "\r\n" +
+                "\r\n" +
+                "\r\n" +
+                "    import sys\r\n" +
+                "    x = \"\"\"\r\n" +
+                "some string\r\n" +
+                "\"\"\"\r\n" +
+                "    sys";
+
+        checkLocalImport(baseDoc, "import sys", expectedDoc, true);
     }
 }

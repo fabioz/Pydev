@@ -734,11 +734,27 @@ public final class PySelection extends TextSelectionUtils {
      */
     public LineStartingScope getLineThatStartsScope(boolean forward, String[] indentTokens, int lineToStart,
             int mustHaveIndentLowerThan) {
-        final DocIterator iterator;
-        if (lineToStart == -1) {
-            iterator = new DocIterator(forward, this);
+        IPyDocIterator iterator;
+        if (!forward) {
+            try {
+                if (lineToStart != -1) {
+                    iterator = new ReversePyDocIterator(getDoc(), lineToStart);
+                } else {
+                    iterator = new ReversePyDocIterator(getDoc(), getCursorLine());
+                }
+            } catch (BadLocationException e) {
+                return null;
+            }
         } else {
-            iterator = new DocIterator(forward, this, lineToStart, false);
+            try {
+                if (lineToStart != -1) {
+                    iterator = new PyDocIterator(getDoc(), lineToStart);
+                } else {
+                    iterator = new PyDocIterator(getDoc(), getCursorLine());
+                }
+            } catch (BadLocationException e) {
+                return null;
+            }
         }
 
         String foundDedent = null;
@@ -750,10 +766,6 @@ public final class PySelection extends TextSelectionUtils {
             }
             String line = iterator.next();
             String trimmed = line.trim();
-
-            if (trimmed.startsWith("#")) {
-                continue;
-            }
 
             for (String dedent : indentTokens) {
                 if (trimmed.startsWith(dedent)) {
@@ -1626,5 +1638,4 @@ public final class PySelection extends TextSelectionUtils {
         }
         return null;
     }
-
 }
