@@ -340,6 +340,15 @@ public class FastDefinitionsParserTest extends TestCase {
         assertEquals("GLOBAL_ATTRIBUTE", ((Name) assign.targets[0]).id);
     }
 
+    public void testTypedGlobalAttributes() {
+        Module m = (Module) FastDefinitionsParser.parse("GLOBAL_ATTRIBUTE: int = 10\n" +
+                "\n" +
+                "");
+        assertEquals(1, m.body.length);
+        Assign assign = ((Assign) m.body[0]);
+        assertEquals("GLOBAL_ATTRIBUTE", ((Name) assign.targets[0]).id);
+    }
+
     public void testGlobalAttributes5() {
         Module m = (Module) FastDefinitionsParser.parse("GLOBAL_ATTRIBUTE = 10\n" +
                 "GLOBAL_ATTRIBUTE2 = 10\n" +
