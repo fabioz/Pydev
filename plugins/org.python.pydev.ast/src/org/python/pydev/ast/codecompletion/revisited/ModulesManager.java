@@ -57,6 +57,7 @@ import org.python.pydev.core.preferences.FileTypesPreferences;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
+import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.Module;
@@ -1169,6 +1170,17 @@ public abstract class ModulesManager implements IModulesManager {
                             Log.log(e);
                         }
 
+                    }
+                }
+            } else if ("typing".equals(n.getName())) {
+                Module module = (Module) ((SourceModule) n).getAst();
+                for (SimpleNode node : module.body) {
+                    if (node instanceof Assign && ((Assign) node).value instanceof Call
+                            && ((Call) ((Assign) node).value).func instanceof Name
+                            && "_alias".equals(((Name) ((Call) ((Assign) node).value).func).id)
+                            && ((Call) ((Assign) node).value).args.length >= 1) {
+                        Assign assign = (Assign) node;
+                        assign.value = ((Call) assign.value).args[0];
                     }
                 }
             }
