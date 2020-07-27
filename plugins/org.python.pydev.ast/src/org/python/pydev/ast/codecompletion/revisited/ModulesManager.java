@@ -1200,7 +1200,6 @@ public abstract class ModulesManager implements IModulesManager {
                         assign.value = new Subscript(args[0], slice, 1);
                     }
                 }
-
             }
         }
         return n;
