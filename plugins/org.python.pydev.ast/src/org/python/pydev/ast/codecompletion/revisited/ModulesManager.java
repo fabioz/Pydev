@@ -1178,13 +1178,8 @@ public abstract class ModulesManager implements IModulesManager {
                     }
                 }
             } else if ("typing".equals(n.getName())) {
-                SourceModule sourceModule = (SourceModule) n;
-                SimpleNode ast = sourceModule.getAst();
-                boolean found = false;
-                Module module = (Module) ast;
-                stmtType[] body = module.body;
-
-                for (SimpleNode node : body) {
+                Module module = (Module) ((SourceModule) n).getAst();
+                for (SimpleNode node : module.body) {
                     if (node instanceof Assign && ((Assign) node).value instanceof Call
                             && ((Call) ((Assign) node).value).func instanceof Name
                             && ((Name) ((Call) ((Assign) node).value).func).id.equals("_alias")) {
