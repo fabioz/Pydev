@@ -15,7 +15,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -60,16 +59,12 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
-import org.python.pydev.parser.jython.ast.ExtSlice;
 import org.python.pydev.parser.jython.ast.Import;
-import org.python.pydev.parser.jython.ast.Index;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
-import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.jython.ast.exprType;
-import org.python.pydev.parser.jython.ast.sliceType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.cache.LRUMap;
@@ -1182,22 +1177,10 @@ public abstract class ModulesManager implements IModulesManager {
                 for (SimpleNode node : module.body) {
                     if (node instanceof Assign && ((Assign) node).value instanceof Call
                             && ((Call) ((Assign) node).value).func instanceof Name
-                            && ((Name) ((Call) ((Assign) node).value).func).id.equals("_alias")) {
+                            && "_alias".equals(((Name) ((Call) ((Assign) node).value).func).id)
+                            && ((Call) ((Assign) node).value).args.length >= 1) {
                         Assign assign = (Assign) node;
-                        exprType[] args = ((Call) assign.value).args;
-                        sliceType[] dims = null;
-                        if (args[1] instanceof org.python.pydev.parser.jython.ast.Tuple) {
-                            org.python.pydev.parser.jython.ast.Tuple tup = (org.python.pydev.parser.jython.ast.Tuple) args[1];
-                            List<sliceType> sList = new ArrayList<sliceType>();
-                            for (exprType item : tup.elts) {
-                                sList.add(new Index(item));
-                            }
-                            dims = Arrays.copyOf(sList.toArray(), sList.size(), sliceType[].class);
-                        } else if (args[1] instanceof Name) {
-                            dims = new sliceType[] { new Index(args[1]) };
-                        }
-                        sliceType slice = new ExtSlice(dims);
-                        assign.value = new Subscript(args[0], slice, 1);
+                        assign.value = ((Call) assign.value).args[0];
                     }
                 }
             }
