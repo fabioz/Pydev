@@ -36,9 +36,11 @@ import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Str;
+import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.commentType;
+import org.python.pydev.parser.jython.ast.excepthandlerType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -457,6 +459,28 @@ public class LocalScope implements ILocalScope {
                 lst.addAll(entry.node.specialsBefore);
             }
 
+            if (entry.node instanceof TryExcept) {
+                excepthandlerType[] handlers = ((TryExcept) entry.node).handlers;
+                if (handlers != null) {
+                    for (excepthandlerType handle : handlers) {
+                        if (handle.name != null && actTok.equals(NodeUtils.getFullRepresentationString(handle.name))) {
+                            if (handle.type instanceof Tuple) {
+                                exprType[] tupElts = ((Tuple) handle.type).elts;
+                                if (tupElts != null) {
+                                    for (exprType type : tupElts) {
+                                        if (type != null) {
+                                            ret.add(new TypeInfo(NodeUtils.getFullRepresentationString(type)));
+                                        }
+                                    }
+                                }
+                            } else if (handle.type != null) {
+                                ret.add(new TypeInfo(NodeUtils.getFullRepresentationString(handle.type)));
+                            }
+                        }
+                    }
+                }
+                continue;
+            }
             if (!(entry.node instanceof Assert)) {
                 if (entry.node instanceof Str) {
                     lst.add(entry.node);

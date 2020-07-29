@@ -3336,4 +3336,73 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals(6, requestCompl("from namespace_pkg.folder1.folder2 import ",
                 new String[] { "mymod", "__dict__", "__file__", "__init__", "__name__", "__path__" }).length);
     }
+
+    public void testTypedExceptionCompletion() throws Exception {
+        String s;
+        String original = "class MyException(object):\r\n" +
+                "    def method(self):\r\n" +
+                "        pass\r\n" +
+                "\r\n" +
+                "class MyClass(object):\r\n" +
+                "    def __init__(self):\r\n" +
+                "        try:\r\n" +
+                "            raise MyException()\r\n" +
+                "        except MyException as e:\r\n" +
+                "           e.";
+        s = StringUtils.format(original, "");
+
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+        assertEquals(1, proposals.length);
+        ICompletionProposalHandle prop = proposals[0];
+        assertEquals("method()", prop.getDisplayString());
+    }
+
+    public void testTypedExceptionCompletion2() throws Exception {
+        String s;
+        String original = "class MyException(object):\r\n" +
+                "    def method(self):\r\n" +
+                "        pass\r\n" +
+                "\r\n" +
+                "class MyException2(object):\r\n" +
+                "    def method2(self):\r\n" +
+                "        pass\r\n" +
+                "\r\n" +
+                "class MyClass(object):\r\n" +
+                "    def __init__(self):\r\n" +
+                "        try:\r\n" +
+                "            raise MyException2()\r\n" +
+                "        except (MyException, MyException2) as e:\r\n" +
+                "           e.";
+        s = StringUtils.format(original, "");
+
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+        assertEquals(2, proposals.length);
+        assertEquals("method()", proposals[0].getDisplayString());
+        assertEquals("method2()", proposals[1].getDisplayString());
+    }
+
+    public void testTypedExceptionCompletion3() throws Exception {
+        String s;
+        String original = "class MyException(object):\r\n" +
+                "    def method(self):\r\n" +
+                "        pass\r\n" +
+                "\r\n" +
+                "class MyException2(object):\r\n" +
+                "    def method2(self):\r\n" +
+                "        pass\r\n" +
+                "\r\n" +
+                "class MyClass(object):\r\n" +
+                "    def __init__(self):\r\n" +
+                "        try:\r\n" +
+                "            raise MyException2()\r\n" +
+                "        except MyException as e:\r\n" +
+                "           e.method()\r\n" +
+                "        except MyException2 as e:\r\n" +
+                "           e.";
+        s = StringUtils.format(original, "");
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+        assertEquals(2, proposals.length);
+        assertEquals("method()", proposals[0].getDisplayString());
+        assertEquals("method2()", proposals[1].getDisplayString());
+    }
 }
