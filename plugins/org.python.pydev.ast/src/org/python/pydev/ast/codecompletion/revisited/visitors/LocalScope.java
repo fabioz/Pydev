@@ -460,16 +460,22 @@ public class LocalScope implements ILocalScope {
             }
 
             if (entry.node instanceof TryExcept) {
-                TryExcept tryExcept = (TryExcept) entry.node;
-                for (excepthandlerType handle : tryExcept.handlers) {
-                    if (actTok.equals(NodeUtils.getFullRepresentationString(handle.name))) {
-                        if (handle.type instanceof Tuple) {
-                            Tuple tup = (Tuple) handle.type;
-                            for (exprType type : tup.elts) {
-                                ret.add(new TypeInfo(NodeUtils.getFullRepresentationString(type)));
+                excepthandlerType[] handlers = ((TryExcept) entry.node).handlers;
+                if (handlers != null) {
+                    for (excepthandlerType handle : handlers) {
+                        if (handle.name != null && actTok.equals(NodeUtils.getFullRepresentationString(handle.name))) {
+                            if (handle.type instanceof Tuple) {
+                                exprType[] tupElts = ((Tuple) handle.type).elts;
+                                if (tupElts != null) {
+                                    for (exprType type : tupElts) {
+                                        if (type != null) {
+                                            ret.add(new TypeInfo(NodeUtils.getFullRepresentationString(type)));
+                                        }
+                                    }
+                                }
+                            } else if (handle.type != null) {
+                                ret.add(new TypeInfo(NodeUtils.getFullRepresentationString(handle.type)));
                             }
-                        } else {
-                            ret.add(new TypeInfo(NodeUtils.getFullRepresentationString(handle.type)));
                         }
                     }
                 }
