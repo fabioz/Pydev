@@ -4,6 +4,54 @@
 
 <div class="section" id="history-for-pydev">
 <h1>History For PyDev</h1>
+<div class="section" id="release-7-7-0-2020-08-02">
+<h2>Release 7.7.0 (2020-08-02)</h2>
+<ul>
+<li><p class="first"><strong>MyPy integration improvements</strong></p>
+<blockquote>
+<ul class="simple">
+<li>New option to set project source folders as <strong>MYPYPATH</strong>.</li>
+<li><strong>--follow-imports=silent</strong> now set by default.</li>
+<li>The cache dir set by default to <strong>project/.mypy_cache</strong></li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first">Many improvements for dealing with <strong>typing information</strong> (in code-analysis and code-completion).</p>
+</li>
+<li><p class="first"><strong>Debugger improvements</strong> (updated to pydevd 1.9.2)</p>
+<blockquote>
+<ul class="simple">
+<li>Fix dealing with generator expressions with multiple breakpoints in frame eval mode.</li>
+<li>Improvements to deal with blocking evaluate requests.</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first">Support for pip installed namespace packages (<strong>#PyDev-151</strong>).</p>
+</li>
+<li><p class="first">Fixes in the <strong>PyLint integration</strong> (<strong>#PyDev-729</strong>).</p>
+</li>
+<li><p class="first">Updated to latest isort.</p>
+</li>
+<li><p class="first">isort properly gets project level configuration (<strong>#PyDev-993</strong>).</p>
+</li>
+<li><p class="first">Support for parsing using the latest version of cython (0.29).</p>
+</li>
+<li><p class="first">Properly supporting the latest pytest version (6.0) (TerminalWriter API changed).</p>
+</li>
+<li><p class="first">Fix when applying diffs from external tool (such as the black formatter).</p>
+</li>
+<li><p class="first">Projects sorted by name even if project is also a source folder in the PyDev Package Explorer (<strong>#PyDev-959</strong>).</p>
+</li>
+<li><p class="first">Fix in extract method refactoring with typing information (<strong>#PyDev-1034</strong>)</p>
+</li>
+<li><p class="first">Auto-edit for <strong>__exit__</strong> parameters (<strong>#PyDev-1068</strong>).</p>
+</li>
+<li><p class="first">Nodes are no longer auto-expanded in quick outline if the outline is too big.</p>
+</li>
+<li><p class="first">Properly computing local import target location on code completion with auto local import (<strong>#PyDev-1070</strong>).</p>
+</li>
+</ul>
+</div>
 <div class="section" id="release-7-6-0-2020-06-04">
 <h2>Release 7.6.0 (2020-06-04)</h2>
 <ul>

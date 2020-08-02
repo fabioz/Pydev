@@ -335,10 +335,40 @@ To show your appreciation for PyDev and to keep it going strong, help to crowdfu
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
+Release 7.7.0 (2020-08-02)
+=============================
+
+* **MyPy integration improvements**
+
+	* New option to set project source folders as **MYPYPATH**.
+	* **--follow-imports=silent** now set by default.
+	* The cache dir set by default to **project/.mypy_cache**
+
+* Many improvements for dealing with **typing information** (in code-analysis and code-completion).
+
+* **Debugger improvements** (updated to pydevd 1.9.2)
+
+	* Fix dealing with generator expressions with multiple breakpoints in frame eval mode.
+	* Improvements to deal with blocking evaluate requests.
+
+* Support for pip installed namespace packages (**#PyDev-151**).
+* Fixes in the **PyLint integration** (**#PyDev-729**).
+* Updated to latest isort.
+* isort properly gets project level configuration (**#PyDev-993**).
+* Support for parsing using the latest version of cython (0.29).
+* Properly supporting the latest pytest version (6.0) (TerminalWriter API changed).
+* Fix when applying diffs from external tool (such as the black formatter).
+* Projects sorted by name even if project is also a source folder in the PyDev Package Explorer (**#PyDev-959**).
+* Fix in extract method refactoring with typing information (**#PyDev-1034**)
+* Auto-edit for **__exit__** parameters (**#PyDev-1068**).
+* Nodes are no longer auto-expanded in quick outline if the outline is too big.
+* Properly computing local import target location on code completion with auto local import (**#PyDev-1070**).
+
+
 Release 7.6.0 (2020-06-04)
 =============================
 
-* **Debugger improvements** (updated to pydevd 1.9.1).
+* **Debugger improvements** (updated to pydevd 1.9.1)
 
 	* **Variables are now grouped** (special/class/function/protected) -- note: it's possible to hide groups in the variables view menu dropdown.
 	* When a launching a subprocess does not target a python executable, the original args are kept (so, quotes are no longer trimmed).
@@ -358,27 +388,6 @@ Release 7.6.0 (2020-06-04)
 * PyDev package explorer is a bit faster (cache source project paths for a project).
 * Recognizing type comments for *self* attributes. i.e.: *#: :type self.var: MyClass*. (**#PyDev-520**)
 * Trailing commas properly recognized in automatic import. (**#PyDev-542**)
-
-
-Release 7.5.0 (2020-01-10)
-=============================
-
-* Fixed support for Python 3.8 (which wasn't properly added to 7.4.0).
-* Improved Cython support:
-
-	* Cython itself is used to generate the AST for Cython files.
-	* Cython needs to be available in the default interpreter.
-	* Cython does not currently support generating the AST for files with errors, so, syntax errors must be fixed for the code-completion to work properly.
-
-* Debugger improvements (updated to pydevd 1.9.0).
-
-	* Improved stepping into coroutines
-	* Attach to process no longer needs to match the bitness of the target program with the interpreter.
-	* File with a relative path is searched in sys.path folders (i.e.: so, cython builds can find the source).
-
-
-
-
 
 
 

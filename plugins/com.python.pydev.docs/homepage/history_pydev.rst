@@ -6,6 +6,36 @@ History For PyDev
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
+Release 7.7.0 (2020-08-02)
+=============================
+
+* **MyPy integration improvements**
+
+	* New option to set project source folders as **MYPYPATH**.
+	* **--follow-imports=silent** now set by default.
+	* The cache dir set by default to **project/.mypy_cache**
+
+* Many improvements for dealing with **typing information** (in code-analysis and code-completion).
+
+* **Debugger improvements** (updated to pydevd 1.9.2)
+
+	* Fix dealing with generator expressions with multiple breakpoints in frame eval mode.
+	* Improvements to deal with blocking evaluate requests.
+
+* Support for pip installed namespace packages (**#PyDev-151**).
+* Fixes in the **PyLint integration** (**#PyDev-729**).
+* Updated to latest isort.
+* isort properly gets project level configuration (**#PyDev-993**).
+* Support for parsing using the latest version of cython (0.29).
+* Properly supporting the latest pytest version (6.0) (TerminalWriter API changed).
+* Fix when applying diffs from external tool (such as the black formatter).
+* Projects sorted by name even if project is also a source folder in the PyDev Package Explorer (**#PyDev-959**).
+* Fix in extract method refactoring with typing information (**#PyDev-1034**)
+* Auto-edit for **__exit__** parameters (**#PyDev-1068**).
+* Nodes are no longer auto-expanded in quick outline if the outline is too big.
+* Properly computing local import target location on code completion with auto local import (**#PyDev-1070**).
+
+
 Release 7.6.0 (2020-06-04)
 =============================
 
