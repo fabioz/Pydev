@@ -1406,6 +1406,15 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             throws CompletionRecursionException {
 
         if (ast instanceof FunctionDef) {
+            // let's try to find as an annotation first
+            ITypeInfo type = NodeUtils.getReturnTypeFromFuncDefAST(ast);
+            if (type != null) {
+                TokensList completionsUnpackingType = getCompletionsUnpackingType(module, state, unpackPos, type);
+                if (completionsUnpackingType != null && completionsUnpackingType.size() > 0) {
+                    return completionsUnpackingType;
+                }
+            }
+
             TokensList tokens = getCompletionsUnpackingDocstring(module, state, unpackPos,
                     NodeUtils.getNodeDocString(ast));
             if (tokens != null && tokens.size() > 0) {
