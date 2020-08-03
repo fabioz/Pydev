@@ -159,6 +159,57 @@ public class PythonCompletionWithBuiltinsPython3Test extends CodeCompletionTests
         requestCompl(s, s.length(), -1, new String[] { "title()", "translate(table)" });
     }
 
+    public void testCodeCompletionPep484ListUnpack2() throws Exception {
+        String s;
+        s = ""
+                + "from typing import List\n" +
+                "\n" +
+                "class Bar(object):\n" +
+                "    def bar(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "def list_bar() -> List[str]:\n" +
+                "    pass\n" +
+                "\n" +
+                "def something():\n" +
+                "    for a in list_bar():\n" +
+                "        a.t";
+        requestCompl(s, s.length(), -1,
+                new String[] { "title()", "translate(table)" });
+    }
+
+    public void testCodeCompletionPep484ListUnpack3() throws Exception {
+        String s;
+        s = "" +
+                "def list_bar() -> str:\n" +
+                "    pass\n" +
+                "\n" +
+                "def something():\n" +
+                "    for a in list_bar():\n" +
+                "        a.t";
+        requestCompl(s, s.length(), -1,
+                new String[] { "title()", "translate(table)" });
+    }
+
+    public void testCodeCompletionPep484ListUnpack4() throws Exception {
+        String s;
+        s = ""
+                + "from typing import List\n" +
+                "\n" +
+                "class Bar(object):\n" +
+                "    def bar(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "def list_bar() -> List[Bar]:\n" +
+                "    pass\n" +
+                "\n" +
+                "def something():\n" +
+                "    for a in list_bar():\n" +
+                "        a.";
+        requestCompl(s, s.length(), -1,
+                new String[] { "bar()" });
+    }
+
     public void testCodeCompletionPep484DictUnpack3() throws Exception {
         String s;
         s = ""
