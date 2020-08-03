@@ -51,7 +51,7 @@ public class PythonCompletionWithBuiltinsPython3Test extends CodeCompletionTests
 
             @Override
             public int getGrammarVersion() {
-                return IPythonNature.GRAMMAR_PYTHON_VERSION_3_5;
+                return IPythonNature.GRAMMAR_PYTHON_VERSION_3_8;
             }
 
             @Override
@@ -237,6 +237,25 @@ public class PythonCompletionWithBuiltinsPython3Test extends CodeCompletionTests
                 + "    a.t"
                 + "";
         requestCompl(s, s.length(), -1, new String[] { "title()", "translate(table)" });
+    }
+
+    public void testCodeCompletionPep484Return2() throws Exception {
+        String s;
+        s = ""
+                + "from typing import List\n" +
+                "\n" +
+                "class Bar(object):\n" +
+                "    def bar(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "def list_bar() -> List[Bar]:\n" +
+                "    pass\n" +
+                "\n" +
+                "def something():\n" +
+                "    lst = list_bar()\n" +
+                "    a:Bar = lst[0]\n" +
+                "    a.";
+        requestCompl(s, s.length(), -1, new String[] { "bar()" });
     }
 
 }
