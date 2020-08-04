@@ -418,6 +418,15 @@ public class AssignAnalysis {
                 int unpackPos = -1;
                 boolean unpackBackwards = false;
                 if (assignDefinition != null) {
+                    // If we have a type, activation token has already been defined as type
+                    // So let's check first if we can find completions using the type. If we can not find, we just ignore it and continue normally
+                    if (assignDefinition.nodeType != null) {
+                        TokensList tks = manager.getCompletionsForModule(module, copy, true, true);
+                        if (tks != null && tks.size() > 0) {
+                            ret.addAll(tks);
+                            return ret;
+                        }
+                    }
                     unpackPos = assignDefinition.unpackPos;
                     // Let's see if we have
                     if (definition.ast instanceof Assign) {

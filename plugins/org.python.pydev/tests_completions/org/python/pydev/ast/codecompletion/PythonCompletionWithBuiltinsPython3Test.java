@@ -51,7 +51,7 @@ public class PythonCompletionWithBuiltinsPython3Test extends CodeCompletionTests
 
             @Override
             public int getGrammarVersion() {
-                return IPythonNature.GRAMMAR_PYTHON_VERSION_3_5;
+                return IPythonNature.GRAMMAR_PYTHON_VERSION_3_8;
             }
 
             @Override
@@ -210,6 +210,46 @@ public class PythonCompletionWithBuiltinsPython3Test extends CodeCompletionTests
                 new String[] { "bar()" });
     }
 
+    public void testCodeCompletionPep484ListUnpack5() throws Exception {
+        String s;
+        s = ""
+                + "class Bar(object):\n" +
+                "\n" +
+                "    def bar(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "def list_bar():\n" +
+                "    pass\n" +
+                "\n" +
+                "def something():\n" +
+                "    lst = list_bar()\n" +
+                "    a:List[Bar] = lst\n" +
+                "    for b in a:\n" +
+                "        b.";
+        requestCompl(s, s.length(), -1,
+                new String[] { "bar()" });
+    }
+
+    public void testCodeCompletionPep484ListUnpack6() throws Exception {
+        String s;
+        s = "" +
+                "class Bar(object):\n" +
+                "\n" +
+                "    def bar(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "def list_bar():\n" +
+                "    pass\n" +
+                "\n" +
+                "def something():\n" +
+                "    lst = list_bar()\n" +
+                "    a:List[Bar] = lst\n" +
+                "    b = a[0]\n" +
+                "    b.";
+        requestCompl(s, s.length(), -1,
+                new String[] { "bar()" });
+    }
+
     public void testCodeCompletionPep484DictUnpack3() throws Exception {
         String s;
         s = ""
@@ -237,6 +277,24 @@ public class PythonCompletionWithBuiltinsPython3Test extends CodeCompletionTests
                 + "    a.t"
                 + "";
         requestCompl(s, s.length(), -1, new String[] { "title()", "translate(table)" });
+    }
+
+    public void testCodeCompletionPep484Return2() throws Exception {
+        String s;
+        s = ""
+                + "class Bar(object):\n" +
+                "\n" +
+                "    def bar(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "def list_bar():\n" +
+                "    pass\n" +
+                "\n" +
+                "def something():\n" +
+                "    lst = list_bar()\n" +
+                "    a:Bar = lst[0]\n" +
+                "    a.";
+        requestCompl(s, s.length(), -1, new String[] { "bar()" });
     }
 
 }
