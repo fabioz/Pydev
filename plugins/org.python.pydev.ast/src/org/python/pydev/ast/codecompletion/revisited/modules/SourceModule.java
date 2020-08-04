@@ -1089,7 +1089,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         }
 
         //mod == this if we are now checking the globals (or maybe not)...heheheh
-        ICompletionState copy = state.getCopyWithActTok(tok, line, col);
+        ICompletionState copy = state.getCopyWithActTok(tok, line - 1, col - 1);
         // further on this we will get the first part of the same tok, so token line and column will be the same
         try {
             state.checkFindDefinitionMemory(mod, tok);
