@@ -169,6 +169,10 @@ public final class CompletionStateWrapper implements ICompletionState {
         return wrapped.getCopyWithActTok(value);
     }
 
+    /**
+     * @param line starting at 0
+     * @param col starting at 0
+     */
     @Override
     public ICompletionState getCopyWithActTok(String value, int line, int col) {
         return wrapped.getCopyWithActTok(value, line, col);
