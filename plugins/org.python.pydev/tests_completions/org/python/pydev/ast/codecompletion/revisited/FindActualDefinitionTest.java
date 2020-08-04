@@ -6,15 +6,16 @@
  */
 package org.python.pydev.ast.codecompletion.revisited;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import org.eclipse.jface.text.Document;
-import org.python.pydev.ast.codecompletion.revisited.CompletionCache;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.ast.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.TestDependent;
 
 /**
  * @author Fabio
@@ -127,6 +128,16 @@ public class FindActualDefinitionTest extends CodeCompletionTestsBase {
         ICompletionCache completionCache = new CompletionCache();
         ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
         PyRefactoringFindDefinition.findActualDefinition(null, mod, "x.items", selected, 13, 23, nature,
+                completionCache);
+        assertEquals(1, selected.size());
+    }
+
+    public void testFindActualDefinitionImported() throws Exception {
+        File file = new File(TestDependent.TEST_PYSRC_TESTING_LOC + "findActualDefinition/foo.py");
+        IModule mod = SourceModule.createModule("findActualDefinition.foo", file, nature, false);
+        ICompletionCache completionCache = new CompletionCache();
+        ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
+        PyRefactoringFindDefinition.findActualDefinition(null, mod, "self._endpoint.notify", selected, 5, 29, nature,
                 completionCache);
         assertEquals(1, selected.size());
     }

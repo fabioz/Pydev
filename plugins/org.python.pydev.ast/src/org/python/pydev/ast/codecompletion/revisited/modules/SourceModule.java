@@ -1089,8 +1089,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         }
 
         //mod == this if we are now checking the globals (or maybe not)...heheheh
-        ICompletionState copy = state.getCopy();
-        copy.setActivationToken(tok);
+        ICompletionState copy = state.getCopyWithActTok(tok, line - 1, col - 1);
+        // further on this we will get the first part of the same tok, so token line and column will be the same
         try {
             state.checkFindDefinitionMemory(mod, tok);
             findDefinitionsFromModAndTok(nature, toRet, visitor.moduleImported, mod, copy);
@@ -1111,7 +1111,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         String tok = state.getActivationToken();
         if (tok != null) {
             if (tok.length() > 0) {
-                Definition d = mod.findGlobalTokDef(state.getCopyWithActTok(tok), nature);
+                Definition d = mod.findGlobalTokDef(state.getCopyWithActTok(tok, state.getLine(), state.getCol()),
+                        nature);
                 if (d != null) {
                     toRet.add(d);
 
@@ -1200,7 +1201,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         // }
         if (tokens == null || tokens.empty()) {
             if (nature != null) {
-                tokens = nature.getAstManager().getCompletionsForModule(this, state.getCopyWithActTok(firstPart), true);
+                tokens = nature.getAstManager().getCompletionsForModule(this,
+                        state.getCopyWithActTok(firstPart, state.getLine(), state.getCol()), true);
             } else {
                 tokens = getGlobalTokens();
             }
