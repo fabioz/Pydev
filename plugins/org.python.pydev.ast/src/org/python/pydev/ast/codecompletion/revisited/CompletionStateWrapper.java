@@ -170,6 +170,11 @@ public final class CompletionStateWrapper implements ICompletionState {
     }
 
     @Override
+    public ICompletionState getCopyWithActTok(String value, int line, int col) {
+        return wrapped.getCopyWithActTok(value, line, col);
+    }
+
+    @Override
     public boolean getIsInCalltip() {
         return wrapped.getIsInCalltip();
     }
