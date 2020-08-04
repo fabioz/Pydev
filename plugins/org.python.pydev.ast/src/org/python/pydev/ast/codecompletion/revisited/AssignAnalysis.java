@@ -76,7 +76,7 @@ public class AssignAnalysis {
                 SourceModule sourceModule = (SourceModule) module;
 
                 try {
-                    defs = sourceModule.findDefinition(state, state.getLine() + 1, state.getCol() + 1,
+                    defs = sourceModule.findDefinition(state, state.getLine(), state.getCol(),
                             state.getNature());
                     if (defs.length > 0) {
                         for (int i = 0; i < defs.length; i++) {
