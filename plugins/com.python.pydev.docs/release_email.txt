@@ -1,28 +1,34 @@
-PyDev 7.6.0 Released
+PyDev 7.7.0 Released
 
-PyDev 7.6.0 Release Highlights
+PyDev 7.7.0 Release Highlights
 -------------------------------
 
-* **Debugger improvements** (updated to pydevd 1.9.1).
+* **MyPy integration improvements**
 
-	* **Variables are now grouped** (special/class/function/protected) -- note: it's possible to hide groups in the variables view menu dropdown.
-	* When a launching a subprocess does not target a python executable, the original args are kept (so, quotes are no longer trimmed).
-	* A step in which would skip code won't be reported in the return if it'd reach the same location.
-	* The disassembled version of a frame may be shown if the sources are not available.
-	* PySide2 is supported to recognize QThreads/event loop in interactive console.
+	* New option to set project source folders as **MYPYPATH**.
+	* **--follow-imports=silent** now set by default.
+	* The cache dir set by default to **project/.mypy_cache**
 
-* **Python 3.8 parsing fixes**
+* Many improvements for dealing with **typing information** (in code-analysis and code-completion).
 
-	* Properly parsing f-strings with named unicode character. i.e.: *f"\N{BULLET}"*.
-	* Properly parsing f-strings formats using colon. i.e.: *f"{datetime.datetime.now():%Y-%m-%d %H:%M:%S}"*.
-	* Properly parsing f-strings with vars ending in equals. i.e.: *f'{y=}'*.
-	* Properly parsing raw f-strings such as *rf"str"*.
-	* Properly parsing iterable unpacking syntax. i.e.: *return lastname.upper(), \*members*.
+* **Debugger improvements** (updated to pydevd 1.9.2)
 
-* Support for the latest version of PyTest (which may resolve symlinks and changed the TerminalWriter import location).
-* PyDev package explorer is a bit faster (cache source project paths for a project).
-* Recognizing type comments for *self* attributes. i.e.: *#: :type self.var: MyClass*.
-* Trailing commas properly recognized in automatic import.
+	* Fix dealing with generator expressions with multiple breakpoints in frame eval mode.
+	* Improvements to deal with blocking evaluate requests.
+
+* Support for pip installed namespace packages (**#PyDev-151**).
+* Fixes in the **PyLint integration** (**#PyDev-729**).
+* Updated to latest isort.
+* isort properly gets project level configuration (**#PyDev-993**).
+* Support for parsing using the latest version of cython (0.29).
+* Properly supporting the latest pytest version (6.0) (TerminalWriter API changed).
+* Fix when applying diffs from external tool (such as the black formatter).
+* Projects sorted by name even if project is also a source folder in the PyDev Package Explorer (**#PyDev-959**).
+* Fix in extract method refactoring with typing information (**#PyDev-1034**)
+* Auto-edit for **__exit__** parameters (**#PyDev-1068**).
+* Nodes are no longer auto-expanded in quick outline if the outline is too big.
+* Properly computing local import target location on code completion with auto local import (**#PyDev-1070**).
+
 
 About PyDev
 ---------------------------
