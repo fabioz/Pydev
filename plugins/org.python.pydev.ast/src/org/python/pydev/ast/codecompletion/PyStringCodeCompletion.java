@@ -6,12 +6,15 @@
  */
 package org.python.pydev.ast.codecompletion;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateContext;
@@ -19,14 +22,18 @@ import org.python.pydev.ast.codecompletion.revisited.CompletionCache;
 import org.python.pydev.ast.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.TokensOrProposalsList;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.partition.PyPartitionScanner;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
 import org.python.pydev.shared_core.image.IImageHandle;
+import org.python.pydev.shared_core.partitioner.FastPartitioner;
 import org.python.pydev.shared_core.string.DocIterator;
 import org.python.pydev.shared_core.structure.Tuple;
 
@@ -149,10 +156,13 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
     /**
      * Needed interface for adding the completions on a request
      * @throws MisconfigurationException
+     * @throws PythonNatureWithoutProjectException
+     * @throws IOException
      */
     @Override
     public TokensOrProposalsList getCodeCompletionProposals(CompletionRequest request) throws CoreException,
-            BadLocationException, MisconfigurationException {
+            BadLocationException, MisconfigurationException, IOException, PythonNatureWithoutProjectException {
+
         List<ICompletionProposalHandle> completionProposals = new ArrayList<>();
         request.showTemplates = false; //don't show templates in strings
         fillWithEpydocFields(request, completionProposals);
@@ -160,6 +170,28 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
         TokensOrProposalsList ret = new TokensOrProposalsList();
         if (completionProposals.size() == 0) {
             //if the size is not 0, it means that this is a place for the '@' stuff, and not for the 'default' context for a string.
+            IDocument doc = request.doc;
+            ITypedRegion partition = ((FastPartitioner) PyPartitionScanner.checkPartitionScanner(doc))
+                    .getPartition(request.documentOffset);
+            String partitionType = partition.getType();
+
+            if (partitionType.equals(IPythonPartitions.PY_MULTILINE_FSTRING1)
+                    || partitionType.equals(IPythonPartitions.PY_MULTILINE_FSTRING2)
+                    || partitionType.equals(IPythonPartitions.PY_SINGLELINE_FSTRING1)
+                    || partitionType.equals(IPythonPartitions.PY_SINGLELINE_FSTRING2)) {
+                int initOffset = request.documentOffset;
+                // To check whether where we are in the given completion offset,
+                // we are going to iterate backward from the initOffset
+
+                // if we find an initial bracket, it means that we are inside a fstring format or we are going to be inside a fstring format
+                for (int offset = initOffset; offset - 1 > partition.getOffset(); offset--) {
+                    char ch = doc.getChar(offset);
+                    if (ch == '{') {
+                        return new PyCodeCompletion().getCodeCompletionProposals(request);
+                    }
+                }
+            }
+
             TokensOrProposalsList stringGlobalsFromParticipants = getStringGlobalsFromParticipants(request,
                     CompletionStateFactory.getEmptyCompletionState(
                             request.activationToken, request.nature, new CompletionCache()));

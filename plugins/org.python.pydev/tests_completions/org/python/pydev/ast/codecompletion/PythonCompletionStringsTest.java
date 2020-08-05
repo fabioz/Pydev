@@ -6,9 +6,10 @@
  */
 package org.python.pydev.ast.codecompletion;
 
-import org.python.pydev.ast.codecompletion.PyStringCodeCompletion;
 import org.python.pydev.ast.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.ast.codecompletion.revisited.modules.CompiledModule;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
+import org.python.pydev.shared_core.string.StringUtils;
 
 public class PythonCompletionStringsTest extends CodeCompletionTestsBase {
     public static void main(String[] args) {
@@ -124,6 +125,138 @@ public class PythonCompletionStringsTest extends CodeCompletionTestsBase {
 
         String[] toks = new String[] { "create" };
         requestCompl(doc, doc.length() - "\n        '''\n".length(), 1, toks); //request right after the params
+    }
+
+    public void testCompletionInsideFstrings() throws Exception {
+        String s;
+        String original = "class Bar(object):\n" +
+                "\n" +
+                "    def bar(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "b = Bar()\n" +
+                "print(f'Bar is: {b.ba}')";
+        s = StringUtils.format(original, "");
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length() - 3, -1, new String[] {});
+        assertEquals(1, proposals.length);
+        assertEquals("bar()", proposals[0].getDisplayString());
+    }
+
+    public void testCompletionInsideFstrings2() throws Exception {
+        String s;
+        String original = "class Bar(object):\n" +
+                "\n" +
+                "    def bar(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "b = Bar()\n" +
+                "print(f'Bar is: {b.ba')";
+        s = StringUtils.format(original, "");
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length() - 3, -1, new String[] {});
+        assertEquals(1, proposals.length);
+        assertEquals("bar()", proposals[0].getDisplayString());
+    }
+
+    public void testCompletionInsideFstrings3() throws Exception {
+        String s;
+        String original = "class Bar(object):\n" +
+                "\n" +
+                "    def bar(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "b = Bar()\n" +
+                "print(f\"Bar is: {b.ba}\")";
+        s = StringUtils.format(original, "");
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length() - 3, -1, new String[] {});
+        assertEquals(1, proposals.length);
+        assertEquals("bar()", proposals[0].getDisplayString());
+    }
+
+    public void testCompletionInsideFstrings4() throws Exception {
+        String s;
+        String original = "class Bar(object):\n" +
+                "\n" +
+                "    def bar(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "b = Bar()\n" +
+                "print(f\"Bar is: {b.ba\")";
+        s = StringUtils.format(original, "");
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length() - 3, -1, new String[] {});
+        assertEquals(1, proposals.length);
+        assertEquals("bar()", proposals[0].getDisplayString());
+    }
+
+    public void testCompletionInsideFstrings5() throws Exception {
+        String s;
+        String original = "class Bar(object):\n" +
+                "\n" +
+                "    def bar(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "b = Bar()\n" +
+                "s = f'''\n" +
+                "Bar is:\n" +
+                "{b.ba}\n" +
+                "'''";
+        s = StringUtils.format(original, "");
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length() - 5, -1, new String[] {});
+        assertEquals(1, proposals.length);
+        assertEquals("bar()", proposals[0].getDisplayString());
+    }
+
+    public void testCompletionInsideFstrings6() throws Exception {
+        String s;
+        String original = "class Bar(object):\n" +
+                "\n" +
+                "    def bar(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "b = Bar()\n" +
+                "s = f'''\n" +
+                "Bar is:\n" +
+                "{b.ba\n" +
+                "'''";
+        s = StringUtils.format(original, "");
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length() - 5, -1, new String[] {});
+        assertEquals(1, proposals.length);
+        assertEquals("bar()", proposals[0].getDisplayString());
+    }
+
+    public void testCompletionInsideFstrings7() throws Exception {
+        String s;
+        String original = "class Bar(object):\n" +
+                "\n" +
+                "    def bar(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "b = Bar()\n" +
+                "s = f\"\"\"\n" +
+                "Bar is:\n" +
+                "{b.ba}\n" +
+                "\"\"\"";
+        s = StringUtils.format(original, "");
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length() - 5, -1, new String[] {});
+        assertEquals(1, proposals.length);
+        assertEquals("bar()", proposals[0].getDisplayString());
+    }
+
+    public void testCompletionInsideFstrings8() throws Exception {
+        String s;
+        String original = "class Bar(object):\n" +
+                "\n" +
+                "    def bar(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "b = Bar()\n" +
+                "s = f\"\"\"\n" +
+                "Bar is:\n" +
+                "{b.ba\n" +
+                "\"\"\"";
+        s = StringUtils.format(original, "");
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length() - 5, -1, new String[] {});
+        assertEquals(1, proposals.length);
+        assertEquals("bar()", proposals[0].getDisplayString());
     }
 
 }
