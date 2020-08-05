@@ -178,10 +178,7 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
                     .getPartition(request.documentOffset);
             String partitionType = partition.getType();
 
-            if (partitionType.equals(IPythonPartitions.PY_MULTILINE_FSTRING1)
-                    || partitionType.equals(IPythonPartitions.PY_MULTILINE_FSTRING2)
-                    || partitionType.equals(IPythonPartitions.PY_SINGLELINE_FSTRING1)
-                    || partitionType.equals(IPythonPartitions.PY_SINGLELINE_FSTRING2)) {
+            if (IPythonPartitions.F_STRING_PARTITIONS.contains(partitionType)) {
                 // Now we are going to check whether where we are in the given completion offset
                 int requestOffset = request.documentOffset;
                 int fStringLine = doc.getLineOfOffset(partition.getOffset());
