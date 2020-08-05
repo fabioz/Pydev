@@ -30,6 +30,9 @@ import org.python.pydev.core.TokensOrProposalsList;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.partition.PyPartitionScanner;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
+import org.python.pydev.parser.fastparser.grammar_fstrings_common.FStringsAST;
+import org.python.pydev.parser.fastparser.grammar_fstrings_common.SimpleNode;
+import org.python.pydev.parser.grammar_fstrings.FStringsGrammarFactory;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
 import org.python.pydev.shared_core.image.IImageHandle;
@@ -179,16 +182,31 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
                     || partitionType.equals(IPythonPartitions.PY_MULTILINE_FSTRING2)
                     || partitionType.equals(IPythonPartitions.PY_SINGLELINE_FSTRING1)
                     || partitionType.equals(IPythonPartitions.PY_SINGLELINE_FSTRING2)) {
-                int initOffset = request.documentOffset;
-                // To check whether where we are in the given completion offset,
-                // we are going to iterate backward from the initOffset
+                // Now we are going to check whether where we are in the given completion offset
+                int requestOffset = request.documentOffset;
+                int fStringLine = doc.getLineOfOffset(partition.getOffset());
+                int fStringLineOffset = doc.getLineOffset(fStringLine);
 
-                // if we find an initial bracket, it means that we are inside a fstring format or we are going to be inside a fstring format
-                for (int offset = initOffset; offset - 1 > partition.getOffset(); offset--) {
-                    char ch = doc.getChar(offset);
-                    if (ch == '{') {
-                        // request is inside a format, so we have to get a normal code completion to it
-                        return new PyCodeCompletion().getCodeCompletionProposals(request);
+                String str = doc.get(fStringLineOffset,
+                        partition.getOffset() + partition.getLength() - fStringLineOffset);
+
+                FStringsAST ast = null;
+                try {
+                    ast = FStringsGrammarFactory.createGrammar(str).f_string();
+                } catch (Throwable e) {
+                    // Just ignore any errors for this.
+                }
+
+                if (ast != null && ast.hasChildren()) {
+                    for (SimpleNode fStringExpression : ast.getFStringExpressions()) {
+                        int fStringExpressionOffset = doc.getLineOffset(fStringLine + fStringExpression.beginLine - 1)
+                                + fStringExpression.beginColumn;
+                        int fStringExpressionEndOffset = doc.getLineOffset(fStringLine + fStringExpression.endLine - 1)
+                                + fStringExpression.endColumn - 1;
+                        if (requestOffset >= fStringExpressionOffset && requestOffset <= fStringExpressionEndOffset) {
+                            // request is inside a format, so we have to get a normal code completion to it
+                            return new PyCodeCompletion().getCodeCompletionProposals(request);
+                        }
                     }
                 }
             }
