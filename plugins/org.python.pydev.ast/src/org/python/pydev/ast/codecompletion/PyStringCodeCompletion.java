@@ -187,6 +187,7 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
                 for (int offset = initOffset; offset - 1 > partition.getOffset(); offset--) {
                     char ch = doc.getChar(offset);
                     if (ch == '{') {
+                        // request is inside a format, so we have to get a normal code completion to it
                         return new PyCodeCompletion().getCodeCompletionProposals(request);
                     }
                 }
