@@ -38,6 +38,7 @@ import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.partitioner.FastPartitioner;
 import org.python.pydev.shared_core.string.DocIterator;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
 /**
@@ -181,11 +182,17 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
             if (IPythonPartitions.F_STRING_PARTITIONS.contains(partitionType)) {
                 // Now we are going to check whether where we are in the given completion offset
                 int requestOffset = request.documentOffset;
-                int fStringLine = doc.getLineOfOffset(partition.getOffset());
-                int fStringLineOffset = doc.getLineOffset(fStringLine);
+                int partitionOffset = partition.getOffset();
+                int partitionLine = doc.getLineOfOffset(partitionOffset);
 
-                String str = doc.get(fStringLineOffset,
-                        partition.getOffset() + partition.getLength() - fStringLineOffset);
+                int extraCol = 0;
+                // If the line that FString starts is the same line on which completion was requested
+                // we will need to set an extra column from where FString starts
+                if (partitionLine == request.getLine()) {
+                    extraCol = partitionOffset - doc.getLineOffset(partitionLine);
+                }
+
+                String str = doc.get(partitionOffset, partition.getLength());
 
                 FStringsAST ast = null;
                 try {
@@ -195,12 +202,12 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
                 }
 
                 if (ast != null && ast.hasChildren()) {
-                    for (SimpleNode fStringExpression : ast.getFStringExpressions()) {
-                        int fStringExpressionOffset = doc.getLineOffset(fStringLine + fStringExpression.beginLine - 1)
-                                + fStringExpression.beginColumn;
-                        int fStringExpressionEndOffset = doc.getLineOffset(fStringLine + fStringExpression.endLine - 1)
-                                + fStringExpression.endColumn - 1;
-                        if (requestOffset >= fStringExpressionOffset && requestOffset <= fStringExpressionEndOffset) {
+                    for (SimpleNode node : ast.getBalancedExpressionsToBeEvaluatedInRegularGrammar()) {
+                        int nodeOffset = TextSelectionUtils.getAbsoluteCursorOffset(doc,
+                                partitionLine + node.beginLine - 1, extraCol + node.beginColumn - 1);
+                        int nodeEndOffset = TextSelectionUtils.getAbsoluteCursorOffset(doc,
+                                partitionLine + node.endLine - 1, extraCol + node.endColumn);
+                        if (requestOffset >= nodeOffset && requestOffset <= nodeEndOffset) {
                             // request is inside a format, so we have to get a normal code completion to it
                             return new PyCodeCompletion().getCodeCompletionProposals(request);
                         }
