@@ -184,13 +184,7 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
                 int requestOffset = request.documentOffset;
                 int partitionOffset = partition.getOffset();
                 int partitionLine = doc.getLineOfOffset(partitionOffset);
-
-                int extraCol = 0;
-                // If the line that FString starts is the same line on which completion was requested
-                // we will need to set an extra column from where FString starts
-                if (partitionLine == request.getLine()) {
-                    extraCol = partitionOffset - doc.getLineOffset(partitionLine);
-                }
+                int partitionCol = partitionOffset - doc.getLineOffset(partitionLine);
 
                 String str = doc.get(partitionOffset, partition.getLength());
 
@@ -203,10 +197,23 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
 
                 if (ast != null && ast.hasChildren()) {
                     for (SimpleNode node : ast.getBalancedExpressionsToBeEvaluatedInRegularGrammar()) {
-                        int nodeOffset = TextSelectionUtils.getAbsoluteCursorOffset(doc,
-                                partitionLine + node.beginLine - 1, extraCol + node.beginColumn - 1);
-                        int nodeEndOffset = TextSelectionUtils.getAbsoluteCursorOffset(doc,
-                                partitionLine + node.endLine - 1, extraCol + node.endColumn);
+                        int nodeOffset;
+                        int nodeEndOffset;
+                        if (node.beginLine > 1) {
+                            nodeOffset = TextSelectionUtils.getAbsoluteCursorOffset(doc,
+                                    partitionLine + node.beginLine - 1, node.beginColumn - 1);
+                        } else {
+                            nodeOffset = TextSelectionUtils.getAbsoluteCursorOffset(doc,
+                                    partitionLine + node.beginLine - 1, partitionCol + node.beginColumn - 1);
+                        }
+                        if (node.endLine > 1) {
+                            nodeEndOffset = TextSelectionUtils.getAbsoluteCursorOffset(doc,
+                                    partitionLine + node.endLine - 1, node.endColumn);
+                        } else {
+                            nodeEndOffset = TextSelectionUtils.getAbsoluteCursorOffset(doc,
+                                    partitionLine + node.endLine - 1, partitionCol + node.endColumn);
+                        }
+
                         if (requestOffset >= nodeOffset && requestOffset <= nodeEndOffset) {
                             // request is inside a format, so we have to get a normal code completion to it
                             return new PyCodeCompletion().getCodeCompletionProposals(request);
