@@ -13,7 +13,7 @@ Release 7.7.0 (2020-08-02)
 
 	* New option to set project source folders as **MYPYPATH**.
 	* **--follow-imports=silent** now set by default.
-	* The cache dir set by default to **project/.mypy_cache**
+	* The cache dir is set by default to **project/.mypy_cache**
 
 * Many improvements for dealing with **typing information** (in code-analysis and code-completion).
 

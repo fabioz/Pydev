@@ -39,6 +39,8 @@
 
         <div id="bronze-sponsors-a-hrefs">
 
+        <a href="https://kajino.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/kajino.png" alt="Kajino" title="https://kajino.com/" /></a>
+
         <a href="https://edubirdie.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/edubirdie.png" alt="EduBirdie" title="https://edubirdie.com/" /></a>
 
 		<a href="https://casinopilotti.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/casinopilotti.png" alt="https://casinopilotti.com/" title="https://casinopilotti.com/" /></a>
@@ -340,7 +342,7 @@ Release 7.7.0 (2020-08-02)
 
 	* New option to set project source folders as **MYPYPATH**.
 	* **--follow-imports=silent** now set by default.
-	* The cache dir set by default to **project/.mypy_cache**
+	* The cache dir is set by default to **project/.mypy_cache**
 
 * Many improvements for dealing with **typing information** (in code-analysis and code-completion).
 
