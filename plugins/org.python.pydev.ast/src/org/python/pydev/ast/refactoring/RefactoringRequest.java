@@ -103,6 +103,11 @@ public class RefactoringRequest extends DecoratableObject {
     public String inputName;
 
     /**
+     * The representation of the selected name
+     */
+    public String rep;
+
+    /**
      * The initial representation of the selected name
      */
     public String initialName;
@@ -270,8 +275,9 @@ public class RefactoringRequest extends DecoratableObject {
      */
     public void fillInitialNameAndOffset() {
         try {
-            Tuple<String, Integer> currToken = ps.getCurrToken();
-            initialName = currToken.o1;
+            String[] currToken = ps.getActivationTokenAndQual(true);
+            rep = currToken[0];
+            initialName = currToken[1];
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
