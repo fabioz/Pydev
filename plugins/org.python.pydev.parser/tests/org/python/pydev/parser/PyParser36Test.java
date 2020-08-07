@@ -7,6 +7,7 @@
 package org.python.pydev.parser;
 
 import java.io.File;
+import java.util.List;
 
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.TestDependent;
@@ -14,6 +15,9 @@ import org.python.pydev.parser.grammar36.PythonGrammar36;
 import org.python.pydev.parser.jython.FastCharStream;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.ast.Expr;
+import org.python.pydev.parser.jython.ast.Str;
+import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
 import org.python.pydev.shared_core.io.FileUtils;
 
 public class PyParser36Test extends PyParserTestBase {
@@ -128,6 +132,40 @@ public class PyParser36Test extends PyParserTestBase {
                 "" +
                 "";
         parseLegalDocStr(s);
+    }
+
+    private void checkStr(String s, String expected, boolean binary, boolean fstring, boolean unicode, boolean raw) {
+        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(parseLegalDocStr(s));
+        List<ASTEntry> asList = visitor.getAsList(Str.class);
+        assertEquals(asList.size(), 1);
+        ASTEntry entry = asList.iterator().next();
+        Str str = (Str) entry.node;
+        assertEquals(binary, str.binary);
+        assertEquals(fstring, str.fstring);
+        assertEquals(unicode, str.unicode);
+        assertEquals(raw, str.raw);
+        assertEquals(expected, str.s);
+    }
+
+    public void testStr() throws Exception {
+        checkStr("''", "", false, false, false, false);
+        checkStr("'s'", "s", false, false, false, false);
+        checkStr("r''", "", false, false, false, true);
+        checkStr("r's'", "s", false, false, false, true);
+
+        checkStr("b''", "", true, false, false, false);
+        checkStr("b's'", "s", true, false, false, false);
+        checkStr("br''", "", true, false, false, true);
+        checkStr("br's'", "s", true, false, false, true);
+        checkStr("rb''", "", true, false, false, true);
+        checkStr("rb's'", "s", true, false, false, true);
+
+        checkStr("f''", "", false, true, false, false);
+        checkStr("f's'", "s", false, true, false, false);
+        checkStr("fr''", "", false, true, false, true);
+        checkStr("fr's'", "s", false, true, false, true);
+        checkStr("rf''", "", false, true, false, true);
+        checkStr("rf's'", "s", false, true, false, true);
     }
 
 }
