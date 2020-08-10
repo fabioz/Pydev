@@ -142,7 +142,7 @@ public class CtxParticipant
         FastStringBuffer realImportRep = new FastStringBuffer();
         FastStringBuffer displayString = new FastStringBuffer();
         FastStringBuffer tempBuf = new FastStringBuffer();
-        boolean doIgnoreImportsStartingWithUnder = AnalysisPreferences.doIgnoreImportsStartingWithUnder();
+        boolean doIgnoreImportsStartingWithUnder = AnalysisPreferences.doIgnoreImportsStartingWithUnder(null);
         CompareContext compareContext = new CompareContext(nature);
         for (IInfo info : tokensStartingWith) {
             //there always must be a declaringModuleName
@@ -218,7 +218,7 @@ public class CtxParticipant
             FastStringBuffer displayString = new FastStringBuffer();
             FastStringBuffer tempBuf = new FastStringBuffer();
 
-            boolean doIgnoreImportsStartingWithUnder = AnalysisPreferences.doIgnoreImportsStartingWithUnder();
+            boolean doIgnoreImportsStartingWithUnder = AnalysisPreferences.doIgnoreImportsStartingWithUnder(null);
 
             for (IInfo info : tokensStartingWith) {
                 //there always must be a declaringModuleName

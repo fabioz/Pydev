@@ -70,7 +70,7 @@ public class OrganizeImports implements IOrganizeImports {
      */
     @Override
     public boolean beforePerformArrangeImports(final PySelection ps, final PyEdit edit, IFile f) {
-        if ((!AnalysisPreferences.doAutoImportOnOrganizeImports()) || edit == null) {
+        if ((!AnalysisPreferences.doAutoImportOnOrganizeImports(edit)) || edit == null) {
             return true;
         }
         didChange = false;
@@ -274,7 +274,7 @@ public class OrganizeImports implements IOrganizeImports {
      */
     @Override
     public void afterPerformArrangeImports(PySelection ps, PyEdit pyEdit) {
-        if (!AnalysisPreferences.doAutoImportOnOrganizeImports() || !didChange) {
+        if (!AnalysisPreferences.doAutoImportOnOrganizeImports(pyEdit) || !didChange) {
             return;
         }
         if (pyEdit != null) {

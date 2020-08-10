@@ -74,7 +74,8 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
         }
         int start = markerAnnotation.position.offset;
         int end = start + markerAnnotation.position.length;
-        UndefinedVariableQuickFixCreator.createImportQuickProposalsFromMarkerSelectedText(ps, offset, initialNature,
+        UndefinedVariableQuickFixCreator.createImportQuickProposalsFromMarkerSelectedText(edit, ps, offset,
+                initialNature,
                 props, astManager, start, end, forceReparseOnApply);
     }
 

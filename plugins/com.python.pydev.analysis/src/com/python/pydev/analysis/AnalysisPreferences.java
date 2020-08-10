@@ -217,32 +217,28 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences {
             return TESTS_DO_AUTO_IMPORT;
         }
 
-        return PydevPrefs.getAnalysisEclipsePreferences().getBoolean(
-                AnalysisPreferenceInitializer.DO_AUTO_IMPORT,
-                AnalysisPreferenceInitializer.DEFAULT_DO_AUT_IMPORT);
+        return PyAnalysisScopedPreferences.getBoolean(AnalysisPreferenceInitializer.DO_AUTO_IMPORT, null);
     }
 
     public static boolean TESTS_DO_AUTO_IMPORT_ON_ORGANIZE_IMPORTS = true;
 
-    public static boolean doAutoImportOnOrganizeImports() {
+    public static boolean doAutoImportOnOrganizeImports(IAdaptable projectAdaptable) {
         if (SharedCorePlugin.inTestMode()) {
             return TESTS_DO_AUTO_IMPORT_ON_ORGANIZE_IMPORTS;
         }
-        return PydevPrefs.getAnalysisEclipsePreferences().getBoolean(
-                AnalysisPreferenceInitializer.DO_AUTO_IMPORT_ON_ORGANIZE_IMPORTS,
-                AnalysisPreferenceInitializer.DEFAULT_DO_AUTO_IMPORT_ON_ORGANIZE_IMPORTS);
+        return PyAnalysisScopedPreferences.getBoolean(AnalysisPreferenceInitializer.DO_AUTO_IMPORT_ON_ORGANIZE_IMPORTS,
+                projectAdaptable);
     }
 
     public static boolean TESTS_DO_IGNORE_IMPORT_STARTING_WITH_UNDER = false;
 
-    public static boolean doIgnoreImportsStartingWithUnder() {
+    public static boolean doIgnoreImportsStartingWithUnder(IAdaptable projectAdaptable) {
         if (SharedCorePlugin.inTestMode()) {
             return TESTS_DO_IGNORE_IMPORT_STARTING_WITH_UNDER;
         }
 
-        return PydevPrefs.getAnalysisEclipsePreferences().getBoolean(
-                AnalysisPreferenceInitializer.DO_IGNORE_IMPORTS_STARTING_WITH_UNDER,
-                AnalysisPreferenceInitializer.DEFAULT_DO_IGNORE_FIELDS_WITH_UNDER);
+        return PyAnalysisScopedPreferences.getBoolean(
+                AnalysisPreferenceInitializer.DO_IGNORE_IMPORTS_STARTING_WITH_UNDER, projectAdaptable);
     }
 
     /**
