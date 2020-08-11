@@ -171,10 +171,10 @@ public class PyRenameFunctionProcess extends AbstractRenameWorkspaceRefactorProc
 
         if (!definition.module.getName().equals(request.moduleName)) {
             //it was found in another module
-            docOccurrences.addAll(getEntryOccurrencesInOtherModule(request.initialName, root));
+            docOccurrences.addAll(getEntryOccurrencesInOtherModule(request.qualifier, root));
 
         } else {
-            docOccurrences.addAll(getEntryOccurrencesInSameModule(status, request.initialName, root));
+            docOccurrences.addAll(getEntryOccurrencesInSameModule(status, request.qualifier, root));
         }
 
     }

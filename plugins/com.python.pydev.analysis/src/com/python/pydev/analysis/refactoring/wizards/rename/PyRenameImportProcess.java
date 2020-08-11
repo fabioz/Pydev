@@ -82,8 +82,8 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
         SimpleNode root = request.getAST();
         if (oc.size() > 0) {
             //only add comments and strings if there's at least some other occurrence
-            oc.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
-            oc.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, root));
+            oc.addAll(ScopeAnalysis.getCommentOccurrences(request.qualifier, root));
+            oc.addAll(ScopeAnalysis.getStringOccurrences(request.qualifier, root));
         }
 
         addOccurrences(request, oc);
@@ -180,7 +180,7 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
         try {
             checkProperRequest();
 
-            MatchImportsVisitor visitor = new MatchImportsVisitor(request.nature, request.initialName, module,
+            MatchImportsVisitor visitor = new MatchImportsVisitor(request.nature, request.qualifier, module,
                     request.getMonitor());
 
             SimpleNode root = module.getAst();
@@ -199,11 +199,11 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
                 }
             }
             //Look for the full match on all strings or comments in this case.
-            entryOccurrences.addAll(convertToUseInitialName(request.initialName,
-                    ScopeAnalysis.getCommentOccurrences(request.initialName, root)));
+            entryOccurrences.addAll(convertToUseInitialName(request.qualifier,
+                    ScopeAnalysis.getCommentOccurrences(request.qualifier, root)));
 
-            entryOccurrences.addAll(convertToUseInitialName(request.initialName,
-                    ScopeAnalysis.getStringOccurrences(request.initialName, root)));
+            entryOccurrences.addAll(convertToUseInitialName(request.qualifier,
+                    ScopeAnalysis.getStringOccurrences(request.qualifier, root)));
 
         } catch (Exception e) {
             Log.log(e);

@@ -112,7 +112,7 @@ public class RefactoringLocalTestBase extends CodeCompletionTestsBase {
                 onlyOnLocalScope);
         request.moduleName = "foo";
         request.inputName = newName;
-        request.fillInitialNameAndOffset();
+        request.fillActivationTokenAndQualifier();
 
         applyRenameRefactoring(request, expectError);
         String refactored = doc.get();
@@ -120,7 +120,7 @@ public class RefactoringLocalTestBase extends CodeCompletionTestsBase {
             System.out.println(refactored);
         }
         if (!expectError) {
-            assertEquals(initialName, request.initialName);
+            assertEquals(initialName, request.qualifier);
             assertEquals(StringUtils.format(strDoc, getSame("bb")), refactored);
         } else {
             //cannot have changed

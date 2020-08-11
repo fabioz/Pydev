@@ -75,7 +75,7 @@ public class PyMoveImportsToLocalCompletionProposal
     public void apply(IDocument doc) {
         RefactoringRequest req = refactoringRequest;
         final IPyRefactoring2 r = (IPyRefactoring2) AbstractPyRefactoring.getPyRefactoring();
-        if (req.initialName != null && req.initialName.trim().length() > 0) {
+        if (req.qualifier != null && req.qualifier.trim().length() > 0) {
             try {
                 final Map<Tuple<String, File>, HashSet<ASTEntry>> occurrences = r.findAllOccurrences(req);
                 final Set<Entry<Tuple<String, File>, HashSet<ASTEntry>>> entrySet = occurrences

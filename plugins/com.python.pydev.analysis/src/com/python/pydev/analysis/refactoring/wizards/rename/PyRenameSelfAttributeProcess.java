@@ -35,11 +35,11 @@ public class PyRenameSelfAttributeProcess extends AbstractRenameWorkspaceRefacto
     @Override
     protected void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
         SimpleNode root = request.getAST();
-        List<ASTEntry> oc = ScopeAnalysis.getAttributeReferences(request.initialName, root);
+        List<ASTEntry> oc = ScopeAnalysis.getAttributeReferences(request.qualifier, root);
         if (oc.size() > 0) {
             //only add comments and strings if there's at least some other occurrence
-            oc.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
-            oc.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, root));
+            oc.addAll(ScopeAnalysis.getCommentOccurrences(request.qualifier, root));
+            oc.addAll(ScopeAnalysis.getStringOccurrences(request.qualifier, root));
         }
         addOccurrences(request, oc);
     }
@@ -51,8 +51,8 @@ public class PyRenameSelfAttributeProcess extends AbstractRenameWorkspaceRefacto
         List<ASTEntry> oc = ScopeAnalysis.getAttributeReferences(initialName, root);
         if (oc.size() > 0) {
             //only add comments and strings if there's at least some other occurrence
-            oc.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
-            oc.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, root));
+            oc.addAll(ScopeAnalysis.getCommentOccurrences(request.qualifier, root));
+            oc.addAll(ScopeAnalysis.getStringOccurrences(request.qualifier, root));
         }
         return oc; //will get the self.xxx occurrences
     }
