@@ -154,22 +154,22 @@ public class FindActualDefinitionTest extends CodeCompletionTestsBase {
     public void testOccurrencesForDefinition() throws Exception {
         int usedGrammar = GRAMMAR_TO_USE_FOR_PARSING;
         GRAMMAR_TO_USE_FOR_PARSING = PythonNature.LATEST_GRAMMAR_PY3_VERSION;
+        try {
+            File file = new File(TestDependent.TEST_PYSRC_TESTING_LOC + "occurrencesForDefinition/foo.py");
+            PySelection selection = new PySelection(new Document(FileUtils.getFileContents(file)), 0, 19, 4);
+            Refactorer.setPyRefactoring(new Refactorer());
+            RefactoringRequest req = new RefactoringRequest(file, selection, nature);
+            req.fillInitialNameAndOffset();
+            req.setAdditionalInfo(RefactoringRequest.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
+            req.setAdditionalInfo(RefactoringRequest.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, true);
 
-        File file = new File(TestDependent.TEST_PYSRC_TESTING_LOC + "occurrencesForDefinition/foo.py");
-        PySelection selection = new PySelection(new Document(FileUtils.getFileContents(file)), 0, 19, 4);
-        Refactorer.setPyRefactoring(new Refactorer());
-        RefactoringRequest req = new RefactoringRequest(file, selection, nature);
-        req.fillInitialNameAndOffset();
-        req.setAdditionalInfo(RefactoringRequest.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
-        req.setAdditionalInfo(RefactoringRequest.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, true);
-
-        PyReferenceSearcher pyReferenceSearcher = new PyReferenceSearcher(req);
-        pyReferenceSearcher.prepareSearch(req);
-        pyReferenceSearcher.search(req);
-        HashSet<ASTEntry> ref = pyReferenceSearcher.getLocalReferences(req);
-
-        GRAMMAR_TO_USE_FOR_PARSING = usedGrammar;
-
-        assertEquals(4, ref.size());
+            PyReferenceSearcher pyReferenceSearcher = new PyReferenceSearcher(req);
+            pyReferenceSearcher.prepareSearch(req);
+            pyReferenceSearcher.search(req);
+            HashSet<ASTEntry> ref = pyReferenceSearcher.getLocalReferences(req);
+            assertEquals(4, ref.size());
+        } finally {
+            GRAMMAR_TO_USE_FOR_PARSING = usedGrammar;
+        }
     }
 }
