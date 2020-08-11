@@ -20,6 +20,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.io.FileUtils;
 
 import com.python.pydev.analysis.refactoring.refactorer.Refactorer;
@@ -151,6 +152,9 @@ public class FindActualDefinitionTest extends CodeCompletionTestsBase {
     }
 
     public void testOccurrencesForDefinition() throws Exception {
+        int usedGrammar = GRAMMAR_TO_USE_FOR_PARSING;
+        GRAMMAR_TO_USE_FOR_PARSING = PythonNature.LATEST_GRAMMAR_PY3_VERSION;
+
         File file = new File(TestDependent.TEST_PYSRC_TESTING_LOC + "occurrencesForDefinition/foo.py");
         PySelection selection = new PySelection(new Document(FileUtils.getFileContents(file)), 0, 19, 4);
         Refactorer.setPyRefactoring(new Refactorer());
@@ -163,6 +167,8 @@ public class FindActualDefinitionTest extends CodeCompletionTestsBase {
         pyReferenceSearcher.prepareSearch(req);
         pyReferenceSearcher.search(req);
         HashSet<ASTEntry> ref = pyReferenceSearcher.getLocalReferences(req);
+
+        GRAMMAR_TO_USE_FOR_PARSING = usedGrammar;
 
         assertEquals(4, ref.size());
     }
