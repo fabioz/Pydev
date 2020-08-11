@@ -28,9 +28,9 @@ public class PyRefactoringRequest implements IPyRefactoringRequest {
     }
 
     @Override
-    public void fillInitialNameAndOffset() {
+    public void fillActivationTokenAndQualifier() {
         for (RefactoringRequest r : requests) {
-            r.fillInitialNameAndOffset();
+            r.fillActivationTokenAndQualifier();
         }
     }
 
@@ -152,7 +152,7 @@ public class PyRefactoringRequest implements IPyRefactoringRequest {
     @Override
     public String getInitialName() {
         for (RefactoringRequest r : requests) {
-            return r.initialName;
+            return r.qualifier;
         }
         throw new AssertionError("Unable to get initial name (no requests available)");
     }

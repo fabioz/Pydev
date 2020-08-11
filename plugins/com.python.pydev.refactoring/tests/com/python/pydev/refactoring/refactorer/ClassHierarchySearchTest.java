@@ -391,7 +391,7 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase {
         try {
             RefactorerFindReferences references = new RefactorerFindReferences();
             RefactoringRequest request = new RefactoringRequest(null, null, nature);
-            request.initialName = name;
+            request.qualifier = name;
 
             List<Tuple<List<ModulesKey>, IPythonNature>> findPossibleReferences = references
                     .findPossibleReferences(request);

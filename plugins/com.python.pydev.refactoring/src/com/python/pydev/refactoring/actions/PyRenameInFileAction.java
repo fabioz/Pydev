@@ -244,7 +244,7 @@ public class PyRenameInFileAction extends Action {
                     int colDef = NodeUtils.getClassOrFuncColDefinition(entry.node) - 1;
 
                     int offset = lineInformation.getOffset() + colDef;
-                    int len = req.initialName.length();
+                    int len = req.qualifier.length();
                     Tuple<Integer, Integer> foundAt = new Tuple<Integer, Integer>(offset, len);
 
                     if (!found.contains(foundAt)) {

@@ -75,11 +75,11 @@ public class PyRenameClassProcess extends AbstractRenameWorkspaceRefactorProcess
         List<ASTEntry> oc = new ArrayList<ASTEntry>();
 
         //in the local scope for a class, we'll only have at least one reference
-        oc.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
-        oc.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, root));
+        oc.addAll(ScopeAnalysis.getCommentOccurrences(request.qualifier, root));
+        oc.addAll(ScopeAnalysis.getStringOccurrences(request.qualifier, root));
         int currLine = request.ps.getCursorLine();
         int currCol = request.ps.getCursorColumn();
-        int tokenLen = request.initialName.length();
+        int tokenLen = request.qualifier.length();
         boolean foundAsComment = false;
         for (ASTEntry entry : oc) {
             //it may be that we are actually hitting it in a comment and not in the class itself...
@@ -117,7 +117,7 @@ public class PyRenameClassProcess extends AbstractRenameWorkspaceRefactorProcess
             oc.addAll(this.getOccurrencesWithScopeAnalyzer(request, (SourceModule) request.getModule()));
         } else {
             //it is defined in some other module (or as a comment... so, we won't have an exact match in the position)
-            oc.addAll(ScopeAnalysis.getLocalOccurrences(request.initialName, root));
+            oc.addAll(ScopeAnalysis.getLocalOccurrences(request.qualifier, root));
         }
 
         if (classDefInAst == null) {
@@ -125,7 +125,7 @@ public class PyRenameClassProcess extends AbstractRenameWorkspaceRefactorProcess
             // -- which means that it was found as an import. E.g.:
             // import foo
             // foo.ClassAccess <-- Searching for ClassAccess
-            List<ASTEntry> attributeReferences = ScopeAnalysis.getAttributeReferences(request.initialName, root, 0);
+            List<ASTEntry> attributeReferences = ScopeAnalysis.getAttributeReferences(request.qualifier, root, 0);
             oc.addAll(attributeReferences);
         }
 
@@ -165,8 +165,8 @@ public class PyRenameClassProcess extends AbstractRenameWorkspaceRefactorProcess
 
         if (entryOccurrences.size() > 0) {
             //only add comments and strings if there's at least some other occurrence
-            entryOccurrences.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
-            entryOccurrences.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, root));
+            entryOccurrences.addAll(ScopeAnalysis.getCommentOccurrences(request.qualifier, root));
+            entryOccurrences.addAll(ScopeAnalysis.getStringOccurrences(request.qualifier, root));
         }
         return entryOccurrences;
     }
