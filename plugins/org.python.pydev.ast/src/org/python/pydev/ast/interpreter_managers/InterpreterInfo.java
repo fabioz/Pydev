@@ -938,6 +938,7 @@ public class InterpreterInfo implements IInterpreterInfo {
                 forcedLibs.add("Image"); //for PIL
                 forcedLibs.add("cv2"); //for OpenCV
                 forcedLibs.add("mutagen"); // https://www.brainwy.com/tracker/PyDev/819
+                forcedLibs.add("py"); // For pytest
 
                 //these are the builtins -- apparently sys.builtin_module_names is not ok in linux.
                 forcedLibs.add("_ast");
