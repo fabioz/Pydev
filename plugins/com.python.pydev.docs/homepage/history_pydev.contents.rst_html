@@ -12,7 +12,7 @@
 <ul class="simple">
 <li>New option to set project source folders as <strong>MYPYPATH</strong>.</li>
 <li><strong>--follow-imports=silent</strong> now set by default.</li>
-<li>The cache dir set by default to <strong>project/.mypy_cache</strong></li>
+<li>The cache dir is set by default to <strong>project/.mypy_cache</strong></li>
 </ul>
 </blockquote>
 </li>
