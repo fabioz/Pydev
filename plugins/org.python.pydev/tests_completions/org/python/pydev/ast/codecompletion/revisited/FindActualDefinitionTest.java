@@ -159,7 +159,7 @@ public class FindActualDefinitionTest extends CodeCompletionTestsBase {
             PySelection selection = new PySelection(new Document(FileUtils.getFileContents(file)), 0, 19, 4);
             Refactorer.setPyRefactoring(new Refactorer());
             RefactoringRequest req = new RefactoringRequest(file, selection, nature);
-            req.fillInitialNameAndOffset();
+            req.fillActivationTokenAndQualifier();
             req.setAdditionalInfo(RefactoringRequest.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
             req.setAdditionalInfo(RefactoringRequest.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, true);
 
