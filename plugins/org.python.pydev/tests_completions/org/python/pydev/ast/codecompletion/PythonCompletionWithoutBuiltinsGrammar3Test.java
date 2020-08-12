@@ -9,7 +9,6 @@ package org.python.pydev.ast.codecompletion;
 import java.io.File;
 
 import org.eclipse.core.runtime.CoreException;
-import org.python.pydev.ast.codecompletion.PyCodeCompletion;
 import org.python.pydev.ast.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.ast.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
@@ -150,5 +149,21 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
         assertEquals(1, proposals.length);
         ICompletionProposalHandle prop = proposals[0];
         assertEquals("method()", prop.getDisplayString());
+    }
+
+    public void testAssignCompletionWithTypeAsString() throws Exception {
+        String s = ""
+                + "class Bar(object):\n" +
+                "    def bar(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "def method():\n" +
+                "    foo: 'Bar'\n" +
+                "    foo.";
+
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+        assertEquals(1, proposals.length);
+        ICompletionProposalHandle prop = proposals[0];
+        assertEquals("bar()", prop.getDisplayString());
     }
 }
