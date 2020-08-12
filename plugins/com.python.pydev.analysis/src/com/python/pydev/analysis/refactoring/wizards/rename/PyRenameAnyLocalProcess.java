@@ -39,7 +39,7 @@ public class PyRenameAnyLocalProcess extends AbstractRenameWorkspaceRefactorProc
 
     @Override
     protected void findReferencesToRenameOnLocalScope(RefactoringRequest request, RefactoringStatus status) {
-        List<ASTEntry> oc = getOccurrences(request, request.initialName, (SourceModule) request.getModule());
+        List<ASTEntry> oc = getOccurrences(request, request.qualifier, (SourceModule) request.getModule());
         addOccurrences(request, oc);
     }
 
@@ -53,17 +53,17 @@ public class PyRenameAnyLocalProcess extends AbstractRenameWorkspaceRefactorProc
             oc.addAll(occurrencesWithScopeAnalyzer);
 
             if (occurrencesWithScopeAnalyzer.size() == 0) {
-                oc.addAll(ScopeAnalysis.getLocalOccurrences(request.initialName, root, false));
+                oc.addAll(ScopeAnalysis.getLocalOccurrences(request.qualifier, root, false));
             }
 
         } else {
             //attribute search
-            oc.addAll(ScopeAnalysis.getAttributeReferences(request.initialName, root));
+            oc.addAll(ScopeAnalysis.getAttributeReferences(request.qualifier, root));
         }
         if (oc.size() > 0) {
             //only add comments and strings if there's at least some other occurrence
-            oc.addAll(ScopeAnalysis.getCommentOccurrences(request.initialName, root));
-            oc.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, root));
+            oc.addAll(ScopeAnalysis.getCommentOccurrences(request.qualifier, root));
+            oc.addAll(ScopeAnalysis.getStringOccurrences(request.qualifier, root));
         }
         return oc;
     }

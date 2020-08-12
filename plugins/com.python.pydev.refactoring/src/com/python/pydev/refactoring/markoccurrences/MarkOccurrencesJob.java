@@ -84,7 +84,7 @@ public class MarkOccurrencesJob extends BaseMarkOccurrencesJob {
         }
 
         public String getInitialName() {
-            return refactoringRequest.initialName;
+            return refactoringRequest.qualifier;
         }
 
     }
@@ -159,7 +159,7 @@ public class MarkOccurrencesJob extends BaseMarkOccurrencesJob {
             return new PyMarkOccurrencesRequest(false, null, null);
         } catch (Throwable e) {
             throw new RuntimeException("Error in occurrences while analyzing modName:" + req.moduleName
-                    + " initialName:" + req.initialName + " line (start at 0):" + req.ps.getCursorLine(), e);
+                    + " initialName:" + req.qualifier + " line (start at 0):" + req.ps.getCursorLine(), e);
         }
     }
 
@@ -263,7 +263,7 @@ public class MarkOccurrencesJob extends BaseMarkOccurrencesJob {
             PySelection ps) throws BadLocationException, MisconfigurationException {
         final RefactoringRequest req = pyRefactorAction.getRefactoringRequest();
         req.ps = ps;
-        req.fillInitialNameAndOffset();
+        req.fillActivationTokenAndQualifier();
         req.inputName = "foo";
         req.setAdditionalInfo(RefactoringRequest.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
         req.setAdditionalInfo(RefactoringRequest.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, true);

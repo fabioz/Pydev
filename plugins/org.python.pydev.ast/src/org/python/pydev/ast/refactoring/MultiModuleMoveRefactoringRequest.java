@@ -77,7 +77,7 @@ public class MultiModuleMoveRefactoringRequest extends PyRefactoringRequest {
             ModuleRenameRefactoringRequest modReq = (ModuleRenameRefactoringRequest) r;
             modReq.setTarget(finalContainer);
 
-            String lastPart = FullRepIterable.getLastPart(r.initialName);
+            String lastPart = FullRepIterable.getLastPart(r.qualifier);
             if (text.length() > 0) {
                 r.inputName = text + "." + lastPart;
             } else {

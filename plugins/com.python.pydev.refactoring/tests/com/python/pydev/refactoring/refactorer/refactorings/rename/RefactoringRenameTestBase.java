@@ -318,7 +318,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
             request.setAdditionalInfo(RefactoringRequest.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, false);
             request.moduleName = moduleName;
             request.inputName = "new_name";
-            request.fillInitialNameAndOffset();
+            request.fillActivationTokenAndQualifier();
 
             PyRenameEntryPoint processor = new PyRenameEntryPoint(request);
             NullProgressMonitor nullProgressMonitor = new NullProgressMonitor();

@@ -54,7 +54,7 @@ public class RefactorerFindReferences {
      */
     public List<Tuple<List<ModulesKey>, IPythonNature>> findPossibleReferences(RefactoringRequest request)
             throws OperationCanceledException {
-        String initialName = request.initialName;
+        String initialName = request.qualifier;
         List<Tuple<List<ModulesKey>, IPythonNature>> ret = request.getPossibleReferences(initialName);
         if (ret != null) {
             return ret;
@@ -67,7 +67,7 @@ public class RefactorerFindReferences {
                 //only for testing purposes
                 for (ModulesKey k : f.o1) {
                     String object = FileUtils.getFileContents(k.file);
-                    if (object.indexOf(request.initialName) != -1) {
+                    if (object.indexOf(request.qualifier) != -1) {
                         ret.add(new Tuple<List<ModulesKey>, IPythonNature>(Arrays.asList(k), f.o2));
                     }
                 }

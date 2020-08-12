@@ -173,13 +173,13 @@ public class PyRenameEntryPoint extends RenameProcessor {
         RefactoringStatus status = new RefactoringStatus();
         try {
             for (RefactoringRequest request : fRequest.getRequests()) {
-                if (!PyStringUtils.isValidIdentifier(request.initialName, request.isModuleRenameRefactoringRequest())) {
-                    status.addFatalError("The initial name is not valid:" + request.initialName);
+                if (!PyStringUtils.isValidIdentifier(request.qualifier, request.isModuleRenameRefactoringRequest())) {
+                    status.addFatalError("The initial name is not valid:" + request.qualifier);
                     return status;
                 }
 
-                if (WORDS_THAT_CANNOT_BE_RENAMED.contains(request.initialName)) {
-                    status.addFatalError("The token: " + request.initialName + " cannot be renamed.");
+                if (WORDS_THAT_CANNOT_BE_RENAMED.contains(request.qualifier)) {
+                    status.addFatalError("The token: " + request.qualifier + " cannot be renamed.");
                     return status;
                 }
 
@@ -272,7 +272,7 @@ public class PyRenameEntryPoint extends RenameProcessor {
                     return status;
                 }
 
-                TextEditCreation textEditCreation = new TextEditCreation(request.initialName, request.inputName,
+                TextEditCreation textEditCreation = new TextEditCreation(request.qualifier, request.inputName,
                         request.getModule().getName(), request.getDoc(), processes, status,
                         request.getIFile()) {
                     @Override
@@ -354,7 +354,7 @@ public class PyRenameEntryPoint extends RenameProcessor {
         if (requests.size() == 1) {
             RefactoringRequest request = requests.get(0);
             boolean makeUndo = !(request.isModuleRenameRefactoringRequest());
-            finalChange = new PyCompositeChange("RenameChange: '" + request.initialName + "' to '"
+            finalChange = new PyCompositeChange("RenameChange: '" + request.qualifier + "' to '"
                     + request.inputName
                     + "'", makeUndo);
 

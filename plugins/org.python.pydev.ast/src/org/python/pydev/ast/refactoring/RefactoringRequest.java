@@ -103,9 +103,14 @@ public class RefactoringRequest extends DecoratableObject {
     public String inputName;
 
     /**
-     * The initial representation of the selected name
+     * The representation of the selected name
      */
-    public String initialName;
+    public String activationToken;
+
+    /**
+     * The qualifier of the selected name
+     */
+    public String qualifier;
 
     /**
      * If the file is passed, we also set the document automatically
@@ -266,12 +271,13 @@ public class RefactoringRequest extends DecoratableObject {
     }
 
     /**
-     * Fills the initial name and initial offset from the PySelection
+     * Fills the activation token and the qualifier from the PySelection
      */
-    public void fillInitialNameAndOffset() {
+    public void fillActivationTokenAndQualifier() {
         try {
-            Tuple<String, Integer> currToken = ps.getCurrToken();
-            initialName = currToken.o1;
+            String[] currToken = ps.getActivationTokenAndQual(true);
+            activationToken = currToken[0];
+            qualifier = currToken[1];
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -207,7 +207,7 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
                                             }
                                             request.checkCancelled();
                                             List<ASTEntry> entryOccurrences = getOccurrencesInOtherModule(status,
-                                                    request, request.initialName, (SourceModule) module, nature);
+                                                    request, request.qualifier, (SourceModule) module, nature);
 
                                             if (entryOccurrences.size() > 0) {
                                                 addOccurrences(entryOccurrences, key.file, modName);
