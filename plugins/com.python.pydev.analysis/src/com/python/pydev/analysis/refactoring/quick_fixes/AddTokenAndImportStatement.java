@@ -194,6 +194,7 @@ public class AddTokenAndImportStatement {
                 int endLineNum = groupInto.getEndLine(); // get the number of last line of import
                 String endLineWithoutComment = PySelection
                         .getLineWithoutCommentsOrLiterals(PySelection.getLine(document, endLineNum)); // also get the string of last line, but without comments
+                String endLineTrimmedWithoutComment = endLineWithoutComment.trim();
 
                 FastStringBuffer lastImportLineBuf = new FastStringBuffer();
                 // let's assume that the last import line is the import end line
@@ -204,8 +205,7 @@ public class AddTokenAndImportStatement {
                     // it is a multi-line import
                     String penultLineWithoutComment = PySelection
                             .getLineWithoutCommentsOrLiterals(TextSelectionUtils.getLine(document, endLineNum - 1));
-                    String lastContentLineTrimmed = endLineWithoutComment.trim();
-                    if (")".equals(lastContentLineTrimmed)) {
+                    if (")".equals(endLineTrimmedWithoutComment)) {
                         /* this is something like:
                          * from mod import (
                          *      XXXXXX
@@ -214,7 +214,8 @@ public class AddTokenAndImportStatement {
                         // so let's switch the end line with the penult line
                         lastImportLineBuf.clear().append(penultLineWithoutComment);
                         lastImportLineNum--;
-                    } else if (lastContentLineTrimmed.isEmpty() && penultLineWithoutComment.trim().endsWith("\\")) {
+                    } else if (endLineTrimmedWithoutComment.isEmpty()
+                            && penultLineWithoutComment.trim().endsWith("\\")) {
                         /* this is something like:
                          * from mod import \
                          *      XXXXXX,\
@@ -226,11 +227,12 @@ public class AddTokenAndImportStatement {
                     }
                 }
 
+                // get the last import line length without comments or literals
+                int lastImportLineLen = lastImportLineBuf.length();
+
                 if (lastImportLineBuf.endsWith(')') || lastImportLineBuf.endsWith('\\')) {
                     lastImportLineBuf.deleteLast();
                 }
-
-                int lastImportLineLen = lastImportLineBuf.length();
 
                 offset = TextSelectionUtils.getAbsoluteCursorOffset(document, lastImportLineNum,
                         lastImportLineBuf.length());
@@ -244,7 +246,7 @@ public class AddTokenAndImportStatement {
                 String strToAdd = ", " + realImportHandleInfo.getImportedStr().get(0); // add the standard and the new import
 
                 if (lastImportLineLen + strToAdd.length() > maxCols) {
-                    if (endLineWithoutComment.trim().endsWith(")")) {
+                    if (endLineTrimmedWithoutComment.endsWith(")")) {
                         strToAdd = "," + delimiter + computedInfo.indentString
                                 + realImportHandleInfo.getImportedStr().get(0);
                     } else {
