@@ -395,7 +395,7 @@ public class AddTokenAndImportStatementTest extends TestCase {
 
         //!! test with "(xxxx)", spaces after and multiple spaces and tabs
         checkImport("from math import (ceil,\r\nsqrt       )   ", "from math import fmod",
-                "from math import (ceil,\r\nsqrt,\r\nfmod       )   ", 20);
+                "from math import (ceil,\r\nsqrt, fmod       )   ", 20);
 
         // test with "(xxxx)" and comma
         checkImport("from math import (ceil,\r\nsqrt,)", "from math import fmod",
@@ -408,6 +408,218 @@ public class AddTokenAndImportStatementTest extends TestCase {
 
         // -- END OF TESTS WITH MULTI-LINE DECLARATIONS AND COLS LIMIT EXCEDEED -- //
 
+    }
+
+    public void testGroupImport() throws Exception {
+        String baseDoc = "from mod2 import (ActivityInfoDict, WorkspaceInfoDict, PackageInfoDict,\r\n" +
+                "    ActionResultDict, UploadActivityParamsDict,\r\n" +
+                "    CloudLoginParamsDict,\r\n" +
+                "    ActionResult)";
+        String expectedDoc = "from mod2 import (ActivityInfoDict, WorkspaceInfoDict, PackageInfoDict,\r\n" +
+                "    ActionResultDict, UploadActivityParamsDict,\r\n" +
+                "    CloudLoginParamsDict,\r\n" +
+                "    ActionResult, UploadNewActivityParamsDict)";
+        checkLocalImport(baseDoc, "from mod2 import UploadNewActivityParamsDict", expectedDoc, true);
+    }
+
+    public void testGroupImport2() throws Exception {
+        String baseDoc = "from mod2 import (\r\n" +
+                "    ActivityInfoDict,\r\n" +
+                "    WorkspaceInfoDict,\r\n" +
+                "    PackageInfoDict,\r\n" +
+                "    ActionResultDict,\r\n" +
+                "    UploadActivityParamsDict,\r\n" +
+                "    CloudLoginParamsDict,\r\n" +
+                "    ActionResult\r\n" +
+                "    )";
+        String expectedDoc = "from mod2 import (\r\n" +
+                "    ActivityInfoDict,\r\n" +
+                "    WorkspaceInfoDict,\r\n" +
+                "    PackageInfoDict,\r\n" +
+                "    ActionResultDict,\r\n" +
+                "    UploadActivityParamsDict,\r\n" +
+                "    CloudLoginParamsDict,\r\n" +
+                "    ActionResult, UploadNewActivityParamsDict\r\n" +
+                "    )";
+        checkLocalImport(baseDoc, "from mod2 import UploadNewActivityParamsDict", expectedDoc, true);
+    }
+
+    public void testGroupImport3() throws Exception {
+        String baseDoc = "from mod2 import \\\r\n" +
+                "    ActivityInfoDict,\\\r\n" +
+                "    WorkspaceInfoDict,\\\r\n" +
+                "    PackageInfoDict,\\\r\n" +
+                "    ActionResultDict,\\\r\n" +
+                "    UploadActivityParamsDict,\\\r\n" +
+                "    CloudLoginParamsDict,\\\r\n" +
+                "    ActionResult\r\n" +
+                "";
+        String expectedDoc = "from mod2 import \\\r\n" +
+                "    ActivityInfoDict,\\\r\n" +
+                "    WorkspaceInfoDict,\\\r\n" +
+                "    PackageInfoDict,\\\r\n" +
+                "    ActionResultDict,\\\r\n" +
+                "    UploadActivityParamsDict,\\\r\n" +
+                "    CloudLoginParamsDict,\\\r\n" +
+                "    ActionResult, UploadNewActivityParamsDict\r\n" +
+                "";
+        checkLocalImport(baseDoc, "from mod2 import UploadNewActivityParamsDict", expectedDoc, true);
+    }
+
+    public void testGroupImport4() throws Exception {
+        String baseDoc = "from mod2 import \\\r\n" +
+                "    ActivityInfoDict,\\\r\n" +
+                "    WorkspaceInfoDict,\\\r\n" +
+                "    PackageInfoDict,\\\r\n" +
+                "    ActionResultDict,\\\r\n" +
+                "    UploadActivityParamsDict,\\\r\n" +
+                "    CloudLoginParamsDict,\\\r\n" +
+                "    ActionResult,\\";
+        String expectedDoc = "from mod2 import \\\r\n" +
+                "    ActivityInfoDict,\\\r\n" +
+                "    WorkspaceInfoDict,\\\r\n" +
+                "    PackageInfoDict,\\\r\n" +
+                "    ActionResultDict,\\\r\n" +
+                "    UploadActivityParamsDict,\\\r\n" +
+                "    CloudLoginParamsDict,\\\r\n" +
+                "    ActionResult, UploadNewActivityParamsDict,\\";
+        checkLocalImport(baseDoc, "from mod2 import UploadNewActivityParamsDict", expectedDoc, true);
+    }
+
+    public void testGroupImport5() throws Exception {
+        String baseDoc = "from mod2 import \\\r\n" +
+                "    ActivityInfoDict,\\\r\n" +
+                "    WorkspaceInfoDict,\\\r\n" +
+                "    PackageInfoDict,\\\r\n" +
+                "    ActionResultDict,\\\r\n" +
+                "    UploadActivityParamsDict,\\\r\n" +
+                "    CloudLoginParamsDict,\\\r\n" +
+                "    ActionResult,\\\r\n" +
+                "";
+        String expectedDoc = "from mod2 import \\\r\n" +
+                "    ActivityInfoDict,\\\r\n" +
+                "    WorkspaceInfoDict,\\\r\n" +
+                "    PackageInfoDict,\\\r\n" +
+                "    ActionResultDict,\\\r\n" +
+                "    UploadActivityParamsDict,\\\r\n" +
+                "    CloudLoginParamsDict,\\\r\n" +
+                "    ActionResult, UploadNewActivityParamsDict,\\\r\n" +
+                "";
+        checkLocalImport(baseDoc, "from mod2 import UploadNewActivityParamsDict", expectedDoc, true);
+    }
+
+    public void testGroupImport6() throws Exception {
+        String baseDoc = "from mod2 import ActivityInfoDict  # comment \\";
+        String expectedDoc = "from mod2 import ActivityInfoDict, UploadNewActivityParamsDict  # comment \\";
+        checkLocalImport(baseDoc, "from mod2 import UploadNewActivityParamsDict", expectedDoc, true);
+    }
+
+    public void testGroupImport7() throws Exception {
+        String baseDoc = "from mod2 import ActivityInfoDict,\\\r\n" +
+                "    WorkspaceInfoDict,\\\r\n" +
+                "    PackageInfoDict,\\\r\n" +
+                "    ActionResultDict,\\\r\n" +
+                "    UploadActivityParamsDict,\\\r\n" +
+                "    CloudLoginParamsDict,\\\r\n" +
+                "    ActionResult  # comment \\";
+        String expectedDoc = "from mod2 import ActivityInfoDict,\\\r\n" +
+                "    WorkspaceInfoDict,\\\r\n" +
+                "    PackageInfoDict,\\\r\n" +
+                "    ActionResultDict,\\\r\n" +
+                "    UploadActivityParamsDict,\\\r\n" +
+                "    CloudLoginParamsDict,\\\r\n" +
+                "    ActionResult, UploadNewActivityParamsDict  # comment \\";
+        checkLocalImport(baseDoc, "from mod2 import UploadNewActivityParamsDict", expectedDoc, true);
+    }
+
+    public void testGroupImport8() throws Exception {
+        String baseDoc = "from mod2 import ActivityInfoDict,\\\r\n" +
+                "    WorkspaceInfoDict,\\\r\n" +
+                "    PackageInfoDict,\\\r\n" +
+                "    ActionResultDict,\\\r\n" +
+                "    UploadActivityParamsDict,\\\r\n" +
+                "    CloudLoginParamsDict,\\\r\n" +
+                "    ActionResult  # comment \\\r\n"
+                + "";
+        String expectedDoc = "from mod2 import ActivityInfoDict,\\\r\n" +
+                "    WorkspaceInfoDict,\\\r\n" +
+                "    PackageInfoDict,\\\r\n" +
+                "    ActionResultDict,\\\r\n" +
+                "    UploadActivityParamsDict,\\\r\n" +
+                "    CloudLoginParamsDict,\\\r\n" +
+                "    ActionResult, UploadNewActivityParamsDict  # comment \\\r\n" +
+                "";
+        checkLocalImport(baseDoc, "from mod2 import UploadNewActivityParamsDict", expectedDoc, true);
+    }
+
+    public void testGroupImport9() throws Exception {
+        String baseDoc = "from mod2 import ActivityInfoDict,\\\r\n" +
+                "    WorkspaceInfoDict,\\\r\n" +
+                "    PackageInfoDict,\\\r\n" +
+                "    ActionResultDict,\\\r\n" +
+                "    UploadActivityParamsDict,\\\r\n" +
+                "    CloudLoginParamsDict,\\\r\n" +
+                "    ActionResult,\\  # some comment\r\n" +
+                "";
+        String expectedDoc = "from mod2 import ActivityInfoDict,\\\r\n" +
+                "    WorkspaceInfoDict,\\\r\n" +
+                "    PackageInfoDict,\\\r\n" +
+                "    ActionResultDict,\\\r\n" +
+                "    UploadActivityParamsDict,\\\r\n" +
+                "    CloudLoginParamsDict,\\\r\n" +
+                "    ActionResult, UploadNewActivityParamsDict,\\  # some comment\r\n" +
+                "";
+        checkLocalImport(baseDoc, "from mod2 import UploadNewActivityParamsDict", expectedDoc, true);
+    }
+
+    public void testGroupImport10() throws Exception {
+        String baseDoc = "from mod2 import (\r\n" +
+                "    ActivityInfoDict,\r\n" +
+                "    WorkspaceInfoDict,\r\n" +
+                "    PackageInfoDict,\r\n" +
+                "    ActionResultDict,\r\n" +
+                "    UploadActivityParamsDict,\r\n" +
+                "    CloudLoginParamsDict,\r\n" +
+                "    ActionResult) #some comment";
+        String expectedDoc = "from mod2 import (\r\n" +
+                "    ActivityInfoDict,\r\n" +
+                "    WorkspaceInfoDict,\r\n" +
+                "    PackageInfoDict,\r\n" +
+                "    ActionResultDict,\r\n" +
+                "    UploadActivityParamsDict,\r\n" +
+                "    CloudLoginParamsDict,\r\n" +
+                "    ActionResult, UploadNewActivityParamsDict) #some comment";
+        checkLocalImport(baseDoc, "from mod2 import UploadNewActivityParamsDict", expectedDoc, true);
+    }
+
+    public void testGroupImport11() throws Exception {
+        String baseDoc = "from mod2 import (\r\n" +
+                "    ActivityInfoDict,\r\n" +
+                "    WorkspaceInfoDict,\r\n" +
+                "    PackageInfoDict,\r\n" +
+                "    ActionResultDict,\r\n" +
+                "    UploadActivityParamsDict,\r\n" +
+                "    CloudLoginParamsDict,\r\n" +
+                "    ActionResult\r\n" +
+                "    ) #some comment";
+        String expectedDoc = "from mod2 import (\r\n" +
+                "    ActivityInfoDict,\r\n" +
+                "    WorkspaceInfoDict,\r\n" +
+                "    PackageInfoDict,\r\n" +
+                "    ActionResultDict,\r\n" +
+                "    UploadActivityParamsDict,\r\n" +
+                "    CloudLoginParamsDict,\r\n" +
+                "    ActionResult, UploadNewActivityParamsDict\r\n" +
+                "    ) #some comment";
+        checkLocalImport(baseDoc, "from mod2 import UploadNewActivityParamsDict", expectedDoc, true);
+    }
+
+    public void testGroupImport12() throws Exception {
+        String baseDoc = "from mod2 import (ActivityInfoDict #some comment\r\n" +
+                ")";
+        String expectedDoc = "from mod2 import (ActivityInfoDict, UploadNewActivityParamsDict #some comment\r\n" +
+                ")";
+        checkLocalImport(baseDoc, "from mod2 import UploadNewActivityParamsDict", expectedDoc, true);
     }
 
     public void testLocalImport() throws Exception {
