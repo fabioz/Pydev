@@ -18,7 +18,9 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.shared_core.log.Log;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
 public class AddTokenAndImportStatement {
@@ -190,28 +192,58 @@ public class AddTokenAndImportStatement {
             if (groupInto != null && realImportHandleInfo != null) {
                 //let's try to group it
                 int endLineNum = groupInto.getEndLine(); // get the number of last line of import
-                int startLineOffset = document.getLineInformation(groupInto.getStartLine()).getOffset();
-                int endLineOffset = document.getLineInformation(endLineNum).getOffset();
                 String endLineWithoutComment = PySelection
                         .getLineWithoutCommentsOrLiterals(PySelection.getLine(document, endLineNum)); // also get the string of last line, but without comments
 
-                // get the string of full import statement, from first line to the last
-                String fullImportStatement = document.get(startLineOffset,
-                        endLineOffset + endLineWithoutComment.length() - startLineOffset);
+                FastStringBuffer lastImportLineBuf = new FastStringBuffer();
+                // let's assume that the last import line is the import end line
+                lastImportLineBuf.append(endLineWithoutComment).rightTrim();
+                int lastImportLineNum = endLineNum;
 
-                int importsLen = groupInto.getImportedStr().size(); // just get how many group imports have in import declaration
+                if (endLineNum != groupInto.getStartLine()) {
+                    // it is a multi-line import
+                    String penultLineWithoutComment = PySelection
+                            .getLineWithoutCommentsOrLiterals(TextSelectionUtils.getLine(document, endLineNum - 1));
+                    String lastContentLineTrimmed = endLineWithoutComment.trim();
+                    if (")".equals(lastContentLineTrimmed)) {
+                        /* this is something like:
+                         * from mod import (
+                         *      XXXXXX
+                         * )
+                         */
+                        // so let's switch the end line with the penult line
+                        lastImportLineBuf.clear().append(penultLineWithoutComment);
+                        lastImportLineNum--;
+                    } else if (lastContentLineTrimmed.isEmpty() && penultLineWithoutComment.trim().endsWith("\\")) {
+                        /* this is something like:
+                         * from mod import \
+                         *      XXXXXX,\
+                         *
+                         */
+                        // so let's switch the end line with the penult line and remove the '\' from it's end
+                        lastImportLineBuf.clear().append(penultLineWithoutComment).rightTrim().deleteLast();
+                        lastImportLineNum--;
+                    }
+                }
 
-                String lastImportedStr = groupInto.getImportedStr().get(importsLen - 1); // get the string from the last import
-                int lastImportedStrOffset = fullImportStatement.indexOf(lastImportedStr) + startLineOffset; // get last imported string offset just to use next line
-                int lastImportedStrLineNum = document.getLineOfOffset(lastImportedStrOffset); // get last imported string line number just to use next line
-                String lastImportedStrLine = PySelection.getLine(document, lastImportedStrLineNum); // get the full line string of last imported string
+                if (lastImportLineBuf.endsWith(')') || lastImportLineBuf.endsWith('\\')) {
+                    lastImportLineBuf.deleteLast();
+                }
 
-                String groupImportStandard = ", "; // set a standard to add before the new import
-                int offset = lastImportedStrOffset + lastImportedStr.length(); // get offset based on the end of last import
+                int lastImportLineLen = lastImportLineBuf.length();
 
-                String strToAdd = groupImportStandard + realImportHandleInfo.getImportedStr().get(0); // add the standard and the new import
+                offset = TextSelectionUtils.getAbsoluteCursorOffset(document, lastImportLineNum,
+                        lastImportLineBuf.length());
+                offset -= lastImportLineBuf.length() - lastImportLineBuf.rightTrim().length();
 
-                if (lastImportedStrLine.length() + strToAdd.length() > maxCols) {
+                while (lastImportLineBuf.endsWith(',')) {
+                    offset--;
+                    lastImportLineBuf.deleteLast();
+                }
+
+                String strToAdd = ", " + realImportHandleInfo.getImportedStr().get(0); // add the standard and the new import
+
+                if (lastImportLineLen + strToAdd.length() > maxCols) {
                     if (endLineWithoutComment.trim().endsWith(")")) {
                         strToAdd = "," + delimiter + computedInfo.indentString
                                 + realImportHandleInfo.getImportedStr().get(0);
