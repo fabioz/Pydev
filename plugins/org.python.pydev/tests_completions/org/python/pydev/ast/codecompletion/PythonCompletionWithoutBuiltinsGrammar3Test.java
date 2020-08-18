@@ -166,4 +166,52 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
         ICompletionProposalHandle prop = proposals[0];
         assertEquals("bar()", prop.getDisplayString());
     }
+
+    public void testParamTypeInfoAsString() throws Exception {
+        String s = ""
+                + "class Bar(object):\n" +
+                "    def bar(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "def method(a: 'Bar'):\n" +
+                "    a.";
+
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+        assertEquals(1, proposals.length);
+        ICompletionProposalHandle prop = proposals[0];
+        assertEquals("bar()", prop.getDisplayString());
+    }
+
+    public void testParamTypeInfoAsString2() throws Exception {
+        String s = ""
+                + "class Bar(object):\n" +
+                "    def bar(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "def method(a: 'List[Bar]'):\n" +
+                "    for b in a:\n" +
+                "        b.";
+
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+        assertEquals(1, proposals.length);
+        ICompletionProposalHandle prop = proposals[0];
+        assertEquals("bar()", prop.getDisplayString());
+    }
+
+    public void testParamTypeInfoAsString3() throws Exception {
+        String s = ""
+                + "class Bar(object):\n" +
+                "    def bar(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "class MyClass(object):\n" +
+                "    def __init__(self, a: 'Bar'):\n" +
+                "        self.bar = a\n" +
+                "        self.bar.";
+
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+        assertEquals(1, proposals.length);
+        ICompletionProposalHandle prop = proposals[0];
+        assertEquals("bar()", prop.getDisplayString());
+    }
 }
