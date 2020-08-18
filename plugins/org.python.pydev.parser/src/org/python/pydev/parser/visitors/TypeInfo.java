@@ -4,6 +4,7 @@ import org.python.pydev.core.ITypeInfo;
 import org.python.pydev.core.UnpackInfo;
 import org.python.pydev.parser.jython.ast.ExtSlice;
 import org.python.pydev.parser.jython.ast.Index;
+import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.sliceType;
@@ -26,7 +27,11 @@ public class TypeInfo implements ITypeInfo {
      */
     public TypeInfo(exprType expr) {
         this.expr = expr;
-        this.rep = NodeUtils.getFullRepresentationString(expr);
+        if (expr instanceof Str) {
+            this.rep = ((Str) expr).s;
+        } else {
+            this.rep = NodeUtils.getFullRepresentationString(expr);
+        }
     }
 
     /* (non-Javadoc)
