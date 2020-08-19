@@ -36,6 +36,7 @@ import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.markers.PyMarkerUtils;
 import org.python.pydev.shared_core.process.ProcessUtils;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.ArrayUtils;
@@ -53,6 +54,68 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
     private IResource resource;
     private IDocument document;
     private IPath location;
+
+    private static class LineCol {
+        private final int line;
+        private final int col;
+
+        public LineCol(int line, int col) {
+            super();
+            this.line = line;
+            this.col = col;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + col;
+            result = prime * result + line;
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!(obj instanceof LineCol)) {
+                return false;
+            }
+            LineCol other = (LineCol) obj;
+            if (col != other.col) {
+                return false;
+            }
+            if (line != other.line) {
+                return false;
+            }
+            return true;
+        }
+    }
+
+    private static class MessageInfo {
+        private final FastStringBuffer message = new FastStringBuffer();
+        private final int markerSeverity;
+        private final String messageId;
+        private final int line;
+        private final int column;
+        private final String docLineContents;
+
+        public MessageInfo(String message, int markerSeverity, String messageId, int line, int column,
+                String docLineContents) {
+            super();
+            this.message.append(message);
+            this.markerSeverity = markerSeverity;
+            this.messageId = messageId;
+            this.line = line;
+            this.column = column;
+            this.docLineContents = docLineContents;
+        }
+
+        public void addMessageLine(String message) {
+            this.message.append('\n').append(message);
+        }
+    }
 
     List<PyMarkerUtils.MarkerInfo> markers = new ArrayList<PyMarkerUtils.MarkerInfo>();
     private IProgressMonitor monitor;
@@ -164,6 +227,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
     public void afterRunProcess(String output, String errors, IExternalCodeAnalysisStream out) {
         output = output.trim();
         errors = errors.trim();
+        Map<LineCol, MessageInfo> lineColToMessage = new HashMap<>();
         if (!output.isEmpty()) {
             WriteToStreamHelper.write("Mypy: The stdout of the command line is:\n", out, output);
         }
@@ -203,29 +267,46 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                     if (severityFound.equals("warning")) {
                         markerSeverity = IMarker.SEVERITY_WARNING;
                     }
+                    if (severityFound.equals("note")) {
+                        markerSeverity = IMarker.SEVERITY_INFO;
+                    }
                     if (markerSeverity != -1) {
-                        line = Integer.parseInt(outputLine.substring(m.start(2), m.end(2)));
+                        line = Integer.parseInt(outputLine.substring(m.start(2), m.end(2))) - 1;
                         column = Integer.parseInt(outputLine.substring(m.start(3), m.end(3))) - 1;
                         messageId = "mypy";
                         message = outputLine.substring(m.start(5), m.end(5)).trim();
+
+                        IRegion region = null;
+                        try {
+                            region = document.getLineInformation(line);
+                        } catch (Exception e) {
+                        }
+                        if (region != null && document != null) {
+                            LineCol lineCol = new LineCol(line, column);
+                            MessageInfo messageInfo = lineColToMessage.get(lineCol);
+                            if (messageInfo == null) {
+                                messageInfo = new MessageInfo(message, markerSeverity, messageId, line, column,
+                                        document.get(region.getOffset(), region.getLength()));
+                                lineColToMessage.put(lineCol, messageInfo);
+                            } else {
+                                messageInfo.addMessageLine(message);
+                            }
+                        }
                     } else {
                         continue;
                     }
                 } else {
                     continue;
                 }
-                IRegion region = null;
-                try {
-                    region = document.getLineInformation(line - 1);
-                } catch (Exception e) {
-                }
-                if (region != null && document != null) {
-                    String docLineContents = document.get(region.getOffset(), region.getLength());
-                    addToMarkers(message, markerSeverity, messageId, line - 1, column, docLineContents);
-                }
             } catch (Exception e) {
                 Log.log(e);
             }
+        }
+        for (MessageInfo messageInfo : lineColToMessage.values()) {
+            addToMarkers(messageInfo.message.toString(), messageInfo.markerSeverity, messageInfo.messageId,
+                    messageInfo.line,
+                    messageInfo.column,
+                    messageInfo.docLineContents);
         }
     }
 
