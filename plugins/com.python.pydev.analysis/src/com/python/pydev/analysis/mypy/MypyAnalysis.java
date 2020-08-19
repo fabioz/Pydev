@@ -55,6 +55,33 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
     private IPath location;
 
     private static class LineCol {
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + col;
+            result = prime * result + line;
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!(obj instanceof LineCol)) {
+                return false;
+            }
+            LineCol other = (LineCol) obj;
+            if (col != other.col) {
+                return false;
+            }
+            if (line != other.line) {
+                return false;
+            }
+            return true;
+        }
+
         private final int line;
         private final int col;
 
@@ -254,18 +281,13 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                         } catch (Exception e) {
                         }
                         if (region != null && document != null) {
-                            boolean foundKey = false;
-                            for (LineCol lineCol : lineColToMessage.keySet()) {
-                                if (lineCol.line == line && lineCol.col == column) {
-                                    lineColToMessage.get(lineCol).addMessageLine(message);
-                                    foundKey = true;
-                                    break;
-                                }
-                            }
-                            if (!foundKey) {
+                            LineCol lineCol = new LineCol(line, column);
+                            if (lineColToMessage.containsKey(lineCol)) {
+                                lineColToMessage.get(lineCol).addMessageLine(message);
+                            } else {
                                 MessageInfo messageInfo = new MessageInfo(message, markerSeverity, messageId, line,
                                         column, document.get(region.getOffset(), region.getLength()));
-                                lineColToMessage.put(new LineCol(line, column), messageInfo);
+                                lineColToMessage.put(lineCol, messageInfo);
                             }
                         }
                     } else {
