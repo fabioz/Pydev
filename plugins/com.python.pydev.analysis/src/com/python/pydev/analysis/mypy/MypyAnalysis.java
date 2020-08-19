@@ -36,6 +36,7 @@ import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.markers.PyMarkerUtils;
 import org.python.pydev.shared_core.process.ProcessUtils;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.ArrayUtils;
@@ -55,6 +56,15 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
     private IPath location;
 
     private static class LineCol {
+        private final int line;
+        private final int col;
+
+        public LineCol(int line, int col) {
+            super();
+            this.line = line;
+            this.col = col;
+        }
+
         @Override
         public int hashCode() {
             final int prime = 31;
@@ -81,19 +91,10 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
             }
             return true;
         }
-
-        private final int line;
-        private final int col;
-
-        public LineCol(int line, int col) {
-            super();
-            this.line = line;
-            this.col = col;
-        }
     }
 
     private static class MessageInfo {
-        private String message;
+        private final FastStringBuffer message = new FastStringBuffer();
         private final int markerSeverity;
         private final String messageId;
         private final int line;
@@ -103,7 +104,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
         public MessageInfo(String message, int markerSeverity, String messageId, int line, int column,
                 String docLineContents) {
             super();
-            this.message = message;
+            this.message.append(message);
             this.markerSeverity = markerSeverity;
             this.messageId = messageId;
             this.line = line;
@@ -112,7 +113,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
         }
 
         public void addMessageLine(String message) {
-            this.message += "\n" + message;
+            this.message.append('\n').append(message);
         }
     }
 
@@ -282,12 +283,13 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                         }
                         if (region != null && document != null) {
                             LineCol lineCol = new LineCol(line, column);
-                            if (lineColToMessage.containsKey(lineCol)) {
-                                lineColToMessage.get(lineCol).addMessageLine(message);
-                            } else {
-                                MessageInfo messageInfo = new MessageInfo(message, markerSeverity, messageId, line,
-                                        column, document.get(region.getOffset(), region.getLength()));
+                            MessageInfo messageInfo = lineColToMessage.get(lineCol);
+                            if (messageInfo == null) {
+                                messageInfo = new MessageInfo(message, markerSeverity, messageId, line, column,
+                                        document.get(region.getOffset(), region.getLength()));
                                 lineColToMessage.put(lineCol, messageInfo);
+                            } else {
+                                messageInfo.addMessageLine(message);
                             }
                         }
                     } else {
@@ -301,7 +303,8 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
             }
         }
         for (MessageInfo messageInfo : lineColToMessage.values()) {
-            addToMarkers(messageInfo.message, messageInfo.markerSeverity, messageInfo.messageId, messageInfo.line,
+            addToMarkers(messageInfo.message.toString(), messageInfo.markerSeverity, messageInfo.messageId,
+                    messageInfo.line,
                     messageInfo.column,
                     messageInfo.docLineContents);
         }
