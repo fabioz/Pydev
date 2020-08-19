@@ -203,6 +203,9 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                     if (severityFound.equals("warning")) {
                         markerSeverity = IMarker.SEVERITY_WARNING;
                     }
+                    if (severityFound.equals("note")) {
+                        markerSeverity = IMarker.SEVERITY_INFO;
+                    }
                     if (markerSeverity != -1) {
                         line = Integer.parseInt(outputLine.substring(m.start(2), m.end(2)));
                         column = Integer.parseInt(outputLine.substring(m.start(3), m.end(3))) - 1;
