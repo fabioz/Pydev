@@ -252,56 +252,58 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
             }
             try {
                 outputLine = outputLine.trim();
-                Matcher m;
-                if (MYPY_MATCH_PATTERN1.matcher(outputLine).matches()) {
-                    m = MYPY_MATCH_PATTERN1.matcher(outputLine);
-                } else if (MYPY_MATCH_PATTERN2.matcher(outputLine).matches()) {
-                    m = MYPY_MATCH_PATTERN2.matcher(outputLine);
-                } else {
-                    continue;
-                }
-                m.matches();
-                int line = -1;
                 int column = -1;
-                String messageId = "";
-                String message = "";
-                int markerSeverity = -1;
-                String severityFound = outputLine.substring(m.start(4), m.end(4)).trim();
-
-                if (severityFound.equals("error")) {
-                    markerSeverity = IMarker.SEVERITY_ERROR;
-                }
-                if (severityFound.equals("warning")) {
-                    markerSeverity = IMarker.SEVERITY_WARNING;
-                }
-                if (severityFound.equals("note")) {
-                    markerSeverity = IMarker.SEVERITY_INFO;
-                }
-                if (markerSeverity != -1) {
-                    line = Integer.parseInt(outputLine.substring(m.start(2), m.end(2))) - 1;
-                    try {
-                        column = Integer.parseInt(outputLine.substring(m.start(3), m.end(3))) - 1;
-                    } catch (Exception e) {
+                Matcher m = MYPY_MATCH_PATTERN1.matcher(outputLine);
+                if (m.matches()) {
+                    column = Integer.parseInt(outputLine.substring(m.start(3), m.end(3))) - 1;
+                } else {
+                    m = MYPY_MATCH_PATTERN2.matcher(outputLine);
+                    if (m.matches()) {
                         column = 0;
+                    } else {
+                        m = null;
                     }
-                    messageId = "mypy";
-                    message = outputLine.substring(m.start(5), m.end(5)).trim();
+                }
 
-                    IRegion region = null;
-                    try {
-                        region = document.getLineInformation(line);
-                    } catch (Exception e) {
+                if (m != null) {
+                    int line = -1;
+                    String messageId = "";
+                    String message = "";
+                    int markerSeverity = -1;
+                    String severityFound = outputLine.substring(m.start(4), m.end(4)).trim();
+
+                    if (severityFound.equals("error")) {
+                        markerSeverity = IMarker.SEVERITY_ERROR;
                     }
-                    if (region != null && document != null) {
-                        LineCol lineCol = new LineCol(line, column);
-                        MessageInfo messageInfo = lineColToMessage.get(lineCol);
-                        if (messageInfo == null) {
-                            messageInfo = new MessageInfo(message, markerSeverity, messageId, line, column,
-                                    document.get(region.getOffset(), region.getLength()));
-                            lineColToMessage.put(lineCol, messageInfo);
-                        } else {
-                            messageInfo.addMessageLine(message);
+                    if (severityFound.equals("warning")) {
+                        markerSeverity = IMarker.SEVERITY_WARNING;
+                    }
+                    if (severityFound.equals("note")) {
+                        markerSeverity = IMarker.SEVERITY_INFO;
+                    }
+                    if (markerSeverity != -1) {
+                        line = Integer.parseInt(outputLine.substring(m.start(2), m.end(2))) - 1;
+                        messageId = "mypy";
+                        message = outputLine.substring(m.start(5), m.end(5)).trim();
+
+                        IRegion region = null;
+                        try {
+                            region = document.getLineInformation(line);
+                        } catch (Exception e) {
                         }
+                        if (region != null && document != null) {
+                            LineCol lineCol = new LineCol(line, column);
+                            MessageInfo messageInfo = lineColToMessage.get(lineCol);
+                            if (messageInfo == null) {
+                                messageInfo = new MessageInfo(message, markerSeverity, messageId, line, column,
+                                        document.get(region.getOffset(), region.getLength()));
+                                lineColToMessage.put(lineCol, messageInfo);
+                            } else {
+                                messageInfo.addMessageLine(message);
+                            }
+                        }
+                    } else {
+                        continue;
                     }
                 } else {
                     continue;
