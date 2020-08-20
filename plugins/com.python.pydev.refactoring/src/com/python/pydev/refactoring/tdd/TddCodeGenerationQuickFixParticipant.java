@@ -267,19 +267,31 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
 
     public Definition rebaseAssignDefinition(AssignDefinition assignDef, IPythonNature nature,
             ICompletionCache completionCache) throws Exception {
-        //if the value is currently None, it will be set later on
+        IDefinition[] definitions2;
+        if (assignDef.type.equals("None")) {
+            return assignDef; // keep the old one
+        }
+        if (assignDef.nodeType != null) {
+            definitions2 = assignDef.module.findDefinition(
+                    CompletionStateFactory.getEmptyCompletionState(assignDef.type, nature, completionCache),
+                    assignDef.line, assignDef.col, nature);
+            if (definitions2.length > 0) {
+                return (Definition) definitions2[0];
+            }
+        }
         if (assignDef.value.equals("None")) {
             return assignDef; // keep the old one
         }
-
-        //ok, go to the definition of whatever is set
-        IDefinition[] definitions2 = assignDef.module.findDefinition(
-                CompletionStateFactory.getEmptyCompletionState(assignDef.value, nature, completionCache),
-                assignDef.line, assignDef.col, nature);
-
-        if (definitions2.length > 0) {
-            return (Definition) definitions2[0];
+        if (assignDef.nodeValue != null) {
+            //ok, go to the definition of whatever is set
+            definitions2 = assignDef.module.findDefinition(
+                    CompletionStateFactory.getEmptyCompletionState(assignDef.value, nature, completionCache),
+                    assignDef.line, assignDef.col, nature);
+            if (definitions2.length > 0) {
+                return (Definition) definitions2[0];
+            }
         }
+
         return assignDef;
     }
 

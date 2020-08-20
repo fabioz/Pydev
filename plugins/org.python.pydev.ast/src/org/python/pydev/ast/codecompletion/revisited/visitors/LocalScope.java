@@ -28,6 +28,7 @@ import org.python.pydev.core.TokensList;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assert;
+import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -196,7 +197,23 @@ public class LocalScope implements ILocalScope {
 
                 for (int i = 0; i < args.args.length; i++) {
                     String s = NodeUtils.getRepresentationString(args.args[i]);
-                    comps.add(new SourceToken(args.args[i], s, "", "", "", IToken.TYPE_PARAM, nature));
+                    if (args.annotation != null && args.annotation[i] != null) {
+                        exprType[] targets = { args.args[i] };
+                        exprType value = null;
+                        if (args.defaults != null && args.defaults[i] != null) {
+                            value = args.defaults[i];
+                        }
+                        exprType type = args.annotation[i];
+                        comps.add(new SourceToken(new Assign(targets, value, type), s, "", "", "", IToken.TYPE_PARAM,
+                                nature));
+                    } else if (args.defaults != null && args.defaults[i] != null) {
+                        exprType[] targets = { args.args[i] };
+                        exprType value = args.defaults[i];
+                        comps.add(new SourceToken(new Assign(targets, value, null), s, "", "", "", IToken.TYPE_PARAM,
+                                nature));
+                    } else {
+                        comps.add(new SourceToken(args.args[i], s, "", "", "", IToken.TYPE_PARAM, nature));
+                    }
                 }
                 if (args.vararg != null) {
                     String s = NodeUtils.getRepresentationString(args.vararg);

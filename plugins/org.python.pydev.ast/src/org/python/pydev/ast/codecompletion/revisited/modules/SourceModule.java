@@ -879,6 +879,27 @@ public class SourceModule extends AbstractModule implements ISourceModule {
 
             final String tokenRep = tok.getRepresentation();
             if (tokenRep.equals(actTok)) {
+                if (tok instanceof SourceToken && ((SourceToken) tok).getAst() instanceof Assign) {
+                    Assign node = (Assign) ((SourceToken) tok).getAst();
+                    exprType nodeValue = node.value;
+                    exprType nodeType = node.type;
+                    String value = NodeUtils.getFullRepresentationString(nodeValue);
+                    String type;
+                    if (nodeType instanceof Str) {
+                        type = ((Str) nodeType).s;
+                    } else {
+                        type = NodeUtils.getFullRepresentationString(nodeType);
+                    }
+                    if (value == null) {
+                        value = "";
+                    }
+                    if (type == null) {
+                        type = "";
+                    }
+                    String target = tok.getRepresentation();
+                    return new Definition[] { new AssignDefinition(value, type, target, 0, node, line, col,
+                            scopeVisitor.scope, this, nodeValue, nodeType, -1) };
+                }
                 return new Definition[] { new Definition(tok, scopeVisitor.scope, this, true) };
             } else if (actTok.startsWith(tokenRep + ".") && !actTok.startsWith("self.")) {
                 final int tokenRepLen = tokenRep.length();
