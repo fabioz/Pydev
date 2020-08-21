@@ -39,6 +39,12 @@
 
         <div id="bronze-sponsors-a-hrefs">
 
+        <a href="https://neuecasinos24.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/neue.jpg" alt="neue online casinos" title="https://neuecasinos24.com/" /></a>
+
+        <a href="https://bestercasinomentor.com/casinos/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/bester.png" alt="Bestes Online Casino" title="https://bestercasinomentor.com/casinos/" /></a>
+
+        <a href="https://qyto.jp/casino/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/qyto.png" alt="QYTO" title="https://qyto.jp/casino/" /></a>
+
         <a href="https://kajino.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/kajino.png" alt="Kajino" title="https://kajino.com/" /></a>
 
         <a href="https://edubirdie.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/edubirdie.png" alt="EduBirdie" title="https://edubirdie.com/" /></a>
