@@ -1653,6 +1653,14 @@ public class NodeUtils {
             FunctionDef functionDef = (FunctionDef) node;
             exprType returns = functionDef.returns;
             if (returns != null) {
+                if (returns instanceof Subscript
+                        && ((Subscript) returns).slice != null
+                        && ((Subscript) returns).value instanceof Name
+                        && "Optional".equals(((Name) ((Subscript) returns).value).id)
+                        && ((Subscript) returns).slice instanceof Index
+                        && ((Index) ((Subscript) returns).slice).value != null) {
+                    return new TypeInfo(((Index) ((Subscript) returns).slice).value);
+                }
                 return new TypeInfo(returns);
             }
         }

@@ -214,4 +214,43 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
         ICompletionProposalHandle prop = proposals[0];
         assertEquals("bar()", prop.getDisplayString());
     }
+
+    public void testCompletionForOptional() throws Exception {
+        String s = ""
+                + "from typing import Protocol, Optional\n" +
+                "\n" +
+                "class IFoo(Protocol):\n" +
+                "    def some_method(self) -> bool:\n" +
+                "        pass\n" +
+                "\n" +
+                "def method() -> Optional[IFoo]:\n" +
+                "    pass\n" +
+                "\n" +
+                "a = method()\n" +
+                "a.";
+
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+        assertEquals(1, proposals.length);
+        ICompletionProposalHandle prop = proposals[0];
+        assertEquals("some_method()", prop.getDisplayString());
+    }
+
+    public void testCompletionForOptional2() throws Exception {
+        String s = ""
+                + "from typing import Protocol, Optional\r\n" +
+                "\n" +
+                "class IFoo(Protocol):\n" +
+                "    def some_method(self) -> bool:\n" +
+                "        pass\n" +
+                "def method():\n" +
+                "    pass\n" +
+                "\n" +
+                "a: Optional[IFoo] = method()\n" +
+                "a.";
+
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+        assertEquals(1, proposals.length);
+        ICompletionProposalHandle prop = proposals[0];
+        assertEquals("some_method()", prop.getDisplayString());
+    }
 }
