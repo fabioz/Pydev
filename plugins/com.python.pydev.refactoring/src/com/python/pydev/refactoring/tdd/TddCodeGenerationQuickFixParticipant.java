@@ -268,7 +268,7 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
     public Definition rebaseAssignDefinition(AssignDefinition assignDef, IPythonNature nature,
             ICompletionCache completionCache) throws Exception {
         IDefinition[] definitions2;
-        if (assignDef.type.equals("None")) {
+        if ("None".equals(assignDef.type)) {
             return assignDef; // keep the old one
         }
         if (assignDef.nodeType != null) {
@@ -279,7 +279,7 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
                 return (Definition) definitions2[0];
             }
         }
-        if (assignDef.value.equals("None")) {
+        if ("None".equals(assignDef.value)) {
             return assignDef; // keep the old one
         }
         if (assignDef.nodeValue != null) {
