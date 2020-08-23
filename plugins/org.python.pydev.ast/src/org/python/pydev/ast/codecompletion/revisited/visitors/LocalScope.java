@@ -197,16 +197,16 @@ public class LocalScope implements ILocalScope {
 
                 for (int i = 0; i < args.args.length; i++) {
                     String s = NodeUtils.getRepresentationString(args.args[i]);
-                    if (args.annotation != null && args.annotation[i] != null) {
+                    if (args.annotation != null && args.annotation.length > i && args.annotation[i] != null) {
                         exprType[] targets = { args.args[i] };
                         exprType value = null;
-                        if (args.defaults != null && args.defaults[i] != null) {
+                        if (args.defaults != null && args.defaults.length > i && args.defaults[i] != null) {
                             value = args.defaults[i];
                         }
                         exprType type = args.annotation[i];
                         comps.add(new SourceToken(new Assign(targets, value, type), s, "", "", "", IToken.TYPE_PARAM,
                                 nature));
-                    } else if (args.defaults != null && args.defaults[i] != null) {
+                    } else if (args.defaults != null && args.defaults.length > i && args.defaults[i] != null) {
                         exprType[] targets = { args.args[i] };
                         exprType value = args.defaults[i];
                         comps.add(new SourceToken(new Assign(targets, value, null), s, "", "", "", IToken.TYPE_PARAM,
