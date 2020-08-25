@@ -37,7 +37,6 @@ import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.NameTokType;
-import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.aliasType;
@@ -360,15 +359,9 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
 
                 if (tokenToFind.equals(rep)) { //note, order of equals is important (because one side may be null).
                     exprType nodeValue = node.value;
-                    exprType nodeType = node.type;
+                    exprType nodeType = NodeUtils.extractOptionalValueSubscript(node.type);
                     String value = NodeUtils.getFullRepresentationString(nodeValue);
-                    String type;
-                    if (nodeType instanceof Str) {
-                        type = ((Str) nodeType).s;
-                    } else {
-                        type = NodeUtils.getFullRepresentationString(nodeType);
-                    }
-
+                    String type = NodeUtils.getFullRepresentationString(nodeType);
                     if (value == null) {
                         value = "";
                     }
