@@ -23,6 +23,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.markers.PyMarkerUtils;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -100,6 +101,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
         IProject project = resource.getProject();
         File workingDir = project.getLocation().toFile();
         Process process;
+        ICallback0<Process> launchProcessCallback;
         if (isPyScript) {
             // run Python script (lint.py) with the interpreter of current project
             PythonNature nature = PythonNature.getPythonNature(project);
@@ -108,22 +110,32 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                 Log.log(e);
                 return;
             }
-            String interpreter = nature.getProjectInterpreter().getExecutableOrJar();
-            WriteToStreamHelper.write("PyLint: Executing command line:", out, script, args);
-            SimplePythonRunner runner = new SimplePythonRunner();
-            String[] parameters = SimplePythonRunner.preparePythonCallParameters(interpreter, script, args);
+            launchProcessCallback = () -> {
+                String interpreter;
+                try {
+                    interpreter = nature.getProjectInterpreter().getExecutableOrJar();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                WriteToStreamHelper.write("PyLint: Executing command line:", out, script, args);
+                SimplePythonRunner runner = new SimplePythonRunner();
+                String[] parameters = SimplePythonRunner.preparePythonCallParameters(interpreter, script, args);
 
-            Tuple<Process, String> r = runner.run(parameters, workingDir, nature, monitor);
-            process = r.o1;
+                Tuple<Process, String> r = runner.run(parameters, workingDir, nature, monitor);
+                return r.o1;
+            };
         } else {
             // run executable command (pylint or pylint.bat or pylint.exe)
-            WriteToStreamHelper.write("PyLint: Executing command line:", out, (Object) args);
-            SimpleRunner simpleRunner = new SimpleRunner();
-            Tuple<Process, String> r = simpleRunner.run(args, workingDir, PythonNature.getPythonNature(project),
-                    null);
-            process = r.o1;
+            launchProcessCallback = () -> {
+                WriteToStreamHelper.write("PyLint: Executing command line:", out, (Object) args);
+                SimpleRunner simpleRunner = new SimpleRunner();
+                Tuple<Process, String> r = simpleRunner.run(args, workingDir, PythonNature.getPythonNature(project),
+                        null);
+                return r.o1;
+            };
         }
-        this.processWatchDoc = new ExternalAnalizerProcessWatchDoc(out, monitor, process, this);
+        this.processWatchDoc = new ExternalAnalizerProcessWatchDoc(out, monitor, this, launchProcessCallback, null,
+                false);
         this.processWatchDoc.start();
     }
 

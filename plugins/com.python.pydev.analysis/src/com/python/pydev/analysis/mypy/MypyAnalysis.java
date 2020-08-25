@@ -33,6 +33,7 @@ import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.markers.PyMarkerUtils;
 import org.python.pydev.shared_core.process.ProcessUtils;
@@ -164,6 +165,12 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
         }
         // run mypy in project location
         IProject project = resource.getProject();
+        if (project == null || !project.isAccessible()) {
+            // If the project is no longer valid, we can't do much.
+
+            Log.log("Unable to run mypy in: " + target + ". Project not available (" + project + ").");
+            return;
+        }
         File workingDir = project.getLocation().toFile();
         if (!foundCacheDir) {
             // Set a cache dir if one is not given.
@@ -174,11 +181,8 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
         cmdList.add(target);
         String[] args = cmdList.toArray(new String[0]);
 
-        Process process;
-
         // run executable command (mypy or mypy.bat or mypy.exe)
         WriteToStreamHelper.write("Mypy: Executing command line:", out, (Object) args);
-        SimpleRunner simpleRunner = new SimpleRunner();
 
         IPythonNature nature = PythonNature.getPythonNature(project);
         ICallback<String[], String[]> updateEnv = null;
@@ -216,10 +220,17 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                 };
             }
         }
-        Tuple<Process, String> r = simpleRunner.run(args, workingDir, nature,
-                null, updateEnv);
-        process = r.o1;
-        this.processWatchDoc = new ExternalAnalizerProcessWatchDoc(out, monitor, process, this);
+
+        final ICallback<String[], String[]> finalUpdateEnv = updateEnv;
+        ICallback0<Process> launchProcessCallback = () -> {
+            SimpleRunner simpleRunner = new SimpleRunner();
+            final Tuple<Process, String> r = simpleRunner.run(args, workingDir, nature,
+                    null, finalUpdateEnv);
+            Process process = r.o1;
+            return process;
+        };
+        this.processWatchDoc = new ExternalAnalizerProcessWatchDoc(out, monitor, this, launchProcessCallback, project,
+                true);
         this.processWatchDoc.start();
     }
 
