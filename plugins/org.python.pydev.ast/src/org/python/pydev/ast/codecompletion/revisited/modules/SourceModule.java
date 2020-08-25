@@ -882,14 +882,9 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                 if (tok instanceof SourceToken && ((SourceToken) tok).getAst() instanceof Assign) {
                     Assign node = (Assign) ((SourceToken) tok).getAst();
                     exprType nodeValue = node.value;
-                    exprType nodeType = node.type;
+                    exprType nodeType = NodeUtils.extractOptionalValueSubscript(node.type);
                     String value = NodeUtils.getFullRepresentationString(nodeValue);
-                    String type;
-                    if (nodeType instanceof Str) {
-                        type = ((Str) nodeType).s;
-                    } else {
-                        type = NodeUtils.getFullRepresentationString(nodeType);
-                    }
+                    String type = NodeUtils.getFullRepresentationString(nodeType);
                     if (value == null) {
                         value = "";
                     }

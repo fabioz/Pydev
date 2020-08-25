@@ -97,6 +97,9 @@ public class PackageTab {
             GridLayout layout = new GridLayout();
             layout.marginWidth = 0;
             boxPackage.setLayout(layout);
+            String packageManagersDisableProperty = System.getProperty("pydev.packagemanagers.disable", "false");
+            boolean packageManagersDisable = packageManagersDisableProperty.equalsIgnoreCase("true")
+                    || packageManagersDisableProperty.equalsIgnoreCase("1");
             btPip = AbstractInterpreterEditor.createBt(boxPackage, "Manage with pip",
                     new SelectionAdapter() {
                         @Override
@@ -134,6 +137,12 @@ public class PackageTab {
                                 update();
                             }
                         });
+            }
+
+            if (packageManagersDisable) {
+                btPip.setEnabled(false);
+                btPipenv.setEnabled(false);
+                btConda.setEnabled(false);
             }
             // Commented out for now (needs more time to properly integrate).
             // In this case we'd do wrappers and launch using them instead of launching Python itself -- see:

@@ -916,13 +916,13 @@ public class InterpreterInfo implements IInterpreterInfo {
         forcedLibs.add("hashlib"); //depending on the Python version, hashlib cannot find md5, so, let's always leave it there.
         forcedLibs.add("pytest"); //yeap, pytest does have a structure that's pretty hard to analyze.
         forcedLibs.add("six"); // six creates its six.moves all through deep magic.
+        forcedLibs.add("re");
 
         int interpreterType = getInterpreterType();
         switch (interpreterType) {
             case IInterpreterManager.INTERPRETER_TYPE_JYTHON:
                 //by default, we don't want to force anything to python.
                 forcedLibs.add("StringIO"); //jython bug: StringIO is not added
-                forcedLibs.add("re"); //re is very strange in Jython (while it's OK in Python)
                 forcedLibs.add("com.ziclix.python.sql"); //bultin to jython but not reported.
                 break;
 

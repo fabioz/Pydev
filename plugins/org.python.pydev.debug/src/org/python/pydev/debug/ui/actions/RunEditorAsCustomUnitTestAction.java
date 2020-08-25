@@ -124,7 +124,7 @@ public class RunEditorAsCustomUnitTestAction extends AbstractRunEditorAction {
                 FileOrResource[] resource) throws CoreException {
             ILaunchConfigurationWorkingCopy workingCopy = super.createDefaultLaunchConfigurationWithoutSaving(
                     resource);
-            if (arguments.trim().length() > 0) {
+            if (arguments.trim().length() > 0 && workingCopy != null) {
                 // first remember the arguments to be used internally and for matching
                 workingCopy.setAttribute(Constants.ATTR_UNITTEST_TESTS, arguments);
                 // then determine the tests to be displayed to user

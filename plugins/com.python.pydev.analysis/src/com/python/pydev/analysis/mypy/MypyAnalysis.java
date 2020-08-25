@@ -252,13 +252,24 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
             }
             try {
                 outputLine = outputLine.trim();
-                int line = -1;
                 int column = -1;
-                String messageId = "";
-                Matcher m = MYPY_MATCH_PATTERN.matcher(outputLine);
-                String message = "";
-                int markerSeverity = -1;
+                Matcher m = MYPY_MATCH_PATTERN1.matcher(outputLine);
                 if (m.matches()) {
+                    column = Integer.parseInt(outputLine.substring(m.start(3), m.end(3))) - 1;
+                } else {
+                    m = MYPY_MATCH_PATTERN2.matcher(outputLine);
+                    if (m.matches()) {
+                        column = 0;
+                    } else {
+                        m = null;
+                    }
+                }
+
+                if (m != null) {
+                    int line = -1;
+                    String messageId = "";
+                    String message = "";
+                    int markerSeverity = -1;
                     String severityFound = outputLine.substring(m.start(4), m.end(4)).trim();
 
                     if (severityFound.equals("error")) {
@@ -272,7 +283,6 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                     }
                     if (markerSeverity != -1) {
                         line = Integer.parseInt(outputLine.substring(m.start(2), m.end(2))) - 1;
-                        column = Integer.parseInt(outputLine.substring(m.start(3), m.end(3))) - 1;
                         messageId = "mypy";
                         message = outputLine.substring(m.start(5), m.end(5)).trim();
 
@@ -310,11 +320,21 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
         }
     }
 
-    private static Pattern MYPY_MATCH_PATTERN = Pattern
+    private static Pattern MYPY_MATCH_PATTERN1 = Pattern
             .compile("\\A" // start of input
                     + "\\s*(.*)" // filename (1)
                     + "\\s*\\:\\s*(\\d+)" // line (2)
                     + "\\s*\\:\\s*(\\d+)" // col (3)
+                    + "\\s*\\:\\s*(\\w+)" // error|note (4)
+                    + "\\s*\\:\\s*(.*)" // message (5)
+                    + "\\Z" // end of input
+            );
+
+    private static Pattern MYPY_MATCH_PATTERN2 = Pattern // get the same group organization, but (3) is empty
+            .compile("\\A" // start of input
+                    + "\\s*(.*)" // filename (1)
+                    + "\\s*\\:\\s*(\\d+)" // line (2)
+                    + "()" // (3)
                     + "\\s*\\:\\s*(\\w+)" // error|note (4)
                     + "\\s*\\:\\s*(.*)" // message (5)
                     + "\\Z" // end of input
