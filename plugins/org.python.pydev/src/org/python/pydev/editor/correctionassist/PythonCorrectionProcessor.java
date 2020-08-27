@@ -39,6 +39,7 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.correctionassist.docstrings.AssistDocString;
 import org.python.pydev.editor.correctionassist.heuristics.AssistAssign;
+import org.python.pydev.editor.correctionassist.heuristics.AssistFString;
 import org.python.pydev.editor.correctionassist.heuristics.AssistImport;
 import org.python.pydev.editor.correctionassist.heuristics.AssistImportToLocal;
 import org.python.pydev.editor.correctionassist.heuristics.AssistPercentToFormat;
@@ -171,6 +172,7 @@ public class PythonCorrectionProcessor implements IQuickAssistProcessor {
         assists.add(new AssistAssign());
         assists.add(new AssistPercentToFormat());
         assists.add(new AssistImportToLocal());
+        assists.add(new AssistFString());
 
         assists.addAll(ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_CTRL_1));
         IImageCache imageCache = SharedUiPlugin.getImageCache();
