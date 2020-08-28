@@ -72,16 +72,6 @@ public interface IPythonPartitions {
     public static final String PYTHON_PARTITION_TYPE = "__PYTHON_PARTITION_TYPE";
     public final static Set<String> NON_DEFAULT_TYPES_AS_SET = new HashSet<>(Arrays.asList(types));
 
-    public final static Set<String> STRING_PARTITIONS = new HashSet<String>(Arrays.asList(
-            PY_MULTILINE_BYTES1,
-            PY_MULTILINE_BYTES2,
-            PY_SINGLELINE_BYTES1,
-            PY_SINGLELINE_BYTES2,
-            PY_MULTILINE_BYTES_OR_UNICODE1,
-            PY_MULTILINE_BYTES_OR_UNICODE2,
-            PY_SINGLELINE_BYTES_OR_UNICODE1,
-            PY_SINGLELINE_BYTES_OR_UNICODE2));
-
     public final static Set<String> F_STRING_PARTITIONS = new HashSet<String>(Arrays.asList(
             PY_MULTILINE_FSTRING1,
             PY_MULTILINE_FSTRING2,
