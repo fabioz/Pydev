@@ -10,9 +10,7 @@ import org.eclipse.jface.text.ITypedRegion;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.partition.PyPartitionScanner;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.editor.PyEdit;
@@ -31,58 +29,65 @@ public class AssistFString implements IAssistProps {
     public List<ICompletionProposalHandle> getProps(PySelection ps, IImageCache imageCache, File f,
             IPythonNature nature, IPyEdit edit, int offset) throws BadLocationException, MisconfigurationException {
         PySourceViewer viewer = null;
-        if (edit != null) { //only in tests it is actually null
+        if (edit instanceof PyEdit) { //only in tests it is actually null
             viewer = ((PyEdit) edit).getPySourceViewer();
         }
         List<ICompletionProposalHandle> l = new ArrayList<ICompletionProposalHandle>();
 
         IDocument doc = ps.getDoc();
-        ITypedRegion partition = ((FastPartitioner) PyPartitionScanner.checkPartitionScanner(doc))
-                .getPartition(offset);
+        FastPartitioner fastPartitioner = (FastPartitioner) PyPartitionScanner.checkPartitionScanner(doc);
+        ITypedRegion partition = fastPartitioner.getPartition(offset);
 
         FastStringBuffer strBuf = new FastStringBuffer();
-        strBuf.append(doc.get(partition.getOffset(), partition.getLength()));
+        strBuf.append('f').append(doc.get(partition.getOffset(), partition.getLength()));
 
         FastStringBuffer variablesBuf = new FastStringBuffer();
-        try {
-            int partitionEndOffset = partition.getOffset() + partition.getLength();
-            int formatEnd = ParsingUtils.create(doc).eatPar(partitionEndOffset, null, '(');
-            variablesBuf.append(doc.get(partitionEndOffset, formatEnd - partitionEndOffset));
+        // get string end offset
+        int partitionEndOffset = partition.getOffset() + partition.getLength();
+        // get format (% ....) end offset
+        int formatEndOffset = doc.getLineLength(doc.getLineOfOffset(partitionEndOffset));
+        // set a buf exclusively for the format variables
+        variablesBuf.append(doc.get(partitionEndOffset, formatEndOffset - partitionEndOffset));
 
-            if (variablesBuf.indexOf('(') != -1) {
-                variablesBuf.deleteFirstChars(variablesBuf.indexOf('(') + 1);
-                variablesBuf.deleteLastChars(variablesBuf.length() - variablesBuf.indexOf(')'));
-            } else {
-                variablesBuf.deleteFirstChars(variablesBuf.indexOf('%') + 1);
-            }
-
-            if (variablesBuf.trim().endsWith(',')) {
+        // get only the variable names and remove the last comma
+        variablesBuf.trim().deleteFirst();
+        if (variablesBuf.trim().startsWith('(')) {
+            variablesBuf.deleteFirst();
+            variablesBuf.deleteLast();
+            variablesBuf.trim();
+            // if we caught the last parenthesis of a call, adjust the format end offset
+            while (variablesBuf.endsWith(')')) {
                 variablesBuf.deleteLast();
                 variablesBuf.trim();
+                // it considers the opened parenthesis
+                formatEndOffset -= 2;
             }
-
-            while (true) {
-                int commaPos = variablesBuf.indexOf(',');
-                if (commaPos != -1) {
-                    CharSequence subSequence = variablesBuf.subSequence(0, commaPos);
-                    strBuf.replaceFirst("%s", "{" + subSequence.toString().trim() + "}");
-                    variablesBuf.deleteFirstChars(commaPos + 1);
-                } else {
-                    CharSequence subSequence = variablesBuf.subSequence(0, variablesBuf.length());
-                    strBuf.replaceFirst("%s", "{" + subSequence.toString().trim() + "}");
-                    break;
-                }
-            }
-            l.add(CompletionProposalFactory.get().createAssistAssignCompletionProposal(
-                    strBuf.insert(0, 'f').toString(),
-                    partition.getOffset(), formatEnd - partition.getOffset(), 0, getImage(imageCache,
-                            UIConstants.COMPLETION_TEMPLATE),
-                    "Convert to f-string", null, null, IPyCompletionProposal.PRIORITY_DEFAULT, viewer,
-                    null));
-        } catch (SyntaxErrorException e) {
-            e.printStackTrace();
+        }
+        if (variablesBuf.endsWith(',')) {
+            variablesBuf.deleteLast();
+            variablesBuf.trim();
         }
 
+        // get variables without literals
+        String variablesWithoutLiterals = PySelection.getLineWithoutCommentsOrLiterals(variablesBuf.toString());
+        // get variable by variable and edit the f-string output
+        int i = 0;
+        while (true) {
+            int commaPos = variablesWithoutLiterals.indexOf(',', i);
+            if (commaPos != -1) {
+                CharSequence subSequence = variablesBuf.subSequence(i, commaPos);
+                strBuf.replaceFirst("%s", "{" + subSequence.toString().trim() + "}");
+                i = commaPos + 1;
+            } else {
+                CharSequence subSequence = variablesBuf.subSequence(i, variablesBuf.length());
+                strBuf.replaceFirst("%s", "{" + subSequence.toString().trim() + "}");
+                break;
+            }
+        }
+        l.add(CompletionProposalFactory.get().createPyCompletionProposal(strBuf.toString(),
+                partition.getOffset(), formatEndOffset - partition.getOffset(), 0, getImage(imageCache,
+                        UIConstants.COMPLETION_TEMPLATE),
+                "Convert to f-string", null, null, IPyCompletionProposal.PRIORITY_DEFAULT, null));
         return l;
     }
 

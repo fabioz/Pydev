@@ -66,5 +66,106 @@ public class AssistFStringTest extends TestCase {
         List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, 10);
         assertEquals(1, props.size());
         assertEquals("Convert to f-string", props.get(0).getDisplayString());
+        props.get(0).apply(doc);
+        assertEquals("print(f'''a = {a} {b}''')\n" +
+                "\n" +
+                "x = 20", doc.get());
+    }
+
+    public void testSimple2() throws BadLocationException, MisconfigurationException {
+        String d = "x = 'a = %s' % some_name";
+
+        Document doc = new Document(d);
+
+        PySelection ps = new PySelection(doc, 10);
+        String sel = PyAction.getLineWithoutComments(ps);
+
+        assertEquals(true, assist.isValid(ps, sel, null, 10));
+        List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, 10);
+        assertEquals(1, props.size());
+        assertEquals("Convert to f-string", props.get(0).getDisplayString());
+        props.get(0).apply(doc);
+        assertEquals("x = f'a = {some_name}'", doc.get());
+    }
+
+    public void testSimple3() throws BadLocationException, MisconfigurationException {
+        String d = "\"a = %s\" % some_name.another_name('ignore,anything,here')";
+
+        Document doc = new Document(d);
+
+        PySelection ps = new PySelection(doc, 5);
+        String sel = PyAction.getLineWithoutComments(ps);
+
+        assertEquals(true, assist.isValid(ps, sel, null, 5));
+        List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, 5);
+        assertEquals(1, props.size());
+        assertEquals("Convert to f-string", props.get(0).getDisplayString());
+        props.get(0).apply(doc);
+        assertEquals("f\"a = {some_name.another_name('ignore,anything,here')}\"", doc.get());
+    }
+
+    public void testSimple4() throws BadLocationException, MisconfigurationException {
+        String d = "\"a = %s\" % some_name[:2]";
+
+        Document doc = new Document(d);
+
+        PySelection ps = new PySelection(doc, 5);
+        String sel = PyAction.getLineWithoutComments(ps);
+
+        assertEquals(true, assist.isValid(ps, sel, null, 5));
+        List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, 5);
+        assertEquals(1, props.size());
+        assertEquals("Convert to f-string", props.get(0).getDisplayString());
+        props.get(0).apply(doc);
+        assertEquals("f\"a = {some_name[:2]}\"", doc.get());
+    }
+
+    public void testSimple5() throws BadLocationException, MisconfigurationException {
+        String d = "\"a = %s %s\" % (a , c)";
+
+        Document doc = new Document(d);
+
+        PySelection ps = new PySelection(doc, 5);
+        String sel = PyAction.getLineWithoutComments(ps);
+
+        assertEquals(true, assist.isValid(ps, sel, null, 5));
+        List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, 5);
+        assertEquals(1, props.size());
+        assertEquals("Convert to f-string", props.get(0).getDisplayString());
+        props.get(0).apply(doc);
+        assertEquals("f\"a = {a} {c}\"", doc.get());
+    }
+
+    public void testSimple6() throws BadLocationException, MisconfigurationException {
+        String d = "\"a = %s %s\" % some_name";
+
+        Document doc = new Document(d);
+
+        PySelection ps = new PySelection(doc, 5);
+        String sel = PyAction.getLineWithoutComments(ps);
+
+        assertEquals(true, assist.isValid(ps, sel, null, 5));
+        List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, 5);
+        assertEquals(1, props.size());
+        assertEquals("Convert to f-string", props.get(0).getDisplayString());
+        props.get(0).apply(doc);
+        assertEquals("f\"a = {some_name} %s\"", doc.get());
+    }
+
+    public void testSimple7() throws BadLocationException, MisconfigurationException {
+        String d = "\"a = %s\" % some_name.another_name('ignore,anything,here').another_name2('ignore, this, here')";
+
+        Document doc = new Document(d);
+
+        PySelection ps = new PySelection(doc, 5);
+        String sel = PyAction.getLineWithoutComments(ps);
+
+        assertEquals(true, assist.isValid(ps, sel, null, 5));
+        List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, 5);
+        assertEquals(1, props.size());
+        assertEquals("Convert to f-string", props.get(0).getDisplayString());
+        props.get(0).apply(doc);
+        assertEquals("f\"a = {some_name.another_name('ignore,anything,here').another_name2('ignore, this, here')}\"",
+                doc.get());
     }
 }
