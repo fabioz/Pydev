@@ -168,4 +168,24 @@ public class AssistFStringTest extends TestCase {
         assertEquals("f\"a = {some_name.another_name('ignore,anything,here').another_name2('ignore, this, here')}\"",
                 doc.get());
     }
+
+    public void testSimple8() throws BadLocationException, MisconfigurationException {
+        String d = "\"%s - %s\" % (\n" +
+                "  a,\n" +
+                "  b\n" +
+                ")";
+
+        Document doc = new Document(d);
+
+        PySelection ps = new PySelection(doc, 5);
+        String sel = PyAction.getLineWithoutComments(ps);
+
+        assertEquals(true, assist.isValid(ps, sel, null, 5));
+        List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, 5);
+        assertEquals(1, props.size());
+        assertEquals("Convert to f-string", props.get(0).getDisplayString());
+        props.get(0).apply(doc);
+        assertEquals("f\"{a} - {b}\"",
+                doc.get());
+    }
 }
