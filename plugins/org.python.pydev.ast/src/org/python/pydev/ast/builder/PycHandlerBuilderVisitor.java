@@ -127,7 +127,7 @@ public class PycHandlerBuilderVisitor extends PyDevBuilderVisitor {
                     dotPyLoc = bufStr;
                 }
                 if (file.exists()) {
-                    markAsDerived(resource);
+                    OperationsOnAllAddedFiles.markAsDerived(resource);
                     return;
                 }
                 buf.deleteLastChars(ext.length());
@@ -140,7 +140,7 @@ public class PycHandlerBuilderVisitor extends PyDevBuilderVisitor {
             //case in the visit removed resource)
             IPythonNature nature = PythonNature.getPythonNature(resource);
             if (nature == null) {
-                markAsDerived(resource);
+                OperationsOnAllAddedFiles.markAsDerived(resource);
                 return;
             }
             try {
@@ -154,18 +154,6 @@ public class PycHandlerBuilderVisitor extends PyDevBuilderVisitor {
 
             //if still did not return, let's remove it
             deletePycFile(loc);
-        }
-    }
-
-    /**
-     * We must mark .pyc files as derived.
-     * @param resource the resource to be marked as derived.
-     */
-    private void markAsDerived(IResource resource) {
-        try {
-            resource.setDerived(true);
-        } catch (CoreException e) {
-            Log.log(e);
         }
     }
 
