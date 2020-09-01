@@ -149,7 +149,7 @@ public class AssistFStringTest extends TestCase {
         assertEquals(1, props.size());
         assertEquals("Convert to f-string", props.get(0).getDisplayString());
         props.get(0).apply(doc);
-        assertEquals("f\"a = {some_name} %s\"", doc.get());
+        assertEquals("f\"a = {some_name[0]} {some_name[1]}\"", doc.get());
     }
 
     public void testSimple7() throws BadLocationException, MisconfigurationException {
@@ -187,5 +187,69 @@ public class AssistFStringTest extends TestCase {
         props.get(0).apply(doc);
         assertEquals("f\"{a} - {b}\"",
                 doc.get());
+    }
+
+    public void testSimple9() throws BadLocationException, MisconfigurationException {
+        String d = "\"a = %s %s\" % ('something' , 'foobar')";
+
+        Document doc = new Document(d);
+
+        PySelection ps = new PySelection(doc, 5);
+        String sel = PyAction.getLineWithoutComments(ps);
+
+        assertEquals(true, assist.isValid(ps, sel, null, 5));
+        List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, 5);
+        assertEquals(1, props.size());
+        assertEquals("Convert to f-string", props.get(0).getDisplayString());
+        props.get(0).apply(doc);
+        assertEquals("f\"a = {'something'} {'foobar'}\"", doc.get());
+    }
+
+    public void testSimple10() throws BadLocationException, MisconfigurationException {
+        String d = "\"a = %s %s\" % (\"something\", \"foobar\")";
+
+        Document doc = new Document(d);
+
+        PySelection ps = new PySelection(doc, 5);
+        String sel = PyAction.getLineWithoutComments(ps);
+
+        assertEquals(true, assist.isValid(ps, sel, null, 5));
+        List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, 5);
+        assertEquals(1, props.size());
+        assertEquals("Convert to f-string", props.get(0).getDisplayString());
+        props.get(0).apply(doc);
+        assertEquals("f\"a = {\"something\"} {\"foobar\"}\"", doc.get());
+    }
+
+    public void testSimple11() throws BadLocationException, MisconfigurationException {
+        String d = "\"a = %s %s\" % (some_str[:-1], some_str2[-1:])";
+
+        Document doc = new Document(d);
+
+        PySelection ps = new PySelection(doc, 5);
+        String sel = PyAction.getLineWithoutComments(ps);
+
+        assertEquals(true, assist.isValid(ps, sel, null, 5));
+        List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, 5);
+        assertEquals(1, props.size());
+        assertEquals("Convert to f-string", props.get(0).getDisplayString());
+        props.get(0).apply(doc);
+        assertEquals("f\"a = {some_str[:-1]} {some_str2[-1:]}\"", doc.get());
+    }
+
+    public void testSimple12() throws BadLocationException, MisconfigurationException {
+        String d = "\"a = %s %s\" % ({'id': 1, 'value':10}, {'id': 2, 'value':20})";
+
+        Document doc = new Document(d);
+
+        PySelection ps = new PySelection(doc, 5);
+        String sel = PyAction.getLineWithoutComments(ps);
+
+        assertEquals(true, assist.isValid(ps, sel, null, 5));
+        List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, 5);
+        assertEquals(1, props.size());
+        assertEquals("Convert to f-string", props.get(0).getDisplayString());
+        props.get(0).apply(doc);
+        assertEquals("f\"a = {{'id': 1, 'value':10}} {{'id': 2, 'value':20}}\"", doc.get());
     }
 }

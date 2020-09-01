@@ -26,6 +26,7 @@ import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_core.partitioner.FastPartitioner;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 
 public class AssistFString implements IAssistProps {
     @Override
@@ -39,16 +40,20 @@ public class AssistFString implements IAssistProps {
 
         IDocument doc = ps.getDoc();
         ITypedRegion partition = ((FastPartitioner) PyPartitionScanner.checkPartitionScanner(doc)).getPartition(offset);
+        if (!ParsingUtils.isStringContentType(partition.getType())) {
+            return lst;
+        }
 
-        FastStringBuffer strBuf = new FastStringBuffer();
-        strBuf.append('f').append(doc.get(partition.getOffset(), partition.getLength()));
+        int formatCount = StringUtils.count(doc.get(partition.getOffset(), partition.getLength()), "%s");
+        if (formatCount == 0) {
+            return lst;
+        }
 
-        FastStringBuffer variablesBuf = new FastStringBuffer();
         // get string end offset
         int partitionEndOffset = partition.getOffset() + partition.getLength();
+        // get format end offset
         int i = partitionEndOffset;
         try {
-            // get format end offset
             ParsingUtils parsingUtils = ParsingUtils.create(doc);
             while (i < parsingUtils.len()) {
                 char c = parsingUtils.charAt(i);
@@ -65,19 +70,28 @@ public class AssistFString implements IAssistProps {
                     while (i < parsingUtils.len()) {
                         c = parsingUtils.charAt(i);
                         if (Character.isJavaIdentifierPart(c) || c == '.') {
-                        } else {
-                            if (c == '{' || c == '[' || c == '(' || c == '"' || c == '\'') {
-                                i = parsingUtils.eatPar(i, null, c);
+                            i++;
+                            continue;
+                        } else if (c == '{' || c == '[' || c == '(' || c == '"' || c == '\'') {
+                            i = parsingUtils.eatPar(i, null, c) + 1;
+                            c = parsingUtils.charAt(i);
+                            while (Character.isWhitespace(c)) {
+                                i++;
+                                c = parsingUtils.charAt(i);
+                            }
+                            if (c == '.') {
+                                i++;
+                                continue;
                             }
                             break; // inner break
                         }
-                        i++;
                     }
-                    continue;
+                    break; // outer break
                 }
                 i++;
             }
 
+            FastStringBuffer variablesBuf = new FastStringBuffer();
             variablesBuf.append(doc.get(partitionEndOffset, i - partitionEndOffset));
             // get only the variable names and remove the last comma
             variablesBuf.trim().deleteFirst();
@@ -91,21 +105,50 @@ public class AssistFString implements IAssistProps {
                 variablesBuf.trim();
             }
 
+            // initialize format output string with the properly size allocation (f + string len + variables len)
+            FastStringBuffer strBuf = new FastStringBuffer(1 + partition.getLength() + variablesBuf.length());
+            strBuf.append('f').append(doc.get(partition.getOffset(), partition.getLength()));
+
             // get variables without literals
             String variablesWithoutLiterals = PySelection.getLineWithoutCommentsOrLiterals(variablesBuf.toString());
-            // get variable by variable and edit the f-string output
+            // get variable by variable
+            List<String> variables = new ArrayList<String>();
+            parsingUtils = ParsingUtils.create(variablesBuf);
             int j = 0;
-            while (true) {
-                int commaPos = variablesWithoutLiterals.indexOf(',', j);
+            while (j < parsingUtils.len()) {
+                char c = parsingUtils.charAt(j);
+                if (Character.isWhitespace(c) || c == ',') {
+                    j++;
+                    continue;
+                }
+                int commaPos;
+                if (c == '{' || c == '[' || c == '(' || c == '"' || c == '\'') {
+                    commaPos = parsingUtils.eatPar(j, null, c) + 1;
+                } else {
+                    commaPos = variablesWithoutLiterals.indexOf(',', j);
+                }
                 if (commaPos != -1) {
                     CharSequence subSequence = variablesBuf.subSequence(j, commaPos);
-                    strBuf.replaceFirst("%s", "{" + subSequence.toString().trim() + "}");
+                    variables.add(subSequence.toString().trim());
                     j = commaPos + 1;
                 } else {
                     CharSequence subSequence = variablesBuf.subSequence(j, variablesBuf.length());
-                    strBuf.replaceFirst("%s", "{" + subSequence.toString().trim() + "}");
+                    variables.add(subSequence.toString().trim());
                     break;
                 }
+            }
+            // iterate through variables and edit the f-string output
+            if (formatCount == variables.size()) {
+                for (String variable : variables) {
+                    strBuf.replaceFirst("%s", "{" + variable + "}");
+                }
+            } else if (variables.size() == 1) {
+                String variable = variables.get(0);
+                for (j = 0; j < formatCount; j++) {
+                    strBuf.replaceFirst("%s", "{" + variable + "[" + j + "]" + "}");
+                }
+            } else {
+                return lst;
             }
             lst.add(CompletionProposalFactory.get().createPyCompletionProposal(strBuf.toString(),
                     partition.getOffset(), i - partition.getOffset(), 0, getImage(imageCache,
