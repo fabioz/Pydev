@@ -10,7 +10,10 @@ import org.eclipse.jface.text.ITypedRegion;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.SyntaxErrorException;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.partition.PyPartitionScanner;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.editor.PyEdit;
@@ -32,11 +35,10 @@ public class AssistFString implements IAssistProps {
         if (edit instanceof PyEdit) { //only in tests it is actually null
             viewer = ((PyEdit) edit).getPySourceViewer();
         }
-        List<ICompletionProposalHandle> l = new ArrayList<ICompletionProposalHandle>();
+        List<ICompletionProposalHandle> lst = new ArrayList<ICompletionProposalHandle>();
 
         IDocument doc = ps.getDoc();
-        FastPartitioner fastPartitioner = (FastPartitioner) PyPartitionScanner.checkPartitionScanner(doc);
-        ITypedRegion partition = fastPartitioner.getPartition(offset);
+        ITypedRegion partition = ((FastPartitioner) PyPartitionScanner.checkPartitionScanner(doc)).getPartition(offset);
 
         FastStringBuffer strBuf = new FastStringBuffer();
         strBuf.append('f').append(doc.get(partition.getOffset(), partition.getLength()));
@@ -44,51 +46,76 @@ public class AssistFString implements IAssistProps {
         FastStringBuffer variablesBuf = new FastStringBuffer();
         // get string end offset
         int partitionEndOffset = partition.getOffset() + partition.getLength();
-        // get format (% ....) end offset
-        int formatEndOffset = doc.getLineLength(doc.getLineOfOffset(partitionEndOffset));
-        // set a buf exclusively for the format variables
-        variablesBuf.append(doc.get(partitionEndOffset, formatEndOffset - partitionEndOffset));
+        int i = partitionEndOffset;
+        try {
+            // get format end offset
+            ParsingUtils parsingUtils = ParsingUtils.create(doc);
+            while (i < parsingUtils.len()) {
+                char c = parsingUtils.charAt(i);
+                if (Character.isWhitespace(c)) {
+                    i++;
+                    continue;
+                }
+                if (c == '{' || c == '[' || c == '(' || c == '"' || c == '\'') {
+                    i = parsingUtils.eatPar(i, null, c) + 1;
+                    break;
+                }
+                if (Character.isJavaIdentifierPart(c)) {
+                    i++;
+                    while (i < parsingUtils.len()) {
+                        c = parsingUtils.charAt(i);
+                        if (Character.isJavaIdentifierPart(c) || c == '.') {
+                        } else {
+                            if (c == '{' || c == '[' || c == '(' || c == '"' || c == '\'') {
+                                i = parsingUtils.eatPar(i, null, c);
+                            }
+                            break; // inner break
+                        }
+                        i++;
+                    }
+                    continue;
+                }
+                i++;
+            }
 
-        // get only the variable names and remove the last comma
-        variablesBuf.trim().deleteFirst();
-        if (variablesBuf.trim().startsWith('(')) {
-            variablesBuf.deleteFirst();
-            variablesBuf.deleteLast();
-            variablesBuf.trim();
-            // if we caught the last parenthesis of a call, adjust the format end offset
-            while (variablesBuf.endsWith(')')) {
+            variablesBuf.append(doc.get(partitionEndOffset, i - partitionEndOffset));
+            // get only the variable names and remove the last comma
+            variablesBuf.trim().deleteFirst();
+            if (variablesBuf.trim().startsWith('(')) {
+                variablesBuf.deleteFirst();
                 variablesBuf.deleteLast();
                 variablesBuf.trim();
-                // it considers the opened parenthesis
-                formatEndOffset -= 2;
             }
-        }
-        if (variablesBuf.endsWith(',')) {
-            variablesBuf.deleteLast();
-            variablesBuf.trim();
+            if (variablesBuf.endsWith(',')) {
+                variablesBuf.deleteLast();
+                variablesBuf.trim();
+            }
+
+            // get variables without literals
+            String variablesWithoutLiterals = PySelection.getLineWithoutCommentsOrLiterals(variablesBuf.toString());
+            // get variable by variable and edit the f-string output
+            int j = 0;
+            while (true) {
+                int commaPos = variablesWithoutLiterals.indexOf(',', j);
+                if (commaPos != -1) {
+                    CharSequence subSequence = variablesBuf.subSequence(j, commaPos);
+                    strBuf.replaceFirst("%s", "{" + subSequence.toString().trim() + "}");
+                    j = commaPos + 1;
+                } else {
+                    CharSequence subSequence = variablesBuf.subSequence(j, variablesBuf.length());
+                    strBuf.replaceFirst("%s", "{" + subSequence.toString().trim() + "}");
+                    break;
+                }
+            }
+            lst.add(CompletionProposalFactory.get().createPyCompletionProposal(strBuf.toString(),
+                    partition.getOffset(), i - partition.getOffset(), 0, getImage(imageCache,
+                            UIConstants.COMPLETION_TEMPLATE),
+                    "Convert to f-string", null, null, IPyCompletionProposal.PRIORITY_DEFAULT, null));
+        } catch (SyntaxErrorException e) {
+            Log.log(e);
         }
 
-        // get variables without literals
-        String variablesWithoutLiterals = PySelection.getLineWithoutCommentsOrLiterals(variablesBuf.toString());
-        // get variable by variable and edit the f-string output
-        int i = 0;
-        while (true) {
-            int commaPos = variablesWithoutLiterals.indexOf(',', i);
-            if (commaPos != -1) {
-                CharSequence subSequence = variablesBuf.subSequence(i, commaPos);
-                strBuf.replaceFirst("%s", "{" + subSequence.toString().trim() + "}");
-                i = commaPos + 1;
-            } else {
-                CharSequence subSequence = variablesBuf.subSequence(i, variablesBuf.length());
-                strBuf.replaceFirst("%s", "{" + subSequence.toString().trim() + "}");
-                break;
-            }
-        }
-        l.add(CompletionProposalFactory.get().createPyCompletionProposal(strBuf.toString(),
-                partition.getOffset(), formatEndOffset - partition.getOffset(), 0, getImage(imageCache,
-                        UIConstants.COMPLETION_TEMPLATE),
-                "Convert to f-string", null, null, IPyCompletionProposal.PRIORITY_DEFAULT, null));
-        return l;
+        return lst;
     }
 
     private IImageHandle getImage(IImageCache imageCache, String c) {
