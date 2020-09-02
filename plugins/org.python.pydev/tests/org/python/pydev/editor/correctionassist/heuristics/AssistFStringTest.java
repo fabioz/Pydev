@@ -252,4 +252,164 @@ public class AssistFStringTest extends TestCase {
         props.get(0).apply(doc);
         assertEquals("f\"a = {{'id': 1, 'value':10}} {{'id': 2, 'value':20}}\"", doc.get());
     }
+
+    public void testSimple13() throws BadLocationException, MisconfigurationException {
+        String d = "call('%s %s' % foo, bar)";
+
+        Document doc = new Document(d);
+
+        PySelection ps = new PySelection(doc, 10);
+        String sel = PyAction.getLineWithoutComments(ps);
+
+        assertEquals(true, assist.isValid(ps, sel, null, 10));
+        List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, 10);
+        assertEquals(1, props.size());
+        assertEquals("Convert to f-string", props.get(0).getDisplayString());
+        props.get(0).apply(doc);
+        assertEquals("call(f'{foo} {bar}')", doc.get());
+    }
+
+    public void testSimple14() throws BadLocationException, MisconfigurationException {
+        String d = "call('%s %s' % foo, bar)\n" +
+                "\n" +
+                "x = 10";
+
+        Document doc = new Document(d);
+
+        PySelection ps = new PySelection(doc, 10);
+        String sel = PyAction.getLineWithoutComments(ps);
+
+        assertEquals(true, assist.isValid(ps, sel, null, 10));
+        List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, 10);
+        assertEquals(1, props.size());
+        assertEquals("Convert to f-string", props.get(0).getDisplayString());
+        props.get(0).apply(doc);
+        assertEquals("call(f'{foo} {bar}')\n" +
+                "\n" +
+                "x = 10", doc.get());
+    }
+
+    public void testSimple15() throws BadLocationException, MisconfigurationException {
+        String d = "print('''a = %s %s''' % (a, b,))\n" +
+                "\n" +
+                "x = 10";
+
+        Document doc = new Document(d);
+
+        PySelection ps = new PySelection(doc, 10);
+        String sel = PyAction.getLineWithoutComments(ps);
+
+        assertEquals(true, assist.isValid(ps, sel, null, 10));
+        List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, 10);
+        assertEquals(1, props.size());
+        assertEquals("Convert to f-string", props.get(0).getDisplayString());
+        props.get(0).apply(doc);
+        assertEquals("print(f'''a = {a} {b}''')\n" +
+                "\n" +
+                "x = 10", doc.get());
+    }
+
+    public void testSimple16() throws BadLocationException, MisconfigurationException {
+        String d = "\"a = %s %s\" % (\n" +
+                "\"something\", \n" +
+                "\"foobar\"\n" +
+                ")";
+
+        Document doc = new Document(d);
+
+        PySelection ps = new PySelection(doc, 10);
+        String sel = PyAction.getLineWithoutComments(ps);
+
+        assertEquals(true, assist.isValid(ps, sel, null, 10));
+        List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, 10);
+        assertEquals(1, props.size());
+        assertEquals("Convert to f-string", props.get(0).getDisplayString());
+        props.get(0).apply(doc);
+        assertEquals("f\"a = {\"something\"} {\"foobar\"}\"", doc.get());
+    }
+
+    public void testSimple17() throws BadLocationException, MisconfigurationException {
+        // this should give no suggestion nor error
+        String d = "\"a = %s\" % {'id': 1, 'value':10}";
+
+        Document doc = new Document(d);
+
+        PySelection ps = new PySelection(doc, 5);
+        String sel = PyAction.getLineWithoutComments(ps);
+
+        assertEquals(true, assist.isValid(ps, sel, null, 5));
+        List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, 5);
+        assertEquals(0, props.size());
+    }
+
+    public void testSimple18() throws BadLocationException, MisconfigurationException {
+        String d = "\"a = %s %s\" % (\n" +
+                "some_str[:-1], \n" +
+                "some_str2[-1:]\n" +
+                ")\n"
+                + "\n"
+                + "x = 10";
+
+        Document doc = new Document(d);
+
+        PySelection ps = new PySelection(doc, 5);
+        String sel = PyAction.getLineWithoutComments(ps);
+
+        assertEquals(true, assist.isValid(ps, sel, null, 5));
+        List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, 5);
+        assertEquals(1, props.size());
+        assertEquals("Convert to f-string", props.get(0).getDisplayString());
+        props.get(0).apply(doc);
+        assertEquals("f\"a = {some_str[:-1]} {some_str2[-1:]}\"\n" +
+                "\n" +
+                "x = 10", doc.get());
+    }
+
+    public void testSimple19() throws BadLocationException, MisconfigurationException {
+        String d = "call('%s %s' % foo, bar,)\n" +
+                "\n" +
+                "x = 10";
+
+        Document doc = new Document(d);
+
+        PySelection ps = new PySelection(doc, 10);
+        String sel = PyAction.getLineWithoutComments(ps);
+
+        assertEquals(true, assist.isValid(ps, sel, null, 10));
+        List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, 10);
+        assertEquals(1, props.size());
+        assertEquals("Convert to f-string", props.get(0).getDisplayString());
+        props.get(0).apply(doc);
+        assertEquals("call(f'{foo} {bar}')\n" +
+                "\n" +
+                "x = 10", doc.get());
+    }
+
+    public void testSimple20() throws BadLocationException, MisconfigurationException {
+        // this should give no suggestion nor error
+        String d = "'%s' % (somevar";
+
+        Document doc = new Document(d);
+
+        PySelection ps = new PySelection(doc, 5);
+        String sel = PyAction.getLineWithoutComments(ps);
+
+        assertEquals(true, assist.isValid(ps, sel, null, 5));
+        List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, 5);
+        assertEquals(0, props.size());
+    }
+
+    public void testSimple21() throws BadLocationException, MisconfigurationException {
+        // this should give no suggestion nor error
+        String d = "''%s' % test[";
+
+        Document doc = new Document(d);
+
+        PySelection ps = new PySelection(doc, 5);
+        String sel = PyAction.getLineWithoutComments(ps);
+
+        assertEquals(true, assist.isValid(ps, sel, null, 5));
+        List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, 5);
+        assertEquals(0, props.size());
+    }
 }
