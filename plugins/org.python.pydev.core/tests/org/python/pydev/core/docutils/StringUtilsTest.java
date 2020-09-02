@@ -855,4 +855,28 @@ public class StringUtilsTest extends TestCase {
         String s = "a";
         assertEquals(StringUtils.isValidTextString(s.getBytes(), 4), true);
     }
+
+    public void testStrCount() {
+        assertEquals(StringUtils.count("aaa", "a"), 3);
+    }
+
+    public void testStrCount2() {
+        assertEquals(StringUtils.count("abc", "bc"), 1);
+    }
+
+    public void testStrCount3() {
+        assertEquals(StringUtils.count("ab", "ab"), 1);
+    }
+
+    public void testStrCount4() {
+        assertEquals(StringUtils.count("ab", ""), 0);
+    }
+
+    public void testStrCount5() {
+        assertEquals(StringUtils.count("ab", "c"), 0);
+    }
+
+    public void testStrCount6() {
+        assertEquals(StringUtils.count("ab", " "), 0);
+    }
 }
