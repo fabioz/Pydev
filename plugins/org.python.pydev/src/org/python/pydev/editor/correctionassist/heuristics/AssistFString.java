@@ -54,6 +54,7 @@ public class AssistFString implements IAssistProps {
         // get format end offset
         int i = partitionEndOffset;
         int formatVariablesLen = -1;
+        boolean acceptMultiLines = false;
         try {
             List<String> variables = new ArrayList<String>();
             ParsingUtils parsingUtils = ParsingUtils.create(doc);
@@ -70,11 +71,13 @@ public class AssistFString implements IAssistProps {
                     formatVariablesLen = parsingUtils.eatPar(i, null, c) - partitionEndOffset + 1;
                     i++;
                     c = parsingUtils.charAt(i);
+                    acceptMultiLines = true;
                 }
                 int initial = i;
                 while (i < parsingUtils.len()) {
                     c = parsingUtils.charAt(i);
-                    if (Character.isJavaIdentifierPart(c) || Character.isWhitespace(c) || c == '.') {
+                    if (Character.isJavaIdentifierPart(c) || c == ' ' || c == '.'
+                            || (acceptMultiLines && Character.isWhitespace(c))) {
                         i++;
                         continue;
                     }
