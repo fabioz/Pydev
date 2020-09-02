@@ -30,7 +30,8 @@ public class OperationsOnAllAddedFiles {
         }
         int segmentCount = fullPath.segmentCount();
         for (int i = 0; i < segmentCount; i++) {
-            if (".mypy_cache".equals(fullPath.segment(i))) {
+            String segment = fullPath.segment(i);
+            if (".mypy_cache".equals(segment) || ".pytest_cache".equals(segment)) {
                 markAsDerived(resource);
                 return true;
             }
