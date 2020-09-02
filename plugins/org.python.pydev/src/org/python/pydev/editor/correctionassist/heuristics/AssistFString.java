@@ -99,7 +99,10 @@ public class AssistFString implements IAssistProps {
                 }
                 // check if format variables ended with comma or if there is a variable left to capture
                 if (initial != i) {
-                    variables.add(doc.get(initial, i - initial).trim());
+                    String lastVarContent = doc.get(initial, i - initial).trim();
+                    if (lastVarContent.length() > 0) {
+                        variables.add(lastVarContent);
+                    }
                 }
                 break;
             }
