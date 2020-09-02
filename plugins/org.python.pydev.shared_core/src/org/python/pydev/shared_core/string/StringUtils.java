@@ -979,8 +979,11 @@ public final class StringUtils {
     }
 
     public static int count(String name, String str) {
-        int count = 0;
         final int strLen = str.length();
+        if (strLen == 0) {
+            return 0;
+        }
+        int count = 0;
         final int len = name.length();
         int i = name.indexOf(str);
         while (i != -1) {
