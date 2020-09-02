@@ -44,7 +44,8 @@ public class AssistFString implements IAssistProps {
             return lst;
         }
 
-        int formatCount = StringUtils.count(doc.get(partition.getOffset(), partition.getLength()), "%s");
+        final String stringPartitionContents = doc.get(partition.getOffset(), partition.getLength());
+        int formatCount = StringUtils.count(stringPartitionContents, "%s");
         if (formatCount == 0) {
             return lst;
         }
@@ -61,7 +62,12 @@ public class AssistFString implements IAssistProps {
                     i++;
                     continue;
                 }
-                if (c == '{' || c == '[' || c == '(' || c == '"' || c == '\'') {
+
+                if (c == '{') {
+                    return lst;
+                }
+
+                if (c == '[' || c == '(' || c == '"' || c == '\'') {
                     i = parsingUtils.eatPar(i, null, c) + 1;
                     break;
                 }
@@ -107,7 +113,7 @@ public class AssistFString implements IAssistProps {
 
             // initialize format output string with the properly size allocation (f + string len + variables len)
             FastStringBuffer strBuf = new FastStringBuffer(1 + partition.getLength() + variablesBuf.length());
-            strBuf.append('f').append(doc.get(partition.getOffset(), partition.getLength()));
+            strBuf.append('f').append(stringPartitionContents);
 
             // get variables without literals
             String variablesWithoutLiterals = PySelection.getLineWithoutCommentsOrLiterals(variablesBuf.toString());
