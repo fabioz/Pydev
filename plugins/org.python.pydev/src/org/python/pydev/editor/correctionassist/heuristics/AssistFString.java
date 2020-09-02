@@ -13,7 +13,6 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
-import org.python.pydev.core.log.Log;
 import org.python.pydev.core.partition.PyPartitionScanner;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.editor.PyEdit;
@@ -54,95 +53,58 @@ public class AssistFString implements IAssistProps {
         int partitionEndOffset = partition.getOffset() + partition.getLength();
         // get format end offset
         int i = partitionEndOffset;
+        int formatVariablesLen = -1;
         try {
+            List<String> variables = new ArrayList<String>();
             ParsingUtils parsingUtils = ParsingUtils.create(doc);
             while (i < parsingUtils.len()) {
                 char c = parsingUtils.charAt(i);
-                if (Character.isWhitespace(c)) {
+                if (Character.isWhitespace(c) || c == '%') {
                     i++;
                     continue;
                 }
-
                 if (c == '{') {
                     return lst;
                 }
-
-                if (c == '[' || c == '(' || c == '"' || c == '\'') {
-                    i = parsingUtils.eatPar(i, null, c) + 1;
+                if (c == '[' || c == '(') {
+                    formatVariablesLen = parsingUtils.eatPar(i, null, c) - partitionEndOffset + 1;
+                    i++;
+                    c = parsingUtils.charAt(i);
+                }
+                int initial = i;
+                while (i < parsingUtils.len()) {
+                    c = parsingUtils.charAt(i);
+                    if (Character.isJavaIdentifierPart(c) || Character.isWhitespace(c) || c == '.') {
+                        i++;
+                        continue;
+                    }
+                    if (c == '{' || c == '[' || c == '(' || c == '"' || c == '\'') {
+                        i = parsingUtils.eatPar(i, null, c) + 1;
+                        continue;
+                    }
+                    if (c == ',') {
+                        variables.add(doc.get(initial, i - initial).trim());
+                        i++;
+                        initial = i;
+                        continue;
+                    }
                     break;
                 }
-                if (Character.isJavaIdentifierPart(c)) {
-                    i++;
-                    while (i < parsingUtils.len()) {
-                        c = parsingUtils.charAt(i);
-                        if (Character.isJavaIdentifierPart(c) || c == '.') {
-                            i++;
-                            continue;
-                        } else if (c == '{' || c == '[' || c == '(' || c == '"' || c == '\'') {
-                            i = parsingUtils.eatPar(i, null, c) + 1;
-                            c = parsingUtils.charAt(i);
-                            while (Character.isWhitespace(c)) {
-                                i++;
-                                c = parsingUtils.charAt(i);
-                            }
-                            if (c == '.') {
-                                i++;
-                                continue;
-                            }
-                            break; // inner break
-                        }
-                    }
-                    break; // outer break
+                // format variables length has not been defined, so it is the end of the iteration
+                if (formatVariablesLen == -1) {
+                    formatVariablesLen = i - partitionEndOffset;
                 }
-                i++;
-            }
-
-            FastStringBuffer variablesBuf = new FastStringBuffer();
-            variablesBuf.append(doc.get(partitionEndOffset, i - partitionEndOffset));
-            // get only the variable names and remove the last comma
-            variablesBuf.trim().deleteFirst();
-            if (variablesBuf.trim().startsWith('(')) {
-                variablesBuf.deleteFirst();
-                variablesBuf.deleteLast();
-                variablesBuf.trim();
-            }
-            if (variablesBuf.endsWith(',')) {
-                variablesBuf.deleteLast();
-                variablesBuf.trim();
+                // check if format variables ended with comma or if there is a variable left to capture
+                if (initial != i) {
+                    variables.add(doc.get(initial, i - initial).trim());
+                }
+                break;
             }
 
             // initialize format output string with the properly size allocation (f + string len + variables len)
-            FastStringBuffer strBuf = new FastStringBuffer(1 + partition.getLength() + variablesBuf.length());
+            FastStringBuffer strBuf = new FastStringBuffer(1 + partition.getLength() + formatVariablesLen);
             strBuf.append('f').append(stringPartitionContents);
 
-            // get variables without literals
-            String variablesWithoutLiterals = PySelection.getLineWithoutCommentsOrLiterals(variablesBuf.toString());
-            // get variable by variable
-            List<String> variables = new ArrayList<String>();
-            parsingUtils = ParsingUtils.create(variablesBuf);
-            int j = 0;
-            while (j < parsingUtils.len()) {
-                char c = parsingUtils.charAt(j);
-                if (Character.isWhitespace(c) || c == ',') {
-                    j++;
-                    continue;
-                }
-                int commaPos;
-                if (c == '{' || c == '[' || c == '(' || c == '"' || c == '\'') {
-                    commaPos = parsingUtils.eatPar(j, null, c) + 1;
-                } else {
-                    commaPos = variablesWithoutLiterals.indexOf(',', j);
-                }
-                if (commaPos != -1) {
-                    CharSequence subSequence = variablesBuf.subSequence(j, commaPos);
-                    variables.add(subSequence.toString().trim());
-                    j = commaPos + 1;
-                } else {
-                    CharSequence subSequence = variablesBuf.subSequence(j, variablesBuf.length());
-                    variables.add(subSequence.toString().trim());
-                    break;
-                }
-            }
             // iterate through variables and edit the f-string output
             if (formatCount == variables.size()) {
                 for (String variable : variables) {
@@ -150,18 +112,17 @@ public class AssistFString implements IAssistProps {
                 }
             } else if (variables.size() == 1) {
                 String variable = variables.get(0);
-                for (j = 0; j < formatCount; j++) {
-                    strBuf.replaceFirst("%s", "{" + variable + "[" + j + "]" + "}");
+                for (i = 0; i < formatCount; i++) {
+                    strBuf.replaceFirst("%s", "{" + variable + "[" + i + "]" + "}");
                 }
             } else {
                 return lst;
             }
             lst.add(CompletionProposalFactory.get().createPyCompletionProposal(strBuf.toString(),
-                    partition.getOffset(), i - partition.getOffset(), 0, getImage(imageCache,
+                    partition.getOffset(), partition.getLength() + formatVariablesLen, 0, getImage(imageCache,
                             UIConstants.COMPLETION_TEMPLATE),
                     "Convert to f-string", null, null, IPyCompletionProposal.PRIORITY_DEFAULT, null));
         } catch (SyntaxErrorException e) {
-            Log.log(e);
         }
 
         return lst;
