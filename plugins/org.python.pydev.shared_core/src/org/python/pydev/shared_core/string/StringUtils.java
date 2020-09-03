@@ -992,6 +992,13 @@ public final class StringUtils {
             len = buffer.length;
         }
         String s = new String(buffer, 0, len, StandardCharsets.ISO_8859_1); //Decode as latin1
+        return isValidTextString(s);
+    }
+
+    /**
+     * @return true if this is not a string containing binary contents.
+     */
+    public static boolean isValidTextString(String s) {
         int maxLen = s.length();
         for (int i = 0; i < maxLen; i++) {
             char c = s.charAt(i);
