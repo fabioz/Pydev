@@ -15,8 +15,6 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.partition.PyPartitionScanner;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
-import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.editor.correctionassist.IAssistProps;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
@@ -31,10 +29,6 @@ public class AssistFString implements IAssistProps {
     @Override
     public List<ICompletionProposalHandle> getProps(PySelection ps, IImageCache imageCache, File f,
             IPythonNature nature, IPyEdit edit, int offset) throws BadLocationException, MisconfigurationException {
-        PySourceViewer viewer = null;
-        if (edit instanceof PyEdit) { //only in tests it is actually null
-            viewer = ((PyEdit) edit).getPySourceViewer();
-        }
         List<ICompletionProposalHandle> lst = new ArrayList<ICompletionProposalHandle>();
 
         IDocument doc = ps.getDoc();
