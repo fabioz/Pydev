@@ -91,6 +91,9 @@ public class AssistFString implements IAssistProps {
                     }
                     if (c == '[' || c == '(') {
                         formatVariablesLen = parsingUtils.eatPar(i, null, c) - partitionEndOffset + 1;
+                        if (partitionEndOffset + formatVariablesLen > parsingUtils.len()) {
+                            return lst;
+                        }
                         i++;
                         c = parsingUtils.charAt(i);
                         acceptMultiLines = true;
