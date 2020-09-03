@@ -224,8 +224,8 @@ public class AssistFStringTest extends TestCase {
 
     public void testSimple21() throws BadLocationException, MisconfigurationException {
         // this should give no suggestion nor error
-        String d = "''%s' % test[";
-        checkNoCompletions(d, 10);
+        String d = "'%s' % test[";
+        checkNoCompletions(d, 2);
     }
 
     public void testSimple22() throws BadLocationException, MisconfigurationException {
@@ -241,4 +241,127 @@ public class AssistFStringTest extends TestCase {
                 "    pass";
         check(d, 25, e);
     }
+
+    public void testWithoutPrefix() throws BadLocationException, MisconfigurationException {
+        String d = "'something {check}%'";
+        String e = "f'something {check}%'";
+        check(d, 10, e);
+    }
+
+    public void testWithoutPrefix2() throws BadLocationException, MisconfigurationException {
+        String d = "'something {check}%' %";
+        checkNoCompletions(d, 10);
+    }
+
+    public void testWithoutPrefix3() throws BadLocationException, MisconfigurationException {
+        String d = "f'something {check}%'";
+        checkNoCompletions(d, 10);
+    }
+
+    public void testWithoutPrefix4() throws BadLocationException, MisconfigurationException {
+        String d = "fr'something {check}%'";
+        checkNoCompletions(d, 10);
+    }
+
+    public void testSimple23() throws BadLocationException, MisconfigurationException {
+        String d = "'%r' % (a,)";
+        String e = "f'{a!r}'";
+        check(d, 2, e);
+    }
+
+    public void testSimple24() throws BadLocationException, MisconfigurationException {
+        String d = "'%r %s' % (a, b)";
+        String e = "f'{a!r} {b}'";
+        check(d, 2, e);
+    }
+
+    public void testSimple25() throws BadLocationException, MisconfigurationException {
+        String d = "'%s %r' % (a, b)";
+        String e = "f'{a} {b!r}'";
+        check(d, 2, e);
+    }
+
+    public void testSimple26() throws BadLocationException, MisconfigurationException {
+        String d = "'%s %r %s %s' % (a, b, c, d)";
+        String e = "f'{a} {b!r} {c} {d}'";
+        check(d, 2, e);
+    }
+
+    public void testSimple27() throws BadLocationException, MisconfigurationException {
+        String d = "'%r %r %s %r' % (a, b, c, d)";
+        String e = "f'{a!r} {b!r} {c} {d!r}'";
+        check(d, 2, e);
+    }
+
+    public void testSimple28() throws BadLocationException, MisconfigurationException {
+        String d = "'''\n" +
+                "%s %r \n" +
+                "%s \n" +
+                "\n" +
+                "%s''' % (\n" +
+                "a, b, \n" +
+                "c, d,\n" +
+                "\n" +
+                ")";
+        String e = "f'''\n" +
+                "{a} {b!r} \n" +
+                "{c} \n" +
+                "\n" +
+                "{d}'''";
+        check(d, 5, e);
+    }
+
+    public void testSimple29() throws BadLocationException, MisconfigurationException {
+        String d = "'''\n" +
+                "\n" +
+                "%r \n" +
+                "%r \n" +
+                "%s \n" +
+                "\n" +
+                "%r''' % \n" +
+                "\n" +
+                "(\n" +
+                "a, \n" +
+                "b, \n" +
+                "c, d,)";
+        String e = "f'''\n" +
+                "\n" +
+                "{a!r} \n" +
+                "{b!r} \n" +
+                "{c} \n" +
+                "\n" +
+                "{d!r}'''";
+        check(d, 5, e);
+    }
+
+    public void testSimple30() throws BadLocationException, MisconfigurationException {
+        String d = "b'something %r' % (a,)";
+        checkNoCompletions(d, 5);
+    }
+
+    public void testSimple31() throws BadLocationException, MisconfigurationException {
+        String d = "br'something %r' % (a,)";
+        checkNoCompletions(d, 5);
+    }
+
+    public void testSimple32() throws BadLocationException, MisconfigurationException {
+        String d = "rb'something %r' % (a,)";
+        checkNoCompletions(d, 5);
+    }
+
+    public void testSimple33() throws BadLocationException, MisconfigurationException {
+        String d = "f'something %r' % (a,)";
+        checkNoCompletions(d, 5);
+    }
+
+    public void testSimple34() throws BadLocationException, MisconfigurationException {
+        String d = "fr'something %r' % (a,)";
+        checkNoCompletions(d, 5);
+    }
+
+    public void testSimple35() throws BadLocationException, MisconfigurationException {
+        String d = "rf'something %r' % (a,)";
+        checkNoCompletions(d, 5);
+    }
+
 }
