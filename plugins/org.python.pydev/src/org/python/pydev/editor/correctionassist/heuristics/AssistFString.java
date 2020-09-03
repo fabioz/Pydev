@@ -37,94 +37,144 @@ public class AssistFString implements IAssistProps {
             return lst;
         }
 
-        final String stringPartitionContents = doc.get(partition.getOffset(), partition.getLength());
-        int formatCount = StringUtils.count(stringPartitionContents, "%s");
-        if (formatCount == 0) {
+        // check if the string prefix is byte literal or if it is already a f-string
+        int partitionOffset = partition.getOffset();
+        char firstPrefix = doc.getChar(partitionOffset);
+        char penultPrefix = ' ';
+        if (firstPrefix != '\'' && firstPrefix == '\"') {
+            penultPrefix = doc.getChar(partitionOffset + 1);
+        }
+        if (firstPrefix == 'b' || penultPrefix == 'b' || firstPrefix == 'f' || penultPrefix == 'f') {
             return lst;
         }
 
+        final String stringPartitionContents = doc.get(partitionOffset, partition.getLength());
+        int formatCount = 0;
+        // count how many format variables the string have
+        formatCount += StringUtils.count(stringPartitionContents, "%s");
+        formatCount += StringUtils.count(stringPartitionContents, "%r");
+
+        ParsingUtils parsingUtils = ParsingUtils.create(doc);
         // get string end offset
-        int partitionEndOffset = partition.getOffset() + partition.getLength();
-        // get format end offset
+        int partitionEndOffset = partitionOffset + partition.getLength();
+        // we have to check if this is really a valid format statement
+        // first of all, let's iterate to search for a %
         int i = partitionEndOffset;
-        int formatVariablesLen = -1;
-        boolean acceptMultiLines = false;
-        try {
-            List<String> variables = new ArrayList<String>();
-            ParsingUtils parsingUtils = ParsingUtils.create(doc);
-            while (i < parsingUtils.len()) {
-                char c = parsingUtils.charAt(i);
-                if (Character.isWhitespace(c) || c == '%') {
-                    i++;
-                    continue;
-                }
-                if (c == '{') {
-                    return lst;
-                }
-                if (c == '[' || c == '(') {
-                    formatVariablesLen = parsingUtils.eatPar(i, null, c) - partitionEndOffset + 1;
-                    i++;
-                    c = parsingUtils.charAt(i);
-                    acceptMultiLines = true;
-                }
-                int initial = i;
+        while (i < parsingUtils.len()) {
+            char c = parsingUtils.charAt(i);
+            if (Character.isWhitespace(c)) {
+                i++;
+                continue;
+            } else if (c == '%' && formatCount != 0) {
+                // in this case, for now we have a valid format statement
+                i++;
+                break;
+            }
+            return lst;
+        }
+        // if we do not have any format variables in string,
+        // there is no reason to search for variables to format
+        if (formatCount != 0) {
+            try {
+                // get format end offset and capture all the variables to format
+                int formatVariablesLen = -1;
+                boolean acceptMultiLines = false;
+                List<String> variables = new ArrayList<String>();
                 while (i < parsingUtils.len()) {
-                    c = parsingUtils.charAt(i);
-                    if (Character.isJavaIdentifierPart(c) || c == ' ' || c == '.'
-                            || (acceptMultiLines && Character.isWhitespace(c))) {
+                    char c = parsingUtils.charAt(i);
+                    if (Character.isWhitespace(c)) {
                         i++;
                         continue;
                     }
-                    if (c == '{' || c == '[' || c == '(' || c == '"' || c == '\'') {
-                        i = parsingUtils.eatPar(i, null, c) + 1;
-                        continue;
+                    if (c == '{' || c == '%') {
+                        return lst;
                     }
-                    if (c == ',') {
-                        variables.add(doc.get(initial, i - initial).trim());
+                    if (c == '[' || c == '(') {
+                        formatVariablesLen = parsingUtils.eatPar(i, null, c) - partitionEndOffset + 1;
                         i++;
-                        initial = i;
-                        continue;
+                        c = parsingUtils.charAt(i);
+                        acceptMultiLines = true;
+                    }
+                    int initial = i;
+                    while (i < parsingUtils.len()) {
+                        c = parsingUtils.charAt(i);
+                        if (Character.isJavaIdentifierPart(c) || c == ' ' || c == '.'
+                                || (acceptMultiLines && Character.isWhitespace(c))) {
+                            i++;
+                            continue;
+                        }
+                        if (c == '{' || c == '[' || c == '(' || c == '"' || c == '\'') {
+                            i = parsingUtils.eatPar(i, null, c);
+                            if (i < parsingUtils.len()) {
+                                // checks first if we caught a closed partition
+                                i++;
+                                continue;
+                            }
+                            // it is not closed
+                            return lst;
+                        }
+                        if (c == ',') {
+                            variables.add(doc.get(initial, i - initial).trim());
+                            i++;
+                            initial = i;
+                            continue;
+                        }
+                        break;
+                    }
+                    // format variables length has not been defined, so it is the end of the iteration
+                    if (formatVariablesLen == -1) {
+                        formatVariablesLen = i - partitionEndOffset;
+                    }
+                    // check if format variables ended with comma or if there is a variable left to capture
+                    if (initial != i) {
+                        String lastVarContent = doc.get(initial, i - initial).trim();
+                        if (lastVarContent.length() > 0) {
+                            variables.add(lastVarContent);
+                        }
                     }
                     break;
                 }
-                // format variables length has not been defined, so it is the end of the iteration
-                if (formatVariablesLen == -1) {
-                    formatVariablesLen = i - partitionEndOffset;
-                }
-                // check if format variables ended with comma or if there is a variable left to capture
-                if (initial != i) {
-                    String lastVarContent = doc.get(initial, i - initial).trim();
-                    if (lastVarContent.length() > 0) {
-                        variables.add(lastVarContent);
+
+                // initialize format output string with the properly size allocation (f + string len + variables len)
+                FastStringBuffer strBuf = new FastStringBuffer(1 + partition.getLength() + formatVariablesLen);
+                strBuf.append('f').append(stringPartitionContents);
+
+                // iterate through variables and edit the f-string output
+                if (formatCount == variables.size()) {
+                    for (String variable : variables) {
+                        String rep = "%s";
+                        String with = "{" + variable + "}";
+                        int oS = strBuf.indexOf("%s");
+                        int oR = strBuf.indexOf("%r");
+                        if (oS == -1 || oR != -1 && oR < oS) {
+                            rep = "%r";
+                            with = "{" + variable + "!r}";
+                        }
+                        strBuf.replaceFirst(rep, with);
                     }
+                } else if (variables.size() == 1) {
+                    String variable = variables.get(0);
+                    for (i = 0; i < formatCount; i++) {
+                        strBuf.replaceFirst("%s", "{" + variable + "[" + i + "]" + "}");
+                    }
+                } else {
+                    return lst;
                 }
-                break;
-            }
-
-            // initialize format output string with the properly size allocation (f + string len + variables len)
-            FastStringBuffer strBuf = new FastStringBuffer(1 + partition.getLength() + formatVariablesLen);
-            strBuf.append('f').append(stringPartitionContents);
-
-            // iterate through variables and edit the f-string output
-            if (formatCount == variables.size()) {
-                for (String variable : variables) {
-                    strBuf.replaceFirst("%s", "{" + variable + "}");
-                }
-            } else if (variables.size() == 1) {
-                String variable = variables.get(0);
-                for (i = 0; i < formatCount; i++) {
-                    strBuf.replaceFirst("%s", "{" + variable + "[" + i + "]" + "}");
-                }
-            } else {
+                lst.add(CompletionProposalFactory.get().createPyCompletionProposal(strBuf.toString(),
+                        partitionOffset, partition.getLength() + formatVariablesLen, 0, getImage(imageCache,
+                                UIConstants.COMPLETION_TEMPLATE),
+                        "Convert to f-string", null, null, IPyCompletionProposal.PRIORITY_DEFAULT, null));
                 return lst;
+            } catch (SyntaxErrorException e) {
             }
-            lst.add(CompletionProposalFactory.get().createPyCompletionProposal(strBuf.toString(),
-                    partition.getOffset(), partition.getLength() + formatVariablesLen, 0, getImage(imageCache,
-                            UIConstants.COMPLETION_TEMPLATE),
-                    "Convert to f-string", null, null, IPyCompletionProposal.PRIORITY_DEFAULT, null));
-        } catch (SyntaxErrorException e) {
         }
-
+        // if we got here, it means that we do not have % after the string
+        FastStringBuffer buf = new FastStringBuffer(stringPartitionContents.length() + 1);
+        buf.append('f').append(stringPartitionContents);
+        lst.add(CompletionProposalFactory.get().createPyCompletionProposal(buf.toString(),
+                partitionOffset, partition.getLength(), 0, getImage(imageCache,
+                        UIConstants.COMPLETION_TEMPLATE),
+                "Convert to f-string", null, null, IPyCompletionProposal.PRIORITY_DEFAULT, null));
         return lst;
     }
 
@@ -137,6 +187,6 @@ public class AssistFString implements IAssistProps {
 
     @Override
     public boolean isValid(PySelection ps, String sel, IPyEdit edit, int offset) {
-        return sel.indexOf("%s") != -1;
+        return true;
     }
 }
