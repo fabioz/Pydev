@@ -263,6 +263,18 @@ public class AssistFStringTest extends TestCase {
         checkNoCompletions(d, 10);
     }
 
+    public void testWithoutPrefix5() throws BadLocationException, MisconfigurationException {
+        String d = "'something {check}%r'";
+        String e = "f'something {check}%r'";
+        check(d, 10, e);
+    }
+
+    public void testWithoutPrefix6() throws BadLocationException, MisconfigurationException {
+        String d = "\"a%s % snth %r {usneoth anything\"";
+        String e = "f\"a%s % snth %r {usneoth anything\"";
+        check(d, 10, e);
+    }
+
     public void testSimple23() throws BadLocationException, MisconfigurationException {
         String d = "'%r' % (a,)";
         String e = "f'{a!r}'";
@@ -361,6 +373,16 @@ public class AssistFStringTest extends TestCase {
 
     public void testSimple35() throws BadLocationException, MisconfigurationException {
         String d = "rf'something %r' % (a,)";
+        checkNoCompletions(d, 5);
+    }
+
+    public void testSimple36() throws BadLocationException, MisconfigurationException {
+        String d = "'something %s' % [something.another('abfc']";
+        checkNoCompletions(d, 5);
+    }
+
+    public void testSimple37() throws BadLocationException, MisconfigurationException {
+        String d = "'something %s' % (something.another('abfc')";
         checkNoCompletions(d, 5);
     }
 
