@@ -54,27 +54,35 @@ public class AssistFString implements IAssistProps {
         formatCount += StringUtils.count(stringPartitionContents, "%s");
         formatCount += StringUtils.count(stringPartitionContents, "%r");
 
+        if (formatCount == 0 && StringUtils.count(stringPartitionContents, '%') == 0) {
+            return lst;
+        }
+
         ParsingUtils parsingUtils = ParsingUtils.create(doc);
         // get string end offset
         int partitionEndOffset = partitionOffset + partition.getLength();
         // we have to check if this is really a valid format statement
         // first of all, let's iterate to search for a %
         int i = partitionEndOffset;
+        boolean validStmt = false;
         while (i < parsingUtils.len()) {
             char c = parsingUtils.charAt(i);
             if (Character.isWhitespace(c)) {
                 i++;
                 continue;
-            } else if (c == '%' && formatCount != 0) {
-                // in this case, for now we have a valid format statement
-                i++;
-                break;
             }
-            return lst;
+            if (c == '%') {
+                if (formatCount == 0) {
+                    // if we do not have any format variables in string,
+                    // there is no reason to search for variables to format
+                    return lst;
+                }
+                validStmt = true;
+                i++;
+            }
+            break;
         }
-        // if we do not have any format variables in string,
-        // there is no reason to search for variables to format
-        if (formatCount != 0) {
+        if (validStmt) {
             try {
                 // get format end offset and capture all the variables to format
                 int formatVariablesLen = -1;
