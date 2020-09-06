@@ -3,9 +3,9 @@
 <repository name='&quot;Eclipse Project Test Site&quot;'
     type='org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository' version='1.0.0'>
   <properties size='1'>
-    <property name='p2.timestamp' value='1599065939'/>
+    <property name='p2.timestamp' value='1599397535'/>
   </properties>
   <children size='3'>
-    <child location='https://dl.bintray.com/fabioz/pydev/7.7.0'/>
+    <child location='https://dl.bintray.com/fabioz/pydev/8.0.0'/>
   </children>
 </repository>

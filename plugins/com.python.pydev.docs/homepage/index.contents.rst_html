@@ -313,6 +313,67 @@ shuffleEntries("gold-sponsors-a-hrefs", 4);
 <p>Thank you to all PyDev supporters: <a class="reference external" href="https://www.brainwy.com/supporters/PyDev">https://www.brainwy.com/supporters/PyDev</a>.</p>
 <p>To show your appreciation for PyDev and to keep it going strong, help to crowdfund through <a class="reference external" href="https://www.patreon.com/fabioz">https://www.patreon.com/fabioz</a>.</p>
 </div>
+<div class="section" id="release-8-0-0-2020-09-06">
+<h1>Release 8.0.0 (2020-09-06)</h1>
+<ul class="simple">
+<li><dl class="first docutils">
+<dt><strong>MyPy</strong></dt>
+<dd><ul class="first last">
+<li>Make sure that only one MyPy is running at a given time (to prevent cache corruptions).</li>
+<li>Properly report MyPy messages that only have a line number. (<strong>#PyDev-1091</strong>)</li>
+<li>MyPy integration now also shows notes for a message. (<strong>#PyDev-1088</strong>)</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><strong>Debugger</strong>  (updated to pydevd 2.0.0)</dt>
+<dd><ul class="first last">
+<li>The frame evaluation mode (which adds programmatic breakpoints by rewriting bytecode) was redone (it had a critical issue which could make it skip breakpoints).</li>
+<li>Fixed issue collecting try..except information.</li>
+<li>Fixed issue evaluating numpy array with unexpected dimension.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><strong>Type Inference</strong></dt>
+<dd><ul class="first last">
+<li>Option to create method at a given class properly considers type-hinting. (<strong>#PyDev-1092</strong>)</li>
+<li>Support code-completion for Optional[]. (<strong>#PyDev-1089</strong>)</li>
+<li>Properly handle type inforamtion when given as a string. (<strong>#PyDev-1082</strong>, <strong>#PyDev-1087</strong>)</li>
+<li>Fixed issue where line/col was not forwarded properly in go to definition. (<strong>#PyDev-1075</strong>)</li>
+<li>Typing info should have priority when available. (<strong>#PyDev-1079</strong>)</li>
+<li>Properly get completions considering function annotation. (<strong>#PyDev-1078</strong>)</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><strong>Test running</strong></dt>
+<dd><ul class="first last">
+<li>Fixed issue running tests which override <em>address</em> with nose. (<strong>#PYDev-1095</strong>)</li>
+<li>Fixed issue where test import/export didn't deal well with binary chars that were collected from the test. (<strong>#PyDev-1067</strong>)</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><strong>Others</strong></dt>
+<dd><ul class="first last">
+<li>When finding a file in a project on Windows consider paths as case insensitive.</li>
+<li>.mypy_cache and .pytest_cache contents are now marked as derived (so they can be filtered out in searches).</li>
+<li>Fixed case where auto-import could be added to wrong location. (<strong>#PyDev-1085</strong>)</li>
+<li>Occurrence was not found in type hint return. (<strong>#PyDev-1076</strong>)</li>
+<li>Find references not working for constant depending how it's used. (<strong>#PyDev-1083</strong>)</li>
+<li>Backported fix to properly parse raw f-string in Python 3.6. (<strong>#PyDev-991</strong>)</li>
+<li>Code completion inside f-strings. (<strong>#PyDev-1081</strong>)</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
 <div class="section" id="release-7-7-0-2020-08-02">
 <h1>Release 7.7.0 (2020-08-02)</h1>
 <ul>
@@ -358,41 +419,6 @@ shuffleEntries("gold-sponsors-a-hrefs", 4);
 <li><p class="first">Nodes are no longer auto-expanded in quick outline if the outline is too big.</p>
 </li>
 <li><p class="first">Properly computing local import target location on code completion with auto local import (<strong>#PyDev-1070</strong>).</p>
-</li>
-</ul>
-</div>
-<div class="section" id="release-7-6-0-2020-06-04">
-<h1>Release 7.6.0 (2020-06-04)</h1>
-<ul>
-<li><p class="first"><strong>Debugger improvements</strong> (updated to pydevd 1.9.1)</p>
-<blockquote>
-<ul class="simple">
-<li><strong>Variables are now grouped</strong> (special/class/function/protected) -- note: it's possible to hide groups in the variables view menu dropdown.</li>
-<li>When a launching a subprocess does not target a python executable, the original args are kept (so, quotes are no longer trimmed).</li>
-<li>A step in which would skip code won't be reported in the return if it'd reach the same location.</li>
-<li>The disassembled version of a frame may be shown if the sources are not available.</li>
-<li>PySide2 is supported to recognize QThreads/event loop in interactive console.</li>
-</ul>
-</blockquote>
-</li>
-<li><p class="first"><strong>Python 3.8 parsing fixes</strong></p>
-<blockquote>
-<ul class="simple">
-<li>Properly parsing f-strings with named unicode character. i.e.: <em>f&quot;N{BULLET}&quot;</em>. (<strong>#PyDev-989</strong>)</li>
-<li>Properly parsing f-strings formats using colon. i.e.: <em>f&quot;{datetime.datetime.now():%Y-%m-%d %H:%M:%S}&quot;</em>. (<strong>#PyDev-1061</strong>)</li>
-<li>Properly parsing f-strings with vars ending in equals. i.e.: <em>f'{y=}'</em>. (<strong>#PyDev-1045</strong>)</li>
-<li>Properly parsing raw f-strings such as <em>rf&quot;str&quot;</em>. (<strong>#PyDev-1020</strong>)</li>
-<li>Properly parsing iterable unpacking syntax. i.e.: <em>return lastname.upper(), *members</em>. (<strong>#PyDev-1048</strong>)</li>
-</ul>
-</blockquote>
-</li>
-<li><p class="first">Support for the latest version of PyTest (which may resolve symlinks and changed the TerminalWriter import location).</p>
-</li>
-<li><p class="first">PyDev package explorer is a bit faster (cache source project paths for a project).</p>
-</li>
-<li><p class="first">Recognizing type comments for <em>self</em> attributes. i.e.: <em>#: :type self.var: MyClass</em>. (<strong>#PyDev-520</strong>)</p>
-</li>
-<li><p class="first">Trailing commas properly recognized in automatic import. (<strong>#PyDev-542</strong>)</p>
 </li>
 </ul>
 <p><a class="reference external" href="history_pydev.html">View release notes for previous releases</a></p>
