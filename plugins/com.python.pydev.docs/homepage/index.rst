@@ -359,9 +359,9 @@ Release 8.0.0 (2020-09-06)
 	* Fixed issue evaluating numpy array with unexpected dimension.
 
 * **Type Inference**
-	* Option to create method at a given class properly considers type-hinting. (**#PyDev-1092**)
+	* Option to create a method at a given class properly considers type-hinting. (**#PyDev-1092**)
 	* Support code-completion for Optional[]. (**#PyDev-1089**)
-	* Properly handle type inforamtion when given as a string. (**#PyDev-1082**, **#PyDev-1087**)
+	* Properly handle type information when given as a string. (**#PyDev-1082**, **#PyDev-1087**)
 	* Fixed issue where line/col was not forwarded properly in go to definition. (**#PyDev-1075**)
 	* Typing info should have priority when available. (**#PyDev-1079**)
 	* Properly get completions considering function annotation. (**#PyDev-1078**)
