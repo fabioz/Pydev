@@ -9,6 +9,7 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.log.Log;
 
 public class GetContainers {
@@ -93,11 +94,11 @@ public class GetContainers {
     /**
      * Gets an IContainer inside a container given a path in the filesystem (resolves the full path of the container and
      * checks if the location given is under it).
-     * @param mustExist 
+     * @param mustExist
      */
     public static final IContainer getContainerInContainer(IPath location, IContainer container, boolean mustExist) {
         IPath projectLocation = container.getLocation();
-        if (projectLocation != null && projectLocation.isPrefixOf(location)) {
+        if (projectLocation != null && FileUtils.isPrefixOf(projectLocation, location)) {
             int segmentsToRemove = projectLocation.segmentCount();
             IPath removeFirstSegments = location.removeFirstSegments(segmentsToRemove);
             if (removeFirstSegments.segmentCount() == 0) {

@@ -135,10 +135,8 @@ public class PySourceLocatorBase {
         @Override
         protected boolean matchesPath(final Object match, IEditorInput editorInput, IPath localPath) {
             File matchFile = (File) match;
-            if (Path.fromOSString(FileUtils.getFileAbsolutePath(matchFile)).equals(localPath)) {
-                return true;
-            }
-            return false;
+            // Note: check by the file because it takes into account casing rules on Windows.
+            return matchFile.equals(localPath.toFile());
         }
 
     }

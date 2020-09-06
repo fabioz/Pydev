@@ -19,6 +19,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Label;
 import org.python.pydev.shared_core.image.UIConstants;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 import org.python.pydev.ui.editors.TreeWithAddRemove;
@@ -38,7 +39,7 @@ public class PythonExistingSourceListGroup extends PythonExistingSourceGroup {
 
     /**
      * Creates a new instance of the widget.
-     * 
+     *
      * @param parent The parent widget of the group.
      * @param sourceChangeListener The listener that reacts to when a selection is made, or when a
      * selection is removed.
@@ -155,7 +156,7 @@ public class PythonExistingSourceListGroup extends PythonExistingSourceGroup {
      * Issue a warning for the following selections:
      *  -folders that are subdirectories of other chosen folders, or contain other chosen folders
      *  -folders that have no .py files in them, or in one of their subdirectories
-     *  
+     *
      * Issue an error if the selection contains the destination of the link to be created. Don't add
      * the selection to the list of source paths in case of an error.
      */
@@ -173,7 +174,7 @@ public class PythonExistingSourceListGroup extends PythonExistingSourceGroup {
         }
 
         for (IPath otherPath : linkTargets) {
-            if (linkPath.isPrefixOf(otherPath) || otherPath.isPrefixOf(linkPath)) {
+            if (FileUtils.isPrefixOf(linkPath, otherPath) || FileUtils.isPrefixOf(otherPath, linkPath)) {
                 warningMessage = "Location '" + linkPath.lastSegment()
                         + "' overlaps with the selected resource '"
                         + otherPath.lastSegment()

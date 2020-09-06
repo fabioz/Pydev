@@ -41,6 +41,7 @@ import org.python.pydev.ast.refactoring.RefactoringRequest;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 import org.python.pydev.shared_core.structure.OrderedMap;
@@ -188,7 +189,7 @@ public class PyRenameResourceAction extends RenameResourceAction {
                     changedSomething = true;
                 }
                 // If renamed resource is a prefix of a source folder, need more work.
-                else if (oldPath.isPrefixOf(sourcePath)) {
+                else if (FileUtils.isPrefixOf(oldPath, sourcePath)) {
                     sourcePath = newPath.append(sourcePath.removeFirstSegments(newPath.segmentCount()));
                     // Remove all trailing variable path separators that match the resolved one,
                     // and append the non-matching part of the new resolved path to the var path.

@@ -48,6 +48,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.ui.refactoring.PyRenameRefactoring;
 
 /**
@@ -363,7 +364,7 @@ public class PyResourceDropAdapterAssistant extends ResourceDropAdapterAssistant
             nature = PythonNature.getPythonNature(target);
             Set<String> projectSourcePathSet = nature.getPythonPathNature().getProjectSourcePathSet(true);
             for (String string : projectSourcePathSet) {
-                if (new Path(string).isPrefixOf(target.getFullPath())) {
+                if (FileUtils.isPrefixOf(new Path(string), target.getFullPath())) {
                     targetInSourceFolder = true;
                     break;
                 }

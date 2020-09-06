@@ -30,6 +30,7 @@ import org.python.pydev.navigator.elements.PythonProjectSourceFolder;
 import org.python.pydev.navigator.elements.PythonSourceFolder;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.resource_stubs.FileStub;
 import org.python.pydev.shared_core.resource_stubs.FolderStub;
 
@@ -241,7 +242,7 @@ public class PythonModelProviderTest extends TestCase {
                         hashSet.add(s);
                     } else {
                         IPath p = Path.fromOSString(s);
-                        Assert.isTrue(base.isPrefixOf(p), "Expected: " + base + " to be prefix of: " + p);
+                        Assert.isTrue(FileUtils.isPrefixOf(base, p), "Expected: " + base + " to be prefix of: " + p);
                         hashSet.add(p.makeRelativeTo(base).toString());
                     }
                 }

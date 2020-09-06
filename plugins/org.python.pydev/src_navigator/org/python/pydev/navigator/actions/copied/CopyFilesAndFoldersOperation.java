@@ -59,6 +59,7 @@ import org.eclipse.ui.internal.ide.StatusUtil;
 import org.eclipse.ui.internal.ide.dialogs.IDEResourceInfoUtils;
 import org.eclipse.ui.wizards.datatransfer.FileStoreStructureProvider;
 import org.eclipse.ui.wizards.datatransfer.ImportOperation;
+import org.python.pydev.shared_core.io.FileUtils;
 
 /**
  * Perform the copy of file and folder resources from the clipboard when paste
@@ -891,7 +892,7 @@ public class CopyFilesAndFoldersOperation {
         if (resource instanceof IFile) {
             return (IFile) resource;
         }
-        return (IFile) ((IAdaptable) resource).getAdapter(IFile.class);
+        return ((IAdaptable) resource).getAdapter(IFile.class);
     }
 
     /**
@@ -926,7 +927,7 @@ public class CopyFilesAndFoldersOperation {
         if (resource instanceof IFolder) {
             return (IFolder) resource;
         }
-        return (IFolder) ((IAdaptable) resource).getAdapter(IFolder.class);
+        return ((IAdaptable) resource).getAdapter(IFolder.class);
     }
 
     /**
@@ -1089,7 +1090,7 @@ public class CopyFilesAndFoldersOperation {
                 // do thorough check to catch linked resources. Fixes bug 29913.
                 IPath sourceLocation = sourceResource.getLocation();
                 IPath destinationResource = destinationLocation.append(sourceResource.getName());
-                if (sourceLocation != null && sourceLocation.isPrefixOf(destinationResource)) {
+                if (sourceLocation != null && FileUtils.isPrefixOf(sourceLocation, destinationResource)) {
                     return true;
                 }
             }
@@ -1316,7 +1317,7 @@ public class CopyFilesAndFoldersOperation {
                         sourceResource.getName());
             }
             // is the source a parent of the destination?
-            if (new Path(sourceLocation.toString()).isPrefixOf(new Path(destinationLocation.toString()))) {
+            if (FileUtils.isPrefixOf(new Path(sourceLocation.toString()), new Path(destinationLocation.toString()))) {
                 return IDEWorkbenchMessages.CopyFilesAndFoldersOperation_destinationDescendentError;
             }
 
@@ -1500,7 +1501,7 @@ public class CopyFilesAndFoldersOperation {
             final IPath sourcePath = sourceResource.getFullPath();
 
             IResource newResource = workspaceRoot.findMember(destinationPath);
-            if (newResource != null && destinationPath.isPrefixOf(sourcePath)) {
+            if (newResource != null && FileUtils.isPrefixOf(destinationPath, sourcePath)) {
                 displayError(NLS.bind(IDEWorkbenchMessages.CopyFilesAndFoldersOperation_overwriteProblem,
                         destinationPath, sourcePath));
 
@@ -1517,7 +1518,7 @@ public class CopyFilesAndFoldersOperation {
             if (newResource != null) {
                 if (overwrite != IDialogConstants.YES_TO_ALL_ID
                         || (newResource.getType() == IResource.FOLDER
-                        && homogenousResources(source, destination) == false)) {
+                                && homogenousResources(source, destination) == false)) {
                     overwrite = checkOverwrite(source, newResource);
                 }
                 if (overwrite == IDialogConstants.YES_ID || overwrite == IDialogConstants.YES_TO_ALL_ID) {

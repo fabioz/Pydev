@@ -21,6 +21,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.io.FileUtils;
 
 public class DefaultPathsForInterpreterInfo {
 
@@ -48,7 +49,7 @@ public class DefaultPathsForInterpreterInfo {
     public static boolean isChildOfRootPath(String data, Set<IPath> rootPaths) {
         IPath path = Path.fromOSString(data);
         for (IPath p : rootPaths) {
-            if (p.isPrefixOf(path)) {
+            if (FileUtils.isPrefixOf(p, path)) {
                 return true;
             }
         }
@@ -74,7 +75,7 @@ public class DefaultPathsForInterpreterInfo {
             IPath location = iProject.getLocation();
             if (location != null) {
                 IPath abs = location.makeAbsolute();
-                if (!rootLocation.isPrefixOf(abs)) {
+                if (!FileUtils.isPrefixOf(rootLocation, abs)) {
                     rootPaths.add(abs);
                 }
             }

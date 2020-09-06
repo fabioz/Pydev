@@ -32,6 +32,7 @@ import org.eclipse.swt.widgets.Text;
 import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.ast.listing_utils.PyFileListing;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 
 public class PythonExistingSourceGroup {
@@ -76,7 +77,7 @@ public class PythonExistingSourceGroup {
 
     /**
      * Tell this group what the active project is. Doing so will update its list of linked source paths
-     * that are already included in the project, which is necessary for proper conflict-checking. 
+     * that are already included in the project, which is necessary for proper conflict-checking.
      * @param project
      */
     public void setActiveProject(IProject project) {
@@ -154,7 +155,7 @@ public class PythonExistingSourceGroup {
      * Issue a warning for the following selections:
      *  -folders that are subdirectories of other chosen folders, or contain other chosen folders
      *  -folders that have no .py files in them, or in one of their subdirectories
-     *  
+     *
      * Issue an error if the selection contains the destination of the link to be created. Don't add
      * the selection to the list of source paths in case of an error.
      */
@@ -178,14 +179,15 @@ public class PythonExistingSourceGroup {
         }
 
         IPath rootPath = (iProject == null ? ResourcesPlugin.getWorkspace().getRoot() : iProject).getLocation();
-        if (linkPath.isPrefixOf(rootPath) || (iProject != null && rootPath.isPrefixOf(linkPath))) {
+        if (FileUtils.isPrefixOf(linkPath, rootPath)
+                || (iProject != null && FileUtils.isPrefixOf(rootPath, linkPath))) {
             errorMessage = "External source location '" + linkPath.lastSegment()
                     + "' overlaps with the project directory.";
             return false;
         }
 
         for (IPath otherPath : projectLinkTargets) {
-            if (linkPath.isPrefixOf(otherPath) || otherPath.isPrefixOf(linkPath)) {
+            if (FileUtils.isPrefixOf(linkPath, otherPath) || FileUtils.isPrefixOf(otherPath, linkPath)) {
                 warningMessage = "Location '" + linkPath.lastSegment()
                         + "' overlaps with the project resource '"
                         + otherPath.lastSegment()
