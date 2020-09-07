@@ -403,4 +403,41 @@ public class AssistFStringTest extends TestCase {
                 "'''";
         check(d, 5, e);
     }
+
+    public void testSimple40() throws BadLocationException, MisconfigurationException {
+        String d = "\"something\"";
+        String e = "f\"something\"";
+        check(d, 5, e);
+    }
+
+    public void testSimple41() throws BadLocationException, MisconfigurationException {
+        String d = "\"\"\"\n" +
+                "something\n" +
+                "\"\"\"";
+        String e = "f\"\"\"\n" +
+                "something\n" +
+                "\"\"\"";
+        check(d, 5, e);
+    }
+
+    public void testSimple42() throws BadLocationException, MisconfigurationException {
+        String d = "\"something\" %";
+        checkNoCompletions(d, 5);
+    }
+
+    public void testSimple43() throws BadLocationException, MisconfigurationException {
+        String d = "\"\"\"\n" +
+                "something\n" +
+                "\"\"\" %";
+        checkNoCompletions(d, 5);
+    }
+
+    public void testSimple44() throws BadLocationException, MisconfigurationException {
+        String d = "\"\"\"\n" +
+                "something\n" +
+                "\"\"\"\n" +
+                "%\n" +
+                "x = 10";
+        checkNoCompletions(d, 5);
+    }
 }

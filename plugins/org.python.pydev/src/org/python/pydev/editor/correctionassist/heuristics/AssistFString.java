@@ -54,10 +54,6 @@ public class AssistFString implements IAssistProps {
         formatCount += StringUtils.count(stringPartitionContents, "%s");
         formatCount += StringUtils.count(stringPartitionContents, "%r");
 
-        if (formatCount == 0 && StringUtils.count(stringPartitionContents, '%') == 0) {
-            return lst;
-        }
-
         ParsingUtils parsingUtils = ParsingUtils.create(doc);
         // get string end offset
         int partitionEndOffset = partitionOffset + partition.getLength();
