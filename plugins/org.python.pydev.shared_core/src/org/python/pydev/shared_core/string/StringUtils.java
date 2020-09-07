@@ -978,6 +978,25 @@ public final class StringUtils {
         return count;
     }
 
+    public static int count(String name, String str) {
+        final int strLen = str.length();
+        if (strLen == 0) {
+            return 0;
+        }
+        int count = 0;
+        final int len = name.length();
+        int i = name.indexOf(str);
+        while (i != -1) {
+            count++;
+            if (i + strLen < len) {
+                i = name.indexOf(str, i + str.length());
+                continue;
+            }
+            break;
+        }
+        return count;
+    }
+
     /**
      * Returns whether the given input (to the number of bytes passed in len) is to be considered a valid text string
      * (otherwise, it's considered a binary string).
