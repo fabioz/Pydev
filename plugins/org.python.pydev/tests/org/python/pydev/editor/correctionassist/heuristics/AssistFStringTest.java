@@ -386,4 +386,21 @@ public class AssistFStringTest extends TestCase {
         checkNoCompletions(d, 5);
     }
 
+    public void testSimple38() throws BadLocationException, MisconfigurationException {
+        String d = "'%s %r %s %r' % foobar";
+        String e = "f'{foobar[0]} {foobar[1]!r} {foobar[2]} {foobar[3]!r}'";
+        check(d, 5, e);
+    }
+
+    public void testSimple39() throws BadLocationException, MisconfigurationException {
+        String d = "'''\n" +
+                "%r\n" +
+                "%r\n" +
+                "''' % ra";
+        String e = "f'''\n" +
+                "{ra[0]!r}\n" +
+                "{ra[1]!r}\n" +
+                "'''";
+        check(d, 5, e);
+    }
 }
