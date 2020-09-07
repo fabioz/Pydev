@@ -153,20 +153,26 @@ public class AssistFString implements IAssistProps {
                 // iterate through variables and edit the f-string output
                 if (formatCount == variables.size()) {
                     for (String variable : variables) {
-                        String rep = "%s";
-                        String with = "{" + variable + "}";
-                        int oS = strBuf.indexOf("%s");
-                        int oR = strBuf.indexOf("%r");
-                        if (oS == -1 || oR != -1 && oR < oS) {
-                            rep = "%r";
+                        String rep = getReplace(strBuf);
+                        String with = null;
+                        if ("%r".equals(rep)) {
                             with = "{" + variable + "!r}";
+                        } else {
+                            with = "{" + variable + "}";
                         }
                         strBuf.replaceFirst(rep, with);
                     }
                 } else if (variables.size() == 1) {
                     String variable = variables.get(0);
                     for (i = 0; i < formatCount; i++) {
-                        strBuf.replaceFirst("%s", "{" + variable + "[" + i + "]" + "}");
+                        String rep = getReplace(strBuf);
+                        String with = null;
+                        if ("%r".equals(rep)) {
+                            with = "{" + variable + "[" + i + "]" + "!r}";
+                        } else {
+                            with = "{" + variable + "[" + i + "]" + "}";
+                        }
+                        strBuf.replaceFirst(rep, with);
                     }
                 } else {
                     return lst;
@@ -187,6 +193,16 @@ public class AssistFString implements IAssistProps {
                         UIConstants.COMPLETION_TEMPLATE),
                 "Convert to f-string", null, null, IPyCompletionProposal.PRIORITY_DEFAULT, null));
         return lst;
+    }
+
+    private String getReplace(FastStringBuffer strBuf) {
+        String rep = "%s";
+        int oS = strBuf.indexOf("%s");
+        int oR = strBuf.indexOf("%r");
+        if (oS == -1 || oR != -1 && oR < oS) {
+            rep = "%r";
+        }
+        return rep;
     }
 
     private IImageHandle getImage(IImageCache imageCache, String c) {
