@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.utils.ArrayUtils;
@@ -117,7 +118,7 @@ public final class PyRenameResourceChange extends PyChange {
                 newPath = destination.getFullPath().append(FullRepIterable.getLastPart(fNewName));
 
                 IPath fullPath = resource.getFullPath();
-                if (fullPath.isPrefixOf(newPath)) {
+                if (FileUtils.isPrefixOf(fullPath, newPath)) {
                     copyChildrenInsteadOfMove = true;
                 }
             }
@@ -182,8 +183,8 @@ public final class PyRenameResourceChange extends PyChange {
     }
 
     /**
-     * Returns the final folder for the created module and the resources created in the process. 
-     * 
+     * Returns the final folder for the created module and the resources created in the process.
+     *
      * Receives the resource (i.e.: in filesystem), the resolved name (i.e.: my.mod1) and the final name (i.e.: bar.foo).
      */
     public static IContainer getDestination(IResource initialResource, String initialName, String finalName,

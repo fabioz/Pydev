@@ -12,6 +12,7 @@ import org.eclipse.core.runtime.Path;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.string.StringUtils;
 
@@ -60,7 +61,7 @@ public class MultiModuleMoveRefactoringRequest extends PyRefactoringRequest {
         if (initialPath.equals(finalPath)) {
             finalContainer = initialContainer;
 
-        } else if (initialPath.isPrefixOf(finalPath)) {
+        } else if (FileUtils.isPrefixOf(initialPath, finalPath)) {
             IPath walk = finalPath.removeFirstSegments(initialPath.segmentCount());
             finalContainer = initialContainer.getFolder(walk);
 

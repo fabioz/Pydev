@@ -17,6 +17,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,9 @@ import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.EvaluateDebugConsoleExpression;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotRecognizedException;
@@ -781,5 +785,30 @@ public class XMLUtils {
             throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected XML error", e));
         }
         return exceptionStackTraceList;
+    }
+
+    public static Element createBinaryElement(Document document, String elementName, String contents) {
+        Element element = document.createElement(elementName);
+        if (StringUtils.isValidTextString(contents)) {
+            element.appendChild(document.createCDATASection(contents));
+        } else {
+            element.setAttribute("encoding", "base64");
+            element.appendChild(document.createCDATASection(
+                    Base64.getEncoder()
+                            .encodeToString(contents.getBytes(StandardCharsets.ISO_8859_1))));
+
+        }
+        return element;
+    }
+
+    public static String decodeFromEncoding(String captured, String encoding) {
+        if (captured == null) {
+            return "";
+        }
+        if ("base64".equals(encoding)) {
+            return new String(Base64.getDecoder().decode(captured.getBytes(StandardCharsets.ISO_8859_1)),
+                    StandardCharsets.ISO_8859_1);
+        }
+        return captured;
     }
 }

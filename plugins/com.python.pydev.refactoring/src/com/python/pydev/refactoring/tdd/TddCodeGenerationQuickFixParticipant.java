@@ -28,6 +28,7 @@ import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.ITypeInfo;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
@@ -297,6 +298,18 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
 
     public Definition rebaseFunctionDef(Definition definition, IPythonNature nature, ICompletionCache completionCache)
             throws Exception {
+        ITypeInfo type = NodeUtils.getReturnTypeFromFuncDefAST(definition.ast);
+        if (type != null) {
+            // ok, go to the definition of whatever is set
+            IDefinition[] definitions2 = definition.module.findDefinition(
+                    CompletionStateFactory.getEmptyCompletionState(type.getActTok(), nature, completionCache),
+                    definition.line,
+                    definition.col, nature);
+            if (definitions2.length == 1) {
+                return (Definition) definitions2[0];
+            }
+        }
+
         List<Return> returns = ReturnVisitor.findReturns((FunctionDef) definition.ast);
         for (Return returnFound : returns) {
             String act = NodeUtils.getFullRepresentationString(returnFound.value);

@@ -1191,4 +1191,39 @@ public class FileUtils {
         }
         return (char) i;
     }
+
+    public static boolean isPrefixOf(IPath thisPath, IPath anotherPath) {
+        if (thisPath.getDevice() == null) {
+            if (anotherPath.getDevice() != null) {
+                return false;
+            }
+        } else {
+            if (!thisPath.getDevice().equalsIgnoreCase(anotherPath.getDevice())) {
+                return false;
+            }
+        }
+        if (thisPath.isEmpty() || (thisPath.isRoot() && anotherPath.isAbsolute())) {
+            return true;
+        }
+        int len = thisPath.segmentCount();
+        if (len > anotherPath.segmentCount()) {
+            return false;
+        }
+        if (PlatformUtils.isWindowsPlatform()) {
+            // i.e.: On windows the path comparison should be case-independent.
+            for (int i = 0; i < len; i++) {
+                if (!thisPath.segment(i).equalsIgnoreCase(anotherPath.segment(i))) {
+                    return false;
+                }
+            }
+        } else {
+            for (int i = 0; i < len; i++) {
+                if (!thisPath.segment(i).equals(anotherPath.segment(i))) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
 }

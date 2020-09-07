@@ -62,6 +62,10 @@ public abstract class PydevInternalResourceDeltaVisitor extends PyDevBuilderVisi
         //that are only in the project for the team-stuff (e.g. .svn or
         //.cvs or _darcs directories).
         if (resource.isTeamPrivateMember()) {
+            return false;
+        }
+
+        if (OperationsOnAllAddedFiles.checkDerived(resource)) {
             return true;
         }
 

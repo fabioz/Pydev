@@ -1,33 +1,39 @@
-PyDev 7.7.0 Released
+PyDev 8.0.0 Released
 
-PyDev 7.7.0 Release Highlights
+PyDev 8.0.0 Release Highlights
 -------------------------------
 
-* **MyPy integration improvements**
+* **MyPy**
+	* Make sure that only one MyPy is running at a given time (to prevent cache corruptions).
+	* Properly report MyPy messages that only have a line number. (**#PyDev-1091**)
+	* MyPy integration now also shows notes for a message. (**#PyDev-1088**)
 
-	* New option to set project source folders as **MYPYPATH**.
-	* **--follow-imports=silent** now set by default.
-	* The cache dir set by default to **project/.mypy_cache**
+* **Debugger**  (updated to pydevd 2.0.0)
+	* The frame evaluation mode (which adds programmatic breakpoints by rewriting bytecode) was redone (it had a critical issue which could make it skip breakpoints).
+	* Fixed issue collecting try..except information.
+	* Fixed issue evaluating numpy array with unexpected dimension.
 
-* Many improvements for dealing with **typing information** (in code-analysis and code-completion).
+* **Type Inference**
+	* Option to create method at a given class properly considers type-hinting. (**#PyDev-1092**)
+	* Support code-completion for Optional[]. (**#PyDev-1089**)
+	* Properly handle type inforamtion when given as a string. (**#PyDev-1082**, **#PyDev-1087**)
+	* Fixed issue where line/col was not forwarded properly in go to definition. (**#PyDev-1075**)
+	* Typing info should have priority when available. (**#PyDev-1079**)
+	* Properly get completions considering function annotation. (**#PyDev-1078**)
 
-* **Debugger improvements** (updated to pydevd 1.9.2)
+* **Test running**
+	* Fixed issue running tests which override *address* with nose. (**#PYDev-1095**)
+	* Fixed issue where test import/export didn't deal well with binary chars that were collected from the test. (**#PyDev-1067**)
 
-	* Fix dealing with generator expressions with multiple breakpoints in frame eval mode.
-	* Improvements to deal with blocking evaluate requests.
+* **Others**
+	* When finding a file in a project on Windows consider paths as case insensitive.
+	* .mypy_cache and .pytest_cache contents are now marked as derived (so they can be filtered out in searches).
+	* Fixed case where auto-import could be added to wrong location. (**#PyDev-1085**)
+	* Occurrence was not found in type hint return. (**#PyDev-1076**)
+	* Find references not working for constant depending how it's used. (**#PyDev-1083**)
+	* Backported fix to properly parse raw f-string in Python 3.6. (**#PyDev-991**)
+	* Code completion inside f-strings. (**#PyDev-1081**)
 
-* Support for pip installed namespace packages (**#PyDev-151**).
-* Fixes in the **PyLint integration** (**#PyDev-729**).
-* Updated to latest isort.
-* isort properly gets project level configuration (**#PyDev-993**).
-* Support for parsing using the latest version of cython (0.29).
-* Properly supporting the latest pytest version (6.0) (TerminalWriter API changed).
-* Fix when applying diffs from external tool (such as the black formatter).
-* Projects sorted by name even if project is also a source folder in the PyDev Package Explorer (**#PyDev-959**).
-* Fix in extract method refactoring with typing information (**#PyDev-1034**)
-* Auto-edit for **__exit__** parameters (**#PyDev-1068**).
-* Nodes are no longer auto-expanded in quick outline if the outline is too big.
-* Properly computing local import target location on code completion with auto local import (**#PyDev-1070**).
 
 
 About PyDev

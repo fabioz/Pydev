@@ -357,7 +357,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
         OUT: for (String pathEntry : baseLocations) {
 
             IPath element = Path.fromOSString(FileUtils.getFileAbsolutePath(pathEntry));
-            if (element.isPrefixOf(modulePath)) {
+            if (FileUtils.isPrefixOf(element, modulePath)) {
                 IPath relative = modulePath.removeFirstSegments(element.segmentCount());
                 if (relative.segmentCount() == 0) {
                     continue;
@@ -748,7 +748,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
                 for (Iterator<String> it = keySet.iterator(); it.hasNext();) {
                     String next = it.next();
                     IPath existingInPath = Path.fromPortableString(next);
-                    if (resource.getFullPath().isPrefixOf(existingInPath)) {
+                    if (FileUtils.isPrefixOf(resource.getFullPath(), existingInPath)) {
                         if (operation == PythonPathHelper.OPERATION_MOVE
                                 || operation == PythonPathHelper.OPERATION_DELETE) {
                             it.remove(); //Remove from that project (but not on copy)

@@ -24,7 +24,6 @@ import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyOpenAction;
-import org.python.pydev.editorinput.PySourceLocatorBase;
 import org.python.pydev.parser.fastparser.FastDefinitionsParser;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -129,10 +128,9 @@ public class PyUnitTestResult {
         if (testNode != null) {
             itemPointer = new ItemPointer(file, testNode);
         } else {
-            //Ok, it's not defined directly here (it's probably in a superclass), so, let's go on and 
+            //Ok, it's not defined directly here (it's probably in a superclass), so, let's go on and
             //do an actual (more costly) find definition.
             try {
-                PySourceLocatorBase locator = new PySourceLocatorBase();
                 IFile workspaceFile = FindWorkspaceFiles.getWorkspaceFile(file, null);
                 if (workspaceFile != null && workspaceFile.exists()) {
                     IProject project = workspaceFile.getProject();

@@ -399,7 +399,7 @@ public class PythonPathNature implements IPythonPathNature {
                     if (p.isEmpty()) {
                         continue; //go to the next...
                     }
-                    if (projectPath != null && !projectPath.isPrefixOf(p)) {
+                    if (projectPath != null && !FileUtils.isPrefixOf(projectPath, p)) {
                         p = p.removeFirstSegments(1);
                         p = projectPath.append(p);
                         restore = true;

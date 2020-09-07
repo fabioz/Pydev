@@ -39,6 +39,10 @@
 
         <div id="bronze-sponsors-a-hrefs">
 
+        <a href="https://sanyodigital.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/sanyodigital.png" alt="Sanyo Digital" title="https://sanyodigital.com/" /></a>
+
+        <a href="https://ingramer.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/ingramer.png" alt="Ingramer" title="https://ingramer.com/" /></a>
+
         <a href="https://neuecasinos24.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/neue.jpg" alt="neue online casinos" title="https://neuecasinos24.com/" /></a>
 
         <a href="https://bestercasinomentor.com/casinos/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/bester.png" alt="Bestes Online Casino" title="https://bestercasinomentor.com/casinos/" /></a>
@@ -341,6 +345,42 @@ To show your appreciation for PyDev and to keep it going strong, help to crowdfu
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
+Release 8.0.0 (2020-09-06)
+=============================
+
+* **MyPy**
+	* Make sure that only one MyPy is running at a given time (to prevent cache corruptions).
+	* Properly report MyPy messages that only have a line number. (**#PyDev-1091**)
+	* MyPy integration now also shows notes for a message. (**#PyDev-1088**)
+
+* **Debugger**  (updated to pydevd 2.0.0)
+	* The frame evaluation mode (which adds programmatic breakpoints by rewriting bytecode) was redone (it had a critical issue which could make it skip breakpoints).
+	* Fixed issue collecting try..except information.
+	* Fixed issue evaluating numpy array with unexpected dimension.
+
+* **Type Inference**
+	* Option to create a method at a given class properly considers type-hinting. (**#PyDev-1092**)
+	* Support code-completion for Optional[]. (**#PyDev-1089**)
+	* Properly handle type information when given as a string. (**#PyDev-1082**, **#PyDev-1087**)
+	* Fixed issue where line/col was not forwarded properly in go to definition. (**#PyDev-1075**)
+	* Typing info should have priority when available. (**#PyDev-1079**)
+	* Properly get completions considering function annotation. (**#PyDev-1078**)
+
+* **Test running**
+	* Fixed issue running tests which override *address* with nose. (**#PYDev-1095**)
+	* Fixed issue where test import/export didn't deal well with binary chars that were collected from the test. (**#PyDev-1067**)
+
+* **Others**
+	* When finding a file in a project on Windows consider paths as case insensitive.
+	* .mypy_cache and .pytest_cache contents are now marked as derived (so they can be filtered out in searches).
+	* Fixed case where auto-import could be added to wrong location. (**#PyDev-1085**)
+	* Occurrence was not found in type hint return. (**#PyDev-1076**)
+	* Find references not working for constant depending how it's used. (**#PyDev-1083**)
+	* Backported fix to properly parse raw f-string in Python 3.6. (**#PyDev-991**)
+	* Code completion inside f-strings. (**#PyDev-1081**)
+
+
+
 Release 7.7.0 (2020-08-02)
 =============================
 
@@ -369,32 +409,6 @@ Release 7.7.0 (2020-08-02)
 * Auto-edit for **__exit__** parameters (**#PyDev-1068**).
 * Nodes are no longer auto-expanded in quick outline if the outline is too big.
 * Properly computing local import target location on code completion with auto local import (**#PyDev-1070**).
-
-
-Release 7.6.0 (2020-06-04)
-=============================
-
-* **Debugger improvements** (updated to pydevd 1.9.1)
-
-	* **Variables are now grouped** (special/class/function/protected) -- note: it's possible to hide groups in the variables view menu dropdown.
-	* When a launching a subprocess does not target a python executable, the original args are kept (so, quotes are no longer trimmed).
-	* A step in which would skip code won't be reported in the return if it'd reach the same location.
-	* The disassembled version of a frame may be shown if the sources are not available.
-	* PySide2 is supported to recognize QThreads/event loop in interactive console.
-
-* **Python 3.8 parsing fixes**
-
-	* Properly parsing f-strings with named unicode character. i.e.: *f"\N{BULLET}"*. (**#PyDev-989**)
-	* Properly parsing f-strings formats using colon. i.e.: *f"{datetime.datetime.now():%Y-%m-%d %H:%M:%S}"*. (**#PyDev-1061**)
-	* Properly parsing f-strings with vars ending in equals. i.e.: *f'{y=}'*. (**#PyDev-1045**)
-	* Properly parsing raw f-strings such as *rf"str"*. (**#PyDev-1020**)
-	* Properly parsing iterable unpacking syntax. i.e.: *return lastname.upper(), \*members*. (**#PyDev-1048**)
-
-* Support for the latest version of PyTest (which may resolve symlinks and changed the TerminalWriter import location).
-* PyDev package explorer is a bit faster (cache source project paths for a project).
-* Recognizing type comments for *self* attributes. i.e.: *#: :type self.var: MyClass*. (**#PyDev-520**)
-* Trailing commas properly recognized in automatic import. (**#PyDev-542**)
-
 
 
 `View release notes for previous releases`_

@@ -19,6 +19,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.console_actions.RestartLaunchAction;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.model.PySourceLocator;
+import org.python.pydev.debug.model.XMLUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -50,9 +51,8 @@ public class PyUnitLaunch implements IPyUnitLaunch {
 
         try {
             if (this.configuration != null) {
-                Element mementoXml = document.createElement("launch_memento");
-                launchElement.appendChild(mementoXml);
-                mementoXml.appendChild(document.createCDATASection(this.configuration.getMemento()));
+                launchElement.appendChild(
+                        XMLUtils.createBinaryElement(document, "launch_memento", this.configuration.getMemento()));
             }
         } catch (CoreException e) {
             Log.log(e);
@@ -61,7 +61,7 @@ public class PyUnitLaunch implements IPyUnitLaunch {
     }
 
     public static IPyUnitLaunch fromIO(String mode, String memento) {
-        if (memento != null && mode != null) {
+        if (memento != null && mode != null && mode.length() > 0 && memento.length() > 0) {
             try {
                 ILaunchConfiguration launchConfiguration = DebugPlugin.getDefault().getLaunchManager()
                         .getLaunchConfiguration(memento);
