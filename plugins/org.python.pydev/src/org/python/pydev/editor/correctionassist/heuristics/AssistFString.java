@@ -214,6 +214,16 @@ public class AssistFString implements IAssistProps {
 
     @Override
     public boolean isValid(PySelection ps, String sel, IPyEdit edit, int offset) {
+        if (edit != null) {
+            try {
+                IPythonNature pythonNature = edit.getPythonNature();
+                if (pythonNature == null
+                        || pythonNature.getGrammarVersion() < IPythonNature.GRAMMAR_PYTHON_VERSION_3_6) {
+                    return false;
+                }
+            } catch (MisconfigurationException e) {
+            }
+        }
         return true;
     }
 }
