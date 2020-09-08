@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.python.pydev.ast.codecompletion.CompletionRequest;
 import org.python.pydev.ast.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.ast.codecompletion.IPyDevCompletionParticipant2;
@@ -91,7 +92,7 @@ public class CtxParticipant
         String qual = tokenAndQual.qualifier;
         if (qual.length() >= PyCodeCompletionPreferences.getCharsForContextInsensitiveGlobalTokensCompletion()
                 && naturesUsed != null && naturesUsed.size() > 0) { //at least n characters required...
-            boolean addAutoImport = AnalysisPreferences.doAutoImport();
+            boolean addAutoImport = AnalysisPreferences.doAutoImport(null);
             int qlen = qual.length();
             boolean useSubstringMatchInCodeCompletion = PyCodeCompletionPreferences
                     .getUseSubstringMatchInCodeCompletion();
@@ -218,7 +219,9 @@ public class CtxParticipant
             FastStringBuffer displayString = new FastStringBuffer();
             FastStringBuffer tempBuf = new FastStringBuffer();
 
-            boolean doIgnoreImportsStartingWithUnder = AnalysisPreferences.doIgnoreImportsStartingWithUnder(null);
+            IAdaptable projectAdaptable = request.getNature() != null ? request.getNature().getProject() : null;
+            boolean doIgnoreImportsStartingWithUnder = AnalysisPreferences
+                    .doIgnoreImportsStartingWithUnder(projectAdaptable);
 
             for (IInfo info : tokensStartingWith) {
                 //there always must be a declaringModuleName
@@ -290,7 +293,8 @@ public class CtxParticipant
     @Override
     public TokensOrProposalsList getGlobalCompletions(CompletionRequest request, ICompletionState state)
             throws MisconfigurationException {
-        return new TokensOrProposalsList(getThem(request, state, AnalysisPreferences.doAutoImport()));
+        IAdaptable projectAdaptable = request.getNature() != null ? request.getNature().getProject() : null;
+        return new TokensOrProposalsList(getThem(request, state, AnalysisPreferences.doAutoImport(projectAdaptable)));
     }
 
     @Override

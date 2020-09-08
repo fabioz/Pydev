@@ -212,12 +212,12 @@ public class AnalysisPreferences extends AbstractAnalysisPreferences {
 
     public static boolean TESTS_DO_AUTO_IMPORT = true;
 
-    public static boolean doAutoImport() {
+    public static boolean doAutoImport(IAdaptable projectAdaptable) {
         if (SharedCorePlugin.inTestMode()) {
             return TESTS_DO_AUTO_IMPORT;
         }
 
-        return PyAnalysisScopedPreferences.getBoolean(AnalysisPreferenceInitializer.DO_AUTO_IMPORT, null);
+        return PyAnalysisScopedPreferences.getBoolean(AnalysisPreferenceInitializer.DO_AUTO_IMPORT, projectAdaptable);
     }
 
     public static boolean TESTS_DO_AUTO_IMPORT_ON_ORGANIZE_IMPORTS = true;
