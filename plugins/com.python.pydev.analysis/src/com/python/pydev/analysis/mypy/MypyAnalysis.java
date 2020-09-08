@@ -25,8 +25,8 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.ITypedRegion;
 import org.python.pydev.ast.runners.SimpleRunner;
+import org.python.pydev.core.CheckAnalysisErrors;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
@@ -34,13 +34,11 @@ import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.partition.PyPartitionScanner;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.markers.PyMarkerUtils;
-import org.python.pydev.shared_core.partitioner.FastPartitioner;
 import org.python.pydev.shared_core.process.ProcessUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -301,17 +299,8 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                     if (markerSeverity != -1) {
                         line = Integer.parseInt(outputLine.substring(m.start(2), m.end(2))) - 1;
                         String lineContents = PySelection.getLine(document, line);
-                        ITypedRegion partition = ((FastPartitioner) PyPartitionScanner
-                                .checkPartitionScanner(document))
-                                        .getPartition(document.getLineOffset(line) + lineContents.length() - 1);
-                        if (ParsingUtils.isCommentContentType(partition.getType())) {
-                            FastStringBuffer commentBuf = new FastStringBuffer();
-                            parsingUtils.eatComments(commentBuf, partition.getOffset());
-                            commentBuf.trim().deleteFirst();
-                            commentBuf.trim();
-                            if ("noqa".equals(commentBuf.toString())) {
-                                continue;
-                            }
+                        if (CheckAnalysisErrors.isCodeAnalysisErrorHandled(lineContents, null)) {
+                            continue;
                         }
                         messageId = "mypy";
                         message = outputLine.substring(m.start(5), m.end(5)).trim();
@@ -342,7 +331,9 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                 Log.log(e);
             }
         }
-        for (MessageInfo messageInfo : lineColToMessage.values()) {
+        for (
+
+        MessageInfo messageInfo : lineColToMessage.values()) {
             addToMarkers(messageInfo.message.toString(), messageInfo.markerSeverity, messageInfo.messageId,
                     messageInfo.line,
                     messageInfo.column,
