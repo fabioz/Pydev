@@ -23,10 +23,13 @@ package org.python.pydev.refactoring.coderefactoring.inlinelocal.edit;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.IPythonPartitions;
+import org.python.pydev.core.partition.PyPartitionScanner;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.refactoring.coderefactoring.inlinelocal.request.InlineLocalRequest;
 import org.python.pydev.refactoring.core.edit.AbstractRemoveEdit;
+import org.python.pydev.shared_core.partitioner.FastPartitioner;
 
 public class RemoveAssignment extends AbstractRemoveEdit {
     private InlineLocalRequest request;
@@ -56,19 +59,21 @@ public class RemoveAssignment extends AbstractRemoveEdit {
             boolean anotherStatementOnThisLine = false;
 
             /* now find the end */
+            FastPartitioner fastPartitioner = (FastPartitioner) PyPartitionScanner.checkPartitionScanner(document);
             while (true) {
-                char c = document.getChar(endOffset - 1);
-
+                int i = endOffset - 1;
+                char c = document.getChar(i);
                 /* Look for the end of the line or the ; */
-                if (c == '\n') {
-                    break;
-                }
+                if (fastPartitioner.getContentType(i) == IPythonPartitions.PY_DEFAULT) {
+                    if (c == '\n') {
+                        break;
+                    }
 
-                if (c == ';') {
-                    anotherStatementOnThisLine = true;
-                    break;
+                    if (c == ';') {
+                        anotherStatementOnThisLine = true;
+                        break;
+                    }
                 }
-
                 endOffset++;
             }
 
