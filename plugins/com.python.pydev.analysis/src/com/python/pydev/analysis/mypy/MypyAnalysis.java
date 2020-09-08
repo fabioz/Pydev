@@ -31,7 +31,6 @@ import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
-import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -239,7 +238,6 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
 
     @Override
     public void afterRunProcess(String output, String errors, IExternalCodeAnalysisStream out) {
-        ParsingUtils parsingUtils = ParsingUtils.create(document);
         output = output.trim();
         errors = errors.trim();
         Map<LineCol, MessageInfo> lineColToMessage = new HashMap<>();
