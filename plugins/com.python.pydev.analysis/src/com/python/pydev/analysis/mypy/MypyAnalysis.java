@@ -331,9 +331,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                 Log.log(e);
             }
         }
-        for (
-
-        MessageInfo messageInfo : lineColToMessage.values()) {
+        for (MessageInfo messageInfo : lineColToMessage.values()) {
             addToMarkers(messageInfo.message.toString(), messageInfo.markerSeverity, messageInfo.messageId,
                     messageInfo.line,
                     messageInfo.column,
