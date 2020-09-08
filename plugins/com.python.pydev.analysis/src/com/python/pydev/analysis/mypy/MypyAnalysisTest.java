@@ -165,4 +165,57 @@ public class MypyAnalysisTest extends TestCase {
 
         assertEquals(expected, mypyAnalysis.markers.get(0).message);
     }
+
+    public void testMarkersMessage2() {
+
+        IDocument document = new Document(
+                "" +
+                        "from typing import Protocol\n" +
+                        "\n" +
+                        "\n" +
+                        "class IBar(Protocol):\n" +
+                        "\n" +
+                        "    def bar(self) -> bool:\n" +
+                        "        pass\n" +
+                        "\n" +
+                        "    def foo(self) -> bool:\n" +
+                        "        pass\n" +
+                        "\n" +
+                        "\n" +
+                        "class NotBar(object):\n" +
+                        "\n" +
+                        "    def bar(self) -> int:\n" +
+                        "        pass\n" +
+                        "\n" +
+                        "    def foo(self) -> int:\n" +
+                        "        pass\n" +
+                        "\n" +
+                        "\n" +
+                        "def call(a:IBar) -> IBar:\n" +
+                        "    pass\n" +
+                        "\n" +
+                        "\n" +
+                        "x:IBar = NotBar() # noqa");
+
+        MypyAnalysis mypyAnalysis = new MypyAnalysis(null, document, null, new NullProgressMonitor(),
+                null);
+
+        String output = "snippet.py:26:11: error: Incompatible types in assignment (expression has type \"NotBar\", variable has type \"IBar\")\n"
+                +
+                "snippet.py:26:11: note: Following member(s) of \"NotBar\" have conflicts:\n" +
+                "snippet.py:26:11: note:     Expected:\n" +
+                "snippet.py:26:11: note:         def bar(self) -> bool\n" +
+                "snippet.py:26:11: note:     Got:\n" +
+                "snippet.py:26:11: note:         def bar(self) -> int\n" +
+                "snippet.py:26:11: note:     Expected:\n" +
+                "snippet.py:26:11: note:         def foo(self) -> bool\n" +
+                "snippet.py:26:11: note:     Got:\n" +
+                "snippet.py:26:11: note:         def foo(self) -> int\n" +
+                "Found 1 error in 1 file (checked 1 source file)\n" +
+                "";
+
+        mypyAnalysis.afterRunProcess(output, "", null);
+
+        assertEquals(0, mypyAnalysis.markers.size());
+    }
 }

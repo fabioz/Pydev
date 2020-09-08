@@ -26,10 +26,12 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.ast.runners.SimpleRunner;
+import org.python.pydev.core.CheckAnalysisErrors;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
@@ -294,6 +296,10 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                     }
                     if (markerSeverity != -1) {
                         line = Integer.parseInt(outputLine.substring(m.start(2), m.end(2))) - 1;
+                        String lineContents = PySelection.getLine(document, line);
+                        if (CheckAnalysisErrors.isCodeAnalysisErrorHandled(lineContents, null)) {
+                            continue;
+                        }
                         messageId = "mypy";
                         message = outputLine.substring(m.start(5), m.end(5)).trim();
 
