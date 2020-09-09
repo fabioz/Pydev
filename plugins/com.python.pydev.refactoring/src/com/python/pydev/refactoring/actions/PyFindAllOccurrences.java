@@ -30,13 +30,17 @@ public class PyFindAllOccurrences extends PyRefactorAction {
         if (req.qualifier != null && req.qualifier.trim().length() > 0) {
             if (req.activationToken != null && req.activationToken.trim().length() == 0
                     && "__init__".equals(req.qualifier)) {
-                LineStartingScope line = ps.getPreviousLineThatStartsScope(PySelection.INDENT_TOKENS, false,
+                LineStartingScope line = ps.getPreviousLineThatStartsScope(PySelection.CLASS_TOKEN, false,
                         Integer.MAX_VALUE);
-                String className = PySelection.getClassNameInLine(line.lineStartingScope);
-                int col = line.lineStartingScope.indexOf(className);
-                int len = className.length();
-                req.ps = new PySelection(ps.getDoc(), line.iLineStartingScope, col, len);
-                req.fillActivationTokenAndQualifier();
+                if (line != null) {
+                    String className = PySelection.getClassNameInLine(line.lineStartingScope);
+                    if (className != null && className.length() > 0) {
+                        int col = line.lineStartingScope.indexOf(className);
+                        int len = className.length();
+                        req.ps = new PySelection(ps.getDoc(), line.iLineStartingScope, col, len);
+                        req.fillActivationTokenAndQualifier();
+                    }
+                }
             }
             NewSearchUI.runQueryInBackground(newQuery(r, req));
         }
