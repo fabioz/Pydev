@@ -124,15 +124,23 @@ def pytest_collection_modifyitems(session, config, items):
         else:
             class_name = None
         for test in accept_tests:
-            # This happens when parameterizing pytest tests.
-            i = name.find('[')
-            if i > 0:
-                name = name[:i]
             if test == name:
                 # Direct match of the test (just go on with the default
                 # loading)
                 new_items.append(item)
                 break
+
+            # This happens when parameterizing pytest tests on older versions
+            # of pytest where the test name doesn't include the fixture name
+            # in it.
+            i = name.find('[')
+            if i > 0:
+                name = name[:i]
+                if test == name:
+                    # Direct match of the test (just go on with the default
+                    # loading)
+                    new_items.append(item)
+                    break
 
             if class_name is not None:
                 if test == class_name + '.' + name:
