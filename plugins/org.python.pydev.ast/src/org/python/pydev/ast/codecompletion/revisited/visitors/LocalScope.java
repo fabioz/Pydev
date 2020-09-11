@@ -491,7 +491,7 @@ public class LocalScope implements ILocalScope {
                                     }
                                 }
                             } else if (handle.type != null) {
-                                ret.add(new TypeInfo(NodeUtils.getFullRepresentationString(handle.type)));
+                                ret.add(new TypeInfo(NodeUtils.getFullRepresentationString(handle.type), handle.body));
                             }
                         }
                     }

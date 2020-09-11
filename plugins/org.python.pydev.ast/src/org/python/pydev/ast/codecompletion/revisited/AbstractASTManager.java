@@ -1703,7 +1703,17 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             //same thing as the initial request, but with the class we could find...
             TokensList tokens = getCompletionsForModule(module, stateCopy, searchSameLevelMods,
                     lookForArgumentCompletion);
-            ret.addAll(tokens);
+            if (classFound.getChildPositions() != null) {
+                for (Tuple<Integer, Integer> tup : classFound.getChildPositions()) {
+                    if (tup.o1 == state.getLine() && tup.o2 == state.getCol()) {
+                        ret.addAll(tokens);
+                        break;
+                    }
+                }
+                continue;
+            } else {
+                ret.addAll(tokens);
+            }
         }
         ret.setLookingFor(lookingFor);
         return ret;

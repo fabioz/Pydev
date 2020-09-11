@@ -468,7 +468,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                             //At this point we'll find the C1 definition...
 
                             definitions = findDefinition(initialState.getCopyWithActTok(value),
-                                    token.getLineDefinition(), token.getColDefinition() + 1, manager.getNature());
+                                    token.getLineDefinition() + 1, token.getColDefinition() + 1, manager.getNature());
                             if (definitions.length == 1) {
                                 Definition d = definitions[0];
                                 if (d instanceof TypeInfoDefinition) {

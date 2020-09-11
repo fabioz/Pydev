@@ -1,5 +1,8 @@
 package org.python.pydev.parser.visitors;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.python.pydev.core.ITypeInfo;
 import org.python.pydev.core.UnpackInfo;
 import org.python.pydev.parser.jython.ast.ExtSlice;
@@ -7,11 +10,14 @@ import org.python.pydev.parser.jython.ast.Index;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.sliceType;
+import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.shared_core.structure.Tuple;
 
 public class TypeInfo implements ITypeInfo {
 
     private final String rep;
     private final exprType expr;
+    private Set<Tuple<Integer, Integer>> childPos = null;
 
     /**
      * Used when the info comes from a docstring.
@@ -21,12 +27,33 @@ public class TypeInfo implements ITypeInfo {
         this.expr = null;
     }
 
+    public TypeInfo(String rep, stmtType[] body) {
+        this.rep = rep;
+        this.expr = null;
+        this.childPos = new HashSet<Tuple<Integer, Integer>>();
+        for (stmtType content : body) {
+            Tuple<Integer, Integer> tup = new Tuple<Integer, Integer>(content.beginLine - 1, content.beginColumn - 1);
+            childPos.add(tup);
+        }
+    }
+
+    private TypeInfo(String rep, Set<Tuple<Integer, Integer>> childPos) {
+        this.rep = rep;
+        this.expr = null;
+        this.childPos = childPos;
+    }
+
     /**
      * Used when the info comes from typing with actual types.
      */
     public TypeInfo(exprType expr) {
         this.expr = NodeUtils.extractOptionalValueSubscript(expr);
         this.rep = NodeUtils.getFullRepresentationString(this.expr);
+    }
+
+    @Override
+    public Set<Tuple<Integer, Integer>> getChildPositions() {
+        return childPos;
     }
 
     /* (non-Javadoc)
@@ -42,6 +69,9 @@ public class TypeInfo implements ITypeInfo {
      */
     @Override
     public TypeInfo getPackedType() {
+        if (childPos != null && childPos.size() > 0) {
+            return new TypeInfo(NodeUtils.getPackedTypeFromDocstring(rep), childPos);
+        }
         return new TypeInfo(NodeUtils.getPackedTypeFromDocstring(rep));
     }
 
