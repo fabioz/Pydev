@@ -87,6 +87,7 @@ public final class Suite extends suiteType {
         if (body != null) {
             for (int i = 0; i < body.length; i++) {
                 if (body[i] != null) {
+                    body[i].parent = this.parent;
                     body[i].accept(visitor);
                 }
             }

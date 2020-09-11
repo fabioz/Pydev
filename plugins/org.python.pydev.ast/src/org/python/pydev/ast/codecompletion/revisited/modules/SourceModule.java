@@ -61,11 +61,13 @@ import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.exprType;
+import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.TypeInfo;
 import org.python.pydev.shared_core.cache.Cache;
@@ -851,13 +853,37 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         int size = defs.size();
         if (size > 0) {
             //ok, it is an assign, so, let's get it
+            AssignDefinition closestDef = null;
+            SimpleNode actualIf = null;
+            boolean foundDefinitive = false;
+            ArrayList<Definition> globalRet = new ArrayList<Definition>();
             for (int i = 0; i < size; i++) {
                 Object next = defs.get(i);
                 if (next instanceof AssignDefinition) {
                     AssignDefinition element = (AssignDefinition) next;
                     if (element.target.startsWith("self") == false) {
-                        if (element.scope.isOuterOrSameScope(scopeVisitor.scope) || element.foundAsGlobal) {
-                            toRet.add(element);
+                        if (element.line < line) {
+                            if (element.scope.isOuterOrSameScope(scopeVisitor.scope)) {
+                                if (element.ast.parent != null && element.ast.parent instanceof If) {
+                                    if (actualIf == null || element.ast.parent.beginLine > actualIf.beginLine) {
+                                        toRet.clear();
+                                        toRet.add(element);
+                                        actualIf = element.ast.parent;
+                                    } else if (actualIf.equals(element.ast.parent)) {
+                                        toRet.add(element);
+                                    }
+                                    if (closestDef == null || element.line > closestDef.line) {
+                                        closestDef = element;
+                                        foundDefinitive = false;
+                                    }
+                                } else if (closestDef == null || element.line > closestDef.line) {
+                                    closestDef = element;
+                                    foundDefinitive = true;
+                                }
+
+                            } else if (element.foundAsGlobal) {
+                                globalRet.add(element);
+                            }
                         }
                     } else {
                         toRet.add(element);
@@ -865,6 +891,12 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                 } else {
                     toRet.add((Definition) next);
                 }
+            }
+            if (foundDefinitive) {
+                toRet.clear();
+                toRet.add(closestDef);
+            } else {
+                toRet.addAll(globalRet);
             }
             if (toRet.size() > 0) {
                 return toRet.toArray(new Definition[0]);

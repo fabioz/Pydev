@@ -104,11 +104,17 @@ public final class If extends stmtType {
         if (body != null) {
             for (int i = 0; i < body.length; i++) {
                 if (body[i] != null) {
+                    if (this.parent != null) {
+                        body[i].parent = this.parent;
+                    } else {
+                        body[i].parent = this;
+                    }
                     body[i].accept(visitor);
                 }
             }
         }
         if (orelse != null) {
+            orelse.parent = this;
             orelse.accept(visitor);
         }
     }
