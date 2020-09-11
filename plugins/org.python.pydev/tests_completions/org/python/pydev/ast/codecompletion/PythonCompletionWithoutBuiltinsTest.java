@@ -1312,6 +1312,56 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         requestCompl(s, s.length(), 2, new String[] { "foo()", "bar()" });
     }
 
+    public void testAssign3() throws Exception {
+        String s = "class Foo(object):\n" +
+                "    def foo(self):\n" +
+                "        pass\n" +
+                "class Bar(object):\n" +
+                "    def bar(self):\n" +
+                "        pass\n" +
+                "    \n" +
+                "def m1():\n" +
+                "    if 1:\n" +
+                "        c = Foo()\n" +
+                "    elif 2:\n" +
+                "        c = Bar()\n" +
+                "    else:\n" +
+                "        x = 10\n" +
+                "    c.";
+        requestCompl(s, s.length(), 2, new String[] { "foo()", "bar()" });
+    }
+
+    public void testAssign4() throws Exception {
+        String s = "class Foo(object):\n" +
+                "    def foo(self):\n" +
+                "        pass\n" +
+                "class Bar(object):\n" +
+                "    def bar(self):\n" +
+                "        pass\n" +
+                "class A(object):\n" +
+                "    def a(self):\n" +
+                "        pass\n" +
+                "class B(object):\n" +
+                "    def b(self):\n" +
+                "        pass\n" +
+                "    \n" +
+                "def m1():\n" +
+                "    if 1:\n" +
+                "        c = Foo()\n" +
+                "    elif 2:\n" +
+                "        c = Bar()\n" +
+                "    else:\n" +
+                "        x = 10\n" +
+                "    if 1:\n" +
+                "        c = A()\n" +
+                "    elif 2:\n" +
+                "        c = B()\n" +
+                "    else:\n" +
+                "        x = 10\n" +
+                "    c.";
+        requestCompl(s, s.length(), 2, new String[] { "a()", "b()" });
+    }
+
     public void testReturn() throws Exception {
         String s = "class Foo:\n" +
                 "    def foo(self):\n" +
@@ -3401,8 +3451,77 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "           e.";
         s = StringUtils.format(original, "");
         ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
-        assertEquals(2, proposals.length);
+        assertEquals(1, proposals.length);
+        assertEquals("method2()", proposals[0].getDisplayString());
+    }
+
+    public void testTypedExceptionCompletion4() throws Exception {
+        String s;
+        String original = "class MyException(object):\n" +
+                "    def method(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "class MyException2(object):\n" +
+                "    def method2(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "class MyClass(object):\n" +
+                "    def __init__(self):\n" +
+                "        try:\n" +
+                "            raise MyException2()\n" +
+                "        except MyException as e:\n" +
+                "           e.\n" +
+                "        except MyException2 as e:\n" +
+                "           e.method2()";
+        s = StringUtils.format(original, "");
+        ICompletionProposalHandle[] proposals = requestCompl(s, 267, -1, new String[] {});
+        assertEquals(1, proposals.length);
         assertEquals("method()", proposals[0].getDisplayString());
-        assertEquals("method2()", proposals[1].getDisplayString());
+    }
+
+    public void testTypedCompletion() throws Exception {
+        String s;
+        String original = "class Foo(object):\n" +
+                "  def foo(self):\n" +
+                "    pass\n" +
+                "  \n" +
+                "class Bar(object):\n" +
+                "  def bar(self):\n" +
+                "    pass\n" +
+                "    \n" +
+                "    \n" +
+                "def method():\n" +
+                "  a = Foo()\n" +
+                "  a.\n" +
+                "  \n" +
+                "  a = Bar()\n" +
+                "  a.";
+        s = StringUtils.format(original, "");
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+        assertEquals(1, proposals.length);
+        assertEquals("bar()", proposals[0].getDisplayString());
+    }
+
+    public void testTypedCompletion2() throws Exception {
+        String s;
+        String original = "class Foo(object):\n" +
+                "  def foo(self):\n" +
+                "    pass\n" +
+                "  \n" +
+                "class Bar(object):\n" +
+                "  def bar(self):\n" +
+                "    pass\n" +
+                "    \n" +
+                "    \n" +
+                "def method():\n" +
+                "  a = Foo()\n" +
+                "  a.\n" +
+                "  \n" +
+                "  a = Bar()\n" +
+                "  a.";
+        s = StringUtils.format(original, "");
+        ICompletionProposalHandle[] proposals = requestCompl(s, 133, -1, new String[] {});
+        assertEquals(1, proposals.length);
+        assertEquals("foo()", proposals[0].getDisplayString());
     }
 }
