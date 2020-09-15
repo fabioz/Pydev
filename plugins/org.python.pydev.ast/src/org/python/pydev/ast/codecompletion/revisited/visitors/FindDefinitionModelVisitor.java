@@ -358,23 +358,11 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
                 String rep = NodeUtils.getFullRepresentationString(target);
 
                 if (tokenToFind.equals(rep)) { //note, order of equals is important (because one side may be null).
-                    exprType nodeValue = node.value;
-                    exprType nodeType = NodeUtils.extractOptionalValueSubscript(node.type);
-                    String value = NodeUtils.getFullRepresentationString(nodeValue);
-                    String type = NodeUtils.getFullRepresentationString(nodeType);
-                    if (value == null) {
-                        value = "";
-                    }
-                    if (type == null) {
-                        type = "";
-                    }
-
                     //get the line and column correspondent to the target
                     int line = NodeUtils.getLineDefinition(target);
                     int col = NodeUtils.getColDefinition(target);
-
-                    AssignDefinition definition = new AssignDefinition(value, type, rep, i, node, line, col, scope,
-                            module.get(), nodeValue, nodeType, unpackPos);
+                    AssignDefinition definition = getAssignDefinition(node, rep, i, line, col, scope, module.get(),
+                            unpackPos);
 
                     //mark it as global (if it was found as global in some of the previous contexts).
                     for (Set<String> globals : globalDeclarationsStack) {
@@ -525,5 +513,21 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
 
             }
         }
+    }
+
+    public static AssignDefinition getAssignDefinition(Assign node, String target, int targetPos, int line, int col,
+            ILocalScope scope, IModule module, int unpackPos) {
+        exprType nodeValue = node.value;
+        exprType nodeType = NodeUtils.extractOptionalValueSubscript(node.type);
+        String value = NodeUtils.getFullRepresentationString(nodeValue);
+        String type = NodeUtils.getFullRepresentationString(nodeType);
+        if (value == null) {
+            value = "";
+        }
+        if (type == null) {
+            type = "";
+        }
+        return new AssignDefinition(value, type, target, targetPos, node, line, col, scope, module, nodeValue, nodeType,
+                unpackPos);
     }
 }
