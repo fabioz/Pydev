@@ -46,6 +46,7 @@ import org.python.pydev.editor.codecompletion.proposals.OverrideMethodCompletion
 import org.python.pydev.editor.codecompletion.proposals.PyCompletionProposal;
 import org.python.pydev.editor.codecompletion.proposals.PyLinkedModeCompletionProposal;
 import org.python.pydev.editor.codefolding.IPyCalltipsContextInformation;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
@@ -3404,5 +3405,30 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals(2, proposals.length);
         assertEquals("method()", proposals[0].getDisplayString());
         assertEquals("method2()", proposals[1].getDisplayString());
+    }
+
+    public void testCompletionWithWalrus() throws Exception {
+        int grammar = GRAMMAR_TO_USE_FOR_PARSING;
+        GRAMMAR_TO_USE_FOR_PARSING = PythonNature.LATEST_GRAMMAR_PY3_VERSION;
+        try {
+            String s;
+            String original = "class Foo(object):\n" +
+                    "\n" +
+                    "    def foo(self):\n" +
+                    "        pass\n" +
+                    "\n" +
+                    "\n" +
+                    "def test_anything():\n" +
+                    "    if a := Foo():\n" +
+                    "        a.";
+            s = StringUtils.format(original, "");
+            ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+            assertEquals(1, proposals.length);
+            assertEquals("foo()", proposals[0].getDisplayString());
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            GRAMMAR_TO_USE_FOR_PARSING = grammar;
+        }
     }
 }

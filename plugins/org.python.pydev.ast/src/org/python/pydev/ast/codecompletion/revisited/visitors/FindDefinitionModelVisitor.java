@@ -29,19 +29,23 @@ import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Comprehension;
+import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Global;
+import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.ListComp;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.NameTokType;
+import org.python.pydev.parser.jython.ast.NamedExpr;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.jython.ast.comprehensionType;
 import org.python.pydev.parser.jython.ast.exprType;
+import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.structure.FastStack;
 
@@ -377,6 +381,44 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
         }
 
         return super.visitAssign(node);
+    }
+
+    /**
+     * @see org.python.pydev.parser.jython.ast.VisitorBase#visitIf(org.python.pydev.parser.jython.ast.If)
+     */
+    @Override
+    public Object visitIf(If node) throws Exception {
+        ILocalScope scope = new LocalScope(nature, this.defsStack);
+        scope.setFoundAtASTNode(node);
+        if (foundAsDefinition && !scope.equals(definitionFound.scope)) { //if it is found as a definition it is an 'exact' match, so, we do not keep checking it
+            return null;
+        }
+        boolean valid = false;
+        for (stmtType content : node.body) {
+            // checks if completion request is inside the If body
+            if (content instanceof Expr) {
+                exprType value = ((Expr) content).value;
+                String rep = NodeUtils.getFullRepresentationString(value);
+                if (rep != null && rep.equals(tokenToFind) && value.beginLine == this.line
+                        && value.beginColumn == this.col) {
+                    valid = true;
+                    break;
+                }
+            }
+        }
+        if (valid) {
+            // set walrus as an AssignDefinition
+            exprType test = node.test;
+            if (test instanceof NamedExpr) {
+                NamedExpr expr = (NamedExpr) test;
+                String rep = NodeUtils.getFullRepresentationString(expr.target);
+                if (rep != null && rep.equals(tokenToFind)) {
+                    definitions.add(getAssignDefinition(new Assign(null, expr.value, null), rep, 0, line, col, scope,
+                            module.get(), -1));
+                }
+            }
+        }
+        return super.visitIf(node);
     }
 
     @Override
