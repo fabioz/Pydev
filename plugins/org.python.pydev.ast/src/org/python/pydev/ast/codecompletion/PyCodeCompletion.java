@@ -82,7 +82,6 @@ import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.string.FullRepIterable;
-import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.FastStack;
 import org.python.pydev.shared_core.structure.ImmutableTuple;
 import org.python.pydev.shared_core.structure.OrderedMap;
@@ -212,9 +211,10 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                     for (Iterator<IterEntry> it = tokensList.iterator(); it.hasNext();) {
                         i++;
                         if (i > 10000) {
-                            Log.logWarn(StringUtils.format(
-                                    "Warning: computed %s completions (trimming to 10000).\nRequest: %s",
-                                    tokensList.size(), request));
+                            // Don't warn about it anymore (it's ok).
+                            // Log.logWarn(StringUtils.format(
+                            //         "Warning: computed %s completions (trimming to 10000).\nRequest: %s",
+                            //         tokensList.size(), request));
                             break;
                         }
 
