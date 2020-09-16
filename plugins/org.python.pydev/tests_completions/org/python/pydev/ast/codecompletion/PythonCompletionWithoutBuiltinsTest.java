@@ -3077,6 +3077,39 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals(2, comps.length);
     }
 
+    public void testCodeCompletionNamedTuple3() throws Exception {
+        String s;
+        s = "" +
+                "Foo = namedtuple(\"Foo\", \"stack, node, token, name\")\n" +
+                "a = Foo()\n" +
+                "a.";
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "stack", "node", "token", "name" });
+        assertEquals(4, comps.length);
+    }
+
+    public void testCodeCompletionNamedTuple4() throws Exception {
+        String s;
+        s = "" +
+                "Foo = namedtuple(\"Foo\", \"stack node token name\")\n" +
+                "a = Foo()\n" +
+                "a.";
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "stack", "node", "token", "name" });
+        assertEquals(4, comps.length);
+    }
+
+    public void testCodeCompletionNamedTuple5() throws Exception {
+        String s;
+        s = "" +
+                "Foo = namedtuple(\"Foo\", \"stack,,  ,,node,token,\")\n" +
+                "a = Foo()\n" +
+                "a.";
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "stack", "node", "token" });
+        assertEquals(3, comps.length);
+    }
+
     public void testCodeCompletionFromAliasedImport() throws Exception {
         String s;
         s = "" +

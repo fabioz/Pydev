@@ -355,6 +355,21 @@ public class AssignAnalysis {
                                     }
                                 }
                             }
+                            if (args instanceof Str) {
+                                Str str = (Str) args;
+                                List<String> attribs = StringUtils.split(str.s, ',');
+                                for (String s : attribs) {
+                                    s = s.trim();
+                                    if (s.length() > 0) {
+                                        for (String s1 : StringUtils.split(s, ' ')) {
+                                            ret.addAll(new TokensList(new IToken[] { new SourceToken(str,
+                                                    s1, "",
+                                                    "", sourceModule.getName(), sourceModule.getNature()) }));
+                                        }
+                                    }
+                                }
+                                return ret;
+                            }
                         }
                     }
 
