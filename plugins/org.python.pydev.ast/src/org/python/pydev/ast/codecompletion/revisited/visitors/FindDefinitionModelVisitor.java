@@ -28,6 +28,7 @@ import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.Compare;
 import org.python.pydev.parser.jython.ast.Comprehension;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.FunctionDef;
@@ -42,6 +43,7 @@ import org.python.pydev.parser.jython.ast.NameTokType;
 import org.python.pydev.parser.jython.ast.NamedExpr;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.Tuple;
+import org.python.pydev.parser.jython.ast.While;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.jython.ast.comprehensionType;
 import org.python.pydev.parser.jython.ast.exprType;
@@ -393,32 +395,59 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
         if (foundAsDefinition && !scope.equals(definitionFound.scope)) { //if it is found as a definition it is an 'exact' match, so, we do not keep checking it
             return null;
         }
-        boolean valid = false;
-        for (stmtType content : node.body) {
-            // checks if completion request is inside the If body
-            if (content instanceof Expr) {
+        getDefinitionForWalrus(node.body, node.test, scope);
+        return super.visitIf(node);
+    }
+
+    /**
+     * @see org.python.pydev.parser.jython.ast.VisitorBase#visitWhile(org.python.pydev.parser.jython.ast.While)
+     */
+    @Override
+    public Object visitWhile(While node) throws Exception {
+        ILocalScope scope = new LocalScope(nature, this.defsStack);
+        scope.setFoundAtASTNode(node);
+        if (foundAsDefinition && !scope.equals(definitionFound.scope)) { //if it is found as a definition it is an 'exact' match, so, we do not keep checking it
+            return null;
+        }
+        getDefinitionForWalrus(node.body, node.test, scope);
+        return super.visitWhile(node);
+    }
+
+    private boolean getDefinitionForWalrus(stmtType[] body, exprType test, ILocalScope scope) {
+        if (test == null || (!(test instanceof NamedExpr) && !(test instanceof Compare))) {
+            return false;
+        }
+
+        if (test instanceof Compare) {
+            Compare comp = (Compare) test;
+            if (comp.left == null) {
+                return false;
+            }
+            exprType[] elts = NodeUtils.extractElts(comp.left);
+            if (elts == null || elts.length != 1 || !(elts[0] instanceof NamedExpr)) {
+                return false;
+            }
+            test = elts[0];
+        }
+
+        for (stmtType content : body) {
+            if (content != null && content instanceof Expr) {
                 exprType value = ((Expr) content).value;
                 String rep = NodeUtils.getFullRepresentationString(value);
                 if (rep != null && rep.equals(tokenToFind) && value.beginLine == this.line
                         && value.beginColumn == this.col) {
-                    valid = true;
-                    break;
+                    NamedExpr expr = (NamedExpr) test;
+                    String targetRep = NodeUtils.getFullRepresentationString(expr.target);
+                    if (targetRep != null && rep.equals(tokenToFind)) {
+                        definitions
+                                .add(getAssignDefinition(new Assign(null, expr.value, null), rep, 0, line, col, scope,
+                                        module.get(), -1));
+                        return true;
+                    }
                 }
             }
         }
-        if (valid) {
-            // set walrus as an AssignDefinition
-            exprType test = node.test;
-            if (test instanceof NamedExpr) {
-                NamedExpr expr = (NamedExpr) test;
-                String rep = NodeUtils.getFullRepresentationString(expr.target);
-                if (rep != null && rep.equals(tokenToFind)) {
-                    definitions.add(getAssignDefinition(new Assign(null, expr.value, null), rep, 0, line, col, scope,
-                            module.get(), -1));
-                }
-            }
-        }
-        return super.visitIf(node);
+        return false;
     }
 
     @Override
