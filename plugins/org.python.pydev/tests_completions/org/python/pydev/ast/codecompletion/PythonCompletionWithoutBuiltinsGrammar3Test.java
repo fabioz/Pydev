@@ -19,6 +19,7 @@ import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
+import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * This tests the 'whole' code completion, passing through all modules.
@@ -93,7 +94,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
 
             @Override
             public int getGrammarVersion() {
-                return IPythonNature.GRAMMAR_PYTHON_VERSION_3_6;
+                return IPythonNature.LATEST_GRAMMAR_PY3_VERSION;
             }
         };
     }
@@ -252,5 +253,22 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
         assertEquals(1, proposals.length);
         ICompletionProposalHandle prop = proposals[0];
         assertEquals("some_method()", prop.getDisplayString());
+    }
+
+    public void testCompletionWithWalrus() throws Exception {
+        String s;
+        String original = "class Foo(object):\n" +
+                "\n" +
+                "    def foo(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "\n" +
+                "def test_anything():\n" +
+                "    if a := Foo():\n" +
+                "        a.";
+        s = StringUtils.format(original, "");
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+        assertEquals(1, proposals.length);
+        assertEquals("foo()", proposals[0].getDisplayString());
     }
 }
