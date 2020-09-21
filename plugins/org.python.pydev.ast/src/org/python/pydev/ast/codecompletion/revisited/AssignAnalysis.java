@@ -355,6 +355,19 @@ public class AssignAnalysis {
                                     }
                                 }
                             }
+                            if (args instanceof Str) {
+                                Str str = (Str) args;
+                                if (str.s != null) {
+                                    for (String s : str.s.split("(\\s|,)+")) {
+                                        if (!s.isEmpty()) {
+                                            ret.addAll(new TokensList(new IToken[] { new SourceToken(str,
+                                                    s, "",
+                                                    "", sourceModule.getName(), sourceModule.getNature()) }));
+                                        }
+                                    }
+                                    return ret;
+                                }
+                            }
                         }
                     }
 
