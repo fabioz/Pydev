@@ -1631,7 +1631,7 @@ public class InterpreterInfo implements IInterpreterInfo {
             File condaPrefix = this.getCondaPrefix();
             if (condaPrefix == null) {
                 Log.log("Unable to find conda prefix for: " + this.getExecutableOrJar());
-            } else if (new File(condaPrefix, "/etc/conda/activate.d").exists()) {
+            } else if (new File(condaPrefix, "/").exists()) {
                 try {
                     String[] cmdLine;
                     File relativePath;
@@ -1668,7 +1668,7 @@ public class InterpreterInfo implements IInterpreterInfo {
                     Log.log(e);
                 }
             } else {
-                Log.logInfo("Expected: " + new File(condaPrefix, "/etc/conda/activate.d")
+                Log.logInfo("Expected: " + new File(condaPrefix, "/")
                         + " to exist to activate conda env.");
             }
         }

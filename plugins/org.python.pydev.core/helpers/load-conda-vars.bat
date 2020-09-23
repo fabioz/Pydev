@@ -14,11 +14,10 @@
 @set "CONDA_PATH_BACKUP=%PATH%"
 @set "PATH=%CONDA_PREFIX%;%CONDA_PREFIX%\Scripts;%CONDA_PREFIX%\Library\bin;%PATH%"
 
-@REM Run any activate scripts
-@if exist "%CONDA_PREFIX%\etc\conda\activate.d" (
-    @pushd "%CONDA_PREFIX%\etc\conda\activate.d"
-    @for %%g in (*.bat) do @call "%%g"
-    @popd
+@REM activate conda and get the environment
+@if exist "%CONDA_PREFIX%" (
+	@call do conda activate %CONDA_PREFIX%
+	@call do conda list
 )
 
 @REM Print existing environment variables with the loaded env.
