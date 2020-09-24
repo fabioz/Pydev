@@ -68,6 +68,8 @@ import org.xml.sax.InputSource;
 
 public class InterpreterInfo implements IInterpreterInfo {
 
+    private volatile Map<String, String> condaEnv = new HashMap<>();
+
     //We want to force some libraries to be analyzed as source (e.g.: django)
     private static String[] LIBRARIES_TO_IGNORE_AS_FORCED_BUILTINS = new String[] { "django" };
 
@@ -1622,6 +1624,10 @@ public class InterpreterInfo implements IInterpreterInfo {
             return env; //nothing to change
         }
 
+        if (!this.condaEnv.isEmpty()) {
+            return createEnvWithMap(this.condaEnv);
+        }
+
         //Ok, it's not null...
         //let's merge them (env may be null/zero-length but we need to apply variable resolver to envVariables anyway)
         Map<String, String> computedMap = new HashMap<String, String>();
@@ -1631,7 +1637,7 @@ public class InterpreterInfo implements IInterpreterInfo {
             File condaPrefix = this.getCondaPrefix();
             if (condaPrefix == null) {
                 Log.log("Unable to find conda prefix for: " + this.getExecutableOrJar());
-            } else if (new File(condaPrefix, "/").exists()) {
+            } else if (new File(condaPrefix.getPath()).exists()) {
                 try {
                     String[] cmdLine;
                     File relativePath;
@@ -1668,7 +1674,7 @@ public class InterpreterInfo implements IInterpreterInfo {
                     Log.log(e);
                 }
             } else {
-                Log.logInfo("Expected: " + new File(condaPrefix, "/")
+                Log.logInfo("Expected: " + new File(condaPrefix.getPath())
                         + " to exist to activate conda env.");
             }
         }
@@ -1676,6 +1682,7 @@ public class InterpreterInfo implements IInterpreterInfo {
             fillMapWithEnv(envVariables, computedMap, keysThatShouldNotBeUpdated, getStringVariableManager()); //will override the keys already there unless they're in keysThatShouldNotBeUpdated
         }
 
+        this.condaEnv = new HashMap<>(computedMap);
         String[] ret = createEnvWithMap(computedMap);
 
         return ret;
@@ -1785,6 +1792,7 @@ public class InterpreterInfo implements IInterpreterInfo {
     @Override
     public void setModificationStamp(int modificationStamp) {
         this.modificationStamp = modificationStamp;
+        this.condaEnv = new HashMap<>();
     }
 
     @Override
