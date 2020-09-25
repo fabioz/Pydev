@@ -13,6 +13,7 @@ package org.python.pydev.ast.interpreter_managers;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1637,38 +1638,7 @@ public class InterpreterInfo implements IInterpreterInfo {
             } else if (condaPrefix.exists()) {
                 try {
                     if (condaEnv.isEmpty()) {
-                        String[] cmdLine;
-                        File relativePath;
-                        Path loadVarsPath;
-
-                        if (PlatformUtils.isWindowsPlatform()) {
-                            loadVarsPath = new Path("helpers/load-conda-vars.bat");
-                            relativePath = CorePlugin.getBundleInfo().getRelativePath(loadVarsPath);
-                            cmdLine = new String[] { "cmd", "/c", relativePath.toString() };
-                        } else {
-                            loadVarsPath = new Path("helpers/load-conda-vars");
-                            relativePath = CorePlugin.getBundleInfo().getRelativePath(loadVarsPath);
-                            cmdLine = new String[] { relativePath.toString() };
-                        }
-                        Map<String, String> initialEnv = new HashMap<>(computedMap);
-                        initialEnv.put("__PYDEV_CONDA_PREFIX__", condaPrefix.toString());
-                        initialEnv.put("__PYDEV_CONDA_DEFAULT_ENV__", condaPrefix.getName());
-                        Process process = SimpleRunner.createProcess(cmdLine, createEnvWithMap(initialEnv),
-                                relativePath.getParentFile());
-                        Tuple<String, String> output = SimpleRunner.getProcessOutput(process,
-                                ProcessUtils.getArgumentsAsStr(cmdLine), null, null);
-                        for (String line : StringUtils.splitInLines(output.o1, false)) {
-                            if (!line.trim().isEmpty()) {
-                                Tuple<String, String> split = StringUtils.splitOnFirst(line, '=');
-                                if (split.o1.equals("__PYDEV_CONDA_PREFIX__")
-                                        || split.o1.equals("__PYDEV_CONDA_DEFAULT_ENV__")
-                                        || split.o1.equals("_")) {
-                                    continue;
-                                }
-                                condaEnv.put(split.o1, split.o2);
-                            }
-                        }
-                        this.condaEnv = new HashMap<String, String>(condaEnv);
+                        this.condaEnv = obtainCondaEnv(condaEnv, computedMap, condaPrefix);
                     }
                     computedMap.putAll(condaEnv);
                 } catch (Exception e) {
@@ -1686,6 +1656,41 @@ public class InterpreterInfo implements IInterpreterInfo {
         String[] ret = createEnvWithMap(computedMap);
 
         return ret;
+    }
+
+    private Map<String, String> obtainCondaEnv(Map<String, String> condaEnv, Map<String, String> computedMap,
+            File condaPrefix) throws IOException, CoreException {
+        String[] cmdLine;
+        File relativePath;
+        Path loadVarsPath;
+        if (PlatformUtils.isWindowsPlatform()) {
+            loadVarsPath = new Path("helpers/load-conda-vars.bat");
+            relativePath = CorePlugin.getBundleInfo().getRelativePath(loadVarsPath);
+            cmdLine = new String[] { "cmd", "/c", relativePath.toString() };
+        } else {
+            loadVarsPath = new Path("helpers/load-conda-vars");
+            relativePath = CorePlugin.getBundleInfo().getRelativePath(loadVarsPath);
+            cmdLine = new String[] { relativePath.toString() };
+        }
+        Map<String, String> initialEnv = new HashMap<>(computedMap);
+        initialEnv.put("__PYDEV_CONDA_PREFIX__", condaPrefix.toString());
+        initialEnv.put("__PYDEV_CONDA_DEFAULT_ENV__", condaPrefix.getName());
+        Process process = SimpleRunner.createProcess(cmdLine, createEnvWithMap(initialEnv),
+                relativePath.getParentFile());
+        Tuple<String, String> output = SimpleRunner.getProcessOutput(process,
+                ProcessUtils.getArgumentsAsStr(cmdLine), null, null);
+        for (String line : StringUtils.splitInLines(output.o1, false)) {
+            if (!line.trim().isEmpty()) {
+                Tuple<String, String> split = StringUtils.splitOnFirst(line, '=');
+                if (split.o1.equals("__PYDEV_CONDA_PREFIX__")
+                        || split.o1.equals("__PYDEV_CONDA_DEFAULT_ENV__")
+                        || split.o1.equals("_")) {
+                    continue;
+                }
+                condaEnv.put(split.o1, split.o2);
+            }
+        }
+        return new HashMap<String, String>(condaEnv);
     }
 
     public static Map<String, String> createMapFromEnv(String[] env) {
