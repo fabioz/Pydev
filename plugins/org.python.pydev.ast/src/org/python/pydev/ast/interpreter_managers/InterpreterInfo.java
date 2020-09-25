@@ -14,6 +14,7 @@ package org.python.pydev.ast.interpreter_managers;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.StringReader;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1970,7 +1971,7 @@ public class InterpreterInfo implements IInterpreterInfo {
             }
         } else {
             File target1 = new File(pythonContainerDir, executable);
-            if (target1.exists()) {
+            if (target1.exists() && Files.isRegularFile(target1.toPath()) && Files.isExecutable(target1.toPath())) {
                 return target1;
             }
         }
