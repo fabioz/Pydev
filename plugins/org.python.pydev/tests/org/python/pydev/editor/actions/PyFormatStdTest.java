@@ -2174,4 +2174,58 @@ public class PyFormatStdTest extends TestCase {
         std.manageBlankLines = true;
         checkFormatResults(input);
     }
+
+    public void testUpdate() throws Exception {
+        String input = ""
+                + "class Foo(object):\n" +
+                "\n" +
+                "    def foo(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "\n" +
+                "def test_anything():\n" +
+                "    if a := Foo():\n" +
+                "        pass";
+
+        String expected = ""
+                + "class Foo(object):\n" +
+                "\n" +
+                "    def foo(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "\n" +
+                "def test_anything():\n" +
+                "    if a := Foo():\n" +
+                "        pass";
+        checkFormatResults(input, expected);
+    }
+
+    public void testUpdate2() throws Exception {
+        String input = ""
+                + "class Foo(object):\n" +
+                "\n" +
+                "    def foo(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "\n" +
+                "def test_anything():\n" +
+                "    if a :="
+                + "\n"
+                + "Foo():\n" +
+                "        pass";
+
+        String expected = ""
+                + "class Foo(object):\n" +
+                "\n" +
+                "    def foo(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "\n" +
+                "def test_anything():\n" +
+                "    if a := "
+                + "\n"
+                + "Foo():\n" +
+                "        pass";
+        checkFormatResults(input, expected);
+    }
 }
