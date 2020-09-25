@@ -1717,7 +1717,7 @@ public class InterpreterInfo implements IInterpreterInfo {
                 if (manager != null) {
                     try {
                         value = manager.performStringSubstitution(value, false);
-                    } catch (Coreeception e) {
+                    } catch (CoreException e) {
                         // Unreachable as false passed to reportUndefinedVariables above
                     }
                 }
