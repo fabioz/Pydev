@@ -17,7 +17,6 @@
 @REM activate conda and get the environment
 @if exist "%CONDA_PREFIX%" (
 	@call do conda activate %CONDA_PREFIX%
-	@call do conda list
 )
 
 @REM Print existing environment variables with the loaded env.
