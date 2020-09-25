@@ -69,7 +69,7 @@ import org.xml.sax.InputSource;
 
 public class InterpreterInfo implements IInterpreterInfo {
 
-    private volatile Map<String, String> condaEnv = new HashMap<>();
+    private volatile Map<String, String> condaEnvCache = new HashMap<>();
 
     //We want to force some libraries to be analyzed as source (e.g.: django)
     private static String[] LIBRARIES_TO_IGNORE_AS_FORCED_BUILTINS = new String[] { "django" };
@@ -1624,21 +1624,21 @@ public class InterpreterInfo implements IInterpreterInfo {
         if (!hasEnvVarsToUpdate && !this.activateCondaEnv) {
             return env; //nothing to change
         }
-        Map<String, String> condaEnv = new HashMap<String, String>(this.condaEnv);
-
         //Ok, it's not null...
         //let's merge them (env may be null/zero-length but we need to apply variable resolver to envVariables anyway)
         Map<String, String> computedMap = new HashMap<String, String>();
 
         fillMapWithEnv(env, computedMap, null, null);
         if (this.activateCondaEnv) {
+            Map<String, String> condaEnv = this.condaEnvCache;
             File condaPrefix = this.getCondaPrefix();
             if (condaPrefix == null) {
                 Log.log("Unable to find conda prefix for: " + this.getExecutableOrJar());
             } else if (condaPrefix.exists()) {
                 try {
                     if (condaEnv.isEmpty()) {
-                        this.condaEnv = obtainCondaEnv(condaEnv, computedMap, condaPrefix);
+                        condaEnv = obtainCondaEnv(computedMap, condaPrefix);
+                        this.condaEnvCache = condaEnv;
                     }
                     computedMap.putAll(condaEnv);
                 } catch (Exception e) {
@@ -1658,8 +1658,9 @@ public class InterpreterInfo implements IInterpreterInfo {
         return ret;
     }
 
-    private Map<String, String> obtainCondaEnv(Map<String, String> condaEnv, Map<String, String> computedMap,
+    private Map<String, String> obtainCondaEnv(Map<String, String> computedMap,
             File condaPrefix) throws IOException, CoreException {
+        Map<String, String> condaEnv = new HashMap<String, String>();
         String[] cmdLine;
         File relativePath;
         Path loadVarsPath;
@@ -1690,7 +1691,7 @@ public class InterpreterInfo implements IInterpreterInfo {
                 condaEnv.put(split.o1, split.o2);
             }
         }
-        return new HashMap<String, String>(condaEnv);
+        return condaEnv;
     }
 
     public static Map<String, String> createMapFromEnv(String[] env) {
@@ -1797,7 +1798,7 @@ public class InterpreterInfo implements IInterpreterInfo {
     @Override
     public void setModificationStamp(int modificationStamp) {
         this.modificationStamp = modificationStamp;
-        this.condaEnv = new HashMap<>();
+        this.condaEnvCache = new HashMap<>();
     }
 
     @Override
