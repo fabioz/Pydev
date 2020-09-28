@@ -21,7 +21,6 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.StringUtils;
 
 public class PythonCompletionWithBuiltinsPython3Test extends CodeCompletionTestsBase {
@@ -304,43 +303,39 @@ public class PythonCompletionWithBuiltinsPython3Test extends CodeCompletionTests
         String original = "" +
                 "def test_anything():\n" +
                 "    while a := 10:\n" +
-                "        a.";
+                "        a.d";
         s = StringUtils.format(original, "");
-        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1,
-                new String[] { "as_integer_ratio()", "bit_length()", "conjugate()", "denominator" });
-        assertEquals(72, proposals.length);
+        requestCompl(s, s.length(), -1,
+                new String[] { "denominator" });
     }
 
     public void testCompletionWithWalrus2() throws Exception {
         String s;
         String original = "" +
                 "while (x := 10) > 5:\n" +
-                "  x.";
+                "  x.d";
         s = StringUtils.format(original, "");
-        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1,
-                new String[] { "as_integer_ratio()", "bit_length()", "conjugate()", "denominator" });
-        assertEquals(72, proposals.length);
+        requestCompl(s, s.length(), -1,
+                new String[] { "denominator" });
     }
 
     public void testCompletionWithWalrus3() throws Exception {
         String s;
         String original = "" +
                 "if x := 10:\n" +
-                "  x.";
+                "  x.d";
         s = StringUtils.format(original, "");
-        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1,
-                new String[] { "as_integer_ratio()", "bit_length()", "conjugate()", "denominator" });
-        assertEquals(72, proposals.length);
+        requestCompl(s, s.length(), -1,
+                new String[] { "denominator" });
     }
 
     public void testCompletionWithWalrus4() throws Exception {
         String s;
         String original = "" +
                 "if (x := 10) > 5:\n" +
-                "  x.";
+                "  x.d";
         s = StringUtils.format(original, "");
-        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1,
-                new String[] { "as_integer_ratio()", "bit_length()", "conjugate()", "denominator" });
-        assertEquals(72, proposals.length);
+        requestCompl(s, s.length(), -1,
+                new String[] { "denominator" });
     }
 }
