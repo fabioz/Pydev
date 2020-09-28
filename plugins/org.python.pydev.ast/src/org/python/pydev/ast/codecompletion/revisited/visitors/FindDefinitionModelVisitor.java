@@ -394,7 +394,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
             String rep = NodeUtils.getFullRepresentationString(node.value);
             if (rep != null && !rep.isEmpty()) {
                 definitions
-                        .add(getAssignDefinition(new Assign(null, node.value, null),
+                        .add(getAssignDefinition(new Assign(new exprType[] { node.target }, node.value, null),
                                 rep, 0, line, col, scope,
                                 module.get(), -1));
             }
