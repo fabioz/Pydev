@@ -76,11 +76,14 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
     private final static int SIZING_SELECTION_WIDGET_WIDTH = 300;
 
     // enable/disable breaking on the caught
-    private Button uncaughtExceptionCheck;
+    private Button caughtExceptionCheck;
     private boolean handleCaughtExceptions;
 
-    private Button caughtExceptionCheck;
+    private Button uncaughtExceptionCheck;
     private boolean handleUncaughtExceptions;
+
+    private Button userUncaughtExceptionCheck;
+    private boolean handleUserUncaughtExceptions;
 
     private Button stopOnExceptionsHandledInSameContextCheck;
     private boolean stopOnExceptionsHandledInSameContext;
@@ -307,6 +310,10 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
         uncaughtExceptionCheck.setText("Suspend on uncaught exceptions");
         uncaughtExceptionCheck.setSelection(instance.getBreakOnUncaughtExceptions());
 
+        userUncaughtExceptionCheck = new Button(composite, SWT.CHECK);
+        userUncaughtExceptionCheck.setText("Suspend on user uncaught exceptions");
+        userUncaughtExceptionCheck.setSelection(instance.getBreakOnUserUncaughtExceptions());
+
         caughtExceptionCheck = new Button(composite, SWT.CHECK);
         caughtExceptionCheck.setText("Suspend on caught exceptions *");
         caughtExceptionCheck.setSelection(instance.getBreakOnCaughtExceptions());
@@ -427,6 +434,7 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
         //Save whether to break debugger or not on caught / uncaught exceptions
         handleCaughtExceptions = caughtExceptionCheck.getSelection();
         handleUncaughtExceptions = uncaughtExceptionCheck.getSelection();
+        handleUserUncaughtExceptions = userUncaughtExceptionCheck.getSelection();
         stopOnExceptionsHandledInSameContext = stopOnExceptionsHandledInSameContextCheck.getSelection();
         skipCaughtExceptionsInLibraries = skipCaughtExceptionsInLibrariesCheck.getSelection();
         ignoreExceptionsThrownInLinesWithIgnoreException = ignoreExceptionsThrownInLinesWithIgnoreExceptionCheck
@@ -442,6 +450,10 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
                 breakOnJinja2TemplateExceptionsCheck.getSelection());
 
         super.okPressed();
+    }
+
+    public boolean getResultHandleUserUncaughtExceptions() {
+        return this.handleUserUncaughtExceptions;
     }
 
     public boolean getResultHandleUncaughtExceptions() {
@@ -614,4 +626,5 @@ public class PyConfigureExceptionDialog extends SelectionDialog {
             return false;
         }
     }
+
 }

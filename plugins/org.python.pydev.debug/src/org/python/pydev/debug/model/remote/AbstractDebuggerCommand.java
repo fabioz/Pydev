@@ -73,6 +73,7 @@ public abstract class AbstractDebuggerCommand {
     static public final int CMD_SIGNATURE_CALL_TRACE = 130;
 
     static public final int CMD_SET_PY_EXCEPTION = 131;
+    static public final int CMD_SET_PY_EXCEPTION_JSON = 161;
     static public final int CMD_GET_FILE_CONTENTS = 132;
     static public final int CMD_SET_PROPERTY_TRACE = 133;
     static public final int CMD_EVALUATE_CONSOLE_EXPRESSION = 134;
