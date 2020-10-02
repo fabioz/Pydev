@@ -82,19 +82,4 @@ public class RenameGlobalRefactoringTest extends RefactoringRenameTestBase {
                 + "\n"
                 + "", asStr(references));
     }
-
-    public void testRename4() throws Exception {
-        Map<Tuple<String, File>, HashSet<ASTEntry>> references = getReferencesForRenameSimple(
-                "reflib.renameglobal3.foo", 0, 5);
-        assertEquals(""
-                + "reflib.renameglobal3.bar\n"
-                + "  ASTEntry<SOME_CONSTANT (NameTok L=3 C=9)>\n"
-                + "    Line: 2  a = foo.SOME_CONSTANT --> a = foo.new_name\n"
-                + "\n"
-                + "reflib.renameglobal3.foo\n"
-                + "  ASTEntry<SOME_CONSTANT (Name L=1 C=1)>\n"
-                + "    Line: 0  SOME_CONSTANT = 'constant' --> new_name = 'constant'\n"
-                + "\n"
-                + "", asStr(references));
-    }
 }

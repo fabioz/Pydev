@@ -16,14 +16,7 @@ import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.ast.refactoring.RefactoringRequest;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.jython.ast.Import;
-import org.python.pydev.parser.jython.ast.ImportFrom;
-import org.python.pydev.parser.jython.ast.aliasType;
-import org.python.pydev.parser.jython.ast.stmtType;
-import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
-import org.python.pydev.shared_core.string.FastStringBuffer;
-import org.python.pydev.shared_core.string.StringUtils;
 
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalysis;
 
@@ -46,32 +39,7 @@ public class PyRenameGlobalProcess extends AbstractRenameWorkspaceRefactorProces
             String initialName, SourceModule module) {
         SimpleNode searchStringsAt = module.getAst();
 
-        List<String> modNames = StringUtils.split(request.moduleName, '.');
-        List<String> actualModNames = StringUtils.split(module.getName(), '.');
-        FastStringBuffer buf = new FastStringBuffer();
-        int i = 0;
-        while (i < modNames.size() && i < actualModNames.size() && modNames.get(i).equals(actualModNames.get(i))) {
-            i++;
-        }
-        while (i < modNames.size()) {
-            buf.append(modNames.get(i)).append('.');
-            i++;
-        }
-        buf.deleteLast();
-        String compare = buf.toString();
-        boolean valid = false;
-        for (stmtType content : NodeUtils.getBody(searchStringsAt)) {
-            if (content instanceof Import) {
-                valid = checkImportNames(compare, ((Import) content).names);
-            } else if (content instanceof ImportFrom) {
-                valid = checkImportNames(compare, ((ImportFrom) content).names);
-            }
-            if (valid) {
-                break;
-            }
-        }
-
-        List<ASTEntry> ret = ScopeAnalysis.getLocalOccurrences(initialName, module.getAst(), !valid);
+        List<ASTEntry> ret = ScopeAnalysis.getLocalOccurrences(initialName, module.getAst());
         if (ret.size() > 0 && searchStringsAt != null) {
             //only add comments and strings if there's at least some other occurrence
             ret.addAll(ScopeAnalysis.getCommentOccurrences(request.qualifier, searchStringsAt));
@@ -79,15 +47,6 @@ public class PyRenameGlobalProcess extends AbstractRenameWorkspaceRefactorProces
         }
 
         return ret;
-    }
-
-    private boolean checkImportNames(String compare, aliasType[] names) {
-        for (aliasType name : names) {
-            if (compare.equals(NodeUtils.getNameForAlias(name).id)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     @Override
