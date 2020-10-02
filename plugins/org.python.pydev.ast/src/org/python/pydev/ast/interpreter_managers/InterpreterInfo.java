@@ -48,6 +48,7 @@ import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.PropertiesHelper;
 import org.python.pydev.core.docutils.PyStringUtils;
@@ -1619,6 +1620,29 @@ public class InterpreterInfo implements IInterpreterInfo {
         return updateEnv(env, null);
     }
 
+    Set<String> fPythonPathEnvVariableNames;
+
+    private Set<String> getPythonPathEnvVariableNames() {
+        if (fPythonPathEnvVariableNames == null) {
+            Set<String> s = new HashSet<String>();
+            s.add("PYTHONPATH");
+            switch (this.getInterpreterType()) {
+
+                case IPythonNature.INTERPRETER_TYPE_JYTHON:
+                    s.add("CLASSPATH");
+                    s.add("JYTHONPATH");
+                    break;
+
+                case IPythonNature.INTERPRETER_TYPE_IRONPYTHON:
+                    s.add("IRONPYTHONPATH");
+                    break;
+            }
+            // i.e.: it doesn't change afterwards.
+            fPythonPathEnvVariableNames = Collections.unmodifiableSet(s);
+        }
+        return fPythonPathEnvVariableNames;
+    }
+
     @Override
     public String[] updateEnv(String[] env, Set<String> keysThatShouldNotBeUpdated) {
         boolean hasEnvVarsToUpdate = this.envVariables != null && this.envVariables.length >= 0;
@@ -1629,25 +1653,43 @@ public class InterpreterInfo implements IInterpreterInfo {
         //let's merge them (env may be null/zero-length but we need to apply variable resolver to envVariables anyway)
         Map<String, String> computedMap = new HashMap<String, String>();
 
+        if (keysThatShouldNotBeUpdated == null) {
+            keysThatShouldNotBeUpdated = Collections.emptySet();
+        }
+
         fillMapWithEnv(env, computedMap, null, null);
         if (this.activateCondaEnv) {
-            Map<String, String> condaEnv = this.condaEnvCache;
             File condaPrefix = this.getCondaPrefix();
             if (condaPrefix == null) {
                 Log.log("Unable to find conda prefix for: " + this.getExecutableOrJar());
             } else if (condaPrefix.exists()) {
                 try {
+                    Map<String, String> condaEnv = this.condaEnvCache;
                     if (condaEnv.isEmpty()) {
-                        condaEnv = obtainCondaEnv(computedMap, condaPrefix);
+                        condaEnv = obtainCondaEnv(condaPrefix);
                         this.condaEnvCache = condaEnv;
                     }
-                    computedMap.putAll(condaEnv);
+                    Set<String> pythonPathEnvVariableNames = getPythonPathEnvVariableNames();
+
+                    Set<Entry<String, String>> entrySet = condaEnv.entrySet();
+                    for (Entry<String, String> entry : entrySet) {
+                        if (computedMap.containsKey(entry.getKey())) {
+                            if (keysThatShouldNotBeUpdated.contains(entry.getKey())) {
+                                // We don't want to override things that the user specified.
+                                continue;
+                            }
+                            if (pythonPathEnvVariableNames.contains(entry.getKey())) {
+                                // We don't want to override the pythonpath which should be already computed based on the project.
+                                continue;
+                            }
+                        }
+                        computedMap.put(entry.getKey(), entry.getValue());
+                    }
                 } catch (Exception e) {
                     Log.log(e);
                 }
             } else {
-                Log.logInfo("Expected: " + condaPrefix
-                        + " to exist to activate conda env.");
+                Log.logInfo("Expected: " + condaPrefix + " to exist to activate conda env.");
             }
         }
         if (hasEnvVarsToUpdate) {
@@ -1659,8 +1701,7 @@ public class InterpreterInfo implements IInterpreterInfo {
         return ret;
     }
 
-    private Map<String, String> obtainCondaEnv(Map<String, String> computedMap,
-            File condaPrefix) throws IOException, CoreException {
+    private Map<String, String> obtainCondaEnv(File condaPrefix) throws IOException, CoreException {
         Map<String, String> condaEnv = new HashMap<String, String>();
         String[] cmdLine;
         File relativePath;
@@ -1674,7 +1715,10 @@ public class InterpreterInfo implements IInterpreterInfo {
             relativePath = CorePlugin.getBundleInfo().getRelativePath(loadVarsPath);
             cmdLine = new String[] { relativePath.toString() };
         }
-        Map<String, String> initialEnv = new HashMap<>(computedMap);
+        // Note: we must start from the default env and not based on a project nature (otherwise
+        // variables in one project could interfere with another project).
+        Map<String, String> initialEnv = SimpleRunner.getDefaultSystemEnv(this.getModulesManager().getNature());
+
         initialEnv.put("__PYDEV_CONDA_PREFIX__", condaPrefix.toString());
         initialEnv.put("__PYDEV_CONDA_DEFAULT_ENV__", condaPrefix.getName());
         Process process = SimpleRunner.createProcess(cmdLine, createEnvWithMap(initialEnv),
