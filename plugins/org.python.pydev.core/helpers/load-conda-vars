@@ -1,9 +1,8 @@
 #!/bin/bash
 
 run_activate_scripts() {
-    ACTIVATE_D="$1"
-    if [[ -d "$ACTIVATE_D" ]]; then
-        for f in $(find "$ACTIVATE_D" -name "*.sh"); do source "$f"; done
+    if [[ -d "$1" ]]; then
+        conda activate "$1"
     fi
 }
 
@@ -14,5 +13,5 @@ export CONDA_PATH_BACKUP="$PATH"
 export CONDA_PS1_BACKUP="$PS1"
 
 export PATH="$CONDA_PREFIX/bin:$PATH"
-run_activate_scripts "$CONDA_PREFIX/etc/conda/activate.d" &&
+run_activate_scripts "$CONDA_PREFIX" &&
 printenv
