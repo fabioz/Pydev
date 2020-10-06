@@ -36,7 +36,7 @@ above (i.e. clone a project, create a branch, edit and send pull a request):
 
 -  `Make a contribution using github <https://codeburst.io/a-step-by-step-guide-to-making-your-first-github-contribution-5302260a2940>`_
 
--  `Make a contribution using github (using github desktop) <https://github.com/Roshanjossey/first-contributions/blob/master/github-desktop-tutorial.md>`_
+-  `Make a contribution using github (using github desktop) <https://github.com/firstcontributions/first-contributions/blob/master/gui-tool-tutorials/github-desktop-tutorial.md#first-contributions>`_
 
 -  `Lean git guide <http://rogerdudler.github.io/git-guide/>`_
 
@@ -132,4 +132,4 @@ Contributing back
 =================
 
 Create a pull request in github:
-`http://help.github.com/send-pull-requests/ <http://help.github.com/send-pull-requests/>`_
+`Creating a pull request from a fork <https://docs.github.com/en/free-pro-team@latest/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request-from-a-fork>`_
