@@ -1,6 +1,5 @@
 package com.python.pydev.analysis.pylint;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IMarker;
@@ -12,12 +11,19 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.preferences.PydevPrefs;
 import org.python.pydev.shared_core.markers.PyMarkerUtils.MarkerInfo;
-import org.python.pydev.shared_core.structure.Tuple;
 
 import junit.framework.TestCase;
 
 public class PyLintAnalysisTest extends TestCase {
 
+    /**
+     * Verify markers are created with correct line number and text
+     *  when supplied simulated PyLint input and output.
+     * 
+     * @throws UnableToFindExecutableException
+     * @throws MisconfigurationException
+     * @throws PythonNatureWithoutProjectException
+     */
     public void testMarkersInfoOutput()
             throws UnableToFindExecutableException, MisconfigurationException, PythonNatureWithoutProjectException {
 
@@ -70,25 +76,26 @@ public class PyLintAnalysisTest extends TestCase {
 
         pyLintAnalysis.afterRunProcess(output, "No config file found, using default configuration\n", null);
 
-        List<Tuple<Integer, String>> markersMessageInfo = new ArrayList<Tuple<Integer, String>>();
-
-        for (MarkerInfo marker : pyLintAnalysis.markers) {
-            markersMessageInfo.add(new Tuple<Integer, String>(marker.lineStart,
-                    (String) marker.additionalInfo.get(PyLintVisitor.PYLINT_MESSAGE_ID)));
-
-            // checks if it is getting marker region right (single line matches)
+        List<MarkerInfo> markers = pyLintAnalysis.markers;
+        for (MarkerInfo marker : markers) {
             assertEquals(marker.lineStart, marker.lineEnd);
         }
 
-        assertEquals(new Tuple<Integer, String>(13, "bad-whitespace"), markersMessageInfo.get(0));
-        assertEquals(new Tuple<Integer, String>(21, "missing-final-newline"), markersMessageInfo.get(1));
-        assertEquals(new Tuple<Integer, String>(21, "superfluous-parens"), markersMessageInfo.get(2));
-        assertEquals(new Tuple<Integer, String>(0, "missing-docstring"), markersMessageInfo.get(3));
-        assertEquals(new Tuple<Integer, String>(2, "invalid-name"), markersMessageInfo.get(4));
-        assertEquals(new Tuple<Integer, String>(3, "invalid-name"), markersMessageInfo.get(5));
-        assertEquals(new Tuple<Integer, String>(4, "invalid-name"), markersMessageInfo.get(6));
-        assertEquals(new Tuple<Integer, String>(5, "invalid-name"), markersMessageInfo.get(7));
-        assertEquals(new Tuple<Integer, String>(6, "invalid-name"), markersMessageInfo.get(8));
+        assertMarkerEquals(22, "line-too-long", "Line too long (106/100)", markers.get(0));
+        assertMarkerEquals(22, "missing-final-newline", "Final newline missing", markers.get(1));
+        assertMarkerEquals(0, "missing-module-docstring", "Missing module docstring", markers.get(2));
+        assertMarkerEquals(2, "invalid-name", "Constant name \"shift\" doesn't conform to UPPER_CASE naming style",
+                markers.get(3));
+        assertMarkerEquals(6, "invalid-name", "Constant name \"encoded\" doesn't conform to UPPER_CASE naming style",
+                markers.get(4));
+        assertMarkerEquals(10, "invalid-name", "Constant name \"encoded\" doesn't conform to UPPER_CASE naming style",
+                markers.get(5));
+        assertEquals(6, markers.size());
     }
 
+    private void assertMarkerEquals(int line, String message_id, String message, MarkerInfo actualMarker) {
+        assertEquals(line, actualMarker.lineStart);
+        assertEquals(message_id, actualMarker.additionalInfo.get(PyLintVisitor.PYLINT_MESSAGE_ID));
+        assertEquals("PyLint: " + message, actualMarker.message);
+    }
 }
