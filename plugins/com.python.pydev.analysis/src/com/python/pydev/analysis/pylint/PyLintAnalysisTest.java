@@ -44,28 +44,25 @@ public class PyLintAnalysisTest extends TestCase {
                         "        else:\n" +
                         "            x = letters.index(letter) - shift\n" +
                         "            encoded = encoded + letters[x]\n" +
-                        "print(encoded)");
+                        "print(encoded)\n" +
+                        "print(\"This line is really long\")" +
+                        " # This comment is part of the long line, going over the 100 char limit");
 
         PyLintAnalysis pyLintAnalysis = new PyLintAnalysis(null, document, null, new NullProgressMonitor(),
                 null);
 
-        String output = "************* Module snippet\n" +
-                "C: 14, 0: (bad-whitespace) Exactly one space required around assignment\n" +
-                "            encoded=encoded + letters[x]\n" +
-                "\n" +
-                "                   ^\n" +
-                "C: 22, 0: (missing-final-newline) Final newline missing\n" +
-                "C: 22, 0: (superfluous-parens) Unnecessary parens after 'print' keyword\n" +
-                "C:  1, 0: (missing-docstring) Missing module docstring\n" +
-                "C:  3, 0: (invalid-name) Constant name \"shift\" doesn't conform to UPPER_CASE naming style\n" +
-                "C:  4, 0: (invalid-name) Constant name \"choice\" doesn't conform to UPPER_CASE naming style\n" +
-                "C:  5, 0: (invalid-name) Constant name \"word\" doesn't conform to UPPER_CASE naming style\n" +
-                "C:  6, 0: (invalid-name) Constant name \"letters\" doesn't conform to UPPER_CASE naming style\n" +
-                "C:  7, 0: (invalid-name) Constant name \"encoded\" doesn't conform to UPPER_CASE naming style\n" +
-                "\n" +
-                "------------------------------------------------------------------\n" +
-                "\n" +
-                "Your code has been rated at 5.26/10 (previous run: 5.26/10, +0.00)\n";
+        String output = "PyLint: The stdout of the command line is:\n"
+                + " ************* Module snippet\n"
+                + "C: 23, 0: (line-too-long) Line too long (106/100)\n"
+                + "C: 23, 0: (missing-final-newline) Final newline missing\n"
+                + "C:  1, 0: (missing-module-docstring) Missing module docstring\n"
+                + "C:  3, 0: (invalid-name) Constant name \"shift\" doesn't conform to UPPER_CASE naming style\n"
+                + "C:  7, 0: (invalid-name) Constant name \"encoded\" doesn't conform to UPPER_CASE naming style\n"
+                + "C: 11,12: (invalid-name) Constant name \"encoded\" doesn't conform to UPPER_CASE naming style\n"
+                + "\n"
+                + "------------------------------------------------------------------\n"
+                + "\n"
+                + "Your code has been rated at 7.00/10 (previous run: 5.26/10, +0.00)\n";
 
         PydevPrefs.getEclipsePreferences().putInt(PyLintPreferences.SEVERITY_WARNINGS, IMarker.SEVERITY_ERROR);
         PydevPrefs.getEclipsePreferences().putInt(PyLintPreferences.SEVERITY_CODING_STANDARD, IMarker.SEVERITY_ERROR);
