@@ -198,7 +198,8 @@ public class PyRefactoringFindDefinition {
             boolean doAdd = true;
             if (definition instanceof Definition) {
                 Definition d = (Definition) definition;
-                doAdd = !findActualTokenFromImportFromDefinition(pythonNature, tok, selected, d, completionCache);
+                doAdd = !findActualTokenFromImportFromDefinition(pythonNature, tok, selected, d, completionCache,
+                        false);
             }
             if (monitor != null && monitor.isCanceled()) {
                 return;
@@ -216,6 +217,7 @@ public class PyRefactoringFindDefinition {
      * @param lFindInfo place to store info
      * @param selected place to add the new definition (if found)
      * @param d the definition found before (this function will only work if this definition
+     * @param completionCache all completions found previously
      * maps to an ImportFrom)
      *  
      * @return true if we found a new definition (and false otherwise)
@@ -223,24 +225,45 @@ public class PyRefactoringFindDefinition {
      */
     private static boolean findActualTokenFromImportFromDefinition(IPythonNature nature, String tok,
             ArrayList<IDefinition> selected, Definition d, ICompletionCache completionCache) throws Exception {
+        return findActualTokenFromImportFromDefinition(nature, tok, selected, d, completionCache, true);
+    }
+
+    /** 
+     * Given some definition, find its actual token (if that's possible)
+     * @param request the original request
+     * @param tok the token we're looking for
+     * @param lFindInfo place to store info
+     * @param selected place to add the new definition (if found)
+     * @param d the definition found before (this function will only work if this definition
+     * @param completionCache all completions found previously
+     * @param searchForMethodParameterFromParticipants find definition for method parameters
+     * maps to an ImportFrom)
+     *  
+     * @return true if we found a new definition (and false otherwise)
+     * @throws Exception
+     */
+    private static boolean findActualTokenFromImportFromDefinition(IPythonNature nature, String tok,
+            ArrayList<IDefinition> selected, Definition d, ICompletionCache completionCache,
+            boolean searchForMethodParameterFromParticipants) throws Exception {
         boolean didFindNewDef = false;
 
         Set<Tuple3<String, Integer, Integer>> whereWePassed = new HashSet<Tuple3<String, Integer, Integer>>();
 
         tok = FullRepIterable.getLastPart(tok); //in an import..from, the last part will always be the token imported 
-
-        if (d.ast instanceof Name) {
-            Name name = (Name) d.ast;
-            if (name.ctx == Name.Param) {
-                if (d.scope != null && !d.scope.getScopeStack().empty()) {
-                    Object peek = d.scope.getScopeStack().peek();
-                    if (peek instanceof FunctionDef) {
-                        IDefinition found = CompletionParticipantsHelper
-                                .findDefinitionForMethodParameterFromParticipants(d, nature,
-                                        completionCache);
-                        if (found != null) {
-                            selected.add(found);
-                            return true;
+        if (searchForMethodParameterFromParticipants) {
+            if (d.ast instanceof Name) {
+                Name name = (Name) d.ast;
+                if (name.ctx == Name.Param) {
+                    if (d.scope != null && !d.scope.getScopeStack().empty()) {
+                        Object peek = d.scope.getScopeStack().peek();
+                        if (peek instanceof FunctionDef) {
+                            IDefinition found = CompletionParticipantsHelper
+                                    .findDefinitionForMethodParameterFromParticipants(d, nature,
+                                            completionCache);
+                            if (found != null) {
+                                selected.add(found);
+                                return true;
+                            }
                         }
                     }
                 }
