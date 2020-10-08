@@ -59,6 +59,12 @@ public class PyLintAnalysisTest extends TestCase {
 
         String output = "PyLint: The stdout of the command line is:\n"
                 + " ************* Module snippet\n"
+                + "C: 14,19: (bad-whitespace) Exactly one space required around assignment\n"
+                + "            encoded=encoded + letters[x]\n"
+                + "\n"
+                + "                   ^\n"
+                + "C: 17,25: (trailing-whitespace) Trailing whitespace\n"
+                + "W: 22, 0: (unnecessary-semicolon) Unnecessary semicolon\n"
                 + "C: 23, 0: (line-too-long) Line too long (106/100)\n"
                 + "C: 23, 0: (missing-final-newline) Final newline missing\n"
                 + "C:  1, 0: (missing-module-docstring) Missing module docstring\n"
@@ -68,7 +74,7 @@ public class PyLintAnalysisTest extends TestCase {
                 + "\n"
                 + "------------------------------------------------------------------\n"
                 + "\n"
-                + "Your code has been rated at 7.00/10 (previous run: 5.26/10, +0.00)\n";
+                + "Your code has been rated at 5.50/10 (previous run: 5.26/10, +0.00)\n";
 
         PydevPrefs.getEclipsePreferences().putInt(PyLintPreferences.SEVERITY_WARNINGS, IMarker.SEVERITY_ERROR);
         PydevPrefs.getEclipsePreferences().putInt(PyLintPreferences.SEVERITY_CODING_STANDARD, IMarker.SEVERITY_ERROR);
@@ -81,16 +87,19 @@ public class PyLintAnalysisTest extends TestCase {
             assertEquals(marker.lineStart, marker.lineEnd);
         }
 
-        assertMarkerEquals(22, "line-too-long", "Line too long (106/100)", markers.get(0));
-        assertMarkerEquals(22, "missing-final-newline", "Final newline missing", markers.get(1));
-        assertMarkerEquals(0, "missing-module-docstring", "Missing module docstring", markers.get(2));
+        assertMarkerEquals(13, "bad-whitespace", "Exactly one space required around assignment", markers.get(0));
+        assertMarkerEquals(16, "trailing-whitespace", "Trailing whitespace", markers.get(1));
+        assertMarkerEquals(21, "unnecessary-semicolon", "Unnecessary semicolon", markers.get(2));
+        assertMarkerEquals(22, "line-too-long", "Line too long (106/100)", markers.get(3));
+        assertMarkerEquals(22, "missing-final-newline", "Final newline missing", markers.get(4));
+        assertMarkerEquals(0, "missing-module-docstring", "Missing module docstring", markers.get(5));
         assertMarkerEquals(2, "invalid-name", "Constant name \"shift\" doesn't conform to UPPER_CASE naming style",
-                markers.get(3));
+                markers.get(6));
         assertMarkerEquals(6, "invalid-name", "Constant name \"encoded\" doesn't conform to UPPER_CASE naming style",
-                markers.get(4));
+                markers.get(7));
         assertMarkerEquals(10, "invalid-name", "Constant name \"encoded\" doesn't conform to UPPER_CASE naming style",
-                markers.get(5));
-        assertEquals(6, markers.size());
+                markers.get(8));
+        assertEquals(9, markers.size());
     }
 
     private void assertMarkerEquals(int line, String message_id, String message, MarkerInfo actualMarker) {
