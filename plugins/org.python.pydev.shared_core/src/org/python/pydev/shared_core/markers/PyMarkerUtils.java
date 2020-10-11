@@ -148,7 +148,7 @@ public class PyMarkerUtils {
 
             HashMap<String, Object> map = new HashMap<String, Object>();
             map.put(IMarker.MESSAGE, message);
-            map.put(IMarker.LINE_NUMBER, lineStart);
+            map.put(IMarker.LINE_NUMBER, lineStart + 1);
             map.put(IMarker.CHAR_START, absoluteStart);
             map.put(IMarker.CHAR_END, absoluteEnd);
             map.put(IMarker.SEVERITY, severity);
