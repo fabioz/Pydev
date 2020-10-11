@@ -93,7 +93,7 @@ public class PyMarkerUtils {
          * @return a map with the properties to be set in the marker or null if some error happened while doing it.
          * @throws BadLocationException
          */
-        private HashMap<String, Object> getAsMap() {
+        public HashMap<String, Object> getAsMap() {
 
             if (lineStart < 0) {
                 lineStart = 0;
