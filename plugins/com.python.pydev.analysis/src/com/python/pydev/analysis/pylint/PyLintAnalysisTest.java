@@ -1,6 +1,7 @@
 package com.python.pydev.analysis.pylint;
 
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -87,24 +88,44 @@ public class PyLintAnalysisTest extends TestCase {
             assertEquals(marker.lineStart, marker.lineEnd);
         }
 
-        assertMarkerEquals(13, "bad-whitespace", "Exactly one space required around assignment", markers.get(0));
-        assertMarkerEquals(16, "trailing-whitespace", "Trailing whitespace", markers.get(1));
-        assertMarkerEquals(21, "unnecessary-semicolon", "Unnecessary semicolon", markers.get(2));
-        assertMarkerEquals(22, "line-too-long", "Line too long (106/100)", markers.get(3));
-        assertMarkerEquals(22, "missing-final-newline", "Final newline missing", markers.get(4));
-        assertMarkerEquals(0, "missing-module-docstring", "Missing module docstring", markers.get(5));
-        assertMarkerEquals(2, "invalid-name", "Constant name \"shift\" doesn't conform to UPPER_CASE naming style",
-                markers.get(6));
-        assertMarkerEquals(6, "invalid-name", "Constant name \"encoded\" doesn't conform to UPPER_CASE naming style",
-                markers.get(7));
-        assertMarkerEquals(10, "invalid-name", "Constant name \"encoded\" doesn't conform to UPPER_CASE naming style",
-                markers.get(8));
         assertEquals(9, markers.size());
+        assertMarkerEquals(0, 13, "bad-whitespace", "Exactly one space required around assignment", markers);
+        assertMarkerEquals(1, 16, "trailing-whitespace", "Trailing whitespace", markers);
+        assertMarkerEquals(2, 21, "unnecessary-semicolon", "Unnecessary semicolon", markers);
+        assertMarkerEquals(3, 22, "line-too-long", "Line too long (106/100)", markers);
+        assertMarkerEquals(4, 22, "missing-final-newline", "Final newline missing", markers);
+        assertMarkerEquals(5, 0, "missing-module-docstring", "Missing module docstring", markers);
+        assertMarkerEquals(6, 2, "invalid-name", "Constant name \"shift\" doesn't conform to UPPER_CASE naming style",
+                markers);
+        assertMarkerEquals(7, 6, "invalid-name", "Constant name \"encoded\" doesn't conform to UPPER_CASE naming style",
+                markers);
+        assertMarkerEquals(8, 10, "invalid-name",
+                "Constant name \"encoded\" doesn't conform to UPPER_CASE naming style",
+                markers);
     }
 
-    private void assertMarkerEquals(int line, String message_id, String message, MarkerInfo actualMarker) {
-        assertEquals(line, actualMarker.lineStart);
-        assertEquals(message_id, actualMarker.additionalInfo.get(PyLintVisitor.PYLINT_MESSAGE_ID));
-        assertEquals("PyLint: " + message, actualMarker.message);
+    /** Check the specified marker has been processed correctly
+     * 
+     * @param index index within markers list 
+     * @param line zero based index of the line in the document
+     * @param message_id pylint short code for message
+     * @param message descriptive message
+     * @param actualMarkers markers 
+     */
+    private void assertMarkerEquals(int index, int line, String message_id, String message,
+            List<MarkerInfo> actualMarkers) {
+
+        MarkerInfo actualMarker = actualMarkers.get(index);
+
+        assertEquals(index + ": MarkerInfo lineStart", line, actualMarker.lineStart);
+        assertEquals(index + ": MarkerInfo message_id", message_id,
+                actualMarker.additionalInfo.get(PyLintVisitor.PYLINT_MESSAGE_ID));
+        assertEquals(index + ": MarkerInfo message", "PyLint: " + message, actualMarker.message);
+
+        Map<String, Object> attribMap = actualMarker.getAsMap();
+        //User readable line number (1 based)
+        assertEquals(index + ": IMarker.LINE_NUMBER", line + 1, attribMap.get(IMarker.LINE_NUMBER));
+
     }
+
 }
