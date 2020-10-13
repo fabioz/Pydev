@@ -36,6 +36,7 @@ import org.python.pydev.ast.location.FindWorkspaceFiles;
 import org.python.pydev.ast.refactoring.RefactoringRequest;
 import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
@@ -418,21 +419,43 @@ public abstract class TextEditCreation {
         return ret;
     }
 
-    public static void checkExpectedInput(IDocument doc, int line, int offset, String initialName,
+    public static int checkExpectedInput(IDocument doc, int line, int offset, String initialName,
             RefactoringStatus status, IPath workspaceFile) {
+        return checkExpectedInput(doc, line, offset, initialName, status, workspaceFile, null);
+    }
+
+    public static int checkExpectedInput(IDocument doc, int line, int offset, String initialName,
+            RefactoringStatus status, IPath workspaceFile, String mustHaveStr) {
         try {
             String string = doc.get(offset, initialName.length());
-            if (!(string.equals(initialName))) {
-                status.addFatalError(StringUtils
-                        .format("Error: file %s changed during analysis.\nExpected doc to contain: '%s' and it contained: '%s' at offset: %s (line: %s).",
-                                workspaceFile != null ? workspaceFile : "has", initialName, string, offset, line));
-                return;
+            if (!string.equals(initialName)) {
+                if (mustHaveStr == null) {
+                    return addStatusFatalError(line, offset, initialName, status, workspaceFile);
+                }
+                offset = doc.getLineOffset(line - 1);
+                int endLine = PySelection.getEndLineOfCurrentDeclaration(doc, offset);
+                int endOffset = doc.getLineOffset(endLine) + doc.getLineLength(endLine);
+
+                String compareContents = doc.get(offset, endOffset - offset);
+
+                int initialNameOffset = compareContents.indexOf(initialName);
+                if (compareContents.indexOf(mustHaveStr) == -1 || initialNameOffset == -1) {
+                    return addStatusFatalError(line, offset, initialName, status, workspaceFile);
+                }
+                return offset + initialNameOffset;
             }
+            return offset;
         } catch (BadLocationException e) {
-            status.addFatalError(StringUtils
-                    .format("Error: file %s changed during analysis.\nExpected doc to contain: '%s' at offset: %s (line: %s).",
-                            workspaceFile != null ? workspaceFile : "has", initialName, offset, line));
         }
+        return addStatusFatalError(line, offset, initialName, status, workspaceFile);
+    }
+
+    private static int addStatusFatalError(int line, int offset, String initialName,
+            RefactoringStatus status, IPath workspaceFile) {
+        status.addFatalError(StringUtils
+                .format("Error: file %s changed during analysis.\nExpected doc to contain: '%s' at offset: %s (line: %s).",
+                        workspaceFile != null ? workspaceFile : "has", initialName, offset, line));
+        return -1;
     }
 
 }
