@@ -19,13 +19,13 @@ import org.python.pydev.ast.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.ast.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.ast.refactoring.RefactoringRequest;
+import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.IDefinition;
+import org.python.pydev.core.IModule;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.jython.ast.ClassDef;
-import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
-import org.python.pydev.shared_core.string.StringUtils;
 
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalysis;
 
@@ -46,63 +46,102 @@ public class PyRenameGlobalProcess extends AbstractRenameWorkspaceRefactorProces
     @Override
     protected List<ASTEntry> findReferencesOnOtherModule(RefactoringStatus status, RefactoringRequest request,
             String initialName, SourceModule module) {
-        ArrayList<IDefinition> foundDefs = new ArrayList<IDefinition>();
         CompletionCache completionCache = new CompletionCache();
-        SimpleNode searchStringsAt = module.getAst();
 
         List<ASTEntry> ret = new ArrayList<ASTEntry>();
 
         List<ASTEntry> localOccurrences = ScopeAnalysis.getLocalOccurrences(initialName, module.getAst(), false, true);
-        if (localOccurrences.size() > 0 && searchStringsAt != null) {
+        if (localOccurrences.size() > 0) {
             try {
+                List<IDefinition> actualDefinitions = request.findActualDef(completionCache);
                 for (ASTEntry occurrence : localOccurrences) {
+                    List<IDefinition> foundDefs = new ArrayList<IDefinition>();
                     PyRefactoringFindDefinition.findActualDefinition(request.getMonitor(), module, occurrence.getName(),
                             foundDefs,
-                            occurrence.endLine, occurrence.endCol, module.getNature(), completionCache);
+                            occurrence.endLine, occurrence.endCol, module.getNature(), completionCache, false);
+
+                    for (IDefinition def : foundDefs) {
+                        IModule defModule = def.getModule();
+                        if (defModule == null || (def instanceof Definition && ((Definition) def).ast == null)) {
+                            continue;
+                        }
+                        for (IDefinition actualDef : actualDefinitions) {
+                            IModule actualDefModule = actualDef.getModule();
+                            if (defModule.getName().equals(actualDefModule.getName())
+                                    && def.getLine() == actualDef.getLine()) {
+                                ret.add(occurrence);
+                            } else if (checkDef(def, module, completionCache, actualDef, false)) {
+                                ret.add(occurrence);
+                            }
+                        }
+                    }
+
                 }
             } catch (Exception e) {
                 Log.log(e);
             }
         }
-
-        for (IDefinition def : foundDefs) {
-            if (def != null && module.equals(def.getModule())) {
-                if (def instanceof Definition) {
-                    Definition d = (Definition) def;
-                    if (d.ast == null || d.ast instanceof ClassDef || d.ast instanceof FunctionDef) {
-                        continue;
-                    }
-                    String value = d.value;
-                    if (value != null && !value.isEmpty()) {
-                        List<String> s = StringUtils.split(value, '.');
-                        if (!s.contains("self") && s.contains(initialName)) {
-                            addInitialNameMatchOccurrences(ret, localOccurrences, initialName);
-                            break;
-                        }
-                    }
-                    if (def instanceof AssignDefinition) {
-                        String target = ((AssignDefinition) def).target;
-                        if (target != null && !target.isEmpty()) {
-                            List<String> s = StringUtils.split(target, '.');
-                            if (!s.contains("self") && s.contains(initialName)) {
-                                addInitialNameMatchOccurrences(ret, localOccurrences, initialName);
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
         return ret;
     }
 
-    private void addInitialNameMatchOccurrences(List<ASTEntry> ret, List<ASTEntry> localOccurrences,
-            String initialName) {
-        for (ASTEntry occurrence : localOccurrences) {
-            if (occurrence.getName().equals(initialName)) {
-                ret.add(occurrence);
+    private boolean checkDef(IDefinition iDef, SourceModule module, ICompletionCache completionCache,
+            IDefinition iActualDef, boolean checkModule)
+            throws CompletionRecursionException, Exception {
+        if (iDef == null) {
+            return false;
+        }
+        if (iDef instanceof Definition) {
+            if (checkModule) {
+                if (((Definition) iDef).module == null || ((Definition) iDef).ast == null) {
+                    return false;
+                }
+                String defModuleName = ((Definition) iDef).module.getName();
+                if (iActualDef.getModule().getName().equals(defModuleName)
+                        && iDef.getLine() == iActualDef.getLine()) {
+                    return true;
+                }
+            }
+            List<IDefinition> foundDefs = new ArrayList<IDefinition>();
+            if (iDef instanceof AssignDefinition) {
+                AssignDefinition assignDef = (AssignDefinition) iDef;
+                PyRefactoringFindDefinition.findActualDefinition(request.getMonitor(), module,
+                        assignDef.target,
+                        foundDefs,
+                        assignDef.line, assignDef.col, module.getNature(), completionCache,
+                        false);
+                PyRefactoringFindDefinition.findActualDefinition(request.getMonitor(), module,
+                        assignDef.value,
+                        foundDefs,
+                        assignDef.line, assignDef.col, module.getNature(), completionCache,
+                        false);
+                PyRefactoringFindDefinition.findActualDefinition(request.getMonitor(), module,
+                        assignDef.type,
+                        foundDefs,
+                        assignDef.line, assignDef.col, module.getNature(), completionCache,
+                        false);
+            } else {
+                Definition def = (Definition) iDef;
+                PyRefactoringFindDefinition.findActualDefinition(request.getMonitor(), module,
+                        def.value,
+                        foundDefs,
+                        def.line, def.col, module.getNature(), completionCache,
+                        false);
+                PyRefactoringFindDefinition.findActualDefinition(request.getMonitor(), module,
+                        def.type,
+                        foundDefs,
+                        def.line, def.col, module.getNature(), completionCache,
+                        false);
+            }
+            for (IDefinition foundDef : foundDefs) {
+                if (iDef.equals(foundDef)) {
+                    continue;
+                }
+                if (checkDef(foundDef, module, completionCache, iActualDef, true)) {
+                    return true;
+                }
             }
         }
+        return false;
     }
 
     @Override
