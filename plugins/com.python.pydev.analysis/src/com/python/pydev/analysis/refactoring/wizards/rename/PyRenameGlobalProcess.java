@@ -104,33 +104,43 @@ public class PyRenameGlobalProcess extends AbstractRenameWorkspaceRefactorProces
             List<IDefinition> foundDefs = new ArrayList<IDefinition>();
             if (iDef instanceof AssignDefinition) {
                 AssignDefinition assignDef = (AssignDefinition) iDef;
-                PyRefactoringFindDefinition.findActualDefinition(request.getMonitor(), module,
-                        assignDef.target,
-                        foundDefs,
-                        assignDef.line, assignDef.col, module.getNature(), completionCache,
-                        false);
-                PyRefactoringFindDefinition.findActualDefinition(request.getMonitor(), module,
-                        assignDef.value,
-                        foundDefs,
-                        assignDef.line, assignDef.col, module.getNature(), completionCache,
-                        false);
-                PyRefactoringFindDefinition.findActualDefinition(request.getMonitor(), module,
-                        assignDef.type,
-                        foundDefs,
-                        assignDef.line, assignDef.col, module.getNature(), completionCache,
-                        false);
+                if (assignDef.target != null && !assignDef.target.isEmpty()) {
+                    PyRefactoringFindDefinition.findActualDefinition(request.getMonitor(), module,
+                            assignDef.target,
+                            foundDefs,
+                            assignDef.line, assignDef.col, module.getNature(), completionCache,
+                            false);
+                }
+                if (assignDef.value != null && !assignDef.value.isEmpty()) {
+                    PyRefactoringFindDefinition.findActualDefinition(request.getMonitor(), module,
+                            assignDef.value,
+                            foundDefs,
+                            assignDef.line, assignDef.col, module.getNature(), completionCache,
+                            false);
+                }
+                if (assignDef.type != null && !assignDef.type.isEmpty()) {
+                    PyRefactoringFindDefinition.findActualDefinition(request.getMonitor(), module,
+                            assignDef.type,
+                            foundDefs,
+                            assignDef.line, assignDef.col, module.getNature(), completionCache,
+                            false);
+                }
             } else {
                 Definition def = (Definition) iDef;
-                PyRefactoringFindDefinition.findActualDefinition(request.getMonitor(), module,
-                        def.value,
-                        foundDefs,
-                        def.line, def.col, module.getNature(), completionCache,
-                        false);
-                PyRefactoringFindDefinition.findActualDefinition(request.getMonitor(), module,
-                        def.type,
-                        foundDefs,
-                        def.line, def.col, module.getNature(), completionCache,
-                        false);
+                if (def.value != null && !def.value.isEmpty()) {
+                    PyRefactoringFindDefinition.findActualDefinition(request.getMonitor(), module,
+                            def.value,
+                            foundDefs,
+                            def.line, def.col, module.getNature(), completionCache,
+                            false);
+                }
+                if (def.type != null && !def.type.isEmpty()) {
+                    PyRefactoringFindDefinition.findActualDefinition(request.getMonitor(), module,
+                            def.type,
+                            foundDefs,
+                            def.line, def.col, module.getNature(), completionCache,
+                            false);
+                }
             }
             for (IDefinition foundDef : foundDefs) {
                 if (iDef.equals(foundDef)) {
