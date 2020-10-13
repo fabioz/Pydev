@@ -53,7 +53,7 @@ public class PyRenameGlobalProcess extends AbstractRenameWorkspaceRefactorProces
         List<ASTEntry> localOccurrences = ScopeAnalysis.getLocalOccurrences(initialName, module.getAst(), false, true);
         if (localOccurrences.size() > 0) {
             try {
-                List<IDefinition> actualDefinitions = request.findActualDef(completionCache);
+                List<IDefinition> actualDefinitions = request.findActualDefinitions(completionCache);
                 for (ASTEntry occurrence : localOccurrences) {
                     List<IDefinition> foundDefs = new ArrayList<IDefinition>();
                     PyRefactoringFindDefinition.findActualDefinition(request.getMonitor(), module, occurrence.getName(),
