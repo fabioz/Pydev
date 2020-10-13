@@ -111,18 +111,20 @@ public class PyRenameGlobalProcess extends AbstractRenameWorkspaceRefactorProces
                             assignDef.line, assignDef.col, module.getNature(), completionCache,
                             false);
                 }
-                if (assignDef.value != null && !assignDef.value.isEmpty()) {
+                if (assignDef.nodeValue != null && assignDef.value != null && !assignDef.value.isEmpty()) {
                     PyRefactoringFindDefinition.findActualDefinition(request.getMonitor(), module,
                             assignDef.value,
                             foundDefs,
-                            assignDef.line, assignDef.col, module.getNature(), completionCache,
+                            assignDef.nodeValue.beginLine, assignDef.nodeValue.beginColumn, module.getNature(),
+                            completionCache,
                             false);
                 }
-                if (assignDef.type != null && !assignDef.type.isEmpty()) {
+                if (assignDef.nodeType != null && assignDef.type != null && !assignDef.type.isEmpty()) {
                     PyRefactoringFindDefinition.findActualDefinition(request.getMonitor(), module,
                             assignDef.type,
                             foundDefs,
-                            assignDef.line, assignDef.col, module.getNature(), completionCache,
+                            assignDef.nodeType.beginLine, assignDef.nodeType.beginColumn, module.getNature(),
+                            completionCache,
                             false);
                 }
             } else {
@@ -134,11 +136,11 @@ public class PyRenameGlobalProcess extends AbstractRenameWorkspaceRefactorProces
                             def.line, def.col, module.getNature(), completionCache,
                             false);
                 }
-                if (def.type != null && !def.type.isEmpty()) {
+                if (def.nodeType != null && def.type != null && !def.type.isEmpty()) {
                     PyRefactoringFindDefinition.findActualDefinition(request.getMonitor(), module,
                             def.type,
                             foundDefs,
-                            def.line, def.col, module.getNature(), completionCache,
+                            def.nodeType.beginLine, def.nodeType.beginColumn, module.getNature(), completionCache,
                             false);
                 }
             }
