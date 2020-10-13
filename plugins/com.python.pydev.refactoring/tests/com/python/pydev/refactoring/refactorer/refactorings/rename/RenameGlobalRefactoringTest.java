@@ -88,7 +88,7 @@ public class RenameGlobalRefactoringTest extends RefactoringRenameTestBase {
                 "reflib.renameglobal3.foo", 0, 5);
         assertEquals(""
                 + "reflib.renameglobal3.bar\n"
-                + "  ASTEntry<SOME_CONSTANT (NameTok L=3 C=9)>\n"
+                + "  ASTEntry<a (Name L=3 C=1)>\n"
                 + "    Line: 2  a = foo.SOME_CONSTANT --> a = foo.new_name\n"
                 + "\n"
                 + "reflib.renameglobal3.foo\n"
@@ -103,7 +103,7 @@ public class RenameGlobalRefactoringTest extends RefactoringRenameTestBase {
                 "reflib.renameglobal4.foo", 0, 5);
         assertEquals(""
                 + "reflib.renameglobal4.bar\n"
-                + "  ASTEntry<SOME_CONSTANT (NameTok L=5 C=17)>\n"
+                + "  ASTEntry<a (Name L=5 C=9)>\n"
                 + "    Line: 4          a = foo.SOME_CONSTANT -->         a = foo.new_name\n"
                 + "\n"
                 + "reflib.renameglobal4.foo\n"
@@ -119,7 +119,7 @@ public class RenameGlobalRefactoringTest extends RefactoringRenameTestBase {
         assertEquals(""
                 + "reflib.renameglobal4.bar\n"
                 + "  ASTEntry<SOME_CONSTANT (NameTok L=5 C=17)>\n"
-                + "    Line: 4         a = foo.SOME_CONSTANT -->         a = foo.new_name\n"
+                + "    Line: 4          a = foo.SOME_CONSTANT -->         a = foo.new_name\n"
                 + "\n"
                 + "reflib.renameglobal4.foo\n"
                 + "  ASTEntry<SOME_CONSTANT (Name L=1 C=1)>\n"
