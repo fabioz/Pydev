@@ -393,8 +393,6 @@ public abstract class TextEditCreation {
             entryBuf.append(")");
             int offset = AbstractRenameRefactorProcess.getOffset(doc, entry);
             if (!s.contains(offset)) {
-                s.add(offset);
-
                 if (entry instanceof IRefactorCustomEntry) {
                     IRefactorCustomEntry iRefactorCustomEntry = (IRefactorCustomEntry) entry;
                     List<TextEdit> edits = iRefactorCustomEntry.createRenameEdit(doc, initialName,
@@ -406,7 +404,9 @@ public abstract class TextEditCreation {
                     }
 
                 } else {
-                    checkExpectedInput(doc, entry.node.beginLine, offset, initialName, status, workspaceFile);
+                    offset = checkExpectedInput(doc, entry.node.beginLine, offset, initialName, status, workspaceFile,
+                            entry.getName());
+
                     if (status.hasFatalError()) {
                         return ret;
                     }
@@ -414,6 +414,7 @@ public abstract class TextEditCreation {
                     entry.setAdditionalInfo(AstEntryScopeAnalysisConstants.AST_ENTRY_REPLACE_EDIT, edits);
                     ret.add(new Tuple<List<TextEdit>, String>(edits, entryBuf.toString()));
                 }
+                s.add(offset);
             }
         }
         return ret;
