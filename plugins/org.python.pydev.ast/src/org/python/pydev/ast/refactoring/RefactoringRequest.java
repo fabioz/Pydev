@@ -118,7 +118,7 @@ public class RefactoringRequest extends DecoratableObject {
      */
     public String qualifier;
 
-    public List<IDefinition> actualDefinitions;
+    private List<IDefinition> actualDefinitions;
 
     /**
      * If the file is passed, we also set the document automatically
