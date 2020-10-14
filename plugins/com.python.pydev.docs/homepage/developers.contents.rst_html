@@ -31,7 +31,7 @@ resources that show how to make a contribution to a project in the manner descri
 above (i.e. clone a project, create a branch, edit and send pull a request):</p>
 <ul class="simple">
 <li><a class="reference external" href="https://codeburst.io/a-step-by-step-guide-to-making-your-first-github-contribution-5302260a2940">Make a contribution using github</a></li>
-<li><a class="reference external" href="https://github.com/Roshanjossey/first-contributions/blob/master/github-desktop-tutorial.md">Make a contribution using github (using github desktop)</a></li>
+<li><a class="reference external" href="https://github.com/firstcontributions/first-contributions/blob/master/gui-tool-tutorials/github-desktop-tutorial.md#first-contributions">Make a contribution using github (using github desktop)</a></li>
 <li><a class="reference external" href="http://rogerdudler.github.io/git-guide/">Lean git guide</a></li>
 </ul>
 <p>Then, in Eclipse, go to: <strong>File &gt; Import &gt; Existing projects into
@@ -120,7 +120,7 @@ and /pom.xml (in the root) has more details on getting pre-requisites.</p>
 <div class="section" id="contributing-back">
 <h1>Contributing back</h1>
 <p>Create a pull request in github:
-<a class="reference external" href="http://help.github.com/send-pull-requests/">http://help.github.com/send-pull-requests/</a></p>
+<a class="reference external" href="https://docs.github.com/en/free-pro-team&#64;latest/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request-from-a-fork">Creating a pull request from a fork</a></p>
 </div>
 </contents_area>
 

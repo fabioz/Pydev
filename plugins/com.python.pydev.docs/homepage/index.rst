@@ -41,6 +41,10 @@
 
         <div id="bronze-sponsors-a-hrefs">
 
+        <a href="https://bankfinans.se" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/bankfinansliten.png" alt="bankfinans.se" title="https://bankfinans.se" /></a>
+
+        <a href="https://www.discovermagazine.com/sponsored/proven-reviews-nutravesta-proven-weight-loss-pills-really-work" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/discovermagazine.png" alt="NutraVesta ProVen" title="https://www.discovermagazine.com/sponsored/proven-reviews-nutravesta-proven-weight-loss-pills-really-work" /></a>
+
         <a href="https://vpnblackfriday.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/vpnblackfriday.png" alt="vpn black friday" title="https://vpnblackfriday.com/" /></a>
 
         <a href="https://new-casino.ca/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/newcasino.png" alt="new casino canada" title="https://new-casino.ca/" /></a>
