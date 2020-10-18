@@ -16,7 +16,7 @@ from _pydevd_bundle._debug_adapter.pydevd_schema import (ThreadEvent, ModuleEven
     InitializeRequestArguments, TerminateArguments, TerminateRequest, TerminatedEvent)
 from _pydevd_bundle.pydevd_comm_constants import file_system_encoding
 from _pydevd_bundle.pydevd_constants import (int_types, IS_64BIT_PROCESS,
-    PY_VERSION_STR, PY_IMPL_VERSION_STR, PY_IMPL_NAME, IS_PY36_OR_GREATER, IS_PY39_OR_GREATER,
+    PY_VERSION_STR, PY_IMPL_VERSION_STR, PY_IMPL_NAME, IS_PY36_OR_GREATER,
     IS_PYPY, GENERATED_LEN_ATTR_NAME, IS_WINDOWS, IS_LINUX)
 from tests_python import debugger_unittest
 from tests_python.debug_constants import TEST_CHERRYPY, IS_PY2, TEST_DJANGO, TEST_FLASK, IS_PY26, \
@@ -757,6 +757,27 @@ def test_case_user_unhandled_exception_coroutine(case_setup, stop):
             _check_current_line(json_hit, current_line)
 
             json_facade.write_continue()
+
+        writer.finished_ok = True
+
+
+@pytest.mark.skipif(IS_PY26, reason='Not ok on Python 2.6')
+def test_case_user_unhandled_exception_dont_stop(case_setup):
+
+    with case_setup.test_file(
+            'my_code/my_code_exception_user_unhandled.py',) as writer:
+        json_facade = JsonFacade(writer)
+
+        not_my_code_dir = debugger_unittest._get_debugger_test_file('not_my_code')
+        json_facade.write_launch(
+            debugStdLib=True,
+            rules=[
+                {'path': not_my_code_dir, 'include':False},
+            ]
+        )
+
+        json_facade.write_set_exception_breakpoints(['userUnhandled'])
+        json_facade.write_make_initial_run()
 
         writer.finished_ok = True
 
@@ -3128,8 +3149,7 @@ def test_source_mapping_just_my_code(case_setup):
         writer.finished_ok = True
 
 
-@pytest.mark.skipif(not TEST_CHERRYPY or IS_PY39_OR_GREATER, reason='No CherryPy available.'
-                    'Must investigate support on Python 3.9')
+@pytest.mark.skipif(not TEST_CHERRYPY, reason='No CherryPy available.')
 def test_process_autoreload_cherrypy(case_setup_multiprocessing, tmpdir):
     '''
     CherryPy does an os.execv(...) which will kill the running process and replace
@@ -4024,6 +4044,80 @@ def test_subprocess_pydevd_customization(case_setup_remote, command_line_args):
         secondary_process_thread_communication.join(5)
         if secondary_process_thread_communication.is_alive():
             raise AssertionError('The SecondaryProcessThreadCommunication did not finish')
+        writer.finished_ok = True
+
+
+@pytest.mark.skipif(IS_PY26, reason='Only Python 2.7 onwards.')
+def test_subprocess_then_fork(case_setup_multiprocessing):
+    import threading
+    from tests_python.debugger_unittest import AbstractWriterThread
+
+    with case_setup_multiprocessing.test_file('_debugger_case_subprocess_and_fork.py') as writer:
+        json_facade = JsonFacade(writer)
+        json_facade.write_launch(justMyCode=False)
+
+        break_line = writer.get_line_index_with_content('break here')
+        json_facade.write_set_breakpoints([break_line])
+
+        server_socket = writer.server_socket
+
+        class SecondaryProcessWriterThread(AbstractWriterThread):
+
+            TEST_FILE = writer.get_main_filename()
+            _sequence = -1
+
+        class SecondaryProcessThreadCommunication(threading.Thread):
+
+            def run(self):
+                from tests_python.debugger_unittest import ReaderThread
+
+                # Note that we accept 2 connections and then we proceed to receive the breakpoints.
+                json_facades = []
+                for i in range(2):
+                    server_socket.listen(1)
+                    self.server_socket = server_socket
+                    writer.log.append('  *** Multiprocess %s waiting on server_socket.accept()' % (i,))
+                    new_sock, addr = server_socket.accept()
+                    writer.log.append('  *** Multiprocess %s completed server_socket.accept()' % (i,))
+
+                    reader_thread = ReaderThread(new_sock)
+                    reader_thread.name = '  *** Multiprocess %s Reader Thread' % i
+                    reader_thread.start()
+                    writer.log.append('  *** Multiprocess %s started ReaderThread' % (i,))
+
+                    writer2 = SecondaryProcessWriterThread()
+                    writer2._WRITE_LOG_PREFIX = '  *** Multiprocess %s write: ' % i
+                    writer2.reader_thread = reader_thread
+                    writer2.sock = new_sock
+                    json_facade2 = JsonFacade(writer2, send_json_startup_messages=False)
+                    json_facade2.writer.write_multi_threads_single_notification(True)
+                    writer.log.append('  *** Multiprocess %s write attachThread' % (i,))
+                    json_facade2.write_attach(justMyCode=False)
+
+                    writer.log.append('  *** Multiprocess %s write set breakpoints' % (i,))
+                    json_facade2.write_set_breakpoints([break_line])
+                    writer.log.append('  *** Multiprocess %s write make initial run' % (i,))
+                    json_facade2.write_make_initial_run()
+                    json_facades.append(json_facade2)
+
+                for i, json_facade3 in enumerate(json_facades):
+                    writer.log.append('  *** Multiprocess %s wait for thread stopped' % (i,))
+                    json_facade3.wait_for_thread_stopped(line=break_line)
+                    writer.log.append('  *** Multiprocess %s continue' % (i,))
+                    json_facade3.write_continue()
+
+        secondary_process_thread_communication = SecondaryProcessThreadCommunication()
+        secondary_process_thread_communication.start()
+        time.sleep(.1)
+        json_facade.write_make_initial_run()
+
+        secondary_process_thread_communication.join(20)
+        if secondary_process_thread_communication.is_alive():
+            raise AssertionError('The SecondaryProcessThreadCommunication did not finish')
+
+        json_facade.wait_for_thread_stopped(line=break_line)
+        json_facade.write_continue()
+
         writer.finished_ok = True
 
 
