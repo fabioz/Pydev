@@ -514,7 +514,7 @@ void decorators(): {}
 
 
 void begin_decorator(): {}
-{ $AT dotted_name()
+{ $AT namedexpr_test()
 }
 
 //parameters: '(' [typedargslist] ')'
