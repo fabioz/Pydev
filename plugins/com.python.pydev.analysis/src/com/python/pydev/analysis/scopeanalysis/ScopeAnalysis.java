@@ -21,6 +21,7 @@ import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.commentType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
@@ -93,6 +94,17 @@ public class ScopeAnalysis {
      */
     public static List<ASTEntry> getLocalOccurrences(String occurencesFor, SimpleNode simpleNode) {
         return ScopeAnalysis.getLocalOccurrences(occurencesFor, simpleNode, true);
+    }
+
+    /**
+     * @param occurencesFor the string we're looking for
+     * @param simpleNode we will want the occurences below this node
+     * @param onlyFirstAttribPart get only the first attribute part. `foo.method` will only return foo
+     * @return a list of entries with the occurrences
+     */
+    public static List<ASTEntry> getLocalOccurrences(String occurencesFor, SimpleNode simpleNode,
+            boolean onlyFirstAttribPart) {
+        return ScopeAnalysis.getLocalOccurrences(occurencesFor, simpleNode, onlyFirstAttribPart, false);
     }
 
     /**
@@ -179,7 +191,7 @@ public class ScopeAnalysis {
      * Does only return the first name in attributes if onlyFirstAttribPart is true (otherwise will check all attribute parts)
      */
     public static List<ASTEntry> getLocalOccurrences(final String occurencesFor, SimpleNode simpleNode,
-            final boolean onlyFirstAttribPart) {
+            final boolean onlyFirstAttribPart, final boolean returnAll) {
         List<ASTEntry> ret = new ArrayList<ASTEntry>();
 
         SequencialASTIteratorVisitor visitor = new SequencialASTIteratorVisitor() {
@@ -252,6 +264,10 @@ public class ScopeAnalysis {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
+        }
+
+        if (returnAll) {
+            return visitor.getAsList(Name.class, NameTok.class);
         }
 
         Iterator<ASTEntry> iterator = visitor.getNamesIterator();

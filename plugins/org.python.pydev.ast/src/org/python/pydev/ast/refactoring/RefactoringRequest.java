@@ -7,6 +7,7 @@
 package org.python.pydev.ast.refactoring;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,17 +17,22 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
+import org.python.pydev.ast.codecompletion.revisited.CompletionCache;
 import org.python.pydev.ast.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
+import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.log.Log;
+import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.core.structure.DecoratableObject;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -111,6 +117,8 @@ public class RefactoringRequest extends DecoratableObject {
      * The qualifier of the selected name
      */
     public String qualifier;
+
+    private List<IDefinition> actualDefinitions;
 
     /**
      * If the file is passed, we also set the document automatically
@@ -383,6 +391,19 @@ public class RefactoringRequest extends DecoratableObject {
     public void setFileResource(IFile file2) {
         this.iFileResource = file2;
 
+    }
+
+    public List<IDefinition> findActualDefinitions(CompletionCache completionCache) {
+        if (this.actualDefinitions == null) {
+            List<IDefinition> actualDefinitions = new ArrayList<IDefinition>();
+            try {
+                PyRefactoringFindDefinition.findActualDefinition(this, completionCache, actualDefinitions);
+            } catch (CompletionRecursionException | BadLocationException e) {
+                Log.log(e);
+            }
+            this.actualDefinitions = actualDefinitions;
+        }
+        return this.actualDefinitions;
     }
 
 }
