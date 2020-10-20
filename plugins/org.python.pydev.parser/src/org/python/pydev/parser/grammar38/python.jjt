@@ -642,7 +642,7 @@ void decorators(): {}
 
 
 void begin_decorator(): {}
-{ temporaryToken=<AT>  {grammarActions.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);} dotted_name()
+{ temporaryToken=<AT>  {grammarActions.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);} namedexpr_test()
 }
 
 //parameters: '(' [typedargslist] ')'
