@@ -41,6 +41,8 @@
 
         <div id="bronze-sponsors-a-hrefs">
 
+        <a href="https://goread.io/buy-instagram-followers" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/goread.png" alt="Goread.io/buy-instagram-followers" title="https://goread.io/buy-instagram-followers" /></a>
+
         <a href="https://bankfinans.se" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/bankfinansliten.png" alt="bankfinans.se" title="https://bankfinans.se" /></a>
 
         <a href="https://www.discovermagazine.com/sponsored/proven-reviews-nutravesta-proven-weight-loss-pills-really-work" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/discovermagazine.png" alt="NutraVesta ProVen" title="https://www.discovermagazine.com/sponsored/proven-reviews-nutravesta-proven-weight-loss-pills-really-work" /></a>
@@ -55,7 +57,7 @@
 
         <a href="https://www.combin.com/howto/how-to-get-instagram-account-statistics-and-track-audience-growth/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/growthic.png" alt="Combin" title="https://www.combin.com/howto/how-to-get-instagram-account-statistics-and-track-audience-growth/" /></a>
 
-        <a href="https://pillarwm.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/pillar_wm.png" alt="Tankpenge" title="https://pillarwm.com/" /></a>
+        <a href="https://pillarwm.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/pillar_wm.png" alt="PillarWM" title="https://pillarwm.com/" /></a>
 
         <a href="https://tankpenge.dk" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/tankpenge-laan.png" alt="Tankpenge" title="https://tankpenge.dk" /></a>
 
@@ -166,8 +168,6 @@
         <a href="https://esportbetting.eu/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/esport_betting.png" alt="eSportBetting" title="https://esportbetting.eu/" /></a>
 
 		<a href="https://casinopiloten.com/bonus" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/casinopiloten.png" alt="casinobonus" title="https://casinopiloten.com/bonus" /></a>
-
-		<a href="https://gamblescope.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/gamblescope.png" alt="gamblescope.com" title="https://gamblescope.com/" /></a>
 
         <a href="https://allesrefurbished.nl" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/alles_refurbished.png" alt="Alles Refurbished - overview of refurbished tablets, telephones and more (in Dutch)" title="Alles Refurbished - overview of refurbished tablets, telephones and more (in Dutch)" /></a>
 
