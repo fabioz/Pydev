@@ -37,7 +37,8 @@ public interface IGrammarVersionProvider {
     public static final int GRAMMAR_PYTHON_VERSION_3_6 = 100;
     public static final int GRAMMAR_PYTHON_VERSION_3_7 = 101;
     public static final int GRAMMAR_PYTHON_VERSION_3_8 = 102;
-    public static final int LATEST_GRAMMAR_PY3_VERSION = GRAMMAR_PYTHON_VERSION_3_8;
+    public static final int GRAMMAR_PYTHON_VERSION_3_9 = 103;
+    public static final int LATEST_GRAMMAR_PY3_VERSION = GRAMMAR_PYTHON_VERSION_3_9;
 
     /**
      * So, no specific reason for the 777 number (just wanted something unique that wouldn't be close to the other grammars).
@@ -89,6 +90,7 @@ class GrammarsIterator {
         grammarVersions.add(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_6);
         grammarVersions.add(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_7);
         grammarVersions.add(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_8);
+        grammarVersions.add(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_9);
         return Collections.unmodifiableList(grammarVersions);
     }
 
@@ -101,6 +103,7 @@ class GrammarsIterator {
         grammarVersions.add("3.6");
         grammarVersions.add("3.7");
         grammarVersions.add("3.8");
+        grammarVersions.add("3.9");
         return Collections.unmodifiableList(grammarVersions);
     }
 
@@ -113,6 +116,7 @@ class GrammarsIterator {
         ret.put(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_6, "3.6");
         ret.put(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_7, "3.7");
         ret.put(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_8, "3.8");
+        ret.put(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_9, "3.9");
         return Collections.unmodifiableMap(ret);
     }
 
@@ -125,6 +129,7 @@ class GrammarsIterator {
         ret.put("3.6", IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_6);
         ret.put("3.7", IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_7);
         ret.put("3.8", IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_8);
+        ret.put("3.9", IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_9);
         return Collections.unmodifiableMap(ret);
     }
 }

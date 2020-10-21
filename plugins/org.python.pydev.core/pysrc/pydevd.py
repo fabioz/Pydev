@@ -17,6 +17,7 @@ import traceback
 import weakref
 import getpass as getpass_mod
 import functools
+import pydevd_file_utils
 
 from _pydev_bundle import pydev_imports, pydev_log
 from _pydev_bundle._pydev_filesystem_encoding import getfilesystemencoding
@@ -40,7 +41,7 @@ from _pydevd_bundle.pydevd_constants import (IS_JYTH_LESS25, get_thread_id, get_
     dict_keys, dict_iter_items, DebugInfoHolder, PYTHON_SUSPEND, STATE_SUSPEND, STATE_RUN, get_frame,
     clear_cached_thread_id, INTERACTIVE_MODE_AVAILABLE, SHOW_DEBUG_INFO_ENV, IS_PY34_OR_GREATER, IS_PY2, NULL,
     NO_FTRACE, IS_IRONPYTHON, JSON_PROTOCOL, IS_CPYTHON, HTTP_JSON_PROTOCOL, USE_CUSTOM_SYS_CURRENT_FRAMES_MAP, call_only_once,
-    ForkSafeLock, IGNORE_BASENAMES_STARTING_WITH)
+    ForkSafeLock, IGNORE_BASENAMES_STARTING_WITH, EXCEPTION_TYPE_UNHANDLED)
 from _pydevd_bundle.pydevd_defaults import PydevdCustomization  # Note: import alias used on pydev_monkey.
 from _pydevd_bundle.pydevd_custom_frames import CustomFramesContainer, custom_frames_container_init
 from _pydevd_bundle.pydevd_dont_trace_files import DONT_TRACE, PYDEV_FILE, LIB_FILE, DONT_TRACE_DIRS
@@ -56,8 +57,9 @@ import pydev_ipython  # @UnusedImport
 from _pydevd_bundle.pydevd_source_mapping import SourceMapping
 from pydevd_concurrency_analyser.pydevd_concurrency_logger import ThreadingLogger, AsyncioLogger, send_concurrency_message, cur_time
 from pydevd_concurrency_analyser.pydevd_thread_wrappers import wrap_threads
-from pydevd_file_utils import get_abs_path_real_path_and_base_from_frame, NORM_PATHS_AND_BASE_CONTAINER, get_abs_path_real_path_and_base_from_file
-from pydevd_file_utils import get_fullname, rPath, get_package_dir
+from pydevd_file_utils import get_abs_path_real_path_and_base_from_frame, NORM_PATHS_AND_BASE_CONTAINER
+from pydevd_file_utils import get_fullname, get_package_dir
+from os.path import abspath as os_path_abspath
 import pydevd_tracing
 from _pydevd_bundle.pydevd_comm import (InternalThreadCommand, InternalThreadCommandForAnyThread,
     create_server_socket)
@@ -873,7 +875,7 @@ class PyDB(object):
                 f = frame.f_back
                 while f is not None:
                     if (self.get_file_type(f) != self.PYDEV_FILE and
-                            get_abs_path_real_path_and_base_from_file(f.f_code.co_filename)[2] not in ('runpy.py', '<string>')):
+                            pydevd_file_utils.basename(f.f_code.co_filename) not in ('runpy.py', '<string>')):
                         # We found some back frame that's not internal, which means we must consider
                         # this a library file.
                         # This is done because we only want to trace files as <string> if they don't
@@ -1022,7 +1024,7 @@ class PyDB(object):
             self.plugin = PluginManager(self)
         return self.plugin
 
-    def in_project_scope(self, frame, filename=None):
+    def in_project_scope(self, frame, absolute_filename=None):
         '''
         Note: in general this method should not be used (apply_files_filter should be used
         in most cases as it also handles the project scope check).
@@ -1030,22 +1032,22 @@ class PyDB(object):
         :param frame:
             The frame we want to check.
 
-        :param filename:
+        :param absolute_filename:
             Must be the result from get_abs_path_real_path_and_base_from_frame(frame)[0] (can
             be used to speed this function a bit if it's already available to the caller, but
             in general it's not needed).
         '''
         try:
-            if filename is None:
+            if absolute_filename is None:
                 try:
                     # Make fast path faster!
                     abs_real_path_and_basename = NORM_PATHS_AND_BASE_CONTAINER[frame.f_code.co_filename]
                 except:
                     abs_real_path_and_basename = get_abs_path_real_path_and_base_from_frame(frame)
 
-                filename = abs_real_path_and_basename[0]
+                absolute_filename = abs_real_path_and_basename[0]
 
-            cache_key = (frame.f_code.co_firstlineno, filename, frame.f_code)
+            cache_key = (frame.f_code.co_firstlineno, absolute_filename, frame.f_code)
 
             return self._in_project_scope_cache[cache_key]
         except KeyError:
@@ -1060,18 +1062,18 @@ class PyDB(object):
             if file_type == self.PYDEV_FILE:
                 cache[cache_key] = False
 
-            elif filename == '<string>':
+            elif absolute_filename == '<string>':
                 # Special handling for '<string>'
                 if file_type == self.LIB_FILE:
                     cache[cache_key] = False
                 else:
                     cache[cache_key] = True
 
-            elif self.source_mapping.has_mapping_entry(filename):
+            elif self.source_mapping.has_mapping_entry(absolute_filename):
                 cache[cache_key] = True
 
             else:
-                cache[cache_key] = self._files_filtering.in_project_roots(filename)
+                cache[cache_key] = self._files_filtering.in_project_roots(absolute_filename)
 
             return cache[cache_key]
 
@@ -1092,15 +1094,14 @@ class PyDB(object):
         self._clear_filters_caches()
         self._clear_skip_caches()
 
-    def _exclude_by_filter(self, frame, filename):
+    def _exclude_by_filter(self, frame, absolute_filename):
         '''
-        :param str filename:
-            The filename to filter.
-
         :return: True if it should be excluded, False if it should be included and None
             if no rule matched the given file.
+
+        :note: it'll be normalized as needed inside of this method.
         '''
-        cache_key = (filename, frame.f_code.co_name)
+        cache_key = (absolute_filename, frame.f_code.co_name, frame.f_code.co_firstlineno)
         try:
             return self._exclude_by_filter_cache[cache_key]
         except KeyError:
@@ -1113,16 +1114,19 @@ class PyDB(object):
                 module_name = None
                 if self._files_filtering.require_module:
                     module_name = frame.f_globals.get('__name__', '')
-                cache[cache_key] = self._files_filtering.exclude_by_filter(filename, module_name)
+                cache[cache_key] = self._files_filtering.exclude_by_filter(absolute_filename, module_name)
 
             return cache[cache_key]
 
-    def apply_files_filter(self, frame, filename, force_check_project_scope):
+    def apply_files_filter(self, frame, original_filename, force_check_project_scope):
         '''
         Should only be called if `self.is_files_filter_enabled == True` or `force_check_project_scope == True`.
 
         Note that it covers both the filter by specific paths includes/excludes as well
         as the check which filters out libraries if not in the project scope.
+
+        :param original_filename:
+            Note can either be the original filename or the absolute version of that filename.
 
         :param force_check_project_scope:
             Check that the file is in the project scope even if the global setting
@@ -1132,28 +1136,29 @@ class PyDB(object):
             True if it should be excluded when stepping and False if it should be
             included.
         '''
-        cache_key = (frame.f_code.co_firstlineno, filename, force_check_project_scope, frame.f_code)
+        cache_key = (frame.f_code.co_firstlineno, original_filename, force_check_project_scope, frame.f_code)
         try:
             return self._apply_filter_cache[cache_key]
         except KeyError:
             if self.plugin is not None and (self.has_plugin_line_breaks or self.has_plugin_exception_breaks):
                 # If it's explicitly needed by some plugin, we can't skip it.
                 if not self.plugin.can_skip(self, frame):
-                    pydev_log.debug_once('File traced (included by plugins): %s', filename)
+                    pydev_log.debug_once('File traced (included by plugins): %s', original_filename)
                     self._apply_filter_cache[cache_key] = False
                     return False
 
             if self._exclude_filters_enabled:
-                exclude_by_filter = self._exclude_by_filter(frame, filename)
+                absolute_filename = pydevd_file_utils.absolute_path(original_filename)
+                exclude_by_filter = self._exclude_by_filter(frame, absolute_filename)
                 if exclude_by_filter is not None:
                     if exclude_by_filter:
                         # ignore files matching stepping filters
-                        pydev_log.debug_once('File not traced (excluded by filters): %s', filename)
+                        pydev_log.debug_once('File not traced (excluded by filters): %s', original_filename)
 
                         self._apply_filter_cache[cache_key] = True
                         return True
                     else:
-                        pydev_log.debug_once('File traced (explicitly included by filters): %s', filename)
+                        pydev_log.debug_once('File traced (explicitly included by filters): %s', original_filename)
 
                         self._apply_filter_cache[cache_key] = False
                         return False
@@ -1162,16 +1167,16 @@ class PyDB(object):
                 # ignore library files while stepping
                 self._apply_filter_cache[cache_key] = True
                 if force_check_project_scope:
-                    pydev_log.debug_once('File not traced (not in project): %s', filename)
+                    pydev_log.debug_once('File not traced (not in project): %s', original_filename)
                 else:
-                    pydev_log.debug_once('File not traced (not in project - force_check_project_scope): %s', filename)
+                    pydev_log.debug_once('File not traced (not in project - force_check_project_scope): %s', original_filename)
 
                 return True
 
             if force_check_project_scope:
-                pydev_log.debug_once('File traced: %s (force_check_project_scope)', filename)
+                pydev_log.debug_once('File traced: %s (force_check_project_scope)', original_filename)
             else:
-                pydev_log.debug_once('File traced: %s', filename)
+                pydev_log.debug_once('File traced: %s', original_filename)
             self._apply_filter_cache[cache_key] = False
             return False
 
@@ -1186,7 +1191,9 @@ class PyDB(object):
         exclude_filters_enabled = self._exclude_filters_enabled
 
         if (ignore_libraries and not self.in_project_scope(trace.tb_frame)) \
-                or (exclude_filters_enabled and self._exclude_by_filter(trace.tb_frame, trace.tb_frame.f_code.co_filename)):
+                or (exclude_filters_enabled and self._exclude_by_filter(
+                    trace.tb_frame,
+                    pydevd_file_utils.absolute_path(trace.tb_frame.f_code.co_filename))):
             return True
 
         return False
@@ -1588,12 +1595,12 @@ class PyDB(object):
                 except:
                     pydev_log.exception('Error processing internal command.')
 
-    def consolidate_breakpoints(self, file, id_to_breakpoint, breakpoints):
+    def consolidate_breakpoints(self, canonical_normalized_filename, id_to_breakpoint, breakpoints):
         break_dict = {}
         for _breakpoint_id, pybreakpoint in dict_iter_items(id_to_breakpoint):
             break_dict[pybreakpoint.line] = pybreakpoint
 
-        breakpoints[file] = break_dict
+        breakpoints[canonical_normalized_filename] = break_dict
         self._clear_skip_caches()
 
     def _clear_skip_caches(self):
@@ -1773,14 +1780,13 @@ class PyDB(object):
         """ returns a frame on the thread that has a given frame_id """
         return self.suspended_frames_manager.find_frame(thread_id, frame_id)
 
-    def do_wait_suspend(self, thread, frame, event, arg, is_unhandled_exception=False):  # @UnusedVariable
+    def do_wait_suspend(self, thread, frame, event, arg, exception_type=None):  # @UnusedVariable
         """ busy waits until the thread state changes to RUN
         it expects thread's state as attributes of the thread.
         Upon running, processes any outstanding Stepping commands.
 
-        :param is_unhandled_exception:
-            If True we should use the line of the exception instead of the current line in the frame
-            as the paused location on the top-level frame (exception info must be passed on 'arg').
+        :param exception_type:
+            If pausing due to an exception, its type.
         """
         if USE_CUSTOM_SYS_CURRENT_FRAMES_MAP:
             constructed_tid_to_last_frame[thread.ident] = sys._getframe()
@@ -1802,7 +1808,7 @@ class PyDB(object):
             # arg must be the exception info (tuple(exc_type, exc, traceback))
             exc_type, exc_desc, trace_obj = arg
             if trace_obj is not None:
-                frames_list = pydevd_frame_utils.create_frames_list_from_traceback(trace_obj, frame, exc_type, exc_desc)
+                frames_list = pydevd_frame_utils.create_frames_list_from_traceback(trace_obj, frame, exc_type, exc_desc, exception_type=exception_type)
 
         if frames_list is None:
             frames_list = pydevd_frame_utils.create_frames_list_from_frame(frame)
@@ -1853,7 +1859,7 @@ class PyDB(object):
         if keep_suspended:
             # This means that we should pause again after a set next statement.
             self._threads_suspended_single_notification.increment_suspend_time()
-            self.do_wait_suspend(thread, frame, event, arg, is_unhandled_exception)
+            self.do_wait_suspend(thread, frame, event, arg, exception_type)
         if DebugInfoHolder.DEBUG_TRACE_LEVEL > 2:
             pydev_log.debug('Leaving PyDB.do_wait_suspend: %s (%s) %s', thread, thread_id, id(thread))
 
@@ -1985,7 +1991,7 @@ class PyDB(object):
         try:
             add_exception_to_frame(frame, arg)
             self.set_suspend(thread, CMD_ADD_EXCEPTION_BREAK)
-            self.do_wait_suspend(thread, frame, 'exception', arg, is_unhandled_exception=True)
+            self.do_wait_suspend(thread, frame, 'exception', arg, EXCEPTION_TYPE_UNHANDLED)
         except:
             pydev_log.exception("We've got an error while stopping in unhandled exception: %s.", arg[0])
         finally:
@@ -2235,7 +2241,7 @@ class PyDB(object):
             # sys.path.insert(0, os.getcwd())
             # Changed: it's not the local directory, but the directory of the file launched
             # The file being run must be in the pythonpath (even if it was not before)
-            sys.path.insert(0, os.path.split(rPath(file))[0])
+            sys.path.insert(0, os.path.split(os_path_abspath(file))[0])
 
         if set_trace:
             self.wait_for_ready_to_run()
@@ -2805,7 +2811,7 @@ class Dispatcher(object):
     def close(self):
         try:
             self.reader.do_kill_pydev_thread()
-        except :
+        except:
             pass
 
 

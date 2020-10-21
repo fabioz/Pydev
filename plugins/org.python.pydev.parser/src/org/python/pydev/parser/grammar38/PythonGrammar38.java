@@ -531,7 +531,7 @@ public final class PythonGrammar38 extends AbstractPythonGrammar implements/*@bg
     try {
       temporaryToken = jj_consume_token(AT);
                         grammarActions.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);
-      dotted_name();
+      namedexpr_test();
     } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);

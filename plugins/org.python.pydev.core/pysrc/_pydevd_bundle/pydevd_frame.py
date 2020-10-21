@@ -4,7 +4,8 @@ import re
 
 from _pydev_bundle import pydev_log
 from _pydevd_bundle import pydevd_dont_trace
-from _pydevd_bundle.pydevd_constants import (dict_iter_values, IS_PY3K, RETURN_VALUES_DICT, NO_FTRACE)
+from _pydevd_bundle.pydevd_constants import (dict_iter_values, IS_PY3K, RETURN_VALUES_DICT, NO_FTRACE,
+    EXCEPTION_TYPE_HANDLED, EXCEPTION_TYPE_USER_UNHANDLED)
 from _pydevd_bundle.pydevd_frame_utils import add_exception_to_frame, just_raised, remove_exception_from_frame, ignore_exception_trace
 from _pydevd_bundle.pydevd_utils import get_clsname_for_code
 from pydevd_file_utils import get_abs_path_real_path_and_base_from_frame
@@ -49,14 +50,11 @@ TRACE_PROPERTY = 'pydevd_traceproperty.py'
 import dis
 
 
-def _get_func_lines(f_code):
-    try:
-        return set(lineno for (_, lineno) in dis.findlinestarts(f_code))
-    except:
-        return None
-
-
+# IFDEF CYTHON
+# cdef is_unhandled_exception(container_obj, py_db, frame, int last_raise_line, set raise_lines):
+# ELSE
 def is_unhandled_exception(container_obj, py_db, frame, last_raise_line, raise_lines):
+# ENDIF
     if frame.f_lineno in raise_lines:
         return True
 
@@ -143,7 +141,7 @@ class PyDBFrame:
     exc_info = ()  # Default value in class (put in instance on set).
 
     def __init__(self, args):
-        # args = main_debugger, filename, base, info, t, frame
+        # args = main_debugger, abs_path_canonical_path_and_base, base, info, t, frame
         # yeap, much faster than putting in self and then getting it from self later on
         self._args = args
     # ENDIF
@@ -162,15 +160,15 @@ class PyDBFrame:
     def trace_exception(self, frame, event, arg):
     # ENDIF
         if event == 'exception':
-            should_stop, frame = self.should_stop_on_exception(frame, event, arg)
+            should_stop, frame = self._should_stop_on_exception(frame, event, arg)
 
             if should_stop:
-                if self.handle_exception(frame, event, arg):
+                if self._handle_exception(frame, event, arg, EXCEPTION_TYPE_HANDLED):
                     return self.trace_dispatch
 
         elif event == 'return':
             exc_info = self.exc_info
-            if exc_info:
+            if exc_info and arg is None:
                 frame_skips_cache, frame_cache_key = self._args[4], self._args[5]
                 custom_key = (frame_cache_key, 'try_exc_info')
                 container_obj = frame_skips_cache.get(custom_key)
@@ -183,13 +181,13 @@ class PyDBFrame:
         return self.trace_exception
 
     # IFDEF CYTHON
-    # def should_stop_on_exception(self, frame, str event, arg):
+    # cdef _should_stop_on_exception(self, frame, str event, arg):
     #     cdef PyDBAdditionalThreadInfo info;
     #     cdef bint should_stop;
     #     cdef bint was_just_raised;
     #     cdef list check_excs;
     # ELSE
-    def should_stop_on_exception(self, frame, event, arg):
+    def _should_stop_on_exception(self, frame, event, arg):
     # ENDIF
 
         # main_debugger, _filename, info, _thread = self._args
@@ -215,79 +213,85 @@ class PyDBFrame:
                     pydev_log.exception()
 
                 if not should_stop:
-                    was_just_raised = trace.tb_next is None
+                    # Apply checks that don't need the exception breakpoint (where we shouldn't ever stop).
+                    if exception == SystemExit and main_debugger.ignore_system_exit_code(value):
+                        pass
 
-                    # It was not handled by any plugin, lets check exception breakpoints.
-                    check_excs = []
-                    exc_break_caught = main_debugger.get_exception_breakpoint(
-                        exception, main_debugger.break_on_caught_exceptions)
-                    if exc_break_caught is not None:
-                        check_excs.append((exc_break_caught, False))
+                    elif exception in (GeneratorExit, StopIteration):
+                        # These exceptions are control-flow related (they work as a generator
+                        # pause), so, we shouldn't stop on them.
+                        pass
 
-                    exc_break_user = main_debugger.get_exception_breakpoint(
-                        exception, main_debugger.break_on_user_uncaught_exceptions)
-                    if exc_break_user is not None:
-                        check_excs.append((exc_break_user, True))
+                    elif ignore_exception_trace(trace):
+                        pass
 
-                    for exc_break, is_user_uncaught in check_excs:
-                        # Initially mark that it should stop and then go into exclusions.
-                        should_stop = True
+                    else:
+                        was_just_raised = trace.tb_next is None
 
-                        if exception is SystemExit and main_debugger.ignore_system_exit_code(value):
-                            should_stop = False
+                        # It was not handled by any plugin, lets check exception breakpoints.
+                        check_excs = []
 
-                        elif exception in (GeneratorExit, StopIteration):
-                            # These exceptions are control-flow related (they work as a generator
-                            # pause), so, we shouldn't stop on them.
-                            should_stop = False
+                        # Note: check user unhandled before regular exceptions.
+                        exc_break_user = main_debugger.get_exception_breakpoint(
+                            exception, main_debugger.break_on_user_uncaught_exceptions)
+                        if exc_break_user is not None:
+                            check_excs.append((exc_break_user, True))
 
-                        elif main_debugger.exclude_exception_by_filter(exc_break, trace):
-                            pydev_log.debug("Ignore exception %s in library %s -- (%s)" % (exception, frame.f_code.co_filename, frame.f_code.co_name))
-                            should_stop = False
+                        exc_break_caught = main_debugger.get_exception_breakpoint(
+                            exception, main_debugger.break_on_caught_exceptions)
+                        if exc_break_caught is not None:
+                            check_excs.append((exc_break_caught, False))
 
-                        elif ignore_exception_trace(trace):
-                            should_stop = False
+                        for exc_break, is_user_uncaught in check_excs:
+                            # Initially mark that it should stop and then go into exclusions.
+                            should_stop = True
 
-                        elif exc_break.condition is not None and \
-                                not main_debugger.handle_breakpoint_condition(info, exc_break, frame):
-                            should_stop = False
+                            if main_debugger.exclude_exception_by_filter(exc_break, trace):
+                                pydev_log.debug("Ignore exception %s in library %s -- (%s)" % (exception, frame.f_code.co_filename, frame.f_code.co_name))
+                                should_stop = False
 
-                        elif was_just_raised and main_debugger.skip_on_exceptions_thrown_in_same_context:
-                            # Option: Don't break if an exception is caught in the same function from which it is thrown
-                            should_stop = False
+                            elif exc_break.condition is not None and \
+                                    not main_debugger.handle_breakpoint_condition(info, exc_break, frame):
+                                should_stop = False
 
-                        elif exc_break.notify_on_first_raise_only and main_debugger.skip_on_exceptions_thrown_in_same_context \
-                                and not was_just_raised and not just_raised(trace.tb_next):
-                            # In this case we never stop if it was just raised, so, to know if it was the first we
-                            # need to check if we're in the 2nd method.
-                            should_stop = False  # I.e.: we stop only when we're at the caller of a method that throws an exception
+                            elif is_user_uncaught:
+                                # Note: we don't stop here, we just collect the exc_info to use later on...
+                                should_stop = False
+                                if not main_debugger.apply_files_filter(frame, frame.f_code.co_filename, True) \
+                                        and (frame.f_back is None or main_debugger.apply_files_filter(frame.f_back, frame.f_back.f_code.co_filename, True)):
+                                    # User uncaught means that we're currently in user code but the code
+                                    # up the stack is library code.
+                                    exc_info = self.exc_info
+                                    if not exc_info:
+                                        exc_info = (arg, frame.f_lineno, set([frame.f_lineno]))
+                                    else:
+                                        lines = exc_info[2]
+                                        lines.add(frame.f_lineno)
+                                        exc_info = (arg, frame.f_lineno, lines)
+                                    self.exc_info = exc_info
+                            else:
+                                # I.e.: these are only checked if we're not dealing with user uncaught exceptions.
+                                if exc_break.notify_on_first_raise_only and main_debugger.skip_on_exceptions_thrown_in_same_context \
+                                        and not was_just_raised and not just_raised(trace.tb_next):
+                                    # In this case we never stop if it was just raised, so, to know if it was the first we
+                                    # need to check if we're in the 2nd method.
+                                    should_stop = False  # I.e.: we stop only when we're at the caller of a method that throws an exception
 
-                        elif exc_break.notify_on_first_raise_only and not main_debugger.skip_on_exceptions_thrown_in_same_context \
-                                and not was_just_raised:
-                            should_stop = False  # I.e.: we stop only when it was just raised
+                                elif exc_break.notify_on_first_raise_only and not main_debugger.skip_on_exceptions_thrown_in_same_context \
+                                        and not was_just_raised:
+                                    should_stop = False  # I.e.: we stop only when it was just raised
 
-                        elif is_user_uncaught:
-                            should_stop = False
-                            if not main_debugger.apply_files_filter(frame, frame.f_code.co_filename, True) \
-                                    and (frame.f_back is None or main_debugger.apply_files_filter(frame.f_back, frame.f_back.f_code.co_filename, True)):
-                                # User uncaught means that we're currently in user code but the code
-                                # up the stack is library code.
-                                exc_info = self.exc_info
-                                if not exc_info:
-                                    exc_info = (arg, frame.f_lineno, set([frame.f_lineno]))
-                                else:
-                                    lines = exc_info[2]
-                                    lines.add(frame.f_lineno)
-                                    exc_info = (arg, frame.f_lineno, lines)
-                                self.exc_info = exc_info
+                                elif was_just_raised and main_debugger.skip_on_exceptions_thrown_in_same_context:
+                                    # Option: Don't break if an exception is caught in the same function from which it is thrown
+                                    should_stop = False
 
-                        if should_stop:
-                            exception_breakpoint = exc_break
-                            try:
-                                info.pydev_message = exc_break.qname
-                            except:
-                                info.pydev_message = exc_break.qname.encode('utf-8')
-                            break
+                            if should_stop:
+                                exception_breakpoint = exc_break
+                                try:
+                                    info.pydev_message = exc_break.qname
+                                except:
+                                    info.pydev_message = exc_break.qname.encode('utf-8')
+                                break
 
                 if should_stop:
                     # Always add exception to frame (must remove later after we proceed).
@@ -301,13 +305,27 @@ class PyDBFrame:
     def handle_user_exception(self, frame):
         exc_info = self.exc_info
         if exc_info:
-            return self.handle_exception(frame, 'exception', exc_info[0])
+            return self._handle_exception(frame, 'exception', exc_info[0], EXCEPTION_TYPE_USER_UNHANDLED)
         return False
 
-    def handle_exception(self, frame, event, arg):
+    # IFDEF CYTHON
+    # cdef _handle_exception(self, frame, str event, arg, str exception_type):
+    #     cdef bint stopped;
+    #     cdef tuple abs_real_path_and_base;
+    #     cdef str absolute_filename;
+    #     cdef str canonical_normalized_filename;
+    #     cdef dict filename_to_lines_where_exceptions_are_ignored;
+    #     cdef dict lines_ignored;
+    #     cdef dict frame_id_to_frame;
+    #     cdef dict merged;
+    #     cdef object trace_obj;
+    #     cdef object main_debugger;
+    # ELSE
+    def _handle_exception(self, frame, event, arg, exception_type):
+    # ENDIF
         stopped = False
         try:
-            # print('handle_exception', frame.f_lineno, frame.f_code.co_name)
+            # print('_handle_exception', frame.f_lineno, frame.f_code.co_name)
 
             # We have 3 things in arg: exception type, description, traceback object
             trace_obj = arg[2]
@@ -324,31 +342,33 @@ class PyDBFrame:
 
             if main_debugger.ignore_exceptions_thrown_in_lines_with_ignore_exception:
                 for check_trace_obj in (initial_trace_obj, trace_obj):
-                    filename = get_abs_path_real_path_and_base_from_frame(check_trace_obj.tb_frame)[1]
+                    abs_real_path_and_base = get_abs_path_real_path_and_base_from_frame(check_trace_obj.tb_frame)
+                    absolute_filename = abs_real_path_and_base[0]
+                    canonical_normalized_filename = abs_real_path_and_base[1]
 
                     filename_to_lines_where_exceptions_are_ignored = self.filename_to_lines_where_exceptions_are_ignored
 
-                    lines_ignored = filename_to_lines_where_exceptions_are_ignored.get(filename)
+                    lines_ignored = filename_to_lines_where_exceptions_are_ignored.get(canonical_normalized_filename)
                     if lines_ignored is None:
-                        lines_ignored = filename_to_lines_where_exceptions_are_ignored[filename] = {}
+                        lines_ignored = filename_to_lines_where_exceptions_are_ignored[canonical_normalized_filename] = {}
 
                     try:
-                        curr_stat = os.stat(filename)
+                        curr_stat = os.stat(absolute_filename)
                         curr_stat = (curr_stat.st_size, curr_stat.st_mtime)
                     except:
                         curr_stat = None
 
-                    last_stat = self.filename_to_stat_info.get(filename)
+                    last_stat = self.filename_to_stat_info.get(absolute_filename)
                     if last_stat != curr_stat:
-                        self.filename_to_stat_info[filename] = curr_stat
+                        self.filename_to_stat_info[absolute_filename] = curr_stat
                         lines_ignored.clear()
                         try:
-                            linecache.checkcache(filename)
+                            linecache.checkcache(absolute_filename)
                         except:
                             # Jython 2.1
                             linecache.checkcache()
 
-                    from_user_input = main_debugger.filename_to_lines_where_exceptions_are_ignored.get(filename)
+                    from_user_input = main_debugger.filename_to_lines_where_exceptions_are_ignored.get(canonical_normalized_filename)
                     if from_user_input:
                         merged = {}
                         merged.update(lines_ignored)
@@ -365,10 +385,10 @@ class PyDBFrame:
 
                     if exc_lineno not in merged:  # Note: check on merged but update lines_ignored.
                         try:
-                            line = linecache.getline(filename, exc_lineno, check_trace_obj.tb_frame.f_globals)
+                            line = linecache.getline(absolute_filename, exc_lineno, check_trace_obj.tb_frame.f_globals)
                         except:
                             # Jython 2.1
-                            line = linecache.getline(filename, exc_lineno)
+                            line = linecache.getline(absolute_filename, exc_lineno)
 
                         if IGNORE_EXCEPTION_TAG.match(line) is not None:
                             lines_ignored[exc_lineno] = 1
@@ -395,7 +415,7 @@ class PyDBFrame:
                 stopped = True
                 main_debugger.send_caught_exception_stack(thread, arg, id(frame))
                 self.set_suspend(thread, CMD_STEP_CAUGHT_EXCEPTION)
-                self.do_wait_suspend(thread, frame, event, arg)
+                self.do_wait_suspend(thread, frame, event, arg, exception_type=exception_type)
                 main_debugger.send_caught_exception_stack_proceeded(thread)
             except:
                 pydev_log.exception()
@@ -416,7 +436,12 @@ class PyDBFrame:
 
         return stopped
 
+    # IFDEF CYTHON
+    # cdef get_func_name(self, frame):
+    #     cdef str func_name
+    # ELSE
     def get_func_name(self, frame):
+    # ENDIF
         code_obj = frame.f_code
         func_name = code_obj.co_name
         try:
@@ -429,7 +454,11 @@ class PyDBFrame:
             pydev_log.exception()
             return func_name
 
-    def show_return_values(self, frame, arg):
+    # IFDEF CYTHON
+    # cdef _show_return_values(self, frame, arg):
+    # ELSE
+    def _show_return_values(self, frame, arg):
+    # ENDIF
         try:
             try:
                 f_locals_back = getattr(frame.f_back, "f_locals", None)
@@ -445,7 +474,11 @@ class PyDBFrame:
         finally:
             f_locals_back = None
 
-    def remove_return_values(self, main_debugger, frame):
+    # IFDEF CYTHON
+    # cdef _remove_return_values(self, main_debugger, frame):
+    # ELSE
+    def _remove_return_values(self, main_debugger, frame):
+    # ENDIF
         try:
             try:
                 # Showing return values was turned off, we should remove them from locals dict.
@@ -460,7 +493,11 @@ class PyDBFrame:
         finally:
             f_locals_back = None
 
+    # IFDEF CYTHON
+    # cdef _get_unfiltered_back_frame(self, main_debugger, frame):
+    # ELSE
     def _get_unfiltered_back_frame(self, main_debugger, frame):
+    # ENDIF
         f = frame.f_back
         while f is not None:
             if not main_debugger.is_files_filter_enabled:
@@ -477,7 +514,7 @@ class PyDBFrame:
 
     # IFDEF CYTHON
     # cpdef trace_dispatch(self, frame, str event, arg):
-    #     cdef str filename;
+    #     cdef tuple abs_path_canonical_path_and_base;
     #     cdef bint is_exception_event;
     #     cdef bint has_exception_breakpoints;
     #     cdef bint can_skip;
@@ -512,7 +549,7 @@ class PyDBFrame:
         # generation be better split among what each part does).
 
         # DEBUG = '_debugger_case_generator.py' in frame.f_code.co_filename
-        main_debugger, filename, info, thread, frame_skips_cache, frame_cache_key = self._args
+        main_debugger, abs_path_canonical_path_and_base, info, thread, frame_skips_cache, frame_cache_key = self._args
         # if DEBUG: print('frame trace_dispatch %s %s %s %s %s %s, stop: %s' % (frame.f_lineno, frame.f_code.co_name, frame.f_code.co_filename, event, constant_to_str(info.pydev_step_cmd), arg, info.pydev_step_stop))
         try:
             info.is_tracing += 1
@@ -607,9 +644,9 @@ class PyDBFrame:
                 elif event == 'exception':
                     breakpoints_for_file = None
                     if has_exception_breakpoints:
-                        should_stop, frame = self.should_stop_on_exception(frame, event, arg)
+                        should_stop, frame = self._should_stop_on_exception(frame, event, arg)
                         if should_stop:
-                            if self.handle_exception(frame, event, arg):
+                            if self._handle_exception(frame, event, arg, EXCEPTION_TYPE_HANDLED):
                                 return self.trace_dispatch
 
                     return self.trace_dispatch
@@ -657,9 +694,9 @@ class PyDBFrame:
                     is_exception_event = True
                     breakpoints_for_file = None
                     if has_exception_breakpoints:
-                        should_stop, frame = self.should_stop_on_exception(frame, event, arg)
+                        should_stop, frame = self._should_stop_on_exception(frame, event, arg)
                         if should_stop:
-                            if self.handle_exception(frame, event, arg):
+                            if self._handle_exception(frame, event, arg, EXCEPTION_TYPE_HANDLED):
                                 return self.trace_dispatch
                     is_line = False
                     is_return = False
@@ -670,7 +707,7 @@ class PyDBFrame:
                     return self.trace_dispatch
 
             if not is_exception_event:
-                breakpoints_for_file = main_debugger.breakpoints.get(filename)
+                breakpoints_for_file = main_debugger.breakpoints.get(abs_path_canonical_path_and_base[1])
 
                 can_skip = False
 
@@ -736,8 +773,11 @@ class PyDBFrame:
                     else:
                         has_breakpoint_in_frame = False
 
-                        func_lines = _get_func_lines(frame.f_code)
-                        if func_lines is None:
+                        try:
+                            func_lines = set()
+                            for offset_and_lineno in dis.findlinestarts(frame.f_code):
+                                func_lines.add(offset_and_lineno[1])
+                        except:
                             # This is a fallback for implementations where we can't get the function
                             # lines -- i.e.: jython (in this case clients need to provide the function
                             # name to decide on the skip or we won't be able to skip the function
@@ -840,11 +880,11 @@ class PyDBFrame:
                                 and not main_debugger.apply_files_filter(frame.f_back, frame.f_back.f_code.co_filename, True)
                             )
                         ):
-                        self.show_return_values(frame, arg)
+                        self._show_return_values(frame, arg)
 
                 elif main_debugger.remove_return_values_flag:
                     try:
-                        self.remove_return_values(main_debugger, frame)
+                        self._remove_return_values(main_debugger, frame)
                     finally:
                         main_debugger.remove_return_values_flag = False
 
@@ -881,7 +921,7 @@ class PyDBFrame:
                         # I.e.: cache the result on self.should_skip (no need to evaluate the same frame multiple times).
                         # Note that on a code reload, we won't re-evaluate this because in practice, the frame.f_code
                         # Which will be handled by this frame is read-only, so, we can cache it safely.
-                        if not pydevd_dont_trace.should_trace_hook(frame, filename):
+                        if not pydevd_dont_trace.should_trace_hook(frame, abs_path_canonical_path_and_base[0]):
                             # -1, 0, 1 to be Cython-friendly
                             should_skip = self.should_skip = 1
                         else:
@@ -986,7 +1026,7 @@ class PyDBFrame:
                             # When we get to the pydevd run function, the debugging has actually finished for the main thread
                             # (note that it can still go on for other threads, but for this one, we just make it finish)
                             # So, just setting it to None should be OK
-                            _, back_filename, base = get_abs_path_real_path_and_base_from_frame(back)
+                            back_absolute_filename, _, base = get_abs_path_real_path_and_base_from_frame(back)
                             if (base, back.f_code.co_name) in (DEBUG_START, DEBUG_START_PY3K):
                                 back = None
 
@@ -996,7 +1036,7 @@ class PyDBFrame:
                                 return None if is_call else NO_FTRACE
 
                             elif pydevd_dont_trace.should_trace_hook is not None:
-                                if not pydevd_dont_trace.should_trace_hook(back, back_filename):
+                                if not pydevd_dont_trace.should_trace_hook(back, back_absolute_filename):
                                     # In this case, we'll have to skip the previous one because it shouldn't be traced.
                                     # Also, we have to reset the tracing, because if the parent's parent (or some
                                     # other parent) has to be traced and it's not currently, we wouldn't stop where

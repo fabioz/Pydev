@@ -44,8 +44,8 @@ public class PyConfigureExceptionAction extends PyAction implements IWorkbenchWi
             instance.setIgnoreExceptionsThrownInLinesWithIgnoreException(dialog
                     .getResultIgnoreExceptionsThrownInLinesWithIgnoreException());
 
-            instance.setBreakOn(dialog.getResultHandleCaughtExceptions(),
-                    dialog.getResultHandleUncaughtExceptions(), exceptionArray);
+            instance.setBreakOn(dialog.getResultHandleCaughtExceptions(), dialog.getResultHandleUncaughtExceptions(),
+                    dialog.getResultHandleUserUncaughtExceptions(), exceptionArray);
         }
     }
 

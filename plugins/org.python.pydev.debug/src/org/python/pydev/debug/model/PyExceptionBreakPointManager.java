@@ -30,6 +30,7 @@ public class PyExceptionBreakPointManager {
     private static final String CUSTOM_EXCEPTION_FILE_NAME = "custom_exceptions.prefs";
     private static final String BREAK_ON_CAUGHT_EXCEPTION = "caught_exception_state.prefs";
     private static final String BREAK_ON_UNCAUGHT_EXCEPTION = "uncaught_exception_state.prefs";
+    private static final String BREAK_ON_USER_UNCAUGHT_EXCEPTION = "user_uncaught_exception_state.prefs";
 
     private static PyExceptionBreakPointManager pyExceptionBreakPointManager;
     private static final Object lock = new Object();
@@ -74,10 +75,15 @@ public class PyExceptionBreakPointManager {
     /**
      * Sets whether we should break on caught/uncaught exceptions and the array of exceptions to be used.
      */
-    public void setBreakOn(boolean breakOnCaught, boolean breakOnUncaught, String[] exceptionArray) {
+    public void setBreakOn(boolean breakOnCaught, boolean breakOnUncaught, boolean breakOnUserUncaught,
+            String[] exceptionArray) {
         ConfigureExceptionsFileUtils.writeToFile(BREAK_ON_CAUGHT_EXCEPTION, Boolean.toString(breakOnCaught), false);
 
         ConfigureExceptionsFileUtils.writeToFile(BREAK_ON_UNCAUGHT_EXCEPTION, Boolean.toString(breakOnUncaught), false);
+
+        ConfigureExceptionsFileUtils.writeToFile(BREAK_ON_USER_UNCAUGHT_EXCEPTION,
+                Boolean.toString(breakOnUserUncaught),
+                false);
 
         String pyExceptionsStr = StringUtils.join(
                 ConfigureExceptionsFileUtils.DELIMITER, exceptionArray);
@@ -105,6 +111,15 @@ public class PyExceptionBreakPointManager {
     }
 
     //Getters
+
+    public boolean getBreakOnUserUncaughtExceptions() {
+        String breakOnUncaught = ConfigureExceptionsFileUtils.readFromMetadataFile(BREAK_ON_USER_UNCAUGHT_EXCEPTION);
+        if (breakOnUncaught.length() > 0) {
+            return Boolean.parseBoolean(breakOnUncaught);
+        } else {
+            return false;
+        }
+    }
 
     public boolean getBreakOnUncaughtExceptions() {
         String breakOnUncaught = ConfigureExceptionsFileUtils.readFromMetadataFile(BREAK_ON_UNCAUGHT_EXCEPTION);

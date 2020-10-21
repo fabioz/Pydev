@@ -81,6 +81,8 @@ CMD_THREAD_RESUME_SINGLE_NOTIFICATION = 158
 CMD_STEP_OVER_MY_CODE = 159
 CMD_STEP_RETURN_MY_CODE = 160
 
+CMD_SET_PY_EXCEPTION = 161
+
 CMD_REDIRECT_OUTPUT = 200
 CMD_GET_NEXT_STATEMENT_TARGETS = 201
 CMD_SET_PROJECT_ROOTS = 202
@@ -1417,14 +1419,7 @@ class AbstractWriterThread(threading.Thread):
 
 
 def _get_debugger_test_file(filename):
-    try:
-        rPath = os.path.realpath  # @UndefinedVariable
-    except:
-        # jython does not support os.path.realpath
-        # realpath is a no-op on systems without islink support
-        rPath = os.path.abspath
-
-    ret = os.path.normcase(rPath(os.path.join(os.path.dirname(__file__), filename)))
+    ret = os.path.abspath(os.path.join(os.path.dirname(__file__), filename))
     if not os.path.exists(ret):
         ret = os.path.join(os.path.dirname(__file__), 'resources', filename)
     if not os.path.exists(ret):
