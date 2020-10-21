@@ -25,6 +25,10 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.BinOp;
+import org.python.pydev.parser.jython.ast.Str;
+import org.python.pydev.parser.jython.ast.exprType;
+import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalysis;
@@ -111,13 +115,19 @@ public class PyRenameGlobalProcess extends AbstractRenameWorkspaceRefactorProces
                             assignDef.line, assignDef.col, module.getNature(), completionCache,
                             false);
                 }
-                if (assignDef.nodeValue != null && assignDef.value != null && !assignDef.value.isEmpty()) {
-                    PyRefactoringFindDefinition.findActualDefinition(request.getMonitor(), module,
-                            assignDef.value,
-                            foundDefs,
-                            assignDef.nodeValue.beginLine, assignDef.nodeValue.beginColumn, module.getNature(),
-                            completionCache,
-                            false);
+                if (assignDef.nodeValue != null && assignDef.value != null) {
+                    if (assignDef.nodeValue instanceof BinOp) {
+                        BinOp binOp = (BinOp) assignDef.nodeValue;
+                        searchDefsInBinOp(binOp.left, foundDefs, module, completionCache);
+                        searchDefsInBinOp(binOp.right, foundDefs, module, completionCache);
+                    } else if (!assignDef.value.isEmpty()) {
+                        PyRefactoringFindDefinition.findActualDefinition(request.getMonitor(), module,
+                                assignDef.value,
+                                foundDefs,
+                                assignDef.nodeValue.beginLine, assignDef.nodeValue.beginColumn, module.getNature(),
+                                completionCache,
+                                false);
+                    }
                 }
                 if (assignDef.nodeType != null && assignDef.type != null && !assignDef.type.isEmpty()) {
                     PyRefactoringFindDefinition.findActualDefinition(request.getMonitor(), module,
@@ -154,6 +164,28 @@ public class PyRenameGlobalProcess extends AbstractRenameWorkspaceRefactorProces
             }
         }
         return false;
+    }
+
+    private void searchDefsInBinOp(exprType value, List<IDefinition> foundDefs, IModule module,
+            ICompletionCache completionCache) throws CompletionRecursionException, Exception {
+        if (value == null) {
+            return;
+        }
+        if (value instanceof BinOp) {
+            BinOp binOp = (BinOp) value;
+            searchDefsInBinOp(binOp.left, foundDefs, module, completionCache);
+            searchDefsInBinOp(binOp.right, foundDefs, module, completionCache);
+        } else if (!(value instanceof Str)) {
+            String rep = NodeUtils.getFullRepresentationString(value);
+            if (rep != null && !rep.isEmpty()) {
+                PyRefactoringFindDefinition.findActualDefinition(request.getMonitor(), module,
+                        rep,
+                        foundDefs,
+                        value.beginLine, value.beginColumn, module.getNature(),
+                        completionCache,
+                        false);
+            }
+        }
     }
 
     @Override
