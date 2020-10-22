@@ -26,6 +26,8 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.BinOp;
+import org.python.pydev.parser.jython.ast.BoolOp;
+import org.python.pydev.parser.jython.ast.Compare;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -116,10 +118,9 @@ public class PyRenameGlobalProcess extends AbstractRenameWorkspaceRefactorProces
                             false);
                 }
                 if (assignDef.nodeValue != null && assignDef.value != null) {
-                    if (assignDef.nodeValue instanceof BinOp) {
-                        BinOp binOp = (BinOp) assignDef.nodeValue;
-                        searchDefsInBinOp(binOp.left, foundDefs, module, completionCache);
-                        searchDefsInBinOp(binOp.right, foundDefs, module, completionCache);
+                    if (assignDef.nodeValue instanceof BinOp || assignDef.nodeValue instanceof BoolOp
+                            || assignDef.nodeValue instanceof Compare) {
+                        searchDefsInValue(assignDef.nodeValue, foundDefs, module, completionCache);
                     } else if (!assignDef.value.isEmpty()) {
                         PyRefactoringFindDefinition.findActualDefinition(request.getMonitor(), module,
                                 assignDef.value,
@@ -166,15 +167,26 @@ public class PyRenameGlobalProcess extends AbstractRenameWorkspaceRefactorProces
         return false;
     }
 
-    private void searchDefsInBinOp(exprType value, List<IDefinition> foundDefs, IModule module,
+    private void searchDefsInValue(exprType value, List<IDefinition> foundDefs, IModule module,
             ICompletionCache completionCache) throws CompletionRecursionException, Exception {
         if (value == null) {
             return;
         }
         if (value instanceof BinOp) {
             BinOp binOp = (BinOp) value;
-            searchDefsInBinOp(binOp.left, foundDefs, module, completionCache);
-            searchDefsInBinOp(binOp.right, foundDefs, module, completionCache);
+            searchDefsInValue(binOp.left, foundDefs, module, completionCache);
+            searchDefsInValue(binOp.right, foundDefs, module, completionCache);
+        } else if (value instanceof BoolOp) {
+            exprType[] values = ((BoolOp) value).values;
+            for (exprType v : values) {
+                searchDefsInValue(v, foundDefs, module, completionCache);
+            }
+        } else if (value instanceof Compare) {
+            Compare compare = (Compare) value;
+            searchDefsInValue(compare.left, foundDefs, module, completionCache);
+            for (exprType comparator : compare.comparators) {
+                searchDefsInValue(comparator, foundDefs, module, completionCache);
+            }
         } else if (!(value instanceof Str)) {
             String rep = NodeUtils.getFullRepresentationString(value);
             if (rep != null && !rep.isEmpty()) {
