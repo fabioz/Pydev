@@ -90,7 +90,7 @@ public class PyRenameGlobalProcess extends AbstractRenameWorkspaceRefactorProces
                         for (Tuple<Integer, Integer> possiblePosition : possiblePositions) {
                             if (possiblePosition.o1 == occurrence.endLine && possiblePosition.o2 == occurrence.endCol) {
                                 ret.add(occurrence);
-                                continue;
+                                break;
                             }
                         }
                     }
