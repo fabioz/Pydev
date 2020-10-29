@@ -41,6 +41,12 @@
 
         <div id="bronze-sponsors-a-hrefs">
 
+        <a href="https://www.casinonic.com/en-AU/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/casinonic.jpg" alt="Casinonic" title="Play in Casinonic casino" /></a>
+
+        <a href="https://bittokoinkajino.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/bittokoinkajino.png" alt="bittokoinkajino.com" title="https://bittokoinkajino.com/" /></a>
+
+        <a href="https://www.ramotion.com/agency/web-design/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/ramotion.png" alt="ramotion.com/agency/web-design/" title="https://www.ramotion.com/agency/web-design/" /></a>
+
         <a href="https://gamblizard.com/free-spins" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/gamblizard.png" alt="Gamb Lizard free spins with no deposit required" title="https://gamblizard.com/free-spins" /></a>
 
         <a href="https://goread.io/buy-instagram-followers" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/goread.png" alt="Goread.io/buy-instagram-followers" title="https://goread.io/buy-instagram-followers" /></a>
