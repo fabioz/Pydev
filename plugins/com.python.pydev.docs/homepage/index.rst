@@ -41,11 +41,11 @@
 
         <div id="bronze-sponsors-a-hrefs">
 
-        <a href="https://www.casinonic.com/en-AU/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/casinonic.jpg" alt="Casinonic" title="Play in Casinonic casino" /></a>
+        <a href="https://www.casinonic.com/en-AU" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/casinonic.jpg" alt="Casinonic" title="Play in Casinonic casino" /></a>
 
-        <a href="https://bittokoinkajino.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/bittokoinkajino.png" alt="bittokoinkajino.com" title="https://bittokoinkajino.com/" /></a>
+        <a href="https://bittokoinkajino.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/bittokoinkajino.png" alt="bittokoinkajino.com" title="https://bittokoinkajino.com" /></a>
 
-        <a href="https://www.ramotion.com/agency/web-design/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/ramotion.png" alt="ramotion.com/agency/web-design/" title="https://www.ramotion.com/agency/web-design/" /></a>
+        <a href="https://www.ramotion.com/agency/web-design" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/ramotion.png" alt="Ramotion" title="https://www.ramotion.com/agency/web-design" /></a>
 
         <a href="https://gamblizard.com/free-spins" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/gamblizard.png" alt="Gamb Lizard free spins with no deposit required" title="https://gamblizard.com/free-spins" /></a>
 
@@ -55,7 +55,7 @@
 
         <a href="https://www.discovermagazine.com/sponsored/proven-reviews-nutravesta-proven-weight-loss-pills-really-work" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/discovermagazine.png" alt="NutraVesta ProVen" title="https://www.discovermagazine.com/sponsored/proven-reviews-nutravesta-proven-weight-loss-pills-really-work" /></a>
 
-        <a href="https://vpnblackfriday.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/vpnblackfriday.png" alt="vpn black friday" title="https://vpnblackfriday.com/" /></a>
+        <a href="https://vpnblackfriday.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/vpnblackfriday.png" alt="vpn black friday" title="https://vpnblackfriday.com" /></a>
 
         <a href="https://new-casino.ca/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/newcasino.png" alt="new casino canada" title="https://new-casino.ca/" /></a>
 

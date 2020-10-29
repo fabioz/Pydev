@@ -100,6 +100,7 @@ cd /D X:\pydevsite.github.io
 mu st
 mu acp "Updated to 8.0.0"
 
+"C:\Program Files\FileZilla FTP Client\filezilla.exe" sftp://fabioz,pydev@frs.sourceforge.net/home/project-web/pydev/htdocs/images/sponsors --local="x:\pydev\plugins\com.python.pydev.docs\homepage\final\images\sponsors"
 "C:\Program Files\FileZilla FTP Client\filezilla.exe" sftp://fabioz,pydev@frs.sourceforge.net/home/project-web/pydev/htdocs --local="x:\pydev\plugins\com.python.pydev.docs\homepage\final"
 
 		** Tag repository:
