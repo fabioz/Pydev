@@ -32,6 +32,7 @@ import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.shared_core.structure.Tuple;
 
 import com.python.pydev.analysis.scopeanalysis.ScopeAnalysis;
 
@@ -59,6 +60,7 @@ public class PyRenameGlobalProcess extends AbstractRenameWorkspaceRefactorProces
         List<ASTEntry> localOccurrences = ScopeAnalysis.getLocalOccurrences(initialName, module.getAst(), false, true);
         if (localOccurrences.size() > 0) {
             try {
+                List<Tuple<Integer, Integer>> possiblePositions = new ArrayList<Tuple<Integer, Integer>>();
                 List<IDefinition> actualDefinitions = request.findActualDefinitions(completionCache);
                 for (ASTEntry occurrence : localOccurrences) {
                     List<IDefinition> foundDefs = new ArrayList<IDefinition>();
@@ -76,12 +78,22 @@ public class PyRenameGlobalProcess extends AbstractRenameWorkspaceRefactorProces
                             if (defModule.getName().equals(actualDefModule.getName())
                                     && def.getLine() == actualDef.getLine()) {
                                 ret.add(occurrence);
-                            } else if (checkDef(def, module, completionCache, actualDef, false)) {
-                                ret.add(occurrence);
+                            } else {
+                                addPossiblePositions(def, module, completionCache, actualDef, possiblePositions);
                             }
                         }
                     }
 
+                }
+                for (ASTEntry occurrence : localOccurrences) {
+                    if (initialName.equals(occurrence.getName()) && !ret.contains(occurrence)) {
+                        for (Tuple<Integer, Integer> possiblePosition : possiblePositions) {
+                            if (possiblePosition.o1 == occurrence.endLine && possiblePosition.o2 == occurrence.endCol) {
+                                ret.add(occurrence);
+                                continue;
+                            }
+                        }
+                    }
                 }
             } catch (Exception e) {
                 Log.log(e);
@@ -90,23 +102,10 @@ public class PyRenameGlobalProcess extends AbstractRenameWorkspaceRefactorProces
         return ret;
     }
 
-    private boolean checkDef(IDefinition iDef, SourceModule module, ICompletionCache completionCache,
-            IDefinition iActualDef, boolean checkModule)
+    private void addPossiblePositions(IDefinition iDef, SourceModule module, ICompletionCache completionCache,
+            IDefinition iActualDef, List<Tuple<Integer, Integer>> possiblePositions)
             throws CompletionRecursionException, Exception {
-        if (iDef == null) {
-            return false;
-        }
         if (iDef instanceof Definition) {
-            if (checkModule) {
-                if (((Definition) iDef).module == null || ((Definition) iDef).ast == null) {
-                    return false;
-                }
-                String defModuleName = ((Definition) iDef).module.getName();
-                if (iActualDef.getModule().getName().equals(defModuleName)
-                        && iDef.getLine() == iActualDef.getLine()) {
-                    return true;
-                }
-            }
             List<IDefinition> foundDefs = new ArrayList<IDefinition>();
             if (iDef instanceof AssignDefinition) {
                 AssignDefinition assignDef = (AssignDefinition) iDef;
@@ -116,11 +115,15 @@ public class PyRenameGlobalProcess extends AbstractRenameWorkspaceRefactorProces
                             foundDefs,
                             assignDef.line, assignDef.col, module.getNature(), completionCache,
                             false);
+                    if (checkFoundDefs(foundDefs, iDef, iActualDef)) {
+                        possiblePositions.add(new Tuple<Integer, Integer>(assignDef.line, assignDef.col));
+                    }
                 }
                 if (assignDef.nodeValue != null && assignDef.value != null) {
                     if (assignDef.nodeValue instanceof BinOp || assignDef.nodeValue instanceof BoolOp
                             || assignDef.nodeValue instanceof Compare) {
-                        searchDefsInValue(assignDef.nodeValue, foundDefs, module, completionCache);
+                        searchDefsInValue(assignDef.nodeValue, module, completionCache, possiblePositions,
+                                iDef, iActualDef);
                     } else if (!assignDef.value.isEmpty()) {
                         PyRefactoringFindDefinition.findActualDefinition(request.getMonitor(), module,
                                 assignDef.value,
@@ -128,6 +131,10 @@ public class PyRenameGlobalProcess extends AbstractRenameWorkspaceRefactorProces
                                 assignDef.nodeValue.beginLine, assignDef.nodeValue.beginColumn, module.getNature(),
                                 completionCache,
                                 false);
+                        if (checkFoundDefs(foundDefs, iDef, iActualDef)) {
+                            possiblePositions.add(new Tuple<Integer, Integer>(assignDef.nodeValue.beginLine,
+                                    assignDef.nodeValue.beginColumn));
+                        }
                     }
                 }
                 if (assignDef.nodeType != null && assignDef.type != null && !assignDef.type.isEmpty()) {
@@ -137,6 +144,10 @@ public class PyRenameGlobalProcess extends AbstractRenameWorkspaceRefactorProces
                             assignDef.nodeType.beginLine, assignDef.nodeType.beginColumn, module.getNature(),
                             completionCache,
                             false);
+                    if (checkFoundDefs(foundDefs, iDef, iActualDef)) {
+                        possiblePositions.add(new Tuple<Integer, Integer>(assignDef.nodeType.beginLine,
+                                assignDef.nodeType.beginColumn));
+                    }
                 }
             } else {
                 Definition def = (Definition) iDef;
@@ -146,6 +157,9 @@ public class PyRenameGlobalProcess extends AbstractRenameWorkspaceRefactorProces
                             foundDefs,
                             def.line, def.col, module.getNature(), completionCache,
                             false);
+                    if (checkFoundDefs(foundDefs, iDef, iActualDef)) {
+                        possiblePositions.add(new Tuple<Integer, Integer>(def.line, def.col));
+                    }
                 }
                 if (def.nodeType != null && def.type != null && !def.type.isEmpty()) {
                     PyRefactoringFindDefinition.findActualDefinition(request.getMonitor(), module,
@@ -153,51 +167,73 @@ public class PyRenameGlobalProcess extends AbstractRenameWorkspaceRefactorProces
                             foundDefs,
                             def.nodeType.beginLine, def.nodeType.beginColumn, module.getNature(), completionCache,
                             false);
-                }
-            }
-            for (IDefinition foundDef : foundDefs) {
-                if (iDef.equals(foundDef)) {
-                    continue;
-                }
-                if (checkDef(foundDef, module, completionCache, iActualDef, true)) {
-                    return true;
+                    if (checkFoundDefs(foundDefs, iDef, iActualDef)) {
+                        possiblePositions
+                                .add(new Tuple<Integer, Integer>(def.nodeType.beginLine, def.nodeType.beginColumn));
+                    }
                 }
             }
         }
-        return false;
     }
 
-    private void searchDefsInValue(exprType value, List<IDefinition> foundDefs, IModule module,
-            ICompletionCache completionCache) throws CompletionRecursionException, Exception {
+    private void searchDefsInValue(exprType value, IModule module,
+            ICompletionCache completionCache, List<Tuple<Integer, Integer>> possiblePositions, IDefinition iDef,
+            IDefinition iActualDef) throws CompletionRecursionException, Exception {
         if (value == null) {
             return;
         }
         if (value instanceof BinOp) {
             BinOp binOp = (BinOp) value;
-            searchDefsInValue(binOp.left, foundDefs, module, completionCache);
-            searchDefsInValue(binOp.right, foundDefs, module, completionCache);
+            searchDefsInValue(binOp.left, module, completionCache, possiblePositions, iDef, iActualDef);
+            searchDefsInValue(binOp.right, module, completionCache, possiblePositions, iDef, iActualDef);
+
         } else if (value instanceof BoolOp) {
             exprType[] values = ((BoolOp) value).values;
             for (exprType v : values) {
-                searchDefsInValue(v, foundDefs, module, completionCache);
+                searchDefsInValue(v, module, completionCache, possiblePositions, iDef, iActualDef);
             }
         } else if (value instanceof Compare) {
             Compare compare = (Compare) value;
-            searchDefsInValue(compare.left, foundDefs, module, completionCache);
+            searchDefsInValue(compare.left, module, completionCache, possiblePositions, iDef, iActualDef);
             for (exprType comparator : compare.comparators) {
-                searchDefsInValue(comparator, foundDefs, module, completionCache);
+                searchDefsInValue(comparator, module, completionCache, possiblePositions, iDef, iActualDef);
             }
         } else if (!(value instanceof Str)) {
             String rep = NodeUtils.getFullRepresentationString(value);
             if (rep != null && !rep.isEmpty()) {
+                List<IDefinition> foundDefs = new ArrayList<IDefinition>();
                 PyRefactoringFindDefinition.findActualDefinition(request.getMonitor(), module,
                         rep,
                         foundDefs,
                         value.beginLine, value.beginColumn, module.getNature(),
                         completionCache,
                         false);
+                if (checkFoundDefs(foundDefs, iDef, iActualDef)) {
+                    possiblePositions.add(new Tuple<Integer, Integer>(value.beginLine, value.beginColumn));
+                }
             }
         }
+    }
+
+    private static boolean checkFoundDefs(List<IDefinition> foundDefs, IDefinition iDef, IDefinition iActualDef) {
+        for (IDefinition foundDef : foundDefs) {
+            if (foundDef == null || iDef.equals(foundDef)) {
+                continue;
+            }
+            if (foundDef instanceof Definition) {
+                if (((Definition) foundDef).module == null || ((Definition) foundDef).ast == null) {
+                    continue;
+                }
+                String foundDefModuleName = ((Definition) foundDef).module.getName();
+                if (iActualDef.getModule().getName().equals(foundDefModuleName)
+                        && foundDef.getLine() == iActualDef.getLine()) {
+                    foundDefs.clear();
+                    return true;
+                }
+            }
+        }
+        foundDefs.clear();
+        return false;
     }
 
     @Override
