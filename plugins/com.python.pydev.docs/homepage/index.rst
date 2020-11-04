@@ -107,8 +107,6 @@
 
 		<a href="https://moneyarcher.com/se/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/moneyarcher.png" alt="moneyarcher" title="https://moneyarcher.com/se/" /></a>
 
-		<a href="https://www.weclub88.net/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/weclub88.png" alt="online casino malaysia" title="https://www.weclub88.net/" /></a>
-
 		<a href="https://mobilunity.com/blog/hire-python-developers/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/mobilunity.png" alt="Mobilunity" title="https://mobilunity.com/" /></a>
 
 		<a href="https://www.jitbit.com/helpdesk/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/jitbit.png" alt="Jitbit Helpdesk Software" title="https://www.jitbit.com/helpdesk/" /></a>
