@@ -24,6 +24,8 @@ package org.python.pydev.refactoring.coderefactoring.inlinelocal.edit;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IPythonPartitions;
+import org.python.pydev.core.docutils.ParsingUtils;
+import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.partition.PyPartitionScanner;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.exprType;
@@ -60,11 +62,20 @@ public class RemoveAssignment extends AbstractRemoveEdit {
 
             /* now find the end */
             FastPartitioner fastPartitioner = (FastPartitioner) PyPartitionScanner.checkPartitionScanner(document);
+            ParsingUtils parsingUtils = ParsingUtils.create(document);
             while (true) {
                 int i = endOffset - 1;
                 char c = document.getChar(i);
                 /* Look for the end of the line or the ; */
                 if (fastPartitioner.getContentType(i) == IPythonPartitions.PY_DEFAULT) {
+                    if (c == '(') {
+                        try {
+                            endOffset = parsingUtils.eatPar(i, null) + 1;
+                        } catch (SyntaxErrorException e) {
+                            throw new RuntimeException(e);
+                        }
+                        continue;
+                    }
                     if (c == '\n') {
                         break;
                     }
