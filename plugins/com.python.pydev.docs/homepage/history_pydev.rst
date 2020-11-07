@@ -6,6 +6,40 @@ History For PyDev
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
+Release 8.0.1 (2020-11-07)
+=============================
+
+* **Main new features**
+	* Python 3.9 is now supported.
+	* Quick-fix to convert a string to an f-string. (**#PyDev-1093**)
+		* Handles %r and %s.
+		* To convert any string to an f-string, use Ctrl+1 with the cursor inside the string.
+
+* **Debugger** (updated to pydevd 2.1.0)
+	* Support for case-sensitive folders in windows.
+	* Support for user unhandled exceptions.
+	* Support for Python 3.9.
+	* When using frame eval mode, all threads are now traced (even if not started from Python).
+
+* **Refactoring**
+	* Fixes when inlining variables. (**#PyDev-410** / **#PyDev-1105**)
+	* Fixed issue where some references of constants were not properly found. (**PyDev-1097**)
+	* Ctrl+Shift+G on class __init__ now searches for constructor references. (**#PyDev-1086**)
+
+* **Others**
+	* MyPy errors are silenced in lines with #noqa. Fixes #PyDev-1090
+	* Mark Skiped Tests as Skip in Overview (for unittest backend). (**#PyDev-1096**, patch by herostrat)
+	* Code formatter now handles walrus operator properly. (**#PyDev-1100**)
+	* Code completion now recognizes walrus operator. (**#PyDev-1102**)
+	* Code completion for namedtuple defined as string now works properly. (**#PyDev-1103**)
+	* Quick fix to surround with considers '$' properly.
+	* Right-click to rerun test from PyUnit view now works with pytest parametrized tests.
+	* Conda activation handling improved. (**#PyDev-1080**)
+	* The IScopedPreferences API is now used auto-import and code-folding preferences (patch by Andreas Pakulat)
+	* Show correct line numbers in problems view for analysis items (patch by Zeckie)
+	* PyLint message with round brackets now properly handled. (**#PyDev-1107**, patch by Zeckie)
+
+
 Release 8.0.0 (2020-09-06)
 =============================
 

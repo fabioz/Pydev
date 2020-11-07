@@ -4,6 +4,67 @@
 
 <div class="section" id="history-for-pydev">
 <h1>History For PyDev</h1>
+<div class="section" id="release-8-0-1-2020-11-07">
+<h2>Release 8.0.1 (2020-11-07)</h2>
+<ul class="simple">
+<li><dl class="first docutils">
+<dt><strong>Main new features</strong></dt>
+<dd><ul class="first last">
+<li>Python 3.9 is now supported.</li>
+<li><dl class="first docutils">
+<dt>Quick-fix to convert a string to an f-string. (<strong>#PyDev-1093</strong>)</dt>
+<dd><ul class="first last">
+<li>Handles %r and %s.</li>
+<li>To convert any string to an f-string, use Ctrl+1 with the cursor inside the string.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><strong>Debugger</strong> (updated to pydevd 2.1.0)</dt>
+<dd><ul class="first last">
+<li>Support for case-sensitive folders in windows.</li>
+<li>Support for user unhandled exceptions.</li>
+<li>Support for Python 3.9.</li>
+<li>When using frame eval mode, all threads are now traced (even if not started from Python).</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><strong>Refactoring</strong></dt>
+<dd><ul class="first last">
+<li>Fixes when inlining variables. (<strong>#PyDev-410</strong> / <strong>#PyDev-1105</strong>)</li>
+<li>Fixed issue where some references of constants were not properly found. (<strong>PyDev-1097</strong>)</li>
+<li>Ctrl+Shift+G on class __init__ now searches for constructor references. (<strong>#PyDev-1086</strong>)</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><strong>Others</strong></dt>
+<dd><ul class="first last">
+<li>MyPy errors are silenced in lines with #noqa. Fixes #PyDev-1090</li>
+<li>Mark Skiped Tests as Skip in Overview (for unittest backend). (<strong>#PyDev-1096</strong>, patch by herostrat)</li>
+<li>Code formatter now handles walrus operator properly. (<strong>#PyDev-1100</strong>)</li>
+<li>Code completion now recognizes walrus operator. (<strong>#PyDev-1102</strong>)</li>
+<li>Code completion for namedtuple defined as string now works properly. (<strong>#PyDev-1103</strong>)</li>
+<li>Quick fix to surround with considers '$' properly.</li>
+<li>Right-click to rerun test from PyUnit view now works with pytest parametrized tests.</li>
+<li>Conda activation handling improved. (<strong>#PyDev-1080</strong>)</li>
+<li>The IScopedPreferences API is now used auto-import and code-folding preferences (patch by Andreas Pakulat)</li>
+<li>Show correct line numbers in problems view for analysis items (patch by Zeckie)</li>
+<li>PyLint message with round brackets now properly handled. (<strong>#PyDev-1107</strong>, patch by Zeckie)</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
 <div class="section" id="release-8-0-0-2020-09-06">
 <h2>Release 8.0.0 (2020-09-06)</h2>
 <ul class="simple">

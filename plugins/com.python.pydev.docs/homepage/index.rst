@@ -369,6 +369,39 @@ To show your appreciation for PyDev and to keep it going strong, help to crowdfu
 .. _`the download page`: download.html#pydev-does-not-appear-after-install
 
 
+Release 8.0.1 (2020-11-07)
+=============================
+
+* **Main new features**
+	* Python 3.9 is now supported.
+	* Quick-fix to convert a string to an f-string. (**#PyDev-1093**)
+		* Handles %r and %s.
+		* To convert any string to an f-string, use Ctrl+1 with the cursor inside the string.
+
+* **Debugger** (updated to pydevd 2.1.0)
+	* Support for case-sensitive folders in windows.
+	* Support for user unhandled exceptions.
+	* Support for Python 3.9.
+	* When using frame eval mode, all threads are now traced (even if not started from Python).
+
+* **Refactoring**
+	* Fixes when inlining variables. (**#PyDev-410** / **#PyDev-1105**)
+	* Fixed issue where some references of constants were not properly found. (**PyDev-1097**)
+	* Ctrl+Shift+G on class __init__ now searches for constructor references. (**#PyDev-1086**)
+
+* **Others**
+	* MyPy errors are silenced in lines with #noqa. Fixes #PyDev-1090
+	* Mark Skiped Tests as Skip in Overview (for unittest backend). (**#PyDev-1096**, patch by herostrat)
+	* Code formatter now handles walrus operator properly. (**#PyDev-1100**)
+	* Code completion now recognizes walrus operator. (**#PyDev-1102**)
+	* Code completion for namedtuple defined as string now works properly. (**#PyDev-1103**)
+	* Quick fix to surround with considers '$' properly.
+	* Right-click to rerun test from PyUnit view now works with pytest parametrized tests.
+	* Conda activation handling improved. (**#PyDev-1080**)
+	* The IScopedPreferences API is now used auto-import and code-folding preferences (patch by Andreas Pakulat)
+	* Show correct line numbers in problems view for analysis items (patch by Zeckie)
+	* PyLint message with round brackets now properly handled. (**#PyDev-1107**, patch by Zeckie)
+
 Release 8.0.0 (2020-09-06)
 =============================
 
@@ -402,37 +435,6 @@ Release 8.0.0 (2020-09-06)
 	* Find references not working for constant depending how it's used. (**#PyDev-1083**)
 	* Backported fix to properly parse raw f-string in Python 3.6. (**#PyDev-991**)
 	* Code completion inside f-strings. (**#PyDev-1081**)
-
-
-
-Release 7.7.0 (2020-08-02)
-=============================
-
-* **MyPy integration improvements**
-
-	* New option to set project source folders as **MYPYPATH**.
-	* **--follow-imports=silent** now set by default.
-	* The cache dir is set by default to **project/.mypy_cache**
-
-* Many improvements for dealing with **typing information** (in code-analysis and code-completion).
-
-* **Debugger improvements** (updated to pydevd 1.9.2)
-
-	* Fix dealing with generator expressions with multiple breakpoints in frame eval mode.
-	* Improvements to deal with blocking evaluate requests.
-
-* Support for pip installed namespace packages (**#PyDev-151**).
-* Fixes in the **PyLint integration** (**#PyDev-729**).
-* Updated to latest isort.
-* isort properly gets project level configuration (**#PyDev-993**).
-* Support for parsing using the latest version of cython (0.29).
-* Properly supporting the latest pytest version (6.0) (TerminalWriter API changed).
-* Fix when applying diffs from external tool (such as the black formatter).
-* Projects sorted by name even if project is also a source folder in the PyDev Package Explorer (**#PyDev-959**).
-* Fix in extract method refactoring with typing information (**#PyDev-1034**)
-* Auto-edit for **__exit__** parameters (**#PyDev-1068**).
-* Nodes are no longer auto-expanded in quick outline if the outline is too big.
-* Properly computing local import target location on code completion with auto local import (**#PyDev-1070**).
 
 
 `View release notes for previous releases`_
