@@ -9,6 +9,7 @@ from _pydevd_bundle.pydevd_trace_dispatch import fix_top_level_trace_and_get_tra
 
 from _pydevd_bundle.pydevd_additional_thread_info import _set_additional_thread_info_lock
 from _pydevd_bundle.pydevd_cython cimport PyDBAdditionalThreadInfo
+from pydevd_tracing import SetTrace
 
 _get_ident = threading.get_ident  # Note this is py3 only, if py2 needed to be supported, _get_ident would be needed.
 _thread_local_info = threading.local()
@@ -26,6 +27,7 @@ cdef class ThreadInfo:
     cdef public int inside_frame_eval
     cdef public bint fully_initialized
     cdef public object thread_trace_func
+    cdef bint _can_create_dummy_thread
 
     # Note: whenever get_func_code_info is called, this value is reset (we're using
     # it as a thread-local value info).
@@ -34,13 +36,56 @@ cdef class ThreadInfo:
     cdef public bint force_stay_in_untraced_mode
 
     def __init__(self):
+        cdef PyFrameObject * frame_obj
+        frame_obj = PyEval_GetFrame()
+
+        # Places that create a ThreadInfo should verify that
+        # a current Python frame is being executed!
+        assert frame_obj != NULL
+
         self.additional_info = None
         self.is_pydevd_thread = False
         self.inside_frame_eval = 0
         self.fully_initialized = False
         self.thread_trace_func = None
 
-    def initialize_if_possible(self):
+        # Get the root (if it's not a Thread initialized from the threading
+        # module, create the dummy thread entry so that we can debug it --
+        # otherwise, we have to wait for the threading module itself to
+        # create the Thread entry).
+        while frame_obj.f_back != NULL:
+            frame_obj = frame_obj.f_back
+
+        basename = <str> frame_obj.f_code.co_filename
+        i = basename.rfind('/')
+        j = basename.rfind('\\')
+        if j > i:
+            i = j
+        if i >= 0:
+            basename = basename[i + 1:]
+        # remove ext
+        i = basename.rfind('.')
+        if i >= 0:
+            basename = basename[:i]
+
+        co_name = <str> frame_obj.f_code.co_name
+
+        # In these cases we cannot create a dummy thread (an actual
+        # thread will be created later or tracing will already be set).
+        if basename == 'threading' and co_name in ('__bootstrap', '_bootstrap', '__bootstrap_inner', '_bootstrap_inner'):
+            self._can_create_dummy_thread = False
+        elif basename == 'pydev_monkey' and co_name == '__call__':
+            self._can_create_dummy_thread = False
+        elif basename == 'pydevd' and co_name in ('run', 'main', '_exec'):
+            self._can_create_dummy_thread = False
+        elif basename == 'pydevd_tracing':
+            self._can_create_dummy_thread = False
+        else:
+            self._can_create_dummy_thread = True
+
+        # print('Can create dummy thread for thread started in: %s %s' % (basename, co_name))
+
+    cdef initialize_if_possible(self):
         # Don't call threading.currentThread because if we're too early in the process
         # we may create a dummy thread.
         self.inside_frame_eval += 1
@@ -49,7 +94,13 @@ cdef class ThreadInfo:
             thread_ident = _get_ident()
             t = _thread_active.get(thread_ident)
             if t is None:
-                return  # Cannot initialize until thread becomes active.
+                if self._can_create_dummy_thread:
+                    # Initialize the dummy thread and set the tracing (both are needed to
+                    # actually stop on breakpoints).
+                    t = threading.current_thread()
+                    SetTrace(dummy_trace_dispatch)
+                else:
+                    return  # Cannot initialize until thread becomes active.
 
             if getattr(t, 'is_pydev_daemon_thread', False):
                 self.is_pydevd_thread = True
@@ -117,11 +168,15 @@ cdef ThreadInfo get_thread_info():
     May return None if the thread is still not active.
     '''
     cdef ThreadInfo thread_info
+    cdef PyFrameObject * frame_obj
     try:
         # Note: changing to a `dict[thread.ident] = thread_info` had almost no
         # effect in the performance.
         thread_info = _thread_local_info.thread_info
     except:
+        frame_obj = PyEval_GetFrame()
+        if frame_obj == NULL:
+            return None
         thread_info = ThreadInfo()
         thread_info.inside_frame_eval += 1
         try:
@@ -131,7 +186,7 @@ cdef ThreadInfo get_thread_info():
             # but this is a good point to initialize it.
             global _code_extra_index
             if _code_extra_index == -1:
-                _code_extra_index = _PyEval_RequestCodeExtraIndex(release_co_extra)
+                _code_extra_index = <int> _PyEval_RequestCodeExtraIndex(release_co_extra)
 
             thread_info.initialize_if_possible()
         finally:
@@ -154,7 +209,7 @@ def get_func_code_info_py(thread_info, frame, code_obj) -> FuncCodeInfo:
     return get_func_code_info(<ThreadInfo> thread_info, <PyFrameObject *> frame, <PyCodeObject *> code_obj)
 
 
-_code_extra_index: Py_SIZE = -1
+cdef int _code_extra_index = -1
 
 cdef FuncCodeInfo get_func_code_info(ThreadInfo thread_info, PyFrameObject * frame_obj, PyCodeObject * code_obj):
     '''
@@ -315,12 +370,16 @@ cdef class _CacheValue(object):
         self.breakpoints_hit_at_lines = breakpoints_hit_at_lines
         self.code_lines_as_set = set(code_line_info.line_to_offset)
 
-    def compute_force_stay_in_untraced_mode(self, breakpoints):
+    cpdef compute_force_stay_in_untraced_mode(self, breakpoints):
         '''
         :param breakpoints:
             set(breakpoint_lines) or dict(breakpoint_line->breakpoint info)
         :return tuple(breakpoint_found, force_stay_in_untraced_mode)
         '''
+        cdef bint force_stay_in_untraced_mode
+        cdef bint breakpoint_found
+        cdef set target_breakpoints
+
         force_stay_in_untraced_mode = False
 
         target_breakpoints = self.code_lines_as_set.intersection(breakpoints)
@@ -403,7 +462,27 @@ cdef generate_code_with_breakpoints(object code_obj_py, dict breakpoints):
 
     return breakpoint_found, code_obj_py
 
+import sys
 
+cdef bint IS_PY_39_OWNARDS = sys.version_info[:2] >= (3, 9)
+
+def frame_eval_func():
+    cdef PyThreadState *state = PyThreadState_Get()
+    if IS_PY_39_OWNARDS:
+        state.interp.eval_frame = <_PyFrameEvalFunction *> get_bytecode_while_frame_eval_39
+    else:
+        state.interp.eval_frame = <_PyFrameEvalFunction *> get_bytecode_while_frame_eval_38
+    dummy_tracing_holder.set_trace_func(dummy_trace_dispatch)
+
+
+def stop_frame_eval():
+    cdef PyThreadState *state = PyThreadState_Get()
+    state.interp.eval_frame = _PyEval_EvalFrameDefault
+
+# During the build we'll generate 2 versions of the code below so that we're compatible with
+# Python 3.9, which receives a "PyThreadState* tstate" as the first parameter and Python 3.6-3.8
+# which doesn't.
+### TEMPLATE_START
 cdef PyObject * get_bytecode_while_frame_eval(PyFrameObject * frame_obj, int exc):
     '''
     This function makes the actual evaluation and changes the bytecode to a version
@@ -411,11 +490,11 @@ cdef PyObject * get_bytecode_while_frame_eval(PyFrameObject * frame_obj, int exc
     '''
     if GlobalDebuggerHolder is None or _thread_local_info is None or exc:
         # Sometimes during process shutdown these global variables become None
-        return _PyEval_EvalFrameDefault(frame_obj, exc)
+        return CALL_EvalFrameDefault
 
     # co_filename: str = <str>frame_obj.f_code.co_filename
     # if co_filename.endswith('threading.py'):
-    #     return _PyEval_EvalFrameDefault(frame_obj, exc)
+    #     return CALL_EvalFrameDefault
 
     cdef ThreadInfo thread_info
     cdef int STATE_SUSPEND = 2
@@ -430,21 +509,21 @@ cdef PyObject * get_bytecode_while_frame_eval(PyFrameObject * frame_obj, int exc
     except:
         thread_info = get_thread_info()
         if thread_info is None:
-            return _PyEval_EvalFrameDefault(frame_obj, exc)
+            return CALL_EvalFrameDefault
 
     if thread_info.inside_frame_eval:
-        return _PyEval_EvalFrameDefault(frame_obj, exc)
+        return CALL_EvalFrameDefault
 
     if not thread_info.fully_initialized:
         thread_info.initialize_if_possible()
         if not thread_info.fully_initialized:
-            return _PyEval_EvalFrameDefault(frame_obj, exc)
+            return CALL_EvalFrameDefault
 
     # Can only get additional_info when fully initialized.
     cdef PyDBAdditionalThreadInfo additional_info = thread_info.additional_info
     if thread_info.is_pydevd_thread or additional_info.is_tracing:
         # Make sure that we don't trace pydevd threads or inside our own calls.
-        return _PyEval_EvalFrameDefault(frame_obj, exc)
+        return CALL_EvalFrameDefault
 
     # frame = <object> frame_obj
     # DEBUG = frame.f_code.co_filename.endswith('_debugger_case_tracing.py')
@@ -456,7 +535,7 @@ cdef PyObject * get_bytecode_while_frame_eval(PyFrameObject * frame_obj, int exc
     try:
         main_debugger: object = GlobalDebuggerHolder.global_dbg
         if main_debugger is None:
-            return _PyEval_EvalFrameDefault(frame_obj, exc)
+            return CALL_EvalFrameDefault
         frame = <object> frame_obj
 
         if thread_info.thread_trace_func is None:
@@ -523,15 +602,5 @@ cdef PyObject * get_bytecode_while_frame_eval(PyFrameObject * frame_obj, int exc
         thread_info.inside_frame_eval -= 1
         additional_info.is_tracing = False
 
-    return _PyEval_EvalFrameDefault(frame_obj, exc)
-
-
-def frame_eval_func():
-    cdef PyThreadState *state = PyThreadState_Get()
-    state.interp.eval_frame = get_bytecode_while_frame_eval
-    dummy_tracing_holder.set_trace_func(dummy_trace_dispatch)
-
-
-def stop_frame_eval():
-    cdef PyThreadState *state = PyThreadState_Get()
-    state.interp.eval_frame = _PyEval_EvalFrameDefault
+    return CALL_EvalFrameDefault
+### TEMPLATE_END
