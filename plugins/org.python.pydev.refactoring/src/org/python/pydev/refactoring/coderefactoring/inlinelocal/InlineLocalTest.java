@@ -52,4 +52,47 @@ public class InlineLocalTest extends TestCase {
         String expected = "print \"A;B\"";
         check(contents, expected);
     }
+
+    public void testMultiLineCall1() throws OperationCanceledException, CoreException {
+        String contents = "new_elem = styling(\n"
+                + "x\n"
+                + ")\n" +
+                "print new_elem";
+        String expected = "print styling(\n"
+                + "    x\n"
+                + ")";
+        check(contents, expected);
+    }
+
+    public void testMultiLineCall2() throws OperationCanceledException, CoreException {
+        String contents = "new_elem = styling(\n" +
+                "    *self.convert_children(styling_in, dataset)\n" +
+                ")\n"
+                + "print new_elem";
+        String expected = "print styling(\n" +
+                "    *self.convert_children(styling_in, dataset))";
+        check(contents, expected);
+    }
+
+    public void testMultiLineCall3() throws OperationCanceledException, CoreException {
+        String contents = "new_elem = styling[\n"
+                + "x\n"
+                + "]\n" +
+                "print new_elem";
+        String expected = "print styling[\n"
+                + "    x\n"
+                + "]";
+        check(contents, expected);
+    }
+
+    public void testMultiLineCall4() throws OperationCanceledException, CoreException {
+        String contents = "new_elem = {\n"
+                + "x\n"
+                + "}\n" +
+                "print new_elem";
+        String expected = "print {\n"
+                + "    x\n"
+                + "}";
+        check(contents, expected);
+    }
 }

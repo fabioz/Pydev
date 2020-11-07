@@ -24,6 +24,8 @@ package org.python.pydev.refactoring.coderefactoring.inlinelocal.edit;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IPythonPartitions;
+import org.python.pydev.core.docutils.ParsingUtils;
+import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.partition.PyPartitionScanner;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.exprType;
@@ -53,18 +55,27 @@ public class RemoveAssignment extends AbstractRemoveEdit {
 
         /* Check how much has to be deleted and store this amount in deleteLength */
         try {
-            /* marks whether or not there is another statement on this line, if 
+            /* marks whether or not there is another statement on this line, if
              * there is we don't have to remove the indentation
              */
             boolean anotherStatementOnThisLine = false;
 
             /* now find the end */
             FastPartitioner fastPartitioner = (FastPartitioner) PyPartitionScanner.checkPartitionScanner(document);
+            ParsingUtils parsingUtils = ParsingUtils.create(document);
             while (true) {
                 int i = endOffset - 1;
                 char c = document.getChar(i);
                 /* Look for the end of the line or the ; */
                 if (fastPartitioner.getContentType(i) == IPythonPartitions.PY_DEFAULT) {
+                    if (c == '(' || c == '[' || c == '{') {
+                        try {
+                            endOffset = parsingUtils.eatPar(i, null, c) + 1;
+                        } catch (SyntaxErrorException e) {
+                            throw new RuntimeException(e);
+                        }
+                        continue;
+                    }
                     if (c == '\n') {
                         break;
                     }
