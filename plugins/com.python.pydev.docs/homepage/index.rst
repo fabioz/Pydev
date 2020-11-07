@@ -63,7 +63,7 @@
 
         <a href="https://qubit-labs.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/qubit_labs.png" alt="Qubit Labs" title="https://qubit-labs.com/" /></a>
 
-        <a href="https://www.combin.com/howto/how-to-get-instagram-account-statistics-and-track-audience-growth/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/growthic.png" alt="Combin" title="https://www.combin.com/howto/how-to-get-instagram-account-statistics-and-track-audience-growth/" /></a>
+        <a href="https://www.combin.com/howto/how-to-get-instagram-account-statistics-and-track-audience-growth/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/growthic.png" alt="Instagram Stats" title="https://www.combin.com/howto/how-to-get-instagram-account-statistics-and-track-audience-growth/" /></a>
 
         <a href="https://pillarwm.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/pillar_wm.png" alt="PillarWM" title="https://pillarwm.com/" /></a>
 
