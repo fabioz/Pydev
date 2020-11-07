@@ -7,6 +7,7 @@
 package com.python.pydev.analysis.scopeanalysis;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -21,7 +22,6 @@ import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
-import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.commentType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
@@ -29,6 +29,7 @@ import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
 import org.python.pydev.shared_core.structure.Tuple;
 
@@ -41,7 +42,7 @@ public class ScopeAnalysis {
 
     /**
      * @return the list of entries with the name parts of attributes (not taking into account its first
-     * part) that are equal to the occurencesFor string. 
+     * part) that are equal to the occurencesFor string.
      */
     public static List<ASTEntry> getAttributeReferences(String occurencesFor, SimpleNode simpleNode, int accept) {
         List<ASTEntry> ret = new ArrayList<ASTEntry>();
@@ -57,6 +58,26 @@ public class ScopeAnalysis {
             }
         }
         return ret;
+    }
+
+    public static Collection<? extends ASTEntry> getFullAttributeReferencesFromPartialName(String initialName,
+            SimpleNode ast) {
+        EasyASTIteratorVisitor visitor = new EasyASTIteratorVisitor() {
+            @Override
+            public Object visitAttribute(Attribute node) throws Exception {
+                String rep = NodeUtils.getRepresentationString(node.attr);
+                if (rep != null && rep.equals(initialName)) {
+                    atomic(node);
+                }
+                return super.visitAttribute(node);
+            }
+        };
+        try {
+            ast.accept(visitor);
+        } catch (Exception e) {
+            Log.log(e);
+        }
+        return visitor.getAsList(Attribute.class);
     }
 
     /**
@@ -94,17 +115,6 @@ public class ScopeAnalysis {
      */
     public static List<ASTEntry> getLocalOccurrences(String occurencesFor, SimpleNode simpleNode) {
         return ScopeAnalysis.getLocalOccurrences(occurencesFor, simpleNode, true);
-    }
-
-    /**
-     * @param occurencesFor the string we're looking for
-     * @param simpleNode we will want the occurences below this node
-     * @param onlyFirstAttribPart get only the first attribute part. `foo.method` will only return foo
-     * @return a list of entries with the occurrences
-     */
-    public static List<ASTEntry> getLocalOccurrences(String occurencesFor, SimpleNode simpleNode,
-            boolean onlyFirstAttribPart) {
-        return ScopeAnalysis.getLocalOccurrences(occurencesFor, simpleNode, onlyFirstAttribPart, false);
     }
 
     /**
@@ -146,7 +156,7 @@ public class ScopeAnalysis {
             @Override
             protected Object unhandled_node(SimpleNode node) throws Exception {
                 Object r = super.unhandled_node(node);
-                //now, we have to check it for occurrences in comments and strings too... (and create 
+                //now, we have to check it for occurrences in comments and strings too... (and create
                 //names for those)
                 checkNode(occurencesFor, ret, node);
                 return r;
@@ -191,7 +201,7 @@ public class ScopeAnalysis {
      * Does only return the first name in attributes if onlyFirstAttribPart is true (otherwise will check all attribute parts)
      */
     public static List<ASTEntry> getLocalOccurrences(final String occurencesFor, SimpleNode simpleNode,
-            final boolean onlyFirstAttribPart, final boolean returnAll) {
+            final boolean onlyFirstAttribPart) {
         List<ASTEntry> ret = new ArrayList<ASTEntry>();
 
         SequencialASTIteratorVisitor visitor = new SequencialASTIteratorVisitor() {
@@ -266,22 +276,9 @@ public class ScopeAnalysis {
             }
         }
 
-        if (returnAll) {
-            return visitor.getAsList(Name.class, NameTok.class);
-        }
-
         Iterator<ASTEntry> iterator = visitor.getNamesIterator();
         while (iterator.hasNext()) {
             ASTEntry entry = iterator.next();
-            //SimpleNode nameNode = entry.getNameNode();
-            //if(!occurencesFor.isParamRename){
-            //    if(nameNode instanceof NameTok){
-            //        NameTok name = (NameTok) nameNode;
-            //        if(name.ctx == NameTok.KeywordName){
-            //            continue;
-            //        }
-            //   }
-            //}
             if (occurencesFor.equals(entry.getName())) {
                 ret.add(entry);
             }

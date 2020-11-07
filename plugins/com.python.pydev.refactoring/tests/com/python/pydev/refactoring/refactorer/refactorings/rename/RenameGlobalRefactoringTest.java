@@ -88,7 +88,7 @@ public class RenameGlobalRefactoringTest extends RefactoringRenameTestBase {
                 "reflib.renameglobal3.foo", 0, 5);
         assertEquals(""
                 + "reflib.renameglobal3.bar\n"
-                + "  ASTEntry<a (Name L=3 C=1)>\n"
+                + "  ASTEntry<SOME_CONSTANT (Attribute L=3 C=9)>\n"
                 + "    Line: 2  a = foo.SOME_CONSTANT --> a = foo.new_name\n"
                 + "\n"
                 + "reflib.renameglobal3.foo\n"
@@ -103,7 +103,7 @@ public class RenameGlobalRefactoringTest extends RefactoringRenameTestBase {
                 "reflib.renameglobal4.foo", 0, 5);
         assertEquals(""
                 + "reflib.renameglobal4.bar\n"
-                + "  ASTEntry<a (Name L=5 C=9)>\n"
+                + "  ASTEntry<SOME_CONSTANT (Attribute L=5 C=17)>\n"
                 + "    Line: 4          a = foo.SOME_CONSTANT -->         a = foo.new_name\n"
                 + "\n"
                 + "reflib.renameglobal4.foo\n"
@@ -122,6 +122,168 @@ public class RenameGlobalRefactoringTest extends RefactoringRenameTestBase {
                 + "    Line: 4          a = foo.SOME_CONSTANT -->         a = foo.new_name\n"
                 + "\n"
                 + "reflib.renameglobal4.foo\n"
+                + "  ASTEntry<SOME_CONSTANT (Name L=1 C=1)>\n"
+                + "    Line: 0  SOME_CONSTANT = 'constant' --> new_name = 'constant'\n"
+                + "\n"
+                + "", asStr(references));
+    }
+
+    public void testRename7() throws Exception {
+        Map<Tuple<String, File>, HashSet<ASTEntry>> references = getReferencesForRenameSimple(
+                "reflib.renameglobal5.foo", 0, 5);
+        assertEquals(""
+                + "reflib.renameglobal5.bar\n"
+                + "  ASTEntry<SOME_CONSTANT (Attribute L=8 C=19)>\n"
+                + "    Line: 7          \"\"\" + foo.SOME_CONSTANT + \"abcdefg\" -->         \"\"\" + foo.new_name + \"abcdefg\"\n"
+                + "\n"
+                + "reflib.renameglobal5.foo\n"
+                + "  ASTEntry<SOME_CONSTANT (Name L=1 C=1)>\n"
+                + "    Line: 0  SOME_CONSTANT = 'constant' --> new_name = 'constant'\n"
+                + "\n"
+                + "", asStr(references));
+    }
+
+    public void testRename8() throws Exception {
+        Map<Tuple<String, File>, HashSet<ASTEntry>> references = getReferencesForRenameSimple(
+                "reflib.renameglobal5.bar", 7, 24);
+        assertEquals(""
+                + "reflib.renameglobal5.bar\n"
+                + "  ASTEntry<SOME_CONSTANT (NameTok L=8 C=19)>\n"
+                + "    Line: 7          \"\"\" + foo.SOME_CONSTANT + \"abcdefg\" -->         \"\"\" + foo.new_name + \"abcdefg\"\n"
+                + "\n"
+                + "reflib.renameglobal5.foo\n"
+                + "  ASTEntry<SOME_CONSTANT (Name L=1 C=1)>\n"
+                + "    Line: 0  SOME_CONSTANT = 'constant' --> new_name = 'constant'\n"
+                + "\n"
+                + "", asStr(references));
+    }
+
+    public void testRename9() throws Exception {
+        Map<Tuple<String, File>, HashSet<ASTEntry>> references = getReferencesForRenameSimple(
+                "reflib.renameglobal6.foo", 0, 5);
+        assertEquals(""
+                + "reflib.renameglobal6.bar\n"
+                + "  ASTEntry<SOME_CONSTANT (Attribute L=8 C=15)>\n"
+                + "    Line: 7          + foo.SOME_CONSTANT -->         + foo.new_name\n"
+                + "\n"
+                + "reflib.renameglobal6.foo\n"
+                + "  ASTEntry<SOME_CONSTANT (Name L=1 C=1)>\n"
+                + "    Line: 0  SOME_CONSTANT = 'constant' --> new_name = 'constant'\n"
+                + "\n"
+                + "", asStr(references));
+    }
+
+    public void testRename10() throws Exception {
+        Map<Tuple<String, File>, HashSet<ASTEntry>> references = getReferencesForRenameSimple(
+                "reflib.renameglobal6.bar", 7, 24);
+        assertEquals(""
+                + "reflib.renameglobal6.bar\n"
+                + "  ASTEntry<SOME_CONSTANT (NameTok L=8 C=15)>\n"
+                + "    Line: 7          + foo.SOME_CONSTANT -->         + foo.new_name\n"
+                + "\n"
+                + "reflib.renameglobal6.foo\n"
+                + "  ASTEntry<SOME_CONSTANT (Name L=1 C=1)>\n"
+                + "    Line: 0  SOME_CONSTANT = 'constant' --> new_name = 'constant'\n"
+                + "\n"
+                + "", asStr(references));
+    }
+
+    public void testRename11() throws Exception {
+        Map<Tuple<String, File>, HashSet<ASTEntry>> references = getReferencesForRenameSimple(
+                "reflib.renameglobal7.foo", 0, 5);
+        assertEquals(""
+                + "reflib.renameglobal7.bar\n"
+                + "  ASTEntry<SOME_CONSTANT (Attribute L=5 C=17)>\n"
+                + "    Line: 4          a = foo.SOME_CONSTANT + foo.SOME_CONSTANT \\ -->         a = foo.new_name + foo.SOME_CONSTANT \\\n"
+                + "  ASTEntry<SOME_CONSTANT (Attribute L=5 C=37)>\n"
+                + "    Line: 4          a = foo.SOME_CONSTANT + foo.SOME_CONSTANT \\ -->         a = foo.SOME_CONSTANT + foo.new_name \\\n"
+                + "  ASTEntry<SOME_CONSTANT (Attribute L=6 C=15)>\n"
+                + "    Line: 5          + foo.SOME_CONSTANT -->         + foo.new_name\n"
+                + "\n"
+                + "reflib.renameglobal7.foo\n"
+                + "  ASTEntry<SOME_CONSTANT (Name L=1 C=1)>\n"
+                + "    Line: 0  SOME_CONSTANT = 'constant' --> new_name = 'constant'\n"
+                + "\n"
+                + "", asStr(references));
+    }
+
+    public void testRename12() throws Exception {
+        Map<Tuple<String, File>, HashSet<ASTEntry>> references = getReferencesForRenameSimple(
+                "reflib.renameglobal7.bar", 4, 21);
+        assertEquals(""
+                + "reflib.renameglobal7.bar\n"
+                + "  ASTEntry<SOME_CONSTANT (NameTok L=5 C=17)>\n"
+                + "    Line: 4          a = foo.SOME_CONSTANT + foo.SOME_CONSTANT \\ -->         a = foo.new_name + foo.SOME_CONSTANT \\\n"
+                + "  ASTEntry<SOME_CONSTANT (NameTok L=5 C=37)>\n"
+                + "    Line: 4          a = foo.SOME_CONSTANT + foo.SOME_CONSTANT \\ -->         a = foo.SOME_CONSTANT + foo.new_name \\\n"
+                + "  ASTEntry<SOME_CONSTANT (NameTok L=6 C=15)>\n"
+                + "    Line: 5          + foo.SOME_CONSTANT -->         + foo.new_name\n"
+                + "\n"
+                + "reflib.renameglobal7.foo\n"
+                + "  ASTEntry<SOME_CONSTANT (Name L=1 C=1)>\n"
+                + "    Line: 0  SOME_CONSTANT = 'constant' --> new_name = 'constant'\n"
+                + "\n"
+                + "", asStr(references));
+    }
+
+    public void testRename13() throws Exception {
+        Map<Tuple<String, File>, HashSet<ASTEntry>> references = getReferencesForRenameSimple(
+                "reflib.renameglobal8.foo", 0, 5);
+        assertEquals(""
+                + "reflib.renameglobal8.bar\n"
+                + "  ASTEntry<SOME_CONSTANT (Attribute L=5 C=17)>\n"
+                + "    Line: 4          a = foo.SOME_CONSTANT == 'something' -->         a = foo.new_name == 'something'\n"
+                + "\n"
+                + "reflib.renameglobal8.foo\n"
+                + "  ASTEntry<SOME_CONSTANT (Name L=1 C=1)>\n"
+                + "    Line: 0  SOME_CONSTANT = 'constant' --> new_name = 'constant'\n"
+                + "\n"
+                + "", asStr(references));
+    }
+
+    public void testRename14() throws Exception {
+        Map<Tuple<String, File>, HashSet<ASTEntry>> references = getReferencesForRenameSimple(
+                "reflib.renameglobal8.bar", 4, 20);
+        assertEquals(""
+                + "reflib.renameglobal8.bar\n"
+                + "  ASTEntry<SOME_CONSTANT (NameTok L=5 C=17)>\n"
+                + "    Line: 4          a = foo.SOME_CONSTANT == 'something' -->         a = foo.new_name == 'something'\n"
+                + "\n"
+                + "reflib.renameglobal8.foo\n"
+                + "  ASTEntry<SOME_CONSTANT (Name L=1 C=1)>\n"
+                + "    Line: 0  SOME_CONSTANT = 'constant' --> new_name = 'constant'\n"
+                + "\n"
+                + "", asStr(references));
+    }
+
+    public void testRename15() throws Exception {
+        Map<Tuple<String, File>, HashSet<ASTEntry>> references = getReferencesForRenameSimple(
+                "reflib.renameglobal9.foo", 0, 5);
+        assertEquals(""
+                + "reflib.renameglobal9.bar\n"
+                + "  ASTEntry<SOME_CONSTANT (Attribute L=5 C=17)>\n"
+                + "    Line: 4          a = foo.SOME_CONSTANT == 'something' or foo.SOME_CONSTANT == 'another' -->         a = foo.new_name == 'something' or foo.SOME_CONSTANT == 'another'\n"
+                + "  ASTEntry<SOME_CONSTANT (Attribute L=5 C=53)>\n"
+                + "    Line: 4          a = foo.SOME_CONSTANT == 'something' or foo.SOME_CONSTANT == 'another' -->         a = foo.SOME_CONSTANT == 'something' or foo.new_name == 'another'\n"
+                + "\n"
+                + "reflib.renameglobal9.foo\n"
+                + "  ASTEntry<SOME_CONSTANT (Name L=1 C=1)>\n"
+                + "    Line: 0  SOME_CONSTANT = 'constant' --> new_name = 'constant'\n"
+                + "\n"
+                + "", asStr(references));
+    }
+
+    public void testRename16() throws Exception {
+        Map<Tuple<String, File>, HashSet<ASTEntry>> references = getReferencesForRenameSimple(
+                "reflib.renameglobal9.bar", 4, 20);
+        assertEquals(""
+                + "reflib.renameglobal9.bar\n"
+                + "  ASTEntry<SOME_CONSTANT (NameTok L=5 C=17)>\n"
+                + "    Line: 4          a = foo.SOME_CONSTANT == 'something' or foo.SOME_CONSTANT == 'another' -->         a = foo.new_name == 'something' or foo.SOME_CONSTANT == 'another'\n"
+                + "  ASTEntry<SOME_CONSTANT (NameTok L=5 C=53)>\n"
+                + "    Line: 4          a = foo.SOME_CONSTANT == 'something' or foo.SOME_CONSTANT == 'another' -->         a = foo.SOME_CONSTANT == 'something' or foo.new_name == 'another'\n"
+                + "\n"
+                + "reflib.renameglobal9.foo\n"
                 + "  ASTEntry<SOME_CONSTANT (Name L=1 C=1)>\n"
                 + "    Line: 0  SOME_CONSTANT = 'constant' --> new_name = 'constant'\n"
                 + "\n"
