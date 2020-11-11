@@ -386,11 +386,11 @@ Release 8.0.1 (2020-11-07)
 
 * **Refactoring**
 	* Fixes when inlining variables. (**#PyDev-410** / **#PyDev-1105**)
-	* Fixed issue where some references of constants were not properly found. (**PyDev-1097**)
+	* Fixed issue where some references of constants were not properly found. (**#PyDev-1097**)
 	* Ctrl+Shift+G on class __init__ now searches for constructor references. (**#PyDev-1086**)
 
 * **Others**
-	* MyPy errors are silenced in lines with #noqa. Fixes #PyDev-1090
+	* MyPy errors are silenced in lines with #noqa. (**#PyDev-1090**)
 	* Mark Skiped Tests as Skip in Overview (for unittest backend). (**#PyDev-1096**, patch by herostrat)
 	* Code formatter now handles walrus operator properly. (**#PyDev-1100**)
 	* Code completion now recognizes walrus operator. (**#PyDev-1102**)
