@@ -406,7 +406,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
         if (args.annotation != null) {
             for (exprType expr : args.annotation) {
                 if (expr != null) {
-                    startScope(Scope.SCOPE_TYPE_ANNOTATION, node);
+                    startScope(Scope.SCOPE_TYPE_ANNOTATION, expr);
                     expr.accept(visitor);
                     endScope(expr);
                 }
