@@ -64,4 +64,28 @@ public class OccurrencesAnalyzerPy38Test extends AnalysisTestsBase {
         checkNoError();
     }
 
+    public void testWithBelowDefinedWithFuture() throws Exception {
+        doc = new Document("" +
+                "from __future__ import annotations\n" +
+                "\n" +
+                "class Foo:\n" +
+                "    def __init__(self, bar: Bar):\n" +
+                "        self.bar = bar\n" +
+                "\n" +
+                "class Bar:\n"
+                + "    pass");
+        checkNoError();
+    }
+
+    public void testWithBelowDefined() throws Exception {
+        doc = new Document("" +
+                "class Foo:\n" +
+                "    def __init__(self, bar: Bar):\n" +
+                "        self.bar = bar\n" +
+                "\n" +
+                "class Bar:\n"
+                + "    pass");
+        checkError("Undefined variable: Bar");
+    }
+
 }
