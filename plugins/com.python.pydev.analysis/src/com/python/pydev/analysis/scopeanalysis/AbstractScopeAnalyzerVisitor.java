@@ -331,9 +331,9 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
             if (rep.equals(token.getRepresentation())) {
                 //found match in names to ignore...
 
-                if (finishClassScope && foundScopeType == Scope.SCOPE_TYPE_CLASS
-                        && scope.getCurrScopeId() < single.scopeFound.getScopeId()
-                        || (!futureAnnotationsImported && foundScopeType == Scope.SCOPE_TYPE_ANNOTATION)) {
+                if (finishClassScope && scope.getCurrScopeId() < single.scopeFound.getScopeId()
+                        && (foundScopeType == Scope.SCOPE_TYPE_CLASS ||
+                                (!futureAnnotationsImported && foundScopeType == Scope.SCOPE_TYPE_ANNOTATION))) {
                     it.remove();
                     onAddUndefinedMessage(tok, found);
                 } else {
