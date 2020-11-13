@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -83,6 +84,11 @@ import com.python.pydev.analysis.visitors.ScopeItems;
  * @author Fabio
  */
 public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
+
+    /**
+     * __future__.annotations imported
+     */
+    public boolean futureAnnotationsImported = false;
 
     /**
      * nature is needed for imports
@@ -326,7 +332,8 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
                 //found match in names to ignore...
 
                 if (finishClassScope && foundScopeType == Scope.SCOPE_TYPE_CLASS
-                        && scope.getCurrScopeId() < single.scopeFound.getScopeId()) {
+                        && scope.getCurrScopeId() < single.scopeFound.getScopeId()
+                        || (!futureAnnotationsImported && foundScopeType == Scope.SCOPE_TYPE_ANNOTATION)) {
                     it.remove();
                     onAddUndefinedMessage(tok, found);
                 } else {
@@ -591,7 +598,6 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
     public Object visitImportFrom(ImportFrom node) throws Exception {
         unhandled_node(node);
         try {
-
             if (AbstractVisitor.isWildImport(node)) {
                 IToken wildImport = AbstractVisitor.makeWildImportToken(node, null, moduleName, nature);
 
@@ -604,6 +610,17 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
                 }
             } else {
                 List<IToken> list = AbstractVisitor.makeImportToken(node, null, moduleName, true, nature);
+
+                ListIterator<IToken> listIterator = list.listIterator();
+                while (listIterator.hasNext()) {
+                    IToken token = listIterator.next();
+                    if ("__future__.annotations".equals(token.getOriginalRep())) {
+                        listIterator.remove();
+                        futureAnnotationsImported = true;
+                        break;
+                    }
+                }
+
                 scope.addImportTokens(new TokensList(list), null, this.completionCache);
             }
 
