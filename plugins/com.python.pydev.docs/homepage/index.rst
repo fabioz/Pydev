@@ -41,6 +41,8 @@
 
         <div id="bronze-sponsors-a-hrefs">
 
+        <a href="https://cryptocasinos.com/" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/cryptocasinos.png" alt="Crypto Casinos" title="https://cryptocasinos.com/" /></a>
+
         <a href="https://www.casinonic.com/en-AU" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/casinonic.jpg" alt="Casinonic" title="Play in Casinonic casino" /></a>
 
         <a href="https://bittokoinkajino.com" border=0><img class="sponsors" style="width:50px;height:50px;" src="images/sponsors/bittokoinkajino.png" alt="bittokoinkajino.com" title="https://bittokoinkajino.com" /></a>
