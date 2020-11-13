@@ -60,6 +60,11 @@ public final class Scope implements Iterable<ScopeItems> {
     public static final int SCOPE_TYPE_LAMBDA = 16;
 
     /**
+     * the scope type is an annotation
+     */
+    public static final int SCOPE_TYPE_ANNOTATION = 32;
+
+    /**
      * when we are at method definition, not always is as expected...
      */
     public boolean isInMethodDefinition = false;
@@ -68,13 +73,13 @@ public final class Scope implements Iterable<ScopeItems> {
      * Constant defining the scopes that should be considered when we're in a method
      */
     public static final int ACCEPTED_METHOD_SCOPES = SCOPE_TYPE_GLOBAL | SCOPE_TYPE_METHOD | SCOPE_TYPE_LAMBDA
-            | SCOPE_TYPE_LIST_COMP;
+            | SCOPE_TYPE_LIST_COMP | SCOPE_TYPE_ANNOTATION;
 
     /**
      * Constant defining all the available scopes
      */
     public static final int ACCEPTED_ALL_SCOPES = SCOPE_TYPE_GLOBAL | SCOPE_TYPE_METHOD | SCOPE_TYPE_LAMBDA
-            | SCOPE_TYPE_CLASS | SCOPE_TYPE_LIST_COMP;
+            | SCOPE_TYPE_CLASS | SCOPE_TYPE_LIST_COMP | SCOPE_TYPE_ANNOTATION;
 
     /**
      * Constant defining that method and lambda are accepted.
@@ -102,6 +107,8 @@ public final class Scope implements Iterable<ScopeItems> {
                 return "Lambda Scope";
             case Scope.SCOPE_TYPE_LIST_COMP:
                 return "List Comp Scope";
+            case Scope.SCOPE_TYPE_ANNOTATION:
+                return "Annotation Scope";
         }
         return null;
     }
