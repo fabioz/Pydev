@@ -279,6 +279,16 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                 }
 
                 if (m != null) {
+                    FastStringBuffer fileNameBuf = new FastStringBuffer();
+                    fileNameBuf.append(outputLine.substring(m.start(1), m.end(1))).replaceAll("\\", "/").trim();
+                    String fileName = fileNameBuf.toString();
+
+                    if ((this.location != null && !location.toString().contains(fileName))
+                            || (this.resource != null && this.resource.getFullPath() != null
+                                    && !this.resource.getFullPath().toString().contains(fileName))) {
+                        continue;
+                    }
+
                     int line = -1;
                     String messageId = "";
                     String message = "";
