@@ -1,6 +1,7 @@
 package com.python.pydev.analysis.mypy;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 
@@ -213,6 +214,23 @@ public class MypyAnalysisTest extends TestCase {
                 "snippet.py:26:11: note:         def foo(self) -> int\n" +
                 "Found 1 error in 1 file (checked 1 source file)\n" +
                 "";
+
+        mypyAnalysis.afterRunProcess(output, "", null);
+
+        assertEquals(0, mypyAnalysis.markers.size());
+    }
+
+    public void testMessagesFromAnotherFile() {
+        IDocument document = new Document(
+                "" +
+                        "some_variable = 10");
+
+        Path docPath = new Path("/sample/src/package1/module1.py");
+        MypyAnalysis mypyAnalysis = new MypyAnalysis(null, document, docPath, new NullProgressMonitor(),
+                null);
+
+        String output = " src\\package1-stubs\\__init__.pyi:10:1: error: Name 'logger' already defined on line 9\n" +
+                "Found 1 error in 1 file (checked 1 source file)\n";
 
         mypyAnalysis.afterRunProcess(output, "", null);
 
