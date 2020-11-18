@@ -2,6 +2,7 @@ package org.python.pydev.core.pep8;
 
 import java.io.File;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
@@ -20,17 +21,31 @@ import org.python.pydev.shared_core.utils.ArrayUtils;
 
 public class BlackRunner {
 
-    public static String formatWithBlack(IPythonNature nature, IDocument doc, FormatStd std, File workingDir) {
+    public static String formatWithBlack(IPythonNature nature, IFile file, IDocument doc, FormatStd std,
+            File workingDir) {
         try {
             Process process;
             String[] parseArguments = ProcessUtils.parseArguments(std.blackParameters);
             String cmdarrayAsStr;
 
+            String ext;
+            if (file == null) {
+                Log.log("BlackRunner: File not supplied");
+            } else {
+                Log.logInfo("BlackRunner: Running  for file: " + file);
+            }
+            boolean isPyi = file != null && (ext = file.getFileExtension()) != null & ext.equalsIgnoreCase("pyi");
+
             String executableLocation = std.blackExecutableLocation;
+
+            //TEMP
+            System.out.println(std);
+
             if (!std.searchBlackInInterpreter && executableLocation != null && !executableLocation.isEmpty()
                     && new File(executableLocation).exists()) {
                 SimpleRunner simpleRunner = new SimpleRunner();
-                String[] args = ArrayUtils.concatArrays(new String[] { executableLocation, "-" }, parseArguments);
+                String[] args = ArrayUtils.concatArrays(isPyi ? new String[] { executableLocation, "-", "--pyi" }
+                        : new String[] { executableLocation, "-" }, parseArguments);
                 Tuple<Process, String> r = simpleRunner.run(args, workingDir, null, null);
                 process = r.o1;
                 cmdarrayAsStr = r.o2;
@@ -44,8 +59,11 @@ public class BlackRunner {
                     }
                 }
                 PythonRunner pythonRunner = new PythonRunner(nature);
+                String[] args = ArrayUtils.concatArrays(
+                        isPyi ? new String[] { "-", "--pyi" } : new String[] { "-" },
+                        parseArguments);
                 Tuple<Process, String> processInfo = pythonRunner.createProcessFromModuleName("black",
-                        ArrayUtils.concatArrays(new String[] { "-" }, parseArguments),
+                        args,
                         workingDir, new NullProgressMonitor());
                 process = processInfo.o1;
                 cmdarrayAsStr = processInfo.o2;
