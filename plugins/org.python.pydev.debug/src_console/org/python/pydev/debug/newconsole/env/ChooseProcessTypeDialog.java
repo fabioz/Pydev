@@ -242,6 +242,7 @@ final class ChooseProcessTypeDialog extends Dialog {
             natures.add(nature);
             IInterpreterManager relatedInterpreterManager = nature.getRelatedInterpreterManager();
             this.interpreterManager = relatedInterpreterManager;
+            InteractiveConsolePrefs.setPydevAsInterpreter();
 
         } else if (checkboxPython.isEnabled() && checkboxPython.getSelection()) {
             this.interpreterManager = InterpreterManagersAPI.getPythonInterpreterManager();
