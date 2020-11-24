@@ -133,48 +133,52 @@ public class PydevIProcessFactory {
         }
         String interpreterRep = InteractiveConsolePrefs.getInterpreterRepresentation();
         if (!"none".equals(interpreterRep) || !interpreterRep.isEmpty()) {
-            IPythonNature pythonNature = edit.getPythonNature();
-            IInterpreterManager manager = pythonNature.getRelatedInterpreterManager();
-            IInterpreterInfo[] interpreterInfos;
-            IInterpreterInfo interpreterInfo = null;
-            HashSet<String> pythonpath = new LinkedHashSet<String>();
-            boolean valid = true;
-            switch (interpreterRep) {
-                case PydevConsoleConstants.PYDEV_INTERPRETER_REPRESENTATION:
-                    manager = InterpreterManagersAPI.pythonInterpreterManager;
-                    interpreterInfos = manager.getInterpreterInfos();
-                    if (interpreterInfos.length == 1) {
-                        interpreterInfo = interpreterInfos[0];
-                    }
-                    pythonpath.addAll(interpreterInfo.getPythonPath());
-                    List<String> completeProjectPythonPath = pythonNature.getPythonPathNature()
-                            .getCompleteProjectPythonPath(interpreterInfo, manager);
-                    if (completeProjectPythonPath != null && completeProjectPythonPath.size() > 0) {
-                        pythonpath.addAll(completeProjectPythonPath);
-                    }
-                    break;
-                case PydevConsoleConstants.PYTHON_INTERPRETER_REPRESENTATION:
-                    manager = InterpreterManagersAPI.pythonInterpreterManager;
-                    interpreterInfos = manager.getInterpreterInfos();
-                    if (interpreterInfos.length == 1) {
-                        interpreterInfo = interpreterInfos[0];
-                    }
-                    pythonpath.addAll(interpreterInfo.getPythonPath());
-                    break;
-                case PydevConsoleConstants.JYTHON_INTERPRETER_REPRESENTATION:
-                    manager = InterpreterManagersAPI.getJythonInterpreterManager();
-                    interpreterInfos = manager.getInterpreterInfos();
-                    if (interpreterInfos.length == 1) {
-                        interpreterInfo = interpreterInfos[0];
-                    }
-                    pythonpath.addAll(interpreterInfo.getPythonPath());
-                    break;
-                default:
-                    valid = false;
-                    break;
-            }
-            if (valid) {
-                return createLaunch(manager, interpreterInfo, pythonpath, pythonNature, naturesUsed);
+            try {
+                IPythonNature pythonNature = edit.getPythonNature();
+                IInterpreterManager manager = pythonNature.getRelatedInterpreterManager();
+                IInterpreterInfo[] interpreterInfos;
+                IInterpreterInfo interpreterInfo = null;
+                HashSet<String> pythonpath = new LinkedHashSet<String>();
+                boolean valid = true;
+                switch (interpreterRep) {
+                    case PydevConsoleConstants.PYDEV_INTERPRETER_REPRESENTATION:
+                        manager = InterpreterManagersAPI.pythonInterpreterManager;
+                        interpreterInfos = manager.getInterpreterInfos();
+                        if (interpreterInfos.length == 1) {
+                            interpreterInfo = interpreterInfos[0];
+                        }
+                        pythonpath.addAll(interpreterInfo.getPythonPath());
+                        List<String> completeProjectPythonPath = pythonNature.getPythonPathNature()
+                                .getCompleteProjectPythonPath(interpreterInfo, manager);
+                        if (completeProjectPythonPath != null && completeProjectPythonPath.size() > 0) {
+                            pythonpath.addAll(completeProjectPythonPath);
+                        }
+                        break;
+                    case PydevConsoleConstants.PYTHON_INTERPRETER_REPRESENTATION:
+                        manager = InterpreterManagersAPI.pythonInterpreterManager;
+                        interpreterInfos = manager.getInterpreterInfos();
+                        if (interpreterInfos.length == 1) {
+                            interpreterInfo = interpreterInfos[0];
+                        }
+                        pythonpath.addAll(interpreterInfo.getPythonPath());
+                        break;
+                    case PydevConsoleConstants.JYTHON_INTERPRETER_REPRESENTATION:
+                        manager = InterpreterManagersAPI.getJythonInterpreterManager();
+                        interpreterInfos = manager.getInterpreterInfos();
+                        if (interpreterInfos.length == 1) {
+                            interpreterInfo = interpreterInfos[0];
+                        }
+                        pythonpath.addAll(interpreterInfo.getPythonPath());
+                        break;
+                    default:
+                        valid = false;
+                        break;
+                }
+                if (valid && pythonpath.size() > 0) {
+                    return createLaunch(manager, interpreterInfo, pythonpath, pythonNature, naturesUsed);
+                }
+            } catch (Exception e) {
+                Log.log(e);
             }
         }
 
