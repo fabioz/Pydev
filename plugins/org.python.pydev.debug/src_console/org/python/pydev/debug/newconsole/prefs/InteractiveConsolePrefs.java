@@ -89,6 +89,9 @@ public class InteractiveConsolePrefs extends FieldEditorPreferencePage implement
                 "Enable GUI event loop integration?",
                 PydevConsoleConstants.ENTRIES_VALUES_INTERACTIVE_CONSOLE_ENABLE_GUI_ON_STARTUP, p));
 
+        addField(new ComboFieldEditor(PydevConsoleConstants.INTERACTIVE_CONSOLE_DEFAULT_INTERPRETER,
+                "Default interpreter?",
+                PydevConsoleConstants.ENTRIES_VALUES_INTERACTIVE_CONSOLE_DEFAULT_INTERPRETER, p));
     }
 
     @Override
