@@ -616,6 +616,20 @@ public final class FastStringBuffer implements CharSequence {
         return this;
     }
 
+    /**
+     * Replaces all the occurrences of a string in this buffer for another string and returns the
+     * altered version.
+     */
+    public FastStringBuffer replaceAll(char replace, char with) {
+        for (int i = 0; i < this.count; i++) {
+            if (this.value[i] == replace) {
+                this.value[i] = with;
+            }
+        }
+
+        return this;
+    }
+
     public FastStringBuffer replaceFirst(String replace, String with) {
         int replaceLen = replace.length();
 

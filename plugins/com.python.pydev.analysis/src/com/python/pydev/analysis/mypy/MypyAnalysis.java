@@ -259,6 +259,13 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
             return;
         }
 
+        FastStringBuffer fileNameBuf = new FastStringBuffer();
+        String loc = this.location != null ? location.toString().toLowerCase() : null;
+        String res = null;
+        if (this.resource != null && resource.getFullPath() != null) {
+            res = this.resource.getFullPath().toString().toLowerCase();
+        }
+
         for (String outputLine : StringUtils.iterLines(output)) {
             if (monitor.isCanceled()) {
                 return;
@@ -279,14 +286,18 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                 }
 
                 if (m != null) {
-                    FastStringBuffer fileNameBuf = new FastStringBuffer();
-                    fileNameBuf.append(outputLine.substring(m.start(1), m.end(1))).replaceAll("\\", "/").trim();
-                    String fileName = fileNameBuf.toString();
+                    fileNameBuf.clear();
+                    fileNameBuf.append(outputLine.substring(m.start(1), m.end(1))).trim().replaceAll('\\', '/');
+                    String fileName = fileNameBuf.toString().toLowerCase(); // Make all comparissons lower-case.
 
-                    if ((this.location != null && !location.toString().contains(fileName))
-                            || (this.resource != null && this.resource.getFullPath() != null
-                                    && !this.resource.getFullPath().toString().contains(fileName))) {
-                        continue;
+                    if (loc == null && res == null) {
+                        // Proceed
+                    } else if (loc != null && loc.contains(fileName)) {
+                        // Proceed
+                    } else if (res != null && res.contains(fileName)) {
+                        // Proceed
+                    } else {
+                        continue; // Bail out: it doesn't match the current file.
                     }
 
                     int line = -1;
