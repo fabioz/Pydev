@@ -21,6 +21,11 @@
 		<h1>Silver Sponsors</h1>
 
         <div id="silver-sponsors-a-hrefs">
+
+        <a href="https://www.neueonline-casinos.com/ohne-anmeldung/" border=0><img class="sponsors" style="width:150px;height:60px;" src="images/sponsors/neueonline.png" alt="neueonline-casinos.com" title="https://www.neueonline-casinos.com/ohne-anmeldung/" /></a>
+
+        <a href="https://www.cibdol.com/" border=0><img class="sponsors" style="width:150px;height:60px;" src="images/sponsors/cibdol.jpg" alt="cibdol" title="https://www.cibdol.com/" /></a>
+
         <a href="https://www.casinot.net" border=0><img class="sponsors" style="width:150px;height:60px;" src="images/sponsors/casinot.png" alt="Casinot.net" title="https://www.casinot.net" /></a>
 
         <a href="https://bonuscanada.com/" border=0><img class="sponsors" style="width:150px;height:60px;" src="images/sponsors/bonuscanada.png" alt="Bonus Canada" title="https://bonuscanada.com/" /></a>
