@@ -11,8 +11,6 @@ package org.python.pydev.debug.newconsole.env;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
@@ -34,7 +32,6 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ListDialog;
 import org.eclipse.ui.dialogs.SelectionDialog;
-import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.ast.runners.SimpleIronpythonRunner;
 import org.python.pydev.ast.runners.SimpleJythonRunner;
 import org.python.pydev.ast.runners.SimplePythonRunner;
@@ -47,7 +44,6 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyStackFrame;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;
-import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsoleUMDPrefs;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.shared_core.net.SocketUtil;
@@ -130,52 +126,6 @@ public class PydevIProcessFactory {
 
         if (activeEditor instanceof PyEdit) {
             edit = (PyEdit) activeEditor;
-        }
-        String interpreterRep = InteractiveConsolePrefs.getInterpreterRepresentation();
-        if (!"none".equals(interpreterRep) || !interpreterRep.isEmpty()) {
-            IPythonNature pythonNature = edit.getPythonNature();
-            IInterpreterManager manager = pythonNature.getRelatedInterpreterManager();
-            IInterpreterInfo[] interpreterInfos;
-            IInterpreterInfo interpreterInfo = null;
-            HashSet<String> pythonpath = new LinkedHashSet<String>();
-            boolean valid = true;
-            switch (interpreterRep) {
-                case PydevConsoleConstants.PYDEV_INTERPRETER_REPRESENTATION:
-                    manager = InterpreterManagersAPI.pythonInterpreterManager;
-                    interpreterInfos = manager.getInterpreterInfos();
-                    if (interpreterInfos.length == 1) {
-                        interpreterInfo = interpreterInfos[0];
-                    }
-                    pythonpath.addAll(interpreterInfo.getPythonPath());
-                    List<String> completeProjectPythonPath = pythonNature.getPythonPathNature()
-                            .getCompleteProjectPythonPath(interpreterInfo, manager);
-                    if (completeProjectPythonPath != null && completeProjectPythonPath.size() > 0) {
-                        pythonpath.addAll(completeProjectPythonPath);
-                    }
-                    break;
-                case PydevConsoleConstants.PYTHON_INTERPRETER_REPRESENTATION:
-                    manager = InterpreterManagersAPI.pythonInterpreterManager;
-                    interpreterInfos = manager.getInterpreterInfos();
-                    if (interpreterInfos.length == 1) {
-                        interpreterInfo = interpreterInfos[0];
-                    }
-                    pythonpath.addAll(interpreterInfo.getPythonPath());
-                    break;
-                case PydevConsoleConstants.JYTHON_INTERPRETER_REPRESENTATION:
-                    manager = InterpreterManagersAPI.getJythonInterpreterManager();
-                    interpreterInfos = manager.getInterpreterInfos();
-                    if (interpreterInfos.length == 1) {
-                        interpreterInfo = interpreterInfos[0];
-                    }
-                    pythonpath.addAll(interpreterInfo.getPythonPath());
-                    break;
-                default:
-                    valid = false;
-                    break;
-            }
-            if (valid) {
-                return createLaunch(manager, interpreterInfo, pythonpath, pythonNature, naturesUsed);
-            }
         }
 
         ChooseProcessTypeDialog dialog = new ChooseProcessTypeDialog(getShell(), edit);
