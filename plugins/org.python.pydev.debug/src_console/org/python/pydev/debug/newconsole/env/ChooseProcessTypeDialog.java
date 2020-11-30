@@ -37,6 +37,7 @@ import org.python.pydev.core.NotConfiguredInterpreterException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.model.PyStackFrame;
 import org.python.pydev.debug.model.PyStackFrameConsole;
+import org.python.pydev.debug.newconsole.PydevConsoleConstants;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -226,6 +227,34 @@ final class ChooseProcessTypeDialog extends Dialog {
             return (PyStackFrame) context;
         }
         return null;
+    }
+
+    public boolean setInteractiveConsoleInterpreterPref(String pref) {
+        Button compareButton = null;
+        switch (pref) {
+            case PydevConsoleConstants.ACTIVE_EDITOR_INTERPRETER_REPRESENTATION:
+                compareButton = checkboxForCurrentEditor;
+                break;
+            case PydevConsoleConstants.PYTHON_INTERPRETER_REPRESENTATION:
+                compareButton = checkboxPython;
+                break;
+            case PydevConsoleConstants.PYDEV_INTERPRETER_REPRESENTATION:
+                compareButton = checkboxPythonDebug;
+                break;
+            case PydevConsoleConstants.JYTHON_INTERPRETER_REPRESENTATION:
+                compareButton = checkboxJython;
+                break;
+            case PydevConsoleConstants.IRONPYTHON_INTERPRETER_REPRESENTATION:
+                compareButton = checkboxIronpython;
+                break;
+            default:
+                return false;
+        }
+        if (compareButton != null && compareButton.isEnabled()) {
+            compareButton.setSelection(true);
+            return true;
+        }
+        return false;
     }
 
     /**
