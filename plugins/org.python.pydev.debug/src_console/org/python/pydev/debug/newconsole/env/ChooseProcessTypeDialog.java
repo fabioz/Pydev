@@ -67,6 +67,8 @@ final class ChooseProcessTypeDialog extends Dialog {
 
     private Link link;
 
+    private Button checkboxSaveSelection;
+
     ChooseProcessTypeDialog(Shell shell, PyEdit activeEditor) {
         super(shell);
         this.activeEditor = activeEditor;
@@ -125,6 +127,9 @@ final class ChooseProcessTypeDialog extends Dialog {
             }
         });
 
+        checkboxSaveSelection = new Button(area, SWT.CHECK);
+        checkboxSaveSelection.setToolTipText("Saves the selection from this dialog.");
+        checkboxSaveSelection.setText("Saves the selection from this dialog");
         return area;
     }
 
