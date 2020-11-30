@@ -85,16 +85,21 @@ public final class PydevConsoleConstants {
             { "OpenGL (glut)", "glut" },
             { "pyglet (pyglet)", "pyglet" } };
 
-    public static final String PYDEV_INTERPRETER_REPRESENTATION = "pydev";
+    public static final String ACTIVE_EDITOR_INTERPRETER_REPRESENTATION = "active editor";
     public static final String PYTHON_INTERPRETER_REPRESENTATION = "python";
+    public static final String PYDEV_INTERPRETER_REPRESENTATION = "pydev";
     public static final String JYTHON_INTERPRETER_REPRESENTATION = "jython";
+    public static final String IRONPYTHON_INTERPRETER_REPRESENTATION = "ironpython";
     public static final String INTERACTIVE_CONSOLE_DEFAULT_INTERPRETER = "INTERACTIVE_CONSOLE_DEFAULT_INTERPRETER";
     public static final String DEFAULT_INTERACTIVE_CONSOLE_DEFAULT_INTERPRETER = "none";
     public static final String[][] ENTRIES_VALUES_INTERACTIVE_CONSOLE_DEFAULT_INTERPRETER = new String[][] {
             { "Always ask for console type", "none" },
-            { "PydevConsole", PYDEV_INTERPRETER_REPRESENTATION },
-            { "Python console", PYTHON_INTERPRETER_REPRESENTATION },
-            { "Jython using VM", JYTHON_INTERPRETER_REPRESENTATION } };
+            { "Console for currently active editor", ACTIVE_EDITOR_INTERPRETER_REPRESENTATION },
+            { "Python Console", PYTHON_INTERPRETER_REPRESENTATION },
+            { "Pydev Debug Console", PYDEV_INTERPRETER_REPRESENTATION },
+            { "Jython Console", JYTHON_INTERPRETER_REPRESENTATION },
+            { "IronPython Console", IRONPYTHON_INTERPRETER_REPRESENTATION }
+    };
 
     public static final String INTERACTIVE_CONSOLE_UMD_ENABLED = "INTERACTIVE_CONSOLE_UMD_ENABLED";
     public static final boolean DEFAULT_INTERACTIVE_CONSOLE_UMD_ENABLED = true;
