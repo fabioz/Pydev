@@ -57,8 +57,6 @@ final class ChooseProcessTypeDialog extends Dialog {
 
     private Button checkboxIronpython;
 
-    private Button checkboxJythonEclipse;
-
     private PyEdit activeEditor;
 
     private IInterpreterManager interpreterManager;
@@ -105,11 +103,6 @@ final class ChooseProcessTypeDialog extends Dialog {
         checkboxIronpython
                 .setToolTipText("Creates an IronPython console with the PYTHONPATH containing all the python projects in the workspace.");
         configureButton(checkboxIronpython, "IronPython", InterpreterManagersAPI.getIronpythonInterpreterManager());
-
-        checkboxJythonEclipse = new Button(area, SWT.RADIO);
-        checkboxJythonEclipse
-                .setToolTipText("Creates a Jython console using the running Eclipse environment (can potentially halt Eclipse depending on what's done).");
-        configureButton(checkboxJythonEclipse, "Jython using VM running Eclipse", new JythonEclipseInterpreterManager());
 
         if (!debugButtonCreated) {
             createDebugButton(area);
@@ -252,9 +245,6 @@ final class ChooseProcessTypeDialog extends Dialog {
 
         } else if (checkboxJython.isEnabled() && checkboxJython.getSelection()) {
             this.interpreterManager = InterpreterManagersAPI.getJythonInterpreterManager();
-
-        } else if (checkboxJythonEclipse.isEnabled() && checkboxJythonEclipse.getSelection()) {
-            this.interpreterManager = new JythonEclipseInterpreterManager();
 
         } else if (checkboxIronpython.isEnabled() && checkboxIronpython.getSelection()) {
             this.interpreterManager = InterpreterManagersAPI.getIronpythonInterpreterManager();
