@@ -44,6 +44,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyStackFrame;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;
+import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsoleUMDPrefs;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.shared_core.net.SocketUtil;
@@ -129,7 +130,17 @@ public class PydevIProcessFactory {
         }
 
         ChooseProcessTypeDialog dialog = new ChooseProcessTypeDialog(getShell(), edit);
-        if (dialog.open() == ChooseProcessTypeDialog.OK) {
+        String rep = InteractiveConsolePrefs.getInterpreterRepresentation();
+        boolean hasPrefs = false;
+        if (!rep.isEmpty() && !"none".equals(rep)) {
+            dialog.create();
+            hasPrefs = dialog.setInteractiveConsoleInterpreterPref(rep);
+            if (hasPrefs) {
+                dialog.okPressed();
+            }
+        }
+
+        if (hasPrefs || dialog.open() == ChooseProcessTypeDialog.OK) {
 
             PyStackFrame selectedFrame = dialog.getSelectedFrame();
             if (selectedFrame != null) {
