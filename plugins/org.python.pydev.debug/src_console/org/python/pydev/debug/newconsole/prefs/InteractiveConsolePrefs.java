@@ -172,13 +172,4 @@ public class InteractiveConsolePrefs extends FieldEditorPreferencePage implement
                 PydevConsoleConstants.INTERACTIVE_CONSOLE_DEFAULT_INTERPRETER);
     }
 
-    public static void setPydevAsInterpreter() {
-        if (SharedCorePlugin.inTestMode()) {
-            return;
-        }
-        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
-        plugin.getPreferenceStore().setValue(PydevConsoleConstants.INTERACTIVE_CONSOLE_DEFAULT_INTERPRETER,
-                PydevConsoleConstants.PYDEV_INTERPRETER_REPRESENTATION);
-    }
-
 }
