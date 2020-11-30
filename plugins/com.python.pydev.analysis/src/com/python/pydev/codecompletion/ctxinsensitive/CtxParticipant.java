@@ -227,7 +227,8 @@ public class CtxParticipant
                 //there always must be a declaringModuleName
                 String declaringModuleName = info.getDeclaringModuleName();
                 if (initialModule != null && declaringModuleName != null) {
-                    if (initialModule.equals(declaringModuleName)) {
+                    if (initialModule.equals(declaringModuleName) || "builtins".equals(declaringModuleName)
+                            || "__builtin__".equals(declaringModuleName)) {
                         continue;
                     }
                 }
