@@ -6,6 +6,10 @@
  */
 package org.python.pydev.debug.newconsole;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.swt.graphics.RGB;
 import org.python.pydev.shared_interactive_console.console.ui.ScriptConsole;
 
@@ -100,6 +104,13 @@ public final class PydevConsoleConstants {
             { "Jython Console", JYTHON_INTERPRETER_REPRESENTATION },
             { "IronPython Console", IRONPYTHON_INTERPRETER_REPRESENTATION }
     };
+    public static final Set<String> INTERACTIVE_CONSOLE_INTERPRETERS_LIST = new HashSet<String>(Arrays.asList(
+            "none",
+            ACTIVE_EDITOR_INTERPRETER_REPRESENTATION,
+            PYTHON_INTERPRETER_REPRESENTATION,
+            PYDEV_INTERPRETER_REPRESENTATION,
+            JYTHON_INTERPRETER_REPRESENTATION,
+            IRONPYTHON_INTERPRETER_REPRESENTATION));
 
     public static final String INTERACTIVE_CONSOLE_UMD_ENABLED = "INTERACTIVE_CONSOLE_UMD_ENABLED";
     public static final boolean DEFAULT_INTERACTIVE_CONSOLE_UMD_ENABLED = true;
