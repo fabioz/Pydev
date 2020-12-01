@@ -129,8 +129,9 @@ final class ChooseProcessTypeDialog extends Dialog {
         });
 
         checkboxSaveSelection = new Button(area, SWT.CHECK);
-        checkboxSaveSelection.setToolTipText("Saves the selection from this dialog.");
-        checkboxSaveSelection.setText("Saves the selection from this dialog");
+        checkboxSaveSelection.setToolTipText(
+                "When saving the selection from this dialog in the preferences, the selected action will be automatically applied. Later on it's possible to change the setting at the preferences under PyDev > Interactive Console");
+        checkboxSaveSelection.setText("Save selection in preferences?");
         return area;
     }
 
