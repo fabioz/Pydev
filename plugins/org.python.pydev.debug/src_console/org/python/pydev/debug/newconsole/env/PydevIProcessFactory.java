@@ -132,7 +132,7 @@ public class PydevIProcessFactory {
         ChooseProcessTypeDialog dialog = new ChooseProcessTypeDialog(getShell(), edit);
         String rep = InteractiveConsolePrefs.getInterpreterRepresentation();
         boolean hasPrefs = false;
-        if (!rep.isEmpty() && !"none".equals(rep)) {
+        if (!rep.isEmpty()) {
             dialog.create();
             hasPrefs = dialog.setInteractiveConsoleInterpreterPref(rep);
             if (hasPrefs) {

@@ -95,9 +95,9 @@ public final class PydevConsoleConstants {
     public static final String JYTHON_INTERPRETER_REPRESENTATION = "jython";
     public static final String IRONPYTHON_INTERPRETER_REPRESENTATION = "ironpython";
     public static final String INTERACTIVE_CONSOLE_DEFAULT_INTERPRETER = "INTERACTIVE_CONSOLE_DEFAULT_INTERPRETER";
-    public static final String DEFAULT_INTERACTIVE_CONSOLE_DEFAULT_INTERPRETER = "none";
+    public static final String DEFAULT_INTERACTIVE_CONSOLE_DEFAULT_INTERPRETER = "";
     public static final String[][] ENTRIES_VALUES_INTERACTIVE_CONSOLE_DEFAULT_INTERPRETER = new String[][] {
-            { "Always ask for console type", "none" },
+            { "Always ask for console type", DEFAULT_INTERACTIVE_CONSOLE_DEFAULT_INTERPRETER },
             { "Console for currently active editor", ACTIVE_EDITOR_INTERPRETER_REPRESENTATION },
             { "Python Console", PYTHON_INTERPRETER_REPRESENTATION },
             { "Pydev Debug Console", PYDEV_DEBUG_INTERPRETER_REPRESENTATION },
@@ -105,7 +105,7 @@ public final class PydevConsoleConstants {
             { "IronPython Console", IRONPYTHON_INTERPRETER_REPRESENTATION }
     };
     public static final Set<String> INTERACTIVE_CONSOLE_INTERPRETERS_LIST = new HashSet<String>(Arrays.asList(
-            "none",
+            DEFAULT_INTERACTIVE_CONSOLE_DEFAULT_INTERPRETER,
             ACTIVE_EDITOR_INTERPRETER_REPRESENTATION,
             PYTHON_INTERPRETER_REPRESENTATION,
             PYDEV_DEBUG_INTERPRETER_REPRESENTATION,
