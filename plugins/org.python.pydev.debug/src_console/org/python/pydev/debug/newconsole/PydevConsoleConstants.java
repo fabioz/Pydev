@@ -89,7 +89,7 @@ public final class PydevConsoleConstants {
             { "OpenGL (glut)", "glut" },
             { "pyglet (pyglet)", "pyglet" } };
 
-    public static final String ACTIVE_EDITOR_INTERPRETER_REPRESENTATION = "active editor";
+    public static final String ACTIVE_EDITOR_INTERPRETER_REPRESENTATION = "active_editor";
     public static final String PYTHON_INTERPRETER_REPRESENTATION = "python";
     public static final String PYDEV_DEBUG_INTERPRETER_REPRESENTATION = "pydev_debug";
     public static final String JYTHON_INTERPRETER_REPRESENTATION = "jython";
