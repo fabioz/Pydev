@@ -3,7 +3,7 @@ package org.python.pydev.ast.builder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.python.pydev.core.log.Log;
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class OperationsOnAllAddedFiles {
 
@@ -13,9 +13,9 @@ public class OperationsOnAllAddedFiles {
      */
     public static void markAsDerived(IResource resource) {
         try {
-            resource.setDerived(true);
+            resource.setDerived(true, new NullProgressMonitor());
         } catch (CoreException e) {
-            Log.log(e);
+            // Log.log(e); -- being deleted in the meanwhile is expected.
         }
     }
 
