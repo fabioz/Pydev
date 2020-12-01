@@ -91,7 +91,7 @@ public final class PydevConsoleConstants {
 
     public static final String ACTIVE_EDITOR_INTERPRETER_REPRESENTATION = "active editor";
     public static final String PYTHON_INTERPRETER_REPRESENTATION = "python";
-    public static final String PYDEV_INTERPRETER_REPRESENTATION = "pydev";
+    public static final String PYDEV_DEBUG_INTERPRETER_REPRESENTATION = "pydev_debug";
     public static final String JYTHON_INTERPRETER_REPRESENTATION = "jython";
     public static final String IRONPYTHON_INTERPRETER_REPRESENTATION = "ironpython";
     public static final String INTERACTIVE_CONSOLE_DEFAULT_INTERPRETER = "INTERACTIVE_CONSOLE_DEFAULT_INTERPRETER";
@@ -100,7 +100,7 @@ public final class PydevConsoleConstants {
             { "Always ask for console type", "none" },
             { "Console for currently active editor", ACTIVE_EDITOR_INTERPRETER_REPRESENTATION },
             { "Python Console", PYTHON_INTERPRETER_REPRESENTATION },
-            { "Pydev Debug Console", PYDEV_INTERPRETER_REPRESENTATION },
+            { "Pydev Debug Console", PYDEV_DEBUG_INTERPRETER_REPRESENTATION },
             { "Jython Console", JYTHON_INTERPRETER_REPRESENTATION },
             { "IronPython Console", IRONPYTHON_INTERPRETER_REPRESENTATION }
     };
@@ -108,7 +108,7 @@ public final class PydevConsoleConstants {
             "none",
             ACTIVE_EDITOR_INTERPRETER_REPRESENTATION,
             PYTHON_INTERPRETER_REPRESENTATION,
-            PYDEV_INTERPRETER_REPRESENTATION,
+            PYDEV_DEBUG_INTERPRETER_REPRESENTATION,
             JYTHON_INTERPRETER_REPRESENTATION,
             IRONPYTHON_INTERPRETER_REPRESENTATION));
 

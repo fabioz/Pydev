@@ -239,7 +239,7 @@ final class ChooseProcessTypeDialog extends Dialog {
             case PydevConsoleConstants.PYTHON_INTERPRETER_REPRESENTATION:
                 compareButton = checkboxPython;
                 break;
-            case PydevConsoleConstants.PYDEV_INTERPRETER_REPRESENTATION:
+            case PydevConsoleConstants.PYDEV_DEBUG_INTERPRETER_REPRESENTATION:
                 compareButton = checkboxPythonDebug;
                 break;
             case PydevConsoleConstants.JYTHON_INTERPRETER_REPRESENTATION:
@@ -280,7 +280,7 @@ final class ChooseProcessTypeDialog extends Dialog {
         } else if (checkboxPythonDebug.isEnabled() && checkboxPythonDebug.getSelection()) {
             setSelectedFrame(getSuspendedFrame());
             this.interpreterManager = InterpreterManagersAPI.getPythonInterpreterManager();
-            pref = PydevConsoleConstants.PYDEV_INTERPRETER_REPRESENTATION;
+            pref = PydevConsoleConstants.PYDEV_DEBUG_INTERPRETER_REPRESENTATION;
 
         } else if (checkboxJython.isEnabled() && checkboxJython.getSelection()) {
             this.interpreterManager = InterpreterManagersAPI.getJythonInterpreterManager();
