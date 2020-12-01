@@ -104,7 +104,7 @@ public final class PydevConsoleConstants {
             { "Jython Console", JYTHON_INTERPRETER_REPRESENTATION },
             { "IronPython Console", IRONPYTHON_INTERPRETER_REPRESENTATION }
     };
-    public static final Set<String> INTERACTIVE_CONSOLE_INTERPRETERS_LIST = new HashSet<String>(Arrays.asList(
+    public static final Set<String> INTERACTIVE_CONSOLE_INTERPRETERS = new HashSet<String>(Arrays.asList(
             DEFAULT_INTERACTIVE_CONSOLE_DEFAULT_INTERPRETER,
             ACTIVE_EDITOR_INTERPRETER_REPRESENTATION,
             PYTHON_INTERPRETER_REPRESENTATION,
