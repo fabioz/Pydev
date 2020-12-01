@@ -108,11 +108,11 @@ def check_no_threads():
 
 # see: http://goo.gl/kTQMs
 SYMBOLS = {
-    'customary'     : ('B', 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'),
-    'customary_ext' : ('byte', 'kilo', 'mega', 'giga', 'tera', 'peta', 'exa',
+    'customary': ('B', 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'),
+    'customary_ext': ('byte', 'kilo', 'mega', 'giga', 'tera', 'peta', 'exa',
                        'zetta', 'iotta'),
-    'iec'           : ('Bi', 'Ki', 'Mi', 'Gi', 'Ti', 'Pi', 'Ei', 'Zi', 'Yi'),
-    'iec_ext'       : ('byte', 'kibi', 'mebi', 'gibi', 'tebi', 'pebi', 'exbi',
+    'iec': ('Bi', 'Ki', 'Mi', 'Gi', 'Ti', 'Pi', 'Ei', 'Zi', 'Yi'),
+    'iec_ext': ('byte', 'kibi', 'mebi', 'gibi', 'tebi', 'pebi', 'exbi',
                        'zebi', 'yobi'),
 }
 
@@ -191,6 +191,7 @@ DEBUG_MEMORY_INFO = False
 _global_collect_info = False
 
 PRINT_MEMORY_BEFORE_AFTER_TEST = False  # This makes running tests slower (but it may be handy to diagnose memory issues).
+
 
 @pytest.yield_fixture(autouse=PRINT_MEMORY_BEFORE_AFTER_TEST)
 def before_after_each_function(request):
@@ -336,7 +337,7 @@ def pyfile(request, tmpdir):
             raise ValueError("Failed to locate function header.")
 
         # Remove everything up to and including "def".
-        source = source[def_lineno + 1 :]
+        source = source[def_lineno + 1:]
         assert source
 
         # Now we need to adjust indentation. Compute how much the first line of
