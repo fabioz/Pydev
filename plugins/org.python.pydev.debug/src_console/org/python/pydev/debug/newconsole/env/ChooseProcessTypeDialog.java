@@ -293,7 +293,8 @@ final class ChooseProcessTypeDialog extends Dialog {
         }
 
         if (checkboxSaveSelection.isEnabled() && checkboxSaveSelection.getSelection()) {
-            InteractiveConsolePrefs.setPreference(pref);
+            InteractiveConsolePrefs.setDefaultInteractiveConsole(pref);
+            ;
         }
 
         super.okPressed();

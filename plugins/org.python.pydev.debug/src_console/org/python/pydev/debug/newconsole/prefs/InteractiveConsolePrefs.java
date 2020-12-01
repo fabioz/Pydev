@@ -163,7 +163,7 @@ public class InteractiveConsolePrefs extends FieldEditorPreferencePage implement
                 PydevConsoleConstants.INTERACTIVE_CONSOLE_ENABLE_GUI_ON_STARTUP);
     }
 
-    public static String getInterpreterRepresentation() {
+    public static String getDefaultInteractiveConsole() {
         if (SharedCorePlugin.inTestMode()) {
             return PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_DEFAULT_INTERPRETER;
         }
@@ -172,7 +172,7 @@ public class InteractiveConsolePrefs extends FieldEditorPreferencePage implement
                 PydevConsoleConstants.INTERACTIVE_CONSOLE_DEFAULT_INTERPRETER);
     }
 
-    public static void setPreference(String pref) {
+    public static void setDefaultInteractiveConsole(String pref) {
         if (SharedCorePlugin.inTestMode() || pref == null
                 || !PydevConsoleConstants.INTERACTIVE_CONSOLE_INTERPRETERS.contains(pref)) {
             return;
