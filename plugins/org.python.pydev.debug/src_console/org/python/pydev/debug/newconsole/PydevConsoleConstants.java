@@ -6,6 +6,10 @@
  */
 package org.python.pydev.debug.newconsole;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.swt.graphics.RGB;
 import org.python.pydev.shared_interactive_console.console.ui.ScriptConsole;
 
@@ -84,6 +88,29 @@ public final class PydevConsoleConstants {
             { "OS X (osx)", "osx" },
             { "OpenGL (glut)", "glut" },
             { "pyglet (pyglet)", "pyglet" } };
+
+    public static final String ACTIVE_EDITOR_INTERPRETER_REPRESENTATION = "active_editor";
+    public static final String PYTHON_INTERPRETER_REPRESENTATION = "python";
+    public static final String PYDEV_DEBUG_INTERPRETER_REPRESENTATION = "pydev_debug";
+    public static final String JYTHON_INTERPRETER_REPRESENTATION = "jython";
+    public static final String IRONPYTHON_INTERPRETER_REPRESENTATION = "ironpython";
+    public static final String INTERACTIVE_CONSOLE_DEFAULT_INTERPRETER = "INTERACTIVE_CONSOLE_DEFAULT_INTERPRETER";
+    public static final String DEFAULT_INTERACTIVE_CONSOLE_DEFAULT_INTERPRETER = "";
+    public static final String[][] ENTRIES_VALUES_INTERACTIVE_CONSOLE_DEFAULT_INTERPRETER = new String[][] {
+            { "Always ask for console type", DEFAULT_INTERACTIVE_CONSOLE_DEFAULT_INTERPRETER },
+            { "Console for currently active editor", ACTIVE_EDITOR_INTERPRETER_REPRESENTATION },
+            { "Python Console", PYTHON_INTERPRETER_REPRESENTATION },
+            { "Pydev Debug Console", PYDEV_DEBUG_INTERPRETER_REPRESENTATION },
+            { "Jython Console", JYTHON_INTERPRETER_REPRESENTATION },
+            { "IronPython Console", IRONPYTHON_INTERPRETER_REPRESENTATION }
+    };
+    public static final Set<String> INTERACTIVE_CONSOLE_INTERPRETERS = new HashSet<String>(Arrays.asList(
+            DEFAULT_INTERACTIVE_CONSOLE_DEFAULT_INTERPRETER,
+            ACTIVE_EDITOR_INTERPRETER_REPRESENTATION,
+            PYTHON_INTERPRETER_REPRESENTATION,
+            PYDEV_DEBUG_INTERPRETER_REPRESENTATION,
+            JYTHON_INTERPRETER_REPRESENTATION,
+            IRONPYTHON_INTERPRETER_REPRESENTATION));
 
     public static final String INTERACTIVE_CONSOLE_UMD_ENABLED = "INTERACTIVE_CONSOLE_UMD_ENABLED";
     public static final boolean DEFAULT_INTERACTIVE_CONSOLE_UMD_ENABLED = true;

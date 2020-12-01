@@ -37,6 +37,7 @@ import org.python.pydev.core.NotConfiguredInterpreterException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.model.PyStackFrame;
 import org.python.pydev.debug.model.PyStackFrameConsole;
+import org.python.pydev.debug.newconsole.PydevConsoleConstants;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.plugin.nature.PythonNature;
@@ -57,8 +58,6 @@ final class ChooseProcessTypeDialog extends Dialog {
 
     private Button checkboxIronpython;
 
-    private Button checkboxJythonEclipse;
-
     private PyEdit activeEditor;
 
     private IInterpreterManager interpreterManager;
@@ -68,6 +67,8 @@ final class ChooseProcessTypeDialog extends Dialog {
     private PyStackFrame selectedFrame;
 
     private Link link;
+
+    private Button checkboxSaveSelection;
 
     ChooseProcessTypeDialog(Shell shell, PyEdit activeEditor) {
         super(shell);
@@ -106,11 +107,6 @@ final class ChooseProcessTypeDialog extends Dialog {
                 .setToolTipText("Creates an IronPython console with the PYTHONPATH containing all the python projects in the workspace.");
         configureButton(checkboxIronpython, "IronPython", InterpreterManagersAPI.getIronpythonInterpreterManager());
 
-        checkboxJythonEclipse = new Button(area, SWT.RADIO);
-        checkboxJythonEclipse
-                .setToolTipText("Creates a Jython console using the running Eclipse environment (can potentially halt Eclipse depending on what's done).");
-        configureButton(checkboxJythonEclipse, "Jython using VM running Eclipse", new JythonEclipseInterpreterManager());
-
         if (!debugButtonCreated) {
             createDebugButton(area);
         }
@@ -132,6 +128,10 @@ final class ChooseProcessTypeDialog extends Dialog {
             }
         });
 
+        checkboxSaveSelection = new Button(area, SWT.CHECK);
+        checkboxSaveSelection.setToolTipText(
+                "When saving the selection from this dialog in the preferences, the selected action will be automatically applied. Later on it's possible to change the setting at the preferences under PyDev > Interactive Console");
+        checkboxSaveSelection.setText("Save selection in preferences?");
         return area;
     }
 
@@ -230,35 +230,71 @@ final class ChooseProcessTypeDialog extends Dialog {
         return null;
     }
 
+    public boolean setInteractiveConsoleInterpreterPref(String pref) {
+        Button compareButton = null;
+        switch (pref) {
+            case PydevConsoleConstants.ACTIVE_EDITOR_INTERPRETER_REPRESENTATION:
+                compareButton = checkboxForCurrentEditor;
+                break;
+            case PydevConsoleConstants.PYTHON_INTERPRETER_REPRESENTATION:
+                compareButton = checkboxPython;
+                break;
+            case PydevConsoleConstants.PYDEV_DEBUG_INTERPRETER_REPRESENTATION:
+                compareButton = checkboxPythonDebug;
+                break;
+            case PydevConsoleConstants.JYTHON_INTERPRETER_REPRESENTATION:
+                compareButton = checkboxJython;
+                break;
+            case PydevConsoleConstants.IRONPYTHON_INTERPRETER_REPRESENTATION:
+                compareButton = checkboxIronpython;
+                break;
+            default:
+                return false;
+        }
+        if (compareButton != null && compareButton.isEnabled()) {
+            compareButton.setSelection(true);
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Sets the internal pythonpath chosen.
      */
     @Override
     protected void okPressed() {
         setSelectedFrame(null);
+        String pref = null;
         if (checkboxForCurrentEditor.isEnabled() && checkboxForCurrentEditor.getSelection()) {
             IProject project = this.activeEditor.getProject();
             PythonNature nature = PythonNature.getPythonNature(project);
             natures.add(nature);
             IInterpreterManager relatedInterpreterManager = nature.getRelatedInterpreterManager();
             this.interpreterManager = relatedInterpreterManager;
+            pref = PydevConsoleConstants.ACTIVE_EDITOR_INTERPRETER_REPRESENTATION;
 
         } else if (checkboxPython.isEnabled() && checkboxPython.getSelection()) {
             this.interpreterManager = InterpreterManagersAPI.getPythonInterpreterManager();
+            pref = PydevConsoleConstants.PYTHON_INTERPRETER_REPRESENTATION;
 
         } else if (checkboxPythonDebug.isEnabled() && checkboxPythonDebug.getSelection()) {
             setSelectedFrame(getSuspendedFrame());
             this.interpreterManager = InterpreterManagersAPI.getPythonInterpreterManager();
+            pref = PydevConsoleConstants.PYDEV_DEBUG_INTERPRETER_REPRESENTATION;
 
         } else if (checkboxJython.isEnabled() && checkboxJython.getSelection()) {
             this.interpreterManager = InterpreterManagersAPI.getJythonInterpreterManager();
-
-        } else if (checkboxJythonEclipse.isEnabled() && checkboxJythonEclipse.getSelection()) {
-            this.interpreterManager = new JythonEclipseInterpreterManager();
+            pref = PydevConsoleConstants.JYTHON_INTERPRETER_REPRESENTATION;
 
         } else if (checkboxIronpython.isEnabled() && checkboxIronpython.getSelection()) {
             this.interpreterManager = InterpreterManagersAPI.getIronpythonInterpreterManager();
+            pref = PydevConsoleConstants.IRONPYTHON_INTERPRETER_REPRESENTATION;
 
+        }
+
+        if (checkboxSaveSelection.isEnabled() && checkboxSaveSelection.getSelection()) {
+            InteractiveConsolePrefs.setDefaultInteractiveConsole(pref);
+            ;
         }
 
         super.okPressed();
