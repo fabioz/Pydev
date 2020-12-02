@@ -47,6 +47,7 @@ import org.python.pydev.debug.newconsole.PydevConsoleConstants;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsoleUMDPrefs;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.net.SocketUtil;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.PlatformUtils;
@@ -169,19 +170,24 @@ public class PydevIProcessFactory {
             }
 
             if (interpreter == null) {
-                SelectionDialog listDialog = AbstractInterpreterPreferencesPage.createChooseIntepreterInfoDialog(
-                        workbenchWindow, interpreters, "Select interpreter to be used.", false);
-
-                int open = listDialog.open();
-                if (open != ListDialog.OK || listDialog.getResult().length > 1) {
-                    return null;
-                }
-                Object[] result = listDialog.getResult();
-                if (result == null || result.length == 0) {
-                    interpreter = interpreters[0];
-
+                if (PydevConsoleConstants.ACTIVE_EDITOR_INTERPRETER_REPRESENTATION
+                        .equals(dialog.getSelectedInteractiveConsoleInterpreterRep())) {
+                    interpreter = PythonNature.getPythonNature(edit.getProject()).getProjectInterpreter();
                 } else {
-                    interpreter = ((IInterpreterInfo) result[0]);
+                    SelectionDialog listDialog = AbstractInterpreterPreferencesPage.createChooseIntepreterInfoDialog(
+                            workbenchWindow, interpreters, "Select interpreter to be used.", false);
+
+                    int open = listDialog.open();
+                    if (open != ListDialog.OK || listDialog.getResult().length > 1) {
+                        return null;
+                    }
+                    Object[] result = listDialog.getResult();
+                    if (result == null || result.length == 0) {
+                        interpreter = interpreters[0];
+
+                    } else {
+                        interpreter = ((IInterpreterInfo) result[0]);
+                    }
                 }
             }
 
