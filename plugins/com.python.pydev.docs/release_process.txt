@@ -33,10 +33,10 @@ C:\bin\Miniconda\envs\tests_py27\python.exe X:\release_tools\pydev_uploader_bint
 		Update the version of all plugins to the new version.
 
 		Run:
-		    - Update version at X:\pydev\plugins\com.python.pydev.docs\build_homepage.py
+		    - Update version at X:\pydev.page\build_homepage.py
 		    - Add version to update sites:
-		    	- com.python.pydev.docs/homepage/update_sites/index.contents.rst_html
-		    - X:\pydev\plugins\com.python.pydev.docs\build_homepage.py
+		    	- pydev.page/homepage/update_sites/index.contents.rst_html
+		    - X:\pydev.page\build_homepage.py
 
 		Commit everything
         Merge with master
@@ -93,15 +93,13 @@ C:\bin\Miniconda3\envs\py2\python.exe X:\release_tools\pydev_uploader_bintray.py
 
 		** Update homepage:
 
-		-- other -- robocopy X:\workspace_liclipse\Pydev\plugins\com.python.pydev.docs\homepage\final X:\workspace_liclipse\pydevsite.github.io /xd .git /xd .openshift  /s
-
-robocopy X:\pydev\plugins\com.python.pydev.docs\homepage\final X:\pydevsite.github.io /xd .git /xd .openshift  /s
+robocopy X:\pydev.page\homepage\final X:\pydevsite.github.io /xd .git /xd .openshift  /s
 cd /D X:\pydevsite.github.io
 mu st
 mu acp "Updated to 8.0.1"
 
-"C:\Program Files\FileZilla FTP Client\filezilla.exe" sftp://fabioz,pydev@frs.sourceforge.net/home/project-web/pydev/htdocs/images/sponsors --local="x:\pydev\plugins\com.python.pydev.docs\homepage\final\images\sponsors"
-"C:\Program Files\FileZilla FTP Client\filezilla.exe" sftp://fabioz,pydev@frs.sourceforge.net/home/project-web/pydev/htdocs --local="x:\pydev\plugins\com.python.pydev.docs\homepage\final"
+"C:\Program Files\FileZilla FTP Client\filezilla.exe" sftp://fabioz,pydev@frs.sourceforge.net/home/project-web/pydev/htdocs/images/sponsors --local="x:\pydev.page\homepage\final\images\sponsors"
+"C:\Program Files\FileZilla FTP Client\filezilla.exe" sftp://fabioz,pydev@frs.sourceforge.net/home/project-web/pydev/htdocs --local="x:\pydev.page\homepage\final"
 
 		** Tag repository:
 		  git tag pydev_8_0_1 -a -m "PyDev 8.0.1"
