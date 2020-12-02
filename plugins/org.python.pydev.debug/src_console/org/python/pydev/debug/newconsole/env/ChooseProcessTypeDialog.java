@@ -62,6 +62,8 @@ final class ChooseProcessTypeDialog extends Dialog {
 
     private IInterpreterManager interpreterManager;
 
+    private String interactiveConsoleInterpreterRep = null;
+
     private List<IPythonNature> natures = new ArrayList<IPythonNature>();
 
     private PyStackFrame selectedFrame;
@@ -374,5 +376,9 @@ final class ChooseProcessTypeDialog extends Dialog {
      */
     public void setSelectedFrame(PyStackFrame selectedFrame) {
         this.selectedFrame = selectedFrame;
+    }
+
+    public String getSelectedInteractiveConsoleInterpreterRep() {
+        return this.interactiveConsoleInterpreterRep;
     }
 }
