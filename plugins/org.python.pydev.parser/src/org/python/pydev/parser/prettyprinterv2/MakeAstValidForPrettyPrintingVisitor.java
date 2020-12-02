@@ -31,6 +31,7 @@ import org.python.pydev.parser.jython.ast.DictComp;
 import org.python.pydev.parser.jython.ast.Ellipsis;
 import org.python.pydev.parser.jython.ast.Exec;
 import org.python.pydev.parser.jython.ast.Expr;
+import org.python.pydev.parser.jython.ast.ExtSlice;
 import org.python.pydev.parser.jython.ast.For;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Global;
@@ -1082,6 +1083,13 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
     @Override
     public Object visitExpr(Expr node) throws Exception {
         handleSimpleNode(node);
+        return null;
+    }
+
+    @Override
+    public Object visitExtSlice(ExtSlice node) throws Exception {
+        fixNode(node);
+        traverse(node);
         return null;
     }
 
