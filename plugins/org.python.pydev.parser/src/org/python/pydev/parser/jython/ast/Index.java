@@ -3,6 +3,7 @@ package org.python.pydev.parser.jython.ast;
 
 import org.python.pydev.parser.jython.SimpleNode;
 import java.util.Arrays;
+import org.python.pydev.parser.jython.SpecialStr;
 
 public final class Index extends sliceType {
     public exprType value;
@@ -51,6 +52,12 @@ public final class Index extends sliceType {
                 if(o instanceof commentType){
                     commentType commentType = (commentType) o;
                     temp.getSpecialsAfter().add(commentType.createCopy(copyComments));
+                } else if (o instanceof SpecialStr) {
+                    SpecialStr specialStr = (SpecialStr) o;
+                    Name name = new Name(specialStr.str, -1, false);
+                    name.beginColumn = specialStr.getBeginCol();
+                    name.beginLine = specialStr.getBeginLine();
+                    temp.getSpecialsAfter().add(name);
                 }
             }
         }
