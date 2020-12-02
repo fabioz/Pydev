@@ -134,8 +134,6 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
                 if (o instanceof commentType) {
                     fixNode((SimpleNode) o);
                     nextLine();
-                } else if (o instanceof Name) {
-                    fixNode((SimpleNode) o);
                 }
             }
         }
