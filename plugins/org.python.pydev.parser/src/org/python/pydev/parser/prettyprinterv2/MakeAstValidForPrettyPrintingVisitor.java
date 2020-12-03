@@ -1089,7 +1089,13 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
     @Override
     public Object visitExtSlice(ExtSlice node) throws Exception {
         fixNode(node);
-        traverse(node);
+        if (node.dims != null) {
+            for (int i = 0; i < node.dims.length; i++) {
+                node.dims[i].accept(this);
+                nextCol();
+            }
+        }
+        fixAfterNode(node);
         return null;
     }
 
