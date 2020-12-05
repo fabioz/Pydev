@@ -70,7 +70,7 @@ public class PycHandlerBuilderVisitor extends PyDevBuilderVisitor {
                         try {
                             workspaceFile.delete(true, monitor);
                         } catch (CoreException e) {
-                            Log.log(e);
+                            // Log.log(e); ignore (it could be in use or already deleted).
                         }
                     }
                     monitor.worked(1);

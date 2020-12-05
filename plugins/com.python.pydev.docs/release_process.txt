@@ -93,13 +93,8 @@ C:\bin\Miniconda3\envs\py2\python.exe X:\release_tools\pydev_uploader_bintray.py
 
 		** Update homepage:
 
-robocopy X:\pydev.page\homepage\final X:\pydevsite.github.io /xd .git /xd .openshift  /s
-cd /D X:\pydevsite.github.io
-mu st
-mu acp "Updated to 8.0.1"
-
-"C:\Program Files\FileZilla FTP Client\filezilla.exe" sftp://fabioz,pydev@frs.sourceforge.net/home/project-web/pydev/htdocs/images/sponsors --local="x:\pydev.page\homepage\final\images\sponsors"
-"C:\Program Files\FileZilla FTP Client\filezilla.exe" sftp://fabioz,pydev@frs.sourceforge.net/home/project-web/pydev/htdocs --local="x:\pydev.page\homepage\final"
+cd /D X:\pydev.page
+python deploy.py
 
 		** Tag repository:
 		  git tag pydev_8_0_1 -a -m "PyDev 8.0.1"
