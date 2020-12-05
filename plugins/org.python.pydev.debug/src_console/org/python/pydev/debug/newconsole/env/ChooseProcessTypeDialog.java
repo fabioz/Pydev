@@ -62,6 +62,8 @@ final class ChooseProcessTypeDialog extends Dialog {
 
     private IInterpreterManager interpreterManager;
 
+    private String interactiveConsoleInterpreterRep = null;
+
     private List<IPythonNature> natures = new ArrayList<IPythonNature>();
 
     private PyStackFrame selectedFrame;
@@ -264,37 +266,35 @@ final class ChooseProcessTypeDialog extends Dialog {
     @Override
     protected void okPressed() {
         setSelectedFrame(null);
-        String pref = null;
         if (checkboxForCurrentEditor.isEnabled() && checkboxForCurrentEditor.getSelection()) {
             IProject project = this.activeEditor.getProject();
             PythonNature nature = PythonNature.getPythonNature(project);
             natures.add(nature);
             IInterpreterManager relatedInterpreterManager = nature.getRelatedInterpreterManager();
             this.interpreterManager = relatedInterpreterManager;
-            pref = PydevConsoleConstants.ACTIVE_EDITOR_INTERPRETER_REPRESENTATION;
+            interactiveConsoleInterpreterRep = PydevConsoleConstants.ACTIVE_EDITOR_INTERPRETER_REPRESENTATION;
 
         } else if (checkboxPython.isEnabled() && checkboxPython.getSelection()) {
             this.interpreterManager = InterpreterManagersAPI.getPythonInterpreterManager();
-            pref = PydevConsoleConstants.PYTHON_INTERPRETER_REPRESENTATION;
+            interactiveConsoleInterpreterRep = PydevConsoleConstants.PYTHON_INTERPRETER_REPRESENTATION;
 
         } else if (checkboxPythonDebug.isEnabled() && checkboxPythonDebug.getSelection()) {
             setSelectedFrame(getSuspendedFrame());
             this.interpreterManager = InterpreterManagersAPI.getPythonInterpreterManager();
-            pref = PydevConsoleConstants.PYDEV_DEBUG_INTERPRETER_REPRESENTATION;
+            interactiveConsoleInterpreterRep = PydevConsoleConstants.PYDEV_DEBUG_INTERPRETER_REPRESENTATION;
 
         } else if (checkboxJython.isEnabled() && checkboxJython.getSelection()) {
             this.interpreterManager = InterpreterManagersAPI.getJythonInterpreterManager();
-            pref = PydevConsoleConstants.JYTHON_INTERPRETER_REPRESENTATION;
+            interactiveConsoleInterpreterRep = PydevConsoleConstants.JYTHON_INTERPRETER_REPRESENTATION;
 
         } else if (checkboxIronpython.isEnabled() && checkboxIronpython.getSelection()) {
             this.interpreterManager = InterpreterManagersAPI.getIronpythonInterpreterManager();
-            pref = PydevConsoleConstants.IRONPYTHON_INTERPRETER_REPRESENTATION;
+            interactiveConsoleInterpreterRep = PydevConsoleConstants.IRONPYTHON_INTERPRETER_REPRESENTATION;
 
         }
 
         if (checkboxSaveSelection.isEnabled() && checkboxSaveSelection.getSelection()) {
-            InteractiveConsolePrefs.setDefaultInteractiveConsole(pref);
-            ;
+            InteractiveConsolePrefs.setDefaultInteractiveConsole(interactiveConsoleInterpreterRep);
         }
 
         super.okPressed();
@@ -374,5 +374,9 @@ final class ChooseProcessTypeDialog extends Dialog {
      */
     public void setSelectedFrame(PyStackFrame selectedFrame) {
         this.selectedFrame = selectedFrame;
+    }
+
+    public String getSelectedInteractiveConsoleInterpreterRep() {
+        return this.interactiveConsoleInterpreterRep;
     }
 }
