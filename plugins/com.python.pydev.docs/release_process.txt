@@ -83,13 +83,9 @@ cd org.python.pydev.p2-repo-8.1.0-SNAPSHOT
 
 "C:\Program Files\7-Zip\7z" x ..\org.python.pydev.p2-repo-8.1.0-SNAPSHOT.zip
 
-C:\bin\Miniconda3\envs\py2\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-8.1.0-SNAPSHOT -d https://api.bintray.com/content/fabioz/pydev/nightly/
-Note: if unable to send: remove at https://bintray.com/fabioz/pydev/pydev/nightly/edit add back at https://bintray.com/fabioz/pydev/pydev/new/version
-
-
 Create "8.1.0" version in "https://bintray.com/fabioz/pydev/pydev/new/version"
 Add "8.1.0" in X:\release_tools\pydev_uploader_bintray.py
-C:\bin\Miniconda3\envs\py2\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-8.1.0-SNAPSHOT -d https://api.bintray.com/content/fabioz/pydev/8.1.0/
+C:\bin\Miniconda3\envs\py37_tests\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-8.1.0-SNAPSHOT -d https://api.bintray.com/content/fabioz/pydev/8.1.0/
 
 		** Update homepage:
 
