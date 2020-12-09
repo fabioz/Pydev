@@ -327,8 +327,9 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
                 continue;
             }
             IToken tok = single.tok;
-            String rep = tok.getRepresentation();
-            if (rep.equals(token.getRepresentation())) {
+            String firstPart = FullRepIterable.getFirstPart(tok.getRepresentation());
+
+            if (firstPart.equals(token.getRepresentation())) {
                 //found match in names to ignore...
 
                 if (finishClassScope && scope.getCurrScopeId() < single.scopeFound.getScopeId()

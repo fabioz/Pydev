@@ -88,4 +88,15 @@ public class OccurrencesAnalyzerPy38Test extends AnalysisTestsBase {
         checkError("Undefined variable: Bar");
     }
 
+    public void testClassWithReferenceToItself() throws Exception {
+        doc = new Document("" +
+                "def gen():\n" +
+                "    class C:\n" +
+                "        def m(self):\n" +
+                "            return 42\n" +
+                "        def mm(self):\n" +
+                "            return C.m");
+        checkNoError();
+    }
+
 }
