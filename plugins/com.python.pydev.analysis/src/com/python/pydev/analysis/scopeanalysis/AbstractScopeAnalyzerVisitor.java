@@ -70,7 +70,6 @@ import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.string.FullRepIterable;
-import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.StringToIntCounterSmallSet;
 
 import com.python.pydev.analysis.visitors.Found;
@@ -328,9 +327,9 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
                 continue;
             }
             IToken tok = single.tok;
-            List<String> repParts = StringUtils.split(tok.getRepresentation(), '.');
+            String firstPart = FullRepIterable.getFirstPart(tok.getRepresentation());
 
-            if (repParts.contains(token.getRepresentation())) {
+            if (firstPart.equals(token.getRepresentation())) {
                 //found match in names to ignore...
 
                 if (finishClassScope && scope.getCurrScopeId() < single.scopeFound.getScopeId()
