@@ -1,37 +1,23 @@
-PyDev 8.0.1 Released
+PyDev 8.1.0 Released
 
-PyDev 8.0.1 Release Highlights
+PyDev 8.1.0 Release Highlights
 -------------------------------
 
-* **Main new features**
-	* Python 3.9 is now supported.
-	* Quick-fix to convert a string to an f-string. (**#PyDev-1093**)
-		* Handles %r and %s.
-		* To convert any string to an f-string, use Ctrl+1 with the cursor inside the string.
+* **Interactive Console**
+	* The selection for which console to open may be saved. (**#PyDev-1112**)
+	* When the **current editor** option is selected, the related interpreter is no longer asked. (**#PyDev-1112**)
 
-* **Debugger** (updated to pydevd 2.1.0)
-	* Support for case-sensitive folders in windows.
-	* Support for user unhandled exceptions.
-	* Support for Python 3.9.
-	* When using frame eval mode, all threads are now traced (even if not started from Python).
-
-* **Refactoring**
-	* Fixes when inlining variables. (**#PyDev-410** / **#PyDev-1105**)
-	* Fixed issue where some references of constants were not properly found. (**PyDev-1097**)
-	* Ctrl+Shift+G on class __init__ now searches for constructor references. (**#PyDev-1086**)
+* **Debugger** (updated to pydevd 2.2.0)
+	* Better support for Python flags when auto-attaching to subprocesses.
+	* Fixes to path translation (when debugging in a different machine).
+	* Catch warnings related to **imp** import from **pkg_resources**.
+	* No longer crashing when running with **Pyjion** (patch by Anthony Shaw).
 
 * **Others**
-	* MyPy errors are silenced in lines with #noqa. Fixes #PyDev-1090
-	* Mark Skiped Tests as Skip in Overview (for unittest backend). (**#PyDev-1096**, patch by herostrat)
-	* Code formatter now handles walrus operator properly. (**#PyDev-1100**)
-	* Code completion now recognizes walrus operator. (**#PyDev-1102**)
-	* Code completion for namedtuple defined as string now works properly. (**#PyDev-1103**)
-	* Quick fix to surround with considers '$' properly.
-	* Right-click to rerun test from PyUnit view now works with pytest parametrized tests.
-	* Conda activation handling improved. (**#PyDev-1080**)
-	* The IScopedPreferences API is now used auto-import and code-folding preferences (patch by Andreas Pakulat)
-	* Show correct line numbers in problems view for analysis items (patch by Zeckie)
-	* PyLint message with round brackets now properly handled. (**#PyDev-1107**, patch by Zeckie)
+	* Code analysis now supports **from __future__ import anotations**. (**#PyDev-1040**)
+	* AST pretty-printing supports printing slices. (**#PyDev-1106**)
+	* Code-completion with auto imports for the builtin module is no longer shown. (**#PyDev-1117**)
+	* MyPy messages from a different file are no longer shown in the current editor. (**#PyDev-1114**)
 
 
 

@@ -89,6 +89,7 @@ C:\bin\Miniconda3\envs\py37_tests\python.exe X:\release_tools\pydev_uploader_bin
 
 		** Update homepage:
 
+Update version in build_homepage.py
 cd /D X:\pydev.page
 python deploy.py
 
