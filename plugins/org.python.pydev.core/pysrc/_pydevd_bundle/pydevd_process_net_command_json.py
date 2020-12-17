@@ -217,6 +217,7 @@ class PyDevJsonCommandProcessor(object):
             supportsLogPoints=True,
             supportsSetExpression=True,
             supportsTerminateRequest=True,
+            supportsClipboardContext=True,
 
             exceptionBreakpointFilters=[
                 {'filter': 'raised', 'label': 'Raised Exceptions', 'default': False},
@@ -390,7 +391,7 @@ class PyDevJsonCommandProcessor(object):
         self.api.set_show_return_values(py_db, self._options.show_return_value)
 
         if not self._options.break_system_exit_zero:
-            ignore_system_exit_codes = [0]
+            ignore_system_exit_codes = [0, None]
             if self._options.django_debug:
                 ignore_system_exit_codes += [3]
 
@@ -400,8 +401,9 @@ class PyDevJsonCommandProcessor(object):
             self.api.stop_on_entry()
 
     def _send_process_event(self, py_db, start_method):
-        if len(sys.argv) > 0:
-            name = sys.argv[0]
+        argv = getattr(sys, 'argv', [])
+        if len(argv) > 0:
+            name = argv[0]
         else:
             name = ''
 
