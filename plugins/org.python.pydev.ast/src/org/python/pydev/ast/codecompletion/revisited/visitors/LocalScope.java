@@ -357,11 +357,13 @@ public class LocalScope implements ILocalScope {
 
             if (element instanceof FunctionDef) {
                 FunctionDef f = (FunctionDef) element;
-                for (int i = 0; i < f.body.length; i++) {
-                    stmtType stmt = f.body[i];
-                    if (stmt != null) {
-                        importedModules.addAll(GlobalModelVisitor.getTokens(stmt, GlobalModelVisitor.ALIAS_MODULES,
-                                moduleName, null, false, this.nature));
+                if (f.body != null) {
+                    for (int i = 0; i < f.body.length; i++) {
+                        stmtType stmt = f.body[i];
+                        if (stmt != null) {
+                            importedModules.addAll(GlobalModelVisitor.getTokens(stmt, GlobalModelVisitor.ALIAS_MODULES,
+                                    moduleName, null, false, this.nature));
+                        }
                     }
                 }
             }
