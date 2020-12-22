@@ -130,6 +130,8 @@ public abstract class PythonListEditor extends FieldEditor {
 
     private Composite parent;
 
+    private Button setDefaultButton;
+
     protected abstract IInterpreterManager getInterpreterManager();
 
     /**
@@ -250,6 +252,7 @@ public abstract class PythonListEditor extends FieldEditor {
                         "Choose from a list of valid interpreters, and select the folders to be in the SYSTEM pythonpath.");
 
         removeButton = createButton(box, UIConstants.REMOVE);
+        setDefaultButton = createPushButton(box, "Set as default");
         upButton = createButton(box, SWT.ARROW | SWT.UP);
         downButton = createButton(box, SWT.ARROW | SWT.DOWN);
 
@@ -334,6 +337,8 @@ public abstract class PythonListEditor extends FieldEditor {
                     addPressed(InterpreterConfigHelpers.CONFIG_ADV_AUTO);
                 } else if (widget == configCondaButton) {
                     configCondaPressed();
+                } else if (widget == setDefaultButton) {
+                    setDefaultPressed();
                 } else if (widget == removeButton) {
                     removePressed();
                 } else if (widget == upButton) {
@@ -358,6 +363,13 @@ public abstract class PythonListEditor extends FieldEditor {
         IInterpreterInfo[] interpreterInfos = getInterpreterManager().getInterpreterInfos();
         CondaConfigDialog condaConfigDialog = new CondaConfigDialog(parent.getShell(), interpreterInfos);
         condaConfigDialog.open();
+    }
+
+    private void setDefaultPressed() {
+        boolean ret = true;
+        while (ret) {
+            ret = swap(true);
+        }
     }
 
     /*
@@ -558,6 +570,7 @@ public abstract class PythonListEditor extends FieldEditor {
 
         removeButton.setEnabled(index >= 0);
         upButton.setEnabled(size > 1 && index > 0);
+        setDefaultButton.setEnabled(size > 1 && index > 0);
         downButton.setEnabled(size > 1 && index >= 0 && index < size - 1);
     }
 
@@ -589,12 +602,12 @@ public abstract class PythonListEditor extends FieldEditor {
      *
      * @param up <code>true</code> if the item should move up, and <code>false</code> if it should move down
      */
-    private void swap(boolean up) {
+    private boolean swap(boolean up) {
         setPresentsDefaultValue(false);
         int index = getSelectionIndex();
         int target = up ? index - 1 : index + 1;
-
-        if (index >= 0) {
+        boolean ret = target >= 0 && target < treeWithInterpreters.getItemCount();
+        if (ret) {
             TreeItem curr = treeWithInterpreters.getItem(index);
             TreeItem replace = treeWithInterpreters.getItem(target);
 
@@ -605,8 +618,9 @@ public abstract class PythonListEditor extends FieldEditor {
             curr.setText(new String[] { col0, col1 });
 
             treeWithInterpreters.setSelection(treeWithInterpreters.getItem(target));
+            selectionChanged();
         }
-        selectionChanged();
+        return ret;
     }
 
     /**
