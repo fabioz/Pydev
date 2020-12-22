@@ -4,25 +4,27 @@ import java.io.File;
 
 import org.python.pydev.core.IInterpreterInfo.UnableToFindExecutableException;
 import org.python.pydev.core.preferences.PydevPrefs;
-import org.python.pydev.ui.pythonpathconf.package_manager.CondaPackageManager;
 
 public final class PyDevCondaPreferences {
-    private static final String CONDA_EXEC_PATH = "CONDA_EXEC_PATH";
-    private static final String DEFAULT_CONDA_EXEC_PATH = "";
+    private static final String CONDA_PATH = "CONDA_EXEC_PATH";
+    private static final String DEFAULT_CONDA_PATH = "";
 
-    public static final String getExecutablePath(CondaPackageManager condaPackageManager)
+    public static final File getExecutable()
             throws UnableToFindExecutableException {
-        String condaExecutable = PydevPrefs.getEclipsePreferences().get(CONDA_EXEC_PATH, DEFAULT_CONDA_EXEC_PATH);
-        if (condaExecutable.isEmpty()) {
-            return condaPackageManager.findCondaExecutable().toString();
+        String condaPath = PydevPrefs.getEclipsePreferences().get(CONDA_PATH, DEFAULT_CONDA_PATH);
+        if (condaPath.isEmpty()) {
+            throw new UnableToFindExecutableException("Conda executable not defined.");
+        }
+        File condaExecutable = new File(condaPath);
+        if (!condaExecutable.exists()) {
+            throw new UnableToFindExecutableException("Conda " + condaPath + " executable not found.");
         }
         return condaExecutable;
     }
 
-    public static final void setStoredExecutablePath(String executableFullPath) {
-        if (new File(executableFullPath).exists()) {
-            PydevPrefs.getEclipsePreferences().put(CONDA_EXEC_PATH, executableFullPath);
-        }
+    public static final File setExecutable(File condaExecutable) {
+        PydevPrefs.getEclipsePreferences().put(CONDA_PATH, condaExecutable.getPath());
+        return condaExecutable;
     }
 
 }

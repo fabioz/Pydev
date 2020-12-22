@@ -1,5 +1,7 @@
 package org.python.pydev.ui.pythonpathconf.conda;
 
+import java.io.File;
+
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -19,7 +21,6 @@ import org.python.pydev.core.IInterpreterInfo.UnableToFindExecutableException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_ui.field_editors.FileFieldEditorCustom;
 import org.python.pydev.ui.pythonpathconf.ValidationFailedException;
-import org.python.pydev.ui.pythonpathconf.package_manager.CondaPackageManager;
 
 public class CondaConfigDialog extends Dialog {
 
@@ -58,12 +59,10 @@ public class CondaConfigDialog extends Dialog {
 
         String path = "";
         try {
-            path = PyDevCondaPreferences.getExecutablePath(
-                    new CondaPackageManager(interpreterInfos[0], interpreterInfos[0].getCondaPrefix()));
+            path = PyDevCondaPreferences.getExecutable().getPath();
         } catch (UnableToFindExecutableException e) {
             Log.log(e);
         }
-
         fileFieldEditor.setStringValue(path);
 
         errorMessageText = new Text(composite, SWT.READ_ONLY);
@@ -82,7 +81,7 @@ public class CondaConfigDialog extends Dialog {
         try {
             errorMessageText.setText("");
             this.condaExecLocation = check("conda executable location", fileFieldEditor);
-            PyDevCondaPreferences.setStoredExecutablePath(this.condaExecLocation);
+            PyDevCondaPreferences.setExecutable(new File(this.condaExecLocation));
             this.additionalValidation();
             super.okPressed();
         } catch (ValidationFailedException e) {
