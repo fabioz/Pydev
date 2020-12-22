@@ -24,6 +24,7 @@ import org.python.pydev.shared_core.utils.ArrayUtils;
 import org.python.pydev.shared_core.utils.PlatformUtils;
 import org.python.pydev.shared_ui.utils.UIUtils;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
+import org.python.pydev.ui.pythonpathconf.conda.PyDevCondaPreferences;
 
 public class CondaPackageManager extends AbstractPackageManager {
 
@@ -39,7 +40,7 @@ public class CondaPackageManager extends AbstractPackageManager {
         List<String[]> listed = new ArrayList<String[]>();
         File condaExecutable;
         try {
-            condaExecutable = findCondaExecutable();
+            condaExecutable = PyDevCondaPreferences.getExecutable();
         } catch (UnableToFindExecutableException e) {
             return errorToList(listed, e);
         }
@@ -147,7 +148,7 @@ public class CondaPackageManager extends AbstractPackageManager {
     public void manage(String[] initialCommands, boolean autoRun, File workingDir) {
         final File condaExecutable;
         try {
-            condaExecutable = findCondaExecutable();
+            condaExecutable = PyDevCondaPreferences.getExecutable();
         } catch (UnableToFindExecutableException e) {
             Log.log(e);
             PyDialogHelpers.openException("Unable to find conda", e);

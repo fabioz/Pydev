@@ -29,7 +29,7 @@ public class JythonInterpreterEditor extends AbstractInterpreterEditor {
     @Override
     protected void doFillIntoGrid(Composite parent, int numColumns) {
         super.doFillIntoGrid(parent, numColumns);
-        this.autoConfigButton.setToolTipText("Will try to find Jython on the PATH (will fail if not available)");
+        this.autoConfigMenuItem.setToolTipText("Will try to find Jython on the PATH (will fail if not available)");
     }
 
     @Override
