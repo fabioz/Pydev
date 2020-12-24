@@ -61,6 +61,9 @@ import org.python.pydev.debug.pyunit.PyUnitServer;
 import org.python.pydev.debug.ui.DebugPrefsPage;
 import org.python.pydev.debug.ui.RunPreferencesPage;
 import org.python.pydev.debug.ui.launching.PythonRunnerCallbacks.CreatedCommandLineParams;
+import org.python.pydev.json.eclipsesource.JsonArray;
+import org.python.pydev.json.eclipsesource.JsonObject;
+import org.python.pydev.json.eclipsesource.JsonValue;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
@@ -402,6 +405,8 @@ public class PythonRunnerConfig {
         interpreterLocation = getInterpreterLocation(conf, pythonNature, this.getRelatedInterpreterManager());
         interpreter = getInterpreter(interpreterLocation, conf, pythonNature);
 
+        List<List<Tuple<String, String>>> pathMappings = getPathMappingsList();
+
         //make the environment
         ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
         envp = launchManager.getEnvironment(conf);
@@ -439,8 +444,17 @@ public class PythonRunnerConfig {
 
             }
 
+            if (isDebug) {
+                updateVar(pythonNature, manager, win32, envMap, "PATHS_FROM_ECLIPSE_TO_PYTHON",
+                        pathMappings.toString());
+            }
+
             //And we also must get the environment variables specified in the interpreter manager.
             envp = interpreterLocation.updateEnv(envp, envMap.keySet());
+        }
+
+        if (isDebug) {
+            envp = StringUtils.addString(envp, "PATHS_FROM_ECLIPSE_TO_PYTHON=" + pathMappings.toString());
         }
 
         boolean hasDjangoNature = project.hasNature(PythonNature.DJANGO_NATURE_ID);
@@ -531,6 +545,30 @@ public class PythonRunnerConfig {
         envp = StringUtils.addString(envp,
                 "PYDEVD_SHOW_COMPILE_CYTHON_COMMAND_LINE=True");
         this.pythonpathUsed = p;
+    }
+
+    private static List<List<Tuple<String, String>>> getPathMappingsList()
+            throws MisconfigurationException {
+        try {
+            List<List<Tuple<String, String>>> pathMappings = new ArrayList<List<Tuple<String, String>>>();
+
+            JsonArray pathMappingsJSON = JsonArray.readFrom(PydevPrefs.getEclipsePreferences()
+                    .get(PyDevEditorPreferences.PATHS_FROM_ECLIPSE_TO_PYTHON,
+                            PyDevEditorPreferences.DEFAULT_PATHS_FROM_ECLIPSE_TO_PYTHON));
+
+            for (JsonValue jsonValue : pathMappingsJSON) {
+                List<Tuple<String, String>> tempList = new ArrayList<Tuple<String, String>>();
+                JsonObject jsonObject = jsonValue.asObject();
+                List<String> keys = jsonObject.names();
+                for (String key : keys) {
+                    tempList.add(new Tuple<String, String>(key, jsonObject.get(key).asString()));
+                }
+                pathMappings.add(tempList);
+            }
+            return pathMappings;
+        } catch (Exception e) {
+            throw new MisconfigurationException("Error parsing Path Mappings config JSON\n\nDetails:\n" + e);
+        }
     }
 
     @SuppressWarnings("unchecked")
