@@ -444,7 +444,7 @@ public class PythonRunnerConfig {
 
             }
 
-            if (isDebug) {
+            if (isDebug && !pathMappings.isEmpty()) {
                 updateVar(pythonNature, manager, win32, envMap, "PATHS_FROM_ECLIPSE_TO_PYTHON",
                         pathMappings.toString());
             }
@@ -453,7 +453,7 @@ public class PythonRunnerConfig {
             envp = interpreterLocation.updateEnv(envp, envMap.keySet());
         }
 
-        if (isDebug) {
+        if (isDebug && !pathMappings.isEmpty()) {
             envp = StringUtils.addString(envp, "PATHS_FROM_ECLIPSE_TO_PYTHON=" + pathMappings.toString());
         }
 
@@ -547,14 +547,18 @@ public class PythonRunnerConfig {
         this.pythonpathUsed = p;
     }
 
-    private static List<List<Tuple<String, String>>> getPathMappingsList()
-            throws MisconfigurationException {
+    private static List<List<Tuple<String, String>>> getPathMappingsList() {
+        List<List<Tuple<String, String>>> pathMappings = new ArrayList<List<Tuple<String, String>>>();
         try {
-            List<List<Tuple<String, String>>> pathMappings = new ArrayList<List<Tuple<String, String>>>();
+            String pathMappingsRaw = PydevPrefs.getEclipsePreferences().get(
+                    PyDevEditorPreferences.PATHS_FROM_ECLIPSE_TO_PYTHON,
+                    PyDevEditorPreferences.DEFAULT_PATHS_FROM_ECLIPSE_TO_PYTHON);
 
-            JsonArray pathMappingsJSON = JsonArray.readFrom(PydevPrefs.getEclipsePreferences()
-                    .get(PyDevEditorPreferences.PATHS_FROM_ECLIPSE_TO_PYTHON,
-                            PyDevEditorPreferences.DEFAULT_PATHS_FROM_ECLIPSE_TO_PYTHON));
+            if (pathMappingsRaw.trim().isEmpty()) {
+                return pathMappings;
+            }
+
+            JsonArray pathMappingsJSON = JsonArray.readFrom(pathMappingsRaw);
 
             for (JsonValue jsonValue : pathMappingsJSON) {
                 List<Tuple<String, String>> tempList = new ArrayList<Tuple<String, String>>();
@@ -565,10 +569,10 @@ public class PythonRunnerConfig {
                 }
                 pathMappings.add(tempList);
             }
-            return pathMappings;
         } catch (Exception e) {
-            throw new MisconfigurationException("Error parsing Path Mappings config JSON\n\nDetails:\n" + e);
+            Log.log(e);
         }
+        return pathMappings;
     }
 
     @SuppressWarnings("unchecked")
