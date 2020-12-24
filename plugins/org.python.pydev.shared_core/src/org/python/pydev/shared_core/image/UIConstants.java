@@ -124,6 +124,9 @@ public class UIConstants {
     public static final String REMOVE = "icons/remove.gif";
     public static final String REMOVE_ALL = "icons/remove_all.gif"; //note: only in SharedUI plugin.
 
+    public static final String DOWN_ARROW = "icons/down_arrow.png";
+    public static final String UP_ARROW = "icons/up_arrow.png";
+
     //browser
     public static final String STOP = "icons/showerr_tsk.gif";
     public static final String REFRESH = "icons/refresh_nav.gif";

@@ -33,13 +33,10 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.ToolBar;
-import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
-import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.log.Log;
@@ -75,14 +72,9 @@ public abstract class PythonListEditor extends FieldEditor {
     private Composite buttonBox;
 
     /**
-     * The first ToolBar item.
-     */
-    private ToolItem initialTextItem;
-
-    /**
      * The Add button.
      */
-    private MenuItem addMenuItem;
+    private MenuItem configManualMenuItem;
 
     /**
      * The Quick Auto config button.
@@ -205,7 +197,7 @@ public abstract class PythonListEditor extends FieldEditor {
      * Creates the Add, Remove, Up, and Down button in the given button box.
      *
      * @param box the box for the buttons
-     * @throws MalformedURLException 
+     * @throws MalformedURLException
      */
     private void createButtons(Composite box) throws MalformedURLException {
         parent = box.getParent();
@@ -227,15 +219,30 @@ public abstract class PythonListEditor extends FieldEditor {
                 selectTitle = "Select executable";
         }
 
-        ToolBar toolBar = new ToolBar(box, SWT.HORIZONTAL);
+        Button newButton = createPushButton(box, "New ... ", "Configure a new Python or PyPy interpreter.");
 
-        initialTextItem = new ToolItem(toolBar, SWT.DROP_DOWN);
-        initialTextItem.setText("New");
-        initialTextItem.addSelectionListener(getSelectionListener());
+        newButton.addSelectionListener(new SelectionListener() {
 
-        menu = new Menu(toolBar);
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                Point loc = newButton.getLocation();
+                Rectangle rect = newButton.getBounds();
 
-        addMenuItem = createMenuItem(menu, selectTitle);
+                Point mLoc = new Point(loc.x - 1, loc.y + rect.height);
+
+                menu.setLocation(newButton.getShell().getDisplay().map(newButton.getParent(), null, mLoc));
+                menu.setVisible(true);
+            }
+
+            @Override
+            public void widgetDefaultSelected(SelectionEvent e) {
+
+            }
+        });
+
+        menu = new Menu(newButton);
+
+        configManualMenuItem = createMenuItem(menu, selectTitle);
 
         if (interpreterType == IPythonNature.INTERPRETER_TYPE_PYTHON) {
             pipenvConfigMenuItem = createMenuItem(menu,
@@ -251,13 +258,16 @@ public abstract class PythonListEditor extends FieldEditor {
                 .setToolTipText(
                         "Choose from a list of valid interpreters, and select the folders to be in the SYSTEM pythonpath.");
 
-        removeButton = createButton(box, UIConstants.REMOVE);
-        setDefaultButton = createPushButton(box, "Set as default");
-        upButton = createButton(box, SWT.ARROW | SWT.UP);
-        downButton = createButton(box, SWT.ARROW | SWT.DOWN);
+        upButton = createButtonWithImage(box, UIConstants.UP_ARROW, "Move selected Python interpreter up");
+        downButton = createButtonWithImage(box, UIConstants.DOWN_ARROW, "Move selected Python interpreter down");
+        setDefaultButton = createPushButton(box, "Set as default",
+                "Make the selected Python interpreter the default interpreter");
+        removeButton = createButtonWithImage(box, UIConstants.REMOVE, "Remove the selected interpreter");
 
-        configCondaButton = createPushButton(box,
-                "Config conda");
+        if (interpreterType == IPythonNature.INTERPRETER_TYPE_PYTHON) {
+            configCondaButton = createPushButton(box,
+                    "Config conda", "Configures conda (to be able to manage conda-based Python interpreters)");
+        }
     }
 
     /**
@@ -274,40 +284,31 @@ public abstract class PythonListEditor extends FieldEditor {
      * @param key the resource name used to supply the button's label text
      * @return Button
      */
-    private Button createPushButton(Composite parent, String key) {
+    private Button createPushButton(Composite parent, String key, String tooltip) {
         Button button = new Button(parent, SWT.PUSH);
         button.setText(JFaceResources.getString(key));
         button.setFont(parent.getFont());
-        GridData data = new GridData(GridData.FILL_HORIZONTAL);
-        //        data.heightHint = convertVerticalDLUsToPixels(button, IDialogConstants.BUTTON_HEIGHT);
-        int widthHint = convertHorizontalDLUsToPixels(button, IDialogConstants.BUTTON_WIDTH);
-        data.widthHint = Math.max(widthHint, button.computeSize(SWT.DEFAULT, SWT.DEFAULT, true).x);
-        button.setLayoutData(data);
+        setControlLayout(button);
+        button.setToolTipText(tooltip);
         button.addSelectionListener(getSelectionListener());
         return button;
     }
 
-    private Button createButton(Composite parent, int style) {
-        Button button = new Button(parent, style);
-        GridData data = new GridData(GridData.FILL_HORIZONTAL);
-        //        data.heightHint = convertVerticalDLUsToPixels(button, IDialogConstants.BUTTON_HEIGHT);
-        int widthHint = convertHorizontalDLUsToPixels(button, IDialogConstants.BUTTON_WIDTH);
-        data.widthHint = Math.max(widthHint, button.computeSize(SWT.DEFAULT, SWT.DEFAULT, true).x);
-        button.setLayoutData(data);
-        button.addSelectionListener(getSelectionListener());
-        return button;
-    }
-
-    private Button createButton(Composite parent, String imageURL) {
+    private Button createButtonWithImage(Composite parent, String imageURL, String tooltip) {
         Button button = new Button(parent, SWT.NONE);
         button.setImage(ImageCache.asImage(SharedUiPlugin.getImageCache().get(imageURL)));
-        GridData data = new GridData(GridData.FILL_HORIZONTAL);
-        //        data.heightHint = convertVerticalDLUsToPixels(button, IDialogConstants.BUTTON_HEIGHT);
-        int widthHint = convertHorizontalDLUsToPixels(button, IDialogConstants.BUTTON_WIDTH);
-        data.widthHint = Math.max(widthHint, button.computeSize(SWT.DEFAULT, SWT.DEFAULT, true).x);
-        button.setLayoutData(data);
+        button.setToolTipText(tooltip);
+        setControlLayout(button);
         button.addSelectionListener(getSelectionListener());
         return button;
+    }
+
+    private void setControlLayout(Control control) {
+        GridData data = new GridData(GridData.FILL_HORIZONTAL);
+        //        data.heightHint = convertVerticalDLUsToPixels(button, IDialogConstants.BUTTON_HEIGHT);
+        int widthHint = convertHorizontalDLUsToPixels(control, IDialogConstants.BUTTON_WIDTH);
+        data.widthHint = Math.max(widthHint, control.computeSize(SWT.DEFAULT, SWT.DEFAULT, true).x);
+        control.setLayoutData(data);
     }
 
     private MenuItem createMenuItem(Menu menu, String key) {
@@ -325,9 +326,7 @@ public abstract class PythonListEditor extends FieldEditor {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 Widget widget = event.widget;
-                if (widget == initialTextItem) {
-                    initialPressed();
-                } else if (widget == addMenuItem) {
+                if (widget == configManualMenuItem) {
                     addPressed(InterpreterConfigHelpers.CONFIG_MANUAL);
                 } else if (widget == autoConfigMenuItem) {
                     addPressed(InterpreterConfigHelpers.CONFIG_AUTO);
@@ -335,7 +334,7 @@ public abstract class PythonListEditor extends FieldEditor {
                     addPressed(InterpreterConfigHelpers.CONFIG_PIPENV);
                 } else if (widget == advAutoConfigMenuItem) {
                     addPressed(InterpreterConfigHelpers.CONFIG_ADV_AUTO);
-                } else if (widget == configCondaButton) {
+                } else if (configCondaButton != null && widget == configCondaButton) {
                     configCondaPressed();
                 } else if (widget == setDefaultButton) {
                     setDefaultPressed();
@@ -352,16 +351,8 @@ public abstract class PythonListEditor extends FieldEditor {
         };
     }
 
-    public void initialPressed() {
-        Rectangle rect = initialTextItem.getBounds();
-        Point pt = initialTextItem.getParent().toDisplay(new Point(rect.x, rect.y));
-        menu.setLocation(pt.x, pt.y + rect.height);
-        menu.setVisible(true);
-    }
-
     private void configCondaPressed() {
-        IInterpreterInfo[] interpreterInfos = getInterpreterManager().getInterpreterInfos();
-        CondaConfigDialog condaConfigDialog = new CondaConfigDialog(parent.getShell(), interpreterInfos);
+        CondaConfigDialog condaConfigDialog = new CondaConfigDialog(parent.getShell());
         condaConfigDialog.open();
     }
 
@@ -440,7 +431,7 @@ public abstract class PythonListEditor extends FieldEditor {
             buttonBox.addDisposeListener(new DisposeListener() {
                 @Override
                 public void widgetDisposed(DisposeEvent event) {
-                    addMenuItem = null;
+                    configManualMenuItem = null;
                     autoConfigMenuItem = null;
                     pipenvConfigMenuItem = null;
                     removeButton = null;
@@ -529,10 +520,10 @@ public abstract class PythonListEditor extends FieldEditor {
      * @return the shell
      */
     protected Shell getShell() {
-        if (addMenuItem == null) {
+        if (configManualMenuItem == null) {
             return null;
         }
-        return addMenuItem.getParent().getShell();
+        return configManualMenuItem.getParent().getShell();
     }
 
     /**
@@ -637,7 +628,7 @@ public abstract class PythonListEditor extends FieldEditor {
     public void setEnabled(boolean enabled, Composite parent) {
         super.setEnabled(enabled, parent);
         getListControl(parent).setEnabled(enabled);
-        addMenuItem.setEnabled(enabled);
+        configManualMenuItem.setEnabled(enabled);
         autoConfigMenuItem.setEnabled(enabled);
         if (pipenvConfigMenuItem != null) {
             pipenvConfigMenuItem.setEnabled(enabled);

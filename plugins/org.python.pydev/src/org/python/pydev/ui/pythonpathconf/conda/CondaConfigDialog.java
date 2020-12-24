@@ -2,7 +2,6 @@ package org.python.pydev.ui.pythonpathconf.conda;
 
 import java.io.File;
 
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.preference.FileFieldEditor;
@@ -16,31 +15,24 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.python.pydev.core.IInterpreterInfo;
-import org.python.pydev.core.IInterpreterInfo.UnableToFindExecutableException;
-import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_ui.field_editors.FileFieldEditorCustom;
 import org.python.pydev.ui.pythonpathconf.ValidationFailedException;
 
 public class CondaConfigDialog extends Dialog {
 
     private FileFieldEditor fileFieldEditor;
-    private IInterpreterInfo[] interpreterInfos;
     private Text errorMessageText;
     private String condaExecLocation;
 
-    public CondaConfigDialog(Shell parentShell, IInterpreterInfo[] interpreterInfos) {
+    public CondaConfigDialog(Shell parentShell) {
         super(parentShell);
         setShellStyle(SWT.CLOSE | SWT.MODELESS | SWT.BORDER | SWT.TITLE | SWT.RESIZE | SWT.MAX);
-        Assert.isTrue(interpreterInfos != null, "IInterpreterInfo must not be null.");
-        Assert.isTrue(interpreterInfos.length > 0, "Must pass at least one IInterpreterInfo.");
-        this.interpreterInfos = interpreterInfos;
     }
 
     @Override
     protected void configureShell(Shell shell) {
         super.configureShell(shell);
-        shell.setText("Conda executable selection dialog");
+        shell.setText("Select conda executable");
     }
 
     @Override
@@ -58,10 +50,9 @@ public class CondaConfigDialog extends Dialog {
         fileFieldEditor.setEmptyStringAllowed(false);
 
         String path = "";
-        try {
-            path = PyDevCondaPreferences.getExecutable().getPath();
-        } catch (UnableToFindExecutableException e) {
-            Log.log(e);
+        File executable = PyDevCondaPreferences.getExecutable();
+        if (executable != null) {
+            path = executable.getAbsolutePath();
         }
         fileFieldEditor.setStringValue(path);
 
@@ -69,7 +60,7 @@ public class CondaConfigDialog extends Dialog {
         errorMessageText.setBackground(errorMessageText.getDisplay().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
         errorMessageText.setForeground(errorMessageText.getDisplay().getSystemColor(SWT.COLOR_RED));
         GridData gridData = createGridData(numberOfColumns);
-        gridData.heightHint = 0;
+        gridData.heightHint = 30;
         errorMessageText.setLayoutData(gridData);
 
         composite.setLayout(new GridLayout(numberOfColumns, false));
@@ -132,7 +123,7 @@ public class CondaConfigDialog extends Dialog {
     public static void main(String[] args) {
         Display display = new Display();
         Shell shell = new Shell(display);
-        CondaConfigDialog dialog = new CondaConfigDialog(shell, new IInterpreterInfo[0]);
+        CondaConfigDialog dialog = new CondaConfigDialog(shell);
         dialog.open();
     }
 }

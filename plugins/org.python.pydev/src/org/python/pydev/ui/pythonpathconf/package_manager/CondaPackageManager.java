@@ -40,7 +40,7 @@ public class CondaPackageManager extends AbstractPackageManager {
         List<String[]> listed = new ArrayList<String[]>();
         File condaExecutable;
         try {
-            condaExecutable = PyDevCondaPreferences.getExecutable();
+            condaExecutable = findCondaExecutable();
         } catch (UnableToFindExecutableException e) {
             return errorToList(listed, e);
         }
@@ -88,8 +88,13 @@ public class CondaPackageManager extends AbstractPackageManager {
         return listed;
     }
 
-    public File findCondaExecutable() throws UnableToFindExecutableException {
-        File condaExecutable = null;
+    private File findCondaExecutable() throws UnableToFindExecutableException {
+
+        // Try to get from the preferences first.
+        File condaExecutable = PyDevCondaPreferences.getExecutable();
+        if (condaExecutable != null) {
+            return condaExecutable;
+        }
         try {
             condaExecutable = interpreterInfo.searchExecutableForInterpreter("conda", true);
         } catch (UnableToFindExecutableException e) {
@@ -148,7 +153,7 @@ public class CondaPackageManager extends AbstractPackageManager {
     public void manage(String[] initialCommands, boolean autoRun, File workingDir) {
         final File condaExecutable;
         try {
-            condaExecutable = PyDevCondaPreferences.getExecutable();
+            condaExecutable = findCondaExecutable();
         } catch (UnableToFindExecutableException e) {
             Log.log(e);
             PyDialogHelpers.openException("Unable to find conda", e);
