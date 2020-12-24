@@ -763,6 +763,15 @@
       </page>
 </extension>
 
+<extension point="org.eclipse.ui.preferencePages">
+      <page
+            name="Path Mappings"
+            category="org.python.pydev.prefs.debugPage"
+            class="org.python.pydev.debug.ui.PathMappingsPrefsPage"
+            id="org.python.pydev.prefs.debugPage.PathMappingsPrefsPage">
+      </page>
+</extension>
+
 <extension point="org.python.pydev.pydev_pyedit_listener">
 	<pyedit_listener_participant class="org.python.pydev.debug.ui.PyEditBreakpointSync"/>
 </extension>
