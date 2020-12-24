@@ -444,8 +444,17 @@ public class PythonRunnerConfig {
 
             }
 
+            if (isDebug) {
+                updateVar(pythonNature, manager, win32, envMap, "PATHS_FROM_ECLIPSE_TO_PYTHON",
+                        pathMappings.toString());
+            }
+
             //And we also must get the environment variables specified in the interpreter manager.
             envp = interpreterLocation.updateEnv(envp, envMap.keySet());
+        }
+
+        if (isDebug) {
+            envp = StringUtils.addString(envp, "PATHS_FROM_ECLIPSE_TO_PYTHON=" + pathMappings.toString());
         }
 
         boolean hasDjangoNature = project.hasNature(PythonNature.DJANGO_NATURE_ID);
