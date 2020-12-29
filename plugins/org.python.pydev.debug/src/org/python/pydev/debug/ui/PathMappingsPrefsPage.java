@@ -6,7 +6,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
-import org.python.pydev.shared_ui.field_editors.MultiStringFieldEditor;
+import org.python.pydev.shared_ui.field_editors.PathMappingsFieldEditor;
 
 /**
  * Preferences for the locations that should be translated -- used when the debugger is not able
@@ -36,7 +36,7 @@ public class PathMappingsPrefsPage extends FieldEditorPreferencePage implements 
     @Override
     protected void createFieldEditors() {
         Composite p = getFieldEditorParent();
-        addField(new MultiStringFieldEditor(PyDevEditorPreferences.PATHS_FROM_ECLIPSE_TO_PYTHON,
+        addField(new PathMappingsFieldEditor(PyDevEditorPreferences.PATHS_FROM_ECLIPSE_TO_PYTHON,
                 "Path Mappings JSON input", p));
     }
 
