@@ -444,11 +444,6 @@ public class PythonRunnerConfig {
 
             }
 
-            if (isDebug && !pathMappings.isEmpty()) {
-                updateVar(pythonNature, manager, win32, envMap, "PATHS_FROM_ECLIPSE_TO_PYTHON",
-                        pathMappings.toString());
-            }
-
             //And we also must get the environment variables specified in the interpreter manager.
             envp = interpreterLocation.updateEnv(envp, envMap.keySet());
         }
@@ -547,6 +542,17 @@ public class PythonRunnerConfig {
         this.pythonpathUsed = p;
     }
 
+    /**
+     * <p>
+     * Convert to List what is in Preferences > PyDev > Debug > Path Mappings : JSON input
+     * </p>
+     * 
+     * <p>
+     * Expects a list containing objects with the keys "localRoot" and "remoteRoot"
+     * storing string values in Path Mappings JSON input
+     * </p>
+     * 
+     */
     private static List<List<Tuple<String, String>>> getPathMappingsList() {
         List<List<Tuple<String, String>>> pathMappings = new ArrayList<List<Tuple<String, String>>>();
         try {
@@ -558,15 +564,13 @@ public class PythonRunnerConfig {
                 return pathMappings;
             }
 
-            JsonArray pathMappingsJSON = JsonArray.readFrom(pathMappingsRaw);
-
-            for (JsonValue jsonValue : pathMappingsJSON) {
+            String localRootStr = "localRoot";
+            String remoteRootStr = "remoteRoot";
+            for (JsonValue jsonValue : JsonArray.readFrom(pathMappingsRaw)) {
                 List<Tuple<String, String>> tempList = new ArrayList<Tuple<String, String>>();
                 JsonObject jsonObject = jsonValue.asObject();
-                List<String> keys = jsonObject.names();
-                for (String key : keys) {
-                    tempList.add(new Tuple<String, String>(key, jsonObject.get(key).asString()));
-                }
+                tempList.add(new Tuple<String, String>(localRootStr, jsonObject.get(localRootStr).asString()));
+                tempList.add(new Tuple<String, String>(remoteRootStr, jsonObject.get(remoteRootStr).asString()));
                 pathMappings.add(tempList);
             }
         } catch (Exception e) {
