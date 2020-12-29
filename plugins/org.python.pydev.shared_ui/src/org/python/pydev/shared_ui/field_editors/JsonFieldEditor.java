@@ -92,7 +92,7 @@ public class JsonFieldEditor extends FieldEditor {
      * 
      * <p>
      * Callback return type is String.
-     * Returns <code>null</code> if JSON has no errors or returns an error message.
+     * Returns <code>null</code> if JSON is valid or returns an error message.
      * </p>
      */
     private ICallback<String, JsonValue> additionalValidation = null;
@@ -219,7 +219,11 @@ public class JsonFieldEditor extends FieldEditor {
 
     /**
      * @param additionalValidation is used to set up a 
-     * callback that will return a String to point out an error in the JSON input
+     * callback that will return a String to point out errors in the JSON input.
+     * <p>
+     * Callback must return <code>null</code> if JSON is valid 
+     * or return an error message string if it is invalid.
+     * </p>
      */
     public void setAdditionalJsonValidation(ICallback<String, JsonValue> additionalValidation) {
         this.additionalValidation = additionalValidation;
