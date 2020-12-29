@@ -1,6 +1,7 @@
 package org.python.pydev.debug.ui;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.swt.widgets.Composite;
@@ -47,10 +48,10 @@ public class PathMappingsPrefsPage extends FieldEditorPreferencePage implements 
         jsonFieldEditor.setAdditionalJsonValidation((json) -> {
             // Validate JSON and return error
             if (!checkPathMappingsFormat(json)) {
-                return "Not a valid Path Mappings input.";
+                return Optional.of("Not a valid Path Mappings input.");
             }
             // No error
-            return null;
+            return Optional.empty();
         });
         addField(jsonFieldEditor);
     }

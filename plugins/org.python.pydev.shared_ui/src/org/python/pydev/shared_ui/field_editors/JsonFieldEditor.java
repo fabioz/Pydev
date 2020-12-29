@@ -1,5 +1,7 @@
 package org.python.pydev.shared_ui.field_editors;
 
+import java.util.Optional;
+
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.resource.JFaceResources;
@@ -91,11 +93,11 @@ public class JsonFieldEditor extends FieldEditor {
      * Store an additional JSON validation strategy callback.
      * 
      * <p>
-     * Callback return type is String.
-     * Returns <code>null</code> if JSON is valid or returns an error message.
+     * Callback return type is Optional String.
+     * Returns <code>Optional.empty()</code> if JSON is valid or returns an Optional String error message.
      * </p>
      */
-    private ICallback<String, JsonValue> additionalValidation = null;
+    private ICallback<Optional<String>, JsonValue> additionalValidation = null;
 
     /**
      * Creates a new string field editor
@@ -207,9 +209,9 @@ public class JsonFieldEditor extends FieldEditor {
         }
 
         if (additionalValidation != null) {
-            String ret = additionalValidation.call(JsonValue.readFrom(textField.getText()));
-            if (ret != null) {
-                setErrorMessage(ret);
+            Optional<String> ret = additionalValidation.call(JsonValue.readFrom(textField.getText()));
+            if (ret.isPresent()) {
+                setErrorMessage(ret.get());
                 return handleErrorMessage(false);
             }
         }
@@ -219,13 +221,13 @@ public class JsonFieldEditor extends FieldEditor {
 
     /**
      * @param additionalValidation is used to set up a 
-     * callback that will return a String to point out errors in the JSON input.
+     * callback that will return an Optional String to point out errors in the JSON input.
      * <p>
-     * Callback must return <code>null</code> if JSON is valid 
-     * or return an error message string if it is invalid.
+     * Callback must return <code>Optional.empty()</code> if JSON is valid 
+     * or return an Optional String error message if it is invalid.
      * </p>
      */
-    public void setAdditionalJsonValidation(ICallback<String, JsonValue> additionalValidation) {
+    public void setAdditionalJsonValidation(ICallback<Optional<String>, JsonValue> additionalValidation) {
         this.additionalValidation = additionalValidation;
     }
 
