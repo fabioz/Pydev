@@ -81,12 +81,6 @@ public class JsonFieldEditor extends FieldEditor {
     private String errorMessage;
 
     /**
-     * Indicates whether the empty string is legal;
-     * <code>true</code> by default.
-     */
-    private boolean emptyStringAllowed = true;
-
-    /**
      * The validation strategy;
      * <code>VALIDATE_ON_KEY_STROKE</code> by default.
      */
@@ -195,12 +189,6 @@ public class JsonFieldEditor extends FieldEditor {
         if (textField == null) {
             setErrorMessage("JsonFieldEditor did not load properly.");
             return handleErrorMessage(result);
-        } else {
-            String txt = textField.getText();
-            result = !txt.trim().isEmpty();
-            if (!result && !isEmptyStringAllowed()) {
-                return handleErrorMessage(result);
-            }
         }
 
         result = checkTextFieldJSON();
@@ -466,17 +454,6 @@ public class JsonFieldEditor extends FieldEditor {
         return new StyledText(parent, SWT.SINGLE | SWT.BORDER);
     }
 
-    /**
-     * Returns whether an empty string is a valid value.
-     *
-     * @return <code>true</code> if an empty string is a valid value, and
-     *  <code>false</code> if an empty string is invalid
-     * @see #setEmptyStringAllowed
-     */
-    public boolean isEmptyStringAllowed() {
-        return emptyStringAllowed;
-    }
-
     @Override
     public boolean isValid() {
         return isValid;
@@ -485,16 +462,6 @@ public class JsonFieldEditor extends FieldEditor {
     @Override
     protected void refreshValidState() {
         isValid = checkState();
-    }
-
-    /**
-     * Sets whether the empty string is a valid value or not.
-     *
-     * @param b <code>true</code> if the empty string is allowed,
-     *  and <code>false</code> if it is considered invalid
-     */
-    public void setEmptyStringAllowed(boolean b) {
-        emptyStringAllowed = b;
     }
 
     /**
