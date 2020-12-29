@@ -17,6 +17,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.json.eclipsesource.JsonValue;
+import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.structure.Tuple;
 
 public class JsonFieldEditor extends FieldEditor {
@@ -85,6 +86,16 @@ public class JsonFieldEditor extends FieldEditor {
      * <code>VALIDATE_ON_KEY_STROKE</code> by default.
      */
     private int validateStrategy = VALIDATE_ON_KEY_STROKE;
+
+    /**
+     * Store an additional JSON validation strategy callback.
+     * 
+     * <p>
+     * Callback return type is String.
+     * Returns <code>null</code> if JSON has no errors or returns an error message.
+     * </p>
+     */
+    private ICallback<String, JsonValue> additionalValidation = null;
 
     /**
      * Creates a new string field editor
@@ -184,22 +195,34 @@ public class JsonFieldEditor extends FieldEditor {
     protected boolean checkState() {
         setErrorMessage(JFaceResources.getString("StringFieldEditor.errorMessage"));
 
-        boolean result = false;
-
         if (textField == null) {
             setErrorMessage("JsonFieldEditor did not load properly.");
-            return handleErrorMessage(result);
+            return handleErrorMessage(false);
+        } else if (textField.getText().trim().isEmpty()) {
+            return handleErrorMessage(true);
         }
 
-        result = checkTextFieldJSON();
-        if (!result) {
-            return handleErrorMessage(result);
+        if (!checkTextFieldJSON()) {
+            return handleErrorMessage(false);
         }
 
-        // call hook for subclasses
-        result = doCheckState();
+        if (additionalValidation != null) {
+            String ret = additionalValidation.call(JsonValue.readFrom(textField.getText()));
+            if (ret != null) {
+                setErrorMessage(ret);
+                return handleErrorMessage(false);
+            }
+        }
 
-        return handleErrorMessage(result);
+        return handleErrorMessage(true);
+    }
+
+    /**
+     * @param additionalValidation is used to set up a 
+     * callback that will return a String to point out an error in the JSON input
+     */
+    public void setAdditionalJsonValidation(ICallback<String, JsonValue> additionalValidation) {
+        this.additionalValidation = additionalValidation;
     }
 
     /**
@@ -258,21 +281,6 @@ public class JsonFieldEditor extends FieldEditor {
             showErrorMessage(getErrorMessage());
         }
         return result;
-    }
-
-    /**
-     * Hook for subclasses to do specific state checks.
-     * <p>
-     * The default implementation of this framework method does
-     * nothing and returns <code>true</code>.  Subclasses should
-     * override this method to specific state checks.
-     * </p>
-     *
-     * @return <code>true</code> if the field value is valid,
-     *   and <code>false</code> if invalid
-     */
-    protected boolean doCheckState() {
-        return true;
     }
 
     /**
