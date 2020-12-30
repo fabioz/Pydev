@@ -24,6 +24,8 @@ import org.python.pydev.shared_ui.field_editors.JsonFieldEditor;
  */
 public class PathMappingsPrefsPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
+    private JsonFieldEditor jsonFieldEditor;
+
     /**
      * Initializer sets the preference store
      */
@@ -42,7 +44,7 @@ public class PathMappingsPrefsPage extends FieldEditorPreferencePage implements 
     @Override
     protected void createFieldEditors() {
         Composite p = getFieldEditorParent();
-        JsonFieldEditor jsonFieldEditor = new JsonFieldEditor(PyDevEditorPreferences.PATHS_FROM_ECLIPSE_TO_PYTHON,
+        jsonFieldEditor = new JsonFieldEditor(PyDevEditorPreferences.PATHS_FROM_ECLIPSE_TO_PYTHON,
                 "Path Mappings JSON input", p);
 
         jsonFieldEditor.setAdditionalJsonValidation((json) -> {
@@ -82,6 +84,13 @@ public class PathMappingsPrefsPage extends FieldEditorPreferencePage implements 
             }
         }
         return true;
+    }
+
+    @Override
+    protected void performApply() {
+        if (jsonFieldEditor.isValidToApply()) {
+            super.performApply();
+        }
     }
 
 }
