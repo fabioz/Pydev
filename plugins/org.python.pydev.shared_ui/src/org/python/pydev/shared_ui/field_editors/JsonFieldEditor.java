@@ -15,6 +15,7 @@ import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
@@ -24,6 +25,8 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.json.eclipsesource.JsonValue;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.FontUtils;
+import org.python.pydev.shared_ui.IFontUsage;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 public class JsonFieldEditor extends FieldEditor {
@@ -389,7 +392,7 @@ public class JsonFieldEditor extends FieldEditor {
     public StyledText getTextControl(Composite parent) {
         if (textField == null) {
             textField = createTextWidget(parent);
-            textField.setFont(parent.getFont());
+            textField.setFont(new Font(parent.getDisplay(), FontUtils.getFontData(IFontUsage.STYLED, true)));
             textField.addKeyListener(new KeyAdapter() {
                 @Override
                 public void keyReleased(KeyEvent e) {
