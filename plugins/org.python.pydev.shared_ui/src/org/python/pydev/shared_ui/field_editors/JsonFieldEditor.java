@@ -8,6 +8,8 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.graphics.GC;
@@ -351,15 +353,21 @@ public class JsonFieldEditor extends FieldEditor {
         if (textField == null) {
             textField = createTextWidget(parent);
             textField.setFont(parent.getFont());
-
             textField.addKeyListener(new KeyAdapter() {
-
                 @Override
                 public void keyReleased(KeyEvent e) {
                     valueChanged();
                 }
             });
-
+            textField.addFocusListener(new FocusAdapter() {
+                // Ensure that the value is checked on focus loss in case we
+                // missed a keyRelease or user hasn't released key.
+                // See https://bugs.eclipse.org/bugs/show_bug.cgi?id=214716
+                @Override
+                public void focusLost(FocusEvent e) {
+                    valueChanged();
+                }
+            });
             textField.addDisposeListener(event -> textField = null);
             if (textLimit > 0) {//Only set limits above 0 - see SWT spec
                 textField.setTextLimit(textLimit);
