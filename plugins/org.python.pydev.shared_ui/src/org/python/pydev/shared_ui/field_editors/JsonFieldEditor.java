@@ -126,17 +126,6 @@ public class JsonFieldEditor extends FieldEditor {
         }
 
         /**
-         * It schedule a string content validation check after a wait time.
-         * 
-         * @param content is the String that will get it's validation checked.
-         * @param time is the waiting time for the Job to run.
-         */
-        public void scheduleValidation(String content, long time) {
-            this.content = content;
-            this.schedule(time);
-        }
-
-        /**
          * Checks whether the <code>String content</code> contains a valid JSON value, 
          * updating <code>Tuple jsonError</code>.
          */
@@ -411,7 +400,7 @@ public class JsonFieldEditor extends FieldEditor {
                 // See https://bugs.eclipse.org/bugs/show_bug.cgi?id=214716
                 @Override
                 public void focusLost(FocusEvent e) {
-                    valueChanged(0);
+                    valueChanged();
                 }
             });
             textField.addDisposeListener(event -> textField = null);
@@ -521,22 +510,9 @@ public class JsonFieldEditor extends FieldEditor {
      * </p>
      */
     protected void valueChanged() {
-        valueChanged(-1);
-    }
-
-    /**
-     * @see JsonFieldEditor.valueChanged()
-     * 
-     * @param time sets a wait time to check if the <code>textField</code> is valid.
-     */
-    protected void valueChanged(long time) {
         setPresentsDefaultValue(false);
         isValid = false;
-        if (time < 0) {
-            fieldValidation.scheduleValidation(textField.getText());
-        } else {
-            fieldValidation.scheduleValidation(textField.getText(), time);
-        }
+        fieldValidation.scheduleValidation(textField.getText());
     }
 
     /*
