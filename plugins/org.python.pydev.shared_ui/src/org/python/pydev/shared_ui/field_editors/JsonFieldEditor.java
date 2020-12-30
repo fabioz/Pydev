@@ -2,8 +2,11 @@ package org.python.pydev.shared_ui.field_editors;
 
 import java.util.Optional;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.preference.FieldEditor;
-import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.Document;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
@@ -17,9 +20,11 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.json.eclipsesource.JsonValue;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 public class JsonFieldEditor extends FieldEditor {
 
@@ -33,6 +38,11 @@ public class JsonFieldEditor extends FieldEditor {
      * Cached valid state.
      */
     private boolean isValid;
+
+    /**
+     * Old valid state
+     */
+    private boolean oldState;
 
     /**
      * Old text value.
@@ -76,6 +86,130 @@ public class JsonFieldEditor extends FieldEditor {
     private ICallback<Optional<String>, JsonValue> additionalValidation = null;
 
     /**
+     * The JsonFieldValidation instance
+     */
+    private final JsonFieldValidation fieldValidation = new JsonFieldValidation("JsonFieldValidation");
+
+    /**
+     * 
+     * Create a Job that can check whether some content is valid by scheduling.
+     *
+     */
+    private class JsonFieldValidation extends Job {
+        /**
+         * The default waiting time for the Job to run.
+         */
+        final private long scheduleDelay = 500;
+
+        /**
+         * The content that going to be checked.
+         */
+        private String content;
+
+        /**
+         * The error line and message keeper.
+         */
+        private Tuple<Integer, String> jsonError;
+
+        public JsonFieldValidation(String name) {
+            super(name);
+        }
+
+        /**
+         * It schedule a string content validation check after <code>long scheduleDelay</code> default wait time.
+         * 
+         * @param content is the String that will get it's validation checked.
+         */
+        public void scheduleValidation(String content) {
+            this.content = content;
+            this.schedule(scheduleDelay);
+        }
+
+        /**
+         * It schedule a string content validation check after a wait time.
+         * 
+         * @param content is the String that will get it's validation checked.
+         * @param time is the waiting time for the Job to run.
+         */
+        public void scheduleValidation(String content, long time) {
+            this.content = content;
+            this.schedule(time);
+        }
+
+        /**
+         * Checks whether the <code>String content</code> contains a valid JSON value, 
+         * updating <code>Tuple jsonError</code>.
+         */
+        private void refreshState() {
+            if (content == null) {
+                jsonError = new Tuple<Integer, String>(-1, "JsonFieldEditor did not load properly.");
+                return;
+            }
+
+            if (!checkTextFieldJSON()) {
+                return;
+            }
+
+            if (additionalValidation != null) {
+                Optional<String> ret = additionalValidation.call(JsonValue.readFrom(content));
+                if (ret.isPresent()) {
+                    jsonError = new Tuple<Integer, String>(-1, ret.get());
+                }
+            }
+        }
+
+        /**
+         * Checks whether the <code>content</code> contains a valid JSON.
+         * <p>
+         * It stores the <code>getJSONError(String)</code> in field <code>Tuple jsonError</code>.
+         * </p>
+         *
+         * @return <code>true</code> if the content is valid,
+         *   and <code>false</code> if it is invalid.
+         */
+        private boolean checkTextFieldJSON() {
+            jsonError = getJSONError(content);
+            if (jsonError == null) {
+                return true;
+            }
+            return false;
+        }
+
+        /**
+         * @param str string to validates JSON.
+         * @return returns <code>Tuple<Integer, Integer>(line,column)</code> 
+         * specifying that JSON has an error and it is in returned line and column,
+         *   and <code>null</code> if JSON is valid
+         */
+        private Tuple<Integer, String> getJSONError(String str) {
+            try {
+                JsonValue.readFrom(str);
+            } catch (org.python.pydev.json.eclipsesource.ParseException e) {
+                return new Tuple<Integer, String>(e.getLine(), e.getMessage());
+            }
+            return null;
+        }
+
+        @Override
+        protected IStatus run(IProgressMonitor monitor) {
+            if (textField.isDisposed()) {
+                return null;
+            }
+            refreshState();
+            RunInUiThread.async(new Runnable() {
+                @Override
+                public void run() {
+                    if (textField.isDisposed()) {
+                        return;
+                    }
+                    handleError(content, jsonError);
+                }
+            });
+            return new Status(IStatus.OK, this.getClass(), "JsonField validated.");
+        }
+    }
+
+    /**
      * Creates a new string field editor
      */
     protected JsonFieldEditor() {
@@ -99,6 +233,7 @@ public class JsonFieldEditor extends FieldEditor {
         this.widthInChars = widthInChars;
         this.heigthInChars = heigthInChars;
         isValid = false;
+        oldState = false;
         createControl(parent);
     }
 
@@ -140,37 +275,6 @@ public class JsonFieldEditor extends FieldEditor {
     }
 
     /**
-     * Checks whether the text input field contains a valid value or not.
-     *
-     * @return <code>true</code> if the field value is valid,
-     *   and <code>false</code> if invalid
-     */
-    protected boolean checkState() {
-        setErrorMessage(JFaceResources.getString("StringFieldEditor.errorMessage"));
-
-        if (textField == null) {
-            setErrorMessage("JsonFieldEditor did not load properly.");
-            return handleErrorMessage(false);
-        } else if (textField.getText().trim().isEmpty()) {
-            return handleErrorMessage(true);
-        }
-
-        if (!checkTextFieldJSON()) {
-            return handleErrorMessage(false);
-        }
-
-        if (additionalValidation != null) {
-            Optional<String> ret = additionalValidation.call(JsonValue.readFrom(textField.getText()));
-            if (ret.isPresent()) {
-                setErrorMessage(ret.get());
-                return handleErrorMessage(false);
-            }
-        }
-
-        return handleErrorMessage(true);
-    }
-
-    /**
      * @param additionalValidation is used to set up a 
      * callback that will return an Optional String to point out errors in the JSON input.
      * <p>
@@ -180,64 +284,6 @@ public class JsonFieldEditor extends FieldEditor {
      */
     public void setAdditionalJsonValidation(ICallback<Optional<String>, JsonValue> additionalValidation) {
         this.additionalValidation = additionalValidation;
-    }
-
-    /**
-     * Checks whether the JSON text input field contains a valid value or not.
-     * 
-     * It also sets as red the entire line from <code>StyledText textField</code>
-     * where the JSON has a syntax error.
-     *
-     * @return <code>true</code> if the field value is valid,
-     *   and <code>false</code> if invalid
-     */
-    private boolean checkTextFieldJSON() {
-        PySelection sel = new PySelection(new Document(textField.getText()));
-        Tuple<Integer, Integer> errorPos = getJSONErrorPos(sel.getDoc().get());
-
-        if (errorPos == null) {
-            textField.setStyleRange(null);
-            return true;
-        }
-
-        int errorLine = errorPos.o1 - 1;
-        StyleRange styleRange = new StyleRange();
-        styleRange.start = sel.getLineOffset(errorLine);
-        styleRange.length = sel.getLine(errorLine).length();
-        styleRange.fontStyle = SWT.BOLD;
-        styleRange.foreground = this.textField.getDisplay().getSystemColor(SWT.COLOR_RED);
-        textField.setStyleRange(styleRange);
-
-        return false;
-    }
-
-    /**
-     * @param str string to validates JSON.
-     * @return returns <code>Tuple<Integer, Integer>(line,column)</code> 
-     * specifying that JSON has an error and it is in returned line and column,
-     *   and <code>null</code> if JSON is valid
-     */
-    private Tuple<Integer, Integer> getJSONErrorPos(String str) {
-        try {
-            JsonValue.readFrom(str);
-        } catch (org.python.pydev.json.eclipsesource.ParseException e) {
-            setErrorMessage(e.getMessage());
-            return new Tuple<Integer, Integer>(e.getLine(), e.getColumn());
-        }
-        return null;
-    }
-
-    /**
-     * @param result defines whether it should clear or show error messages.
-     * @return returns the same value entered as parameter.
-     */
-    private boolean handleErrorMessage(boolean result) {
-        if (result) {
-            clearErrorMessage();
-        } else {
-            showErrorMessage(getErrorMessage());
-        }
-        return result;
     }
 
     /**
@@ -365,7 +411,7 @@ public class JsonFieldEditor extends FieldEditor {
                 // See https://bugs.eclipse.org/bugs/show_bug.cgi?id=214716
                 @Override
                 public void focusLost(FocusEvent e) {
-                    valueChanged();
+                    valueChanged(0);
                 }
             });
             textField.addDisposeListener(event -> textField = null);
@@ -397,9 +443,16 @@ public class JsonFieldEditor extends FieldEditor {
         return isValid;
     }
 
-    @Override
-    protected void refreshValidState() {
-        isValid = checkState();
+    public boolean isValidToApply() {
+        while (fieldValidation.getState() != Job.NONE) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                Log.log(e);
+                return false;
+            }
+        }
+        return isValid;
     }
 
     /**
@@ -468,18 +521,21 @@ public class JsonFieldEditor extends FieldEditor {
      * </p>
      */
     protected void valueChanged() {
+        valueChanged(-1);
+    }
+
+    /**
+     * @see JsonFieldEditor.valueChanged()
+     * 
+     * @param time sets a wait time to check if the <code>textField</code> is valid.
+     */
+    protected void valueChanged(long time) {
         setPresentsDefaultValue(false);
-        boolean oldState = isValid;
-        refreshValidState();
-
-        if (isValid != oldState) {
-            fireStateChanged(IS_VALID, oldState, isValid);
-        }
-
-        String newValue = textField.getText();
-        if (!newValue.equals(oldValue)) {
-            fireValueChanged(VALUE, oldValue, newValue);
-            oldValue = newValue;
+        isValid = false;
+        if (time < 0) {
+            fieldValidation.scheduleValidation(textField.getText());
+        } else {
+            fieldValidation.scheduleValidation(textField.getText(), time);
         }
     }
 
@@ -490,6 +546,49 @@ public class JsonFieldEditor extends FieldEditor {
     public void setEnabled(boolean enabled, Composite parent) {
         super.setEnabled(enabled, parent);
         getTextControl(parent).setEnabled(enabled);
+    }
+
+    /**
+     * Checks if the content and it's validity got updated and then updates the PreferencePage controls.
+     * @param content
+     */
+    private void handleStateChange(String content) {
+        if (isValid != oldState) {
+            fireStateChanged(IS_VALID, oldState, isValid);
+        }
+        String newValue = content;
+        if (!content.equals(oldValue)) {
+            fireValueChanged(VALUE, oldValue, newValue);
+            oldValue = newValue;
+        }
+    }
+
+    /**
+     * @param content
+     * @param jsonError
+     */
+    private void handleError(String content, Tuple<Integer, String> jsonError) {
+        textField.setStyleRange(null);
+        if (jsonError == null) {
+            isValid = true;
+            clearErrorMessage();
+        } else {
+            int line = jsonError.o1;
+            if (line != -1) {
+                PySelection sel = new PySelection(new Document(content));
+                int errorLine = line - 1;
+                StyleRange styleRange = new StyleRange();
+                styleRange.start = sel.getLineOffset(errorLine);
+                styleRange.length = sel.getLine(errorLine).length();
+                styleRange.fontStyle = SWT.BOLD;
+                styleRange.foreground = this.textField.getDisplay().getSystemColor(SWT.COLOR_RED);
+                textField.setStyleRange(styleRange);
+            }
+            setErrorMessage(jsonError.o2);
+            showErrorMessage();
+        }
+        handleStateChange(content);
+        oldState = isValid;
     }
 
 }
