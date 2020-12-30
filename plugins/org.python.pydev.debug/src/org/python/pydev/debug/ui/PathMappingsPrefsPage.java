@@ -47,43 +47,50 @@ public class PathMappingsPrefsPage extends FieldEditorPreferencePage implements 
         jsonFieldEditor = new JsonFieldEditor(PyDevEditorPreferences.PATHS_FROM_ECLIPSE_TO_PYTHON,
                 "Path Mappings JSON input", p);
 
-        jsonFieldEditor.setAdditionalJsonValidation((json) -> {
-            // Validate JSON and return error
-            if (!checkPathMappingsFormat(json)) {
-                return Optional.of("Not a valid Path Mappings input.");
-            }
-            // No error
-            return Optional.empty();
-        });
+        jsonFieldEditor.setAdditionalJsonValidation((json) -> checkPathMappingsFormat(json));
+
         addField(jsonFieldEditor);
     }
 
-    private boolean checkPathMappingsFormat(JsonValue json) {
+    private Optional<String> checkPathMappingsFormat(JsonValue json) {
         if (!json.isArray()) {
-            return false;
+            return Optional.of("Path Mappings JSON must be an array.");
         }
         JsonArray array = json.asArray();
         if (array.size() == 0) {
-            return false;
+            return Optional.of("Empty array.");
         }
+
+        int i = 0;
         for (JsonValue value : array) {
             if (!value.isObject()) {
-                return false;
-            }
-            JsonObject object = value.asObject();
-            if (object.size() != 2) {
-                return false;
-            }
-            List<String> objectNames = object.names();
-            if (!objectNames.contains("localRoot") || !objectNames.contains("remoteRoot")) {
-                return false;
+                return Optional.of("Only objects are accepted.");
             }
 
-            if (!object.get("localRoot").isString() || !object.get("remoteRoot").isString()) {
-                return false;
+            i++;
+            String objectId = "Object " + i;
+            JsonObject object = value.asObject();
+            if (object.size() != 2) {
+                return Optional.of(objectId + " does not have a valid size.");
+            }
+
+            List<String> objectNames = object.names();
+            if (!objectNames.contains("localRoot")) {
+                return Optional.of(objectId + " does not contain \"localRoot\" key.");
+            }
+            if (!objectNames.contains("remoteRoot")) {
+                return Optional.of(objectId + " does not contain \"remoteRoot\" key.");
+            }
+
+            if (!object.get("localRoot").isString()) {
+                return Optional.of(objectId + " \"localRoot\" value is not a string.");
+            }
+            if (!object.get("remoteRoot").isString()) {
+                return Optional.of(objectId + " \"remoteRoot\" value is not a string.");
             }
         }
-        return true;
+        // no errors
+        return Optional.empty();
     }
 
     @Override
