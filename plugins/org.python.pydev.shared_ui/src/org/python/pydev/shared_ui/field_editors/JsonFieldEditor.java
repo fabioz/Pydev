@@ -181,9 +181,6 @@ public class JsonFieldEditor extends FieldEditor {
 
         @Override
         protected IStatus run(IProgressMonitor monitor) {
-            if (textField == null || textField.isDisposed()) {
-                return null;
-            }
             refreshState();
             RunInUiThread.async(new Runnable() {
                 @Override
