@@ -2,15 +2,12 @@ package org.python.pydev.shared_ui.field_editors;
 
 import java.util.Optional;
 
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.Document;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.events.FocusAdapter;
-import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.graphics.GC;
@@ -23,23 +20,6 @@ import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.structure.Tuple;
 
 public class JsonFieldEditor extends FieldEditor {
-
-    /**
-     * Validation strategy constant (value <code>0</code>) indicating that the
-     * editor should perform validation after every key stroke.
-     *
-     * @see #setValidateStrategy
-     */
-    public static final int VALIDATE_ON_KEY_STROKE = 0;
-
-    /**
-     * Validation strategy constant (value <code>1</code>) indicating that
-     * the editor should perform validation only when the text widget
-     * loses focus.
-     *
-     * @see #setValidateStrategy
-     */
-    public static final int VALIDATE_ON_FOCUS_LOST = 1;
 
     /**
      * Text limit constant (value <code>-1</code>) indicating unlimited
@@ -84,12 +64,6 @@ public class JsonFieldEditor extends FieldEditor {
     private String errorMessage;
 
     /**
-     * The validation strategy;
-     * <code>VALIDATE_ON_KEY_STROKE</code> by default.
-     */
-    private int validateStrategy = VALIDATE_ON_KEY_STROKE;
-
-    /**
      * Store an additional JSON validation strategy callback.
      * 
      * <p>
@@ -114,41 +88,16 @@ public class JsonFieldEditor extends FieldEditor {
      * @param widthInChars  the width of the text input field in characters, or
      *                      <code>UNLIMITED</code> for no limit
      * @param heigthInChars the height of the text input field in characters.
-     * @param strategy      either <code>VALIDATE_ON_KEY_STROKE</code> to perform on
-     *                      the fly checking (the default), or
-     *                      <code>VALIDATE_ON_FOCUS_LOST</code> to perform
-     *                      validation only after the text has been typed in
      * @param parent        the parent of the field editor's control
      * @since 3.17
      */
-    public JsonFieldEditor(String name, String labelText, int widthInChars, int heigthInChars, int strategy,
+    public JsonFieldEditor(String name, String labelText, int widthInChars, int heigthInChars,
             Composite parent) {
         init(name, labelText);
         this.widthInChars = widthInChars;
         this.heigthInChars = heigthInChars;
-        setValidateStrategy(strategy);
         isValid = false;
         createControl(parent);
-    }
-
-    /**
-     * Creates a JSON field editor. Use the method <code>setTextLimit</code> to
-     * limit the text.
-     *
-     * @param name      the name of the preference this field editor works on
-     * @param labelText the label text of the field editor
-     * @param width     the width of the text input field in characters, or
-     *                  <code>UNLIMITED</code> for no limit
-     * @param strategy  either <code>VALIDATE_ON_KEY_STROKE</code> to perform on the
-     *                  fly checking (the default), or
-     *                  <code>VALIDATE_ON_FOCUS_LOST</code> to perform validation
-     *                  only after the text has been typed in
-     * @param parent    the parent of the field editor's control
-     * @since 2.0
-     */
-    public JsonFieldEditor(String name, String labelText, int width,
-            int strategy, Composite parent) {
-        this(name, labelText, width, 20, strategy, parent);
     }
 
     /**
@@ -163,7 +112,7 @@ public class JsonFieldEditor extends FieldEditor {
      */
     public JsonFieldEditor(String name, String labelText, int width,
             Composite parent) {
-        this(name, labelText, width, VALIDATE_ON_KEY_STROKE, parent);
+        this(name, labelText, width, 20, parent);
     }
 
     /**
@@ -402,48 +351,15 @@ public class JsonFieldEditor extends FieldEditor {
         if (textField == null) {
             textField = createTextWidget(parent);
             textField.setFont(parent.getFont());
-            switch (validateStrategy) {
-                case VALIDATE_ON_KEY_STROKE:
-                    textField.addKeyListener(new KeyAdapter() {
 
-                        @Override
-                        public void keyReleased(KeyEvent e) {
-                            valueChanged();
-                        }
-                    });
-                    textField.addFocusListener(new FocusAdapter() {
-                        // Ensure that the value is checked on focus loss in case we
-                        // missed a keyRelease or user hasn't released key.
-                        // See https://bugs.eclipse.org/bugs/show_bug.cgi?id=214716
-                        @Override
-                        public void focusLost(FocusEvent e) {
-                            valueChanged();
-                        }
-                    });
+            textField.addKeyListener(new KeyAdapter() {
 
-                    break;
-                case VALIDATE_ON_FOCUS_LOST:
-                    textField.addKeyListener(new KeyAdapter() {
-                        @Override
-                        public void keyPressed(KeyEvent e) {
-                            clearErrorMessage();
-                        }
-                    });
-                    textField.addFocusListener(new FocusAdapter() {
-                        @Override
-                        public void focusGained(FocusEvent e) {
-                            refreshValidState();
-                        }
+                @Override
+                public void keyReleased(KeyEvent e) {
+                    valueChanged();
+                }
+            });
 
-                        @Override
-                        public void focusLost(FocusEvent e) {
-                            valueChanged();
-                        }
-                    });
-                    break;
-                default:
-                    Assert.isTrue(false, "Unknown validate strategy");//$NON-NLS-1$
-            }
             textField.addDisposeListener(event -> textField = null);
             if (textLimit > 0) {//Only set limits above 0 - see SWT spec
                 textField.setTextLimit(textLimit);
@@ -525,25 +441,6 @@ public class JsonFieldEditor extends FieldEditor {
         if (textField != null) {
             textField.setTextLimit(limit);
         }
-    }
-
-    /**
-     * Sets the strategy for validating the text.
-     * <p>
-     * Calling this method has no effect after <code>createPartControl</code>
-     * is called. Thus this method is really only useful for subclasses to call
-     * in their constructor. However, it has public visibility for backward
-     * compatibility.
-     * </p>
-     *
-     * @param value either <code>VALIDATE_ON_KEY_STROKE</code> to perform
-     *  on the fly checking (the default), or <code>VALIDATE_ON_FOCUS_LOST</code> to
-     *  perform validation only after the text has been typed in
-     */
-    public void setValidateStrategy(int value) {
-        Assert.isTrue(value == VALIDATE_ON_FOCUS_LOST
-                || value == VALIDATE_ON_KEY_STROKE);
-        validateStrategy = value;
     }
 
     /**
