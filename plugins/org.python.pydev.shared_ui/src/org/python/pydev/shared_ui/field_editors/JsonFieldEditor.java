@@ -130,8 +130,13 @@ public class JsonFieldEditor extends FieldEditor {
          * updating <code>Tuple jsonError</code>.
          */
         private void refreshState() {
+            jsonError = null;
             if (content == null) {
                 jsonError = new Tuple<Integer, String>(-1, "JsonFieldEditor did not load properly.");
+                return;
+            }
+
+            if (content.trim().isEmpty()) {
                 return;
             }
 
