@@ -11,10 +11,8 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.events.FocusAdapter;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
@@ -116,6 +114,16 @@ public class JsonFieldEditor extends FieldEditor {
 
         public JsonFieldValidation(String name) {
             super(name);
+        }
+
+        /**
+         * It does a validation check with no waiting time.
+         * 
+         * @param content is the String that will get it's validation checked.
+         */
+        public void doValidation(String content) {
+            this.content = content;
+            this.schedule();
         }
 
         /**
@@ -393,18 +401,9 @@ public class JsonFieldEditor extends FieldEditor {
         if (textField == null) {
             textField = createTextWidget(parent);
             textField.setFont(new Font(parent.getDisplay(), FontUtils.getFontData(IFontUsage.STYLED, true)));
-            textField.addKeyListener(new KeyAdapter() {
+            textField.addModifyListener(new ModifyListener() {
                 @Override
-                public void keyReleased(KeyEvent e) {
-                    valueChanged();
-                }
-            });
-            textField.addFocusListener(new FocusAdapter() {
-                // Ensure that the value is checked on focus loss in case we
-                // missed a keyRelease or user hasn't released key.
-                // See https://bugs.eclipse.org/bugs/show_bug.cgi?id=214716
-                @Override
-                public void focusLost(FocusEvent e) {
+                public void modifyText(ModifyEvent e) {
                     valueChanged();
                 }
             });
@@ -438,13 +437,12 @@ public class JsonFieldEditor extends FieldEditor {
     }
 
     public boolean isValidToApply() {
-        while (fieldValidation.getState() != Job.NONE) {
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                Log.log(e);
-                return false;
-            }
+        fieldValidation.doValidation(textField.getText());
+        try {
+            fieldValidation.join();
+        } catch (InterruptedException e) {
+            Log.log(e);
+            return false;
         }
         return isValid;
     }
