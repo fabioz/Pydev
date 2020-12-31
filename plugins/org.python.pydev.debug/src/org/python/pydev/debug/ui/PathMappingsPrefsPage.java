@@ -4,14 +4,21 @@ import java.util.List;
 import java.util.Optional;
 
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.json.eclipsesource.JsonArray;
 import org.python.pydev.json.eclipsesource.JsonObject;
 import org.python.pydev.json.eclipsesource.JsonValue;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_ui.field_editors.JsonFieldEditor;
 
 /**
@@ -25,6 +32,22 @@ import org.python.pydev.shared_ui.field_editors.JsonFieldEditor;
 public class PathMappingsPrefsPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
     private JsonFieldEditor jsonFieldEditor;
+
+    private final String pathMappingsListTemplate = "[\n" +
+            "    {\n" +
+            "      \"localRoot\": \"c:/temp\", \n" +
+            "      \"remoteRoot\": \"/usr/temp\"\n" +
+            "    }\n" +
+            "]";
+
+    private final String pathMappingsObjectTemplate = ",\n"
+            + "    {\n" +
+            "      \"localRoot\": \"c:/src\", \n" +
+            "      \"remoteRoot\": \"/usr/src\"\n" +
+            "    }\n"
+            + "]";
+
+    private Button addTemplateButton;
 
     /**
      * Initializer sets the preference store
@@ -46,10 +69,52 @@ public class PathMappingsPrefsPage extends FieldEditorPreferencePage implements 
         Composite p = getFieldEditorParent();
         jsonFieldEditor = new JsonFieldEditor(PyDevEditorPreferences.PATHS_FROM_ECLIPSE_TO_PYTHON,
                 "Path Mappings JSON input", p);
-
         jsonFieldEditor.setAdditionalJsonValidation((json) -> checkPathMappingsFormat(json));
-
         addField(jsonFieldEditor);
+
+        addTemplateButton = new Button(p, SWT.PUSH);
+        addTemplateButton.addSelectionListener(new SelectionListener() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                try {
+                    addTemplateButtonClick();
+                } catch (InterruptedException e1) {
+                    Log.log(e1);
+                }
+            }
+
+            @Override
+            public void widgetDefaultSelected(SelectionEvent e) {
+            }
+        });
+        addTemplateButton.setText("Add path mapping template entry.");
+    }
+
+    private void addTemplateButtonClick() throws InterruptedException {
+        if (jsonFieldEditor != null) {
+            StyledText textField = jsonFieldEditor.getTextControl(getFieldEditorParent());
+            if (textField != null && !textField.isDisposed()) {
+                FastStringBuffer contentBuffer = new FastStringBuffer();
+                contentBuffer.append(textField.getText()).trim();
+                if (contentBuffer.isEmpty()) {
+                    textField.setText(pathMappingsListTemplate);
+                } else if (jsonFieldEditor.isValidToApply()) {
+                    contentBuffer.deleteLast();
+                    contentBuffer.trim().append(pathMappingsObjectTemplate);
+                    textField.setText(contentBuffer.toString());
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void updateApplyButton() {
+        super.updateApplyButton();
+        if (isValid()) {
+            addTemplateButton.setEnabled(true);
+        } else {
+            addTemplateButton.setEnabled(false);
+        }
     }
 
     private Optional<String> checkPathMappingsFormat(JsonValue json) {
