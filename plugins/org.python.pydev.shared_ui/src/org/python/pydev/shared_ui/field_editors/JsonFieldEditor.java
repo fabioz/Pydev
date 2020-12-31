@@ -11,8 +11,8 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
@@ -401,9 +401,9 @@ public class JsonFieldEditor extends FieldEditor {
         if (textField == null) {
             textField = createTextWidget(parent);
             textField.setFont(new Font(parent.getDisplay(), FontUtils.getFontData(IFontUsage.STYLED, true)));
-            textField.addModifyListener(new ModifyListener() {
+            textField.addKeyListener(new KeyAdapter() {
                 @Override
-                public void modifyText(ModifyEvent e) {
+                public void keyReleased(KeyEvent e) {
                     valueChanged();
                 }
             });
