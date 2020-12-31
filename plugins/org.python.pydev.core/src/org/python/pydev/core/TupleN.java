@@ -10,10 +10,11 @@
 package org.python.pydev.core;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * Defines a tuple of some object, adding equals and hashCode operations
- * 
+ *
  * @author Fabio
  */
 public final class TupleN implements Serializable {
@@ -28,30 +29,28 @@ public final class TupleN implements Serializable {
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof TupleN)) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
             return false;
         }
-
-        TupleN t2 = (TupleN) obj;
-        if (t2.o1.length != this.o1.length) {
+        if (getClass() != obj.getClass()) {
             return false;
         }
-        for (int i = 0; i < o1.length; i++) {
-            if (!o1[i].equals(t2.o1[i])) {
-                return false;
-            }
+        TupleN other = (TupleN) obj;
+        if (!Arrays.deepEquals(o1, other.o1)) {
+            return false;
         }
-
         return true;
     }
 
     @Override
     public int hashCode() {
-        int ret = 1;
-        for (int i = 0; i < o1.length; i++) {
-            ret *= o1[i].hashCode();
-        }
-        return 7 * ret;
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + Arrays.deepHashCode(o1);
+        return result;
     }
 
     @Override
@@ -59,7 +58,7 @@ public final class TupleN implements Serializable {
         StringBuffer buffer = new StringBuffer();
         buffer.append("Tuple [");
         for (int i = 0; i < o1.length; i++) {
-            buffer.append(o1[i].toString());
+            buffer.append(o1[i]);
             if (i != o1.length - 1) {
                 buffer.append(", ");
             }
