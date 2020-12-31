@@ -12,7 +12,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.python.pydev.core.log.Log;
 import org.python.pydev.json.eclipsesource.JsonArray;
 import org.python.pydev.json.eclipsesource.JsonObject;
 import org.python.pydev.json.eclipsesource.JsonValue;
@@ -76,11 +75,7 @@ public class PathMappingsPrefsPage extends FieldEditorPreferencePage implements 
         addTemplateButton.addSelectionListener(new SelectionListener() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                try {
-                    addTemplateButtonClick();
-                } catch (InterruptedException e1) {
-                    Log.log(e1);
-                }
+                addTemplateButtonClick();
             }
 
             @Override
@@ -90,7 +85,7 @@ public class PathMappingsPrefsPage extends FieldEditorPreferencePage implements 
         addTemplateButton.setText("Add path mapping template entry.");
     }
 
-    private void addTemplateButtonClick() throws InterruptedException {
+    private void addTemplateButtonClick() {
         if (jsonFieldEditor != null) {
             StyledText textField = jsonFieldEditor.getTextControl(getFieldEditorParent());
             if (textField != null && !textField.isDisposed()) {
