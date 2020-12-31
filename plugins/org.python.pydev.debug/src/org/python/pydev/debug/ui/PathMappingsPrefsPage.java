@@ -128,10 +128,10 @@ public class PathMappingsPrefsPage extends FieldEditorPreferencePage implements 
             }
 
             i++;
-            String objectId = "Object " + i;
+            String objectId = "Path mapping entry: " + i;
             JsonObject object = value.asObject();
             if (object.size() != 2) {
-                return Optional.of(objectId + " does not have a valid size.");
+                return Optional.of(objectId + " is expected to contain \"localRoot\" and \"remoteRoot\" keys.");
             }
 
             List<String> objectNames = object.names();
