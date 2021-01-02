@@ -16,6 +16,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.shared_ui.tooltips.presenter.ToolTipPresenterHandler;
@@ -57,11 +58,19 @@ public class ButtonFieldEditor extends FieldEditor {
 
     @Override
     protected void adjustForNumColumns(int numColumns) {
+        GridData gd = (GridData) button.getLayoutData();
+        gd.horizontalSpan = numColumns;
     }
 
     @Override
     protected void doFillIntoGrid(Composite parent, int numColumns) {
-        getButtonControl(parent);
+        Button bt = getButtonControl(parent);
+        GridData gd = new GridData();
+        bt.setLayoutData(gd);
+        gd.horizontalAlignment = GridData.FILL;
+        gd.grabExcessHorizontalSpace = true;
+        gd.horizontalSpan = numColumns;
+
     }
 
     /**

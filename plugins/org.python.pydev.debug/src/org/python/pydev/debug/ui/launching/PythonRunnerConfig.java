@@ -61,9 +61,6 @@ import org.python.pydev.debug.pyunit.PyUnitServer;
 import org.python.pydev.debug.ui.DebugPrefsPage;
 import org.python.pydev.debug.ui.RunPreferencesPage;
 import org.python.pydev.debug.ui.launching.PythonRunnerCallbacks.CreatedCommandLineParams;
-import org.python.pydev.json.eclipsesource.JsonArray;
-import org.python.pydev.json.eclipsesource.JsonObject;
-import org.python.pydev.json.eclipsesource.JsonValue;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
@@ -405,8 +402,6 @@ public class PythonRunnerConfig {
         interpreterLocation = getInterpreterLocation(conf, pythonNature, this.getRelatedInterpreterManager());
         interpreter = getInterpreter(interpreterLocation, conf, pythonNature);
 
-        List<List<Tuple<String, String>>> pathMappings = getPathMappingsList();
-
         //make the environment
         ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
         envp = launchManager.getEnvironment(conf);
@@ -446,10 +441,6 @@ public class PythonRunnerConfig {
 
             //And we also must get the environment variables specified in the interpreter manager.
             envp = interpreterLocation.updateEnv(envp, envMap.keySet());
-        }
-
-        if (isDebug && !pathMappings.isEmpty()) {
-            envp = StringUtils.addString(envp, "PATHS_FROM_ECLIPSE_TO_PYTHON=" + pathMappings.toString());
         }
 
         boolean hasDjangoNature = project.hasNature(PythonNature.DJANGO_NATURE_ID);
@@ -540,43 +531,6 @@ public class PythonRunnerConfig {
         envp = StringUtils.addString(envp,
                 "PYDEVD_SHOW_COMPILE_CYTHON_COMMAND_LINE=True");
         this.pythonpathUsed = p;
-    }
-
-    /**
-     * <p>
-     * Convert to List what is in Preferences > PyDev > Debug > Path Mappings : JSON input
-     * </p>
-     * 
-     * <p>
-     * Expects a list containing objects with the keys "localRoot" and "remoteRoot"
-     * storing string values in Path Mappings JSON input
-     * </p>
-     * 
-     */
-    private static List<List<Tuple<String, String>>> getPathMappingsList() {
-        List<List<Tuple<String, String>>> pathMappings = new ArrayList<List<Tuple<String, String>>>();
-        try {
-            String pathMappingsRaw = PydevPrefs.getEclipsePreferences().get(
-                    PyDevEditorPreferences.PATHS_FROM_ECLIPSE_TO_PYTHON,
-                    PyDevEditorPreferences.DEFAULT_PATHS_FROM_ECLIPSE_TO_PYTHON);
-
-            if (pathMappingsRaw.trim().isEmpty()) {
-                return pathMappings;
-            }
-
-            String localRootStr = "localRoot";
-            String remoteRootStr = "remoteRoot";
-            for (JsonValue jsonValue : JsonArray.readFrom(pathMappingsRaw)) {
-                List<Tuple<String, String>> tempList = new ArrayList<Tuple<String, String>>();
-                JsonObject jsonObject = jsonValue.asObject();
-                tempList.add(new Tuple<String, String>(localRootStr, jsonObject.get(localRootStr).asString()));
-                tempList.add(new Tuple<String, String>(remoteRootStr, jsonObject.get(remoteRootStr).asString()));
-                pathMappings.add(tempList);
-            }
-        } catch (Exception e) {
-            Log.log(e);
-        }
-        return pathMappings;
     }
 
     @SuppressWarnings("unchecked")

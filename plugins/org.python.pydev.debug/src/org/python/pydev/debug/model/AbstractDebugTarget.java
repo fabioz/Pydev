@@ -21,6 +21,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
@@ -47,6 +48,7 @@ import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
 import org.python.pydev.ast.location.FindWorkspaceFiles;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.preferences.PydevPrefs;
 import org.python.pydev.debug.core.IConsoleInputListener;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.core.PydevDebugPreferencesInitializer;
@@ -57,6 +59,7 @@ import org.python.pydev.debug.model.remote.AbstractRemoteDebugger;
 import org.python.pydev.debug.model.remote.AddIgnoreThrownExceptionIn;
 import org.python.pydev.debug.model.remote.RemoveBreakpointCommand;
 import org.python.pydev.debug.model.remote.RunCommand;
+import org.python.pydev.debug.model.remote.SendPathMappingsCommand;
 import org.python.pydev.debug.model.remote.SendPyExceptionCommand;
 import org.python.pydev.debug.model.remote.SetBreakpointCommand;
 import org.python.pydev.debug.model.remote.SetDjangoExceptionBreakpointCommand;
@@ -805,6 +808,10 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
 
             } else if (property.equals(PyDevEditorPreferences.TRACE_JINJA2_TEMPLATE_RENDER_EXCEPTIONS)) {
                 sendSetJinja2ExceptionBreakpointCommand();
+
+            } else if (property.equals(PyDevEditorPreferences.PATH_MAPPINGS)
+                    || property.equals(PyDevEditorPreferences.DEBUG_PATH_MAPPINGS)) {
+                sendPathMappingsCommand(true);
             }
         }
     };
@@ -820,6 +827,8 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         // it establishes the connection
         this.postCommand(new VersionCommand(this));
         // this.postCommand(new StopOnStartCommand(this, true));
+
+        this.sendPathMappingsCommand(false);
 
         // now, register all the breakpoints in all projects
         addBreakpointsFor(ResourcesPlugin.getWorkspace().getRoot());
@@ -845,6 +854,20 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         IPreferenceStore pyPrefsStore = PydevPlugin.getDefault().getPreferenceStore();
         SetDontTraceEnabledCommand cmd = new SetDontTraceEnabledCommand(this,
                 pyPrefsStore.getBoolean(PyDevEditorPreferences.DONT_TRACE_ENABLED));
+        this.postCommand(cmd);
+    }
+
+    private void sendPathMappingsCommand(boolean force) {
+        IEclipsePreferences eclipsePreferences = PydevPrefs.getEclipsePreferences();
+        String pathMappingsRaw = eclipsePreferences.get(
+                PyDevEditorPreferences.PATH_MAPPINGS,
+                PyDevEditorPreferences.DEFAULT_PATH_MAPPINGS);
+
+        boolean debugPathMappings = eclipsePreferences.getBoolean(
+                PyDevEditorPreferences.DEBUG_PATH_MAPPINGS,
+                PyDevEditorPreferences.DEFAULT_DEBUG_PATH_MAPPINGS);
+
+        SendPathMappingsCommand cmd = new SendPathMappingsCommand(this, pathMappingsRaw, debugPathMappings, force);
         this.postCommand(cmd);
     }
 

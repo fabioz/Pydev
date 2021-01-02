@@ -3,12 +3,11 @@ package org.python.pydev.debug.ui;
 import java.util.List;
 import java.util.Optional;
 
+import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
@@ -18,16 +17,10 @@ import org.python.pydev.json.eclipsesource.JsonValue;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.WrapAndCaseUtils;
+import org.python.pydev.shared_ui.field_editors.ButtonFieldEditor;
 import org.python.pydev.shared_ui.field_editors.JsonFieldEditor;
 
-/**
- * Preferences for the locations that should be translated -- used when the debugger is not able
- * to find some path aa the client, so, the user is asked for the location and the answer is
- * kept in the preferences in the format:
- * 
- * path asked, new path -- means that a request for the "path asked" should return the "new path"
- * path asked, DONTASK -- means that if some request for that file was asked it should silently ignore it
- */
 public class PathMappingsPrefsPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
     private JsonFieldEditor jsonFieldEditor;
@@ -46,7 +39,7 @@ public class PathMappingsPrefsPage extends FieldEditorPreferencePage implements 
             "    }\n"
             + "]";
 
-    private Button addTemplateButton;
+    private ButtonFieldEditor btFieldEditor;
 
     /**
      * Initializer sets the preference store
@@ -66,23 +59,35 @@ public class PathMappingsPrefsPage extends FieldEditorPreferencePage implements 
     @Override
     protected void createFieldEditors() {
         Composite p = getFieldEditorParent();
-        jsonFieldEditor = new JsonFieldEditor(PyDevEditorPreferences.PATHS_FROM_ECLIPSE_TO_PYTHON,
-                "Path Mappings JSON input", p);
+
+        jsonFieldEditor = new JsonFieldEditor(PyDevEditorPreferences.PATH_MAPPINGS,
+                WrapAndCaseUtils.wrap(
+                        "Path Mappings JSON input.\n\nWhen the debugger is running in a different machine/VM/Docker, it's possible to set how paths should be translated.",
+                        90) + "\n\n"
+                        + WrapAndCaseUtils.wrap(
+                                "The field below should be filled with JSON (with a list of objects with \"localRoot\" and \"remoteRoot\"). "
+                                        + "Use the \"Add path mapping template entry.\" button below to add one entry.",
+                                90),
+                p);
         jsonFieldEditor.setAdditionalJsonValidation((json) -> checkPathMappingsFormat(json));
         addField(jsonFieldEditor);
 
-        addTemplateButton = new Button(p, SWT.PUSH);
-        addTemplateButton.addSelectionListener(new SelectionListener() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                addTemplateButtonClick();
-            }
+        btFieldEditor = new ButtonFieldEditor("__UNUSED__", "Add path mapping template entry.", p,
+                new SelectionListener() {
 
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
-            }
-        });
-        addTemplateButton.setText("Add path mapping template entry.");
+                    @Override
+                    public void widgetSelected(SelectionEvent e) {
+                        addTemplateButtonClick();
+                    }
+
+                    @Override
+                    public void widgetDefaultSelected(SelectionEvent e) {
+                    }
+                });
+        addField(btFieldEditor);
+
+        addField(new BooleanFieldEditor(PyDevEditorPreferences.DEBUG_PATH_MAPPINGS,
+                "Debug path translation? i.e.: Prints the translation to stderr on the server.", p));
     }
 
     private void addTemplateButtonClick() {
@@ -105,11 +110,7 @@ public class PathMappingsPrefsPage extends FieldEditorPreferencePage implements 
     @Override
     protected void updateApplyButton() {
         super.updateApplyButton();
-        if (isValid()) {
-            addTemplateButton.setEnabled(true);
-        } else {
-            addTemplateButton.setEnabled(false);
-        }
+        btFieldEditor.getButtonControl(getFieldEditorParent()).setEnabled(isValid());
     }
 
     private Optional<String> checkPathMappingsFormat(JsonValue json) {
@@ -117,14 +118,11 @@ public class PathMappingsPrefsPage extends FieldEditorPreferencePage implements 
             return Optional.of("Path Mappings JSON must be an array.");
         }
         JsonArray array = json.asArray();
-        if (array.size() == 0) {
-            return Optional.of("Empty array.");
-        }
-
         int i = 0;
         for (JsonValue value : array) {
             if (!value.isObject()) {
-                return Optional.of("Only objects are accepted.");
+                return Optional
+                        .of("Only objects with \"localRoot\" and \"remoteRoot\" are accepted as path mapping entries.");
             }
 
             i++;

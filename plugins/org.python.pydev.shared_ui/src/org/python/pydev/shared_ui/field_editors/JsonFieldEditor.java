@@ -38,12 +38,12 @@ public class JsonFieldEditor extends FieldEditor {
     /**
      * Cached valid state.
      */
-    private boolean isValid;
+    private boolean isValid = true;
 
     /**
      * Old valid state
      */
-    private boolean oldState;
+    private boolean oldState = true;
 
     /**
      * Old text value.
@@ -78,7 +78,7 @@ public class JsonFieldEditor extends FieldEditor {
 
     /**
      * Store an additional JSON validation strategy callback.
-     * 
+     *
      * <p>
      * Callback return type is Optional String.
      * Returns <code>Optional.empty()</code> if JSON is valid or returns an Optional String error message.
@@ -92,7 +92,7 @@ public class JsonFieldEditor extends FieldEditor {
     private final JsonFieldValidation fieldValidation = new JsonFieldValidation("JsonFieldValidation");
 
     /**
-     * 
+     *
      * Create a Job that can check whether some content is valid by scheduling.
      *
      */
@@ -118,7 +118,7 @@ public class JsonFieldEditor extends FieldEditor {
 
         /**
          * It does a validation check with no waiting time.
-         * 
+         *
          * @param content is the String that will get it's validation checked.
          */
         public void doValidation(String content) {
@@ -128,7 +128,7 @@ public class JsonFieldEditor extends FieldEditor {
 
         /**
          * It schedule a string content validation check after <code>long scheduleDelay</code> default wait time.
-         * 
+         *
          * @param content is the String that will get it's validation checked.
          */
         public void scheduleValidation(String content) {
@@ -137,7 +137,7 @@ public class JsonFieldEditor extends FieldEditor {
         }
 
         /**
-         * Checks whether the <code>String content</code> contains a valid JSON value, 
+         * Checks whether the <code>String content</code> contains a valid JSON value,
          * updating <code>Tuple jsonError</code>.
          */
         private void refreshState() {
@@ -182,7 +182,7 @@ public class JsonFieldEditor extends FieldEditor {
 
         /**
          * @param str string to validates JSON.
-         * @return returns <code>Tuple<Integer, Integer>(line,column)</code> 
+         * @return returns <code>Tuple<Integer, Integer>(line,column)</code>
          * specifying that JSON has an error and it is in returned line and column,
          *   and <code>null</code> if JSON is valid
          */
@@ -234,8 +234,8 @@ public class JsonFieldEditor extends FieldEditor {
         init(name, labelText);
         this.widthInChars = widthInChars;
         this.heigthInChars = heigthInChars;
-        isValid = false;
-        oldState = false;
+        isValid = true;
+        oldState = true;
         createControl(parent);
     }
 
@@ -269,18 +269,18 @@ public class JsonFieldEditor extends FieldEditor {
     @Override
     protected void adjustForNumColumns(int numColumns) {
         GridData gd = (GridData) textField.getLayoutData();
-        gd.horizontalSpan = numColumns - 1;
+        gd.horizontalSpan = numColumns;
         // We only grab excess space if we have to
         // If another field editor has more columns then
         // we assume it is setting the width.
-        gd.grabExcessHorizontalSpace = gd.horizontalSpan == 1;
+        gd.grabExcessHorizontalSpace = true;
     }
 
     /**
-     * @param additionalValidation is used to set up a 
+     * @param additionalValidation is used to set up a
      * callback that will return an Optional String to point out errors in the JSON input.
      * <p>
-     * Callback must return <code>Optional.empty()</code> if JSON is valid 
+     * Callback must return <code>Optional.empty()</code> if JSON is valid
      * or return an Optional String error message if it is invalid.
      * </p>
      */

@@ -12,22 +12,26 @@ import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IntegerFieldEditor;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.python.pydev.editorinput.PySourceLocatorPrefs;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.plugin.preferences.PyDevEditorPreferences;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.field_editors.ComboFieldEditor;
+import org.python.pydev.shared_ui.field_editors.LinkFieldEditor;
 
 /**
  * Preferences for the locations that should be translated -- used when the debugger is not able
  * to find some path aa the client, so, the user is asked for the location and the answer is
  * kept in the preferences in the format:
- * 
+ *
  * path asked, new path -- means that a request for the "path asked" should return the "new path"
  * path asked, DONTASK -- means that if some request for that file was asked it should silently ignore it
  */
@@ -57,6 +61,26 @@ public class SourceLocatorPrefsPage extends FieldEditorPreferencePage implements
     @Override
     protected void createFieldEditors() {
         Composite p = getFieldEditorParent();
+
+        LinkFieldEditor linkEditor = new LinkFieldEditor("UNUSED",
+                "These preferences are used solely for mapping a path which arrives in the IDE.\n" +
+                        "For by-directional client <-> debugger translations please use the settings at: <a>Path Mappings</a>",
+                p,
+                new SelectionListener() {
+
+                    @Override
+                    public void widgetSelected(SelectionEvent e) {
+                        String id = "org.python.pydev.editor.preferences.PyTabPreferencesPage";
+                        IWorkbenchPreferenceContainer workbenchPreferenceContainer = ((IWorkbenchPreferenceContainer) getContainer());
+                        workbenchPreferenceContainer.openPage(id, null);
+                    }
+
+                    @Override
+                    public void widgetDefaultSelected(SelectionEvent e) {
+                    }
+                });
+        addField(linkEditor);
+
         addField(new ComboFieldEditor(PySourceLocatorPrefs.ON_SOURCE_NOT_FOUND,
                 "Action when source is not directly found:", ENTRIES_AND_VALUES, p));
 

@@ -29,8 +29,11 @@ public class PyDevEditorPreferences {
      */
     public static final String SOURCE_LOCATION_PATHS = "SOURCE_LOCATION_PATHS";
 
-    public static final String PATHS_FROM_ECLIPSE_TO_PYTHON = "PATHS_FROM_ECLIPSE_TO_PYTHON";
-    public static final String DEFAULT_PATHS_FROM_ECLIPSE_TO_PYTHON = "";
+    public static final String PATH_MAPPINGS = "PATH_MAPPINGS";
+    public static final String DEFAULT_PATH_MAPPINGS = "";
+
+    public static final String DEBUG_PATH_MAPPINGS = "DEBUG_PATH_MAPPINGS";
+    public static final boolean DEFAULT_DEBUG_PATH_MAPPINGS = false;
 
     public static final String USE_VERTICAL_INDENT_GUIDE = "USE_VERTICAL_INDENT_GUIDE";
     public static final boolean DEFAULT_USE_VERTICAL_INDENT_GUIDE = true;
