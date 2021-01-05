@@ -25,7 +25,6 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
@@ -37,9 +36,9 @@ import org.python.pydev.utils.PyEditorMessages;
 
 /**
  * @author Fabio Zadrozny
- * 
+ *
  * Superclass of all our actions. Contains utility functions.
- * 
+ *
  * Subclasses should implement run(IAction action) method.
  */
 public abstract class PyAction extends BaseAction implements IEditorActionDelegate {
@@ -109,7 +108,7 @@ public abstract class PyAction extends BaseAction implements IEditorActionDelega
      * @param cursorOffset
      * @return position of the last character of the line (returned as an absolute
      *            offset)
-     * 
+     *
      * @throws BadLocationException
      */
     protected int getLastCharPosition(IDocument doc, int cursorOffset) throws BadLocationException {
@@ -134,72 +133,19 @@ public abstract class PyAction extends BaseAction implements IEditorActionDelega
         return (offset + i);
     }
 
-    /**
-     * Goes to first char of the line.
-     * @param doc
-     * @param cursorOffset
-     */
-    protected void gotoFirstChar(IDocument doc, int cursorOffset) {
-        try {
-            IRegion region = doc.getLineInformationOfOffset(cursorOffset);
-            int offset = region.getOffset();
-            setCaretPosition(offset);
-        } catch (BadLocationException e) {
-            beep(e);
-        }
-    }
-
-    /**
-     * Goes to the first visible char.
-     * @param doc
-     * @param cursorOffset
-     */
-    protected void gotoFirstVisibleChar(IDocument doc, int cursorOffset) {
-        try {
-            setCaretPosition(PySelection.getFirstCharPosition(doc, cursorOffset));
-        } catch (BadLocationException e) {
-            beep(e);
-        }
-    }
-
-    /**
-     * Goes to the first visible char.
-     * @param doc
-     * @param cursorOffset
-     */
-    protected boolean isAtFirstVisibleChar(IDocument doc, int cursorOffset) {
-        try {
-            return PySelection.getFirstCharPosition(doc, cursorOffset) == cursorOffset;
-        } catch (BadLocationException e) {
-            return false;
-        }
-    }
-
     //================================================================
-    // HELPER FOR DEBBUGING... 
+    // HELPER FOR DEBBUGING...
     //================================================================
 
-    /*
-     * Beep...humm... yeah....beep....ehehheheh
-     */
-    protected static void beep(Exception e) {
-        try {
-            PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay().beep();
-        } catch (Throwable x) {
-            //ignore, workbench has still not been created
-        }
-        Log.log(e);
-    }
-
     /**
-     * 
+     *
      */
     public static String getLineWithoutComments(String sel) {
         return sel.replaceAll("#.*", "");
     }
 
     /**
-     * 
+     *
      */
     public static String getLineWithoutComments(PySelection ps) {
         return getLineWithoutComments(ps.getCursorLineContents());
@@ -333,7 +279,7 @@ public abstract class PyAction extends BaseAction implements IEditorActionDelega
                     if (editorInput == null) {
                         continue;
                     }
-                    IFile file = (IFile) editorInput.getAdapter(IFile.class);
+                    IFile file = editorInput.getAdapter(IFile.class);
                     if (file != null) {
                         ret.add(file);
                     }

@@ -56,7 +56,6 @@ import org.eclipse.jface.text.source.LineNumberRulerColumn;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
-import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
@@ -114,7 +113,6 @@ import org.python.pydev.core.partition.PyPartitionScanner;
 import org.python.pydev.core.preferences.FileTypesPreferences;
 import org.python.pydev.core.preferences.PyDevCoreEditorPreferences;
 import org.python.pydev.core.preferences.PydevPrefs;
-import org.python.pydev.editor.actions.FirstCharAction;
 import org.python.pydev.editor.actions.IExecuteLineAction;
 import org.python.pydev.editor.actions.OfflineAction;
 import org.python.pydev.editor.actions.OfflineActionTarget;
@@ -420,11 +418,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
         viewer.appendVerifyKeyListener(PyPeerLinker.createVerifyKeyListener(viewer));
         viewer.appendVerifyKeyListener(PyBackspace.createVerifyKeyListener(viewer, this));
-        VerifyKeyListener createVerifyKeyListener = FirstCharAction.createVerifyKeyListener(viewer, this.getSite(),
-                false);
-        if (createVerifyKeyListener != null) {
-            viewer.appendVerifyKeyListener(createVerifyKeyListener);
-        }
         this.onCreateSourceViewer.call(viewer);
 
         return viewer;

@@ -28,9 +28,9 @@ import org.python.pydev.shared_ui.utils.UIUtils;
 
 /**
  * Shows tooltips as an information presenter, so, links can be added and the user can interact with it.
- * 
+ *
  * Based on http://demo.spars.info/j/frameset.cgi?compo_id=146467&q=mouseexit&hl=mouseexit&packagename=org.eclipse.swt.examples.hoverhelp&componame=org.eclipse.swt.examples.hoverhelp.HoverHelp$ToolTipPresenterHandler&CASE=0&MORPHO=1&location=1111111111111111111&ref=1&mode=frameset&LANG=1
- * 
+ *
  * Emulated tooltip handler
  * Notice that we could display anything in a tooltip besides text and images.
  * For instance, it might make sense to embed large tables of data or buttons linking
@@ -75,7 +75,7 @@ public class ToolTipPresenterHandler {
 
     /**
      * Enables customized hover help for a specified control
-     * 
+     *
      * @control the control on which to enable hoverhelp
      */
     public void install(final Control control) {

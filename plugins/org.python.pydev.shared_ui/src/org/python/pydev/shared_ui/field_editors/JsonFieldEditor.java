@@ -8,16 +8,30 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.source.SourceViewer;
+import org.eclipse.jface.text.source.projection.ProjectionViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.custom.VerifyKeyListener;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.IWorkbenchCommandConstants;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.contexts.IContextActivation;
+import org.eclipse.ui.contexts.IContextService;
+import org.eclipse.ui.editors.text.EditorsUI;
+import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.json.eclipsesource.JsonValue;
@@ -25,9 +39,11 @@ import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.FontUtils;
 import org.python.pydev.shared_ui.IFontUsage;
+import org.python.pydev.shared_ui.actions.FirstCharAction;
+import org.python.pydev.shared_ui.bindings.KeyBindingHelper;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 
-public class JsonFieldEditor extends FieldEditor {
+public final class JsonFieldEditor extends FieldEditor {
 
     /**
      * Text limit constant (value <code>-1</code>) indicating unlimited
@@ -90,6 +106,10 @@ public class JsonFieldEditor extends FieldEditor {
      * The JsonFieldValidation instance
      */
     private final JsonFieldValidation fieldValidation = new JsonFieldValidation("JsonFieldValidation");
+
+    private SourceViewer sourceViewer;
+
+    private Document doc;
 
     /**
      *
@@ -347,7 +367,7 @@ public class JsonFieldEditor extends FieldEditor {
 
     @Override
     protected void doStore() {
-        getPreferenceStore().setValue(getPreferenceName(), textField.getText());
+        getPreferenceStore().setValue(getPreferenceName(), getText());
     }
 
     /**
@@ -372,7 +392,7 @@ public class JsonFieldEditor extends FieldEditor {
      */
     public String getStringValue() {
         if (textField != null) {
-            return textField.getText();
+            return getText();
         }
 
         return getPreferenceStore().getString(getPreferenceName());
@@ -387,6 +407,8 @@ public class JsonFieldEditor extends FieldEditor {
     protected StyledText getTextControl() {
         return textField;
     }
+
+    private IContextActivation activateContext;
 
     /**
      * Returns this field editor's text control.
@@ -417,18 +439,77 @@ public class JsonFieldEditor extends FieldEditor {
         return textField;
     }
 
-    /**
-     * Create the text widget.
-     *
-     * @param parent the parent composite
-     * @return The widget
-     * @since 3.17
-     */
     protected StyledText createTextWidget(Composite parent) {
+        int style = SWT.SINGLE | SWT.BORDER;
         if (heigthInChars > 1) {
-            return new StyledText(parent, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.WRAP);
+            style = SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.WRAP;
         }
-        return new StyledText(parent, SWT.SINGLE | SWT.BORDER);
+
+        sourceViewer = new ProjectionViewer(parent, null, null, false, style);
+        sourceViewer.configure(new TextSourceViewerConfiguration(EditorsUI.getPreferenceStore()));
+
+        doc = new Document();
+        sourceViewer.setInput(doc);
+        StyledText styledText = sourceViewer.getTextWidget();
+        IContextService contextService = PlatformUI.getWorkbench()
+                .getAdapter(IContextService.class);
+
+        styledText.addFocusListener(new FocusListener() {
+
+            // When we receive focus we need to activate the text editor scope so that the proper
+            // actions are activated.
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (contextService != null && activateContext == null) {
+                    activateContext = contextService.activateContext("org.eclipse.ui.textEditorScope");
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (contextService != null && activateContext != null) {
+                    contextService.deactivateContext(activateContext);
+                    activateContext = null;
+                }
+            }
+
+        });
+
+        styledText.addDisposeListener(new DisposeListener() {
+
+            @Override
+            public void widgetDisposed(DisposeEvent e) {
+                if (contextService != null && activateContext != null) {
+                    contextService.deactivateContext(activateContext);
+                    activateContext = null;
+                }
+            }
+        });
+
+        VerifyKeyListener createVerifyKeyListener = FirstCharAction.createVerifyKeyListener(sourceViewer);
+        sourceViewer.appendVerifyKeyListener(createVerifyKeyListener);
+
+        styledText.addVerifyKeyListener(new VerifyKeyListener() {
+            @Override
+            public void verifyKey(VerifyEvent event) {
+                if (KeyBindingHelper.matchesContentAssistKeybinding(event)
+                        || KeyBindingHelper.matchesQuickAssistKeybinding(event)) {
+                    event.doit = false;
+                    return;
+                }
+                if (KeyBindingHelper.matchesCommandKeybinding(event, IWorkbenchCommandConstants.EDIT_UNDO)) {
+                    sourceViewer.getUndoManager().undo();
+                    event.doit = false;
+                    return;
+                }
+                if (KeyBindingHelper.matchesCommandKeybinding(event, IWorkbenchCommandConstants.EDIT_REDO)) {
+                    sourceViewer.getUndoManager().redo();
+                    event.doit = false;
+                    return;
+                }
+            }
+        });
+        return styledText;
     }
 
     @Override
@@ -437,7 +518,7 @@ public class JsonFieldEditor extends FieldEditor {
     }
 
     public boolean isValidToApply() {
-        fieldValidation.doValidation(textField.getText());
+        fieldValidation.doValidation(getText());
         try {
             fieldValidation.join();
         } catch (InterruptedException e) {
@@ -445,6 +526,10 @@ public class JsonFieldEditor extends FieldEditor {
             return false;
         }
         return isValid;
+    }
+
+    private String getText() {
+        return sourceViewer.getDocument().get();
     }
 
     /**
@@ -474,7 +559,7 @@ public class JsonFieldEditor extends FieldEditor {
             if (value == null) {
                 value = "";//$NON-NLS-1$
             }
-            oldValue = textField.getText();
+            oldValue = getText();
             if (!oldValue.equals(value)) {
                 textField.setText(value);
                 valueChanged();
@@ -515,7 +600,7 @@ public class JsonFieldEditor extends FieldEditor {
     protected void valueChanged() {
         setPresentsDefaultValue(false);
         isValid = false;
-        fieldValidation.scheduleValidation(textField.getText());
+        fieldValidation.scheduleValidation(getText());
     }
 
     /*
@@ -547,21 +632,26 @@ public class JsonFieldEditor extends FieldEditor {
      * @param jsonError
      */
     private void handleError(String content, Tuple<Integer, String> jsonError) {
-        textField.setStyleRange(null);
         if (jsonError == null) {
+            textField.setStyleRange(null);
             isValid = true;
             clearErrorMessage();
         } else {
             int line = jsonError.o1;
             if (line != -1) {
-                PySelection sel = new PySelection(new Document(content));
-                int errorLine = line - 1;
-                StyleRange styleRange = new StyleRange();
-                styleRange.start = sel.getLineOffset(errorLine);
-                styleRange.length = sel.getLine(errorLine).length();
-                styleRange.fontStyle = SWT.BOLD;
-                styleRange.foreground = this.textField.getDisplay().getSystemColor(SWT.COLOR_RED);
-                textField.setStyleRange(styleRange);
+                if (getText().equals(content)) { // Only apply this if in sync!
+                    PySelection sel = new PySelection(new Document(content));
+                    int errorLine = line - 1;
+                    StyleRange styleRange = new StyleRange();
+                    styleRange.start = sel.getLineOffset(errorLine);
+                    styleRange.length = sel.getLine(errorLine).length();
+                    styleRange.fontStyle = SWT.BOLD;
+                    styleRange.foreground = this.textField.getDisplay().getSystemColor(SWT.COLOR_RED);
+                    textField.setStyleRange(null);
+                    textField.setStyleRange(styleRange);
+                }
+            } else {
+                textField.setStyleRange(null);
             }
             setErrorMessage(jsonError.o2);
             showErrorMessage();

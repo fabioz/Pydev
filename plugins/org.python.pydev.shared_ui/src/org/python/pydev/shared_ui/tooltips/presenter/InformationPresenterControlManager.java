@@ -38,9 +38,9 @@ import org.python.pydev.shared_ui.bindings.KeyBindingHelper;
 import org.python.pydev.shared_ui.tooltips.presenter.InformationPresenterHelpers.PyInformationControl;
 
 /**
- * Based on org.eclipse.jface.text.information.InformationPresenter (but without the references to 
+ * Based on org.eclipse.jface.text.information.InformationPresenter (but without the references to
  * an org.eclipse.jface.text.information.InformationPresenter nor partitions).
- * 
+ *
  * To be used on controls to show tooltips that 'stick' and the user can interact with.
  */
 public final class InformationPresenterControlManager extends AbstractInformationControlManager implements
@@ -301,8 +301,7 @@ public final class InformationPresenterControlManager extends AbstractInformatio
                         hideInformationControl();
 
                     } else if (fActivateEditorBinding != null
-                            && KeyBindingHelper.matchesKeybinding(event.keyCode, event.stateMask,
-                                    fActivateEditorBinding)) {
+                            && KeyBindingHelper.matchesKeysequence(event, fActivateEditorBinding)) {
                         hideInformationControl(true, true);
                     }
                     break;
@@ -323,8 +322,8 @@ public final class InformationPresenterControlManager extends AbstractInformatio
 
         /**
          * Note that all parameters (x, y, shellTooltipArea) must be in display coordinates.
-         * @param control 
-         * @param display 
+         * @param control
+         * @param display
          */
         private boolean inKeepUpZone(int x, int y, Control control, Display display) {
             if (display.isDisposed()) {
@@ -336,7 +335,7 @@ public final class InformationPresenterControlManager extends AbstractInformatio
             //the bounds are in display coordinates
             Rectangle bounds = Geometry.copy(fShellTooltipArea);
 
-            //expand so that we have some tolerance to keep it open 
+            //expand so that we have some tolerance to keep it open
             Geometry.expand(bounds, margin, margin, margin, margin);
             return bounds.contains(point.x, point.y);
         }

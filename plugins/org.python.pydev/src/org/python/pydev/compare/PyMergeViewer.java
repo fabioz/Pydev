@@ -52,12 +52,12 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.PyEditConfiguration;
 import org.python.pydev.editor.PyEditConfigurationWithoutEditor;
 import org.python.pydev.editor.PySelectionFromEditor;
-import org.python.pydev.editor.actions.FirstCharAction;
 import org.python.pydev.editor.actions.PyBackspace;
 import org.python.pydev.editor.actions.PyPeerLinker;
 import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_ui.EditorUtils;
+import org.python.pydev.shared_ui.actions.FirstCharAction;
 import org.python.pydev.ui.ColorAndStyleCache;
 
 /**
@@ -156,10 +156,8 @@ public class PyMergeViewer extends TextMergeViewer {
                 }
             }
         }
-        VerifyKeyListener createVerifyKeyListener = FirstCharAction.createVerifyKeyListener(viewer, site, true);
-        if (createVerifyKeyListener != null) {
-            viewer.appendVerifyKeyListener(createVerifyKeyListener);
-        }
+        VerifyKeyListener createVerifyKeyListener = FirstCharAction.createVerifyKeyListener(viewer);
+        viewer.appendVerifyKeyListener(createVerifyKeyListener);
         return viewer;
     }
 
