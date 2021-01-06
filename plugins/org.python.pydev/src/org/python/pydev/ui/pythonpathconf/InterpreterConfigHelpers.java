@@ -57,7 +57,7 @@ public class InterpreterConfigHelpers {
 
     public static final String CONFIG_MANUAL_CONFIG = "Manual &config";
     public static final String CONFIG_AUTO_NAME = "Config &first in PATH";
-    public static final String CONFIG_ADV_AUTO_NAME = "&Choose from list";
+    public static final String CONFIG_ADV_AUTO_NAME = "Choose from &list";
     public static final String CONFIG_PIPENV_NAME = "&New with Pipenv";
     public static final String CONFIG_CONDA_NAME = "Choose from &Conda";
 
