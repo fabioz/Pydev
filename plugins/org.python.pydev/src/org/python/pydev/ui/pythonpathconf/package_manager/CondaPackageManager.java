@@ -37,7 +37,7 @@ public class CondaPackageManager extends AbstractPackageManager {
 
     public static List<File> listCondaEnvironments(File condaExecutable) {
         List<File> lst = new ArrayList<>();
-        String encoding = "utf-8"; // use system encoding
+        String encoding = "utf-8";
         Tuple<String, String> output = new SimpleRunner().runAndGetOutput(
                 new String[] { condaExecutable.toString(), "env", "list", "--json" }, null, null,
                 null,
