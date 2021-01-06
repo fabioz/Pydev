@@ -1,7 +1,6 @@
 package org.python.pydev.ui.pythonpathconf.package_manager;
 
 import java.io.File;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -38,7 +37,7 @@ public class CondaPackageManager extends AbstractPackageManager {
 
     public static List<File> listCondaEnvironments(File condaExecutable) {
         List<File> lst = new ArrayList<>();
-        String encoding = Charset.defaultCharset().displayName(); // use system encoding
+        String encoding = "utf-8"; // use system encoding
         Tuple<String, String> output = new SimpleRunner().runAndGetOutput(
                 new String[] { condaExecutable.toString(), "env", "list", "--json" }, null, null,
                 null,
