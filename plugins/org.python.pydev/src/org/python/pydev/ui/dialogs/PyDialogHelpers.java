@@ -7,7 +7,6 @@
 package org.python.pydev.ui.dialogs;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.IStatus;
@@ -20,6 +19,7 @@ import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -33,9 +33,12 @@ import org.python.pydev.ast.interpreter_managers.AbstractInterpreterManager;
 import org.python.pydev.core.IInterpreterInfo.UnableToFindExecutableException;
 import org.python.pydev.core.preferences.InterpreterGeneralPreferences;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_core.utils.ArrayUtils;
 import org.python.pydev.shared_core.utils.PlatformUtils;
 import org.python.pydev.shared_ui.EditorUtils;
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.dialogs.DialogHelpers;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.shared_ui.utils.UIUtils;
@@ -179,25 +182,35 @@ public class PyDialogHelpers {
      */
     public static NameAndExecutable openCondaInterpreterSelection() {
         List<File> envs = CondaPackageManager.listCondaEnvironments(PyDevCondaPreferences.getExecutable());
-        List<String> envNames = new ArrayList<String>();
-
-        for (File env : envs) {
-            envNames.add(env.getName());
-        }
 
         String title = "Conda interpreter selection";
         String message = "Select a intepreter from the list.";
         Shell shell = EditorUtils.getShell();
+        LabelProvider labelProvider = new LabelProvider() {
+            @Override
+            public Image getImage(Object element) {
+                return ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.PY_INTERPRETER_ICON));
+            }
+
+            @Override
+            public String getText(Object element) {
+                if (element != null && element instanceof File) {
+                    File file = (File) element;
+                    return file.getName();
+                }
+                return super.getText(element);
+            }
+        };
+
         ListDialog d = new ListDialog(shell);
-        d.setInput(envNames);
+        d.setInput(envs);
         d.setContentProvider(new ListContentProvider());
-        d.setLabelProvider(new LabelProvider());
+        d.setLabelProvider(labelProvider);
         d.setMessage(message);
         d.setTitle(title);
         d.open();
         if (d != null) {
-            String r = d.getResult()[0].toString();
-            File ret = envs.get(envNames.indexOf(r));
+            File ret = (File) d.getResult()[0];
             File exec = null;
             if (PlatformUtils.isWindowsPlatform()) {
                 exec = new File(ret.getPath() + "/python.exe");
@@ -205,7 +218,7 @@ public class PyDialogHelpers {
                 exec = new File(ret.getPath() + "/bin/python");
             }
             if (exec.exists()) {
-                return new NameAndExecutable(r, exec.getPath());
+                return new NameAndExecutable(ret.getName(), exec.getPath());
             }
         }
         return null;
