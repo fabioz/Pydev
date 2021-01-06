@@ -1,10 +1,12 @@
 package org.python.pydev.ui.pythonpathconf.package_manager;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.core.runtime.Path;
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.ast.codecompletion.shell.AbstractShell;
 import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
@@ -33,6 +35,21 @@ public class CondaPackageManager extends AbstractPackageManager {
     public CondaPackageManager(IInterpreterInfo interpreterInfo, File prefix) {
         super(interpreterInfo);
         this.prefix = prefix;
+    }
+
+    public static List<String> listCondaEnvironments(File condaExecutable) {
+        List<String> lst = new ArrayList<>();
+        String encoding = Charset.defaultCharset().displayName(); // use system encoding
+        Tuple<String, String> output = new SimpleRunner().runAndGetOutput(
+                new String[] { condaExecutable.toString(), "env", "list", "--json" }, null, null,
+                null,
+                encoding);
+        JsonObject jsonOutput = JsonValue.readFrom(output.o1).asObject();
+        JsonArray envs = jsonOutput.get("envs").asArray();
+        for (JsonValue env : envs.values()) {
+            lst.add(new Path(env.asString()).toOSString());
+        }
+        return lst;
     }
 
     @Override

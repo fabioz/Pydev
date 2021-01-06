@@ -53,11 +53,13 @@ public class InterpreterConfigHelpers {
     public final static int CONFIG_AUTO = 1;
     public final static int CONFIG_ADV_AUTO = 2;
     public final static int CONFIG_PIPENV = 3;
+    public final static int CONFIG_CONDA = 4;
 
     public static final String CONFIG_MANUAL_CONFIG = "Manual &config";
     public static final String CONFIG_AUTO_NAME = "Config &first in PATH";
     public static final String CONFIG_ADV_AUTO_NAME = "&Choose from list";
     public static final String CONFIG_PIPENV_NAME = "&New with Pipenv";
+    public static final String CONFIG_CONDA_NAME = "&Choose from Conda";
 
     public final static String[] CONFIG_NAMES_FOR_FIRST_INTERPRETER = new String[] { CONFIG_MANUAL_CONFIG,
             CONFIG_AUTO_NAME,
