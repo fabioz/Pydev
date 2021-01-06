@@ -34,6 +34,7 @@ import org.python.pydev.core.IInterpreterInfo.UnableToFindExecutableException;
 import org.python.pydev.core.preferences.InterpreterGeneralPreferences;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.utils.ArrayUtils;
+import org.python.pydev.shared_core.utils.PlatformUtils;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.dialogs.DialogHelpers;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
@@ -177,11 +178,11 @@ public class PyDialogHelpers {
      * @return NameAndExecutable
      */
     public static NameAndExecutable openCondaInterpreterSelection() {
-        List<String> envs = CondaPackageManager.listCondaEnvironments(PyDevCondaPreferences.getExecutable());
+        List<File> envs = CondaPackageManager.listCondaEnvironments(PyDevCondaPreferences.getExecutable());
         List<String> envNames = new ArrayList<String>();
 
-        for (String env : List.copyOf(envs)) {
-            envNames.add(env.substring(env.lastIndexOf('\\') + 1));
+        for (File env : envs) {
+            envNames.add(env.getName());
         }
 
         String title = "Conda interpreter selection";
@@ -196,11 +197,15 @@ public class PyDialogHelpers {
         d.open();
         if (d != null) {
             String r = d.getResult()[0].toString();
-            String ret = envs.get(envNames.indexOf(r));
-            if (new File(ret + "\\python.exe").exists()) {
-                return new NameAndExecutable(r, ret + "\\python.exe");
-            } else if (new File(ret + "\\python.jar").exists()) {
-                return new NameAndExecutable(r, ret + "\\python.jar");
+            File ret = envs.get(envNames.indexOf(r));
+            File exec = null;
+            if (PlatformUtils.isWindowsPlatform()) {
+                exec = new File(ret.getPath() + "/python.exe");
+            } else {
+                exec = new File(ret.getPath() + "/bin/python");
+            }
+            if (exec.exists()) {
+                return new NameAndExecutable(r, exec.getPath());
             }
         }
         return null;

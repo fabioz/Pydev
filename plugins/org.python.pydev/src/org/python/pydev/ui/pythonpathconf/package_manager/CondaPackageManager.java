@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.eclipse.core.runtime.Path;
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.ast.codecompletion.shell.AbstractShell;
 import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
@@ -37,8 +36,8 @@ public class CondaPackageManager extends AbstractPackageManager {
         this.prefix = prefix;
     }
 
-    public static List<String> listCondaEnvironments(File condaExecutable) {
-        List<String> lst = new ArrayList<>();
+    public static List<File> listCondaEnvironments(File condaExecutable) {
+        List<File> lst = new ArrayList<>();
         String encoding = Charset.defaultCharset().displayName(); // use system encoding
         Tuple<String, String> output = new SimpleRunner().runAndGetOutput(
                 new String[] { condaExecutable.toString(), "env", "list", "--json" }, null, null,
@@ -47,7 +46,7 @@ public class CondaPackageManager extends AbstractPackageManager {
         JsonObject jsonOutput = JsonValue.readFrom(output.o1).asObject();
         JsonArray envs = jsonOutput.get("envs").asArray();
         for (JsonValue env : envs.values()) {
-            lst.add(new Path(env.asString()).toOSString());
+            lst.add(new File(env.asString()));
         }
         return lst;
     }
