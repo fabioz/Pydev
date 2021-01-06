@@ -124,6 +124,8 @@ public abstract class PythonListEditor extends FieldEditor {
 
     private Button setDefaultButton;
 
+    private MenuItem chooseFromCondaMenuItem;
+
     protected abstract IInterpreterManager getInterpreterManager();
 
     /**
@@ -258,6 +260,10 @@ public abstract class PythonListEditor extends FieldEditor {
                 .setToolTipText(
                         "Choose from a list of valid interpreters, and select the folders to be in the SYSTEM pythonpath.");
 
+        if (interpreterType == IPythonNature.INTERPRETER_TYPE_PYTHON) {
+            chooseFromCondaMenuItem = createMenuItem(menu, InterpreterConfigHelpers.CONFIG_CONDA_NAME);
+        }
+
         upButton = createButtonWithImage(box, UIConstants.UP_ARROW, "Move selected Python interpreter up");
         downButton = createButtonWithImage(box, UIConstants.DOWN_ARROW, "Move selected Python interpreter down");
         setDefaultButton = createPushButton(box, "Set as default",
@@ -334,6 +340,8 @@ public abstract class PythonListEditor extends FieldEditor {
                     addPressed(InterpreterConfigHelpers.CONFIG_PIPENV);
                 } else if (widget == advAutoConfigMenuItem) {
                     addPressed(InterpreterConfigHelpers.CONFIG_ADV_AUTO);
+                } else if (widget == chooseFromCondaMenuItem) {
+                    addPressed(InterpreterConfigHelpers.CONFIG_CONDA);
                 } else if (configCondaButton != null && widget == configCondaButton) {
                     configCondaPressed();
                 } else if (widget == setDefaultButton) {

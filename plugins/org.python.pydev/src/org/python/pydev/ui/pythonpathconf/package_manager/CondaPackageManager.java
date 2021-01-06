@@ -35,6 +35,22 @@ public class CondaPackageManager extends AbstractPackageManager {
         this.prefix = prefix;
     }
 
+    public static List<File> listCondaEnvironments(File condaExecutable) {
+        List<File> lst = new ArrayList<>();
+        String encoding = "utf-8";
+        Tuple<String, String> output = new SimpleRunner().runAndGetOutput(
+                new String[] { condaExecutable.toString(), "env", "list", "--json" }, null, null,
+                null,
+                encoding);
+        Log.logInfo(output.o1);
+        JsonObject jsonOutput = JsonValue.readFrom(output.o1).asObject();
+        JsonArray envs = jsonOutput.get("envs").asArray();
+        for (JsonValue env : envs.values()) {
+            lst.add(new File(env.asString()));
+        }
+        return lst;
+    }
+
     @Override
     public List<String[]> list() {
         List<String[]> listed = new ArrayList<String[]>();

@@ -6,6 +6,10 @@
  */
 package org.python.pydev.ui.dialogs;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.Dialog;
@@ -14,7 +18,9 @@ import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -23,16 +29,25 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.dialogs.ListDialog;
 import org.python.pydev.ast.interpreter_managers.AbstractInterpreterManager;
 import org.python.pydev.core.IInterpreterInfo.UnableToFindExecutableException;
 import org.python.pydev.core.preferences.InterpreterGeneralPreferences;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_core.utils.ArrayUtils;
+import org.python.pydev.shared_core.utils.PlatformUtils;
 import org.python.pydev.shared_ui.EditorUtils;
+import org.python.pydev.shared_ui.ImageCache;
+import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.shared_ui.dialogs.DialogHelpers;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.shared_ui.utils.UIUtils;
 import org.python.pydev.ui.pythonpathconf.InterpreterConfigHelpers;
+import org.python.pydev.ui.pythonpathconf.NameAndExecutable;
+import org.python.pydev.ui.pythonpathconf.conda.CondaConfigDialog;
+import org.python.pydev.ui.pythonpathconf.conda.PyDevCondaPreferences;
+import org.python.pydev.ui.pythonpathconf.package_manager.CondaPackageManager;
 
 /**
  * @author fabioz
@@ -159,6 +174,83 @@ public class PyDialogHelpers {
             }
         }
         return INTERPRETER_CANCEL_CONFIG;
+    }
+
+    /**
+     * <p>Statically open a list dialog to choose an interpreter from Conda.</p>
+     * <p>It returns both the interpreter name and executable.</p>
+     * 
+     * @return NameAndExecutable
+     */
+    public static NameAndExecutable openCondaInterpreterSelection(Shell parentShell) {
+        File condaExe = PyDevCondaPreferences.getExecutable();
+        if (condaExe == null) {
+            new CondaConfigDialog(parentShell).open();
+            condaExe = PyDevCondaPreferences.getExecutable();
+            if (condaExe == null) {
+                return null;
+            }
+        }
+
+        List<File> envs = CondaPackageManager.listCondaEnvironments(condaExe);
+        List<NameAndExecutable> treatedEnvs = getTreatedEnvs(envs);
+        if (treatedEnvs.size() == 0) {
+            openWarning("Error", "Could not find any Conda environment to choose from.");
+            return null;
+        }
+
+        String title = "Conda interpreter selection";
+        String message = "Select an intepreter from the list.";
+        LabelProvider labelProvider = new LabelProvider() {
+            @Override
+            public Image getImage(Object element) {
+                return ImageCache.asImage(SharedUiPlugin.getImageCache().get(UIConstants.PY_INTERPRETER_ICON));
+            }
+
+            @Override
+            public String getText(Object element) {
+                if (element != null && element instanceof NameAndExecutable) {
+                    NameAndExecutable nameAndExecutable = (NameAndExecutable) element;
+                    return nameAndExecutable.o1 + "(" + nameAndExecutable.o2 + ")";
+                }
+                return super.getText(element);
+            }
+        };
+
+        ListDialog d = new ListDialog(parentShell);
+        d.setInput(treatedEnvs);
+        d.setContentProvider(new ListContentProvider());
+        d.setLabelProvider(labelProvider);
+        d.setMessage(message);
+        d.setTitle(title);
+        d.open();
+        if (d != null) {
+            Object[] result = d.getResult();
+            if (result != null && result.length == 1 && result[0] instanceof NameAndExecutable) {
+                return (NameAndExecutable) result[0];
+            }
+        }
+        return null;
+    }
+
+    private static List<NameAndExecutable> getTreatedEnvs(List<File> envs) {
+        List<NameAndExecutable> ret = new ArrayList<NameAndExecutable>();
+        if (PlatformUtils.isWindowsPlatform()) {
+            for (File env : envs) {
+                File exec = new File(env, "python.exe");
+                if (exec.exists()) {
+                    ret.add(new NameAndExecutable(env.getName(), exec.getPath()));
+                }
+            }
+        } else {
+            for (File env : envs) {
+                File exec = new File(new File(env, "bin"), "python");
+                if (exec.exists()) {
+                    ret.add(new NameAndExecutable(env.getName(), exec.getPath()));
+                }
+            }
+        }
+        return ret;
     }
 
     /**
