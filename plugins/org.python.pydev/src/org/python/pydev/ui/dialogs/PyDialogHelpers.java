@@ -7,6 +7,7 @@
 package org.python.pydev.ui.dialogs;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.IStatus;
@@ -182,9 +183,16 @@ public class PyDialogHelpers {
      */
     public static NameAndExecutable openCondaInterpreterSelection() {
         List<File> envs = CondaPackageManager.listCondaEnvironments(PyDevCondaPreferences.getExecutable());
+        List<NameAndExecutable> treatedEnvs = null;
+
+        if (PlatformUtils.isWindowsPlatform()) {
+            treatedEnvs = getTreatedEnvs(envs, "/python.exe");
+        } else {
+            treatedEnvs = getTreatedEnvs(envs, "/bin/python");
+        }
 
         String title = "Conda interpreter selection";
-        String message = "Select a intepreter from the list.";
+        String message = "Select an intepreter from the list.";
         Shell shell = EditorUtils.getShell();
         LabelProvider labelProvider = new LabelProvider() {
             @Override
@@ -194,34 +202,36 @@ public class PyDialogHelpers {
 
             @Override
             public String getText(Object element) {
-                if (element != null && element instanceof File) {
-                    File file = (File) element;
-                    return file.getName();
+                if (element != null && element instanceof NameAndExecutable) {
+                    NameAndExecutable nameAndExecutable = (NameAndExecutable) element;
+                    return nameAndExecutable.o1;
                 }
                 return super.getText(element);
             }
         };
 
         ListDialog d = new ListDialog(shell);
-        d.setInput(envs);
+        d.setInput(treatedEnvs);
         d.setContentProvider(new ListContentProvider());
         d.setLabelProvider(labelProvider);
         d.setMessage(message);
         d.setTitle(title);
         d.open();
         if (d != null) {
-            File ret = (File) d.getResult()[0];
-            File exec = null;
-            if (PlatformUtils.isWindowsPlatform()) {
-                exec = new File(ret.getPath() + "/python.exe");
-            } else {
-                exec = new File(ret.getPath() + "/bin/python");
-            }
-            if (exec.exists()) {
-                return new NameAndExecutable(ret.getName(), exec.getPath());
-            }
+            return (NameAndExecutable) d.getResult()[0];
         }
         return null;
+    }
+
+    private static List<NameAndExecutable> getTreatedEnvs(List<File> envs, String strAddOn) {
+        List<NameAndExecutable> ret = new ArrayList<NameAndExecutable>();
+        for (File env : envs) {
+            String execPath = env.getPath() + strAddOn;
+            if (new File(execPath).exists()) {
+                ret.add(new NameAndExecutable(env.getName(), execPath));
+            }
+        }
+        return ret;
     }
 
     /**
