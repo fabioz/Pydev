@@ -508,6 +508,9 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                     } else if (assign.value != null) {
                                         value = NodeUtils.getRepresentationString(assign.value);
                                     }
+                                    if (value == null) {
+                                        break;
+                                    }
                                     definitions = findDefinition(initialState.getCopyWithActTok(value), d.line,
                                             d.col,
                                             manager.getNature());

@@ -27,7 +27,11 @@ public class SendPathMappingsCommand extends AbstractDebuggerCommand {
 
         JsonArray pathMappings;
         try {
-            pathMappings = JsonArray.readFrom(jsonPathMapping);
+            if (jsonPathMapping.length() == 0) {
+                pathMappings = JsonArray.readFrom("[]");
+            } else {
+                pathMappings = JsonArray.readFrom(jsonPathMapping);
+            }
             root.add("pathMappings", pathMappings);
         } catch (Exception e) {
             Log.log(e);

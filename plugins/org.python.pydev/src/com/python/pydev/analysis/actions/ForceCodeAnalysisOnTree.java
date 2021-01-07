@@ -84,11 +84,15 @@ public class ForceCodeAnalysisOnTree extends PyResourceAction implements IObject
             for (Iterator<IFile> iter = l.iterator(); iter.hasNext();) {
                 IFile element = iter.next();
                 if (element != null) {
-                    filesToVisit.add(element);
+                    if (PythonPathHelper.isValidSourceFile(element)) {
+                        filesToVisit.add(element);
+                    }
                 }
             }
         } else if (next instanceof IFile) {
-            filesToVisit.add((IFile) next);
+            if (PythonPathHelper.isValidSourceFile((IFile) next)) {
+                filesToVisit.add((IFile) next);
+            }
         }
 
         forceCodeAnalysisOnFiles(nature, monitor, filesToVisit, filesVisited);
