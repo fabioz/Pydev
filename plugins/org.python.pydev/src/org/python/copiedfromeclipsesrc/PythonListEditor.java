@@ -221,7 +221,7 @@ public abstract class PythonListEditor extends FieldEditor {
                 selectTitle = "Select executable";
         }
 
-        Button newButton = createPushButton(box, "New ... ", "Configure a new Python or PyPy interpreter.");
+        Button newButton = createPushButton(box, "&New ... ", "Configure a new Python or PyPy interpreter.");
 
         newButton.addSelectionListener(new SelectionListener() {
 
@@ -265,14 +265,17 @@ public abstract class PythonListEditor extends FieldEditor {
         }
 
         upButton = createButtonWithImage(box, UIConstants.UP_ARROW, "Move selected Python interpreter up");
+        upButton.setText("&Up");
         downButton = createButtonWithImage(box, UIConstants.DOWN_ARROW, "Move selected Python interpreter down");
-        setDefaultButton = createPushButton(box, "Set as default",
+        downButton.setText("&Down");
+        setDefaultButton = createPushButton(box, "&Set as Default",
                 "Make the selected Python interpreter the default interpreter");
         removeButton = createButtonWithImage(box, UIConstants.REMOVE, "Remove the selected interpreter");
+        removeButton.setText("&Remove");
 
         if (interpreterType == IPythonNature.INTERPRETER_TYPE_PYTHON) {
             configCondaButton = createPushButton(box,
-                    "Config conda", "Configures conda (to be able to manage conda-based Python interpreters)");
+                    "Config &Conda", "Configures conda (to be able to manage conda-based Python interpreters)");
         }
     }
 

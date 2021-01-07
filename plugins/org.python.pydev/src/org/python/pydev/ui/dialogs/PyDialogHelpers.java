@@ -8,6 +8,8 @@ package org.python.pydev.ui.dialogs;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.eclipse.core.runtime.IStatus;
@@ -15,11 +17,13 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
@@ -32,9 +36,11 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ListDialog;
 import org.python.pydev.ast.interpreter_managers.AbstractInterpreterManager;
 import org.python.pydev.core.IInterpreterInfo.UnableToFindExecutableException;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.preferences.InterpreterGeneralPreferences;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.image.UIConstants;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.utils.ArrayUtils;
 import org.python.pydev.shared_core.utils.PlatformUtils;
 import org.python.pydev.shared_ui.EditorUtils;
@@ -155,7 +161,8 @@ public class PyDialogHelpers {
                     + " interpreter is not currently configured.\n\nHow do you want to proceed?";
             Shell shell = EditorUtils.getShell();
 
-            String[] dialogButtonLabels = ArrayUtils.concatArrays(InterpreterConfigHelpers.CONFIG_NAMES_FOR_FIRST_INTERPRETER,
+            String[] dialogButtonLabels = ArrayUtils.concatArrays(
+                    InterpreterConfigHelpers.CONFIG_NAMES_FOR_FIRST_INTERPRETER,
                     new String[] { "Don't ask again" });
 
             dialog = new MessageDialog(shell, title, null, message, MessageDialog.QUESTION,
@@ -179,7 +186,7 @@ public class PyDialogHelpers {
     /**
      * <p>Statically open a list dialog to choose an interpreter from Conda.</p>
      * <p>It returns both the interpreter name and executable.</p>
-     * 
+     *
      * @return NameAndExecutable
      */
     public static NameAndExecutable openCondaInterpreterSelection(Shell parentShell) {
@@ -193,11 +200,19 @@ public class PyDialogHelpers {
         }
 
         List<File> envs = CondaPackageManager.listCondaEnvironments(condaExe);
-        List<NameAndExecutable> treatedEnvs = getTreatedEnvs(envs);
-        if (treatedEnvs.size() == 0) {
+        List<NameAndExecutable> nameAndExecutableList = getAsNameAndExecutable(envs);
+        if (nameAndExecutableList.size() == 0) {
             openWarning("Error", "Could not find any Conda environment to choose from.");
             return null;
         }
+
+        Collections.sort(nameAndExecutableList, new Comparator<NameAndExecutable>() {
+
+            @Override
+            public int compare(NameAndExecutable o1, NameAndExecutable o2) {
+                return o1.o1.compareToIgnoreCase(o2.o1);
+            }
+        });
 
         String title = "Conda interpreter selection";
         String message = "Select an intepreter from the list.";
@@ -211,35 +226,63 @@ public class PyDialogHelpers {
             public String getText(Object element) {
                 if (element != null && element instanceof NameAndExecutable) {
                     NameAndExecutable nameAndExecutable = (NameAndExecutable) element;
-                    return nameAndExecutable.o1 + "(" + nameAndExecutable.o2 + ")";
+                    String name = nameAndExecutable.o1;
+                    name = StringUtils.truncateIfNeeded(name, 30);
+
+                    return name
+                            + StringUtils.createSpaceString(35 - name.length())
+                            + nameAndExecutable.o2;
                 }
                 return super.getText(element);
             }
         };
 
-        ListDialog d = new ListDialog(parentShell);
-        d.setInput(treatedEnvs);
-        d.setContentProvider(new ListContentProvider());
-        d.setLabelProvider(labelProvider);
-        d.setMessage(message);
-        d.setTitle(title);
-        d.open();
-        if (d != null) {
-            Object[] result = d.getResult();
-            if (result != null && result.length == 1 && result[0] instanceof NameAndExecutable) {
-                return (NameAndExecutable) result[0];
+        final Font font = new Font(parentShell.getDisplay(), "Courier New", 10, SWT.NORMAL);
+        ListDialog d = new ListDialog(parentShell) {
+            @Override
+            protected Control createDialogArea(Composite container) {
+                container.setFont(font);
+                return super.createDialogArea(container);
+            }
+        };
+        IDialogSettings dialogSettings = SharedUiPlugin.getDefault().getDialogSettings();
+        IDialogSettings section = dialogSettings
+                .getSection("org.python.pydev.ui.dialogs.PyDialogHelpers.openCondaInterpreterSelection");
+        if (section == null) {
+            section = dialogSettings
+                    .addNewSection("org.python.pydev.ui.dialogs.PyDialogHelpers.openCondaInterpreterSelection");
+        }
+        d.setDialogBoundsSettings(section, Dialog.DIALOG_PERSISTSIZE | Dialog.DIALOG_PERSISTLOCATION);
+        try {
+            d.setInput(nameAndExecutableList);
+            d.setContentProvider(new ListContentProvider());
+            d.setLabelProvider(labelProvider);
+            d.setMessage(message);
+            d.setTitle(title);
+            d.open();
+            if (d != null) {
+                Object[] result = d.getResult();
+                if (result != null && result.length == 1 && result[0] instanceof NameAndExecutable) {
+                    return (NameAndExecutable) result[0];
+                }
+            }
+        } finally {
+            if (!font.isDisposed()) {
+                font.dispose();
             }
         }
         return null;
     }
 
-    private static List<NameAndExecutable> getTreatedEnvs(List<File> envs) {
+    private static List<NameAndExecutable> getAsNameAndExecutable(List<File> envs) {
         List<NameAndExecutable> ret = new ArrayList<NameAndExecutable>();
         if (PlatformUtils.isWindowsPlatform()) {
             for (File env : envs) {
                 File exec = new File(env, "python.exe");
                 if (exec.exists()) {
                     ret.add(new NameAndExecutable(env.getName(), exec.getPath()));
+                } else {
+                    Log.logInfo("Did not find: " + exec + " in conda environment.");
                 }
             }
         } else {
@@ -247,6 +290,8 @@ public class PyDialogHelpers {
                 File exec = new File(new File(env, "bin"), "python");
                 if (exec.exists()) {
                     ret.add(new NameAndExecutable(env.getName(), exec.getPath()));
+                } else {
+                    Log.logInfo("Did not find: " + exec + " in conda environment.");
                 }
             }
         }

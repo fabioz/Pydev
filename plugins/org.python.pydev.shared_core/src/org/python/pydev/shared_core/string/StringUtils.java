@@ -1811,4 +1811,11 @@ public final class StringUtils {
         return bufferedReader.lines().collect(Collectors.joining());
     }
 
+    public static String truncateIfNeeded(String s, int len) {
+        if (s.length() <= len) {
+            return s;
+        }
+        return s.substring(0, len - 3) + "...";
+    }
+
 }

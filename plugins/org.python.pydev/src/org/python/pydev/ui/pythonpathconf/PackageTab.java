@@ -100,7 +100,7 @@ public class PackageTab {
             String packageManagersDisableProperty = System.getProperty("pydev.packagemanagers.disable", "false");
             boolean packageManagersDisable = packageManagersDisableProperty.equalsIgnoreCase("true")
                     || packageManagersDisableProperty.equalsIgnoreCase("1");
-            btPip = AbstractInterpreterEditor.createBt(boxPackage, "Manage with pip",
+            btPip = AbstractInterpreterEditor.createBt(boxPackage, "Manage with &pip",
                     new SelectionAdapter() {
                         @Override
                         public void widgetSelected(SelectionEvent e) {
@@ -109,7 +109,7 @@ public class PackageTab {
                             update();
                         }
                     });
-            btConda = AbstractInterpreterEditor.createBt(boxPackage, "Manage with conda",
+            btConda = AbstractInterpreterEditor.createBt(boxPackage, "Manage with c&onda",
                     new SelectionAdapter() {
                         @Override
                         public void widgetSelected(SelectionEvent e) {
@@ -121,7 +121,7 @@ public class PackageTab {
                     });
 
             if (interpreterManager.getInterpreterType() == IPythonNature.INTERPRETER_TYPE_PYTHON) {
-                btPipenv = AbstractInterpreterEditor.createBt(boxPackage, "Manage with pipenv",
+                btPipenv = AbstractInterpreterEditor.createBt(boxPackage, "Manage with pip&env",
                         new SelectionAdapter() {
                             @Override
                             public void widgetSelected(SelectionEvent e) {
