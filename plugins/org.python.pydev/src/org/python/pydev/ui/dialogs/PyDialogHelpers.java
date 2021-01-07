@@ -237,11 +237,19 @@ public class PyDialogHelpers {
             }
         };
 
-        final Font font = new Font(parentShell.getDisplay(), "Courier New", 10, SWT.NORMAL);
+        Font font = null;
+        try {
+            font = new Font(parentShell.getDisplay(), "Courier New", 10, SWT.NORMAL);
+        } catch (Exception e) {
+            Log.log(e);
+        }
+        final Font f = font;
         ListDialog d = new ListDialog(parentShell) {
             @Override
             protected Control createDialogArea(Composite container) {
-                container.setFont(font);
+                if (f != null) {
+                    container.setFont(f);
+                }
                 return super.createDialogArea(container);
             }
         };
@@ -267,7 +275,7 @@ public class PyDialogHelpers {
                 }
             }
         } finally {
-            if (!font.isDisposed()) {
+            if (font != null && !font.isDisposed()) {
                 font.dispose();
             }
         }
