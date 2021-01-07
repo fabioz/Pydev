@@ -1001,7 +1001,8 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
                         nameToInfo);
                 operation = a.autoConfigSearch();
             } else if (configType == InterpreterConfigHelpers.CONFIG_CONDA) {
-                NameAndExecutable interpreterNameAndExecutable = PyDialogHelpers.openCondaInterpreterSelection();
+                NameAndExecutable interpreterNameAndExecutable = PyDialogHelpers
+                        .openCondaInterpreterSelection(getShell());
                 if (interpreterNameAndExecutable != null && interpreterNameAndExecutable.o2 != null) {
                     operation = InterpreterConfigHelpers.tryInterpreter(
                             interpreterNameAndExecutable, interpreterManager,

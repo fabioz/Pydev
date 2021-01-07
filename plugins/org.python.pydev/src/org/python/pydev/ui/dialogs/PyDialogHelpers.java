@@ -45,6 +45,7 @@ import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.shared_ui.utils.UIUtils;
 import org.python.pydev.ui.pythonpathconf.InterpreterConfigHelpers;
 import org.python.pydev.ui.pythonpathconf.NameAndExecutable;
+import org.python.pydev.ui.pythonpathconf.conda.CondaConfigDialog;
 import org.python.pydev.ui.pythonpathconf.conda.PyDevCondaPreferences;
 import org.python.pydev.ui.pythonpathconf.package_manager.CondaPackageManager;
 
@@ -181,8 +182,17 @@ public class PyDialogHelpers {
      * 
      * @return NameAndExecutable
      */
-    public static NameAndExecutable openCondaInterpreterSelection() {
-        List<File> envs = CondaPackageManager.listCondaEnvironments(PyDevCondaPreferences.getExecutable());
+    public static NameAndExecutable openCondaInterpreterSelection(Shell parentShell) {
+        File condaExe = PyDevCondaPreferences.getExecutable();
+        if (condaExe == null) {
+            new CondaConfigDialog(parentShell).open();
+            condaExe = PyDevCondaPreferences.getExecutable();
+            if (condaExe == null) {
+                return null;
+            }
+        }
+
+        List<File> envs = CondaPackageManager.listCondaEnvironments(condaExe);
         List<NameAndExecutable> treatedEnvs = null;
 
         if (PlatformUtils.isWindowsPlatform()) {
@@ -193,7 +203,6 @@ public class PyDialogHelpers {
 
         String title = "Conda interpreter selection";
         String message = "Select an intepreter from the list.";
-        Shell shell = EditorUtils.getShell();
         LabelProvider labelProvider = new LabelProvider() {
             @Override
             public Image getImage(Object element) {
@@ -210,7 +219,7 @@ public class PyDialogHelpers {
             }
         };
 
-        ListDialog d = new ListDialog(shell);
+        ListDialog d = new ListDialog(parentShell);
         d.setInput(treatedEnvs);
         d.setContentProvider(new ListContentProvider());
         d.setLabelProvider(labelProvider);
