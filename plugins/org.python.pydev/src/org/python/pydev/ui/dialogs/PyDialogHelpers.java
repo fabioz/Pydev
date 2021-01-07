@@ -207,7 +207,7 @@ public class PyDialogHelpers {
             public String getText(Object element) {
                 if (element != null && element instanceof NameAndExecutable) {
                     NameAndExecutable nameAndExecutable = (NameAndExecutable) element;
-                    return nameAndExecutable.o1;
+                    return nameAndExecutable.o1 + "(" + nameAndExecutable.o2 + ")";
                 }
                 return super.getText(element);
             }
