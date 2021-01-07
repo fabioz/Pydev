@@ -193,13 +193,7 @@ public class PyDialogHelpers {
         }
 
         List<File> envs = CondaPackageManager.listCondaEnvironments(condaExe);
-        List<NameAndExecutable> treatedEnvs = null;
-
-        if (PlatformUtils.isWindowsPlatform()) {
-            treatedEnvs = getTreatedEnvs(envs, "/python.exe");
-        } else {
-            treatedEnvs = getTreatedEnvs(envs, "/bin/python");
-        }
+        List<NameAndExecutable> treatedEnvs = getTreatedEnvs(envs);
 
         String title = "Conda interpreter selection";
         String message = "Select an intepreter from the list.";
@@ -232,12 +226,21 @@ public class PyDialogHelpers {
         return null;
     }
 
-    private static List<NameAndExecutable> getTreatedEnvs(List<File> envs, String strAddOn) {
+    private static List<NameAndExecutable> getTreatedEnvs(List<File> envs) {
         List<NameAndExecutable> ret = new ArrayList<NameAndExecutable>();
-        for (File env : envs) {
-            String execPath = env.getPath() + strAddOn;
-            if (new File(execPath).exists()) {
-                ret.add(new NameAndExecutable(env.getName(), execPath));
+        if (PlatformUtils.isWindowsPlatform()) {
+            for (File env : envs) {
+                File exec = new File(env, "python.exe");
+                if (exec.exists()) {
+                    ret.add(new NameAndExecutable(env.getName(), exec.getPath()));
+                }
+            }
+        } else {
+            for (File env : envs) {
+                File exec = new File(new File(env, "bin"), "python");
+                if (exec.exists()) {
+                    ret.add(new NameAndExecutable(env.getName(), exec.getPath()));
+                }
             }
         }
         return ret;
