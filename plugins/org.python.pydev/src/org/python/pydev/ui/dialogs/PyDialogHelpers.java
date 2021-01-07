@@ -194,6 +194,10 @@ public class PyDialogHelpers {
 
         List<File> envs = CondaPackageManager.listCondaEnvironments(condaExe);
         List<NameAndExecutable> treatedEnvs = getTreatedEnvs(envs);
+        if (treatedEnvs.size() == 0) {
+            openWarning("Error", "Could not find any Conda environment to choose from.");
+            return null;
+        }
 
         String title = "Conda interpreter selection";
         String message = "Select an intepreter from the list.";
