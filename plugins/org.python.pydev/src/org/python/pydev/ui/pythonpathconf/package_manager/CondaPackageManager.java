@@ -42,6 +42,7 @@ public class CondaPackageManager extends AbstractPackageManager {
                 new String[] { condaExecutable.toString(), "env", "list", "--json" }, null, null,
                 null,
                 encoding);
+        Log.logInfo(output.o1);
         JsonObject jsonOutput = JsonValue.readFrom(output.o1).asObject();
         JsonArray envs = jsonOutput.get("envs").asArray();
         for (JsonValue env : envs.values()) {
