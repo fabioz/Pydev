@@ -221,7 +221,10 @@ public class PyDialogHelpers {
         d.setTitle(title);
         d.open();
         if (d != null) {
-            return (NameAndExecutable) d.getResult()[0];
+            Object[] result = d.getResult();
+            if (result != null && result.length == 1 && result[0] instanceof NameAndExecutable) {
+                return (NameAndExecutable) result[0];
+            }
         }
         return null;
     }
