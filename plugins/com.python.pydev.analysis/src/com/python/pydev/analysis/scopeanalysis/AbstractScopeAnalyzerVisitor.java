@@ -333,7 +333,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
                 //found match in names to ignore...
 
                 if (finishClassScope && scope.getCurrScopeId() < single.scopeFound.getScopeId()
-                        && (foundScopeType == Scope.SCOPE_TYPE_CLASS ||
+                        && (!futureAnnotationsImported && foundScopeType == Scope.SCOPE_TYPE_CLASS ||
                                 (!futureAnnotationsImported && foundScopeType == Scope.SCOPE_TYPE_ANNOTATION))) {
                     it.remove();
                     onAddUndefinedMessage(tok, found);

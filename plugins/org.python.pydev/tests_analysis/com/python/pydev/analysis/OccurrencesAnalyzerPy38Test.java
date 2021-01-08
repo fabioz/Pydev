@@ -99,4 +99,23 @@ public class OccurrencesAnalyzerPy38Test extends AnalysisTestsBase {
         checkNoError();
     }
 
+    public void testClassSelfReferenceWithFutureImported() throws Exception {
+        doc = new Document("from __future__ import annotations\n" +
+                "\n" +
+                "class A():\n" +
+                "\n" +
+                "    def b(self) -> A:\n" +
+                "        return self");
+        checkNoError();
+    }
+
+    public void testClassSelfReferenceWithoutFutureImported() throws Exception {
+        doc = new Document("" +
+                "class A():\n" +
+                "\n" +
+                "    def b(self) -> A:\n" +
+                "        return self");
+        checkError("Undefined variable: A");
+    }
+
 }
