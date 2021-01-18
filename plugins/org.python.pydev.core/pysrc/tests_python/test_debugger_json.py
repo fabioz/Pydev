@@ -626,6 +626,58 @@ def test_case_handled_exception_no_break_on_generator(case_setup):
         writer.finished_ok = True
 
 
+@pytest.mark.skipif(not IS_PY36_OR_GREATER, reason='Requires Python 3.')
+def test_case_throw_exc_reason(case_setup):
+
+    def check_test_suceeded_msg(self, stdout, stderr):
+        return 'TEST SUCEEDED' in ''.join(stderr)
+
+    def additional_output_checks(writer, stdout, stderr):
+        assert "raise RuntimeError('TEST SUCEEDED')" in stderr
+        assert "raise RuntimeError from e" in stderr
+        assert "raise Exception('another while handling')" in stderr
+
+    with case_setup.test_file(
+            '_debugger_case_raise_with_cause.py',
+            EXPECTED_RETURNCODE=1,
+            check_test_suceeded_msg=check_test_suceeded_msg,
+            additional_output_checks=additional_output_checks
+        ) as writer:
+        json_facade = JsonFacade(writer)
+
+        json_facade.write_launch(justMyCode=False)
+        json_facade.write_set_exception_breakpoints(['uncaught'])
+        json_facade.write_make_initial_run()
+
+        json_hit = json_facade.wait_for_thread_stopped(
+            reason='exception', line=writer.get_line_index_with_content('raise RuntimeError from e'))
+
+        exc_info_request = json_facade.write_request(
+            pydevd_schema.ExceptionInfoRequest(pydevd_schema.ExceptionInfoArguments(json_hit.thread_id)))
+        exc_info_response = json_facade.wait_for_response(exc_info_request)
+
+        stack_frames = json_hit.stack_trace_response.body.stackFrames
+        # Note that the additional context doesn't really appear in the stack
+        # frames, only in the details.
+        assert [x['name'] for x in stack_frames] == ['foobar', '<module>']
+
+        body = exc_info_response.body
+        assert body.exceptionId.endswith('RuntimeError')
+        assert body.description == 'another while handling'
+        assert normcase(body.details.kwargs['source']) == normcase(writer.TEST_FILE)
+
+        # Check that we have all the lines (including the cause/context) in the stack trace.
+        import re
+        lines_and_names = re.findall(r',\sline\s(\d+),\sin\s([\w|<|>]+)', body.details.stackTrace)
+        assert lines_and_names == [
+            ('16', 'foobar'), ('6', 'method'), ('2', 'method2'), ('18', 'foobar'), ('10', 'handle'), ('20', 'foobar'), ('23', '<module>')
+        ]
+
+        json_facade.write_continue()
+
+        writer.finished_ok = True
+
+
 def test_case_handled_exception_breaks(case_setup):
     with case_setup.test_file('_debugger_case_exceptions.py') as writer:
         json_facade = JsonFacade(writer)
@@ -3235,6 +3287,64 @@ def test_source_mapping_just_my_code(case_setup):
             Source(path=test_file),
             pydevd_source_maps=[],
         )
+
+        json_facade.write_continue()
+
+        writer.finished_ok = True
+
+
+def test_source_mapping_goto_target(case_setup):
+    from _pydevd_bundle._debug_adapter.pydevd_schema import Source
+    from _pydevd_bundle._debug_adapter.pydevd_schema import PydevdSourceMap
+
+    def additional_output_checks(writer, stdout, stderr):
+        assert 'Skip this print' not in stdout
+        assert 'TEST SUCEEDED' in stdout
+
+    with case_setup.test_file('_debugger_case_source_map_goto_target.py', additional_output_checks=additional_output_checks) as writer:
+        test_file = writer.TEST_FILE
+        if isinstance(test_file, bytes):
+            # file is in the filesystem encoding (needed for launch) but protocol needs it in utf-8
+            test_file = test_file.decode(file_system_encoding)
+            test_file = test_file.encode('utf-8')
+
+        json_facade = JsonFacade(writer)
+        json_facade.write_launch(justMyCode=False)
+
+        map_to_cell_1_line1 = writer.get_line_index_with_content('map to Cell1, line 1')
+        map_to_cell_1_line2 = writer.get_line_index_with_content('map to Cell1, line 2')
+        map_to_cell_1_line4 = writer.get_line_index_with_content('map to Cell1, line 4')
+        map_to_cell_1_line5 = writer.get_line_index_with_content('map to Cell1, line 5')
+
+        cell1_map = PydevdSourceMap(map_to_cell_1_line1, map_to_cell_1_line5, Source(path='<Cell1>'), 1)
+        pydevd_source_maps = [cell1_map]
+        json_facade.write_set_pydevd_source_map(
+            Source(path=test_file),
+            pydevd_source_maps=pydevd_source_maps,
+        )
+        json_facade.write_set_breakpoints(map_to_cell_1_line2)
+
+        json_facade.write_make_initial_run()
+
+        json_hit = json_facade.wait_for_thread_stopped(line=map_to_cell_1_line2, file=os.path.basename(test_file))
+        for stack_frame in json_hit.stack_trace_response.body.stackFrames:
+            assert stack_frame['source']['sourceReference'] == 0
+
+        goto_targets_request = json_facade.write_request(
+            pydevd_schema.GotoTargetsRequest(pydevd_schema.GotoTargetsArguments(
+                source=pydevd_schema.Source(path=writer.TEST_FILE, sourceReference=0),
+                line=map_to_cell_1_line4)))
+        goto_targets_response = json_facade.wait_for_response(goto_targets_request)
+        target_id = goto_targets_response.body.targets[0]['id']
+
+        goto_request = json_facade.write_request(
+            pydevd_schema.GotoRequest(pydevd_schema.GotoArguments(
+                threadId=json_hit.thread_id,
+                targetId=target_id)))
+        goto_response = json_facade.wait_for_response(goto_request)
+        assert goto_response.success
+
+        json_hit = json_facade.wait_for_thread_stopped('goto')
 
         json_facade.write_continue()
 
