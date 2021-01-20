@@ -32,4 +32,19 @@ public class CommentActionTest extends TestCase {
         assertEquals("a = 10", uncomment.uncommentLines("##a = 10").toString());
         assertEquals(" a = 10", uncomment.uncommentLines("##  a = 10").toString());
     }
+
+    public void testLineCommentUncommentSpaced() throws Exception {
+        Document doc = new Document("a = 10;");
+
+        TextSelectionUtils ts = new TextSelectionUtils(doc, 0);
+
+        LineCommentAction comment = new LineCommentAction(ts, "##", 1);
+
+        LineUncommentAction uncomment = new LineUncommentAction(ts, "##", 1);
+
+        assertEquals("    ## a = 10", comment.commentLines("    a = 10").toString());
+        assertEquals("    a = 10", uncomment.uncommentLines("    ## a = 10").toString());
+        assertEquals("   a = 10", uncomment.uncommentLines("   ##a = 10").toString());
+        assertEquals(" a = 10", uncomment.uncommentLines(" ## a = 10").toString());
+    }
 }

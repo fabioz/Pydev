@@ -43,11 +43,15 @@ public class LineCommentAction {
         }
 
         for (String line : ret) {
+            FastStringBuffer lineBuf = new FastStringBuffer(line.length());
+            lineBuf.append(line);
+            int spacesBefore = lineBuf.rightTrim().length() - lineBuf.leftTrim().length();
+            strbuf.append(StringUtils.createSpaceString(spacesBefore));
             strbuf.append(commentPattern);
             if (spacesInStartComment != null) {
                 strbuf.append(spacesInStartComment);
             }
-            strbuf.append(line);
+            strbuf.append(lineBuf);
         }
         return strbuf;
     }
