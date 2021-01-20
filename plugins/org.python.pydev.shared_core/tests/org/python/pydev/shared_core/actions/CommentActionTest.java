@@ -11,25 +11,82 @@
 ******************************************************************************/
 package org.python.pydev.shared_core.actions;
 
-import junit.framework.TestCase;
-
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
+
+import junit.framework.TestCase;
 
 public class CommentActionTest extends TestCase {
 
     public void testLineCommentUncomment() throws Exception {
-        Document doc = new Document("a = 10;");
+        String uncommentedContent = "a = 10";
+        testContent(uncommentedContent, "##a = 10", 0, 0, 0);
+        testContent(uncommentedContent, "##a = 10", 0, 0, 1);
+        testContent(uncommentedContent, "## a = 10", 0, 1, 1);
+        testContent(uncommentedContent, "## a = 10", 0, 1, 0, " a = 10");
+    }
 
-        TextSelectionUtils ts = new TextSelectionUtils(doc, 0);
+    public void testLineCommentUncommentSpaced() throws Exception {
+        String uncommentedContent = "   a = 10";
+        String commentedContet = "   ## a = 10";
+        testContent(uncommentedContent, commentedContet);
+    }
 
-        LineCommentAction comment = new LineCommentAction(ts, "##", 1);
+    public void testMultiLineCommentSpaced1() throws Exception {
+        String uncommentedContent = ""
+                + "def method():\n" +
+                "    if True:\n" +
+                "        a = 10";
+        String commentedContent = ""
+                + "## def method():\n" +
+                "    ## if True:\n" +
+                "        ## a = 10";
+        testContent(uncommentedContent, commentedContent);
+    }
 
-        LineUncommentAction uncomment = new LineUncommentAction(ts, "##", 1);
+    public void testMultiLineCommentSpaced2() throws Exception {
+        String uncommentedContent = ""
+                + "def method():\n" +
+                "    if True:\n" +
+                "        a = 10";
+        String commentedContent = ""
+                + "def method():\n" +
+                "    ## if True:\n" +
+                "        ## a = 10";
+        testContent(uncommentedContent, commentedContent, 1);
+    }
 
-        assertEquals("## a = 10", comment.commentLines("a = 10").toString());
-        assertEquals("a = 10", uncomment.uncommentLines("## a = 10").toString());
-        assertEquals("a = 10", uncomment.uncommentLines("##a = 10").toString());
-        assertEquals(" a = 10", uncomment.uncommentLines("##  a = 10").toString());
+    private void testContent(String uncommentedContent, String commentedContent) throws BadLocationException {
+        testContent(uncommentedContent, commentedContent, 0);
+    }
+
+    private void testContent(String uncommentedContent, String commentedContent, int startLine)
+            throws BadLocationException {
+        testContent(uncommentedContent, commentedContent, startLine, 1, 1);
+    }
+
+    private void testContent(String uncommentedContent, String commentedContent, int startLine,
+            int commentSpacesInStart, int uncommentSpacesInStart) throws BadLocationException {
+        testContent(uncommentedContent, commentedContent, startLine, commentSpacesInStart, uncommentSpacesInStart,
+                uncommentedContent);
+    }
+
+    private void testContent(String uncommentedContent, String commentedContent, int startLine,
+            int commentSpacesInStart, int uncommentSpacesInStart, String expectedUncomment)
+            throws BadLocationException {
+        TextSelectionUtils ts = createTextSelectionUtils(uncommentedContent, startLine);
+        new LineCommentAction(ts, "##", commentSpacesInStart).execute();
+        assertEquals(commentedContent, ts.getDoc().get());
+        ts = createTextSelectionUtils(commentedContent, startLine);
+        new LineUncommentAction(ts, "##", uncommentSpacesInStart).execute();
+        assertEquals(expectedUncomment, ts.getDoc().get());
+    }
+
+    private TextSelectionUtils createTextSelectionUtils(String content, int startLine) {
+        TextSelectionUtils ts = new TextSelectionUtils(new Document(content), 0);
+        int startOffset = ts.getLineOffset(startLine);
+        ts.setSelection(startOffset, content.length());
+        return ts;
     }
 }
