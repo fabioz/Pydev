@@ -43,7 +43,11 @@ import com.python.pydev.analysis.OccurrencesAnalyzer;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.external.IExternalCodeAnalysisVisitor;
+import com.python.pydev.analysis.mypy.MypyVisitor;
 import com.python.pydev.analysis.mypy.MypyVisitorFactory;
+import com.python.pydev.analysis.mypy.OnlyRemoveMarkersMypyVisitor;
+import com.python.pydev.analysis.pylint.OnlyRemoveMarkersPyLintVisitor;
+import com.python.pydev.analysis.pylint.PyLintVisitor;
 import com.python.pydev.analysis.pylint.PyLintVisitorFactory;
 
 /**
@@ -104,6 +108,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
     /**
      * @param oldAnalysisBuilderThread This is an existing runnable that was already analyzing things... we must wait for it
      * to finish to start it again.
+     * @param externalVisitors 
      *
      * @param module: this is a callback that'll be called with a boolean that should return the IModule to be used in the
      * analysis.
@@ -112,7 +117,8 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
     /*Default*/ AnalysisBuilderRunnable(IDocument document, IResource resource, ICallback<IModule, Integer> module,
             boolean isFullBuild, String moduleName, boolean forceAnalysis, int analysisCause,
             IAnalysisBuilderRunnable oldAnalysisBuilderThread, IPythonNature nature, long documentTime,
-            KeyForAnalysisRunnable key, long resourceModificationStamp) {
+            KeyForAnalysisRunnable key, long resourceModificationStamp,
+            List<IExternalCodeAnalysisVisitor> externalVisitors) {
         super(isFullBuild, moduleName, forceAnalysis, analysisCause, oldAnalysisBuilderThread, nature, documentTime,
                 key, resourceModificationStamp);
 
@@ -123,9 +129,21 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
         this.document = document;
         this.resource = resource;
         this.module = module;
-        this.pyLintVisitor = PyLintVisitorFactory.create(resource, document, module, internalCancelMonitor);
-        this.mypyVisitor = MypyVisitorFactory.create(resource, document, module, internalCancelMonitor);
-        this.allVisitors = new IExternalCodeAnalysisVisitor[] { this.pyLintVisitor, this.mypyVisitor };
+
+        if (externalVisitors.size() > 0) {
+            this.allVisitors = externalVisitors.toArray(new IExternalCodeAnalysisVisitor[0]);
+            for (IExternalCodeAnalysisVisitor visitor : allVisitors) {
+                if (visitor instanceof OnlyRemoveMarkersPyLintVisitor || visitor instanceof PyLintVisitor) {
+                    this.pyLintVisitor = visitor;
+                } else if (visitor instanceof OnlyRemoveMarkersMypyVisitor || visitor instanceof MypyVisitor) {
+                    this.mypyVisitor = visitor;
+                }
+            }
+        } else {
+            this.pyLintVisitor = PyLintVisitorFactory.create(resource, document, module, internalCancelMonitor);
+            this.mypyVisitor = MypyVisitorFactory.create(resource, document, module, internalCancelMonitor);
+            this.allVisitors = new IExternalCodeAnalysisVisitor[] { this.pyLintVisitor, this.mypyVisitor };
+        }
 
         // Important: we can only update the index if it was a builder... if it was the parser,
         // we can't update it otherwise we could end up with data that's not saved in the index.
