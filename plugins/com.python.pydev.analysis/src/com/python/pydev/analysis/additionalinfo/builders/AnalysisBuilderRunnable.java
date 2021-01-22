@@ -303,7 +303,9 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
             // Maybe we can improve that when https://github.com/PyCQA/pylint/pull/1189 is done.
             if (!DocumentChanged.hasDocumentChanged(resource, document)) {
                 for (IExternalCodeAnalysisVisitor visitor : allVisitors) {
-                    visitor.startVisit();
+                    if (visitor.getRequiresVisit()) {
+                        visitor.startVisit();
+                    }
                 }
             } else {
                 for (IExternalCodeAnalysisVisitor visitor : allVisitors) {
@@ -373,7 +375,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
                     String problemMarker = visitor.getProblemMarkerId();
                     String messageId = visitor.getMessageId();
 
-                    List<MarkerInfo> markersFromVisitor = visitor.getMarkers();
+                    List<MarkerInfo> markersFromVisitor = visitor.getMarkers(resource);
                     if (markersFromVisitor != null && markersFromVisitor.size() > 0) {
 
                         Map<Integer, List<MarkerInfo>> lineToMarkerInfo = new HashMap<>();
