@@ -263,7 +263,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
 
         output = output.trim();
         errors = errors.trim();
-        Map<ModuleLineCol, MessageInfo> lineColToMessage = new HashMap<>();
+        Map<ModuleLineCol, MessageInfo> moduleLineColToMessage = new HashMap<>();
         if (!output.isEmpty()) {
             WriteToStreamHelper.write("Mypy: The stdout of the command line is:\n", out, output);
         }
@@ -374,11 +374,11 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                         }
                         if (region != null && document != null) {
                             ModuleLineCol moduleLineCol = new ModuleLineCol(moduleFile, line, column);
-                            MessageInfo messageInfo = lineColToMessage.get(moduleLineCol);
+                            MessageInfo messageInfo = moduleLineColToMessage.get(moduleLineCol);
                             if (messageInfo == null) {
                                 messageInfo = new MessageInfo(message, markerSeverity, messageId, line, column,
                                         document.get(region.getOffset(), region.getLength()), moduleFile);
-                                lineColToMessage.put(moduleLineCol, messageInfo);
+                                moduleLineColToMessage.put(moduleLineCol, messageInfo);
                             } else {
                                 messageInfo.addMessageLine(message);
                             }
@@ -393,7 +393,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                 Log.log(e);
             }
         }
-        for (MessageInfo messageInfo : lineColToMessage.values()) {
+        for (MessageInfo messageInfo : moduleLineColToMessage.values()) {
             addToMarkers(messageInfo.message.toString(), messageInfo.markerSeverity, messageInfo.messageId,
                     messageInfo.line,
                     messageInfo.column,
