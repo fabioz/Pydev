@@ -10,6 +10,7 @@ import org.python.pydev.shared_core.markers.PyMarkerUtils;
 public abstract class AbstractExternalCodeAnalysisOnlyRemoveMarkersVisitor implements IExternalCodeAnalysisVisitor {
 
     protected IResource resource;
+    protected boolean requiresVisit = true;
 
     public AbstractExternalCodeAnalysisOnlyRemoveMarkersVisitor(IResource resource) {
         this.resource = resource;
@@ -26,12 +27,13 @@ public abstract class AbstractExternalCodeAnalysisOnlyRemoveMarkersVisitor imple
     }
 
     @Override
-    public List<PyMarkerUtils.MarkerInfo> getMarkers() {
+    public List<PyMarkerUtils.MarkerInfo> getMarkers(IResource resource) {
         return null;
     }
 
     @Override
     public void deleteMarkers() {
+        requiresVisit = true;
         //Whenever PyLint is passed, the markers will be deleted.
         try {
             if (resource != null) {
@@ -45,6 +47,11 @@ public abstract class AbstractExternalCodeAnalysisOnlyRemoveMarkersVisitor imple
     @Override
     public boolean getRequiresAnalysis() {
         return false; // If only to remove does not require analysis.
+    }
+
+    @Override
+    public boolean getRequiresVisit() {
+        return requiresVisit;
     }
 
 }
