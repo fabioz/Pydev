@@ -7,8 +7,10 @@
 package com.python.pydev.analysis.mypy;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -21,6 +23,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.markers.PyMarkerUtils;
+import org.python.pydev.shared_core.markers.PyMarkerUtils.MarkerInfo;
 import org.python.pydev.shared_core.progress.NullProgressMonitorWrapper;
 
 import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
@@ -47,7 +50,9 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
      */
     @Override
     public void startVisit() {
-        if (document == null || resource == null || MypyPreferences.useMypy(resource) == false) {
+        requiresVisit = false;
+        if (resource == null || MypyPreferences.useMypy(resource) == false
+                || (document == null && !(resource instanceof IContainer))) {
             deleteMarkers();
             return;
         }
@@ -80,18 +85,34 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
             deleteMarkers();
             return;
         }
-        if (project != null && resource instanceof IFile) {
-            IFile file = (IFile) resource;
-            IPath location = file.getRawLocation();
-            if (location != null) {
-                mypyRunnable = new MypyAnalysis(resource, document, location,
-                        new NullProgressMonitorWrapper(monitor), mypyLocation);
+        if (project != null) {
+            if (resource instanceof IFile) {
+                IFile file = (IFile) resource;
+                IPath location = file.getRawLocation();
+                if (location != null) {
+                    mypyRunnable = new MypyAnalysis(resource, document, location,
+                            new NullProgressMonitorWrapper(monitor), mypyLocation);
 
-                try {
-                    IExternalCodeAnalysisStream out = MypyPreferences.getConsoleOutputStream(project);
-                    mypyRunnable.createMypyProcess(out);
-                } catch (final Exception e) {
-                    Log.log(e);
+                    try {
+                        IExternalCodeAnalysisStream out = MypyPreferences.getConsoleOutputStream(project);
+                        mypyRunnable.createMypyProcess(out);
+                    } catch (final Exception e) {
+                        Log.log(e);
+                    }
+                }
+            } else if (resource instanceof IContainer) {
+                IContainer dir = (IContainer) resource;
+                IPath location = dir.getRawLocation();
+                if (location != null) {
+                    mypyRunnable = new MypyAnalysis(resource, null, location,
+                            new NullProgressMonitorWrapper(monitor), mypyLocation);
+
+                    try {
+                        IExternalCodeAnalysisStream out = MypyPreferences.getConsoleOutputStream(project);
+                        mypyRunnable.createMypyProcess(out);
+                    } catch (final Exception e) {
+                        Log.log(e);
+                    }
                 }
             }
         }
@@ -105,11 +126,17 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
     }
 
     @Override
-    public List<PyMarkerUtils.MarkerInfo> getMarkers() {
-        if (mypyRunnable == null) {
-            return null;
+    public List<PyMarkerUtils.MarkerInfo> getMarkers(IResource resource) {
+        List<PyMarkerUtils.MarkerInfo> ret = new ArrayList<PyMarkerUtils.MarkerInfo>();
+        if (mypyRunnable == null || mypyRunnable.markers == null) {
+            return ret;
         }
-        return mypyRunnable.markers;
+        for (MarkerInfo marker : mypyRunnable.markers) {
+            if (resource.equals(marker.moduleFile)) {
+                ret.add(marker);
+            }
+        }
+        return ret;
     }
 
     @Override

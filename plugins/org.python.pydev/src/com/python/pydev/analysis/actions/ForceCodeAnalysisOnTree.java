@@ -35,6 +35,9 @@ import org.python.pydev.ui.actions.resources.PyResourceAction;
 import com.python.pydev.analysis.additionalinfo.builders.AnalysisBuilderRunnable;
 import com.python.pydev.analysis.additionalinfo.builders.AnalysisBuilderVisitor;
 import com.python.pydev.analysis.additionalinfo.builders.AnalysisRunner;
+import com.python.pydev.analysis.external.IExternalCodeAnalysisVisitor;
+import com.python.pydev.analysis.mypy.MypyVisitorFactory;
+import com.python.pydev.analysis.pylint.PyLintVisitorFactory;
 
 /**
  * @author fabioz
@@ -73,6 +76,7 @@ public class ForceCodeAnalysisOnTree extends PyResourceAction implements IObject
      */
     @Override
     protected int doActionOnResource(IResource next, IProgressMonitor monitor) {
+        List<IExternalCodeAnalysisVisitor> externalVisitors = new ArrayList<IExternalCodeAnalysisVisitor>();
         List<IFile> filesToVisit = new ArrayList<IFile>();
         PythonNature nature = PythonNature.getPythonNature(next);
         if (nature == null) {
@@ -89,18 +93,23 @@ public class ForceCodeAnalysisOnTree extends PyResourceAction implements IObject
                     }
                 }
             }
+            IExternalCodeAnalysisVisitor pyLintVisitor = PyLintVisitorFactory.create(next, null, null, monitor);
+            IExternalCodeAnalysisVisitor mypyVisitor = MypyVisitorFactory.create(next, null, null, monitor);
+            externalVisitors.add(pyLintVisitor);
+            externalVisitors.add(mypyVisitor);
         } else if (next instanceof IFile) {
             if (PythonPathHelper.isValidSourceFile((IFile) next)) {
                 filesToVisit.add((IFile) next);
             }
         }
 
-        forceCodeAnalysisOnFiles(nature, monitor, filesToVisit, filesVisited);
+        forceCodeAnalysisOnFiles(nature, monitor, filesToVisit, filesVisited, externalVisitors);
+
         return 1;
     }
 
     public static void forceCodeAnalysisOnFiles(PythonNature nature, IProgressMonitor monitor, List<IFile> filesToVisit,
-            Set<IFile> filesVisited) {
+            Set<IFile> filesVisited, List<IExternalCodeAnalysisVisitor> externalVisitors) {
         if (nature == null) {
             return;
         }
@@ -145,7 +154,7 @@ public class ForceCodeAnalysisOnTree extends PyResourceAction implements IObject
                 continue;
             }
             visitor.doVisitChangedResource(nature, f, doc, null, module, new NullProgressMonitor(), true,
-                    AnalysisBuilderRunnable.ANALYSIS_CAUSE_PARSER, documentTime, false);
+                    AnalysisBuilderRunnable.ANALYSIS_CAUSE_PARSER, documentTime, false, externalVisitors);
         }
         visitor.visitingEnded(new NullProgressMonitor());
     }

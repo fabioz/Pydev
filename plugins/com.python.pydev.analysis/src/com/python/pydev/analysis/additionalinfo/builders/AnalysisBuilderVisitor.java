@@ -10,6 +10,8 @@
 package com.python.pydev.analysis.additionalinfo.builders;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -31,6 +33,7 @@ import org.python.pydev.shared_core.callbacks.ICallback0;
 
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalDependencyInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
+import com.python.pydev.analysis.external.IExternalCodeAnalysisVisitor;
 
 public class AnalysisBuilderVisitor extends PyDevBuilderVisitor {
 
@@ -131,6 +134,65 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor {
                 AnalysisBuilderRunnable.ANALYSIS_CAUSE_BUILDER, documentTime, false);
     }
 
+    public void doVisitChangedResource(IPythonNature nature, IResource resource,
+            ICallback<IModule, Integer> moduleCallback, final IModule module, IProgressMonitor monitor,
+            boolean forceAnalysis, int analysisCause, long documentTime, boolean forceAnalyzeInThisThread) {
+        if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
+            if (analysisCause == AnalysisBuilderRunnable.ANALYSIS_CAUSE_BUILDER) {
+                System.out.println("doVisitChangedResource: BUILDER -- " + documentTime);
+            } else {
+                System.out.println("doVisitChangedResource: PARSER -- " + documentTime);
+            }
+        }
+
+        if (module != null) {
+            if (moduleCallback != null) {
+                Log.log("Only the module or the moduleCallback must be specified for: " + resource);
+                return;
+            }
+            setModuleInCache(resource, module);
+
+            moduleCallback = new ICallback<IModule, Integer>() {
+
+                @Override
+                public IModule call(Integer arg) {
+                    return module;
+                }
+            };
+        } else {
+            //don't set module in the cache if we only have the callback
+            //moduleCallback is already defined
+            if (moduleCallback == null) {
+                Log.log("Either the module or the moduleCallback must be specified for: " + resource);
+                return;
+            }
+        }
+
+        String moduleName;
+        try {
+            moduleName = getModuleName(resource, nature);
+        } catch (MisconfigurationException e) {
+            Log.log(e);
+            return;
+        }
+        final IAnalysisBuilderRunnable runnable = AnalysisBuilderRunnableFactory.createRunnable(resource.getName(),
+                nature, isFullBuild(), true, analysisCause, documentTime, resource.getModificationStamp());
+
+        if (runnable == null) {
+            //It may be null if the document version of the new one is lower than one already active.
+            return;
+        }
+
+        execRunnable(moduleName, runnable, forceAnalyzeInThisThread);
+    }
+
+    public void doVisitChangedResource(IPythonNature nature, IResource resource, IDocument document,
+            ICallback<IModule, Integer> moduleCallback, final IModule module, IProgressMonitor monitor,
+            boolean forceAnalysis, int analysisCause, long documentTime, boolean forceAnalyzeInThisThread) {
+        doVisitChangedResource(nature, resource, document, moduleCallback, module, monitor, forceAnalysis,
+                analysisCause, documentTime, forceAnalyzeInThisThread, new ArrayList<IExternalCodeAnalysisVisitor>());
+    }
+
     /**
      * here we have to detect errors / warnings from the code analysis
      * Either the module callback or the module must be set.
@@ -138,7 +200,8 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor {
      */
     public void doVisitChangedResource(IPythonNature nature, IResource resource, IDocument document,
             ICallback<IModule, Integer> moduleCallback, final IModule module, IProgressMonitor monitor,
-            boolean forceAnalysis, int analysisCause, long documentTime, boolean forceAnalyzeInThisThread) {
+            boolean forceAnalysis, int analysisCause, long documentTime, boolean forceAnalyzeInThisThread,
+            List<IExternalCodeAnalysisVisitor> externalVisitors) {
         if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
             if (analysisCause == AnalysisBuilderRunnable.ANALYSIS_CAUSE_BUILDER) {
                 System.out.println("doVisitChangedResource: BUILDER -- " + documentTime);
@@ -180,7 +243,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor {
 
         final IAnalysisBuilderRunnable runnable = AnalysisBuilderRunnableFactory.createRunnable(document, resource,
                 moduleCallback, isFullBuild(), moduleName, forceAnalysis, analysisCause, nature, documentTime,
-                resource.getModificationStamp());
+                resource.getModificationStamp(), externalVisitors);
 
         if (runnable == null) {
             //It may be null if the document version of the new one is lower than one already active.

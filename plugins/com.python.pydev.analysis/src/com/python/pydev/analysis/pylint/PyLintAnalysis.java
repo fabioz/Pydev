@@ -9,11 +9,14 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.ast.runners.SimplePythonRunner;
@@ -26,6 +29,8 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.markers.PyMarkerUtils;
+import org.python.pydev.shared_core.markers.PyMarkerUtils.MarkerInfo;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
@@ -141,6 +146,21 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
 
     @Override
     public void afterRunProcess(String output, String errors, IExternalCodeAnalysisStream out) {
+        IProject project = null;
+        FastStringBuffer moduleNameBuf = null;
+        IFile moduleFile = null;
+        if (resource instanceof IContainer) {
+            project = resource.getProject();
+            if (project == null) {
+                return;
+            }
+            moduleNameBuf = new FastStringBuffer();
+        } else if (resource instanceof IFile) {
+            moduleFile = (IFile) resource;
+        } else {
+            return;
+        }
+
         output = output.trim();
         errors = errors.trim();
         if (!output.isEmpty()) {
@@ -178,6 +198,22 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
             String tok = tokenizer.nextToken();
             if (monitor.isCanceled()) {
                 return;
+            }
+
+            if (project != null && tok.startsWith("*")) {
+                moduleNameBuf.clear();
+                moduleNameBuf.append(tok);
+                moduleNameBuf.deleteFirstChars(tok.indexOf(resource.getName()));
+                moduleNameBuf.trim();
+                moduleNameBuf.replaceAll('.', '\\').append(".py");
+                Path modulePath = new Path(moduleNameBuf.toString());
+                moduleFile = project.getFile(modulePath);
+                document = FileUtils.getDocFromResource(moduleFile);
+                continue;
+            }
+
+            if (project != null && document == null) {
+                continue;
             }
 
             try {
@@ -235,7 +271,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                             continue;
                         }
 
-                        addToMarkers(tok, priority, messageId, line - 1, column, lineContents);
+                        addToMarkers(tok, priority, messageId, line - 1, column, lineContents, moduleFile);
                     } catch (RuntimeException e2) {
                         Log.log(e2);
                     }
@@ -253,12 +289,13 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
     private static Pattern PYLINT_MATCH_PATTERN = Pattern
             .compile("\\A[CRWEFI]:\\s*(\\d+)\\s*,\\s*(\\d+)\\s*:\\s*\\((.*?)\\)(.*)\\Z");
 
-    private void addToMarkers(String tok, int priority, String id, int line, int column, String lineContents) {
+    private void addToMarkers(String tok, int priority, String id, int line, int column, String lineContents,
+            IFile moduleFile) {
         Map<String, Object> additionalInfo = new HashMap<>();
         additionalInfo.put(PyLintVisitor.PYLINT_MESSAGE_ID, id);
         markers.add(new PyMarkerUtils.MarkerInfo(document, "PyLint: " + tok,
                 PyLintVisitor.PYLINT_PROBLEM_MARKER, priority, false, false, line, column, line, lineContents.length(),
-                additionalInfo));
+                additionalInfo, moduleFile));
     }
 
     /**
@@ -275,5 +312,15 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                 Log.log(e);
             }
         }
+    }
+
+    public List<MarkerInfo> getMarkers(IResource resource) {
+        List<MarkerInfo> ret = new ArrayList<MarkerInfo>();
+        for (MarkerInfo marker : markers) {
+            if (marker.moduleFile.equals(resource)) {
+                ret.add(marker);
+            }
+        }
+        return ret;
     }
 }

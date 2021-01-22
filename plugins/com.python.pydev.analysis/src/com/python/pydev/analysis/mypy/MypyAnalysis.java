@@ -17,12 +17,15 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.ast.runners.SimpleRunner;
@@ -58,12 +61,14 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
     private IDocument document;
     private IPath location;
 
-    private static class LineCol {
+    private static class ModuleLineCol {
+        private IFile moduleFile;
         private final int line;
         private final int col;
 
-        public LineCol(int line, int col) {
+        public ModuleLineCol(IFile moduleFile, int line, int col) {
             super();
+            this.moduleFile = moduleFile;
             this.line = line;
             this.col = col;
         }
@@ -82,10 +87,13 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
             if (this == obj) {
                 return true;
             }
-            if (!(obj instanceof LineCol)) {
+            if (!(obj instanceof ModuleLineCol)) {
                 return false;
             }
-            LineCol other = (LineCol) obj;
+            ModuleLineCol other = (ModuleLineCol) obj;
+            if (moduleFile != other.moduleFile) {
+                return false;
+            }
             if (col != other.col) {
                 return false;
             }
@@ -103,9 +111,10 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
         private final int line;
         private final int column;
         private final String docLineContents;
+        private final IFile moduleFile;
 
         public MessageInfo(String message, int markerSeverity, String messageId, int line, int column,
-                String docLineContents) {
+                String docLineContents, IFile moduleFile) {
             super();
             this.message.append(message);
             this.markerSeverity = markerSeverity;
@@ -113,6 +122,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
             this.line = line;
             this.column = column;
             this.docLineContents = docLineContents;
+            this.moduleFile = moduleFile;
         }
 
         public void addMessageLine(String message) {
@@ -238,9 +248,22 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
 
     @Override
     public void afterRunProcess(String output, String errors, IExternalCodeAnalysisStream out) {
+        IProject project = null;
+        IFile moduleFile = null;
+        if (resource instanceof IContainer) {
+            project = resource.getProject();
+            if (project == null) {
+                return;
+            }
+        } else if (resource instanceof IFile) {
+            moduleFile = (IFile) resource;
+        } else {
+            return;
+        }
+
         output = output.trim();
         errors = errors.trim();
-        Map<LineCol, MessageInfo> lineColToMessage = new HashMap<>();
+        Map<ModuleLineCol, MessageInfo> moduleLineColToMessage = new HashMap<>();
         if (!output.isEmpty()) {
             WriteToStreamHelper.write("Mypy: The stdout of the command line is:\n", out, output);
         }
@@ -270,6 +293,25 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
             if (monitor.isCanceled()) {
                 return;
             }
+
+            if (project != null) {
+                if (fileNameBuf.isEmpty() || !outputLine.startsWith(fileNameBuf.toString())) {
+                    fileNameBuf.clear();
+                    fileNameBuf.append(outputLine);
+                    fileNameBuf.deleteLastChars(fileNameBuf.length() - outputLine.indexOf(':'));
+                    fileNameBuf.trim();
+                    if (fileNameBuf.isEmpty()) {
+                        continue;
+                    }
+                    Path filePath = new Path(fileNameBuf.toString());
+                    moduleFile = project.getFile(filePath);
+                    document = FileUtils.getDocFromResource(moduleFile);
+                    if (document == null) {
+                        continue;
+                    }
+                }
+            }
+
             try {
                 outputLine = outputLine.trim();
                 int column = -1;
@@ -286,18 +328,19 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                 }
 
                 if (m != null) {
-                    fileNameBuf.clear();
-                    fileNameBuf.append(outputLine.substring(m.start(1), m.end(1))).trim().replaceAll('\\', '/');
-                    String fileName = fileNameBuf.toString().toLowerCase(); // Make all comparissons lower-case.
-
-                    if (loc == null && res == null) {
-                        // Proceed
-                    } else if (loc != null && loc.contains(fileName)) {
-                        // Proceed
-                    } else if (res != null && res.contains(fileName)) {
-                        // Proceed
-                    } else {
-                        continue; // Bail out: it doesn't match the current file.
+                    if (project == null) {
+                        fileNameBuf.clear();
+                        fileNameBuf.append(outputLine.substring(m.start(1), m.end(1))).trim().replaceAll('\\', '/');
+                        String fileName = fileNameBuf.toString().toLowerCase(); // Make all comparissons lower-case.
+                        if (loc == null && res == null) {
+                            // Proceed
+                        } else if (loc != null && loc.contains(fileName)) {
+                            // Proceed
+                        } else if (res != null && res.contains(fileName)) {
+                            // Proceed
+                        } else {
+                            continue; // Bail out: it doesn't match the current file.
+                        }
                     }
 
                     int line = -1;
@@ -330,12 +373,12 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                         } catch (Exception e) {
                         }
                         if (region != null && document != null) {
-                            LineCol lineCol = new LineCol(line, column);
-                            MessageInfo messageInfo = lineColToMessage.get(lineCol);
+                            ModuleLineCol moduleLineCol = new ModuleLineCol(moduleFile, line, column);
+                            MessageInfo messageInfo = moduleLineColToMessage.get(moduleLineCol);
                             if (messageInfo == null) {
                                 messageInfo = new MessageInfo(message, markerSeverity, messageId, line, column,
-                                        document.get(region.getOffset(), region.getLength()));
-                                lineColToMessage.put(lineCol, messageInfo);
+                                        document.get(region.getOffset(), region.getLength()), moduleFile);
+                                moduleLineColToMessage.put(moduleLineCol, messageInfo);
                             } else {
                                 messageInfo.addMessageLine(message);
                             }
@@ -350,11 +393,11 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                 Log.log(e);
             }
         }
-        for (MessageInfo messageInfo : lineColToMessage.values()) {
+        for (MessageInfo messageInfo : moduleLineColToMessage.values()) {
             addToMarkers(messageInfo.message.toString(), messageInfo.markerSeverity, messageInfo.messageId,
                     messageInfo.line,
                     messageInfo.column,
-                    messageInfo.docLineContents);
+                    messageInfo.docLineContents, messageInfo.moduleFile);
         }
     }
 
@@ -378,12 +421,13 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                     + "\\Z" // end of input
             );
 
-    private void addToMarkers(String tok, int priority, String id, int line, int column, String lineContents) {
+    private void addToMarkers(String tok, int priority, String id, int line, int column, String lineContents,
+            IFile moduleFile) {
         Map<String, Object> additionalInfo = new HashMap<>();
         additionalInfo.put(MypyVisitor.MYPY_MESSAGE_ID, id);
         markers.add(new PyMarkerUtils.MarkerInfo(document, "Mypy: " + tok,
                 MypyVisitor.MYPY_PROBLEM_MARKER, priority, false, false, line, column, line, lineContents.length(),
-                additionalInfo));
+                additionalInfo, moduleFile));
     }
 
     /**

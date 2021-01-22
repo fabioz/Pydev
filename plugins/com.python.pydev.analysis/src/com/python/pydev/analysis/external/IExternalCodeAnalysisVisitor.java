@@ -8,6 +8,7 @@ package com.python.pydev.analysis.external;
 
 import java.util.List;
 
+import org.eclipse.core.resources.IResource;
 import org.python.pydev.shared_core.markers.PyMarkerUtils;
 
 /**
@@ -36,7 +37,7 @@ public interface IExternalCodeAnalysisVisitor {
      * The list of markers that the visitor generated (must be gotten only after {@link #join()}).
      * @return the list of markers or null if no markers were generated.
      */
-    List<PyMarkerUtils.MarkerInfo> getMarkers();
+    List<PyMarkerUtils.MarkerInfo> getMarkers(IResource resource);
 
     boolean getRequiresAnalysis();
 
@@ -44,4 +45,5 @@ public interface IExternalCodeAnalysisVisitor {
 
     String getMessageId();
 
+    boolean getRequiresVisit();
 }

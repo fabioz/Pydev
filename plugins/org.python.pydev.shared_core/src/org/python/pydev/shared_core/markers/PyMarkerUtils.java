@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
@@ -49,9 +50,11 @@ public class PyMarkerUtils {
         public int absoluteEnd = -1;
         public int colEnd;
         public Map<String, Object> additionalInfo;
+        public IFile moduleFile;
 
         /**
          * Constructor passing lines and relative positions
+         * @param moduleFile 
          */
         public MarkerInfo(IDocument doc, String message, String markerType, int severity, boolean userEditable,
                 boolean isTransient, int lineStart, int colStart, int lineEnd, int colEnd,
@@ -68,6 +71,25 @@ public class PyMarkerUtils {
             this.lineEnd = lineEnd;
             this.colEnd = colEnd;
             this.additionalInfo = additionalInfo;
+            this.moduleFile = null;
+        }
+
+        public MarkerInfo(IDocument doc, String message, String markerType, int severity, boolean userEditable,
+                boolean isTransient, int lineStart, int colStart, int lineEnd, int colEnd,
+                Map<String, Object> additionalInfo, IFile moduleFile) {
+            super();
+            this.doc = doc;
+            this.message = message;
+            this.markerType = markerType;
+            this.severity = severity;
+            this.userEditable = userEditable;
+            this.isTransient = isTransient;
+            this.lineStart = lineStart;
+            this.colStart = colStart;
+            this.lineEnd = lineEnd;
+            this.colEnd = colEnd;
+            this.additionalInfo = additionalInfo;
+            this.moduleFile = moduleFile;
         }
 
         /**

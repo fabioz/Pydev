@@ -7,6 +7,7 @@
 package com.python.pydev.analysis.additionalinfo.builders;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
@@ -19,6 +20,8 @@ import org.python.pydev.parser.preferences.PyDevBuilderPreferences;
 import org.python.pydev.shared_core.cache.LRUCache;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.structure.Tuple;
+
+import com.python.pydev.analysis.external.IExternalCodeAnalysisVisitor;
 
 public class AnalysisBuilderRunnableFactory {
 
@@ -178,12 +181,14 @@ public class AnalysisBuilderRunnableFactory {
     /**
      * Creates a thread for analyzing some module (and stopping analysis of some other thread if there is one
      * already running).
+     * @param externalVisitors 
      *
      * @return The new runnable or null if there's one there already that has a higher document version.
      */
     /*Default*/static IAnalysisBuilderRunnable createRunnable(IDocument document, IResource resource,
             ICallback<IModule, Integer> module, boolean isFullBuild, String moduleName, boolean forceAnalysis,
-            int analysisCause, IPythonNature nature, long documentTime, long resourceModificationStamp) {
+            int analysisCause, IPythonNature nature, long documentTime, long resourceModificationStamp,
+            List<IExternalCodeAnalysisVisitor> externalVisitors) {
 
         synchronized (lock) {
             Map<KeyForAnalysisRunnable, IAnalysisBuilderRunnable> available = getAvailableThreads();
@@ -221,7 +226,7 @@ public class AnalysisBuilderRunnableFactory {
             }
             IAnalysisBuilderRunnable analysisBuilderThread = new AnalysisBuilderRunnable(document, resource, module,
                     isFullBuild, moduleName, forceAnalysis, analysisCause, oldAnalysisBuilderThread, nature,
-                    documentTime, analysisKey, resourceModificationStamp);
+                    documentTime, analysisKey, resourceModificationStamp, externalVisitors);
 
             logCreate(moduleName, analysisBuilderThread, "Factory: changed");
 
