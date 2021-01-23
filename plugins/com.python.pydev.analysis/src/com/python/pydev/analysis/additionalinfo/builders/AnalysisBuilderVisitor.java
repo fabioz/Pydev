@@ -196,7 +196,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor {
     /**
      * here we have to detect errors / warnings from the code analysis
      * Either the module callback or the module must be set.
-     * @param forceAnalyzeInThisThread 
+     * @param forceAnalyzeInThisThread
      */
     public void doVisitChangedResource(IPythonNature nature, IResource resource, IDocument document,
             ICallback<IModule, Integer> moduleCallback, final IModule module, IProgressMonitor monitor,
@@ -256,7 +256,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor {
     /**
      * Depending on whether we're in a full build or delta build, this method will run the runnable directly
      * or schedule it as a job.
-     * @param forceAnalyzeInThisThread 
+     * @param forceAnalyzeInThisThread
      */
     private void execRunnable(final String moduleName, final IAnalysisBuilderRunnable runnable,
             boolean forceAnalyzeInThisThread) {

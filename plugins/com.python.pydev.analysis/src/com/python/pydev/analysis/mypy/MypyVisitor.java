@@ -23,7 +23,6 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.markers.PyMarkerUtils;
-import org.python.pydev.shared_core.markers.PyMarkerUtils.MarkerInfo;
 import org.python.pydev.shared_core.progress.NullProgressMonitorWrapper;
 
 import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
@@ -50,7 +49,6 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
      */
     @Override
     public void startVisit() {
-        requiresVisit = false;
         if (resource == null || MypyPreferences.useMypy(resource) == false
                 || (document == null && !(resource instanceof IContainer))) {
             deleteMarkers();
@@ -85,6 +83,12 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
             deleteMarkers();
             return;
         }
+        if (mypyRunnable != null) {
+            // If the mypyRunnable is already created, don't recreate it
+            // (we should be analyzing multiple resources in a single call).
+            return;
+        }
+
         if (project != null) {
             if (resource instanceof IFile) {
                 IFile file = (IFile) resource;
@@ -128,15 +132,10 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
     @Override
     public List<PyMarkerUtils.MarkerInfo> getMarkers(IResource resource) {
         List<PyMarkerUtils.MarkerInfo> ret = new ArrayList<PyMarkerUtils.MarkerInfo>();
-        if (mypyRunnable == null || mypyRunnable.markers == null) {
+        if (mypyRunnable == null) {
             return ret;
         }
-        for (MarkerInfo marker : mypyRunnable.markers) {
-            if (resource.equals(marker.moduleFile)) {
-                ret.add(marker);
-            }
-        }
-        return ret;
+        return mypyRunnable.getMarkers(resource);
     }
 
     @Override

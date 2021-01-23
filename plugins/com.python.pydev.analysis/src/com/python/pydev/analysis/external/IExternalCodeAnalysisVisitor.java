@@ -45,5 +45,4 @@ public interface IExternalCodeAnalysisVisitor {
 
     String getMessageId();
 
-    boolean getRequiresVisit();
 }

@@ -108,7 +108,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
     /**
      * @param oldAnalysisBuilderThread This is an existing runnable that was already analyzing things... we must wait for it
      * to finish to start it again.
-     * @param externalVisitors 
+     * @param externalVisitors
      *
      * @param module: this is a callback that'll be called with a boolean that should return the IModule to be used in the
      * analysis.
@@ -138,6 +138,9 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
                 } else if (visitor instanceof OnlyRemoveMarkersMypyVisitor || visitor instanceof MypyVisitor) {
                     this.mypyVisitor = visitor;
                 }
+            }
+            if (pyLintVisitor == null || mypyVisitor == null) {
+                throw new AssertionError("All visitor types must be passed.");
             }
         } else {
             this.pyLintVisitor = PyLintVisitorFactory.create(resource, document, module, internalCancelMonitor);
@@ -303,9 +306,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
             // Maybe we can improve that when https://github.com/PyCQA/pylint/pull/1189 is done.
             if (!DocumentChanged.hasDocumentChanged(resource, document)) {
                 for (IExternalCodeAnalysisVisitor visitor : allVisitors) {
-                    if (visitor.getRequiresVisit()) {
-                        visitor.startVisit();
-                    }
+                    visitor.startVisit();
                 }
             } else {
                 for (IExternalCodeAnalysisVisitor visitor : allVisitors) {

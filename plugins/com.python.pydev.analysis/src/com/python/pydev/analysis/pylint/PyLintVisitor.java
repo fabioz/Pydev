@@ -38,8 +38,8 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
  */
 /*default*/ public final class PyLintVisitor extends OnlyRemoveMarkersPyLintVisitor {
 
-    private IDocument document;
-    private IProgressMonitor monitor;
+    private final IDocument document;
+    private final IProgressMonitor monitor;
 
     /*default*/ PyLintVisitor(IResource resource, IDocument document, ICallback<IModule, Integer> module,
             IProgressMonitor monitor) {
@@ -55,7 +55,6 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
      */
     @Override
     public void startVisit() {
-        requiresVisit = false;
         if (resource == null || PyLintPreferences.usePyLint() == false
                 || (document == null && !(resource instanceof IContainer))) {
             deleteMarkers();
@@ -83,6 +82,11 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
             }
         } catch (Exception e) {
             deleteMarkers();
+            return;
+        }
+        if (pyLintRunnable != null) {
+            // If the pyLintRunnable is already created, don't recreate it
+            // (we should be analyzing multiple resources in a single call).
             return;
         }
         if (project != null) {

@@ -1,13 +1,30 @@
 package com.python.pydev.analysis.mypy;
 
+import java.io.File;
+
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.resource_stubs.FileStub;
+import org.python.pydev.shared_core.resource_stubs.ProjectStub;
 
 import junit.framework.TestCase;
 
 public class MypyAnalysisTest extends TestCase {
+
+    private File tempDir;
+    private FileStub file;
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        tempDir = FileUtils.getTempFileAt(new File("."), "data_mypy_analysis");
+        tempDir.mkdirs();
+        ProjectStub project = new ProjectStub(tempDir, null);
+        file = new FileStub(project, new File(tempDir, "snippet.py"));
+    }
 
     public void testMarkersMessage() {
 
@@ -40,7 +57,7 @@ public class MypyAnalysisTest extends TestCase {
                         "\n" +
                         "x:IBar = NotBar()");
 
-        MypyAnalysis mypyAnalysis = new MypyAnalysis(null, document, null, new NullProgressMonitor(),
+        MypyAnalysis mypyAnalysis = new MypyAnalysis(file, document, null, new NullProgressMonitor(),
                 null);
 
         String output = "snippet.py:26:11: error: Incompatible types in assignment (expression has type \"NotBar\", variable has type \"IBar\")\n"
@@ -59,7 +76,7 @@ public class MypyAnalysisTest extends TestCase {
 
         mypyAnalysis.afterRunProcess(output, "", null);
 
-        assertEquals(1, mypyAnalysis.markers.size());
+        assertEquals(1, mypyAnalysis.getMarkers(file).size());
 
         String expected = "Mypy: Incompatible types in assignment (expression has type \"NotBar\", variable has type \"IBar\")\n"
                 +
@@ -73,7 +90,7 @@ public class MypyAnalysisTest extends TestCase {
                 "Got:\n" +
                 "def foo(self) -> int";
 
-        assertEquals(expected, mypyAnalysis.markers.get(0).message);
+        assertEquals(expected, mypyAnalysis.getMarkers(file).get(0).message);
     }
 
     public void testMarkersMessageWithoutCol() {
@@ -107,7 +124,7 @@ public class MypyAnalysisTest extends TestCase {
                         "\n" +
                         "x:IBar = NotBar()");
 
-        MypyAnalysis mypyAnalysis = new MypyAnalysis(null, document, null, new NullProgressMonitor(),
+        MypyAnalysis mypyAnalysis = new MypyAnalysis(file, document, null, new NullProgressMonitor(),
                 null);
 
         String output = "snippet.py:26: error: Incompatible types in assignment (expression has type \"NotBar\", variable has type \"IBar\")\n"
@@ -126,7 +143,7 @@ public class MypyAnalysisTest extends TestCase {
 
         mypyAnalysis.afterRunProcess(output, "", null);
 
-        assertEquals(2, mypyAnalysis.markers.size());
+        assertEquals(2, mypyAnalysis.getMarkers(file).size());
 
         String expected = "Mypy: Following member(s) of \"NotBar\" have conflicts:\n" +
                 "Expected:\n" +
@@ -137,10 +154,10 @@ public class MypyAnalysisTest extends TestCase {
                 "def foo(self) -> bool\n" +
                 "Got:\n" +
                 "def foo(self) -> int";
-        assertEquals(expected, mypyAnalysis.markers.get(0).message);
+        assertEquals(expected, mypyAnalysis.getMarkers(file).get(0).message);
 
         expected = "Mypy: Incompatible types in assignment (expression has type \"NotBar\", variable has type \"IBar\")";
-        assertEquals(expected, mypyAnalysis.markers.get(1).message);
+        assertEquals(expected, mypyAnalysis.getMarkers(file).get(1).message);
     }
 
     public void testMarkersMessageWithoutCol2() {
@@ -153,18 +170,18 @@ public class MypyAnalysisTest extends TestCase {
                         "method('')  # type: ignore -- error due to this comment\n" +
                         "method('')  # This is not reported due to the invalid type ignore in the other line");
 
-        MypyAnalysis mypyAnalysis = new MypyAnalysis(null, document, null, new NullProgressMonitor(),
+        MypyAnalysis mypyAnalysis = new MypyAnalysis(file, document, null, new NullProgressMonitor(),
                 null);
 
-        String output = "snippet2.py:4: error: Invalid \"type: ignore\" comment";
+        String output = "snippet.py:4: error: Invalid \"type: ignore\" comment";
 
         mypyAnalysis.afterRunProcess(output, "", null);
 
-        assertEquals(1, mypyAnalysis.markers.size());
+        assertEquals(1, mypyAnalysis.getMarkers(file).size());
 
         String expected = "Mypy: Invalid \"type: ignore\" comment";
 
-        assertEquals(expected, mypyAnalysis.markers.get(0).message);
+        assertEquals(expected, mypyAnalysis.getMarkers(file).get(0).message);
     }
 
     public void testMarkersMessage2() {
@@ -198,7 +215,7 @@ public class MypyAnalysisTest extends TestCase {
                         "\n" +
                         "x:IBar = NotBar() # noqa");
 
-        MypyAnalysis mypyAnalysis = new MypyAnalysis(null, document, null, new NullProgressMonitor(),
+        MypyAnalysis mypyAnalysis = new MypyAnalysis(file, document, null, new NullProgressMonitor(),
                 null);
 
         String output = "snippet.py:26:11: error: Incompatible types in assignment (expression has type \"NotBar\", variable has type \"IBar\")\n"
@@ -217,7 +234,7 @@ public class MypyAnalysisTest extends TestCase {
 
         mypyAnalysis.afterRunProcess(output, "", null);
 
-        assertEquals(0, mypyAnalysis.markers.size());
+        assertEquals(0, mypyAnalysis.getMarkers(file).size()); // No message because of the `noqa`.
     }
 
     public void testMessagesFromAnotherFile() {
@@ -226,7 +243,7 @@ public class MypyAnalysisTest extends TestCase {
                         "some_variable = 10");
 
         Path docPath = new Path("/sample/src/package1/module1.py");
-        MypyAnalysis mypyAnalysis = new MypyAnalysis(null, document, docPath, new NullProgressMonitor(),
+        MypyAnalysis mypyAnalysis = new MypyAnalysis(file, document, docPath, new NullProgressMonitor(),
                 null);
 
         String output = " src\\package1-stubs\\__init__.pyi:10:1: error: Name 'logger' already defined on line 9\n" +
@@ -234,6 +251,6 @@ public class MypyAnalysisTest extends TestCase {
 
         mypyAnalysis.afterRunProcess(output, "", null);
 
-        assertEquals(0, mypyAnalysis.markers.size());
+        assertEquals(0, mypyAnalysis.getMarkers(file).size());
     }
 }

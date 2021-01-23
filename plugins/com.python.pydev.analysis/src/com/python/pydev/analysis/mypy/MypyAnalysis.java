@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,6 +42,7 @@ import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.markers.PyMarkerUtils;
+import org.python.pydev.shared_core.markers.PyMarkerUtils.MarkerInfo;
 import org.python.pydev.shared_core.process.ProcessUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -57,11 +59,12 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
  */
 /*default*/ final class MypyAnalysis implements IExternalAnalyzer {
 
-    private IResource resource;
-    private IDocument document;
-    private IPath location;
+    private final IResource resource;
+    private final IDocument fDocument;
+    private final IPath location;
 
     private static class ModuleLineCol {
+
         private IFile moduleFile;
         private final int line;
         private final int col;
@@ -75,11 +78,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
 
         @Override
         public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + col;
-            result = prime * result + line;
-            return result;
+            return Objects.hash(col, line, moduleFile);
         }
 
         @Override
@@ -87,21 +86,16 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
             if (this == obj) {
                 return true;
             }
-            if (!(obj instanceof ModuleLineCol)) {
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
                 return false;
             }
             ModuleLineCol other = (ModuleLineCol) obj;
-            if (moduleFile != other.moduleFile) {
-                return false;
-            }
-            if (col != other.col) {
-                return false;
-            }
-            if (line != other.line) {
-                return false;
-            }
-            return true;
+            return col == other.col && line == other.line && Objects.equals(moduleFile, other.moduleFile);
         }
+
     }
 
     private static class MessageInfo {
@@ -112,9 +106,10 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
         private final int column;
         private final String docLineContents;
         private final IFile moduleFile;
+        private final IDocument document;
 
         public MessageInfo(String message, int markerSeverity, String messageId, int line, int column,
-                String docLineContents, IFile moduleFile) {
+                String docLineContents, IFile moduleFile, IDocument document) {
             super();
             this.message.append(message);
             this.markerSeverity = markerSeverity;
@@ -123,6 +118,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
             this.column = column;
             this.docLineContents = docLineContents;
             this.moduleFile = moduleFile;
+            this.document = document;
         }
 
         public void addMessageLine(String message) {
@@ -130,15 +126,15 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
         }
     }
 
-    List<PyMarkerUtils.MarkerInfo> markers = new ArrayList<PyMarkerUtils.MarkerInfo>();
-    private IProgressMonitor monitor;
+    private final Map<IResource, List<PyMarkerUtils.MarkerInfo>> fileToMarkers = new HashMap<>();
+    private final IProgressMonitor monitor;
     private Thread processWatchDoc;
-    private File mypyLocation;
+    private final File mypyLocation;
 
     public MypyAnalysis(IResource resource, IDocument document, IPath location,
             IProgressMonitor monitor, File mypyLocation) {
         this.resource = resource;
-        this.document = document;
+        this.fDocument = document;
         this.location = location;
         this.monitor = monitor;
         this.mypyLocation = mypyLocation;
@@ -248,11 +244,17 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
 
     @Override
     public void afterRunProcess(String output, String errors, IExternalCodeAnalysisStream out) {
+        boolean resourceIsContainer = resource instanceof IContainer;
         IProject project = null;
         IFile moduleFile = null;
-        if (resource instanceof IContainer) {
+        if (resourceIsContainer) {
             project = resource.getProject();
             if (project == null) {
+                Log.log("Expected resource to have project for MyPyAnalysis.");
+                return;
+            }
+            if (!project.isAccessible()) {
+                Log.log("Expected project to be accessible for MyPyAnalysis.");
                 return;
             }
         } else if (resource instanceof IFile) {
@@ -289,27 +291,11 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
             res = this.resource.getFullPath().toString().toLowerCase();
         }
 
+        Map<IResource, IDocument> resourceToDocCache = new HashMap<>();
+
         for (String outputLine : StringUtils.iterLines(output)) {
             if (monitor.isCanceled()) {
                 return;
-            }
-
-            if (project != null) {
-                if (fileNameBuf.isEmpty() || !outputLine.startsWith(fileNameBuf.toString())) {
-                    fileNameBuf.clear();
-                    fileNameBuf.append(outputLine);
-                    fileNameBuf.deleteLastChars(fileNameBuf.length() - outputLine.indexOf(':'));
-                    fileNameBuf.trim();
-                    if (fileNameBuf.isEmpty()) {
-                        continue;
-                    }
-                    Path filePath = new Path(fileNameBuf.toString());
-                    moduleFile = project.getFile(filePath);
-                    document = FileUtils.getDocFromResource(moduleFile);
-                    if (document == null) {
-                        continue;
-                    }
-                }
             }
 
             try {
@@ -328,10 +314,31 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                 }
 
                 if (m != null) {
-                    if (project == null) {
+                    IDocument document;
+                    if (resourceIsContainer) {
+                        String relativeFilename = outputLine.substring(m.start(1), m.end(1));
+                        try {
+                            moduleFile = project.getFile(new Path(relativeFilename));
+                        } catch (Exception e) {
+                            Log.log(e);
+                            continue;
+                        }
+                        document = resourceToDocCache.get(moduleFile);
+                        if (document == null) {
+                            document = FileUtils.getDocFromResource(moduleFile);
+                            if (document == null) {
+                                continue;
+                            }
+                            resourceToDocCache.put(moduleFile, document);
+                        }
+
+                    } else {
+                        document = fDocument;
+
+                        // Must match the current file
                         fileNameBuf.clear();
                         fileNameBuf.append(outputLine.substring(m.start(1), m.end(1))).trim().replaceAll('\\', '/');
-                        String fileName = fileNameBuf.toString().toLowerCase(); // Make all comparissons lower-case.
+                        String fileName = fileNameBuf.toString().toLowerCase(); // Make all comparisons lower-case.
                         if (loc == null && res == null) {
                             // Proceed
                         } else if (loc != null && loc.contains(fileName)) {
@@ -377,7 +384,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                             MessageInfo messageInfo = moduleLineColToMessage.get(moduleLineCol);
                             if (messageInfo == null) {
                                 messageInfo = new MessageInfo(message, markerSeverity, messageId, line, column,
-                                        document.get(region.getOffset(), region.getLength()), moduleFile);
+                                        document.get(region.getOffset(), region.getLength()), moduleFile, document);
                                 moduleLineColToMessage.put(moduleLineCol, messageInfo);
                             } else {
                                 messageInfo.addMessageLine(message);
@@ -397,7 +404,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
             addToMarkers(messageInfo.message.toString(), messageInfo.markerSeverity, messageInfo.messageId,
                     messageInfo.line,
                     messageInfo.column,
-                    messageInfo.docLineContents, messageInfo.moduleFile);
+                    messageInfo.docLineContents, messageInfo.moduleFile, messageInfo.document);
         }
     }
 
@@ -422,12 +429,26 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
             );
 
     private void addToMarkers(String tok, int priority, String id, int line, int column, String lineContents,
-            IFile moduleFile) {
+            IFile moduleFile, IDocument document) {
         Map<String, Object> additionalInfo = new HashMap<>();
         additionalInfo.put(MypyVisitor.MYPY_MESSAGE_ID, id);
-        markers.add(new PyMarkerUtils.MarkerInfo(document, "Mypy: " + tok,
+        List<MarkerInfo> list = fileToMarkers.get(moduleFile);
+        if (list == null) {
+            list = new ArrayList<>();
+            fileToMarkers.put(moduleFile, list);
+        }
+
+        list.add(new PyMarkerUtils.MarkerInfo(document, "Mypy: " + tok,
                 MypyVisitor.MYPY_PROBLEM_MARKER, priority, false, false, line, column, line, lineContents.length(),
-                additionalInfo, moduleFile));
+                additionalInfo));
+    }
+
+    public List<MarkerInfo> getMarkers(IResource resource) {
+        List<MarkerInfo> ret = fileToMarkers.get(resource);
+        if (ret == null) {
+            return new ArrayList<>();
+        }
+        return new ArrayList<>(ret); // Return a copy
     }
 
     /**

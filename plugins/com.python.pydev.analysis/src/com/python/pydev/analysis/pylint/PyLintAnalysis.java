@@ -45,10 +45,11 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
 /*default*/ final class PyLintAnalysis implements IExternalAnalyzer {
 
     private IResource resource;
-    private IDocument document;
+    private IDocument fDocument;
     private IPath location;
 
-    List<PyMarkerUtils.MarkerInfo> markers = new ArrayList<PyMarkerUtils.MarkerInfo>();
+    private final Map<IResource, List<PyMarkerUtils.MarkerInfo>> fileToMarkers = new HashMap<>();
+
     private IProgressMonitor monitor;
     private Thread processWatchDoc;
     private File pyLintLocation;
@@ -56,7 +57,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
     public PyLintAnalysis(IResource resource, IDocument document, IPath location,
             IProgressMonitor monitor, File pyLintLocation) {
         this.resource = resource;
-        this.document = document;
+        this.fDocument = document;
         this.location = location;
         this.monitor = monitor;
         this.pyLintLocation = pyLintLocation;
@@ -105,7 +106,6 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
         // run pylint in project location
         IProject project = resource.getProject();
         File workingDir = project.getLocation().toFile();
-        Process process;
         ICallback0<Process> launchProcessCallback;
         if (isPyScript) {
             // run Python script (lint.py) with the interpreter of current project
@@ -146,15 +146,19 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
 
     @Override
     public void afterRunProcess(String output, String errors, IExternalCodeAnalysisStream out) {
+        boolean resourceIsContainer = resource instanceof IContainer;
         IProject project = null;
-        FastStringBuffer moduleNameBuf = null;
         IFile moduleFile = null;
-        if (resource instanceof IContainer) {
+        if (resourceIsContainer) {
             project = resource.getProject();
             if (project == null) {
+                Log.log("Expected resource to have project for PyLintAnalysis.");
                 return;
             }
-            moduleNameBuf = new FastStringBuffer();
+            if (!project.isAccessible()) {
+                Log.log("Expected project to be accessible for PyLintAnalysis.");
+                return;
+            }
         } else if (resource instanceof IFile) {
             moduleFile = (IFile) resource;
         } else {
@@ -194,26 +198,38 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
             Log.log(e);
             return;
         }
+
+        FastStringBuffer moduleNameBuf = new FastStringBuffer();
+        IDocument document = fDocument;
         while (tokenizer.hasMoreTokens()) {
             String tok = tokenizer.nextToken();
             if (monitor.isCanceled()) {
                 return;
             }
 
-            if (project != null && tok.startsWith("*")) {
-                moduleNameBuf.clear();
-                moduleNameBuf.append(tok);
-                moduleNameBuf.deleteFirstChars(tok.indexOf(resource.getName()));
-                moduleNameBuf.trim();
-                moduleNameBuf.replaceAll('.', '\\').append(".py");
-                Path modulePath = new Path(moduleNameBuf.toString());
-                moduleFile = project.getFile(modulePath);
-                document = FileUtils.getDocFromResource(moduleFile);
-                continue;
-            }
+            if (resourceIsContainer) {
+                if (tok.startsWith("*")) {
+                    moduleNameBuf.clear().append(tok);
+                    int i = tok.lastIndexOf("* Module ");
+                    if (i >= 0) {
+                        moduleNameBuf.deleteFirstChars(i + "* Module ".length());
+                    } else {
+                        continue;
+                    }
+                    moduleNameBuf.replaceAll('.', '/').append(".py");
+                    Path modulePath = new Path(moduleNameBuf.toString());
+                    try {
+                        moduleFile = project.getFile(modulePath);
+                    } catch (Exception e) {
+                        Log.log(e);
+                    }
+                    document = FileUtils.getDocFromResource(moduleFile);
+                    continue;
+                }
 
-            if (project != null && document == null) {
-                continue;
+                if (document == null) {
+                    continue;
+                }
             }
 
             try {
@@ -271,7 +287,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                             continue;
                         }
 
-                        addToMarkers(tok, priority, messageId, line - 1, column, lineContents, moduleFile);
+                        addToMarkers(tok, priority, messageId, line - 1, column, lineContents, moduleFile, document);
                     } catch (RuntimeException e2) {
                         Log.log(e2);
                     }
@@ -290,12 +306,17 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
             .compile("\\A[CRWEFI]:\\s*(\\d+)\\s*,\\s*(\\d+)\\s*:\\s*\\((.*?)\\)(.*)\\Z");
 
     private void addToMarkers(String tok, int priority, String id, int line, int column, String lineContents,
-            IFile moduleFile) {
+            IFile moduleFile, IDocument document) {
         Map<String, Object> additionalInfo = new HashMap<>();
         additionalInfo.put(PyLintVisitor.PYLINT_MESSAGE_ID, id);
-        markers.add(new PyMarkerUtils.MarkerInfo(document, "PyLint: " + tok,
+        List<MarkerInfo> list = fileToMarkers.get(moduleFile);
+        if (list == null) {
+            list = new ArrayList<>();
+            fileToMarkers.put(moduleFile, list);
+        }
+        list.add(new PyMarkerUtils.MarkerInfo(document, "PyLint: " + tok,
                 PyLintVisitor.PYLINT_PROBLEM_MARKER, priority, false, false, line, column, line, lineContents.length(),
-                additionalInfo, moduleFile));
+                additionalInfo));
     }
 
     /**
@@ -315,12 +336,11 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
     }
 
     public List<MarkerInfo> getMarkers(IResource resource) {
-        List<MarkerInfo> ret = new ArrayList<MarkerInfo>();
-        for (MarkerInfo marker : markers) {
-            if (marker.moduleFile.equals(resource)) {
-                ret.add(marker);
-            }
+        List<MarkerInfo> ret = fileToMarkers.get(resource);
+        if (ret == null) {
+            return new ArrayList<>();
         }
-        return ret;
+        return new ArrayList<>(ret); // Return a copy
     }
+
 }

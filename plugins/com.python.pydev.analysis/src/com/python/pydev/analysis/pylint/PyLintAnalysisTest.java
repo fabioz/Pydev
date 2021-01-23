@@ -1,5 +1,6 @@
 package com.python.pydev.analysis.pylint;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -11,22 +12,37 @@ import org.python.pydev.core.IInterpreterInfo.UnableToFindExecutableException;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.preferences.PydevPrefs;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.markers.PyMarkerUtils.MarkerInfo;
+import org.python.pydev.shared_core.resource_stubs.FileStub;
+import org.python.pydev.shared_core.resource_stubs.ProjectStub;
 
 import junit.framework.TestCase;
 
 public class PyLintAnalysisTest extends TestCase {
 
+    private File tempDir;
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        tempDir = FileUtils.getTempFileAt(new File("."), "data_pylint_analysis");
+        tempDir.mkdirs();
+    }
+
     /**
      * Verify markers are created with correct line number and text
      *  when supplied simulated PyLint input and output.
-     * 
+     *
      * @throws UnableToFindExecutableException
      * @throws MisconfigurationException
      * @throws PythonNatureWithoutProjectException
      */
     public void testMarkersInfoOutput()
             throws UnableToFindExecutableException, MisconfigurationException, PythonNatureWithoutProjectException {
+
+        ProjectStub project = new ProjectStub(tempDir, null);
+        FileStub file = new FileStub(project, new File(tempDir, "file.py"));
 
         IDocument document = new Document(
                 "" +
@@ -55,7 +71,7 @@ public class PyLintAnalysisTest extends TestCase {
                         "print(\"This line is really long\")" +
                         " # This comment is part of the long line, going over the 100 char limit");
 
-        PyLintAnalysis pyLintAnalysis = new PyLintAnalysis(null, document, null, new NullProgressMonitor(),
+        PyLintAnalysis pyLintAnalysis = new PyLintAnalysis(file, document, null, new NullProgressMonitor(),
                 null);
 
         String output = "PyLint: The stdout of the command line is:\n"
@@ -83,7 +99,7 @@ public class PyLintAnalysisTest extends TestCase {
 
         pyLintAnalysis.afterRunProcess(output, "No config file found, using default configuration\n", null);
 
-        List<MarkerInfo> markers = pyLintAnalysis.markers;
+        List<MarkerInfo> markers = pyLintAnalysis.getMarkers(file);
         for (MarkerInfo marker : markers) {
             assertEquals(marker.lineStart, marker.lineEnd);
         }
@@ -105,12 +121,12 @@ public class PyLintAnalysisTest extends TestCase {
     }
 
     /** Check the specified marker has been processed correctly
-     * 
-     * @param index index within markers list 
+     *
+     * @param index index within markers list
      * @param line zero based index of the line in the document
      * @param message_id pylint short code for message
      * @param message descriptive message
-     * @param actualMarkers markers 
+     * @param actualMarkers markers
      */
     private void assertMarkerEquals(int index, int line, String message_id, String message,
             List<MarkerInfo> actualMarkers) {
