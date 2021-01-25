@@ -20,33 +20,17 @@ import junit.framework.TestCase;
 public class CommentActionTest extends TestCase {
 
     public void testLineCommentUncomment() throws Exception {
-        Document doc = new Document("a = 10;");
-
-        TextSelectionUtils ts = new TextSelectionUtils(doc, 0);
-
-        LineCommentAction comment = new LineCommentAction(ts, "##", 1);
-
-        LineUncommentAction uncomment = new LineUncommentAction(ts, "##", 1);
-
-        assertEquals("## a = 10", comment.commentLines("a = 10").toString());
-        assertEquals("a = 10", uncomment.uncommentLines("## a = 10").toString());
-        assertEquals("a = 10", uncomment.uncommentLines("##a = 10").toString());
-        assertEquals(" a = 10", uncomment.uncommentLines("##  a = 10").toString());
+        String uncommentedContent = "a = 10";
+        testContent(uncommentedContent, "##a = 10", 0, 0, 0);
+        testContent(uncommentedContent, "##a = 10", 0, 0, 1);
+        testContent(uncommentedContent, "## a = 10", 0, 1, 1);
+        testContent(uncommentedContent, "## a = 10", 0, 1, 0, " a = 10");
     }
 
     public void testLineCommentUncommentSpaced() throws Exception {
-        Document doc = new Document("a = 10;");
-
-        TextSelectionUtils ts = new TextSelectionUtils(doc, 0);
-
-        LineCommentAction comment = new LineCommentAction(ts, "##", 1);
-
-        LineUncommentAction uncomment = new LineUncommentAction(ts, "##", 1);
-
-        assertEquals("    ## a = 10", comment.commentLines("    a = 10").toString());
-        assertEquals("    a = 10", uncomment.uncommentLines("    ## a = 10").toString());
-        assertEquals("   a = 10", uncomment.uncommentLines("   ##a = 10").toString());
-        assertEquals(" a = 10", uncomment.uncommentLines(" ## a = 10").toString());
+        String uncommentedContent = "   a = 10";
+        String commentedContet = "   ## a = 10";
+        testContent(uncommentedContent, commentedContet);
     }
 
     public void testMultiLineCommentSpaced1() throws Exception {
@@ -58,7 +42,7 @@ public class CommentActionTest extends TestCase {
                 + "## def method():\n" +
                 "    ## if True:\n" +
                 "        ## a = 10";
-        testContent(uncommentedContent, commentedContent, 0);
+        testContent(uncommentedContent, commentedContent);
     }
 
     public void testMultiLineCommentSpaced2() throws Exception {
@@ -73,14 +57,30 @@ public class CommentActionTest extends TestCase {
         testContent(uncommentedContent, commentedContent, 1);
     }
 
+    private void testContent(String uncommentedContent, String commentedContent) throws BadLocationException {
+        testContent(uncommentedContent, commentedContent, 0);
+    }
+
     private void testContent(String uncommentedContent, String commentedContent, int startLine)
             throws BadLocationException {
+        testContent(uncommentedContent, commentedContent, startLine, 1, 1);
+    }
+
+    private void testContent(String uncommentedContent, String commentedContent, int startLine,
+            int commentSpacesInStart, int uncommentSpacesInStart) throws BadLocationException {
+        testContent(uncommentedContent, commentedContent, startLine, commentSpacesInStart, uncommentSpacesInStart,
+                uncommentedContent);
+    }
+
+    private void testContent(String uncommentedContent, String commentedContent, int startLine,
+            int commentSpacesInStart, int uncommentSpacesInStart, String expectedUncomment)
+            throws BadLocationException {
         TextSelectionUtils ts = createTextSelectionUtils(uncommentedContent, startLine);
-        new LineCommentAction(ts, "##", 1).execute();
+        new LineCommentAction(ts, "##", commentSpacesInStart).execute();
         assertEquals(commentedContent, ts.getDoc().get());
         ts = createTextSelectionUtils(commentedContent, startLine);
-        new LineUncommentAction(ts, "##", 1).execute();
-        assertEquals(uncommentedContent, ts.getDoc().get());
+        new LineUncommentAction(ts, "##", uncommentSpacesInStart).execute();
+        assertEquals(expectedUncomment, ts.getDoc().get());
     }
 
     private TextSelectionUtils createTextSelectionUtils(String content, int startLine) {
