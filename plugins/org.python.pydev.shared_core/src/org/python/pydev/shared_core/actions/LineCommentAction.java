@@ -37,15 +37,16 @@ public class LineCommentAction {
 
         FastStringBuffer strbuf = new FastStringBuffer(selectedText.length() + ret.size()
                 + ((spacesInStart + 2) * ret.size()));
+        FastStringBuffer lineBuf = new FastStringBuffer();
         String spacesInStartComment = null;
         if (spacesInStart > 0) {
             spacesInStartComment = StringUtils.createSpaceString(spacesInStart);
         }
 
         for (String line : ret) {
-            FastStringBuffer lineBuf = new FastStringBuffer(line.length());
+            lineBuf.clear();
             lineBuf.append(line);
-            int spacesBefore = lineBuf.rightTrim().length() - lineBuf.leftTrim().length();
+            int spacesBefore = line.length() - lineBuf.leftTrim().length();
             strbuf.append(StringUtils.createSpaceString(spacesBefore));
             strbuf.append(commentPattern);
             if (spacesInStartComment != null) {
