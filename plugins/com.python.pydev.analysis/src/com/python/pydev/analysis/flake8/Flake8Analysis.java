@@ -199,7 +199,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                         document = fDocument;
                         // Must match the current file
                         fileNameBuf.clear();
-                        fileNameBuf.append(outputLine.substring(m.start(1), m.end(1))).trim();
+                        fileNameBuf.append(outputLine.substring(m.start(1), m.end(1))).trim().replaceAll('\\', '/');
                         String fileName = fileNameBuf.toString().toLowerCase(); // Make all comparisons lower-case.
                         if (loc == null && res == null) {
                             // Proceed
@@ -244,7 +244,6 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                                 document);
                     }
                 }
-
             } catch (Exception e) {
                 Log.log(e);
             }
