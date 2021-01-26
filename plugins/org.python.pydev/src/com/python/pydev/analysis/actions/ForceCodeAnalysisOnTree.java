@@ -36,6 +36,7 @@ import com.python.pydev.analysis.additionalinfo.builders.AnalysisBuilderRunnable
 import com.python.pydev.analysis.additionalinfo.builders.AnalysisBuilderVisitor;
 import com.python.pydev.analysis.additionalinfo.builders.AnalysisRunner;
 import com.python.pydev.analysis.external.IExternalCodeAnalysisVisitor;
+import com.python.pydev.analysis.flake8.Flake8VisitorFactory;
 import com.python.pydev.analysis.mypy.MypyVisitorFactory;
 import com.python.pydev.analysis.pylint.PyLintVisitorFactory;
 
@@ -95,8 +96,10 @@ public class ForceCodeAnalysisOnTree extends PyResourceAction implements IObject
             }
             IExternalCodeAnalysisVisitor pyLintVisitor = PyLintVisitorFactory.create(next, null, null, monitor);
             IExternalCodeAnalysisVisitor mypyVisitor = MypyVisitorFactory.create(next, null, null, monitor);
+            IExternalCodeAnalysisVisitor flake8Visitor = Flake8VisitorFactory.create(next, null, null, monitor);
             externalVisitors.add(pyLintVisitor);
             externalVisitors.add(mypyVisitor);
+            externalVisitors.add(flake8Visitor);
         } else if (next instanceof IFile) {
             if (PythonPathHelper.isValidSourceFile((IFile) next)) {
                 filesToVisit.add((IFile) next);
