@@ -43,6 +43,9 @@ import com.python.pydev.analysis.OccurrencesAnalyzer;
 import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 import com.python.pydev.analysis.external.IExternalCodeAnalysisVisitor;
+import com.python.pydev.analysis.flake8.Flake8Visitor;
+import com.python.pydev.analysis.flake8.Flake8VisitorFactory;
+import com.python.pydev.analysis.flake8.OnlyRemoveMarkersFlake8Visitor;
 import com.python.pydev.analysis.mypy.MypyVisitor;
 import com.python.pydev.analysis.mypy.MypyVisitorFactory;
 import com.python.pydev.analysis.mypy.OnlyRemoveMarkersMypyVisitor;
@@ -71,6 +74,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
     private int moduleRequest;
     private IExternalCodeAnalysisVisitor pyLintVisitor;
     private IExternalCodeAnalysisVisitor mypyVisitor;
+    private IExternalCodeAnalysisVisitor flake8Visitor;
 
     private boolean onlyRecreateCtxInsensitiveInfo;
 
@@ -137,15 +141,19 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
                     this.pyLintVisitor = visitor;
                 } else if (visitor instanceof OnlyRemoveMarkersMypyVisitor || visitor instanceof MypyVisitor) {
                     this.mypyVisitor = visitor;
+                } else if (visitor instanceof OnlyRemoveMarkersFlake8Visitor || visitor instanceof Flake8Visitor) {
+                    this.flake8Visitor = visitor;
                 }
             }
-            if (pyLintVisitor == null || mypyVisitor == null) {
+            if (pyLintVisitor == null || mypyVisitor == null || flake8Visitor == null) {
                 throw new AssertionError("All visitor types must be passed.");
             }
         } else {
             this.pyLintVisitor = PyLintVisitorFactory.create(resource, document, module, internalCancelMonitor);
             this.mypyVisitor = MypyVisitorFactory.create(resource, document, module, internalCancelMonitor);
-            this.allVisitors = new IExternalCodeAnalysisVisitor[] { this.pyLintVisitor, this.mypyVisitor };
+            this.flake8Visitor = Flake8VisitorFactory.create(resource, document, module, internalCancelMonitor);
+            this.allVisitors = new IExternalCodeAnalysisVisitor[] { this.pyLintVisitor, this.mypyVisitor,
+                    this.flake8Visitor };
         }
 
         // Important: we can only update the index if it was a builder... if it was the parser,

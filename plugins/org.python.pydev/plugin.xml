@@ -467,6 +467,11 @@
             name="Mypy"
             id="org.python.pydev.prefs.mypy"/>
       <page
+            class="org.python.pydev.builder.flake8.Flake8PrefPage"
+            category="org.python.pydev.prefs.extensions.analysis"
+            name="Flake8"
+            id="org.python.pydev.prefs.flake8"/>
+      <page
             class="org.python.pydev.builder.todo.PyTodoPrefPage"
             category="org.python.pydev.prefs"
             name="Task Tags"
@@ -1210,6 +1215,14 @@
         point="org.eclipse.core.resources.markers"
         name="Mypy Problem"
         id="mypyproblemmarker">
+       <super type="org.eclipse.core.resources.problemmarker"/>
+       <persistent value="true"/>
+    </extension>
+    <!-- Communicate flake8 problems as markers -->
+    <extension
+        point="org.eclipse.core.resources.markers"
+        name="Flake8 Problem"
+        id="flake8problemmarker">
        <super type="org.eclipse.core.resources.problemmarker"/>
        <persistent value="true"/>
     </extension>
