@@ -467,6 +467,11 @@
             name="Mypy"
             id="org.python.pydev.prefs.mypy"/>
       <page
+            class="org.python.pydev.builder.flake8.Flake8PrefPage"
+            category="org.python.pydev.prefs.extensions.analysis"
+            name="Flake8"
+            id="org.python.pydev.prefs.flake8"/>
+      <page
             class="org.python.pydev.builder.todo.PyTodoPrefPage"
             category="org.python.pydev.prefs"
             name="Task Tags"
