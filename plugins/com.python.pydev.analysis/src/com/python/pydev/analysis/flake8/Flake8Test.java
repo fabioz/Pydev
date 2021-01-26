@@ -5,9 +5,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.PythonNatureWithoutProjectException;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.markers.PyMarkerUtils.MarkerInfo;
 import org.python.pydev.shared_core.resource_stubs.FileStub;
@@ -25,38 +29,36 @@ public class Flake8Test extends TestCase {
         super.setUp();
         tempDir = FileUtils.getTempFileAt(new File("."), "data_flake8_analysis");
         tempDir.mkdirs();
-        ProjectStub project = new ProjectStub(tempDir, null);
-        file = new FileStub(project, new File(tempDir, "snippet.py"));
+        ProjectStub project = new ProjectStub(tempDir, new PythonNature());
+        file = new FileStub(project, File.createTempFile("snippet", ".py"));
     }
 
-    public void testMarkersMessage1() {
+    public void testMarkersMessage1()
+            throws CoreException, MisconfigurationException, PythonNatureWithoutProjectException {
         IDocument document = new Document("x = 10");
-        Flake8Analysis flake8Analysis = new Flake8Analysis(file, document, null, new NullProgressMonitor(),
+        Flake8Analysis flake8Analysis = new Flake8Analysis(file, document, file.getLocation(),
+                new NullProgressMonitor(), null);
+        flake8Analysis.afterRunProcess(file.getFullPath().toOSString() + ":1:7: W292 no newline at end of file", "",
                 null);
-        String output = ".\\snippet.py:1:7: W292 no newline at end of file";
-        flake8Analysis.afterRunProcess(output, "", null);
-
         List<MarkerInfo> markers = flake8Analysis.getMarkers(file);
         for (MarkerInfo marker : markers) {
             assertEquals(marker.lineStart, marker.lineEnd);
         }
-
         assertEquals(1, markers.size());
         assertMarkerEquals(0, 0, 6, "W292", "no newline at end of file", markers);
     }
 
-    public void testMarkersMessage2() {
+    public void testMarkersMessage2()
+            throws CoreException, MisconfigurationException, PythonNatureWithoutProjectException {
         IDocument document = new Document("x = 10");
-        Flake8Analysis flake8Analysis = new Flake8Analysis(file, document, null, new NullProgressMonitor(),
+        Flake8Analysis flake8Analysis = new Flake8Analysis(file, document, file.getLocation(),
+                new NullProgressMonitor(), null);
+        flake8Analysis.afterRunProcess(file.getFullPath() + ":1:7: W292 no newline at end of file", "",
                 null);
-        String output = "./snippet.py:1:7: W292 no newline at end of file";
-        flake8Analysis.afterRunProcess(output, "", null);
-
         List<MarkerInfo> markers = flake8Analysis.getMarkers(file);
         for (MarkerInfo marker : markers) {
             assertEquals(marker.lineStart, marker.lineEnd);
         }
-
         assertEquals(1, markers.size());
         assertMarkerEquals(0, 0, 6, "W292", "no newline at end of file", markers);
     }
