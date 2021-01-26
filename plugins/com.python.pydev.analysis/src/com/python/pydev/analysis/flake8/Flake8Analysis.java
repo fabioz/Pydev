@@ -45,7 +45,6 @@ import com.python.pydev.analysis.external.ExternalAnalizerProcessWatchDoc;
 import com.python.pydev.analysis.external.IExternalAnalyzer;
 import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
 import com.python.pydev.analysis.external.WriteToStreamHelper;
-import com.python.pydev.analysis.pylint.PyLintPreferences;
 
 /**
  * Helper class which will start a process to collect Flake8 information and process it.
@@ -165,10 +164,10 @@ import com.python.pydev.analysis.pylint.PyLintPreferences;
 
         Map<IResource, IDocument> resourceToDocCache = new HashMap<>();
 
-        int cSeverity = PyLintPreferences.cSeverity();
-        int eSeverity = PyLintPreferences.eSeverity();
-        int fSeverity = PyLintPreferences.fSeverity();
-        int wSeverity = PyLintPreferences.wSeverity();
+        int eSeverity = Flake8Preferences.eSeverity();
+        int fSeverity = Flake8Preferences.fSeverity();
+        int wSeverity = Flake8Preferences.wSeverity();
+        int cSeverity = Flake8Preferences.cSeverity();
 
         for (String outputLine : StringUtils.iterLines(output)) {
             if (monitor.isCanceled()) {
