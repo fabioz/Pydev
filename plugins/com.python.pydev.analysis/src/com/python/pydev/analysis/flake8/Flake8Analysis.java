@@ -253,7 +253,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
 
     private static Pattern FLAKE8_MATCH_PATTERN = Pattern
             .compile("\\A" // start of input
-                    + "\\.(?:\\\\|\\/)\\s*(.*)" // filename (1)
+                    + "\\s*(.*)" // filename (1)
                     + "\\s*\\:\\s*(\\d+)" // line (2)
                     + "\\s*\\:\\s*(\\d+)" // col (3)
                     + "\\s*\\:\\s*(\\w+\\d+\\s(?:\\(.*\\))?)" // error code (4)
