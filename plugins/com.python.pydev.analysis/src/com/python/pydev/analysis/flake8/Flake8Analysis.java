@@ -31,7 +31,6 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.markers.PyMarkerUtils;
@@ -99,13 +98,10 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
         WriteToStreamHelper.write("Flake8: Executing command line:", out, (Object) args);
 
         IPythonNature nature = PythonNature.getPythonNature(project);
-        ICallback<String[], String[]> updateEnv = null;
-
-        final ICallback<String[], String[]> finalUpdateEnv = updateEnv;
         ICallback0<Process> launchProcessCallback = () -> {
             SimpleRunner simpleRunner = new SimpleRunner();
             final Tuple<Process, String> r = simpleRunner.run(args, workingDir, nature,
-                    null, finalUpdateEnv);
+                    null, null);
             Process process = r.o1;
             return process;
         };
@@ -264,7 +260,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                     + "\\Z" // end of input
             );
 
-    private void addToMarkers(String tok, int priority, String id, int line, int column, String lineContents,
+    private void addToMarkers(String message, int priority, String id, int line, int column, String lineContents,
             IFile moduleFile, IDocument document) {
         Map<String, Object> additionalInfo = new HashMap<>();
         additionalInfo.put(Flake8Visitor.FLAKE8_MESSAGE_ID, id);
@@ -273,7 +269,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
             list = new ArrayList<>();
             fileToMarkers.put(moduleFile, list);
         }
-        list.add(new PyMarkerUtils.MarkerInfo(document, "Flake8: " + tok,
+        list.add(new PyMarkerUtils.MarkerInfo(document, "Flake8: " + message,
                 Flake8Visitor.FLAKE8_PROBLEM_MARKER, priority, false, false, line, column, line, lineContents.length(),
                 additionalInfo));
     }
