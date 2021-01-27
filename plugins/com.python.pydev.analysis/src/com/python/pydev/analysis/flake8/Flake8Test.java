@@ -30,7 +30,7 @@ public class Flake8Test extends TestCase {
         tempDir = FileUtils.getTempFileAt(new File("."), "data_flake8_analysis");
         tempDir.mkdirs();
         ProjectStub project = new ProjectStub(tempDir, new PythonNature());
-        file = new FileStub(project, File.createTempFile("snippet", ".py"));
+        file = new FileStub(project, new File("snippet.py"));
     }
 
     public void testMarkersMessage1()
