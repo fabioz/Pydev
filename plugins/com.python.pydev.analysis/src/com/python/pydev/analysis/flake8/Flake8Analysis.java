@@ -200,6 +200,10 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                         // Must match the current file
                         fileNameBuf.clear();
                         fileNameBuf.append(outputLine.substring(m.start(1), m.end(1))).trim().replaceAll('\\', '/');
+                        if (fileNameBuf.startsWith("./")) {
+                            // Just in case the flake8 executable is in the same folder that is being analyzed
+                            fileNameBuf.deleteFirstChars(2);
+                        }
                         String fileName = fileNameBuf.toString().toLowerCase(); // Make all comparisons lower-case.
                         if (loc == null && res == null) {
                             // Proceed
