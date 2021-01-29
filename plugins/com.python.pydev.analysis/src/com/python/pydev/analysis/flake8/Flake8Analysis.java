@@ -275,8 +275,13 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
             list = new ArrayList<>();
             fileToMarkers.put(moduleFile, list);
         }
+        int colStart = column;
+        int colEnd = lineContents.length();
+        if (colStart == colEnd) {
+            colStart = 0;
+        }
         list.add(new PyMarkerUtils.MarkerInfo(document, "Flake8: " + message,
-                Flake8Visitor.FLAKE8_PROBLEM_MARKER, priority, false, false, line, column, line, lineContents.length(),
+                Flake8Visitor.FLAKE8_PROBLEM_MARKER, priority, false, false, line, colStart, line, colEnd,
                 additionalInfo));
     }
 
