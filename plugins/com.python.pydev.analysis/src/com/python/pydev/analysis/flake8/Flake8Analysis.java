@@ -176,9 +176,10 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                 if (m.matches()) {
                     IDocument document;
                     if (resourceIsContainer) {
-                        String relativeFilename = outputLine.substring(m.start(1), m.end(1));
+                        IPath filePath = new Path(outputLine.substring(m.start(1), m.end(1)));
+                        filePath = filePath.makeRelativeTo(project.getLocation());
                         try {
-                            moduleFile = project.getFile(new Path(relativeFilename));
+                            moduleFile = project.getFile(filePath);
                         } catch (Exception e) {
                             Log.log(e);
                             continue;
