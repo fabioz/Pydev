@@ -140,6 +140,7 @@ public class UIConstants {
     public static final String FORCE_TABS_ACTIVE = "icons/tabs_active.png";
     public static final String FORCE_TABS_INACTIVE = "icons/tabs_inactive.png";
     public static final String PY_LINT_ICON = "icons/pylint.png";
+    public static final String FLAKE8_ICON = "icons/flake8.png";
     public static final String WARNING = "icons/warning.png";
     public static final String ERROR_DECORATION = "icons/error_decoration.gif";
     public static final String WARNING_DECORATION = "icons/warning_decoration.gif";
