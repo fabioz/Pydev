@@ -17,7 +17,6 @@ import org.python.pydev.core.preferences.PyScopedPreferences;
 import org.python.pydev.core.preferences.PydevPrefs;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
-import org.python.pydev.shared_core.callbacks.ICallback0;
 
 import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
 
@@ -107,13 +106,4 @@ public class Flake8Preferences {
     public static int wSeverity() {
         return PydevPrefs.getEclipsePreferences().getInt(SEVERITY_WARNING, DEFAULT_SEVERITY_WARNING);
     }
-
-    public static ICallback0<IExternalCodeAnalysisStream> createPyLintStream = (() -> {
-        return null;
-    });
-
-    public static IExternalCodeAnalysisStream getConsoleOutputStream() throws MalformedURLException {
-        return createPyLintStream.call();
-    }
-
 }
