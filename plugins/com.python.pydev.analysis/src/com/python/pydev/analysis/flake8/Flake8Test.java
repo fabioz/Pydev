@@ -45,7 +45,7 @@ public class Flake8Test extends TestCase {
             assertEquals(marker.lineStart, marker.lineEnd);
         }
         assertEquals(1, markers.size());
-        assertMarkerEquals(0, 0, 6, "W292", "no newline at end of file", markers);
+        assertMarkerEquals(0, 0, 0, "W292", "no newline at end of file", markers);
     }
 
     public void testMarkersMessage2()
@@ -60,7 +60,7 @@ public class Flake8Test extends TestCase {
             assertEquals(marker.lineStart, marker.lineEnd);
         }
         assertEquals(1, markers.size());
-        assertMarkerEquals(0, 0, 6, "W292", "no newline at end of file", markers);
+        assertMarkerEquals(0, 0, 0, "W292", "no newline at end of file", markers);
     }
 
     public void testMarkersMessage3() {
