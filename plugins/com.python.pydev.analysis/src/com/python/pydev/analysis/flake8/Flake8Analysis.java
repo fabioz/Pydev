@@ -26,6 +26,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.ast.runners.SimpleRunner;
+import org.python.pydev.core.CheckAnalysisErrors;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
@@ -171,8 +172,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
             }
             try {
                 outputLine = outputLine.trim();
-                Matcher m = null;
-                m = FLAKE8_MATCH_PATTERN.matcher(outputLine);
+                Matcher m = FLAKE8_MATCH_PATTERN.matcher(outputLine);
                 if (m.matches()) {
                     IDocument document;
                     if (resourceIsContainer) {
@@ -240,6 +240,11 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                             region = document.getLineInformation(line);
                         }
                         String lineContents = document.get(region.getOffset(), region.getLength());
+
+                        if (CheckAnalysisErrors.isCodeAnalysisErrorHandled(lineContents, null)) {
+                            continue;
+                        }
+
                         addToMarkers(message, priority, severityFound, line - 1, column, lineContents, moduleFile,
                                 document);
                     }
