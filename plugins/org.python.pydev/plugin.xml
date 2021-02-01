@@ -1218,6 +1218,14 @@
        <super type="org.eclipse.core.resources.problemmarker"/>
        <persistent value="true"/>
     </extension>
+    <!-- Communicate flake8 problems as markers -->
+    <extension
+        point="org.eclipse.core.resources.markers"
+        name="Flake8 Problem"
+        id="flake8problemmarker">
+       <super type="org.eclipse.core.resources.problemmarker"/>
+       <persistent value="true"/>
+    </extension>
 <!-- Communicate 'invalid' file issues-->
     <extension
         point="org.eclipse.core.resources.markers"
