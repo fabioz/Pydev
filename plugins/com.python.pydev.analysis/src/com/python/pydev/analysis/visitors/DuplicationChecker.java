@@ -78,7 +78,7 @@ public final class DuplicationChecker {
                 for (decoratorsType dec : functionDef.decs) {
                     if (dec.func != null) {
                         String fullRepresentationString = NodeUtils.getFullRepresentationString(dec.func);
-                        if (fullRepresentationString.startsWith("typing.overload")) {
+                        if (fullRepresentationString.startsWith("typing.overload") || fullRepresentationString.startsWith("overload")) {
                             return true;
                         }
                     }
