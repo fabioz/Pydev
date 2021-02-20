@@ -83,9 +83,12 @@ cd org.python.pydev.p2-repo-8.1.0-SNAPSHOT
 
 "C:\Program Files\7-Zip\7z" x ..\org.python.pydev.p2-repo-8.1.0-SNAPSHOT.zip
 
-Create "8.1.0" version in "https://bintray.com/fabioz/pydev/pydev/new/version"
-Add "8.1.0" in X:\release_tools\pydev_uploader_bintray.py
-C:\bin\Miniconda3\envs\py37_tests\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-8.1.0-SNAPSHOT -d https://api.bintray.com/content/fabioz/pydev/8.1.0/
+cdd X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-8.1.0-SNAPSHOT
+C:\Users\fabio\AppData\Roaming\npm\surge.cmd --domain pydev-8-1-0.surge.sh
+"C:\Program Files\FileZilla FTP Client\filezilla.exe" sftp://fabioz,pydev@frs.sourceforge.net/home/project-web/pydev/htdocs/pydev_update_site --local="X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-8.1.0-SNAPSHOT"
+
+# TODO: At release upload to GitHub actions (changing the content.xml to match what's expected in this case).
+robocopy X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-8.1.0-SNAPSHOT X:\pydev.page\homepage\final\update_site_binaries\8.1.0 /xd .git /xd .openshift  /s
 
 		** Update homepage:
 
