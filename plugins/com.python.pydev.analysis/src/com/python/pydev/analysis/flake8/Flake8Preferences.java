@@ -29,17 +29,17 @@ public class Flake8Preferences {
 
     public static final int SEVERITY_IGNORE = -1;
 
-    public static final String SEVERITY_ERROR = "SEVERITY_ERROR";
-    public static final int DEFAULT_SEVERITY_ERROR = IMarker.SEVERITY_ERROR;
+    public static final String FLAKE8_E_SEVERITY = "PYFLAKES_E_SEVERITY";
+    public static final int DEFAULT_FLAKE8_E_SEVERITY = IMarker.SEVERITY_ERROR;
 
-    public static final String SEVERITY_PYFLAKES = "SEVERITY_PYFLAKES";
-    public static final int DEFAULT_SEVERITY_PYFLAKES = SEVERITY_IGNORE;
+    public static final String FLAKE8_F_SEVERITY = "PYFLAKES_F_SEVERITY";
+    public static final int DEFAULT_FLAKE8_F_SEVERITY = IMarker.SEVERITY_ERROR;
 
-    public static final String SEVERITY_WARNING = "SEVERITY_WARNING";
-    public static final int DEFAULT_SEVERITY_WARNING = IMarker.SEVERITY_WARNING;
+    public static final String FLAKE8_W_SEVERITY = "PYFLAKES_W_SEVERITY";
+    public static final int DEFAULT_FLAKE8_W_SEVERITY = IMarker.SEVERITY_WARNING;
 
-    public static final String SEVERITY_COMPLEXITY = "SEVERITY_COMPLEXITY";
-    public static final int DEFAULT_SEVERITY_COMPLEXITY = SEVERITY_IGNORE;
+    public static final String FLAKE8_C_SEVERITY = "PYFLAKES_C_SEVERITY";
+    public static final int DEFAULT_FLAKE8_C_SEVERITY = IMarker.SEVERITY_INFO;
 
     public static final String FLAKE8_USE_CONSOLE = "FLAKE8_USE_CONSOLE";
     public static final boolean DEFAULT_FLAKE8_USE_CONSOLE = false;
@@ -92,18 +92,18 @@ public class Flake8Preferences {
     }
 
     public static int eSeverity() {
-        return PydevPrefs.getEclipsePreferences().getInt(SEVERITY_ERROR, DEFAULT_SEVERITY_ERROR);
+        return PydevPrefs.getEclipsePreferences().getInt(FLAKE8_E_SEVERITY, DEFAULT_FLAKE8_E_SEVERITY);
     }
 
     public static int fSeverity() {
-        return PydevPrefs.getEclipsePreferences().getInt(SEVERITY_PYFLAKES, DEFAULT_SEVERITY_PYFLAKES);
+        return PydevPrefs.getEclipsePreferences().getInt(FLAKE8_F_SEVERITY, DEFAULT_FLAKE8_F_SEVERITY);
     }
 
     public static int cSeverity() {
-        return PydevPrefs.getEclipsePreferences().getInt(SEVERITY_COMPLEXITY, DEFAULT_SEVERITY_COMPLEXITY);
+        return PydevPrefs.getEclipsePreferences().getInt(FLAKE8_C_SEVERITY, DEFAULT_FLAKE8_C_SEVERITY);
     }
 
     public static int wSeverity() {
-        return PydevPrefs.getEclipsePreferences().getInt(SEVERITY_WARNING, DEFAULT_SEVERITY_WARNING);
+        return PydevPrefs.getEclipsePreferences().getInt(FLAKE8_W_SEVERITY, DEFAULT_FLAKE8_W_SEVERITY);
     }
 }

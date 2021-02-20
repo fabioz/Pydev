@@ -84,17 +84,17 @@ public class Flake8PrefPage extends FieldEditorPreferencePage implements IWorkbe
                 true, parent);
         addField(fileField);
 
-        addField(new RadioGroupFieldEditor(Flake8Preferences.SEVERITY_ERROR, "ERROR Severity", COLS, LABEL_AND_VALUE,
+        addField(new RadioGroupFieldEditor(Flake8Preferences.FLAKE8_E_SEVERITY, "E Severity", COLS, LABEL_AND_VALUE,
                 parent, true));
 
-        addField(new RadioGroupFieldEditor(Flake8Preferences.SEVERITY_PYFLAKES, "PYFLAKES Severity", COLS,
+        addField(new RadioGroupFieldEditor(Flake8Preferences.FLAKE8_F_SEVERITY, "F Severity", COLS,
                 LABEL_AND_VALUE,
                 parent, true));
 
-        addField(new RadioGroupFieldEditor(Flake8Preferences.SEVERITY_WARNING, "WARNINGS Severity", COLS,
+        addField(new RadioGroupFieldEditor(Flake8Preferences.FLAKE8_W_SEVERITY, "W Severity", COLS,
                 LABEL_AND_VALUE, parent, true));
 
-        addField(new RadioGroupFieldEditor(Flake8Preferences.SEVERITY_COMPLEXITY, "COMPLEXITY Severity", COLS,
+        addField(new RadioGroupFieldEditor(Flake8Preferences.FLAKE8_C_SEVERITY, "C Severity", COLS,
                 LABEL_AND_VALUE, parent, true));
 
         CustomizableFieldEditor stringFieldEditor = new CustomizableFieldEditor(Flake8Preferences.FLAKE8_ARGS,
