@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.ast.builder.PyDevBuilderVisitor;
@@ -114,11 +115,14 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor {
                                 "PyDevBuilderPrefPage.getAnalyzeOnlyActiveEditor()");
                     }
                     IFile f = (IFile) resource;
-                    String file = f.getRawLocation().toOSString();
-                    File f2 = new File(file);
-                    return new SourceModule(moduleName, f2, FastDefinitionsParser.parse(doc.get(),
-                            moduleName, f2), null, nature);
-
+                    IPath location = f.getLocation();
+                    if (location != null) {
+                        String file = location.toOSString();
+                        File f2 = new File(file);
+                        return new SourceModule(moduleName, f2, FastDefinitionsParser.parse(doc.get(),
+                                moduleName, f2), null, nature);
+                    }
+                    return null;
                 } else {
                     throw new RuntimeException("Unexpected parameter: " + arg);
                 }

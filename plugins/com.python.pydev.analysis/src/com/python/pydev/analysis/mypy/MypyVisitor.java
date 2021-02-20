@@ -34,6 +34,7 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
 
     private IDocument document;
     private IProgressMonitor monitor;
+    private final Object lock = new Object();
 
     /*default*/ MypyVisitor(IResource resource, IDocument document, ICallback<IModule, Integer> module,
             IProgressMonitor monitor) {
@@ -83,39 +84,41 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
             deleteMarkers();
             return;
         }
-        if (mypyRunnable != null) {
-            // If the mypyRunnable is already created, don't recreate it
-            // (we should be analyzing multiple resources in a single call).
-            return;
-        }
+        synchronized (lock) {
+            if (mypyRunnable != null) {
+                // If the mypyRunnable is already created, don't recreate it
+                // (we should be analyzing multiple resources in a single call).
+                return;
+            }
 
-        if (project != null) {
-            if (resource instanceof IFile) {
-                IFile file = (IFile) resource;
-                IPath location = file.getRawLocation();
-                if (location != null) {
-                    mypyRunnable = new MypyAnalysis(resource, document, location,
-                            new NullProgressMonitorWrapper(monitor), mypyLocation);
+            if (project != null) {
+                if (resource instanceof IFile) {
+                    IFile file = (IFile) resource;
+                    IPath location = file.getLocation();
+                    if (location != null) {
+                        mypyRunnable = new MypyAnalysis(resource, document, location,
+                                new NullProgressMonitorWrapper(monitor), mypyLocation);
 
-                    try {
-                        IExternalCodeAnalysisStream out = MypyPreferences.getConsoleOutputStream(project);
-                        mypyRunnable.createMypyProcess(out);
-                    } catch (final Exception e) {
-                        Log.log(e);
+                        try {
+                            IExternalCodeAnalysisStream out = MypyPreferences.getConsoleOutputStream(project);
+                            mypyRunnable.createMypyProcess(out);
+                        } catch (final Exception e) {
+                            Log.log(e);
+                        }
                     }
-                }
-            } else if (resource instanceof IContainer) {
-                IContainer dir = (IContainer) resource;
-                IPath location = dir.getRawLocation();
-                if (location != null) {
-                    mypyRunnable = new MypyAnalysis(resource, null, location,
-                            new NullProgressMonitorWrapper(monitor), mypyLocation);
+                } else if (resource instanceof IContainer) {
+                    IContainer dir = (IContainer) resource;
+                    IPath location = dir.getLocation();
+                    if (location != null) {
+                        mypyRunnable = new MypyAnalysis(resource, null, location,
+                                new NullProgressMonitorWrapper(monitor), mypyLocation);
 
-                    try {
-                        IExternalCodeAnalysisStream out = MypyPreferences.getConsoleOutputStream(project);
-                        mypyRunnable.createMypyProcess(out);
-                    } catch (final Exception e) {
-                        Log.log(e);
+                        try {
+                            IExternalCodeAnalysisStream out = MypyPreferences.getConsoleOutputStream(project);
+                            mypyRunnable.createMypyProcess(out);
+                        } catch (final Exception e) {
+                            Log.log(e);
+                        }
                     }
                 }
             }

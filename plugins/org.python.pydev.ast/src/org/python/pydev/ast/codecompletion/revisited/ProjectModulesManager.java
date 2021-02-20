@@ -302,7 +302,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
 
     @Override
     public String resolveModuleInDirectManager(IFile member) {
-        File inOs = member.getRawLocation().toFile();
+        File inOs = member.getLocation().toFile();
         return resolveModuleInDirectManager(FileUtils.getFileAbsolutePath(inOs));
     }
 

@@ -36,7 +36,7 @@ public class ProjectImportedHasAstManagerTestWorkbench extends AbstractWorkbench
         NullProgressMonitor monitor = new NullProgressMonitor();
 
         IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-        IPath workspaceLoc = root.getRawLocation();
+        IPath workspaceLoc = root.getLocation();
         IProject project = root.getProject("pydev_nature_pre_configured");
         if (project.exists()) {
             project.delete(true, monitor);

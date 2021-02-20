@@ -12,6 +12,7 @@
  */
 package org.python.pydev.editor.actions;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -19,6 +20,7 @@ import java.util.Set;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.DocumentRewriteSession;
@@ -177,8 +179,17 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
             switch (importEngine) {
                 case ImportsPreferencesPage.IMPORT_ENGINE_ISORT:
                     if (fileContents.length() > 0) {
+                        File targetFile = edit != null ? edit.getEditorFile() : null;
+                        if (targetFile == null) {
+                            if (f != null) {
+                                IPath location = f.getLocation();
+                                if (location != null) {
+                                    targetFile = location.toFile();
+                                }
+                            }
+                        }
                         String isortResult = JythonModules.makeISort(fileContents,
-                                edit != null ? edit.getEditorFile() : (f != null ? f.getRawLocation().toFile() : null),
+                                targetFile,
                                 knownThirdParty);
                         if (isortResult != null) {
                             try {

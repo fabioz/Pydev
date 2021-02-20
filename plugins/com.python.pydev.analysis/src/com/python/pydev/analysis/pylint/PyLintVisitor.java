@@ -40,6 +40,7 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
 
     private final IDocument document;
     private final IProgressMonitor monitor;
+    private final Object lock = new Object();
 
     /*default*/ PyLintVisitor(IResource resource, IDocument document, ICallback<IModule, Integer> module,
             IProgressMonitor monitor) {
@@ -84,38 +85,41 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
             deleteMarkers();
             return;
         }
-        if (pyLintRunnable != null) {
-            // If the pyLintRunnable is already created, don't recreate it
-            // (we should be analyzing multiple resources in a single call).
-            return;
-        }
-        if (project != null) {
-            if (resource instanceof IFile) {
-                IFile file = (IFile) resource;
-                IPath location = file.getRawLocation();
-                if (location != null) {
-                    pyLintRunnable = new PyLintAnalysis(resource, document, location,
-                            new NullProgressMonitorWrapper(monitor), pyLintLocation);
+        synchronized (lock) {
 
-                    try {
-                        IExternalCodeAnalysisStream out = PyLintPreferences.getConsoleOutputStream();
-                        pyLintRunnable.createPyLintProcess(out);
-                    } catch (final Exception e) {
-                        Log.log(e);
+            if (pyLintRunnable != null) {
+                // If the pyLintRunnable is already created, don't recreate it
+                // (we should be analyzing multiple resources in a single call).
+                return;
+            }
+            if (project != null) {
+                if (resource instanceof IFile) {
+                    IFile file = (IFile) resource;
+                    IPath location = file.getLocation();
+                    if (location != null) {
+                        pyLintRunnable = new PyLintAnalysis(resource, document, location,
+                                new NullProgressMonitorWrapper(monitor), pyLintLocation);
+
+                        try {
+                            IExternalCodeAnalysisStream out = PyLintPreferences.getConsoleOutputStream();
+                            pyLintRunnable.createPyLintProcess(out);
+                        } catch (final Exception e) {
+                            Log.log(e);
+                        }
                     }
-                }
-            } else if (resource instanceof IContainer) {
-                IContainer dir = (IContainer) resource;
-                IPath location = dir.getRawLocation();
-                if (location != null) {
-                    pyLintRunnable = new PyLintAnalysis(resource, null, location,
-                            new NullProgressMonitorWrapper(monitor), pyLintLocation);
+                } else if (resource instanceof IContainer) {
+                    IContainer dir = (IContainer) resource;
+                    IPath location = dir.getLocation();
+                    if (location != null) {
+                        pyLintRunnable = new PyLintAnalysis(resource, null, location,
+                                new NullProgressMonitorWrapper(monitor), pyLintLocation);
 
-                    try {
-                        IExternalCodeAnalysisStream out = PyLintPreferences.getConsoleOutputStream();
-                        pyLintRunnable.createPyLintProcess(out);
-                    } catch (final Exception e) {
-                        Log.log(e);
+                        try {
+                            IExternalCodeAnalysisStream out = PyLintPreferences.getConsoleOutputStream();
+                            pyLintRunnable.createPyLintProcess(out);
+                        } catch (final Exception e) {
+                            Log.log(e);
+                        }
                     }
                 }
             }

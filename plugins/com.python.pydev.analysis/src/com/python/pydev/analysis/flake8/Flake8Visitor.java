@@ -31,6 +31,7 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
 
     private IDocument document;
     private IProgressMonitor monitor;
+    private final Object lock = new Object();
 
     /*default*/ Flake8Visitor(IResource resource, IDocument document, ICallback<IModule, Integer> module,
             IProgressMonitor monitor) {
@@ -80,39 +81,41 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
             deleteMarkers();
             return;
         }
-        if (flake8Runnable != null) {
-            // If the flake8Runnable is already created, don't recreate it
-            // (we should be analyzing multiple resources in a single call).
-            return;
-        }
+        synchronized (lock) {
+            if (flake8Runnable != null) {
+                // If the flake8Runnable is already created, don't recreate it
+                // (we should be analyzing multiple resources in a single call).
+                return;
+            }
 
-        if (project != null) {
-            if (resource instanceof IFile) {
-                IFile file = (IFile) resource;
-                IPath location = file.getRawLocation();
-                if (location != null) {
-                    flake8Runnable = new Flake8Analysis(resource, document, location,
-                            new NullProgressMonitorWrapper(monitor), flake8Location);
+            if (project != null) {
+                if (resource instanceof IFile) {
+                    IFile file = (IFile) resource;
+                    IPath location = file.getLocation();
+                    if (location != null) {
+                        flake8Runnable = new Flake8Analysis(resource, document, location,
+                                new NullProgressMonitorWrapper(monitor), flake8Location);
 
-                    try {
-                        IExternalCodeAnalysisStream out = Flake8Preferences.getConsoleOutputStream(project);
-                        flake8Runnable.createFlake8Process(out);
-                    } catch (final Exception e) {
-                        Log.log(e);
+                        try {
+                            IExternalCodeAnalysisStream out = Flake8Preferences.getConsoleOutputStream(project);
+                            flake8Runnable.createFlake8Process(out);
+                        } catch (final Exception e) {
+                            Log.log(e);
+                        }
                     }
-                }
-            } else if (resource instanceof IContainer) {
-                IContainer dir = (IContainer) resource;
-                IPath location = dir.getRawLocation();
-                if (location != null) {
-                    flake8Runnable = new Flake8Analysis(resource, null, location,
-                            new NullProgressMonitorWrapper(monitor), flake8Location);
+                } else if (resource instanceof IContainer) {
+                    IContainer dir = (IContainer) resource;
+                    IPath location = dir.getLocation();
+                    if (location != null) {
+                        flake8Runnable = new Flake8Analysis(resource, null, location,
+                                new NullProgressMonitorWrapper(monitor), flake8Location);
 
-                    try {
-                        IExternalCodeAnalysisStream out = Flake8Preferences.getConsoleOutputStream(project);
-                        flake8Runnable.createFlake8Process(out);
-                    } catch (final Exception e) {
-                        Log.log(e);
+                        try {
+                            IExternalCodeAnalysisStream out = Flake8Preferences.getConsoleOutputStream(project);
+                            flake8Runnable.createFlake8Process(out);
+                        } catch (final Exception e) {
+                            Log.log(e);
+                        }
                     }
                 }
             }

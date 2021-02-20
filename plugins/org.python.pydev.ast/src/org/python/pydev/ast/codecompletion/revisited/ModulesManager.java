@@ -1229,7 +1229,7 @@ public abstract class ModulesManager implements IModulesManager {
      */
     @Override
     public String resolveModule(IResource member, IProject container) {
-        File inOs = member.getRawLocation().toFile();
+        File inOs = member.getLocation().toFile();
         return pythonPathHelper.resolveModule(FileUtils.getFileAbsolutePath(inOs), false, container);
     }
 

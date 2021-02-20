@@ -407,7 +407,7 @@ public class PythonNatureStore implements IResourceChangeListener, IPythonNature
      * @return the actual file from the IFile we have
      */
     private File getRawXmlFileLocation() {
-        IPath rawLocation = xmlFile.getRawLocation();
+        IPath rawLocation = xmlFile.getLocation();
         File file = null;
         if (rawLocation != null) {
             file = rawLocation.toFile();

@@ -1450,7 +1450,7 @@ public class CopyFilesAndFoldersOperation {
         }
         IWorkspace workspace = destination.getWorkspace();
         IResource linkHandle = createLinkedResourceHandle(destination, source);
-        IStatus locationStatus = workspace.validateLinkLocation(linkHandle, source.getRawLocation());
+        IStatus locationStatus = workspace.validateLinkLocation(linkHandle, source.getLocation());
 
         if (locationStatus.getSeverity() == IStatus.ERROR) {
             return locationStatus.getMessage();
