@@ -14,6 +14,7 @@ package org.python.pydev.editor.actions;
 import java.util.HashSet;
 import java.util.List;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.action.IAction;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.autoedit.DefaultIndentPrefs;
@@ -30,14 +31,14 @@ import org.python.pydev.shared_core.structure.Tuple;
  * comments created in that they provide a distinguishing element at the
  * beginning and end as a separator. In this case, it is a string of
  * <code>=======</code> symbols to strongly differentiate this comment block.
- * 
+ *
  * This will handle regular comment blocks as well by removing the # token at
  * the head of each line, but will also remove the block separators if they are
  * present.
- * 
+ *
  * Changes in 1.2.7: if any line of a block comment is selected, all 'adjacent' lines
  * will have its comment removed (without the need to select the whole lines
- * 
+ *
  * @author Parhaum Toofanian
  * @author Fabio Zadrozny
  */
@@ -89,7 +90,7 @@ public class PyRemoveBlockComment extends PyAddBlockComment {
 
     /**
      * Performs the action with a given PySelection
-     * 
+     *
      * @param ps Given PySelection
      * @return boolean The success or failure of the action
      */
@@ -100,6 +101,7 @@ public class PyRemoveBlockComment extends PyAddBlockComment {
         try {
             //discover 1st line that starts the block comment
             int i;
+            IAdaptable projectAdaptable = getTextEditor();
 
             // For each line, uncomment it
             for (i = startLineIndex; i <= endLineIndex; i++) {
@@ -132,7 +134,7 @@ public class PyRemoveBlockComment extends PyAddBlockComment {
                 HashSet<Character> chars = new HashSet<Character>();
                 for (int j = 0; j < acts.length; j++) {
                     AbstractBlockCommentAction action = acts[j];
-                    chars.add(action.getColsAndChar().o2);
+                    chars.add(action.getColsAndChar(projectAdaptable).o2);
                 }
 
                 if (line.length() > 0) {

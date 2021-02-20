@@ -21,16 +21,16 @@ public class CommentActionTest extends TestCase {
 
     public void testLineCommentUncomment() throws Exception {
         String uncommentedContent = "a = 10";
-        testContent(uncommentedContent, "##a = 10", 0, 0, 0);
-        testContent(uncommentedContent, "##a = 10", 0, 0, 1);
-        testContent(uncommentedContent, "## a = 10", 0, 1, 1);
-        testContent(uncommentedContent, "## a = 10", 0, 1, 0, " a = 10");
+        checkContent(uncommentedContent, "##a = 10", 0, 0, 0, true);
+        checkContent(uncommentedContent, "##a = 10", 0, 0, 1, true);
+        checkContent(uncommentedContent, "## a = 10", 0, 1, 1, true);
+        checkContent(uncommentedContent, "## a = 10", 0, 1, 0, " a = 10", true);
     }
 
     public void testLineCommentUncommentSpaced() throws Exception {
         String uncommentedContent = "   a = 10";
         String commentedContet = "   ## a = 10";
-        testContent(uncommentedContent, commentedContet);
+        checkContent(uncommentedContent, commentedContet, true);
     }
 
     public void testMultiLineCommentSpaced1() throws Exception {
@@ -42,7 +42,7 @@ public class CommentActionTest extends TestCase {
                 + "## def method():\n" +
                 "    ## if True:\n" +
                 "        ## a = 10";
-        testContent(uncommentedContent, commentedContent);
+        checkContent(uncommentedContent, commentedContent, true);
     }
 
     public void testMultiLineCommentSpaced2() throws Exception {
@@ -54,29 +54,119 @@ public class CommentActionTest extends TestCase {
                 + "def method():\n" +
                 "    ## if True:\n" +
                 "        ## a = 10";
-        testContent(uncommentedContent, commentedContent, 1);
+        checkContent(uncommentedContent, commentedContent, 1, true);
     }
 
-    private void testContent(String uncommentedContent, String commentedContent) throws BadLocationException {
-        testContent(uncommentedContent, commentedContent, 0);
+    public void testMultiLineCommentSpaced3() throws Exception {
+        String uncommentedContent = "" +
+                "    if True:\n" +
+                "\n" +
+                "        a = 10";
+
+        String commentedContent = "" +
+                "    ## if True:\n" +
+                "    ##\n" +
+                "        ## a = 10";
+
+        String expectedUncommentedContent = "" +
+                "    if True:\n" +
+                "    \n" +
+                "        a = 10";
+        checkContent(uncommentedContent, commentedContent, 0, 1, 1, expectedUncommentedContent, true);
     }
 
-    private void testContent(String uncommentedContent, String commentedContent, int startLine)
+    public void testMultiLineCommentSpaced4() throws Exception {
+        String uncommentedContent = "" +
+                "    \n" +
+                "\n" +
+                "    if True:\n" +
+                "\n" +
+                "        a = 10";
+
+        String commentedContent = "" +
+                "    ##\n" +
+                "    ##\n" +
+                "    ## if True:\n" +
+                "    ##\n" +
+                "        ## a = 10";
+
+        String expectedUncommentedContent = "" +
+                "    \n" +
+                "    \n" +
+                "    if True:\n" +
+                "    \n" +
+                "        a = 10";
+        checkContent(uncommentedContent, commentedContent, 0, 1, 1, expectedUncommentedContent, true);
+    }
+
+    public void testSingleEmptyLine() throws Exception {
+        String uncommentedContent = "\n"
+                + "\n";
+
+        String commentedContent = "\n"
+                + "##\n";
+
+        String expectedUncommentedContent = "\n"
+                + "\n";
+        checkContent(uncommentedContent, commentedContent, 1, 1, 1, expectedUncommentedContent, true);
+    }
+
+    public void testMultipleEmptyLine() throws Exception {
+        String uncommentedContent = "\n"
+                + "\n"
+                + "\n"
+                + "\n"
+                + "\n";
+
+        String commentedContent = "##\n"
+                + "##\n"
+                + "##\n"
+                + "##\n"
+                + "##\n";
+
+        String expectedUncommentedContent = "\n"
+                + "\n"
+                + "\n"
+                + "\n"
+                + "\n";
+        checkContent(uncommentedContent, commentedContent, 0, 1, 1, expectedUncommentedContent, true);
+    }
+
+    public void testSingleEmptyLine2() throws Exception {
+        String uncommentedContent = "\n"
+                + "\n";
+
+        String commentedContent = "\n"
+                + "##\n";
+
+        String expectedUncommentedContent = "\n"
+                + "\n";
+        checkContent(uncommentedContent, commentedContent, 1, 1, 1, expectedUncommentedContent, false);
+    }
+
+    private void checkContent(String uncommentedContent, String commentedContent, boolean addCommentsAtIndent)
             throws BadLocationException {
-        testContent(uncommentedContent, commentedContent, startLine, 1, 1);
+        checkContent(uncommentedContent, commentedContent, 0, addCommentsAtIndent);
     }
 
-    private void testContent(String uncommentedContent, String commentedContent, int startLine,
-            int commentSpacesInStart, int uncommentSpacesInStart) throws BadLocationException {
-        testContent(uncommentedContent, commentedContent, startLine, commentSpacesInStart, uncommentSpacesInStart,
-                uncommentedContent);
+    private void checkContent(String uncommentedContent, String commentedContent, int startLine,
+            boolean addCommentsAtIndent)
+            throws BadLocationException {
+        checkContent(uncommentedContent, commentedContent, startLine, 1, 1, addCommentsAtIndent);
     }
 
-    private void testContent(String uncommentedContent, String commentedContent, int startLine,
-            int commentSpacesInStart, int uncommentSpacesInStart, String expectedUncomment)
+    private void checkContent(String uncommentedContent, String commentedContent, int startLine,
+            int commentSpacesInStart, int uncommentSpacesInStart, boolean addCommentsAtIndent)
+            throws BadLocationException {
+        checkContent(uncommentedContent, commentedContent, startLine, commentSpacesInStart, uncommentSpacesInStart,
+                uncommentedContent, addCommentsAtIndent);
+    }
+
+    private void checkContent(String uncommentedContent, String commentedContent, int startLine,
+            int commentSpacesInStart, int uncommentSpacesInStart, String expectedUncomment, boolean addCommentsAtIndent)
             throws BadLocationException {
         TextSelectionUtils ts = createTextSelectionUtils(uncommentedContent, startLine);
-        new LineCommentAction(ts, "##", commentSpacesInStart).execute();
+        new LineCommentAction(ts, "##", commentSpacesInStart, addCommentsAtIndent).execute();
         assertEquals(commentedContent, ts.getDoc().get());
         ts = createTextSelectionUtils(commentedContent, startLine);
         new LineUncommentAction(ts, "##", uncommentSpacesInStart).execute();

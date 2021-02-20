@@ -13,7 +13,7 @@ import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * Same toggle comment action as we are used to it in the java perspective
- * 
+ *
  * @author e0525580 at student.tuwien.ac.at
  * Created from patch: https://sourceforge.net/tracker/?func=detail&atid=577329&aid=1999389&group_id=85796
  */
@@ -28,12 +28,13 @@ public class PyToggleComment extends PyUncomment {
     }
 
     @Override
-    public Tuple<Integer, Integer> perform(final TextSelectionUtils ps) throws BadLocationException {
+    public Tuple<Integer, Integer> perform(final TextSelectionUtils ps, boolean addCommentsAtIndent)
+            throws BadLocationException {
         ps.selectCompleteLine();
 
         final boolean shouldAddCommentSign = PyToggleComment.allLinesStartWithCommentSign(ps, "#") == false;
         if (shouldAddCommentSign) {
-            return performComment(ps);
+            return performComment(ps, addCommentsAtIndent);
 
         } else {
             return performUncomment(ps);
@@ -41,7 +42,7 @@ public class PyToggleComment extends PyUncomment {
     }
 
     /**
-     * Checks if all lines start with '#' 
+     * Checks if all lines start with '#'
      */
     private static boolean allLinesStartWithCommentSign(final TextSelectionUtils ps, String commentStart) {
         int endLineIndex = ps.getEndLineIndex();

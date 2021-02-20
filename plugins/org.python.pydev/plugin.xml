@@ -422,7 +422,7 @@
             id="org.python.pydev.editor.correctionassist.docstrings.DocstringsPreferencePage"/>
 
       <page
-      		name="Block Comments"
+      		name="Comments"
             category="org.python.pydev.plugin.pyCodeStylePreferencesPage"
             class="org.python.pydev.editor.commentblocks.CommentBlocksPreferences"
             id="org.python.pydev.editor.commentblocks.CommentBlocksPreferences"/>

@@ -44,26 +44,36 @@ public class LineUncommentAction {
 
         boolean allStartWithSpaces = true;
         for (String string : ret) {
-            if (!StringUtils.leftTrim(string).startsWith(expectedStart)) {
+            String leftTrimmed = StringUtils.leftTrim(string);
+            String allTrimmed = StringUtils.rightTrim(leftTrimmed);
+            if (!leftTrimmed.startsWith(expectedStart) &&
+                    !allTrimmed.equals(commentPattern) // i.e.: empty line doesn't count.
+            ) {
                 expectedStart = this.commentPattern;
                 allStartWithSpaces = false;
                 break;
             }
         }
 
-        int expectedStartLength = expectedStart.length();
         if (allStartWithSpaces) {
             for (String line : ret) {
+                String lastIndent = "";
                 int i = line.indexOf(expectedStart);
-                strbuf.append(line.substring(0, i));
-                strbuf.append(line.substring(i + expectedStartLength));
+                int j = i + expectedStart.length();
+                if (i == -1) {
+                    i = line.indexOf(commentPattern);
+                    j = i + commentPattern.length();
+                }
+                lastIndent = line.substring(0, i);
+                strbuf.append(lastIndent);
+                strbuf.append(line.substring(j));
             }
         } else {
             for (String line : ret) {
                 if (StringUtils.leftTrim(line).startsWith(expectedStart)) {
                     int i = line.indexOf(expectedStart);
                     strbuf.append(line.substring(0, i));
-                    strbuf.append(line.substring(i + expectedStartLength));
+                    strbuf.append(line.substring(i + expectedStart.length()));
                 } else {
                     strbuf.append(line);
                 }

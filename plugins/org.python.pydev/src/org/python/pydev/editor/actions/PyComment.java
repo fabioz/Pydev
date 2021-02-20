@@ -11,10 +11,13 @@
 
 package org.python.pydev.editor.actions;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.core.formatter.FormatStd;
+import org.python.pydev.core.preferences.PyScopedPreferences;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
 import org.python.pydev.shared_core.actions.LineCommentAction;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -54,7 +57,11 @@ public class PyComment extends PyAction {
 
             TextSelectionUtils ps = EditorUtils.createTextSelectionUtils(pyEdit);
             // Perform the action
-            Tuple<Integer, Integer> repRegion = perform(ps);
+            IAdaptable projectAdaptable = getTextEditor();
+            boolean addCommentsAtIndent = PyScopedPreferences.getBoolean(
+                    CommentBlocksPreferences.ADD_COMMENTS_AT_INDENT, projectAdaptable);
+
+            Tuple<Integer, Integer> repRegion = perform(ps, addCommentsAtIndent);
 
             // Put cursor at the first area of the selection
             pyEdit.selectAndReveal(repRegion.o1, repRegion.o2);
@@ -63,8 +70,9 @@ public class PyComment extends PyAction {
         }
     }
 
-    public Tuple<Integer, Integer> perform(TextSelectionUtils ps) throws BadLocationException {
-        return performComment(ps);
+    public Tuple<Integer, Integer> perform(TextSelectionUtils ps, boolean addCommentsAtIndent)
+            throws BadLocationException {
+        return performComment(ps, addCommentsAtIndent);
     }
 
     /**
@@ -74,8 +82,10 @@ public class PyComment extends PyAction {
      * @return the new selection
      * @throws BadLocationException
      */
-    protected Tuple<Integer, Integer> performComment(TextSelectionUtils ps) throws BadLocationException {
-        LineCommentAction lineCommentAction = new LineCommentAction(ps, "#", this.std.spacesInStartComment);
+    protected Tuple<Integer, Integer> performComment(TextSelectionUtils ps, boolean addCommentsAtIndent)
+            throws BadLocationException {
+        LineCommentAction lineCommentAction = new LineCommentAction(ps, "#", this.std.spacesInStartComment,
+                addCommentsAtIndent);
         return lineCommentAction.execute();
     }
 

@@ -10,14 +10,14 @@
  */
 package org.python.pydev.editor.actions;
 
-import junit.framework.TestCase;
-
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.autoedit.DefaultIndentPrefs;
 import org.python.pydev.core.autoedit.TestIndentPrefs;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.formatter.FormatStd;
 import org.python.pydev.shared_core.structure.Tuple;
+
+import junit.framework.TestCase;
 
 public class PyUncommentTest extends TestCase {
 
@@ -45,7 +45,7 @@ public class PyUncommentTest extends TestCase {
         Document doc = new Document("#a\n" +
                 "#b");
         PySelection ps = new PySelection(doc, 0, 0, doc.getLength());
-        assertEquals(new Tuple<Integer, Integer>(0, 3), new PyUncomment(std).perform(ps));
+        assertEquals(new Tuple<Integer, Integer>(0, 3), new PyUncomment(std).perform(ps, true));
 
         String expected = "a\n" +
                 "b";
@@ -58,7 +58,7 @@ public class PyUncommentTest extends TestCase {
         Document doc = new Document("# a\n" +
                 "#b");
         PySelection ps = new PySelection(doc, 0, 0, doc.getLength());
-        assertEquals(new Tuple<Integer, Integer>(0, 4), new PyUncomment(std).perform(ps));
+        assertEquals(new Tuple<Integer, Integer>(0, 4), new PyUncomment(std).perform(ps, true));
 
         String expected = " a\n" +
                 "b";
@@ -71,7 +71,7 @@ public class PyUncommentTest extends TestCase {
         Document doc = new Document("# a\n" +
                 "# b");
         PySelection ps = new PySelection(doc, 0, 0, doc.getLength());
-        assertEquals(new Tuple<Integer, Integer>(0, 3), new PyUncomment(std).perform(ps));
+        assertEquals(new Tuple<Integer, Integer>(0, 3), new PyUncomment(std).perform(ps, true));
 
         String expected = "a\n" +
                 "b";
@@ -84,7 +84,7 @@ public class PyUncommentTest extends TestCase {
         Document doc = new Document("# a\n" +
                 "# b\n#\n#\n");
         PySelection ps = new PySelection(doc, 0, 0, doc.getLength());
-        assertEquals(new Tuple<Integer, Integer>(0, 5), new PyUncomment(std).perform(ps));
+        assertEquals(new Tuple<Integer, Integer>(0, 5), new PyUncomment(std).perform(ps, true));
 
         String expected = "a\n" +
                 "b\n\n\n";
@@ -99,7 +99,7 @@ public class PyUncommentTest extends TestCase {
             //When uncommenting, we should move the code uncommented to a proper indentation.
             Document doc = new Document("# \ta");
             PySelection ps = new PySelection(doc, 0, 0, doc.getLength());
-            assertEquals(new Tuple<Integer, Integer>(0, 2), new PyUncomment(std).perform(ps));
+            assertEquals(new Tuple<Integer, Integer>(0, 2), new PyUncomment(std).perform(ps, true));
 
             String expected = "\ta";
             assertEquals(expected, doc.get());

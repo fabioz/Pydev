@@ -32,16 +32,17 @@ public class PyUncomment extends PyComment {
     /* Selection element */
 
     @Override
-    public Tuple<Integer, Integer> perform(TextSelectionUtils ps) throws BadLocationException {
+    public Tuple<Integer, Integer> perform(TextSelectionUtils ps, boolean addCommentsAtIndent)
+            throws BadLocationException {
         return performUncomment(ps);
     }
 
     /**
      * Performs the action with a given PySelection
-     * 
+     *
      * @param ps Given PySelection
      * @return the new selection
-     * @throws BadLocationException 
+     * @throws BadLocationException
      */
     protected Tuple<Integer, Integer> performUncomment(TextSelectionUtils ps) throws BadLocationException {
         PyRemoveBlockComment pyRemoveBlockComment = new PyRemoveBlockComment();

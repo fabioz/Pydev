@@ -764,6 +764,14 @@ public final class FastStringBuffer implements CharSequence {
         return this;
     }
 
+    public FastStringBuffer rightTrimNewLines() {
+        char c;
+        while (this.count > 0 && ((c = this.value[this.count - 1]) == '\n' || c == '\r')) {
+            this.count--;
+        }
+        return this;
+    }
+
     public FastStringBuffer rightTrimWhitespacesAndTabs() {
         char c;
         while (this.count > 0 && ((c = this.value[this.count - 1]) == ' ' || c == '\t')) {
@@ -778,6 +786,24 @@ public final class FastStringBuffer implements CharSequence {
         while (i < this.count) {
             c = this.value[i];
             if (c == ' ' || Character.isWhitespace(c)) {
+                i++;
+            } else {
+                break;
+            }
+        }
+        if (i > 0) {
+            System.arraycopy(value, i, value, 0, count - i);
+            count -= i;
+        }
+        return this;
+    }
+
+    public FastStringBuffer leftTrimSpacesAndTabs() {
+        char c;
+        int i = 0;
+        while (i < this.count) {
+            c = this.value[i];
+            if (c == ' ' || c == '\t') {
                 i++;
             } else {
                 break;

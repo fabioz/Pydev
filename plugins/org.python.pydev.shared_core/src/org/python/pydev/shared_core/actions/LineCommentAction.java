@@ -26,33 +26,80 @@ public class LineCommentAction {
     private String commentPattern;
     private int spacesInStart;
 
-    public LineCommentAction(TextSelectionUtils ps, String commentPattern, int spacesInStart) {
+    // Either add '#' at the current indent or at the start of the line.
+    private boolean addCommentsAtIndent;
+
+    public LineCommentAction(TextSelectionUtils ps, String commentPattern, int spacesInStart,
+            boolean addCommentsAtIndent) {
         this.ps = ps;
         this.commentPattern = commentPattern;
         this.spacesInStart = spacesInStart;
+        this.addCommentsAtIndent = addCommentsAtIndent;
     }
 
     public FastStringBuffer commentLines(String selectedText) {
         List<String> ret = StringUtils.splitInLines(selectedText);
-
         FastStringBuffer strbuf = new FastStringBuffer(selectedText.length() + ret.size()
                 + ((spacesInStart + 2) * ret.size()));
-        FastStringBuffer lineBuf = new FastStringBuffer();
+        if (ret.isEmpty()) {
+            ret.add(selectedText);
+        } else {
+            if (selectedText.endsWith("\r") || selectedText.endsWith("\n")) {
+                ret.add("");
+            }
+        }
+
         String spacesInStartComment = null;
         if (spacesInStart > 0) {
             spacesInStartComment = StringUtils.createSpaceString(spacesInStart);
         }
 
+        // Used only when adding comments at the current indent.
+        int lastFirstCharPosition = 0;
+        FastStringBuffer lineBuf = new FastStringBuffer();
+        boolean addSpacesInStartComment;
+
         for (String line : ret) {
-            lineBuf.clear();
-            lineBuf.append(line);
-            int spacesBefore = line.length() - lineBuf.leftTrim().length();
-            strbuf.append(StringUtils.createSpaceString(spacesBefore));
-            strbuf.append(commentPattern);
-            if (spacesInStartComment != null) {
-                strbuf.append(spacesInStartComment);
+            addSpacesInStartComment = true;
+            if (addCommentsAtIndent) {
+                lineBuf.clear();
+                lineBuf.append(line);
+                lineBuf.leftTrim();
+
+                if (lineBuf.length() == 0) {
+                    // Not even the '\n' at the end of the line remained.
+                    addSpacesInStartComment = false;
+                    lineBuf.append(line);
+                    if (lastFirstCharPosition > 0) {
+                        lineBuf.leftTrimSpacesAndTabs(); // i.e.: don't trim new lines this time.
+                        strbuf.append(StringUtils.createSpaceString(lastFirstCharPosition));
+                    } else {
+                        // i.e.: empty line and there were no contents before, let's keep the current
+                        // indent.
+                        lineBuf.rightTrimNewLines();
+                        lastFirstCharPosition = lineBuf.length();
+                        strbuf.append(lineBuf);
+                        lineBuf.clear();
+                        lineBuf.append(line);
+                        lineBuf.leftTrimSpacesAndTabs();
+                    }
+                } else {
+                    strbuf.append(StringUtils.createSpaceString(line.length() - lineBuf.length()));
+                    lastFirstCharPosition = TextSelectionUtils.getFirstCharPosition(line);
+                }
+
+                strbuf.append(commentPattern);
+                if (spacesInStartComment != null && addSpacesInStartComment) {
+                    strbuf.append(spacesInStartComment);
+                }
+                strbuf.append(lineBuf);
+            } else {
+                strbuf.append(commentPattern);
+                if (spacesInStartComment != null) {
+                    strbuf.append(spacesInStartComment);
+                }
+                strbuf.append(line);
             }
-            strbuf.append(lineBuf);
         }
         return strbuf;
     }

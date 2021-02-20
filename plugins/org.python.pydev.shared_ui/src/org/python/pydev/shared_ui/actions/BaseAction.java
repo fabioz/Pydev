@@ -81,7 +81,7 @@ public class BaseAction extends Action implements IEditorActionDelegate {
      * This function returns the text editor.
      */
     protected ITextEditor getTextEditor() {
-        if (targetEditor instanceof ITextEditor) {
+        if (targetEditor instanceof ITextEditor || targetEditor == null) {
             return (ITextEditor) targetEditor;
         } else {
             throw new RuntimeException("Expecting text editor. Found:" + targetEditor.getClass().getName());

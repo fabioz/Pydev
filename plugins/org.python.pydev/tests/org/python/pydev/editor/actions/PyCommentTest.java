@@ -10,12 +10,12 @@
  */
 package org.python.pydev.editor.actions;
 
-import junit.framework.TestCase;
-
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.formatter.FormatStd;
 import org.python.pydev.shared_core.structure.Tuple;
+
+import junit.framework.TestCase;
 
 public class PyCommentTest extends TestCase {
 
@@ -43,7 +43,7 @@ public class PyCommentTest extends TestCase {
                 "\n" +
                 "\n");
         PySelection ps = new PySelection(doc, 0, 0, doc.getLength());
-        assertEquals(new Tuple<Integer, Integer>(0, 5), new PyComment(std).perform(ps));
+        assertEquals(new Tuple<Integer, Integer>(0, 5), new PyComment(std).perform(ps, true));
 
         String expected = "#a\n" +
                 "#\n" +
@@ -57,7 +57,7 @@ public class PyCommentTest extends TestCase {
                 "\r" +
                 "\r");
         PySelection ps = new PySelection(doc, 0, 0, doc.getLength());
-        assertEquals(new Tuple<Integer, Integer>(0, 5), new PyComment(std).perform(ps));
+        assertEquals(new Tuple<Integer, Integer>(0, 5), new PyComment(std).perform(ps, true));
 
         String expected = "#a\r" +
                 "#\r" +
@@ -71,7 +71,7 @@ public class PyCommentTest extends TestCase {
                 "\r\n" +
                 "\r\n");
         PySelection ps = new PySelection(doc, 0, 0, doc.getLength());
-        assertEquals(new Tuple<Integer, Integer>(0, 7), new PyComment(std).perform(ps));
+        assertEquals(new Tuple<Integer, Integer>(0, 7), new PyComment(std).perform(ps, true));
 
         String expected = "#a\r\n" +
                 "#\r\n" +
@@ -84,7 +84,7 @@ public class PyCommentTest extends TestCase {
         Document doc = new Document("a\r\n" +
                 "b");
         PySelection ps = new PySelection(doc, 0, 0, doc.getLength());
-        assertEquals(new Tuple<Integer, Integer>(0, 6), new PyComment(std).perform(ps));
+        assertEquals(new Tuple<Integer, Integer>(0, 6), new PyComment(std).perform(ps, true));
 
         String expected = "#a\r\n" +
                 "#b";
@@ -98,9 +98,23 @@ public class PyCommentTest extends TestCase {
         Document doc = new Document(" a\r\n" +
                 "b");
         PySelection ps = new PySelection(doc, 0, 0, doc.getLength());
-        assertEquals(new Tuple<Integer, Integer>(0, 9), new PyComment(std).perform(ps));
+        assertEquals(new Tuple<Integer, Integer>(0, 9), new PyComment(std).perform(ps, false));
 
         String expected = "#  a\r\n" +
+                "# b";
+        assertEquals(expected, doc.get());
+
+    }
+
+    public void testCommentWithDifferentCodingStd2() throws Exception {
+        std.spacesInStartComment = 1;
+
+        Document doc = new Document(" a\r\n" +
+                "b");
+        PySelection ps = new PySelection(doc, 0, 0, doc.getLength());
+        assertEquals(new Tuple<Integer, Integer>(0, 9), new PyComment(std).perform(ps, true));
+
+        String expected = " # a\r\n" +
                 "# b";
         assertEquals(expected, doc.get());
 

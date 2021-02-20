@@ -1,6 +1,7 @@
 package org.python.pydev.shared_core.string;
 
 import java.util.Arrays;
+import java.util.List;
 
 import junit.framework.TestCase;
 
@@ -49,5 +50,14 @@ public class StringUtilsTest extends TestCase {
         assertEquals(StringUtils.splitForIndexMatching("*"), Arrays.asList()); // Note: this is actually invalid for searching afterwards
         assertEquals(StringUtils.splitForIndexMatching("*?"), Arrays.asList()); // Note: this is actually invalid for searching afterwards
         assertEquals(StringUtils.splitForIndexMatching("\"!@#@\""), Arrays.asList()); // Note: this is actually invalid for searching afterwards
+    }
+
+    public void testSplitInLines() throws Exception {
+        String s = "\n\n\n";
+        List<String> splitInLines = StringUtils.splitInLines(s);
+        assertEquals(3, splitInLines.size());
+        for (String string : splitInLines) {
+            assertEquals("\n", string);
+        }
     }
 }

@@ -6,10 +6,12 @@
  */
 package org.python.pydev.editor.actions;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.preferences.PyScopedPreferences;
 import org.python.pydev.editor.PySelectionFromEditor;
 import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
@@ -57,14 +59,14 @@ public abstract class AbstractBlockCommentAction extends PyAction {
     }
 
     /**
-     * Actually performs the action 
+     * Actually performs the action
      */
     public abstract Tuple<Integer, Integer> perform(PySelection ps);
 
     /**
      * @return the number of columns to be used (and the char too)
      */
-    public Tuple<Integer, Character> getColsAndChar() {
+    public Tuple<Integer, Character> getColsAndChar(IAdaptable projectAdaptable) {
         int cols = this.defaultCols;
         char c = '-';
 
@@ -74,8 +76,10 @@ public abstract class AbstractBlockCommentAction extends PyAction {
             IPreferenceStore chainedPrefStore = PyDevUiPrefs.getChainedPrefStore();
             cols = chainedPrefStore.getInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLUMN);
 
-            IPreferenceStore prefs = PyDevUiPrefs.getPreferenceStore();
-            c = prefs.getString(getPreferencesNameForChar()).charAt(0);
+            String s = PyScopedPreferences.getString(getPreferencesNameForChar(), projectAdaptable);
+            if (s != null && s.length() > 0) {
+                c = s.charAt(0);
+            }
         }
         return new Tuple<Integer, Character>(cols, c);
     }

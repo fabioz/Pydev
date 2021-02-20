@@ -6,14 +6,15 @@
  */
 /*
  * Created on 01/08/2005
- * 
+ *
  * @author Fabio Zadrozny
  */
 package org.python.pydev.editor.actions;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.preferences.PyScopedPreferences;
 import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
-import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -34,7 +35,7 @@ public class PyAddSingleBlockComment extends AbstractBlockCommentAction {
 
     /**
      * Performs the action with a given PySelection
-     * 
+     *
      * @param ps Given PySelection
      * @return boolean The success or failure of the action
      */
@@ -42,23 +43,23 @@ public class PyAddSingleBlockComment extends AbstractBlockCommentAction {
     public Tuple<Integer, Integer> perform(PySelection ps) {
         // What we'll be replacing the selected text with
         FastStringBuffer strbuf = new FastStringBuffer();
-
         // If they selected a partial line, count it as a full one
         ps.selectCompleteLine();
 
         int i;
         try {
+            IAdaptable projectAdaptable = getTextEditor();
             // For each line, comment them out
             for (i = ps.getStartLineIndex(); i <= ps.getEndLineIndex(); i++) {
                 String line = StringUtils.rightTrim(ps.getLine(i));
-                if (getAlignRight()) {
+                if (getAlignRight(projectAdaptable)) {
                     strbuf.append(getRightAlignedFullCommentLine(line));
                     strbuf.append(line.trim());
                     if (i != ps.getEndLineIndex()) {
                         strbuf.append(ps.getEndLineDelim());
                     }
                 } else {
-                    Tuple<Integer, Character> colsAndChar = getColsAndChar();
+                    Tuple<Integer, Character> colsAndChar = getColsAndChar(getTextEditor());
                     int cols = colsAndChar.o1;
                     char c = colsAndChar.o2;
 
@@ -92,13 +93,13 @@ public class PyAddSingleBlockComment extends AbstractBlockCommentAction {
         return null;
     }
 
-    private boolean getAlignRight() {
+    private boolean getAlignRight(IAdaptable projectAdaptable) {
         if (SharedCorePlugin.inTestMode()) {
             return this.alignRight;
         }
 
-        PydevPlugin plugin = PydevPlugin.getDefault();
-        return plugin.getPluginPreferences().getBoolean(CommentBlocksPreferences.SINGLE_BLOCK_COMMENT_ALIGN_RIGHT);
+        return PyScopedPreferences.getBoolean(CommentBlocksPreferences.SINGLE_BLOCK_COMMENT_ALIGN_RIGHT,
+                projectAdaptable);
     }
 
     @Override
@@ -108,13 +109,13 @@ public class PyAddSingleBlockComment extends AbstractBlockCommentAction {
 
     /**
      * Currently returns a string with the comment block.
-     * 
+     *
      * @param line
-     * 
+     *
      * @return Comment line string, or a default one if Preferences are null
      */
     protected String getRightAlignedFullCommentLine(String line) {
-        Tuple<Integer, Character> colsAndChar = getColsAndChar();
+        Tuple<Integer, Character> colsAndChar = getColsAndChar(getTextEditor());
         int cols = colsAndChar.o1;
         char c = colsAndChar.o2;
 
