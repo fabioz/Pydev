@@ -14,7 +14,7 @@ public class SendPathMappingsCommand extends AbstractDebuggerCommand {
     public SendPathMappingsCommand(AbstractDebugTarget debugger, String jsonPathMapping, boolean debugPathMappings,
             boolean force) {
         super(debugger);
-        this.jsonPathMapping = jsonPathMapping.strip();
+        this.jsonPathMapping = jsonPathMapping.trim();
         this.debugPathMappings = debugPathMappings;
         this.force = force;
     }
