@@ -84,21 +84,36 @@ cd org.python.pydev.p2-repo-8.2.0-SNAPSHOT
 "C:\Program Files\7-Zip\7z" x ..\org.python.pydev.p2-repo-8.2.0-SNAPSHOT.zip
 
 cdd X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-8.2.0-SNAPSHOT
-C:\Users\fabio\AppData\Roaming\npm\surge.cmd --domain pydev-8-1-0.surge.sh
+C:\Users\fabio\AppData\Roaming\npm\surge.cmd --domain pydev-8-2-0.surge.sh
 "C:\Program Files\FileZilla FTP Client\filezilla.exe" sftp://fabioz,pydev@frs.sourceforge.net/home/project-web/pydev/htdocs/pydev_update_site --local="X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-8.2.0-SNAPSHOT"
 
-# TODO: At release upload to GitHub actions (changing the content.xml to match what's expected in this case).
-robocopy X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-8.2.0-SNAPSHOT X:\pydev.page\homepage\final\update_site_binaries\8.2.0 /xd .git /xd .openshift  /s
+
+    ** Tag repository:
+      git tag pydev_8_2_0 -a -m "PyDev 8.2.0"
+      git push --tags
+
+python X:\release_tools\convert_to_github.py 8.2.0 X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-8.2.0-SNAPSHOT
+Do GH release in:
+    https://github.com/fabioz/Pydev/releases/new?tag=pydev_8_2_0
+    Contents in: X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\github
+    Message:
+
+        This release contains PyDev 8.2.0
+
+        It's possible to add it as an Eclipse update site using the url:
+
+        https://github.com/fabioz/Pydev/releases/download/pydev_8_2_0/
+
+        Or get a .zip to install manually by unzipping it in the dropins:
+
+        https://github.com/fabioz/Pydev/releases/download/pydev_8_2_0/PyDev.8.2.0.zip
+
 
 		** Update homepage:
 
 Update version in build_homepage.py
 cd /D X:\pydev.page
 python deploy.py
-
-		** Tag repository:
-		  git tag pydev_8_2_0 -a -m "PyDev 8.2.0"
-		  git push --tags
 
 
 		** update version in eclipse marketplace: http://marketplace.eclipse.org/
