@@ -227,7 +227,7 @@ public final class JsonFieldEditor extends FieldEditor {
                     handleError(content, jsonError);
                 }
             });
-            return new Status(IStatus.OK, this.getClass(), "JsonField validated.");
+            return Status.OK_STATUS;
         }
     }
 
