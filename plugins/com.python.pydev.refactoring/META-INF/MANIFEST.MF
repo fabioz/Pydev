@@ -39,4 +39,5 @@ Export-Package: com.python.pydev.codecompletion,
  com.python.pydev.refactoring.tdd,
  com.python.pydev.refactoring.ui,
  com.python.pydev.refactoring.ui.findreplace
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Automatic-Module-Name: com.python.pydev.refactoring

@@ -36,4 +36,5 @@ Export-Package: org.python.pydev.ast,
  org.python.pydev.plugin,
  org.python.pydev.plugin.nature
 Bundle-Vendor: Brainwy Software Ltda
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Automatic-Module-Name: org.python.pydev.ast

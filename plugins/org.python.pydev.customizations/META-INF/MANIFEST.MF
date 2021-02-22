@@ -25,4 +25,5 @@ Export-Package: org.python.pydev.customizations,org.python.pydev.custo
  on.pydev.customizations.app_engine.wizards,org.python.pydev.customiza
  tions.common
 Bundle-Vendor: Brainwy Software Ltda
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Automatic-Module-Name: org.python.pydev.customizations

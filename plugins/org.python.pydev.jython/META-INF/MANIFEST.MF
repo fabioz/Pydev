@@ -20,4 +20,5 @@ Bundle-ActivationPolicy: lazy
 Export-Package: org.python.core,
  org.python.pydev.jython,
  org.python.pydev.jython.ui
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Automatic-Module-Name: org.python.pydev.jython

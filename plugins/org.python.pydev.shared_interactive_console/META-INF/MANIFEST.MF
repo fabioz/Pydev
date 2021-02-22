@@ -37,4 +37,5 @@ Export-Package: org.apache.commons.logging,org.apache.commons.logging.
  rg.python.pydev.shared_interactive_console.console.ui.internal.fromec
  lipse
 Bundle-Vendor: Brainwy Software Ltda
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Automatic-Module-Name: org.python.pydev.shared.interactive.console

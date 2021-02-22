@@ -57,4 +57,5 @@ Export-Package: com.python.pydev.interactiveconsole,
  org.python.pydev.debug.ui.variables,
  org.python.pydev.debug.views
 Import-Package: org.eclipse.core.filesystem
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Automatic-Module-Name: org.python.pydev.debug

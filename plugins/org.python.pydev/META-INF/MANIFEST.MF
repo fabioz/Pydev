@@ -116,4 +116,5 @@ Export-Package: com.python.pydev.actions,
  org.python.pydev.ui.wizards.gettingstarted,
  org.python.pydev.ui.wizards.project,
  org.python.pydev.utils
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Automatic-Module-Name: org.python.pydev

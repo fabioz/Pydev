@@ -52,4 +52,5 @@ Export-Package: org.python.pydev.overview_ruler,
  org.python.pydev.shared_ui.utils,
  org.python.pydev.shared_ui.word_boundaries
 Bundle-Vendor: Brainwy Software Ltda
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Automatic-Module-Name: org.python.pydev.shared.ui

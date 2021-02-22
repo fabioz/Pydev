@@ -39,4 +39,5 @@ Export-Package: com.python.pydev.analysis,
  com.python.pydev.codecompletion.ctxinsensitive,
  com.python.pydev.codecompletion.participant,
  com.python.pydev.codecompletion.simpleassist
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Automatic-Module-Name: com.python.pydev.analysis
