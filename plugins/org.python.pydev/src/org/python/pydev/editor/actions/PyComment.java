@@ -19,6 +19,7 @@ import org.python.pydev.core.preferences.PyScopedPreferences;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
 import org.python.pydev.shared_core.actions.LineCommentAction;
+import org.python.pydev.shared_core.actions.LineCommentOption;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.EditorUtils;
@@ -58,10 +59,10 @@ public class PyComment extends PyAction {
             TextSelectionUtils ps = EditorUtils.createTextSelectionUtils(pyEdit);
             // Perform the action
             IAdaptable projectAdaptable = getTextEditor();
-            boolean addCommentsAtIndent = PyScopedPreferences.getBoolean(
-                    CommentBlocksPreferences.ADD_COMMENTS_AT_INDENT, projectAdaptable);
+            String commentOption = PyScopedPreferences.getString(CommentBlocksPreferences.ADD_COMMENTS_OPTION,
+                    projectAdaptable);
 
-            Tuple<Integer, Integer> repRegion = perform(ps, addCommentsAtIndent);
+            Tuple<Integer, Integer> repRegion = perform(ps, commentOption);
 
             // Put cursor at the first area of the selection
             pyEdit.selectAndReveal(repRegion.o1, repRegion.o2);
@@ -70,9 +71,9 @@ public class PyComment extends PyAction {
         }
     }
 
-    public Tuple<Integer, Integer> perform(TextSelectionUtils ps, boolean addCommentsAtIndent)
+    public Tuple<Integer, Integer> perform(TextSelectionUtils ps, String addCommentsOption)
             throws BadLocationException {
-        return performComment(ps, addCommentsAtIndent);
+        return performComment(ps, addCommentsOption);
     }
 
     /**
@@ -82,11 +83,15 @@ public class PyComment extends PyAction {
      * @return the new selection
      * @throws BadLocationException
      */
-    protected Tuple<Integer, Integer> performComment(TextSelectionUtils ps, boolean addCommentsAtIndent)
+    protected Tuple<Integer, Integer> performComment(TextSelectionUtils ps, String addCommentsOption)
             throws BadLocationException {
-        LineCommentAction lineCommentAction = new LineCommentAction(ps, "#", this.std.spacesInStartComment,
-                addCommentsAtIndent);
+        if (addCommentsOption == null
+                || !CommentBlocksPreferences.getValuesForAddCommentsOption().contains(addCommentsOption)) {
+            org.python.pydev.core.log.Log.log("Unexpected option to add comments: " + addCommentsOption);
+            addCommentsOption = LineCommentOption.DEFAULT_ADD_COMMENTS_OPTION;
+        }
+        int spacesInStart = this.std.spacesInStartComment;
+        LineCommentAction lineCommentAction = new LineCommentAction(ps, "#", spacesInStart, addCommentsOption);
         return lineCommentAction.execute();
     }
-
 }

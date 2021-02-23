@@ -28,13 +28,13 @@ public class PyToggleComment extends PyUncomment {
     }
 
     @Override
-    public Tuple<Integer, Integer> perform(final TextSelectionUtils ps, boolean addCommentsAtIndent)
+    public Tuple<Integer, Integer> perform(final TextSelectionUtils ps, String addCommentsOption)
             throws BadLocationException {
         ps.selectCompleteLine();
 
         final boolean shouldAddCommentSign = PyToggleComment.allLinesStartWithCommentSign(ps, "#") == false;
         if (shouldAddCommentSign) {
-            return performComment(ps, addCommentsAtIndent);
+            return performComment(ps, addCommentsOption);
 
         } else {
             return performUncomment(ps);

@@ -137,7 +137,7 @@ public class CommentActionTest extends TestCase {
                 + "\n";
 
         String commentedContent = "\n"
-                + "##\n";
+                + "## \n";
 
         String expectedUncommentedContent = "\n"
                 + "\n";
@@ -166,7 +166,13 @@ public class CommentActionTest extends TestCase {
             int commentSpacesInStart, int uncommentSpacesInStart, String expectedUncomment, boolean addCommentsAtIndent)
             throws BadLocationException {
         TextSelectionUtils ts = createTextSelectionUtils(uncommentedContent, startLine);
-        new LineCommentAction(ts, "##", commentSpacesInStart, addCommentsAtIndent).execute();
+        String addCommentsOption = null;
+        if (addCommentsAtIndent) {
+            addCommentsOption = LineCommentOption.ADD_COMMENTS_INDENT_LINE_ORIENTED;
+        } else {
+            addCommentsOption = LineCommentOption.ADD_COMMENTS_LINE_START;
+        }
+        new LineCommentAction(ts, "##", commentSpacesInStart, addCommentsOption).execute();
         assertEquals(commentedContent, ts.getDoc().get());
         ts = createTextSelectionUtils(commentedContent, startLine);
         new LineUncommentAction(ts, "##", uncommentSpacesInStart).execute();
@@ -176,7 +182,7 @@ public class CommentActionTest extends TestCase {
     private TextSelectionUtils createTextSelectionUtils(String content, int startLine) {
         TextSelectionUtils ts = new TextSelectionUtils(new Document(content), 0);
         int startOffset = ts.getLineOffset(startLine);
-        ts.setSelection(startOffset, content.length());
+        ts.setSelection(startOffset, content.length() + 1);
         return ts;
     }
 }

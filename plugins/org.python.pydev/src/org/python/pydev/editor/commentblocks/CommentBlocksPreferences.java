@@ -6,6 +6,9 @@
  */
 package org.python.pydev.editor.commentblocks;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.jface.util.PropertyChangeEvent;
@@ -19,9 +22,11 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.core.preferences.PyScopedPreferences;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.actions.LineCommentOption;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_ui.FontUtils;
 import org.python.pydev.shared_ui.IFontUsage;
+import org.python.pydev.shared_ui.field_editors.ComboFieldEditor;
 import org.python.pydev.shared_ui.field_editors.ScopedFieldEditorPreferencePage;
 import org.python.pydev.shared_ui.field_editors.ScopedPreferencesFieldEditor;
 
@@ -56,16 +61,27 @@ public class CommentBlocksPreferences extends ScopedFieldEditorPreferencePage im
     public static final String SINGLE_BLOCK_COMMENT_ALIGN_RIGHT = "SINGLE_BLOCK_COMMENT_ALIGN_RIGHT";
     public static final boolean DEFAULT_SINGLE_BLOCK_COMMENT_ALIGN_RIGHT = true;
 
-    public static final String ADD_COMMENTS_AT_INDENT = "ADD_COMMENTS_AT_INDENT";
-    public static final boolean DEFAULT_ADD_COMMENTS_AT_INDENT = true;
+    public static final String ADD_COMMENTS_OPTION = "ADD_COMMENTS_OPTION";
+    private static final String[][] ENTRIES_AND_VALUES_FOR_ADD_COMMENTS_OPTION = new String[][] {
+            { "Indent", LineCommentOption.ADD_COMMENTS_INDENT },
+            { "Line start", LineCommentOption.ADD_COMMENTS_LINE_START },
+            { "Indent (computed for each line)", LineCommentOption.ADD_COMMENTS_INDENT_LINE_ORIENTED },
+    };
+
+    public static final List<String> getValuesForAddCommentsOption() {
+        List<String> ret = new ArrayList<String>();
+        for (String[] option : ENTRIES_AND_VALUES_FOR_ADD_COMMENTS_OPTION) {
+            ret.add(option[1]);
+        }
+        return ret;
+    }
 
     @Override
     protected void createFieldEditors() {
         final Composite p = getFieldEditorParent();
 
-        addField(new BooleanFieldEditor(ADD_COMMENTS_AT_INDENT,
-                "When commenting add '#' at the current indent?",
-                p));
+        addField(new ComboFieldEditor(ADD_COMMENTS_OPTION, "Comment location",
+                ENTRIES_AND_VALUES_FOR_ADD_COMMENTS_OPTION, p));
 
         labelSep0 = new Label(p, SWT.NONE);
         labelSep0.setText("       (otherwise, add '#' to the start of the line)");

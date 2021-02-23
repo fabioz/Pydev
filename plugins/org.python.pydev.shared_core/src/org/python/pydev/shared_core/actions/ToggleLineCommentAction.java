@@ -51,7 +51,8 @@ public class ToggleLineCommentAction {
         if (allStartWithComments) {
             return new LineUncommentAction(ps, commentPattern, spacesInStart).execute();
         } else {
-            return new LineCommentAction(ps, commentPattern, spacesInStart, addCommentsAtIndent).execute();
+            return new LineCommentAction(ps, commentPattern, spacesInStart,
+                    LineCommentOption.DEFAULT_ADD_COMMENTS_OPTION).execute();
         }
     }
 }
