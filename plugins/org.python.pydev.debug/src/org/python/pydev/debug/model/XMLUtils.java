@@ -129,6 +129,31 @@ public class XMLUtils {
         }
     }
 
+    static class XMLToSmartStepIntoVariants extends DefaultHandler {
+
+        public AbstractDebugTarget target;
+        public List<SmartStepIntoVariant> variants = new ArrayList<SmartStepIntoVariant>();
+
+        public XMLToSmartStepIntoVariants(AbstractDebugTarget target) {
+            this.target = target;
+        }
+
+        @Override
+        public void startElement(String uri, String localName, String qName, Attributes attributes)
+                throws SAXException {
+            if (qName.equals("variant")) {
+                String name = unescape(attributes.getValue("name"));
+                boolean isVisited = Boolean.parseBoolean(attributes.getValue("isVisited"));
+                int line = Integer.parseInt(attributes.getValue("line"));
+                int offset = Integer.parseInt(attributes.getValue("offset"));
+                int callOrder = Integer.parseInt(attributes.getValue("callOrder"));
+
+                name = decode(name);
+                variants.add(new SmartStepIntoVariant(target, name, isVisited, line - 1, offset, callOrder));
+            }
+        }
+    }
+
     /**
      * Creates IThread[] from the XML response
      */
@@ -139,6 +164,22 @@ public class XMLUtils {
             parser.parse(new ByteArrayInputStream(payload.getBytes()), info);
             return info.threads.toArray(new PyThread[0]);
 
+        } catch (CoreException e) {
+            throw e;
+        } catch (SAXException e) {
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected XML error", e));
+        } catch (IOException e) {
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected XML error", e));
+        }
+    }
+
+    public static SmartStepIntoVariant[] SmartStepIntoTargetsFromXML(AbstractDebugTarget target, String payload)
+            throws CoreException {
+        try {
+            SAXParser parser = getSAXParser();
+            XMLToSmartStepIntoVariants info = new XMLToSmartStepIntoVariants(target);
+            parser.parse(new ByteArrayInputStream(payload.getBytes()), info);
+            return info.variants.toArray(new SmartStepIntoVariant[0]);
         } catch (CoreException e) {
             throw e;
         } catch (SAXException e) {
@@ -811,4 +852,5 @@ public class XMLUtils {
         }
         return captured;
     }
+
 }
