@@ -36,6 +36,7 @@ import org.python.pydev.debug.model.remote.GetFileContentsCommand;
 import org.python.pydev.debug.model.remote.GetFrameCommand;
 import org.python.pydev.debug.model.remote.GetVariableCommand;
 import org.python.pydev.debug.model.remote.ICommandResponseListener;
+import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editorinput.EditorInputFactory;
 import org.python.pydev.editorinput.PySourceLocatorPrefs;
 import org.python.pydev.shared_core.cache.LRUMap;
@@ -265,6 +266,10 @@ public class PyStackFrame extends PlatformObject
     @Override
     public void stepInto() throws DebugException {
         thread.stepInto();
+    }
+
+    public void stepIntoTarget(PyEdit pyEdit, int line, String selectedWord) throws DebugException {
+        thread.stepIntoTarget(pyEdit, line, selectedWord);
     }
 
     @Override

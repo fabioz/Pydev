@@ -26,6 +26,7 @@ import org.python.pydev.debug.model.remote.SetNextCommand;
 import org.python.pydev.debug.model.remote.StepCommand;
 import org.python.pydev.debug.model.remote.ThreadRunCommand;
 import org.python.pydev.debug.model.remote.ThreadSuspendCommand;
+import org.python.pydev.editor.PyEdit;
 
 /**
  * Represents python threads.
@@ -175,6 +176,14 @@ public class PyThread extends PlatformObject implements IThread {
         if (!isPydevThread) {
             isStepping = true;
             target.postCommand(new StepCommand(target, AbstractDebuggerCommand.CMD_STEP_INTO, id));
+        }
+    }
+
+    public void stepIntoTarget(PyEdit pyEdit, int line, String selectedWord) {
+        if (!isPydevThread) {
+            isStepping = true;
+            target.postCommand(
+                    new SetNextCommand(target, AbstractDebuggerCommand.CMD_SMART_STEP_INTO, id, line, selectedWord));
         }
     }
 

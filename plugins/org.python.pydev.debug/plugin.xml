@@ -893,12 +893,45 @@
         id="org.python.pydev.debug.pyunit.pyUnitView"/>
 </extension>
 
+ <extension
+       point="org.eclipse.ui.handlers">
+    <handler
+          class="org.python.pydev.debug.handlers.StepIntoEditorSelectionHandler"
+          commandId="org.python.pydev.debug.stepIntoSelection">
+       <enabledWhen>
+         <with
+               variable="activeEditor">
+            <instanceof
+                  value="org.python.pydev.editor.PyEdit">
+            </instanceof>
+         </with>
+       </enabledWhen>
+    </handler>
+ </extension>
+ <extension
+       point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectors">
+    <hyperlinkDetector
+          activate="true"
+          class="org.python.pydev.debug.handlers.StepIntoSelectionHyperlinkDetector"
+          description="Step Into Selection"
+          id="org.python.pydev.debug.hyperlinkdetector.stepIntoSelection"
+          modifierKeys="M1+M3"
+          name="Step Into Selection"
+          targetId="org.python.pydev.editor.PythonEditor">
+    </hyperlinkDetector>
+ </extension>
+ 
  <!--Extension Points for SetNext Statement-->
     <extension
 		point="org.eclipse.ui.commands">
  		<command
         	id="org.python.pydev.debug.setnext"
         	name="Set Next Statement"
+        	categoryId="org.python.pydev.ui.category.run">
+		</command>
+ 		<command
+        	id="org.python.pydev.debug.stepIntoSelection"
+        	name="Step Into Editor Selection"
         	categoryId="org.python.pydev.ui.category.run">
 		</command>
  	</extension>
@@ -954,6 +987,11 @@
         sequence="M1+M3+R"
         commandId="org.python.pydev.debug.setnext"
         schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"/>
+   <key
+        sequence="M1+F5"
+        contextId="org.python.pydev.ui.editor.scope"
+        commandId="org.python.pydev.debug.stepIntoSelection"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"/>
    </extension>
    <extension point="org.eclipse.ui.actionSets">
 	<actionSet
