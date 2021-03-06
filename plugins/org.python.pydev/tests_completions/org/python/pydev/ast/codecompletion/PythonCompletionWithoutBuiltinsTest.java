@@ -3438,4 +3438,16 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals("method()", proposals[0].getDisplayString());
         assertEquals("method2()", proposals[1].getDisplayString());
     }
+
+    public void testMethodCompletion() throws Exception {
+        String s;
+        s = "" +
+                "def main():\n"
+                + "    import zipfile\n"
+                + "    z = zipfile.ZipFile('')\n"
+                + "    for name in z.namelist():\n"
+                + "        print(name)\n"
+                + "        with z.ope";
+        requestCompl(s, s.length(), -1, new String[] { "open(name, mode, pwd)" });
+    }
 }
