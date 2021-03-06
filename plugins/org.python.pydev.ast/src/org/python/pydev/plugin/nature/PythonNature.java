@@ -52,6 +52,7 @@ import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IModuleRequestState;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
@@ -1164,18 +1165,19 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
     }
 
     @Override
-    public TokensList getBuiltinCompletions() {
+    public TokensList getBuiltinCompletions(IModuleRequestState moduleRequest) {
         try {
-            return this.getRelatedInterpreterManager().getBuiltinCompletions(this.getProjectInterpreterName());
+            return this.getRelatedInterpreterManager().getBuiltinCompletions(this.getProjectInterpreterName(),
+                    moduleRequest);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public IModule getBuiltinMod() {
+    public IModule getBuiltinMod(IModuleRequestState moduleRequest) {
         try {
-            return this.getRelatedInterpreterManager().getBuiltinMod(this.getProjectInterpreterName());
+            return this.getRelatedInterpreterManager().getBuiltinMod(this.getProjectInterpreterName(), moduleRequest);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

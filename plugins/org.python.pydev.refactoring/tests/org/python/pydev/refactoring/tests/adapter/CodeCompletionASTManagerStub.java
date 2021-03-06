@@ -31,6 +31,7 @@ import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IModuleRequestState;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
@@ -119,12 +120,14 @@ public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
     }
 
     @Override
-    public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit, boolean lookingForRelative) {
+    public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit, boolean lookingForRelative,
+            IModuleRequestState moduleRequest) {
         throw new RuntimeException("Not implemented");
     }
 
     @Override
-    public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit) {
+    public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit,
+            IModuleRequestState moduleRequest) {
         throw new RuntimeException("Not implemented");
     }
 

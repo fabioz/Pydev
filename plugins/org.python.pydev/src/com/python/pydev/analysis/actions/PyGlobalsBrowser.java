@@ -15,11 +15,12 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.ui.dialogs.SelectionDialog;
-import org.python.pydev.ast.codecompletion.revisited.CompletionCache;
+import org.python.pydev.ast.codecompletion.revisited.CompletionState;
 import org.python.pydev.ast.interpreter_managers.ChooseInterpreterManager;
 import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.ast.item_pointer.ItemPointer;
 import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
@@ -209,7 +210,7 @@ public class PyGlobalsBrowser extends PyAction {
                 }
                 List<ItemPointer> pointers = new ArrayList<ItemPointer>();
 
-                CompletionCache completionCache = new CompletionCache();
+                ICompletionState completionCache = new CompletionState();
                 for (IPythonNature pythonNature : pythonNatures) {
                     //try to find in one of the natures...
                     ICodeCompletionASTManager astManager = pythonNature.getAstManager();

@@ -10,6 +10,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
+import org.python.pydev.core.BaseModuleRequest;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
@@ -64,7 +65,7 @@ public class DjangoNewProjectPage extends NewProjectNameAndLocationWizardPage {
                 interpreterInfo = interpreterManager.getInterpreterInfo(projectInterpreter, new NullProgressMonitor());
             }
             IModule module = interpreterInfo.getModulesManager().getModuleWithoutBuiltins("django.core.__init__", null,
-                    false);
+                    false, new BaseModuleRequest(false));
             if (module == null) {
                 DjangoNotAvailableWizardPage page = new DjangoNotAvailableWizardPage("Django not available",
                         interpreterInfo);

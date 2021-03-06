@@ -28,6 +28,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.PropertyPage;
 import org.python.pydev.ast.codecompletion.revisited.ProjectModulesManager;
+import org.python.pydev.core.BaseModuleRequest;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonPathNature;
@@ -52,7 +53,7 @@ public class DjangoProjectProperties extends PropertyPage {
 
     @Override
     protected Control createContents(Composite parent) {
-        project = (IProject) getElement().getAdapter(IProject.class);
+        project = getElement().getAdapter(IProject.class);
 
         Composite topComp = new Composite(parent, SWT.NONE);
 
@@ -77,7 +78,8 @@ public class DjangoProjectProperties extends PropertyPage {
                 Text text = new Text(topComp, SWT.BORDER);
                 textDjangoManage = text;
                 textDjangoManage
-                        .setToolTipText("This is the name of the project-relative location of manage.py (i.e.: src/myapp/manage.py)");
+                        .setToolTipText(
+                                "This is the name of the project-relative location of manage.py (i.e.: src/myapp/manage.py)");
 
                 label = new Label(topComp, SWT.None);
                 labelErrorManage = new Label(topComp, SWT.None);
@@ -91,7 +93,8 @@ public class DjangoProjectProperties extends PropertyPage {
                             String path = textDjangoManage.getText().trim();
                             if (path.trim().length() == 0) {
                                 labelErrorSettings
-                                        .setText("Please specify the manage.py relative name (i.e.: src/myapp/manage.py)");
+                                        .setText(
+                                                "Please specify the manage.py relative name (i.e.: src/myapp/manage.py)");
                                 return;
                             }
 
@@ -143,7 +146,7 @@ public class DjangoProjectProperties extends PropertyPage {
                             ProjectModulesManager modulesManager = (ProjectModulesManager) astManager
                                     .getModulesManager();
                             IModule moduleInDirectManager = modulesManager.getModuleInDirectManager(moduleName, nature,
-                                    true);
+                                    true, new BaseModuleRequest(false));
                             if (moduleInDirectManager == null) {
                                 labelErrorSettings.setText(StringUtils.format("Module: %s could not be found.",
                                         moduleName));

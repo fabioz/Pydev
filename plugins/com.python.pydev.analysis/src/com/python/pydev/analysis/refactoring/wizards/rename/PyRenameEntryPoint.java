@@ -41,6 +41,7 @@ import org.python.pydev.ast.refactoring.IPyRefactoringRequest;
 import org.python.pydev.ast.refactoring.ModuleRenameRefactoringRequest;
 import org.python.pydev.ast.refactoring.PyRefactoringRequest;
 import org.python.pydev.ast.refactoring.RefactoringRequest;
+import org.python.pydev.core.BaseModuleRequest;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.core.log.Log;
@@ -54,7 +55,6 @@ import org.python.pydev.shared_ui.search.replace.ChangedFilesChecker;
 import com.python.pydev.analysis.refactoring.changes.PyCompositeChange;
 import com.python.pydev.analysis.refactoring.changes.PyRenameResourceChange;
 import com.python.pydev.analysis.refactoring.wizards.IRefactorRenameProcess;
-import com.python.pydev.analysis.refactoring.wizards.rename.TextEditCreation;
 
 /**
  * Rename to a local variable...
@@ -248,7 +248,7 @@ public class PyRenameEntryPoint extends RenameProcessor {
                     boolean searchInit = true;
                     IModule module = request.getTargetNature().getAstManager()
                             .getModule(request.inputName, request.getTargetNature(),
-                                    !searchInit); //i.e.: the parameter is dontSearchInit (so, pass in negative form to search)
+                                    !searchInit, new BaseModuleRequest(request.acceptTypeshed)); //i.e.: the parameter is dontSearchInit (so, pass in negative form to search)
                     if (module != null) {
                         String partName = module.getName().endsWith(".__init__") ? "package" : "module";
                         status.addFatalError("Unable to perform module rename because a " + partName + " named: "

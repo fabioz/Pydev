@@ -24,6 +24,7 @@ import org.python.pydev.ast.builder.PyDevBuilderVisitor;
 import org.python.pydev.ast.builder.VisitorMemo;
 import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.ast.listing_utils.PyFileListing;
+import org.python.pydev.core.BaseModuleRequest;
 import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.MisconfigurationException;
@@ -151,7 +152,7 @@ public class ForceCodeAnalysisOnTree extends PyResourceAction implements IObject
                 continue;
             }
 
-            IModule module = nature.getAstManager().getModule(moduleName, nature, true);
+            IModule module = nature.getAstManager().getModule(moduleName, nature, true, new BaseModuleRequest(false));
             if (module == null) {
                 Log.log(IStatus.WARNING, "Unable to get module: " + moduleName + " for resource: " + f, null);
                 continue;

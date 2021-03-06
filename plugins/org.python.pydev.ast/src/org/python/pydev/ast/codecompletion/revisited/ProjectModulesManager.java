@@ -30,6 +30,7 @@ import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IModuleRequestState;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.IPythonNature;
@@ -160,25 +161,27 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
      * @see org.python.pydev.core.IProjectModulesManager#getModule(java.lang.String, org.python.pydev.core.nature.PythonNature, boolean)
      */
     @Override
-    public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit) {
-        return getModule(name, nature, true, dontSearchInit);
+    public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit,
+            IModuleRequestState moduleRequest) {
+        return getModule(name, nature, true, dontSearchInit, moduleRequest);
     }
 
     /**
      * When looking for relative, we do not check dependencies
      */
     @Override
-    public IModule getRelativeModule(String name, IPythonNature nature) {
-        return super.getModule(false, name, nature, true); //cannot be a compiled module
+    public IModule getRelativeModule(String name, IPythonNature nature, IModuleRequestState moduleRequest) {
+        return super.getModule(false, name, nature, true, moduleRequest); //cannot be a compiled module
     }
 
     /**
      * @see org.python.pydev.core.IProjectModulesManager#getModule(java.lang.String, org.python.pydev.core.nature.PythonNature, boolean, boolean)
      */
     @Override
-    public IModule getModule(String name, IPythonNature nature, boolean checkSystemManager, boolean dontSearchInit) {
+    public IModule getModule(String name, IPythonNature nature, boolean checkSystemManager, boolean dontSearchInit,
+            IModuleRequestState moduleRequest) {
         Tuple<IModule, IModulesManager> ret = getModuleAndRelatedModulesManager(name, nature, checkSystemManager,
-                dontSearchInit);
+                dontSearchInit, moduleRequest);
         if (ret != null) {
             return ret.o1;
         }
@@ -190,7 +193,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
      */
     @Override
     public Tuple<IModule, IModulesManager> getModuleAndRelatedModulesManager(String name, IPythonNature nature,
-            boolean checkSystemManager, boolean dontSearchInit) {
+            boolean checkSystemManager, boolean dontSearchInit, IModuleRequestState moduleRequest) {
 
         IModule module = null;
 
@@ -198,7 +201,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
 
         for (IModulesManager m : managersInvolved) {
             if (m instanceof ISystemModulesManager) {
-                module = ((ISystemModulesManager) m).getBuiltinModule(name, dontSearchInit);
+                module = ((ISystemModulesManager) m).getBuiltinModule(name, dontSearchInit, moduleRequest);
                 if (module != null) {
                     if (DEBUG_MODULES) {
                         System.out.println("Trying to get:" + name + " - " + " returned builtin:" + module + " - "
@@ -212,11 +215,11 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
         for (IModulesManager m : managersInvolved) {
             if (m instanceof IProjectModulesManager) {
                 IProjectModulesManager pM = (IProjectModulesManager) m;
-                module = pM.getModuleInDirectManager(name, nature, dontSearchInit);
+                module = pM.getModuleInDirectManager(name, nature, dontSearchInit, moduleRequest);
 
             } else if (m instanceof ISystemModulesManager) {
                 ISystemModulesManager systemModulesManager = (ISystemModulesManager) m;
-                module = systemModulesManager.getModuleWithoutBuiltins(name, nature, dontSearchInit);
+                module = systemModulesManager.getModuleWithoutBuiltins(name, nature, dontSearchInit, moduleRequest);
 
             } else {
                 throw new RuntimeException("Unexpected: " + m);
@@ -239,8 +242,9 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
      * Only searches the modules contained in the direct modules manager.
      */
     @Override
-    public IModule getModuleInDirectManager(String name, IPythonNature nature, boolean dontSearchInit) {
-        return super.getModule(name, nature, dontSearchInit);
+    public IModule getModuleInDirectManager(String name, IPythonNature nature, boolean dontSearchInit,
+            IModuleRequestState moduleRequest) {
+        return super.getModule(name, nature, dontSearchInit, moduleRequest);
     }
 
     @Override

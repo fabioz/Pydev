@@ -28,6 +28,7 @@ import org.python.pydev.ast.codecompletion.revisited.CompletionCache;
 import org.python.pydev.ast.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.ast.codecompletion.revisited.modules.CompiledToken;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
+import org.python.pydev.core.BaseModuleRequest;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.ILocalScope;
@@ -695,7 +696,8 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     }
 
     public void testIsInGlobalTokens() throws BadLocationException, IOException, Exception {
-        IModule module = nature.getAstManager().getModule("testAssist.__init__", nature, true);
+        IModule module = nature.getAstManager().getModule("testAssist.__init__", nature, true,
+                new BaseModuleRequest(true));
         assertTrue(module.isInGlobalTokens("assist.ExistingClass.existingMethod", nature, new CompletionCache()));
     }
 
@@ -1564,8 +1566,10 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     }
 
     public void testInvalidNotFound() throws Exception {
-        assertNull(nature.getAstManager().getModule("extendable.invalid-module", nature, true));
-        assertNull(nature.getAstManager().getModule("extendable.invalid+module", nature, true));
+        assertNull(nature.getAstManager().getModule("extendable.invalid-module", nature, true,
+                new BaseModuleRequest(true)));
+        assertNull(nature.getAstManager().getModule("extendable.invalid+module", nature, true,
+                new BaseModuleRequest(true)));
     }
 
     public void testAcessInstanceOnClass() throws Exception {
@@ -3450,4 +3454,14 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "        with z.ope";
         requestCompl(s, s.length(), -1, new String[] { "open(name, mode, pwd)" });
     }
+
+    public void testTypeshed() throws Exception {
+        String s;
+        s = "" +
+                "def main():\n"
+                + "    from re import RegexFlag\n"
+                + "    RegexFlag.";
+        requestCompl(s, s.length(), -1, new String[] { "ASCII" });
+    }
+
 }

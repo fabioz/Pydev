@@ -132,9 +132,10 @@ public interface ICodeCompletionASTManager {
      * @return the module with the specified name.
      */
     public abstract IModule getModule(String name, IPythonNature nature, boolean dontSearchInit,
-            boolean lookingForRelative);
+            boolean lookingForRelative, IModuleRequestState moduleRequest);
 
-    public abstract IModule getModule(String name, IPythonNature nature, boolean dontSearchInit);
+    public abstract IModule getModule(String name, IPythonNature nature, boolean dontSearchInit,
+            IModuleRequestState moduleRequest);
 
     /**
      * @return tuple with:

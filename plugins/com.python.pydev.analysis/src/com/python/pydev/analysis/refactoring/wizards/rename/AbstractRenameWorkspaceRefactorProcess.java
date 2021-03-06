@@ -18,7 +18,9 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.ast.refactoring.RefactoringRequest;
+import org.python.pydev.core.BaseModuleRequest;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IModuleRequestState;
 import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ModulesKey;
@@ -172,6 +174,7 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
                 request.pushMonitor(new SubProgressMonitor(request.getMonitor(), 10));
                 request.getMonitor().beginTask("Analyzing references found", total);
                 int i = 0;
+                IModuleRequestState moduleRequest = new BaseModuleRequest(request.acceptTypeshed);
                 for (Tuple<List<ModulesKey>, IPythonNature> file : references) {
                     i++;
                     request.communicateWork(StringUtils.format(
@@ -196,7 +199,8 @@ public abstract class AbstractRenameWorkspaceRefactorProcess extends AbstractRen
 
                                         request.checkCancelled();
                                         IModule module = modulesManager
-                                                .getModuleInDirectManager(modName, nature, false);
+                                                .getModuleInDirectManager(modName, nature, false,
+                                                        moduleRequest);
 
                                         if (module instanceof SourceModule) {
 

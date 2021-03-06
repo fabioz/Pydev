@@ -341,7 +341,7 @@ public abstract class AbstractJavaClassModule extends AbstractModule implements 
         for (String s : splitted) {
             modNameBuf.append(".");
             modNameBuf.append(s);
-            module = nature.getAstManager().getModule(modNameBuf.toString(), nature, true, false);
+            module = nature.getAstManager().getModule(modNameBuf.toString(), nature, true, false, state);
             if (module != null) {
                 validModule = module;
             } else {

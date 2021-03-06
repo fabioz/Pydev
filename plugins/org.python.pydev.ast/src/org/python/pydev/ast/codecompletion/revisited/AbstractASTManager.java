@@ -33,6 +33,7 @@ import org.python.pydev.ast.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.ast.codecompletion.revisited.visitors.GlobalModelVisitor;
 import org.python.pydev.ast.refactoring.PyRefactoringFindDefinition;
+import org.python.pydev.core.BaseModuleRequest;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionRequest;
@@ -42,6 +43,7 @@ import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IModuleRequestState;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
@@ -494,7 +496,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                 original = original.substring(0, original.length() - 1);
             }
 
-            Tuple<IModule, String> modTok = findModuleFromPath(original, nature, false, null); //the current module name is not used as it is not relative
+            Tuple<IModule, String> modTok = findModuleFromPath(original, nature, false, null,
+                    new BaseModuleRequest(true)); //the current module name is not used as it is not relative
             IModule m = modTok.o1;
             String tok = modTok.o2;
 
@@ -578,8 +581,9 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
      * By default does not look for relative import
      */
     @Override
-    public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit) {
-        return modulesManager.getModule(name, nature, dontSearchInit, false);
+    public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit,
+            IModuleRequestState moduleRequest) {
+        return modulesManager.getModule(name, nature, dontSearchInit, false, moduleRequest);
     }
 
     /**
@@ -591,11 +595,12 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
      * @return the module represented by this name
      */
     @Override
-    public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit, boolean lookingForRelative) {
+    public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit, boolean lookingForRelative,
+            IModuleRequestState moduleRequest) {
         if (lookingForRelative) {
-            return modulesManager.getRelativeModule(name, nature);
+            return modulesManager.getRelativeModule(name, nature, moduleRequest);
         } else {
-            return modulesManager.getModule(name, nature, dontSearchInit);
+            return modulesManager.getModule(name, nature, dontSearchInit, moduleRequest);
         }
     }
 
@@ -615,7 +620,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         state2.setActivationToken(NodeUtils.getBuiltinType(act));
 
         if (state2.getActivationToken() != null) {
-            IModule m = getBuiltinMod(state.getNature());
+            IModule m = getBuiltinMod(state.getNature(), state);
             if (m != null) {
                 return m.getGlobalTokens(state2, this);
             }
@@ -626,7 +631,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             if (act.startsWith(".")) {
                 act = act.substring(1);
             }
-            IModule m = getBuiltinMod(state.getNature());
+            IModule m = getBuiltinMod(state.getNature(), state);
             ICompletionState state3 = state.getCopy();
             state3.setActivationToken(act);
             return m.getGlobalTokens(state3, this);
@@ -851,10 +856,11 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                 //wild imports: recursively go and get those completions and see if any matches it.
                 for (IterTokenEntry entry : wildImportedModules) {
                     IToken name = entry.getToken();
-                    IModule mod = getModule(name.getAsRelativeImport(module.getName()), state.getNature(), false); //relative (for wild imports this is ok... only a module can be used in wild imports)
+                    IModule mod = getModule(name.getAsRelativeImport(module.getName()), state.getNature(), false,
+                            state); //relative (for wild imports this is ok... only a module can be used in wild imports)
 
                     if (mod == null) {
-                        mod = getModule(name.getOriginalRep(), state.getNature(), false); //absolute
+                        mod = getModule(name.getOriginalRep(), state.getNature(), false, state); //absolute
                     }
 
                     if (mod != null) {
@@ -875,7 +881,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                 }
 
                 //If it was still not found, go to builtins.
-                IModule builtinsMod = getBuiltinMod(state.getNature());
+                IModule builtinsMod = getBuiltinMod(state.getNature(), state);
                 if (builtinsMod != null && builtinsMod != module) {
                     tokens = getCompletionsForModule(builtinsMod, state);
                     if (tokens.notEmpty()) {
@@ -1143,7 +1149,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                         String rep = NodeUtils.getFullRepresentationString(value);
                         try {
                             ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
-                            PyRefactoringFindDefinition.findActualDefinition(null, module,
+                            PyRefactoringFindDefinition.findActualDefinition(null, state.getAcceptTypeshed(), module,
                                     rep,
                                     selected,
                                     value.beginLine, value.beginLine, state.getNature(),
@@ -1230,7 +1236,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
         state.pushGetCompletionsUnpackingObject();
         try {
-            PyRefactoringFindDefinition.findActualDefinition(null, module, state.getActivationToken(),
+            PyRefactoringFindDefinition.findActualDefinition(null, state.getAcceptTypeshed(), module,
+                    state.getActivationToken(),
                     selected, state.getLine() + 1, state.getCol() + 1, state.getNature(), state);
             for (Iterator<IDefinition> iterator = selected.iterator(); iterator.hasNext();) {
                 IDefinition iDefinition = iterator.next();
@@ -1335,7 +1342,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         } else {
             ArrayList<IDefinition> found = new ArrayList<>();
             // Pointing to some other place... let's follow it.
-            PyRefactoringFindDefinition.findActualDefinition(null, assignDefinition.module, assignDefinition.value,
+            PyRefactoringFindDefinition.findActualDefinition(null, state.getAcceptTypeshed(), assignDefinition.module,
+                    assignDefinition.value,
                     found, assignDefinition.line, assignDefinition.col, state.getNature(), state);
             for (IDefinition f : found) {
                 if (f instanceof Definition) {
@@ -1489,7 +1497,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                                 if (useModule == null) {
                                     String parentPackage = sourceToken.getParentPackage();
                                     useModule = getModule(parentPackage, state.getNature(),
-                                            true);
+                                            true, state);
                                 }
 
                                 TokensList ret = getCompletionsUnpackingAST(sourceToken.getAst(),
@@ -1511,7 +1519,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                         useModule = module;
                     } else {
                         String parentPackage = getItemToken.getParentPackage();
-                        useModule = getModule(parentPackage, state.getNature(), true);
+                        useModule = getModule(parentPackage, state.getNature(), true, state);
                     }
                     TokensList ret = getCompletionsNotUnpackingToken(sourceToken,
                             useModule, state);
@@ -1564,7 +1572,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             throws CompletionRecursionException {
         if (useModule == null) {
             String parentPackage = token.getParentPackage();
-            useModule = getModule(parentPackage, state.getNature(), true);
+            useModule = getModule(parentPackage, state.getNature(), true, state);
         }
 
         SimpleNode ast = token.getAst();
@@ -1732,7 +1740,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             if (state.getActivationToken().startsWith(rep)) {
                 String absoluteImport = token.getAsAbsoluteImport();
                 modUsed = modulesManager.getModuleAndRelatedModulesManager(absoluteImport, state.getNature(), true,
-                        false);
+                        false, state);
 
                 IModule sameLevelMod = null;
                 if (modUsed != null) {
@@ -1809,7 +1817,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     @Override
     public TokensList getBuiltinCompletions(ICompletionState state, TokensList completions) {
         IPythonNature nature = state.getNature();
-        TokensList builtinCompletions = getBuiltinComps(nature);
+        TokensList builtinCompletions = getBuiltinComps(nature, state);
         if (builtinCompletions != null) {
             completions.addAll(builtinCompletions);
         }
@@ -1820,15 +1828,15 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     /**
      * @return the tokens in the builtins
      */
-    protected TokensList getBuiltinComps(IPythonNature nature) {
-        return nature.getBuiltinCompletions();
+    protected TokensList getBuiltinComps(IPythonNature nature, IModuleRequestState moduleRequest) {
+        return nature.getBuiltinCompletions(moduleRequest);
     }
 
     /**
      * @return the module that represents the builtins
      */
-    protected IModule getBuiltinMod(IPythonNature nature) {
-        return nature.getBuiltinMod();
+    protected IModule getBuiltinMod(IPythonNature nature, IModuleRequestState moduleRequest) {
+        return nature.getBuiltinMod(moduleRequest);
     }
 
     /**
@@ -1955,7 +1963,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                         } else {
                             currentName = sourceToken.getOriginalRep();
                         }
-                        mod = getModule(currentName, state.getNature(), false);
+                        mod = getModule(currentName, state.getNature(), false, state);
                     }
                 }
             }
@@ -1964,11 +1972,11 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                 //I.e.: if it has an import level, we can't find it this way...
                 if (current != null) {
                     //we cannot get the relative path if we don't have a current module
-                    mod = getModule(name.getAsRelativeImport(current.getName()), state.getNature(), false);
+                    mod = getModule(name.getAsRelativeImport(current.getName()), state.getNature(), false, state);
                 }
 
                 if (mod == null) {
-                    mod = getModule(name.getOriginalRep(), state.getNature(), false); //absolute import
+                    mod = getModule(name.getOriginalRep(), state.getNature(), false, state); //absolute import
                 }
             }
 
@@ -2177,7 +2185,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                         relative += "." + tok;
                     }
 
-                    modTok = findModuleFromPath(relative, nature, false, null);
+                    modTok = findModuleFromPath(relative, nature, false, null, state);
                     mod = modTok.o1;
                     if (checkValidity(currentModuleName, mod)) {
                         Tuple<IModule, String> ret = fixTok(modTok, tok, activationToken);
@@ -2196,7 +2204,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             //check as relative with complete rep
             asRelativeImport = importedModule.getAsRelativeImport(currentModuleName);
             if (!asRelativeImport.startsWith(".")) {
-                modTok = findModuleFromPath(asRelativeImport, nature, true, currentModuleName);
+                modTok = findModuleFromPath(asRelativeImport, nature, true, currentModuleName, state);
                 mod = modTok.o1;
                 if (checkValidity(currentModuleName, mod)) {
                     Tuple<IModule, String> ret = fixTok(modTok, tok, activationToken);
@@ -2211,7 +2219,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             if (!originalWithoutRep.endsWith("__init__")) {
                 originalWithoutRep = originalWithoutRep + ".__init__";
             }
-            modTok = findModuleFromPath(originalWithoutRep, nature, true, null);
+            modTok = findModuleFromPath(originalWithoutRep, nature, true, null, state);
             mod = modTok.o1;
             if (modTok.o2.endsWith("__init__") == false && checkValidity(currentModuleName, mod)) {
                 if (mod.isInGlobalTokens(importedModule.getRepresentation(), nature, false, state)) {
@@ -2228,7 +2236,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         }
 
         //the most 'simple' case: check as absolute with original rep
-        modTok = findModuleFromPath(importedModule.getOriginalRep(), nature, false, null);
+        modTok = findModuleFromPath(importedModule.getOriginalRep(), nature, false, null, state);
         mod = modTok.o1;
         if (checkValidity(currentModuleName, mod)) {
             Tuple<IModule, String> ret = fixTok(modTok, tok, activationToken);
@@ -2237,7 +2245,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
         if (!isAbsoluteImportEnabledx) {
             //ok, one last shot, to see a relative looking in folders __init__
-            modTok = findModuleFromPath(asRelativeImport, nature, false, null);
+            modTok = findModuleFromPath(asRelativeImport, nature, false, null, state);
             mod = modTok.o1;
             if (checkValidity(currentModuleName, mod, true)) {
                 Tuple<IModule, String> ret = fixTok(modTok, tok, activationToken);
@@ -2329,22 +2337,23 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
      * if this parameter is not null, it means we're looking for a relative import. When checking for relative imports,
      * we should only check the modules that are directly under this project (so, we should not check the whole pythonpath for
      * it, just direct modules)
+     * @param moduleRequest 
      *
      * @return tuple with found module and the String removed from the path in
      * order to find the module.
      */
     public Tuple<IModule, String> findModuleFromPath(String rep, IPythonNature nature, boolean dontSearchInit,
-            String currentModuleName) {
+            String currentModuleName, IModuleRequestState moduleRequest) {
         String tok = "";
         boolean lookingForRelative = currentModuleName != null;
-        IModule mod = getModule(rep, nature, dontSearchInit, lookingForRelative);
+        IModule mod = getModule(rep, nature, dontSearchInit, lookingForRelative, moduleRequest);
         String mRep = rep;
         int index;
         while (mod == null && (index = mRep.lastIndexOf('.')) != -1) {
             tok = mRep.substring(index + 1) + "." + tok;
             mRep = mRep.substring(0, index);
             if (mRep.length() > 0) {
-                mod = getModule(mRep, nature, dontSearchInit, lookingForRelative);
+                mod = getModule(mRep, nature, dontSearchInit, lookingForRelative, moduleRequest);
             }
         }
         if (tok.endsWith(".")) {

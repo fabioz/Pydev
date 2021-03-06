@@ -350,7 +350,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
      *
      * May return null if not set
      */
-    TokensList getBuiltinCompletions();
+    TokensList getBuiltinCompletions(IModuleRequestState moduleRequest);
 
     /**
      * @param toks those are the tokens that are set as builtin completions.
@@ -360,7 +360,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
     /**
      * @return the module for the builtins (may return null if not set)
      */
-    IModule getBuiltinMod();
+    IModule getBuiltinMod(IModuleRequestState moduleRequest);
 
     void clearBuiltinMod();
 

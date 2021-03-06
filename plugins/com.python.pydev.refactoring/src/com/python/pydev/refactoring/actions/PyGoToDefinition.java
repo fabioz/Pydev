@@ -212,7 +212,26 @@ public class PyGoToDefinition extends PyRefactorAction {
         try {
 
             if (areRefactorPreconditionsOK(refactoringRequest)) {
-                ItemPointer[] defs = findDefinition(pyEdit);
+                boolean acceptTypeshed = false;
+                boolean findInAdditionalInfo = false;
+                ItemPointer[] defs = findDefinition(pyEdit, acceptTypeshed, findInAdditionalInfo);
+                boolean retry = defs == null || defs.length == 0;
+                if (!retry) {
+                    if (defs.length == 1) {
+                        if (defs[0].definition == null) {
+                            retry = true;
+                        } else if (defs[0].definition.module == null) {
+                            retry = true;
+                        } else if (defs[0].definition.module.getFile() == null) {
+                            retry = true;
+                        }
+                    }
+                }
+                if (retry) {
+                    acceptTypeshed = true;
+                    findInAdditionalInfo = true;
+                    defs = findDefinition(pyEdit, acceptTypeshed, findInAdditionalInfo);
+                }
                 if (doOpenDefinition) {
                     openDefinition(defs, pyEdit, shell);
                 }
@@ -354,10 +373,14 @@ public class PyGoToDefinition extends PyRefactorAction {
      * @throws TooManyMatchesException
      * @throws BadLocationException
      */
-    public ItemPointer[] findDefinition(PyEdit pyEdit)
+    public ItemPointer[] findDefinition(PyEdit pyEdit, boolean acceptTypeshed, boolean findInAdditionalInfo)
             throws TooManyMatchesException, MisconfigurationException, BadLocationException {
         IPyRefactoring pyRefactoring = AbstractPyRefactoring.getPyRefactoring();
-        return pyRefactoring.findDefinition(getRefactoringRequest());
+        RefactoringRequest refactoringRequest = getRefactoringRequest();
+        refactoringRequest.acceptTypeshed = acceptTypeshed;
+        refactoringRequest.setAdditionalInfo(RefactoringRequest.FIND_DEFINITION_IN_ADDITIONAL_INFO,
+                findInAdditionalInfo);
+        return pyRefactoring.findDefinition(refactoringRequest);
     }
 
     /**

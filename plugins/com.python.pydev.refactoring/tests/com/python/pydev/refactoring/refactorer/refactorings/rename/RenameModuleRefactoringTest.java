@@ -13,6 +13,7 @@ import java.util.Map;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.ast.refactoring.ModuleRenameRefactoringRequest;
 import org.python.pydev.ast.refactoring.RefactoringRequest;
+import org.python.pydev.core.BaseModuleRequest;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
@@ -450,16 +451,18 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
     }
 
     protected Map<Tuple<String, File>, HashSet<ASTEntry>> getReferencesForModuleRename(String moduleName,
-            String newName,
-            boolean expectError) {
+            String newName, boolean expectError) {
         Map<Tuple<String, File>, HashSet<ASTEntry>> occurrencesToReturn = null;
         try {
             IProjectModulesManager modulesManager = (IProjectModulesManager) natureRefactoring.getAstManager()
                     .getModulesManager();
-            IModule module = modulesManager.getModuleInDirectManager(moduleName, natureRefactoring, true);
+            BaseModuleRequest moduleRequest = new BaseModuleRequest(true);
+            IModule module = modulesManager.getModuleInDirectManager(moduleName, natureRefactoring, true,
+                    moduleRequest);
             if (module == null) {
                 if (!moduleName.endsWith("__init__")) {
-                    module = modulesManager.getModuleInDirectManager(moduleName + ".__init__", natureRefactoring, true);
+                    module = modulesManager.getModuleInDirectManager(moduleName + ".__init__", natureRefactoring, true,
+                            moduleRequest);
                 }
                 if (module == null) {
                     throw new RuntimeException("Unable to get source module for module:" + moduleName);

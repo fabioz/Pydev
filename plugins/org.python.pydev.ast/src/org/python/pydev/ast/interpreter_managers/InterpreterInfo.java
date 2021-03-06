@@ -15,7 +15,9 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -46,8 +48,10 @@ import org.python.pydev.ast.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.ast.runners.SimpleRunner;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.IModuleRequestState;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.PropertiesHelper;
@@ -108,6 +112,7 @@ public class InterpreterInfo implements IInterpreterInfo {
      */
     private String[] builtinsCache;
     private Map<String, File> predefinedBuiltinsCache;
+    private Map<String, File> typeshedCache;
 
     /**
      * module management for the system is always binded to an interpreter (binded in this class)
@@ -1921,9 +1926,10 @@ public class InterpreterInfo implements IInterpreterInfo {
 
     /**
      * May return null if it doesn't exist.
+     * @param moduleRequest 
      * @return the file that matches the passed module name with the predefined builtins.
      */
-    public File getPredefinedModule(String moduleName) {
+    public File getPredefinedModule(String moduleName, IModuleRequestState moduleRequest) {
         if (this.predefinedBuiltinsCache == null) {
             this.predefinedBuiltinsCache = new HashMap<String, File>();
             for (String s : this.getPredefinedCompletionsPath()) {
@@ -1949,7 +1955,53 @@ public class InterpreterInfo implements IInterpreterInfo {
             }
         }
 
-        return this.predefinedBuiltinsCache.get(moduleName);
+        if (this.typeshedCache == null && moduleRequest.getAcceptTypeshed()) {
+            this.typeshedCache = new HashMap<String, File>();
+            try {
+                File typeshedPath = CorePlugin.getTypeshedPath();
+                File f = new File(typeshedPath, "stdlib");
+                if (this.getGrammarVersion() <= IGrammarVersionProvider.LATEST_GRAMMAR_PY2_VERSION) {
+                    f = new File(f, "@python2");
+                }
+                if (f.exists() && f.isDirectory()) {
+                    fillTypeshedFromDirInfo(f, "");
+                }
+            } catch (CoreException e) {
+                Log.log(e);
+            }
+        }
+
+        File ret = this.predefinedBuiltinsCache.get(moduleName);
+        if (ret == null && moduleRequest.getAcceptTypeshed()) {
+            ret = this.typeshedCache.get(moduleName);
+        }
+        return ret;
+    }
+
+    private void fillTypeshedFromDirInfo(File f, String basename) {
+        java.nio.file.Path path = Paths.get(f.toURI());
+        try (DirectoryStream<java.nio.file.Path> newDirectoryStream = Files.newDirectoryStream(path)) {
+            Iterator<java.nio.file.Path> it = newDirectoryStream.iterator();
+            while (it.hasNext()) {
+                java.nio.file.Path path2 = it.next();
+                File file2 = path2.toFile();
+                if (file2.isDirectory()) {
+                    String dirname = file2.getName();
+                    if (!dirname.contains("@")) {
+                        fillTypeshedFromDirInfo(file2,
+                                basename.isEmpty() ? dirname + "." : basename + dirname + ".");
+                    }
+                } else {
+                    if (file2.getName().endsWith(".pyi")) {
+                        String n = file2.getName();
+                        String modName = n.substring(0, n.length() - (".pyi".length()));
+                        this.typeshedCache.put(basename + modName, file2);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            Log.log(e);
+        }
     }
 
     public void removePredefinedCompletionPath(String item) {

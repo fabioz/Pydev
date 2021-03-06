@@ -27,7 +27,6 @@ import org.eclipse.jface.text.IRegion;
 import org.python.pydev.ast.codecompletion.PyCodeCompletionUtils.IFilter;
 import org.python.pydev.ast.codecompletion.revisited.AbstractASTManager;
 import org.python.pydev.ast.codecompletion.revisited.AssignAnalysis;
-import org.python.pydev.ast.codecompletion.revisited.CompletionCache;
 import org.python.pydev.ast.codecompletion.revisited.CompletionState;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
@@ -307,7 +306,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                                             if (parentPackage.equals(current.getName())) {
                                                 module = current;
                                             } else {
-                                                module = astManager.getModule(parentPackage, nature, true);
+                                                module = astManager.getModule(parentPackage, nature, true, state);
                                             }
                                             if (module != null) {
                                                 if (module instanceof SourceModule) {
@@ -581,7 +580,8 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             RefactoringRequest findRequest = new RefactoringRequest(request.editorFile, ps, new NullProgressMonitor(),
                     request.nature, null);
             ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
-            PyRefactoringFindDefinition.findActualDefinition(findRequest, new CompletionCache(), selected);
+            CompletionState completionState = new CompletionState();
+            PyRefactoringFindDefinition.findActualDefinition(findRequest, completionState, selected);
 
             //Changed: showing duplicated parameters (only removing self and cls).
             //Tuple<List<String>, Integer> insideParentesisToks = ps.getInsideParentesisToks(false, completionRequestForKeywordParam.documentOffset);

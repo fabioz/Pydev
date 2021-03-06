@@ -640,7 +640,7 @@ public class CompiledModule extends AbstractModule {
             String n = FullRepIterable.getFirstPart(f.getName());
             mod = AbstractModule.createModule(n, f, nature, true);
         } else {
-            mod = nature.getAstManager().getModule(foundModName, nature, true);
+            mod = nature.getAstManager().getModule(foundModName, nature, true, state);
         }
 
         if (TRACE_COMPILED_MODULES) {

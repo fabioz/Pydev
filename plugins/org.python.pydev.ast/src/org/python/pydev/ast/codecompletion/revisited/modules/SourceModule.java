@@ -41,6 +41,7 @@ import org.python.pydev.core.ICompletionState.LookingFor;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IModuleRequestState;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISourceModule;
 import org.python.pydev.core.IToken;
@@ -982,7 +983,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                         if (this.getName().equals(parentPackage)) {
                                             module = this;
                                         } else {
-                                            module = astManager.getModule(parentPackage, nature, true);
+                                            module = astManager.getModule(parentPackage, nature, true, state);
                                         }
                                         if (module != null) {
                                             ret.add(new Definition(iToken, null, module));
@@ -1038,7 +1039,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                         IToken token = entry.getToken();
                         if (token.getRepresentation().equals(withoutSelf)) {
                             String parentPackage = token.getParentPackage();
-                            IModule module = astManager.getModule(parentPackage, nature, true);
+                            IModule module = astManager.getModule(parentPackage, nature, true, state);
 
                             if (token instanceof SourceToken
                                     && (module != null || this.name == null || this.name.equals(parentPackage))) {
@@ -1131,7 +1132,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                     //multiple representations in the absolute form:
                     //as a relative import
                     //as absolute import
-                    getModuleDefinition(nature, toRet, mod, moduleImported);
+                    getModuleDefinition(nature, toRet, mod, moduleImported, state);
                 }
 
             } else {
@@ -1142,11 +1143,11 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     }
 
     private IDefinition getModuleDefinition(IPythonNature nature, ArrayList<Definition> toRet, SourceModule mod,
-            String moduleImported) {
+            String moduleImported, IModuleRequestState moduleRequest) {
         String rel = AbstractToken.makeRelative(mod.getName(), moduleImported);
-        IModule modFound = nature.getAstManager().getModule(rel, nature, false);
+        IModule modFound = nature.getAstManager().getModule(rel, nature, false, moduleRequest);
         if (modFound == null) {
-            modFound = nature.getAstManager().getModule(moduleImported, nature, false);
+            modFound = nature.getAstManager().getModule(moduleImported, nature, false, moduleRequest);
         }
         if (modFound != null) {
             //ok, found it
@@ -1239,7 +1240,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                     String parentPackage = token.getParentPackage();
                     IModule module = this;
                     if (nature != null) {
-                        IModule mod = nature.getAstManager().getModule(parentPackage, nature, true);
+                        IModule mod = nature.getAstManager().getModule(parentPackage, nature, true, state);
                         if (mod != null) {
                             module = mod;
                         }
@@ -1297,7 +1298,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                         modName += ".";
                     }
                     modName += token.getRepresentation();
-                    IModule module = nature.getAstManager().getModule(modName, nature, true);
+                    IModule module = nature.getAstManager().getModule(modName, nature, true, state);
                     if (module == null) {
                         return null;
                     } else {
@@ -1310,7 +1311,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
 
                     IModule module = null;
                     for (String modName : iterable) {
-                        module = nature.getAstManager().getModule(modName, nature, true);
+                        module = nature.getAstManager().getModule(modName, nature, true, state);
                         if (module != null) {
                             break;
                         }

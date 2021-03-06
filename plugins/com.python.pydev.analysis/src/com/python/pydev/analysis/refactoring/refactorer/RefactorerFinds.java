@@ -29,6 +29,7 @@ import org.python.pydev.ast.item_pointer.ItemPointer;
 import org.python.pydev.ast.refactoring.HierarchyNodeModel;
 import org.python.pydev.ast.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.ast.refactoring.RefactoringRequest;
+import org.python.pydev.core.BaseModuleRequest;
 import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
@@ -68,8 +69,8 @@ public class RefactorerFinds {
             if (module != null) {
 
                 ArrayList<IDefinition> foundDefs = new ArrayList<IDefinition>();
-                PyRefactoringFindDefinition.findActualDefinition(request.getMonitor(), module, n, foundDefs, line, col,
-                        nature, completionCache);
+                PyRefactoringFindDefinition.findActualDefinition(request.getMonitor(), request.acceptTypeshed, module,
+                        n, foundDefs, line, col, nature, completionCache);
 
                 if (foundDefs.size() > 0) {
                     definitions.addAll(foundDefs);
@@ -90,7 +91,7 @@ public class RefactorerFinds {
         try {
             HashSet<HierarchyNodeModel> foundOnRound = new HashSet<HierarchyNodeModel>();
             foundOnRound.add(initialModel);
-            CompletionCache completionCache = new CompletionCache();
+            ICompletionCache completionCache = new CompletionCache();
             while (foundOnRound.size() > 0) {
                 HashSet<HierarchyNodeModel> nextRound = new HashSet<HierarchyNodeModel>(foundOnRound);
                 foundOnRound.clear();
@@ -261,10 +262,12 @@ public class RefactorerFinds {
                         if (pythonNature == null) {
                             pythonNature = request.nature;
                         }
-                        module = pythonNature.getAstManager().getModule(declaringModuleName.name, pythonNature, false);
+                        BaseModuleRequest moduleRequest = new BaseModuleRequest(request.acceptTypeshed);
+                        module = pythonNature.getAstManager().getModule(declaringModuleName.name, pythonNature, false,
+                                moduleRequest);
                         if (module == null && pythonNature != request.nature) {
                             module = request.nature.getAstManager().getModule(declaringModuleName.name, request.nature,
-                                    false);
+                                    false, moduleRequest);
                         }
 
                         if (module instanceof SourceModule) {

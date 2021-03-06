@@ -24,6 +24,9 @@ public class InterpreterGeneralPreferences {
     public static final String UPDATE_INTERPRETER_INFO_ON_FILESYSTEM_CHANGES = "UPDATE_INTERPRETER_INFO_ON_FILESYSTEM_CHANGES";
     public final static boolean DEFAULT_UPDATE_INTERPRETER_INFO_ON_FILESYSTEM_CHANGES = true;
 
+    public static final String USE_TYPESHED = "USE_TYPESHED";
+    public final static boolean DEFAULT_USE_TYPESHED = false;
+
     public static boolean getCheckConsistentOnStartup() {
         return PydevPrefs.getEclipsePreferences().getBoolean(CHECK_CONSISTENT_ON_STARTUP,
                 DEFAULT_CHECK_CONSISTENT_ON_STARTUP);
@@ -32,6 +35,11 @@ public class InterpreterGeneralPreferences {
     public static boolean getReCheckOnFilesystemChanges() {
         return PydevPrefs.getEclipsePreferences().getBoolean(UPDATE_INTERPRETER_INFO_ON_FILESYSTEM_CHANGES,
                 DEFAULT_UPDATE_INTERPRETER_INFO_ON_FILESYSTEM_CHANGES);
+    }
+
+    public static boolean getUseTypeshed() {
+        return PydevPrefs.getEclipsePreferences().getBoolean(USE_TYPESHED,
+                DEFAULT_USE_TYPESHED);
     }
 
 }

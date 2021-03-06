@@ -51,6 +51,9 @@ public class InterpreterGeneralPreferencesPage extends FieldEditorPreferencePage
         addField(new BooleanFieldEditor(InterpreterGeneralPreferences.NOTIFY_NO_INTERPRETER_IP,
                 "Notify when an IronPython project has no interpreter?", p));
 
+        addField(new BooleanFieldEditor(InterpreterGeneralPreferences.USE_TYPESHED,
+                "Use Typeshed for type inference (EXPERIMENTAL)?", p));
+
         SelectionListener selectionListener = new SelectionListener() {
 
             @Override

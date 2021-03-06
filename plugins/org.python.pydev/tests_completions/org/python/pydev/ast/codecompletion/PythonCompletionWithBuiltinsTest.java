@@ -26,6 +26,7 @@ import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.ast.codecompletion.shell.AbstractShell;
 import org.python.pydev.ast.codecompletion.shell.PythonShell;
 import org.python.pydev.ast.codecompletion.shell.PythonShellTest;
+import org.python.pydev.core.BaseModuleRequest;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IInterpreterManager;
@@ -329,7 +330,8 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
             String s = "" +
                     "from extendable.bootstrap_dll import umath\n" +
                     "umath.";
-            IModule module = nature.getAstManager().getModule("extendable.bootstrap_dll.umath", nature, true);
+            IModule module = nature.getAstManager().getModule("extendable.bootstrap_dll.umath", nature, true,
+                    new BaseModuleRequest(true));
             assertTrue("Expected CompiledModule. Found: " + module.getClass(), module instanceof CompiledModule);
             //NOTE: The test can fail if numpy is not available (umath.pyd depends on numpy)
             requestCompl(s, s.length(), -1, new String[] { "less" });
@@ -345,7 +347,8 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
         if (TestDependent.PYTHON_NUMPY_PACKAGES != null) {
             String s = "" +
                     "from extendable.bootstrap_dll.umath import ";
-            IModule module = nature.getAstManager().getModule("extendable.bootstrap_dll.umath", nature, true);
+            IModule module = nature.getAstManager().getModule("extendable.bootstrap_dll.umath", nature, true,
+                    new BaseModuleRequest(true));
             assertTrue(module instanceof CompiledModule);
             //NOTE: The test can fail if numpy is not available (umath.pyd depends on numpy)
             requestCompl(s, s.length(), -1, new String[] { "less" });
@@ -599,7 +602,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
     }
 
     public void testBuiltinCached() throws Exception {
-        IModule module = nature.getAstManager().getModule("__builtin__", nature, true);
+        IModule module = nature.getAstManager().getModule("__builtin__", nature, true, new BaseModuleRequest(false));
         assertTrue(module instanceof CompiledModule);
         ISystemModulesManager systemModulesManager = nature.getAstManager().getModulesManager()
                 .getSystemModulesManager();

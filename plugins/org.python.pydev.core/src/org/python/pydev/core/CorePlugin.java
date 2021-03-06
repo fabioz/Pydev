@@ -138,12 +138,13 @@ public class CorePlugin extends Plugin {
         }
     }
 
-    /**
-     * @return
-     * @throws CoreException
-     */
     public static File getPySrcPath() throws CoreException {
         IPath relative = new Path("pysrc");
+        return getBundleInfo().getRelativePath(relative);
+    }
+
+    public static File getTypeshedPath() throws CoreException {
+        IPath relative = new Path("typeshed");
         return getBundleInfo().getRelativePath(relative);
     }
 

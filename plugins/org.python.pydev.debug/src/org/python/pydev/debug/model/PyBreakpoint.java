@@ -26,6 +26,7 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.ast.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
+import org.python.pydev.core.BaseModuleRequest;
 import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IModule;
@@ -258,7 +259,7 @@ public class PyBreakpoint extends LineBreakpoint {
                         //when all is set up, this is the most likely path we're going to use
                         //so, we shouldn't have delays when the module is changed, as it's already
                         //ok for use.
-                        IModule module = astManager.getModule(modName, nature, true);
+                        IModule module = astManager.getModule(modName, nature, true, new BaseModuleRequest(true));
                         if (module instanceof SourceModule) {
                             sourceModule = (SourceModule) module;
                         }

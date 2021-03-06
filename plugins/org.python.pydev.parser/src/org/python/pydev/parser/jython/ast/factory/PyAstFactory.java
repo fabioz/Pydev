@@ -107,6 +107,11 @@ public class PyAstFactory {
         return name;
     }
 
+    public Name createStoreName(String s) {
+        Name name = new Name(s, Name.Store, false);
+        return name;
+    }
+
     public FunctionDef createSetterFunctionDef(String accessorName, String attributeName) {
         NameTok functionName = new NameTok(accessorName, NameTok.FunctionName);
         argumentsType args = createArguments(true, "value");
@@ -398,6 +403,18 @@ public class PyAstFactory {
 
     public Name createNone() {
         Name node = createName("None");
+        node.reserved = true;
+        return node;
+    }
+
+    public Name createFalse() {
+        Name node = createName("False");
+        node.reserved = true;
+        return node;
+    }
+
+    public Name createTrue() {
+        Name node = createName("True");
         node.reserved = true;
         return node;
     }

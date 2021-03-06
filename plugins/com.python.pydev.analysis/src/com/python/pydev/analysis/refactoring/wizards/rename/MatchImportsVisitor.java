@@ -27,6 +27,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.autoedit.DefaultIndentPrefs;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.preferences.InterpreterGeneralPreferences;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -526,7 +527,8 @@ public class MatchImportsVisitor extends VisitorBase {
             ASTEntry renameAstEntry, int beginColumn, int beginLine) {
         ArrayList<IDefinition> definitions = new ArrayList<>();
         try {
-            PyRefactoringFindDefinition.findActualDefinition(monitor, this.currentModule,
+            boolean acceptTypeshed = InterpreterGeneralPreferences.getUseTypeshed();
+            PyRefactoringFindDefinition.findActualDefinition(monitor, acceptTypeshed, this.currentModule,
                     nameInImport, definitions, beginLine,
                     beginColumn, nature, this.completionState);
             for (IDefinition iDefinition : definitions) {

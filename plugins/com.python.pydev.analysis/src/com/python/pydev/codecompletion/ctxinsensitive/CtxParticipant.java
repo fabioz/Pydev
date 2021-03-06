@@ -29,7 +29,6 @@ import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.ast.item_pointer.ItemPointer;
 import org.python.pydev.core.ICodeCompletionASTManager;
-import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.ICompletionState.LookingFor;
 import org.python.pydev.core.IDefinition;
@@ -300,7 +299,7 @@ public class CtxParticipant
 
     @Override
     public IDefinition findDefinitionForMethodParameter(Definition d, IPythonNature nature,
-            ICompletionCache completionCache) {
+            ICompletionState completionCache) {
         if (d.ast instanceof Name) {
             Name name = (Name) d.ast;
             if (name.ctx == Name.Param) {
@@ -323,7 +322,7 @@ public class CtxParticipant
         return null;
     }
 
-    private ItemPointer findItemPointerFromPyTestFixture(IPythonNature nature, ICompletionCache completionCache,
+    private ItemPointer findItemPointerFromPyTestFixture(IPythonNature nature, ICompletionState completionCache,
             String fixtureName) {
         try {
             ICodeCompletionASTManager astManager = nature.getAstManager();
@@ -556,7 +555,7 @@ public class CtxParticipant
         copy.setActivationToken(act);
 
         ICodeCompletionASTManager manager = nature.getAstManager();
-        IModule mod = manager.getModule(iInfo.getDeclaringModuleName(), nature, true);
+        IModule mod = manager.getModule(iInfo.getDeclaringModuleName(), nature, true, state);
         if (mod != null) {
 
             state.checkFindDefinitionMemory(mod, iInfo.getDeclaringModuleName() + "." + act);

@@ -229,6 +229,9 @@ public final class PythonPathHelper implements IPythonPathHelper {
         if (path.endsWith(".pypredef")) {
             return true;
         }
+        if (path.endsWith(".pyi")) {
+            return true;
+        }
         return false;
     }
 
@@ -250,6 +253,9 @@ public final class PythonPathHelper implements IPythonPathHelper {
             }
         }
         if (ext.equals(".pypredef")) {
+            return true;
+        }
+        if (ext.equals(".pyi")) {
             return true;
         }
         return false;

@@ -35,6 +35,7 @@ import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IModuleRequestState;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISystemModulesManager;
@@ -46,6 +47,10 @@ import org.python.pydev.core.TokensList;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Module;
+import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
+import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.shared_core.cache.LRUCache;
 import org.python.pydev.shared_core.io.FileUtils;
@@ -53,6 +58,7 @@ import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.utils.ArrayUtils;
 
 /**
  * @author Fabio Zadrozny
@@ -143,8 +149,9 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
     }
 
     @Override
-    public IModule getModule(String name, IPythonNature nature, boolean checkSystemManager, boolean dontSearchInit) {
-        return getModule(name, nature, dontSearchInit);
+    public IModule getModule(String name, IPythonNature nature, boolean checkSystemManager, boolean dontSearchInit,
+            IModuleRequestState moduleRequest) {
+        return getModule(name, nature, dontSearchInit, moduleRequest);
     }
 
     @Override
@@ -162,8 +169,8 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
     }
 
     @Override
-    public IModule getRelativeModule(String name, IPythonNature nature) {
-        return super.getModule(name, nature, true);
+    public IModule getRelativeModule(String name, IPythonNature nature, IModuleRequestState moduleRequest) {
+        return super.getModule(name, nature, true, moduleRequest);
     }
 
     /**
@@ -208,7 +215,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
     private transient Map<File, Long> predefinedFilesNotParsedToTimestamp;
 
     @Override
-    public AbstractModule getBuiltinModule(String name, boolean dontSearchInit) {
+    public AbstractModule getBuiltinModule(String name, boolean dontSearchInit, IModuleRequestState moduleRequest) {
         AbstractModule n = null;
 
         //check for supported builtins these don't have files associated.
@@ -227,8 +234,17 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
 
         //A different choice for users that want more complete information on the libraries they're dealing
         //with is using predefined modules. Those will
-        File predefinedModule = this.info.getPredefinedModule(name);
-        if (predefinedModule != null && predefinedModule.exists()) {
+        File predefinedModule = this.info.getPredefinedModule(name, moduleRequest);
+        boolean found = predefinedModule != null && predefinedModule.exists();
+        if (!found) {
+            final String nameWithInit = name + ".__init__";
+            predefinedModule = this.info.getPredefinedModule(nameWithInit, moduleRequest);
+            found = predefinedModule != null && predefinedModule.exists();
+            if (found) {
+                name = nameWithInit;
+            }
+        }
+        if (found) {
             keyForCacheAccess.name = name;
             keyForCacheAccess.file = predefinedModule;
             n = cache.getObj(keyForCacheAccess, this);
@@ -284,7 +300,27 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
                         Log.log("Unable to parse: " + predefinedModule, obj.error);
 
                     } else if (obj.ast != null) {
-                        n = new PredefinedSourceModule(name, predefinedModule, (SimpleNode) obj.ast, obj.error);
+                        SimpleNode ast = (SimpleNode) obj.ast;
+                        if ("builtins".equals(name) || "__builtin__".equals(name)) {
+                            // None/False/True must be added as they're not there by default.
+                            if (ast instanceof Module) {
+                                Module module = (Module) ast;
+                                PyAstFactory astFactory = new PyAstFactory(
+                                        new AdapterPrefs("\n", info.getModulesManager().getNature()));
+                                module.body = ArrayUtils.concatArrays(module.body, new stmtType[] {
+                                        astFactory.createAssign(astFactory.createStoreName("None"),
+                                                astFactory.createNone()),
+                                        astFactory.createAssign(astFactory.createStoreName("False"),
+                                                astFactory.createFalse()),
+                                        astFactory.createAssign(astFactory.createStoreName("True"),
+                                                astFactory.createTrue()),
+                                        astFactory.createAssign(astFactory.createStoreName("__builtins__"),
+                                                astFactory.createName("Any"))
+                                });
+
+                            }
+                        }
+                        n = new PredefinedSourceModule(name, predefinedModule, ast, obj.error);
                         doAddSingleModule(keyForCacheAccess, n);
                         return n;
                     }
@@ -370,24 +406,26 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
      * In the system modules manager, we also have to check for the builtins
      */
     @Override
-    public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit) {
-        AbstractModule n = getBuiltinModule(name, dontSearchInit);
+    public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit,
+            IModuleRequestState moduleRequest) {
+        AbstractModule n = getBuiltinModule(name, dontSearchInit, moduleRequest);
         if (n != null) {
             return n;
         }
 
-        return super.getModule(name, nature, dontSearchInit);
+        return super.getModule(name, nature, dontSearchInit, moduleRequest);
     }
 
     @Override
-    public IModule getModuleWithoutBuiltins(String name, IPythonNature nature, boolean dontSearchInit) {
-        return super.getModule(name, nature, dontSearchInit);
+    public IModule getModuleWithoutBuiltins(String name, IPythonNature nature, boolean dontSearchInit,
+            IModuleRequestState moduleRequest) {
+        return super.getModule(name, nature, dontSearchInit, moduleRequest);
     }
 
     @Override
     public Tuple<IModule, IModulesManager> getModuleAndRelatedModulesManager(String name, IPythonNature nature,
-            boolean checkSystemManager, boolean dontSearchInit) {
-        IModule module = this.getModule(name, nature, checkSystemManager, dontSearchInit);
+            boolean checkSystemManager, boolean dontSearchInit, IModuleRequestState moduleRequest) {
+        IModule module = this.getModule(name, nature, checkSystemManager, dontSearchInit, moduleRequest);
         if (module != null) {
             return new Tuple<IModule, IModulesManager>(module, this);
         }

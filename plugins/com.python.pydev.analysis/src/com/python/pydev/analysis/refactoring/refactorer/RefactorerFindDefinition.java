@@ -15,7 +15,7 @@ import java.util.List;
 
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jface.text.BadLocationException;
-import org.python.pydev.ast.codecompletion.revisited.CompletionCache;
+import org.python.pydev.ast.codecompletion.revisited.CompletionState;
 import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.ast.item_pointer.ItemPointer;
 import org.python.pydev.ast.refactoring.PyRefactoringFindDefinition;
@@ -55,12 +55,13 @@ public class RefactorerFindDefinition {
         try {
             request.getMonitor().beginTask("Find definition", 100);
             List<ItemPointer> pointers = new ArrayList<ItemPointer>();
-            CompletionCache completionCache = new CompletionCache();
+            CompletionState completionState = new CompletionState();
+            completionState.setAcceptTypeshed(request.acceptTypeshed);
             ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
 
             String[] tokenAndQual;
             try {
-                tokenAndQual = PyRefactoringFindDefinition.findActualDefinition(request, completionCache, selected);
+                tokenAndQual = PyRefactoringFindDefinition.findActualDefinition(request, completionState, selected);
             } catch (CompletionRecursionException e1) {
                 Log.log(e1);
                 return new ItemPointer[0];
@@ -92,7 +93,7 @@ public class RefactorerFindDefinition {
                             "Found: %s possible matches.", tokensEqualTo.size()));
                     IPythonNature nature = request.nature;
                     for (IInfo info : tokensEqualTo) {
-                        AnalysisPlugin.getDefinitionFromIInfo(pointers, manager, nature, info, completionCache, true,
+                        AnalysisPlugin.getDefinitionFromIInfo(pointers, manager, nature, info, completionState, true,
                                 true);
                         request.checkCancelled();
                     }

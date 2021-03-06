@@ -22,6 +22,7 @@ import org.python.pydev.ast.codecompletion.revisited.modules.ASTEntryWithSourceM
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.ast.refactoring.RefactoringRequest;
+import org.python.pydev.core.BaseModuleRequest;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISystemModulesManager;
@@ -141,7 +142,8 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
                 if (!(found.importInfo.mod instanceof SourceModule)) {
                     status.addFatalError(StringUtils.format(
                             "Error. The module %s may not be renamed\n"
-                                    + "(Because it was found as a compiled extension).", found.importInfo.mod.getName()));
+                                    + "(Because it was found as a compiled extension).",
+                            found.importInfo.mod.getName()));
                     return;
                 }
 
@@ -149,7 +151,7 @@ public class PyRenameImportProcess extends AbstractRenameWorkspaceRefactorProces
                 ISystemModulesManager systemModulesManager = request.nature.getAstManager().getModulesManager()
                         .getSystemModulesManager();
                 IModule systemModule = systemModulesManager.getModule(found.importInfo.mod.getName(), request.nature,
-                        true);
+                        true, new BaseModuleRequest(request.acceptTypeshed));
                 if (systemModule != null) {
                     status.addFatalError(StringUtils.format(
                             "Error. The module '%s' may not be renamed\n"

@@ -46,6 +46,7 @@ import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.ICompletionState.ModuleHandleOrNotGotten;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IModuleRequestState;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
@@ -849,8 +850,9 @@ public abstract class ModulesManager implements IModulesManager {
     }
 
     @Override
-    public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit) {
-        return getModule(true, name, nature, dontSearchInit);
+    public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit,
+            IModuleRequestState moduleRequest) {
+        return getModule(true, name, nature, dontSearchInit, moduleRequest);
     }
 
     /**
@@ -911,7 +913,7 @@ public abstract class ModulesManager implements IModulesManager {
      * @return the module represented by this name
      */
     protected IModule getModule(boolean acceptCompiledModule, String name, IPythonNature nature,
-            boolean dontSearchInit) {
+            boolean dontSearchInit, IModuleRequestState moduleRequest) {
         synchronized (lockTemporaryModules) {
             SortedMap<Integer, IModule> map = temporaryModules.get(name);
             if (map != null && map.size() > 0) {

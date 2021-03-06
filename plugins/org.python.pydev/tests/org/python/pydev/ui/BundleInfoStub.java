@@ -51,6 +51,10 @@ public class BundleInfoStub implements IBundleInfo {
             return new File(
                     TestDependent.PYSRC_LOC + "third_party/isort_container");
         }
+        if (relative.toString().indexOf("typeshed") != -1) {
+            return new File(new File(
+                    TestDependent.PYSRC_LOC).getParentFile(), "typeshed");
+        }
         throw new RuntimeException("Not available info on: " + relative);
     }
 

@@ -12,7 +12,7 @@ package org.python.pydev.core;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.core.structure.CompletionRecursionException;
 
-public interface ICompletionState extends ICompletionCache {
+public interface ICompletionState extends ICompletionCache, IModuleRequestState {
 
     String getActivationToken();
 
@@ -187,5 +187,10 @@ public interface ICompletionState extends ICompletionCache {
     void setPyIStubModule(IModule module, IModule pyIModule);
 
     NoExceptionCloseable pushLookingFor(LookingFor lookingForInstancedVariable);
+
+    @Override
+    boolean getAcceptTypeshed();
+
+    void setAcceptTypeshed(boolean acceptTypeshed);
 
 }

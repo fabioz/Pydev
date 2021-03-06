@@ -14,11 +14,12 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-import org.python.pydev.ast.codecompletion.revisited.CompletionCache;
+import org.python.pydev.ast.codecompletion.revisited.CompletionState;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.ast.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.ast.refactoring.RefactoringRequest;
+import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.log.Log;
@@ -46,7 +47,8 @@ public class PyRenameGlobalProcess extends AbstractRenameWorkspaceRefactorProces
     @Override
     protected List<ASTEntry> findReferencesOnOtherModule(RefactoringStatus status, RefactoringRequest request,
             String initialName, SourceModule module) {
-        CompletionCache completionCache = new CompletionCache();
+        ICompletionState completionCache = new CompletionState();
+        completionCache.setAcceptTypeshed(request.acceptTypeshed);
 
         Set<ASTEntry> ret = new OrderedSet<ASTEntry>();
 
@@ -58,10 +60,8 @@ public class PyRenameGlobalProcess extends AbstractRenameWorkspaceRefactorProces
                 for (ASTEntry occurrence : localOccurrences) {
                     String fullRepresentationString = NodeUtils.getFullRepresentationString(occurrence.node);
                     List<IDefinition> foundDefs = PyRefactoringFindDefinition.findActualDefinition(request.getMonitor(),
-                            module, fullRepresentationString,
-                            null,
-                            occurrence.node.beginLine, occurrence.node.beginColumn, module.getNature(), completionCache,
-                            false);
+                            request.acceptTypeshed, module, fullRepresentationString, null, occurrence.node.beginLine,
+                            occurrence.node.beginColumn, module.getNature(), completionCache, false);
 
                     for (IDefinition def : foundDefs) {
                         IModule defModule = def.getModule();

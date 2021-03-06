@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.python.pydev.core.BaseModuleRequest;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.IPyFormatStdProvider;
@@ -143,10 +144,11 @@ public class Pep8ImportArranger extends ImportArranger {
 
             IModule mod;
 
-            mod = manager.getModule(module, nature, false);
+            BaseModuleRequest moduleRequest = new BaseModuleRequest(true);
+            mod = manager.getModule(module, nature, false, moduleRequest);
             if (mod == null) {
 
-                mod = projectModulesManager.getModuleInDirectManager(module, nature, false);
+                mod = projectModulesManager.getModuleInDirectManager(module, nature, false, moduleRequest);
                 if (mod != null) {
                     File file = mod.getFile();
                     if (file != null) {
@@ -216,12 +218,10 @@ public class Pep8ImportArranger extends ImportArranger {
                     return class1 - class2;
                 }
 
-                if (ImportsPreferencesPage.getSortFromImportsFirst(edit))
-                {
+                if (ImportsPreferencesPage.getSortFromImportsFirst(edit)) {
                     int type1 = getImportType(o1.o3);
                     int type2 = getImportType(o2.o3);
-                    if (type1 != type2)
-                    {
+                    if (type1 != type2) {
                         return type2 - type1;
                     }
                 }
@@ -303,9 +303,7 @@ public class Pep8ImportArranger extends ImportArranger {
                 return !startDocComment.isDummy();
             }
         },
-        SingleQuoteDocComment("'''"),
-        DoubleQuoteDocComment("\"\"\""),
-        BlankLine {
+        SingleQuoteDocComment("'''"), DoubleQuoteDocComment("\"\"\""), BlankLine {
             @Override
             boolean matches(String line, Pep8ImportArranger.SkipLineType startDocComment) {
                 return line.trim().isEmpty();
@@ -351,6 +349,7 @@ public class Pep8ImportArranger extends ImportArranger {
                 return true;
             }
         };
+
         final String prefix;
         final boolean isStartDocComment;
 
