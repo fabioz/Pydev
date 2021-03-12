@@ -342,8 +342,8 @@ class JsonFacade(object):
         pause_response = self.wait_for_response(pause_request)
         assert pause_response.success
 
-    def write_step_in(self, thread_id):
-        arguments = pydevd_schema.StepInArguments(threadId=thread_id)
+    def write_step_in(self, thread_id, target_id=None):
+        arguments = pydevd_schema.StepInArguments(threadId=thread_id, targetId=target_id)
         self.wait_for_response(self.write_request(pydevd_schema.StepInRequest(arguments)))
 
     def write_step_next(self, thread_id, wait_for_response=True):
@@ -385,6 +385,19 @@ class JsonFacade(object):
         assert name_to_scopes['Locals'].presentationHint == 'locals'
 
         return name_to_scopes
+
+    def get_step_in_targets(self, frame_id):
+        request = self.write_request(pydevd_schema.StepInTargetsRequest(
+            pydevd_schema.StepInTargetsArguments(frame_id)))
+
+        # : :type response: StepInTargetsResponse
+        response = self.wait_for_response(request)
+
+        # : :type body: StepInTargetsResponseBody
+        body = response.body
+        targets = body.targets
+        # : :type targets: List[StepInTarget]
+        return targets
 
     def get_name_to_var(self, variables_reference):
         variables_response = self.get_variables_response(variables_reference)
@@ -1623,9 +1636,13 @@ def test_variables_with_same_name(case_setup):
         assert isinstance(dict_variable_reference, int_types)
         # : :type variables_response: VariablesResponse
 
-        assert variables_response.body.variables == [
-            {'name': 'td', 'value': "{foo: 'bar', gad: 'zooks', foo: 'bur'}", 'type': 'dict', 'evaluateName': 'td'}
-        ]
+        if not IS_PY2:
+            assert variables_response.body.variables == [
+                {'name': 'td', 'value': "{foo: 'bar', gad: 'zooks', foo: 'bur'}", 'type': 'dict', 'evaluateName': 'td'}
+            ]
+        else:
+            # The value may change the representation on Python 2 as dictionaries don't keep the insertion order.
+            assert len(variables_response.body.variables) == 1
 
         dict_variables_response = json_facade.get_variables_response(dict_variable_reference)
         # Note that we don't have the evaluateName because it's not possible to create a key
@@ -1810,6 +1827,80 @@ def test_evaluate_numpy(case_setup, pyfile):
 
         json_facade.write_continue()
 
+        writer.finished_ok = True
+
+
+def test_evaluate_name_mangling(case_setup, pyfile):
+
+    @pyfile
+    def target():
+
+        class SomeObj(object):
+
+            def __init__(self):
+                self.__value = 10
+                print('here')  # Break here
+
+        SomeObj()
+
+        print('TEST SUCEEDED')
+
+    with case_setup.test_file(target) as writer:
+        json_facade = JsonFacade(writer)
+
+        writer.write_add_breakpoint(writer.get_line_index_with_content('Break here'))
+        json_facade.write_launch(justMyCode=False)
+        json_facade.write_make_initial_run()
+
+        json_hit = json_facade.wait_for_thread_stopped()
+        json_hit = json_facade.get_stack_as_json_hit(json_hit.thread_id)
+
+        # Check eval with a properly indented block
+        evaluate_response = json_facade.evaluate(
+            'self.__value',
+            frameId=json_hit.frame_id,
+            context="repl",
+        )
+
+        assert evaluate_response.body.result == '10'
+        json_facade.write_continue()
+        writer.finished_ok = True
+
+
+def test_evaluate_no_name_mangling(case_setup):
+
+    with case_setup.test_file('_debugger_case_local_variables2.py') as writer:
+        json_facade = JsonFacade(writer)
+
+        writer.write_add_breakpoint(writer.get_line_index_with_content('Break here'))
+        json_facade.write_make_initial_run()
+
+        json_hit = json_facade.wait_for_thread_stopped()
+        json_hit = json_facade.get_stack_as_json_hit(json_hit.thread_id)
+
+        # Check eval with a properly indented block
+        json_facade.evaluate(
+            'x = "_"',
+            frameId=json_hit.frame_id,
+            context="repl",
+        )
+        json_facade.evaluate(
+            'x',
+            frameId=json_hit.frame_id,
+            context="repl",
+        )
+        json_facade.evaluate(
+            'y = "__"',
+            frameId=json_hit.frame_id,
+            context="repl",
+        )
+        json_facade.evaluate(
+            'y',
+            frameId=json_hit.frame_id,
+            context="repl",
+        )
+
+        json_facade.write_continue()
         writer.finished_ok = True
 
 
@@ -5303,6 +5394,103 @@ def test_native_threads(case_setup, pyfile):
         json_facade.wait_for_thread_stopped(line=line)
 
         json_facade.write_continue()
+        writer.finished_ok = True
+
+
+def test_code_reload(case_setup, pyfile):
+
+    @pyfile
+    def mod1():
+        import mod2
+        import time
+        finish = False
+        for _ in range(50):
+            finish = mod2.do_something()
+            if finish:
+                break
+            time.sleep(.1)  # Break 1
+        else:
+            raise AssertionError('It seems the reload was not done in the available amount of time.')
+
+        print('TEST SUCEEDED')  # Break 2
+
+    @pyfile
+    def mod2():
+
+        def do_something():
+            return False
+
+    with case_setup.test_file(mod1) as writer:
+        json_facade = JsonFacade(writer)
+
+        line1 = writer.get_line_index_with_content('Break 1')
+        line2 = writer.get_line_index_with_content('Break 2')
+        json_facade.write_launch(justMyCode=False, autoReload={'pollingInterval': 0, 'enable': True})
+        json_facade.write_set_breakpoints([line1, line2])
+        json_facade.write_make_initial_run()
+
+        # At this point we know that 'do_something' was called at least once.
+        json_facade.wait_for_thread_stopped(line=line1)
+        json_facade.write_set_breakpoints(line2)
+
+        with open(mod2, 'w') as stream:
+            stream.write('''
+def do_something():
+    return True
+''')
+
+        json_facade.write_continue()
+        json_facade.wait_for_thread_stopped(line=line2)
+        json_facade.write_continue()
+
+        writer.finished_ok = True
+
+
+def test_step_into_target_basic(case_setup):
+    with case_setup.test_file('_debugger_case_smart_step_into.py') as writer:
+        json_facade = JsonFacade(writer)
+
+        bp = writer.get_line_index_with_content('break here')
+        json_facade.write_set_breakpoints([bp])
+        json_facade.write_make_initial_run()
+
+        # At this point we know that 'do_something' was called at least once.
+        hit = json_facade.wait_for_thread_stopped(line=bp)
+
+        # : :type step_in_targets: List[StepInTarget]
+        step_in_targets = json_facade.get_step_in_targets(hit.frame_id)
+        label_to_id = dict((target['label'], target['id']) for target in step_in_targets)
+        assert set(label_to_id.keys()) == {'bar', 'foo', 'call_outer'}
+        json_facade.write_step_in(hit.thread_id, target_id=label_to_id['foo'])
+
+        on_foo_mark_line = writer.get_line_index_with_content('on foo mark')
+        hit = json_facade.wait_for_thread_stopped(reason='step', line=on_foo_mark_line)
+        json_facade.write_continue()
+
+        writer.finished_ok = True
+
+
+def test_step_into_target_multiple(case_setup):
+    with case_setup.test_file('_debugger_case_smart_step_into2.py') as writer:
+        json_facade = JsonFacade(writer)
+
+        bp = writer.get_line_index_with_content('break here')
+        json_facade.write_set_breakpoints([bp])
+        json_facade.write_make_initial_run()
+
+        # At this point we know that 'do_something' was called at least once.
+        hit = json_facade.wait_for_thread_stopped(line=bp)
+
+        # : :type step_in_targets: List[StepInTarget]
+        step_in_targets = json_facade.get_step_in_targets(hit.frame_id)
+        label_to_id = dict((target['label'], target['id']) for target in step_in_targets)
+        assert set(label_to_id.keys()) == {'foo', 'foo (call 2)', 'foo (call 3)', 'foo (call 4)'}
+        json_facade.write_step_in(hit.thread_id, target_id=label_to_id['foo (call 2)'])
+
+        on_foo_mark_line = writer.get_line_index_with_content('on foo mark')
+        hit = json_facade.wait_for_thread_stopped(reason='step', line=on_foo_mark_line)
+        json_facade.write_continue()
+
         writer.finished_ok = True
 
 

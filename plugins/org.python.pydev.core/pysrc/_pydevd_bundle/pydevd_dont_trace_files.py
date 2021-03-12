@@ -87,6 +87,7 @@ DONT_TRACE = {
     'pydevd_api.py': PYDEV_FILE,
     'pydevd_base_schema.py': PYDEV_FILE,
     'pydevd_breakpoints.py': PYDEV_FILE,
+    'pydevd_bytecode_utils.py': PYDEV_FILE,
     'pydevd_code_to_source.py': PYDEV_FILE,
     'pydevd_collect_bytecode_info.py': PYDEV_FILE,
     'pydevd_comm.py': PYDEV_FILE,
@@ -148,6 +149,7 @@ DONT_TRACE = {
     'pydevd_vars.py': PYDEV_FILE,
     'pydevd_vm_type.py': PYDEV_FILE,
     'pydevd_xml.py': PYDEV_FILE,
+    'scandir_vendored.py': PYDEV_FILE,
 }
 
 if IS_PY3K:

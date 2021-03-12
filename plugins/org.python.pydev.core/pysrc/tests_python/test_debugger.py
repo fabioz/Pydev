@@ -17,7 +17,8 @@ from tests_python.debugger_unittest import (CMD_SET_PROPERTY_TRACE, REASON_CAUGH
     IS_APPVEYOR, wait_for_condition, CMD_GET_FRAME, CMD_GET_BREAKPOINT_EXCEPTION,
     CMD_THREAD_SUSPEND, CMD_STEP_OVER, REASON_STEP_OVER, CMD_THREAD_SUSPEND_SINGLE_NOTIFICATION,
     CMD_THREAD_RESUME_SINGLE_NOTIFICATION, REASON_STEP_RETURN, REASON_STEP_RETURN_MY_CODE,
-    REASON_STEP_OVER_MY_CODE, REASON_STEP_INTO, CMD_THREAD_KILL, IS_PYPY, REASON_STOP_ON_START)
+    REASON_STEP_OVER_MY_CODE, REASON_STEP_INTO, CMD_THREAD_KILL, IS_PYPY, REASON_STOP_ON_START,
+    CMD_SMART_STEP_INTO)
 from _pydevd_bundle.pydevd_constants import IS_WINDOWS, IS_PY38_OR_GREATER, \
     IS_MAC
 from _pydevd_bundle.pydevd_comm_constants import CMD_RELOAD_CODE, CMD_INPUT_REQUESTED
@@ -749,7 +750,7 @@ def test_case_16_resolve_numpy_array(case_setup):
             '<var name="min" type="complex128"',
             '<var name="max" type="complex128"',
             '<var name="shape" type="tuple"',
-            '<var name="dtype" type="dtype"',
+            '<var name="dtype" type="dtype',
             '<var name="size" type="int"',
         ))
         # ...and check that the internals are resolved properly
@@ -771,7 +772,7 @@ def test_case_16_resolve_numpy_array(case_setup):
                 '<var name="max" type="int32" qualifier="numpy" value="int32%253A 99999"',
             ],
             '<var name="shape" type="tuple"',
-            '<var name="dtype" type="dtype"',
+            '<var name="dtype" type="dtype',
             '<var name="size" type="int"'
         ))
         writer.write_get_variable(hit.thread_id, hit.frame_id, 'bigarray\t__internals__')
@@ -794,7 +795,7 @@ def test_case_16_resolve_numpy_array(case_setup):
                 '<var name="max" type="str" qualifier="{0}" value="str%3A ndarray too big%252C calculating max would slow down debugging" />'.format(builtin_qualifier),
             ],
             '<var name="shape" type="tuple"',
-            '<var name="dtype" type="dtype"',
+            '<var name="dtype" type="dtype',
             '<var name="size" type="int"',
         ))
         writer.write_get_variable(hit.thread_id, hit.frame_id, 'hugearray\t__internals__')
@@ -3109,17 +3110,6 @@ def test_case_single_notification_on_step(case_setup):
 @pytest.mark.skipif(IS_JYTHON, reason='Not ok for Jython.')
 def test_reload(case_setup, tmpdir):
 
-    def additional_output_checks(writer, stdout, stderr):
-        # Don't call super as we have an expected exception
-        for line in (
-                'pydev debugger: Start reloading module: "my_temp2"',
-                'pydev debugger: Updated function code: <function call',
-                'pydev debugger: reload finished',
-            ):
-            if line not in stderr:
-                raise AssertionError('%s" not in stderr.\nstdout:\n%s\n\nstderr:\n%s' % (
-                    line, stdout, stderr))
-
     path = tmpdir.join('my_temp.py')
     path.write('''
 import my_temp2
@@ -3134,7 +3124,7 @@ print('TEST SUCEEDED!')
 def call():
     return 1
 ''')
-    with case_setup.test_file(str(path), additional_output_checks=additional_output_checks) as writer:
+    with case_setup.test_file(str(path)) as writer:
         break_line = writer.get_line_index_with_content('break here')
         writer.write_add_breakpoint(break_line, '')
         writer.write_make_initial_run()
@@ -3147,6 +3137,17 @@ def call():
 ''')
 
         writer.write_reload('my_temp2')
+        output = writer.wait_for_output()
+        output2 = writer.wait_for_output()
+        output3 = writer.wait_for_output()
+
+        assert output[0].startswith('code reload: Start reloading module: "my_temp2"')
+        assert output2[0].startswith('code reload: Updated function code:')
+        assert output3[0].startswith('code reload: reload finished')
+        assert output[1] == 'stderr'
+        assert output2[1] == 'stderr'
+        assert output3[1] == 'stderr'
+
         writer.wait_for_message(CMD_RELOAD_CODE)
         writer.write_run_thread(hit.thread_id)
         writer.finished_ok = True
@@ -3475,6 +3476,55 @@ def test_step_return_my_code(case_setup):
         assert hit.name == '<module>'
 
         writer.write_step_return_my_code(hit.thread_id)
+        writer.finished_ok = True
+
+
+def test_smart_step_into_case1(case_setup):
+    with case_setup.test_file('_debugger_case_smart_step_into.py') as writer:
+        line = writer.get_line_index_with_content('break here')
+        writer.write_add_breakpoint(line)
+        writer.write_make_initial_run()
+        hit = writer.wait_for_breakpoint_hit(line=line)
+
+        found = writer.get_step_into_variants(hit.thread_id, hit.frame_id, line, line)
+
+        # Remove the offset to compare (as it changes for each python version)
+        assert [x[:-1] for x in found] == [
+            ('bar', 'false', '14', '1'), ('foo', 'false', '14', '1'), ('call_outer', 'false', '14', '1')]
+
+        # Note: this is just using the name, not really taking using the context.
+        writer.write_smart_step_into(hit.thread_id, line, 'foo')
+        hit = writer.wait_for_breakpoint_hit(reason=CMD_SMART_STEP_INTO)
+        assert hit.line == writer.get_line_index_with_content('on foo mark')
+
+        writer.write_run_thread(hit.thread_id)
+        writer.finished_ok = True
+
+
+def test_smart_step_into_case2(case_setup):
+    with case_setup.test_file('_debugger_case_smart_step_into2.py') as writer:
+        line = writer.get_line_index_with_content('break here')
+        writer.write_add_breakpoint(line)
+        writer.write_make_initial_run()
+        hit = writer.wait_for_breakpoint_hit(line=line)
+
+        found = writer.get_step_into_variants(hit.thread_id, hit.frame_id, line, line)
+
+        # Note: we have multiple 'foo' calls, so, we have to differentiate to
+        # know in which one we want to stop.
+        writer.write_smart_step_into(hit.thread_id, 'offset=' + found[2][-1], 'foo')
+        hit = writer.wait_for_breakpoint_hit(reason=CMD_SMART_STEP_INTO)
+        assert hit.line == writer.get_line_index_with_content('on foo mark')
+
+        writer.write_get_frame(hit.thread_id, hit.frame_id)
+        writer.wait_for_var([
+            (
+                '<var name="arg" type="int" qualifier="__builtin__" value="int: 3"',
+                '<var name="arg" type="int" qualifier="builtins" value="int: 3"',
+            )
+        ])
+
+        writer.write_run_thread(hit.thread_id)
         writer.finished_ok = True
 
 
