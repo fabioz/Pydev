@@ -978,7 +978,7 @@ def internal_get_smart_step_into_variants(dbg, seq, thread_id, frame_id, start_l
                 str(variant.is_visited).lower(),
                 variant.line,
                 variant.offset,
-                str(variant.call_order).lower(),
+                variant.call_order,
             )
 
         xml += "</xml>"

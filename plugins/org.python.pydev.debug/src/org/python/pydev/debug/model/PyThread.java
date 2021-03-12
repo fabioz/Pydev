@@ -23,6 +23,7 @@ import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import org.python.pydev.debug.model.remote.RunToLineCommand;
 import org.python.pydev.debug.model.remote.SetNextCommand;
+import org.python.pydev.debug.model.remote.SmartStepIntoCommand;
 import org.python.pydev.debug.model.remote.StepCommand;
 import org.python.pydev.debug.model.remote.ThreadRunCommand;
 import org.python.pydev.debug.model.remote.ThreadSuspendCommand;
@@ -179,11 +180,12 @@ public class PyThread extends PlatformObject implements IThread {
         }
     }
 
-    public void stepIntoTarget(PyEdit pyEdit, int line, String selectedWord) {
+    public void stepIntoTarget(PyEdit pyEdit, int line, String selectedWord, SmartStepIntoVariant stepIntoTarget) {
         if (!isPydevThread) {
             isStepping = true;
             target.postCommand(
-                    new SetNextCommand(target, AbstractDebuggerCommand.CMD_SMART_STEP_INTO, id, line, selectedWord));
+                    new SmartStepIntoCommand(target, AbstractDebuggerCommand.CMD_SMART_STEP_INTO, id, line,
+                            selectedWord, stepIntoTarget));
         }
     }
 

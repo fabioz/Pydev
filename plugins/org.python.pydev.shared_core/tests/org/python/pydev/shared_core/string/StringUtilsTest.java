@@ -60,4 +60,9 @@ public class StringUtilsTest extends TestCase {
             assertEquals("\n", string);
         }
     }
+
+    public void testFindWordOffsets() {
+        String s = "aaa bbb ccc aaa";
+        assertEquals(Arrays.asList(0, 12), StringUtils.findWordOffsets(s, "aa"));
+    }
 }
