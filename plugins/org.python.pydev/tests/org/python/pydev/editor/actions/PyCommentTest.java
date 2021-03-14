@@ -13,6 +13,7 @@ package org.python.pydev.editor.actions;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.formatter.FormatStd;
+import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
 import org.python.pydev.shared_core.structure.Tuple;
 
 import junit.framework.TestCase;
@@ -118,5 +119,67 @@ public class PyCommentTest extends TestCase {
                 "# b";
         assertEquals(expected, doc.get());
 
+    }
+
+    public void testIdentedComment() throws Exception {
+        std.spacesInStartComment = 1;
+
+        Document doc = new Document("def method():\n"
+                + "    if a:\n"
+                + "        pass");
+        PySelection ps = new PySelection(doc, 0, 0, doc.getLength());
+        assertEquals(new Tuple<Integer, Integer>(0, 42),
+                new PyComment(std).perform(ps, CommentBlocksPreferences.ADD_COMMENTS_AT_INDENT));
+
+        String expected = "# def method():\n"
+                + "#     if a:\n"
+                + "#         pass";
+        assertEquals(expected, doc.get());
+    }
+
+    public void testIdentedComment2() throws Exception {
+        std.spacesInStartComment = 1;
+
+        Document doc = new Document("def method():\n"
+                + "    if a:\n"
+                + "        pass");
+        PySelection ps = new PySelection(doc, 1, 0, doc.getLength() - 13);
+        assertEquals(new Tuple<Integer, Integer>(14, 26),
+                new PyComment(std).perform(ps, CommentBlocksPreferences.ADD_COMMENTS_AT_INDENT));
+
+        String expected = "def method():\n"
+                + "    # if a:\n"
+                + "    #     pass";
+        assertEquals(expected, doc.get());
+    }
+
+    public void testComment5() throws Exception {
+        Document doc = new Document("def method():\n"
+                + "    if a:\n"
+                + "        pass");
+        PySelection ps = new PySelection(doc, 1, 0, doc.getLength() - 13);
+        assertEquals(new Tuple<Integer, Integer>(14, 24),
+                new PyComment(std).perform(ps, CommentBlocksPreferences.ADD_COMMENTS_AT_BEGINNING));
+
+        String expected = "def method():\n"
+                + "#    if a:\n"
+                + "#        pass";
+        assertEquals(expected, doc.get());
+    }
+
+    public void testComment6() throws Exception {
+        std.spacesInStartComment = 1;
+
+        Document doc = new Document("def method():\n"
+                + "    if a:\n"
+                + "        pass");
+        PySelection ps = new PySelection(doc, 1, 0, doc.getLength() - 13);
+        assertEquals(new Tuple<Integer, Integer>(14, 26),
+                new PyComment(std).perform(ps, CommentBlocksPreferences.ADD_COMMENTS_INDENT_ORIENTED));
+
+        String expected = "def method():\n"
+                + "    # if a:\n"
+                + "        # pass";
+        assertEquals(expected, doc.get());
     }
 }
