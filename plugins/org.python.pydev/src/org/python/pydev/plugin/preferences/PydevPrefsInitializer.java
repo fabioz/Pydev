@@ -48,8 +48,8 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
                 CommentBlocksPreferences.DEFAULT_SINGLE_BLOCK_COMMENT_CHAR);
         node.putBoolean(CommentBlocksPreferences.SINGLE_BLOCK_COMMENT_ALIGN_RIGHT,
                 CommentBlocksPreferences.DEFAULT_SINGLE_BLOCK_COMMENT_ALIGN_RIGHT);
-        node.putBoolean(CommentBlocksPreferences.ADD_COMMENTS_AT_INDENT,
-                CommentBlocksPreferences.DEFAULT_ADD_COMMENTS_AT_INDENT);
+        node.put(CommentBlocksPreferences.ADD_COMMENTS_OPTION,
+                CommentBlocksPreferences.DEFAULT_ADD_COMMENTS_OPTION);
 
         node.putBoolean(PyDevEditorPreferences.USE_VERTICAL_INDENT_GUIDE,
                 PyDevEditorPreferences.DEFAULT_USE_VERTICAL_INDENT_GUIDE);
