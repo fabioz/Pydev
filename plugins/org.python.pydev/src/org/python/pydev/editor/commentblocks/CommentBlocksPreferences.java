@@ -7,6 +7,7 @@
 package org.python.pydev.editor.commentblocks;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
+import org.eclipse.jface.preference.ComboFieldEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
@@ -56,16 +57,23 @@ public class CommentBlocksPreferences extends ScopedFieldEditorPreferencePage im
     public static final String SINGLE_BLOCK_COMMENT_ALIGN_RIGHT = "SINGLE_BLOCK_COMMENT_ALIGN_RIGHT";
     public static final boolean DEFAULT_SINGLE_BLOCK_COMMENT_ALIGN_RIGHT = true;
 
+    public static final String ADD_COMMENTS_OPTION = "ADD_COMMENTS_OPTION";
     public static final String ADD_COMMENTS_AT_INDENT = "ADD_COMMENTS_AT_INDENT";
-    public static final boolean DEFAULT_ADD_COMMENTS_AT_INDENT = true;
+    public static final String ADD_COMMENTS_AT_BEGINNING = "ADD_COMMENTS_AT_BEGINNING";
+    public static final String ADD_COMMENTS_INDENT_ORIENTED = "ADD_COMMENTS_INDENT_ORIENTED";
+    public static final String DEFAULT_ADD_COMMENTS_OPTION = ADD_COMMENTS_AT_INDENT;
+    private static final String[][] ENTRIES_AND_VALUES_FOR_ADD_COMMENTS_OPTION = new String[][] {
+            { "Add comment at a single indent", ADD_COMMENTS_AT_INDENT },
+            { "Add comment at the beginning of the line", ADD_COMMENTS_AT_BEGINNING },
+            { "Add comment indent oriented", ADD_COMMENTS_INDENT_ORIENTED },
+    };
 
     @Override
     protected void createFieldEditors() {
         final Composite p = getFieldEditorParent();
 
-        addField(new BooleanFieldEditor(ADD_COMMENTS_AT_INDENT,
-                "When commenting add '#' at the current indent?",
-                p));
+        addField(new ComboFieldEditor(ADD_COMMENTS_OPTION, "Default comment add style?",
+                ENTRIES_AND_VALUES_FOR_ADD_COMMENTS_OPTION, p));
 
         labelSep0 = new Label(p, SWT.NONE);
         labelSep0.setText("       (otherwise, add '#' to the start of the line)");
