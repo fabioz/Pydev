@@ -137,7 +137,7 @@ public class CommentActionTest extends TestCase {
                 + "\n";
 
         String commentedContent = "\n"
-                + "##\n";
+                + "## \n";
 
         String expectedUncommentedContent = "\n"
                 + "\n";
