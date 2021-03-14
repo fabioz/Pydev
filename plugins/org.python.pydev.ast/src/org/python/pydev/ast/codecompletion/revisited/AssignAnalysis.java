@@ -81,9 +81,17 @@ public class AssignAnalysis {
                     if (defs.length > 0) {
                         for (int i = 0; i < defs.length; i++) {
                             //go through all definitions found and make a merge of it...
-                            TokensList completionsFromDefinition = getCompletionsFromDefinition(defs[i], state,
+                            Definition definition = defs[i];
+                            TokensList completionsFromDefinition = getCompletionsFromDefinition(definition, state,
                                     sourceModule, manager);
                             if (completionsFromDefinition != null && completionsFromDefinition.notEmpty()) {
+                                if (definition instanceof AssignDefinition) {
+                                    AssignDefinition assignDefinition = (AssignDefinition) definition;
+                                    if (assignDefinition.nodeValue instanceof Call) {
+                                        completionsFromDefinition
+                                                .setLookingFor(LookingFor.LOOKING_FOR_INSTANCED_VARIABLE);
+                                    }
+                                }
                                 ret.addAll(completionsFromDefinition);
                             }
                         }
