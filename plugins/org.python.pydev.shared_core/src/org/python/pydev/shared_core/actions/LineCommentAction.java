@@ -14,6 +14,7 @@ package org.python.pydev.shared_core.actions;
 import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
+import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.ICoreTextSelection;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -28,6 +29,7 @@ public class LineCommentAction {
 
     // Either add '#' at the current indent or at the start of the line.
     private boolean addCommentsAtIndent;
+    private ICallback<FastStringBuffer, String> commentLinesExec;
 
     public LineCommentAction(TextSelectionUtils ps, String commentPattern, int spacesInStart,
             boolean addCommentsAtIndent) {
@@ -35,6 +37,20 @@ public class LineCommentAction {
         this.commentPattern = commentPattern;
         this.spacesInStart = spacesInStart;
         this.addCommentsAtIndent = addCommentsAtIndent;
+        this.commentLinesExec = new ICallback<FastStringBuffer, String>() {
+            @Override
+            public FastStringBuffer call(String selectedText) {
+                return commentLines(selectedText);
+            }
+        };
+    }
+
+    public LineCommentAction(TextSelectionUtils ps, String commentPattern, int spacesInStartComment,
+            ICallback<FastStringBuffer, String> commentLinesExec) {
+        this.ps = ps;
+        this.commentPattern = commentPattern;
+        this.spacesInStart = spacesInStartComment;
+        this.commentLinesExec = commentLinesExec;
     }
 
     public FastStringBuffer commentLines(String selectedText) {
@@ -112,7 +128,7 @@ public class LineCommentAction {
 
         String selectedText = ps.getSelectedText();
 
-        FastStringBuffer strbuf = commentLines(selectedText);
+        FastStringBuffer strbuf = commentLinesExec.call(selectedText);
         ICoreTextSelection txtSel = ps.getTextSelection();
         int start = txtSel.getOffset();
         int len = txtSel.getLength();
