@@ -87,7 +87,7 @@ public class PyComment extends PyAction {
             throws BadLocationException {
         if (addCommentsOption == null
                 || !CommentBlocksPreferences.getValuesForAddCommentsOption().contains(addCommentsOption)) {
-            org.python.pydev.core.log.Log.log("Not expected add comments option.");
+            org.python.pydev.core.log.Log.log("Unexpected option to add comments: " + addCommentsOption);
             addCommentsOption = LineCommentOption.DEFAULT_ADD_COMMENTS_OPTION;
         }
         int spacesInStart = this.std.spacesInStartComment;

@@ -26,7 +26,7 @@ public class LineCommentAction {
     private String commentPattern;
     private int spacesInStart;
 
-    private String addCommentsOption;
+    private final String addCommentsOption;
 
     public LineCommentAction(TextSelectionUtils ps, String commentPattern, int spacesInStart,
             String addCommentsOption) {
@@ -61,7 +61,7 @@ public class LineCommentAction {
         int lowestIndent = -1;
         if (LineCommentOption.ADD_COMMENTS_INDENT.equals(addCommentsOption)) {
             for (String line : ret) {
-                int indent = TextSelectionUtils.getIndentationFromLine(line).length();
+                int indent = TextSelectionUtils.getFirstCharPosition(line);
                 if (lowestIndent == -1 || indent < lowestIndent) {
                     lowestIndent = indent;
                     if (lowestIndent == 0) {
