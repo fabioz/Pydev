@@ -18,11 +18,7 @@ import org.python.pydev.core.formatter.FormatStd;
 import org.python.pydev.core.preferences.PyScopedPreferences;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
-import org.python.pydev.editor.commentblocks.options.CommentBlocksOption;
-import org.python.pydev.editor.commentblocks.options.CommentBlocksOptionFactory;
 import org.python.pydev.shared_core.actions.LineCommentAction;
-import org.python.pydev.shared_core.callbacks.ICallback;
-import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.EditorUtils;
@@ -74,6 +70,11 @@ public class PyComment extends PyAction {
         }
     }
 
+    public Tuple<Integer, Integer> perform(TextSelectionUtils ps, boolean addCommentsAtIndent)
+            throws BadLocationException {
+        return performComment(ps, addCommentsAtIndent);
+    }
+
     public Tuple<Integer, Integer> perform(TextSelectionUtils ps, String commentOption)
             throws BadLocationException {
         return performComment(ps, commentOption);
@@ -86,36 +87,17 @@ public class PyComment extends PyAction {
      * @return the new selection
      * @throws BadLocationException
      */
-    protected Tuple<Integer, Integer> performComment(TextSelectionUtils ps, String commentOption)
+    protected Tuple<Integer, Integer> performComment(TextSelectionUtils ps, boolean addCommentsAtIndent)
             throws BadLocationException {
         int spacesInStart = this.std.spacesInStartComment;
-        CommentBlocksOption commentBlocksOption = CommentBlocksOptionFactory.createCommentBlocksOption(commentOption,
-                spacesInStart);
-        LineCommentAction lineCommentAction = new LineCommentAction(ps, "#", spacesInStart,
-                new ICallback<FastStringBuffer, String>() {
-                    @Override
-                    public FastStringBuffer call(String selectedText) {
-                        return commentBlocksOption.commentLines(selectedText);
-                    }
-                });
+        LineCommentAction lineCommentAction = new LineCommentAction(ps, "#", spacesInStart, addCommentsAtIndent);
         return lineCommentAction.execute();
     }
 
-    protected Tuple<Integer, Integer> performComment(TextSelectionUtils ps, boolean addCommentsAtIndent)
+    protected Tuple<Integer, Integer> performComment(TextSelectionUtils ps, String addCommentsOption)
             throws BadLocationException {
-        return performComment(ps, getDefaultOption(addCommentsAtIndent));
-    }
-
-    public Tuple<Integer, Integer> perform(TextSelectionUtils ps, boolean addCommentsAtIndent)
-            throws BadLocationException {
-        return performComment(ps, getDefaultOption(addCommentsAtIndent));
-    }
-
-    private String getDefaultOption(boolean addCommentsAtIndent) {
-        if (addCommentsAtIndent) {
-            return CommentBlocksPreferences.ADD_COMMENTS_INDENT_ORIENTED;
-        } else {
-            return CommentBlocksPreferences.ADD_COMMENTS_AT_BEGINNING;
-        }
+        int spacesInStart = this.std.spacesInStartComment;
+        LineCommentAction lineCommentAction = new LineCommentAction(ps, "#", spacesInStart, addCommentsOption);
+        return lineCommentAction.execute();
     }
 }

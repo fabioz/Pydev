@@ -37,6 +37,12 @@ public class PyUncomment extends PyComment {
         return performUncomment(ps);
     }
 
+    @Override
+    public Tuple<Integer, Integer> perform(TextSelectionUtils ps, String addCommentOption)
+            throws BadLocationException {
+        return performUncomment(ps);
+    }
+
     /**
      * Performs the action with a given PySelection
      *
