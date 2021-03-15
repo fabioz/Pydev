@@ -20,6 +20,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.core.preferences.PyScopedPreferences;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.actions.LineCommentOption;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_ui.FontUtils;
 import org.python.pydev.shared_ui.IFontUsage;
@@ -58,9 +59,9 @@ public class CommentBlocksPreferences extends ScopedFieldEditorPreferencePage im
     public static final boolean DEFAULT_SINGLE_BLOCK_COMMENT_ALIGN_RIGHT = true;
 
     public static final String ADD_COMMENTS_OPTION = "ADD_COMMENTS_OPTION";
-    public static final String ADD_COMMENTS_AT_INDENT = "ADD_COMMENTS_AT_INDENT";
-    public static final String ADD_COMMENTS_AT_BEGINNING = "ADD_COMMENTS_AT_BEGINNING";
-    public static final String ADD_COMMENTS_INDENT_ORIENTED = "ADD_COMMENTS_INDENT_ORIENTED";
+    public static final String ADD_COMMENTS_AT_INDENT = LineCommentOption.ADD_COMMENTS_AT_INDENT;
+    public static final String ADD_COMMENTS_AT_BEGINNING = LineCommentOption.ADD_COMMENTS_AT_BEGINNING;
+    public static final String ADD_COMMENTS_INDENT_ORIENTED = LineCommentOption.ADD_COMMENTS_INDENT_ORIENTED;
     public static final String DEFAULT_ADD_COMMENTS_OPTION = ADD_COMMENTS_AT_INDENT;
     private static final String[][] ENTRIES_AND_VALUES_FOR_ADD_COMMENTS_OPTION = new String[][] {
             { "Add comment at a single indent", ADD_COMMENTS_AT_INDENT },
