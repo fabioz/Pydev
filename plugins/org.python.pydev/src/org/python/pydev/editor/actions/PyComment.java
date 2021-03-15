@@ -19,6 +19,7 @@ import org.python.pydev.core.preferences.PyScopedPreferences;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
 import org.python.pydev.shared_core.actions.LineCommentAction;
+import org.python.pydev.shared_core.actions.LineCommentOption;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.EditorUtils;
@@ -70,14 +71,9 @@ public class PyComment extends PyAction {
         }
     }
 
-    public Tuple<Integer, Integer> perform(TextSelectionUtils ps, boolean addCommentsAtIndent)
+    public Tuple<Integer, Integer> perform(TextSelectionUtils ps, String addCommentsOption)
             throws BadLocationException {
-        return performComment(ps, addCommentsAtIndent);
-    }
-
-    public Tuple<Integer, Integer> perform(TextSelectionUtils ps, String commentOption)
-            throws BadLocationException {
-        return performComment(ps, commentOption);
+        return performComment(ps, addCommentsOption);
     }
 
     /**
@@ -87,15 +83,13 @@ public class PyComment extends PyAction {
      * @return the new selection
      * @throws BadLocationException
      */
-    protected Tuple<Integer, Integer> performComment(TextSelectionUtils ps, boolean addCommentsAtIndent)
-            throws BadLocationException {
-        int spacesInStart = this.std.spacesInStartComment;
-        LineCommentAction lineCommentAction = new LineCommentAction(ps, "#", spacesInStart, addCommentsAtIndent);
-        return lineCommentAction.execute();
-    }
-
     protected Tuple<Integer, Integer> performComment(TextSelectionUtils ps, String addCommentsOption)
             throws BadLocationException {
+        if (addCommentsOption == null
+                || !CommentBlocksPreferences.getValuesForAddCommentsOption().contains(addCommentsOption)) {
+            org.python.pydev.core.log.Log.log("Not expected add comments option.");
+            addCommentsOption = LineCommentOption.DEFAULT_ADD_COMMENTS_OPTION;
+        }
         int spacesInStart = this.std.spacesInStartComment;
         LineCommentAction lineCommentAction = new LineCommentAction(ps, "#", spacesInStart, addCommentsOption);
         return lineCommentAction.execute();
