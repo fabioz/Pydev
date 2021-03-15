@@ -129,6 +129,9 @@ class SourceMapping(object):
         if mappings:
 
             i = bisect.bisect(KeyifyList(mappings, lambda entry:entry.line), lineno)
+            if i >= len(mappings):
+                i -= 1
+
             if i == 0:
                 entry = mappings[i]
 

@@ -261,6 +261,9 @@ def calculate_smart_step_into_variants(frame, start_line, end_line, base=0):
     call_order_cache = {}
 
     for inst in _get_smart_step_into_candidates(code):
+        if not isinstance(inst.argval, str):
+            continue
+
         if inst.lineno and inst.lineno > end_line:
             break
         if not is_context_reached and inst.lineno is not None and inst.lineno >= start_line:
