@@ -76,11 +76,17 @@ public class LineCommentAction {
                 int indent = TextSelectionUtils.getIndentationFromLine(line).length();
                 if (lowestIndent == -1 || indent < lowestIndent) {
                     lowestIndent = indent;
+                    if (lowestIndent == 0) {
+                        break;
+                    }
                 }
             }
         }
 
         for (String line : ret) {
+            if (line.length() == 0) {
+                continue;
+            }
             addSpacesInStartComment = true;
             if (LineCommentOption.ADD_COMMENTS_INDENT_ORIENTED.equals(addCommentsOption)) {
                 lineBuf.clear();
@@ -116,7 +122,14 @@ public class LineCommentAction {
                 strbuf.append(lineBuf);
             } else if (LineCommentOption.ADD_COMMENTS_AT_INDENT.equals(addCommentsOption)) {
                 lineBuf.clear().append(line);
-                lineBuf.deleteFirstChars(lowestIndent);
+                if (lowestIndent > 0) {
+                    lineBuf.deleteFirstChars(lowestIndent);
+                    strbuf.append(StringUtils.createSpaceString(lowestIndent));
+                }
+                strbuf.append(commentPattern);
+                if (spacesInStartComment != null) {
+                    strbuf.append(spacesInStartComment);
+                }
                 strbuf.append(lineBuf);
             } else {
                 strbuf.append(commentPattern);
