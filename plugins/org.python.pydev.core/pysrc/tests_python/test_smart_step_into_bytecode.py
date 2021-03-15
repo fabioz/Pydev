@@ -6,7 +6,10 @@ def check(found, expected):
 
     last_offset = -1
     for f, e in zip(found, expected):
-        assert f.name == e.name
+        if isinstance(e.name, (list, tuple, set)):
+            assert f.name in e.name
+        else:
+            assert f.name == e.name
         assert f.is_visited == e.is_visited
         assert f.line == e.line
         assert f.call_order == e.call_order
@@ -40,7 +43,7 @@ def test_smart_step_into_bytecode_info():
         frame, 0, 99999, base=function.__code__.co_firstlineno)
 
     check(found, [
-        Variant(name='_getframe', is_visited=True, line=8, offset=20, call_order=1),
+        Variant(name=('_getframe', 'sys'), is_visited=True, line=8, offset=20, call_order=1),
         Variant(name='some', is_visited=False, line=9, offset=34, call_order=1),
         Variant(name='call', is_visited=False, line=9, offset=36, call_order=1),
         Variant(name='some', is_visited=False, line=9, offset=38, call_order=2),
@@ -103,7 +106,7 @@ def test_smart_step_into_bytecode_info_eq():
     found = pydevd_bytecode_utils.calculate_smart_step_into_variants(
         frame, 0, 99999, base=function.__code__.co_firstlineno)
 
-    if sys.version_info[:2] < (3,9):
+    if sys.version_info[:2] < (3, 9):
         check(found, [
             Variant(name='__eq__', is_visited=True, line=3, offset=18, call_order=1),
             Variant(name='__ne__', is_visited=True, line=5, offset=33, call_order=1),
@@ -112,7 +115,7 @@ def test_smart_step_into_bytecode_info_eq():
             Variant(name='__lt__', is_visited=True, line=11, offset=78, call_order=1),
             Variant(name='__le__', is_visited=True, line=13, offset=93, call_order=1),
             Variant(name='is', is_visited=True, line=15, offset=108, call_order=1),
-            Variant(name='_getframe', is_visited=True, line=18, offset=123, call_order=1),
+            Variant(name=('_getframe', 'sys'), is_visited=True, line=18, offset=123, call_order=1),
         ])
     else:
         check(found, [
@@ -122,5 +125,5 @@ def test_smart_step_into_bytecode_info_eq():
             Variant(name='__ge__', is_visited=True, line=9, offset=63, call_order=1),
             Variant(name='__lt__', is_visited=True, line=11, offset=78, call_order=1),
             Variant(name='__le__', is_visited=True, line=13, offset=93, call_order=1),
-            Variant(name='_getframe', is_visited=True, line=18, offset=123, call_order=1),
+            Variant(name=('_getframe', 'sys'), is_visited=True, line=18, offset=123, call_order=1),
         ])
