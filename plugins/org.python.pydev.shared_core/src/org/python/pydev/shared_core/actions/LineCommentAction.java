@@ -36,18 +36,6 @@ public class LineCommentAction {
         this.addCommentsOption = addCommentsOption;
     }
 
-    public LineCommentAction(TextSelectionUtils ps, String commentPattern, int spacesInStart,
-            boolean addCommentsAtIndent) {
-        this.ps = ps;
-        this.commentPattern = commentPattern;
-        this.spacesInStart = spacesInStart;
-        if (addCommentsAtIndent) {
-            this.addCommentsOption = LineCommentOption.ADD_COMMENTS_INDENT_ORIENTED;
-        } else {
-            this.addCommentsOption = LineCommentOption.ADD_COMMENTS_AT_BEGINNING;
-        }
-    }
-
     public FastStringBuffer commentLines(String selectedText) {
         List<String> ret = StringUtils.splitInLines(selectedText);
         FastStringBuffer strbuf = new FastStringBuffer(selectedText.length() + ret.size()
@@ -71,7 +59,7 @@ public class LineCommentAction {
         boolean addSpacesInStartComment;
 
         int lowestIndent = -1;
-        if (LineCommentOption.ADD_COMMENTS_AT_INDENT.equals(addCommentsOption)) {
+        if (LineCommentOption.ADD_COMMENTS_INDENT.equals(addCommentsOption)) {
             for (String line : ret) {
                 int indent = TextSelectionUtils.getIndentationFromLine(line).length();
                 if (lowestIndent == -1 || indent < lowestIndent) {
@@ -88,7 +76,7 @@ public class LineCommentAction {
                 continue;
             }
             addSpacesInStartComment = true;
-            if (LineCommentOption.ADD_COMMENTS_INDENT_ORIENTED.equals(addCommentsOption)) {
+            if (LineCommentOption.ADD_COMMENTS_INDENT_LINE_ORIENTED.equals(addCommentsOption)) {
                 lineBuf.clear();
                 lineBuf.append(line);
                 lineBuf.leftTrim();
@@ -120,7 +108,7 @@ public class LineCommentAction {
                     strbuf.append(spacesInStartComment);
                 }
                 strbuf.append(lineBuf);
-            } else if (LineCommentOption.ADD_COMMENTS_AT_INDENT.equals(addCommentsOption)) {
+            } else if (LineCommentOption.ADD_COMMENTS_INDENT.equals(addCommentsOption)) {
                 lineBuf.clear().append(line);
                 if (lowestIndent > 0) {
                     lineBuf.deleteFirstChars(lowestIndent);

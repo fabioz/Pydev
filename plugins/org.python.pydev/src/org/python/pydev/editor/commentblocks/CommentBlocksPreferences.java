@@ -6,6 +6,9 @@
  */
 package org.python.pydev.editor.commentblocks;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.ComboFieldEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
@@ -59,21 +62,25 @@ public class CommentBlocksPreferences extends ScopedFieldEditorPreferencePage im
     public static final boolean DEFAULT_SINGLE_BLOCK_COMMENT_ALIGN_RIGHT = true;
 
     public static final String ADD_COMMENTS_OPTION = "ADD_COMMENTS_OPTION";
-    public static final String ADD_COMMENTS_AT_INDENT = LineCommentOption.ADD_COMMENTS_AT_INDENT;
-    public static final String ADD_COMMENTS_AT_BEGINNING = LineCommentOption.ADD_COMMENTS_AT_BEGINNING;
-    public static final String ADD_COMMENTS_INDENT_ORIENTED = LineCommentOption.ADD_COMMENTS_INDENT_ORIENTED;
-    public static final String DEFAULT_ADD_COMMENTS_OPTION = ADD_COMMENTS_AT_INDENT;
     private static final String[][] ENTRIES_AND_VALUES_FOR_ADD_COMMENTS_OPTION = new String[][] {
-            { "Add comment at a single indent", ADD_COMMENTS_AT_INDENT },
-            { "Add comment at the beginning of the line", ADD_COMMENTS_AT_BEGINNING },
-            { "Add comment indent oriented", ADD_COMMENTS_INDENT_ORIENTED },
+            { "Indent", LineCommentOption.ADD_COMMENTS_INDENT },
+            { "Line start", LineCommentOption.ADD_COMMENTS_LINE_START },
+            { "Indent (computed for each line)", LineCommentOption.ADD_COMMENTS_INDENT_LINE_ORIENTED },
     };
+
+    public static final List<String> getValuesForAddCommentsOption() {
+        List<String> ret = new ArrayList<String>();
+        for (String[] option : ENTRIES_AND_VALUES_FOR_ADD_COMMENTS_OPTION) {
+            ret.add(option[1]);
+        }
+        return ret;
+    }
 
     @Override
     protected void createFieldEditors() {
         final Composite p = getFieldEditorParent();
 
-        addField(new ComboFieldEditor(ADD_COMMENTS_OPTION, "Default comment add style?",
+        addField(new ComboFieldEditor(ADD_COMMENTS_OPTION, "Comment location",
                 ENTRIES_AND_VALUES_FOR_ADD_COMMENTS_OPTION, p));
 
         labelSep0 = new Label(p, SWT.NONE);

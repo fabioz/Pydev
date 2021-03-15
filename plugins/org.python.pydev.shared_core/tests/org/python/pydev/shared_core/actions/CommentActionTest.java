@@ -166,7 +166,13 @@ public class CommentActionTest extends TestCase {
             int commentSpacesInStart, int uncommentSpacesInStart, String expectedUncomment, boolean addCommentsAtIndent)
             throws BadLocationException {
         TextSelectionUtils ts = createTextSelectionUtils(uncommentedContent, startLine);
-        new LineCommentAction(ts, "##", commentSpacesInStart, addCommentsAtIndent).execute();
+        String addCommentsOption = null;
+        if (addCommentsAtIndent) {
+            addCommentsOption = LineCommentOption.ADD_COMMENTS_INDENT_LINE_ORIENTED;
+        } else {
+            addCommentsOption = LineCommentOption.ADD_COMMENTS_LINE_START;
+        }
+        new LineCommentAction(ts, "##", commentSpacesInStart, addCommentsOption).execute();
         assertEquals(commentedContent, ts.getDoc().get());
         ts = createTextSelectionUtils(commentedContent, startLine);
         new LineUncommentAction(ts, "##", uncommentSpacesInStart).execute();

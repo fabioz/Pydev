@@ -24,6 +24,7 @@ import org.python.pydev.parser.PyParserManager;
 import org.python.pydev.parser.preferences.PyDevBuilderPreferences;
 import org.python.pydev.pyunit.preferences.PyUnitPrefsPage2;
 import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.actions.LineCommentOption;
 import org.python.pydev.shared_ui.word_boundaries.SubWordPreferences;
 import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 import org.python.pydev.ui.wizards.project.IWizardNewProjectNameAndLocationPage;
@@ -49,7 +50,7 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.putBoolean(CommentBlocksPreferences.SINGLE_BLOCK_COMMENT_ALIGN_RIGHT,
                 CommentBlocksPreferences.DEFAULT_SINGLE_BLOCK_COMMENT_ALIGN_RIGHT);
         node.put(CommentBlocksPreferences.ADD_COMMENTS_OPTION,
-                CommentBlocksPreferences.DEFAULT_ADD_COMMENTS_OPTION);
+                LineCommentOption.DEFAULT_ADD_COMMENTS_OPTION);
 
         node.putBoolean(PyDevEditorPreferences.USE_VERTICAL_INDENT_GUIDE,
                 PyDevEditorPreferences.DEFAULT_USE_VERTICAL_INDENT_GUIDE);
