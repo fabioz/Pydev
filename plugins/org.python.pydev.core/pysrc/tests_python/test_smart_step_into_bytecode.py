@@ -2,7 +2,7 @@ import sys
 
 
 def check(found, expected):
-    assert len(found) == len(expected)
+    assert len(found) == len(expected), '%s != %s' % (found, expected)
 
     last_offset = -1
     for f, e in zip(found, expected):
@@ -103,13 +103,24 @@ def test_smart_step_into_bytecode_info_eq():
     found = pydevd_bytecode_utils.calculate_smart_step_into_variants(
         frame, 0, 99999, base=function.__code__.co_firstlineno)
 
-    check(found, [
-        Variant(name='__eq__', is_visited=True, line=3, offset=18, call_order=1),
-        Variant(name='__ne__', is_visited=True, line=5, offset=33, call_order=1),
-        Variant(name='__gt__', is_visited=True, line=7, offset=48, call_order=1),
-        Variant(name='__ge__', is_visited=True, line=9, offset=63, call_order=1),
-        Variant(name='__lt__', is_visited=True, line=11, offset=78, call_order=1),
-        Variant(name='__le__', is_visited=True, line=13, offset=93, call_order=1),
-        Variant(name='is', is_visited=True, line=15, offset=108, call_order=1),
-        Variant(name='_getframe', is_visited=True, line=18, offset=123, call_order=1),
-    ])
+    if sys.version_info[:2] < (3,9):
+        check(found, [
+            Variant(name='__eq__', is_visited=True, line=3, offset=18, call_order=1),
+            Variant(name='__ne__', is_visited=True, line=5, offset=33, call_order=1),
+            Variant(name='__gt__', is_visited=True, line=7, offset=48, call_order=1),
+            Variant(name='__ge__', is_visited=True, line=9, offset=63, call_order=1),
+            Variant(name='__lt__', is_visited=True, line=11, offset=78, call_order=1),
+            Variant(name='__le__', is_visited=True, line=13, offset=93, call_order=1),
+            Variant(name='is', is_visited=True, line=15, offset=108, call_order=1),
+            Variant(name='_getframe', is_visited=True, line=18, offset=123, call_order=1),
+        ])
+    else:
+        check(found, [
+            Variant(name='__eq__', is_visited=True, line=3, offset=18, call_order=1),
+            Variant(name='__ne__', is_visited=True, line=5, offset=33, call_order=1),
+            Variant(name='__gt__', is_visited=True, line=7, offset=48, call_order=1),
+            Variant(name='__ge__', is_visited=True, line=9, offset=63, call_order=1),
+            Variant(name='__lt__', is_visited=True, line=11, offset=78, call_order=1),
+            Variant(name='__le__', is_visited=True, line=13, offset=93, call_order=1),
+            Variant(name='_getframe', is_visited=True, line=18, offset=123, call_order=1),
+        ])
