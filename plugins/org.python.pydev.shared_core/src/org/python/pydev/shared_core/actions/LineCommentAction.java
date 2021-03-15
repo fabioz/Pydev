@@ -14,7 +14,6 @@ package org.python.pydev.shared_core.actions;
 import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.ICoreTextSelection;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -27,30 +26,26 @@ public class LineCommentAction {
     private String commentPattern;
     private int spacesInStart;
 
-    // Either add '#' at the current indent or at the start of the line.
-    private boolean addCommentsAtIndent;
-    private ICallback<FastStringBuffer, String> commentLinesExec;
+    private String addCommentsOption;
+
+    public LineCommentAction(TextSelectionUtils ps, String commentPattern, int spacesInStart,
+            String addCommentsOption) {
+        this.ps = ps;
+        this.commentPattern = commentPattern;
+        this.spacesInStart = spacesInStart;
+        this.addCommentsOption = addCommentsOption;
+    }
 
     public LineCommentAction(TextSelectionUtils ps, String commentPattern, int spacesInStart,
             boolean addCommentsAtIndent) {
         this.ps = ps;
         this.commentPattern = commentPattern;
         this.spacesInStart = spacesInStart;
-        this.addCommentsAtIndent = addCommentsAtIndent;
-        this.commentLinesExec = new ICallback<FastStringBuffer, String>() {
-            @Override
-            public FastStringBuffer call(String selectedText) {
-                return commentLines(selectedText);
-            }
-        };
-    }
-
-    public LineCommentAction(TextSelectionUtils ps, String commentPattern, int spacesInStartComment,
-            ICallback<FastStringBuffer, String> commentLinesExec) {
-        this.ps = ps;
-        this.commentPattern = commentPattern;
-        this.spacesInStart = spacesInStartComment;
-        this.commentLinesExec = commentLinesExec;
+        if (addCommentsAtIndent) {
+            this.addCommentsOption = LineCommentOption.ADD_COMMENTS_INDENT_ORIENTED;
+        } else {
+            this.addCommentsOption = LineCommentOption.ADD_COMMENTS_AT_BEGINNING;
+        }
     }
 
     public FastStringBuffer commentLines(String selectedText) {
@@ -75,9 +70,19 @@ public class LineCommentAction {
         FastStringBuffer lineBuf = new FastStringBuffer();
         boolean addSpacesInStartComment;
 
+        int lowestIndent = -1;
+        if (LineCommentOption.ADD_COMMENTS_AT_INDENT.equals(addCommentsOption)) {
+            for (String line : ret) {
+                int indent = TextSelectionUtils.getIndentationFromLine(line).length();
+                if (lowestIndent == -1 || indent < lowestIndent) {
+                    lowestIndent = indent;
+                }
+            }
+        }
+
         for (String line : ret) {
             addSpacesInStartComment = true;
-            if (addCommentsAtIndent) {
+            if (LineCommentOption.ADD_COMMENTS_INDENT_ORIENTED.equals(addCommentsOption)) {
                 lineBuf.clear();
                 lineBuf.append(line);
                 lineBuf.leftTrim();
@@ -109,6 +114,10 @@ public class LineCommentAction {
                     strbuf.append(spacesInStartComment);
                 }
                 strbuf.append(lineBuf);
+            } else if (LineCommentOption.ADD_COMMENTS_AT_INDENT.equals(addCommentsOption)) {
+                lineBuf.clear().append(line);
+                lineBuf.deleteFirstChars(lowestIndent);
+                strbuf.append(lineBuf);
             } else {
                 strbuf.append(commentPattern);
                 if (spacesInStartComment != null) {
@@ -128,7 +137,7 @@ public class LineCommentAction {
 
         String selectedText = ps.getSelectedText();
 
-        FastStringBuffer strbuf = commentLinesExec.call(selectedText);
+        FastStringBuffer strbuf = commentLines(selectedText);
         ICoreTextSelection txtSel = ps.getTextSelection();
         int start = txtSel.getOffset();
         int len = txtSel.getLength();
