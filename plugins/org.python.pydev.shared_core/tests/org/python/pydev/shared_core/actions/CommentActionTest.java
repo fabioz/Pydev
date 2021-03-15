@@ -176,7 +176,7 @@ public class CommentActionTest extends TestCase {
     private TextSelectionUtils createTextSelectionUtils(String content, int startLine) {
         TextSelectionUtils ts = new TextSelectionUtils(new Document(content), 0);
         int startOffset = ts.getLineOffset(startLine);
-        ts.setSelection(startOffset, content.length());
+        ts.setSelection(startOffset, content.length() + 1);
         return ts;
     }
 }
