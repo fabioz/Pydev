@@ -161,10 +161,10 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
 
         Map<IResource, IDocument> resourceToDocCache = new HashMap<>();
 
-        int eSeverity = Flake8Preferences.eSeverity();
-        int fSeverity = Flake8Preferences.fSeverity();
-        int wSeverity = Flake8Preferences.wSeverity();
-        int cSeverity = Flake8Preferences.cSeverity();
+        int eSeverity = Flake8Preferences.eSeverity(resource);
+        int fSeverity = Flake8Preferences.fSeverity(resource);
+        int wSeverity = Flake8Preferences.wSeverity(resource);
+        int cSeverity = Flake8Preferences.cSeverity(resource);
 
         for (String outputLine : StringUtils.iterLines(output)) {
             if (monitor.isCanceled()) {
