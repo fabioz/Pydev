@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +29,6 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.function.BiConsumer;
 import java.util.zip.ZipFile;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -1898,23 +1896,13 @@ public class InterpreterInfo implements IInterpreterInfo {
     }
 
     @Override
-    public Properties getStringSubstitutionVariables() {
-        return getStringSubstitutionVariables(false);
-    }
-
-    @Override
     public Properties getStringSubstitutionVariables(boolean addEnvironmentVaiables) {
         Properties ret = new Properties();
         ret.putAll(this.stringSubstitutionVariables);
         if (addEnvironmentVaiables) {
-            Map<String, String> formattedEnv = new Hashtable<String, String>();
-            System.getenv().forEach(new BiConsumer<String, String>() {
-                @Override
-                public void accept(String t, String u) {
-                    formattedEnv.put("env_var:" + t, u);
-                }
+            System.getenv().forEach((String t, String u) -> {
+                ret.put("env_var:" + t, u);
             });
-            ret.putAll(formattedEnv);
         }
         return ret;
     }
