@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditor;
-import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.FileFieldEditor;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -19,11 +18,14 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_ui.field_editors.LinkFieldEditor;
 import org.python.pydev.shared_ui.field_editors.RadioGroupFieldEditor;
+import org.python.pydev.shared_ui.field_editors.ScopedFieldEditorPreferencePage;
+import org.python.pydev.shared_ui.field_editors.ScopedPreferencesFieldEditor;
 import org.python.pydev.utils.CustomizableFieldEditor;
 
+import com.python.pydev.analysis.PyAnalysisScopedPreferences;
 import com.python.pydev.analysis.mypy.MypyPreferences;
 
-public class MypyPrefPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
+public class MypyPrefPage extends ScopedFieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
     private Composite parent;
     private RadioGroupFieldEditor searchMypyLocation;
@@ -97,7 +99,7 @@ public class MypyPrefPage extends FieldEditorPreferencePage implements IWorkbenc
                     public void widgetDefaultSelected(SelectionEvent e) {
                     }
                 }));
-
+        addField(new ScopedPreferencesFieldEditor(parent, PyAnalysisScopedPreferences.ANALYSIS_SCOPE, this));
     }
 
     @Override
