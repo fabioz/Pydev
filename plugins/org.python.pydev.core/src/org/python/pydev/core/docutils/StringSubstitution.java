@@ -397,6 +397,14 @@ public class StringSubstitution {
             } else {
                 name = text;
             }
+
+            if ("env_var".equals(name) && arg != null && !arg.isBlank()) {
+                String valueVariable = variableSubstitution.get(name.trim() + ":" + arg.trim());
+                if (valueVariable != null) {
+                    return valueVariable;
+                }
+            }
+
             String valueVariable = variableSubstitution.get(name);
             if (valueVariable == null) {
                 //leave as is
