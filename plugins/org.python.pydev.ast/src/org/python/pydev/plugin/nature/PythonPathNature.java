@@ -518,7 +518,7 @@ public class PythonPathNature implements IPythonPathNature {
         if (addInterpreterInfoSubstitutions) {
 
             IInterpreterInfo info = nature.getProjectInterpreter();
-            Properties stringSubstitutionVariables = info.getStringSubstitutionVariables();
+            Properties stringSubstitutionVariables = info.getStringSubstitutionVariables(true);
             if (stringSubstitutionVariables == null) {
                 variableSubstitution = new HashMap<String, String>();
             } else {

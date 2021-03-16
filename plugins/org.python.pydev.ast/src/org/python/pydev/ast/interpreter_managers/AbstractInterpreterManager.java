@@ -710,7 +710,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 
                     boolean makeCompleteRebuild = false;
                     if (info != null) {
-                        Properties stringSubstitutionVariables = info.getStringSubstitutionVariables();
+                        Properties stringSubstitutionVariables = info.getStringSubstitutionVariables(false);
                         if (stringSubstitutionVariables != null) {
                             Enumeration<Object> keys = stringSubstitutionVariables.keys();
                             while (keys.hasMoreElements()) {

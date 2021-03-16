@@ -1896,8 +1896,16 @@ public class InterpreterInfo implements IInterpreterInfo {
     }
 
     @Override
-    public Properties getStringSubstitutionVariables() {
-        return this.stringSubstitutionVariables;
+    public Properties getStringSubstitutionVariables(boolean addEnvironmentVariables) {
+        if (!addEnvironmentVariables) {
+            return this.stringSubstitutionVariables;
+        }
+        Properties ret = new Properties();
+        ret.putAll(this.stringSubstitutionVariables);
+        System.getenv().forEach((String t, String u) -> {
+            ret.put("env_var:" + t, u);
+        });
+        return ret;
     }
 
     public void addPredefinedCompletionsPath(String path) {

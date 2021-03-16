@@ -94,7 +94,7 @@ public interface IInterpreterInfo {
      */
     public Iterator<String> forcedLibsIterator();
 
-    public Properties getStringSubstitutionVariables();
+    public Properties getStringSubstitutionVariables(boolean addEnvironmentVariables);
 
     public List<String> getPredefinedCompletionsPath();
 

@@ -225,7 +225,7 @@ public class InterpreterInfoTest extends TestCase {
 
         String string = info.toStringOld();
         InterpreterInfo newInfo = InterpreterInfo.fromString(string, false);
-        assertEquals(info.getStringSubstitutionVariables(), newInfo.getStringSubstitutionVariables());
+        assertEquals(info.getStringSubstitutionVariables(false), newInfo.getStringSubstitutionVariables(false));
         assertEquals(info, newInfo);
         assertEquals(newInfo, info);
         compareEnvironments(info.getEnvVariables(), newInfo.getEnvVariables());
