@@ -1896,14 +1896,15 @@ public class InterpreterInfo implements IInterpreterInfo {
     }
 
     @Override
-    public Properties getStringSubstitutionVariables(boolean addEnvironmentVaiables) {
+    public Properties getStringSubstitutionVariables(boolean addEnvironmentVariables) {
+        if (!addEnvironmentVariables) {
+            return this.stringSubstitutionVariables;
+        }
         Properties ret = new Properties();
         ret.putAll(this.stringSubstitutionVariables);
-        if (addEnvironmentVaiables) {
-            System.getenv().forEach((String t, String u) -> {
-                ret.put("env_var:" + t, u);
-            });
-        }
+        System.getenv().forEach((String t, String u) -> {
+            ret.put("env_var:" + t, u);
+        });
         return ret;
     }
 
