@@ -96,6 +96,8 @@ public interface IInterpreterInfo {
 
     public Properties getStringSubstitutionVariables();
 
+    public Properties getStringSubstitutionVariables(boolean addEnvironmentVariables);
+
     public List<String> getPredefinedCompletionsPath();
 
     /**
