@@ -14,7 +14,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IAdaptable;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.preferences.PyScopedPreferences;
-import org.python.pydev.core.preferences.PydevPrefs;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
 
@@ -91,19 +90,19 @@ public class Flake8Preferences {
         return createFlake8Stream.call(projectAdaptable);
     }
 
-    public static int eSeverity() {
-        return PydevPrefs.getEclipsePreferences().getInt(FLAKE8_E_SEVERITY, DEFAULT_FLAKE8_E_SEVERITY);
+    public static int eSeverity(IAdaptable projectAdaptable) {
+        return PyScopedPreferences.getInt(FLAKE8_E_SEVERITY, projectAdaptable, DEFAULT_FLAKE8_C_SEVERITY);
     }
 
-    public static int fSeverity() {
-        return PydevPrefs.getEclipsePreferences().getInt(FLAKE8_F_SEVERITY, DEFAULT_FLAKE8_F_SEVERITY);
+    public static int fSeverity(IAdaptable projectAdaptable) {
+        return PyScopedPreferences.getInt(FLAKE8_F_SEVERITY, projectAdaptable, DEFAULT_FLAKE8_F_SEVERITY);
     }
 
-    public static int cSeverity() {
-        return PydevPrefs.getEclipsePreferences().getInt(FLAKE8_C_SEVERITY, DEFAULT_FLAKE8_C_SEVERITY);
+    public static int cSeverity(IAdaptable projectAdaptable) {
+        return PyScopedPreferences.getInt(FLAKE8_C_SEVERITY, projectAdaptable, DEFAULT_FLAKE8_C_SEVERITY);
     }
 
-    public static int wSeverity() {
-        return PydevPrefs.getEclipsePreferences().getInt(FLAKE8_W_SEVERITY, DEFAULT_FLAKE8_W_SEVERITY);
+    public static int wSeverity(IAdaptable projectAdaptable) {
+        return PyScopedPreferences.getInt(FLAKE8_W_SEVERITY, projectAdaptable, DEFAULT_FLAKE8_W_SEVERITY);
     }
 }
