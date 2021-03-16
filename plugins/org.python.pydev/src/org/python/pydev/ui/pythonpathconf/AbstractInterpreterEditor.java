@@ -916,7 +916,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
             environmentTab.performApply(workingCopy);
             Properties propertiesFromMap = PropertiesHelper.createPropertiesFromMap(this.tabVariables
                     .getTreeItemsAsMap());
-            Properties stringSubstitutionVariables = workingCopyInfo.getStringSubstitutionVariables();
+            Properties stringSubstitutionVariables = workingCopyInfo.getStringSubstitutionVariables(false);
             boolean equals = false;
             if (stringSubstitutionVariables == null) {
                 if (propertiesFromMap == null || propertiesFromMap.size() == 0) {
@@ -957,7 +957,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
             }
 
             environmentTab.initializeFrom(workingCopy);
-            Properties stringSubstitutionVariables = info.getStringSubstitutionVariables();
+            Properties stringSubstitutionVariables = info.getStringSubstitutionVariables(false);
             if (stringSubstitutionVariables != null) {
                 this.tabVariables.setTreeItemsFromMap(PropertiesHelper
                         .createMapFromProperties(stringSubstitutionVariables));
