@@ -56,7 +56,7 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
      */
     @Override
     public void startVisit() {
-        if (resource == null || PyLintPreferences.usePyLint() == false
+        if (resource == null || PyLintPreferences.usePyLint(resource) == false
                 || (document == null && !(resource instanceof IContainer))) {
             deleteMarkers();
             return;
@@ -69,7 +69,7 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
             return;
         }
 
-        File pyLintLocation = PyLintPreferences.getPyLintLocation(pythonNature);
+        File pyLintLocation = PyLintPreferences.getPyLintLocation(pythonNature, resource);
         if (pyLintLocation == null || !pyLintLocation.exists()) {
             deleteMarkers();
             return;
@@ -101,7 +101,7 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
                                 new NullProgressMonitorWrapper(monitor), pyLintLocation);
 
                         try {
-                            IExternalCodeAnalysisStream out = PyLintPreferences.getConsoleOutputStream();
+                            IExternalCodeAnalysisStream out = PyLintPreferences.getConsoleOutputStream(resource);
                             pyLintRunnable.createPyLintProcess(out);
                         } catch (final Exception e) {
                             Log.log(e);
@@ -115,7 +115,7 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
                                 new NullProgressMonitorWrapper(monitor), pyLintLocation);
 
                         try {
-                            IExternalCodeAnalysisStream out = PyLintPreferences.getConsoleOutputStream();
+                            IExternalCodeAnalysisStream out = PyLintPreferences.getConsoleOutputStream(resource);
                             pyLintRunnable.createPyLintProcess(out);
                         } catch (final Exception e) {
                             Log.log(e);
