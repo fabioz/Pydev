@@ -189,8 +189,8 @@ public class PydevPlugin extends AbstractUIPlugin {
 
         CorePlugin.pydevStatelocation = Platform.getStateLocation(getBundle()).toFile();
 
-        PyLintPreferences.createPyLintStream = (() -> {
-            if (PyLintPreferences.useConsole()) {
+        PyLintPreferences.createPyLintStream = ((IAdaptable projectAdaptable) -> {
+            if (PyLintPreferences.useConsole(projectAdaptable)) {
                 IOConsoleOutputStream console = MessageConsoles.getConsoleOutputStream("PyLint",
                         UIConstants.PY_LINT_ICON);
 

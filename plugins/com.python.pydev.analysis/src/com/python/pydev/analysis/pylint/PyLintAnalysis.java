@@ -82,7 +82,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
         }
         //user args
         String userArgs = StringUtils.replaceNewLines(
-                PyLintPreferences.getPyLintArgs(), " ");
+                PyLintPreferences.getPyLintArgs(resource), " ");
         StringTokenizer tokenizer2 = new StringTokenizer(userArgs);
         while (tokenizer2.hasMoreTokens()) {
             String token = tokenizer2.nextToken();
@@ -177,12 +177,12 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
         StringTokenizer tokenizer = new StringTokenizer(output, "\r\n");
 
         //Set up local values for severity
-        int wSeverity = PyLintPreferences.wSeverity();
-        int eSeverity = PyLintPreferences.eSeverity();
-        int fSeverity = PyLintPreferences.fSeverity();
-        int cSeverity = PyLintPreferences.cSeverity();
-        int rSeverity = PyLintPreferences.rSeverity();
-        int iSeverity = PyLintPreferences.iSeverity();
+        int wSeverity = PyLintPreferences.wSeverity(resource);
+        int eSeverity = PyLintPreferences.eSeverity(resource);
+        int fSeverity = PyLintPreferences.fSeverity(resource);
+        int cSeverity = PyLintPreferences.cSeverity(resource);
+        int rSeverity = PyLintPreferences.rSeverity(resource);
+        int iSeverity = PyLintPreferences.iSeverity(resource);
 
         if (monitor.isCanceled()) {
             return;
