@@ -16,9 +16,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.string.WrapAndCaseUtils;
+import org.python.pydev.shared_ui.field_editors.JsonFieldEditor;
 import org.python.pydev.shared_ui.field_editors.RadioGroupFieldEditor;
 import org.python.pydev.utils.CustomizableFieldEditor;
 
+import com.python.pydev.analysis.flake8.Flake8CodesConfigHandler;
 import com.python.pydev.analysis.flake8.Flake8Preferences;
 
 public class Flake8PrefPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
@@ -84,18 +87,13 @@ public class Flake8PrefPage extends FieldEditorPreferencePage implements IWorkbe
                 true, parent);
         addField(fileField);
 
-        addField(new RadioGroupFieldEditor(Flake8Preferences.FLAKE8_E_SEVERITY, "E Severity", COLS, LABEL_AND_VALUE,
-                parent, true));
+        JsonFieldEditor jsonFieldEditor = new JsonFieldEditor(Flake8Preferences.FLAKE8_CODES_CONFIG,
+                WrapAndCaseUtils.wrap("desc", 90),
+                parent);
 
-        addField(new RadioGroupFieldEditor(Flake8Preferences.FLAKE8_F_SEVERITY, "F Severity", COLS,
-                LABEL_AND_VALUE,
-                parent, true));
+        jsonFieldEditor.setAdditionalJsonValidation((json) -> Flake8CodesConfigHandler.checkJsonFormat(json));
 
-        addField(new RadioGroupFieldEditor(Flake8Preferences.FLAKE8_W_SEVERITY, "W Severity", COLS,
-                LABEL_AND_VALUE, parent, true));
-
-        addField(new RadioGroupFieldEditor(Flake8Preferences.FLAKE8_C_SEVERITY, "C Severity", COLS,
-                LABEL_AND_VALUE, parent, true));
+        addField(jsonFieldEditor);
 
         CustomizableFieldEditor stringFieldEditor = new CustomizableFieldEditor(Flake8Preferences.FLAKE8_ARGS,
                 "Arguments to pass to the flake8 command.",

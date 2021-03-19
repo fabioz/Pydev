@@ -9,12 +9,10 @@ package com.python.pydev.analysis.flake8;
 import java.io.File;
 import java.net.MalformedURLException;
 
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IAdaptable;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.preferences.PyScopedPreferences;
-import org.python.pydev.core.preferences.PydevPrefs;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
 
@@ -29,18 +27,6 @@ public class Flake8Preferences {
 
     public static final int SEVERITY_IGNORE = -1;
 
-    public static final String FLAKE8_E_SEVERITY = "PYFLAKES_E_SEVERITY";
-    public static final int DEFAULT_FLAKE8_E_SEVERITY = IMarker.SEVERITY_ERROR;
-
-    public static final String FLAKE8_F_SEVERITY = "PYFLAKES_F_SEVERITY";
-    public static final int DEFAULT_FLAKE8_F_SEVERITY = IMarker.SEVERITY_ERROR;
-
-    public static final String FLAKE8_W_SEVERITY = "PYFLAKES_W_SEVERITY";
-    public static final int DEFAULT_FLAKE8_W_SEVERITY = IMarker.SEVERITY_WARNING;
-
-    public static final String FLAKE8_C_SEVERITY = "PYFLAKES_C_SEVERITY";
-    public static final int DEFAULT_FLAKE8_C_SEVERITY = IMarker.SEVERITY_INFO;
-
     public static final String FLAKE8_USE_CONSOLE = "FLAKE8_USE_CONSOLE";
     public static final boolean DEFAULT_FLAKE8_USE_CONSOLE = false;
 
@@ -51,6 +37,9 @@ public class Flake8Preferences {
 
     public static final String FLAKE8_ARGS = "FLAKE8_ARGS";
     public static final String DEFAULT_FLAKE8_ARGS = "";
+
+    public static final String FLAKE8_CODES_CONFIG = "FLAKE8_CODES_CONFIG";
+    public static final String DEFAULT_FLAKE8_CODES_CONFIG = "";
 
     public static boolean useFlake8(IAdaptable projectAdaptable) {
         return PyScopedPreferences.getBoolean(USE_FLAKE8, projectAdaptable);
@@ -91,19 +80,7 @@ public class Flake8Preferences {
         return createFlake8Stream.call(projectAdaptable);
     }
 
-    public static int eSeverity() {
-        return PydevPrefs.getEclipsePreferences().getInt(FLAKE8_E_SEVERITY, DEFAULT_FLAKE8_E_SEVERITY);
-    }
-
-    public static int fSeverity() {
-        return PydevPrefs.getEclipsePreferences().getInt(FLAKE8_F_SEVERITY, DEFAULT_FLAKE8_F_SEVERITY);
-    }
-
-    public static int cSeverity() {
-        return PydevPrefs.getEclipsePreferences().getInt(FLAKE8_C_SEVERITY, DEFAULT_FLAKE8_C_SEVERITY);
-    }
-
-    public static int wSeverity() {
-        return PydevPrefs.getEclipsePreferences().getInt(FLAKE8_W_SEVERITY, DEFAULT_FLAKE8_W_SEVERITY);
+    public static String getCodesConfig(IAdaptable projectAdaptable) {
+        return PyScopedPreferences.getString(FLAKE8_CODES_CONFIG, projectAdaptable);
     }
 }

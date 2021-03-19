@@ -12,11 +12,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -32,6 +34,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.markers.PyMarkerUtils;
@@ -161,10 +164,10 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
 
         Map<IResource, IDocument> resourceToDocCache = new HashMap<>();
 
-        int eSeverity = Flake8Preferences.eSeverity();
-        int fSeverity = Flake8Preferences.fSeverity();
-        int wSeverity = Flake8Preferences.wSeverity();
-        int cSeverity = Flake8Preferences.cSeverity();
+        Map<String, Tuple<Set<Tuple<Integer, Integer>>, Integer>> codeSeverities = null;
+        if (!SharedCorePlugin.inTestMode()) {
+            codeSeverities = Flake8CodesConfigHandler.getCodeSeveritiesFromConfig(resource);
+        }
 
         for (String outputLine : StringUtils.iterLines(output)) {
             if (monitor.isCanceled()) {
@@ -212,23 +215,14 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                             continue; // Bail out: it doesn't match the current file.
                         }
                     }
-                    String severityFound = outputLine.substring(m.start(4), m.end(4)).trim();
-                    int priority = 0;
-                    char c = severityFound.charAt(0);
-                    switch (c) {
-                        case 'C':
-                            priority = cSeverity;
-                            break;
-                        case 'E':
-                            priority = eSeverity;
-                            break;
-                        case 'F':
-                            priority = fSeverity;
-                            break;
-                        case 'W':
-                            priority = wSeverity;
-                            break;
-                    }
+                    String code = outputLine.substring(m.start(4), m.end(4)).trim();
+
+                    Tuple<String, Tuple<Integer, Integer>> codeTup = Flake8CodesConfigHandler.getCodeTuple(code);
+                    String prefix = codeTup.o1;
+                    Tuple<Integer, Integer> range = codeTup.o2;
+
+                    int priority = getPriorityFromCodeSeverityMap(prefix, range, codeSeverities);
+
                     if (priority > -1) {
                         int line = Integer.parseInt(outputLine.substring(m.start(2), m.end(2)));
                         int column = Integer.parseInt(outputLine.substring(m.start(3), m.end(3))) - 1;
@@ -246,7 +240,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                             continue;
                         }
 
-                        addToMarkers(message, priority, severityFound, line - 1, column, lineContents, moduleFile,
+                        addToMarkers(message, priority, code, line - 1, column, lineContents, moduleFile,
                                 document);
                     }
                 }
@@ -254,6 +248,25 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                 Log.log(e);
             }
         }
+    }
+
+    private int getPriorityFromCodeSeverityMap(String prefix, Tuple<Integer, Integer> range,
+            Map<String, Tuple<Set<Tuple<Integer, Integer>>, Integer>> codeSeverities) {
+        if (codeSeverities != null) {
+            Tuple<Set<Tuple<Integer, Integer>>, Integer> valueTup = codeSeverities.get(prefix);
+            if (valueTup != null) {
+                Set<Tuple<Integer, Integer>> set = valueTup.o1;
+                int severity = valueTup.o2;
+                for (Tuple<Integer, Integer> baseRange : set) {
+                    boolean overlappedRanges = Flake8CodesConfigHandler.checkRangeOverlap(range, baseRange);
+                    if (overlappedRanges) {
+                        return severity;
+                    }
+                }
+            }
+        }
+        // default
+        return IMarker.SEVERITY_WARNING;
     }
 
     private static Pattern FLAKE8_MATCH_PATTERN = Pattern
