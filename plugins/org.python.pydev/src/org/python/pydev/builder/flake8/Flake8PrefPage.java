@@ -3,20 +3,23 @@ package org.python.pydev.builder.flake8;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.FileFieldEditor;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.WrapAndCaseUtils;
+import org.python.pydev.shared_ui.field_editors.ButtonFieldEditor;
 import org.python.pydev.shared_ui.field_editors.JsonFieldEditor;
 import org.python.pydev.shared_ui.field_editors.RadioGroupFieldEditor;
 import org.python.pydev.utils.CustomizableFieldEditor;
@@ -30,19 +33,30 @@ public class Flake8PrefPage extends FieldEditorPreferencePage implements IWorkbe
     private RadioGroupFieldEditor searchFlake8Location;
     private FileFieldEditor fileField;
     private List<FieldEditor> fields = new ArrayList<FieldEditor>(5);
+    private JsonFieldEditor jsonFieldEditor;
 
     public static final int COLS = 4;
-
-    public static final String[][] LABEL_AND_VALUE = new String[][] {
-            { "Error", String.valueOf(IMarker.SEVERITY_ERROR) },
-            { "Warning", String.valueOf(IMarker.SEVERITY_WARNING) },
-            { "Info", String.valueOf(IMarker.SEVERITY_INFO) },
-            { "Ignore", String.valueOf(Flake8Preferences.SEVERITY_IGNORE) }, };
 
     public static final String[][] SEARCH_FLAKE8_LOCATION_OPTIONS = new String[][] {
             { "Search in interpreter", Flake8Preferences.LOCATION_SEARCH },
             { "Specify Location", Flake8Preferences.LOCATION_SPECIFY },
     };
+    private static final String CODES_CONFIG_TEMPLATE = ""
+            + "{\n"
+            + "    \"C\": \"error\",\n"
+            + "    \"E\": \"warning\",\n"
+            + "    \"F\": \"info\",\n"
+            + "    \"W\": \"ignore\",\n"
+            + "    \"C200\": 2,\n"
+            + "    \"E300\": 1,\n"
+            + "    \"F400\": 0,\n"
+            + "    \"W300\": -1,\n"
+            + "    \"C[300,400]\": \"error\",\n"
+            + "    \"E[400,500]\": \"warning\",\n"
+            + "    \"F[500,600]\": \"info\",\n"
+            + "    \"W[600,700]\": \"ignore\"\n"
+            + "}"
+            + "";
 
     public Flake8PrefPage() {
         super(GRID);
@@ -87,18 +101,43 @@ public class Flake8PrefPage extends FieldEditorPreferencePage implements IWorkbe
                 true, parent);
         addField(fileField);
 
-        JsonFieldEditor jsonFieldEditor = new JsonFieldEditor(Flake8Preferences.FLAKE8_CODES_CONFIG,
+        jsonFieldEditor = new JsonFieldEditor(Flake8Preferences.FLAKE8_CODES_CONFIG,
                 WrapAndCaseUtils.wrap("desc", 90),
                 parent);
-
         jsonFieldEditor.setAdditionalJsonValidation((json) -> Flake8CodesConfigHandler.checkJsonFormat(json));
-
         addField(jsonFieldEditor);
+
+        ButtonFieldEditor btFieldEditor = new ButtonFieldEditor("__UNUSED__", "Add codes config template", parent,
+                new SelectionListener() {
+
+                    @Override
+                    public void widgetSelected(SelectionEvent e) {
+                        addTemplateButtonClick();
+                    }
+
+                    @Override
+                    public void widgetDefaultSelected(SelectionEvent e) {
+                    }
+                });
+        addField(btFieldEditor);
 
         CustomizableFieldEditor stringFieldEditor = new CustomizableFieldEditor(Flake8Preferences.FLAKE8_ARGS,
                 "Arguments to pass to the flake8 command.",
                 parent);
         addField(stringFieldEditor);
+    }
+
+    private void addTemplateButtonClick() {
+        if (jsonFieldEditor != null) {
+            StyledText textField = jsonFieldEditor.getTextControl(getFieldEditorParent());
+            if (textField != null && !textField.isDisposed()) {
+                FastStringBuffer contentBuffer = new FastStringBuffer();
+                contentBuffer.append(textField.getText()).trim();
+                if (contentBuffer.isEmpty()) {
+                    textField.setText(CODES_CONFIG_TEMPLATE);
+                }
+            }
+        }
     }
 
     @Override
