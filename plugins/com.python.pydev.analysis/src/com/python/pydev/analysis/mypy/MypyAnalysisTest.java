@@ -1,12 +1,17 @@
 package com.python.pydev.analysis.mypy;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.markers.PyMarkerUtils.MarkerInfo;
 import org.python.pydev.shared_core.resource_stubs.FileStub;
 import org.python.pydev.shared_core.resource_stubs.ProjectStub;
 
@@ -145,7 +150,7 @@ public class MypyAnalysisTest extends TestCase {
 
         assertEquals(2, mypyAnalysis.getMarkers(file).size());
 
-        String expected = "Mypy: Following member(s) of \"NotBar\" have conflicts:\n" +
+        String expected1 = "Mypy: Following member(s) of \"NotBar\" have conflicts:\n" +
                 "Expected:\n" +
                 "def bar(self) -> bool\n" +
                 "Got:\n" +
@@ -154,10 +159,15 @@ public class MypyAnalysisTest extends TestCase {
                 "def foo(self) -> bool\n" +
                 "Got:\n" +
                 "def foo(self) -> int";
-        assertEquals(expected, mypyAnalysis.getMarkers(file).get(0).message);
+        String expected2 = "Mypy: Incompatible types in assignment (expression has type \"NotBar\", variable has type \"IBar\")";
+        List<MarkerInfo> markers = mypyAnalysis.getMarkers(file);
+        Set<String> s = new HashSet<>();
+        s.add(expected1);
+        s.add(expected2);
 
-        expected = "Mypy: Incompatible types in assignment (expression has type \"NotBar\", variable has type \"IBar\")";
-        assertEquals(expected, mypyAnalysis.getMarkers(file).get(1).message);
+        // Compare using Set as the order is not deterministic.
+        assertEquals(s, new HashSet<>(
+                Arrays.asList(markers.get(0).message, markers.get(1).message)));
     }
 
     public void testMarkersMessageWithoutCol2() {
