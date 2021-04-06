@@ -38,7 +38,7 @@ public class MypyPrefPage extends ScopedFieldEditorPreferencePage implements IWo
     };
 
     public MypyPrefPage() {
-        super(GRID);
+        super(FLAT);
         setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
         setDescription("Mypy");
     }

@@ -44,7 +44,7 @@ public class Flake8PrefPage extends ScopedFieldEditorPreferencePage implements I
     };
 
     public Flake8PrefPage() {
-        super(GRID);
+        super(FLAT);
         setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
         setDescription("Flake8");
     }
