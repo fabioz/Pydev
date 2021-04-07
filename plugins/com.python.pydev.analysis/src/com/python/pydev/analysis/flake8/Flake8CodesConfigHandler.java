@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.IAdaptable;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.json.eclipsesource.JsonObject;
 import org.python.pydev.json.eclipsesource.JsonValue;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -159,7 +160,14 @@ public class Flake8CodesConfigHandler {
             IAdaptable projectAdaptable) {
         Map<String, Tuple<Set<Tuple<Integer, Integer>>, Integer>> ret = new HashMap<String, Tuple<Set<Tuple<Integer, Integer>>, Integer>>();
         String str = Flake8Preferences.getCodesConfig(projectAdaptable);
-        JsonObject jsonObject = JsonObject.readFrom(str);
+
+        JsonObject jsonObject = null;
+        try {
+            jsonObject = JsonObject.readFrom(str);
+        } catch (Exception e) {
+            Log.log(e);
+            return ret;
+        }
 
         for (String code : jsonObject.names()) {
             Tuple<String, Tuple<Integer, Integer>> codeTup = getCodeTuple(code);

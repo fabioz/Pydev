@@ -43,18 +43,13 @@ public class Flake8PrefPage extends FieldEditorPreferencePage implements IWorkbe
     };
     private static final String CODES_CONFIG_TEMPLATE = ""
             + "{\n"
-            + "    \"C\": \"error\",\n"
-            + "    \"E\": \"warning\",\n"
-            + "    \"F\": \"info\",\n"
-            + "    \"W\": \"ignore\",\n"
-            + "    \"C200\": 2,\n"
-            + "    \"E300\": 1,\n"
-            + "    \"F400\": 0,\n"
-            + "    \"W300\": -1,\n"
-            + "    \"C[300,400]\": \"error\",\n"
-            + "    \"E[400,500]\": \"warning\",\n"
-            + "    \"F[500,600]\": \"info\",\n"
-            + "    \"W[600,700]\": \"ignore\"\n"
+            + "    \"E\": \"error\",\n"
+            + "    \"W\": \"warning\",\n"
+            + "    \"C9\": \"info\",\n"
+            + "    \"N8\": \"warning\",\n"
+            + "    \"F\": \"warning\",\n"
+            + "    \"E[400,500]\": \"error\",\n"
+            + "    \"E600\": \"error\",\n"
             + "}"
             + "";
 
@@ -102,7 +97,7 @@ public class Flake8PrefPage extends FieldEditorPreferencePage implements IWorkbe
         addField(fileField);
 
         jsonFieldEditor = new JsonFieldEditor(Flake8Preferences.FLAKE8_CODES_CONFIG,
-                WrapAndCaseUtils.wrap("desc", 90),
+                WrapAndCaseUtils.wrap("Flake 8 severity map (unmatched entries will be marked as \"warning\")", 90),
                 parent);
         jsonFieldEditor.setAdditionalJsonValidation((json) -> Flake8CodesConfigHandler.checkJsonFormat(json));
         addField(jsonFieldEditor);
