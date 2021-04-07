@@ -251,7 +251,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
     @Override
     public IThread[] getThreads() throws DebugException {
         if (debugger == null) {
-            return null;
+            return new IThread[0];
         }
 
         if (threads == null) {
@@ -263,6 +263,9 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
             } catch (InterruptedException e) {
                 threads = new PyThread[0];
             }
+        }
+        if (threads == null) {
+            return new IThread[0];
         }
         return threads;
     }
@@ -676,6 +679,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
                 } else if (raw_reason == AbstractDebuggerCommand.CMD_STEP_RETURN) {
                     resumeReason = DebugEvent.STEP_RETURN;
                 } else if (raw_reason == AbstractDebuggerCommand.CMD_STEP_INTO
+                        || raw_reason == AbstractDebuggerCommand.CMD_SMART_STEP_INTO
                         || raw_reason == AbstractDebuggerCommand.CMD_STEP_CAUGHT_EXCEPTION) {
                     resumeReason = DebugEvent.STEP_INTO;
                 } else if (raw_reason == AbstractDebuggerCommand.CMD_RUN_TO_LINE) {

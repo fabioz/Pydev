@@ -90,6 +90,8 @@ public abstract class AbstractDebuggerCommand {
     static public final int CMD_INPUT_REQUESTED = 147;
     static public final int CMD_PROCESS_CREATED = 149;
 
+    static public final int CMD_GET_SMART_STEP_INTO_VARIANTS = 163;
+
     static public final int CMD_LOAD_SOURCE_FROM_FRAME_ID = 207;
 
     static public final int CMD_ERROR = 901;

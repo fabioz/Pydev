@@ -1818,4 +1818,14 @@ public final class StringUtils {
         return s.substring(0, len - 3) + "...";
     }
 
+    public static List<Integer> findWordOffsets(String line, String selectedWord) {
+        List<Integer> lst = new ArrayList<>();
+        int i = line.indexOf(selectedWord);
+        while (i >= 0) {
+            lst.add(i);
+            i = line.indexOf(selectedWord, i + selectedWord.length());
+        }
+        return lst;
+    }
+
 }

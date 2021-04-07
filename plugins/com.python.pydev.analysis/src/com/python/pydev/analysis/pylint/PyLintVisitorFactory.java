@@ -19,7 +19,7 @@ public class PyLintVisitorFactory {
     public static IExternalCodeAnalysisVisitor create(IResource resource, IDocument document,
             ICallback<IModule, Integer> module,
             IProgressMonitor internalCancelMonitor) {
-        if (PyLintPreferences.usePyLint() == false) {
+        if (PyLintPreferences.usePyLint(resource) == false) {
             return new OnlyRemoveMarkersPyLintVisitor(resource);
         } else {
             return new PyLintVisitor(resource, document, module, internalCancelMonitor);

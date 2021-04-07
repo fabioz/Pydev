@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditor;
-import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.FileFieldEditor;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -22,12 +21,14 @@ import org.python.pydev.shared_core.string.WrapAndCaseUtils;
 import org.python.pydev.shared_ui.field_editors.ButtonFieldEditor;
 import org.python.pydev.shared_ui.field_editors.JsonFieldEditor;
 import org.python.pydev.shared_ui.field_editors.RadioGroupFieldEditor;
+import org.python.pydev.shared_ui.field_editors.ScopedFieldEditorPreferencePage;
+import org.python.pydev.shared_ui.field_editors.ScopedPreferencesFieldEditor;
 import org.python.pydev.utils.CustomizableFieldEditor;
 
 import com.python.pydev.analysis.flake8.Flake8CodesConfigHandler;
 import com.python.pydev.analysis.flake8.Flake8Preferences;
 
-public class Flake8PrefPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
+public class Flake8PrefPage extends ScopedFieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
     private Composite parent;
     private RadioGroupFieldEditor searchFlake8Location;
@@ -54,7 +55,7 @@ public class Flake8PrefPage extends FieldEditorPreferencePage implements IWorkbe
             + "";
 
     public Flake8PrefPage() {
-        super(GRID);
+        super(FLAT);
         setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
         setDescription("Flake8");
     }
@@ -120,6 +121,8 @@ public class Flake8PrefPage extends FieldEditorPreferencePage implements IWorkbe
                 "Arguments to pass to the flake8 command.",
                 parent);
         addField(stringFieldEditor);
+
+        addField(new ScopedPreferencesFieldEditor(parent, PyAnalysisScopedPreferences.ANALYSIS_SCOPE, this));
     }
 
     private void addTemplateButtonClick() {

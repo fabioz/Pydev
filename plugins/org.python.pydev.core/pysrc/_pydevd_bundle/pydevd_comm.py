@@ -63,7 +63,6 @@ each command has a format:
     * PYDB - pydevd, the python end
 '''
 
-import itertools
 import linecache
 import os
 
@@ -71,14 +70,14 @@ from _pydev_bundle.pydev_imports import _queue
 from _pydev_imps._pydev_saved_modules import time
 from _pydev_imps._pydev_saved_modules import threading
 from _pydev_imps._pydev_saved_modules import socket as socket_module
-from _pydevd_bundle.pydevd_constants import (DebugInfoHolder, get_thread_id, IS_WINDOWS, IS_JYTHON,
+from _pydevd_bundle.pydevd_constants import (DebugInfoHolder, IS_WINDOWS, IS_JYTHON,
     IS_PY2, IS_PY36_OR_GREATER, STATE_RUN, dict_keys, ASYNC_EVAL_TIMEOUT_SEC,
     get_global_debugger, GetGlobalDebugger, set_global_debugger, silence_warnings_decorator)  # Keep for backward compatibility @UnusedImport
 from _pydev_bundle.pydev_override import overrides
 import weakref
 from _pydev_bundle._pydev_completer import extract_token_and_qualifier
 from _pydevd_bundle._debug_adapter.pydevd_schema import VariablesResponseBody, \
-    SetVariableResponseBody
+    SetVariableResponseBody, StepInTarget, StepInTargetsResponseBody
 from _pydevd_bundle._debug_adapter import pydevd_base_schema, pydevd_schema
 from _pydevd_bundle.pydevd_net_command import NetCommand
 from _pydevd_bundle.pydevd_xml import ExceptionOnEvaluate
@@ -88,20 +87,21 @@ from _pydevd_bundle.pydevd_thread_lifecycle import pydevd_find_thread_by_id, res
 from _pydevd_bundle.pydevd_dont_trace_files import PYDEV_FILE
 import dis
 from _pydevd_bundle.pydevd_frame_utils import create_frames_list_from_exception_cause
+import pydevd_file_utils
 try:
     from urllib import quote_plus, unquote_plus  # @UnresolvedImport
 except:
     from urllib.parse import quote_plus, unquote_plus  # @Reimport @UnresolvedImport
 
 import pydevconsole
-from _pydevd_bundle import pydevd_vars, pydevd_utils, pydevd_io
+from _pydevd_bundle import pydevd_vars, pydevd_io, pydevd_reload, pydevd_bytecode_utils
 from _pydevd_bundle import pydevd_xml
 from _pydevd_bundle import pydevd_vm_type
 import sys
 import traceback
 from _pydevd_bundle.pydevd_utils import quote_smart as quote, compare_object_attrs_key, \
-    notify_about_gevent_if_needed, isinstance_checked, ScopeRequest
-from _pydev_bundle import pydev_log
+    notify_about_gevent_if_needed, isinstance_checked, ScopeRequest, getattr_checked
+from _pydev_bundle import pydev_log, fsnotify
 from _pydev_bundle.pydev_log import exception as pydev_log_exception
 from _pydev_bundle import _pydev_completer
 
@@ -308,6 +308,40 @@ class ReaderThread(PyDBDaemonThread):
 
     def process_command(self, cmd_id, seq, text):
         self.process_net_command(self.py_db, cmd_id, seq, text)
+
+
+class FSNotifyThread(PyDBDaemonThread):
+
+    def __init__(self, py_db, api, watch_dirs):
+        PyDBDaemonThread.__init__(self, py_db)
+        self.api = api
+        self.setName("pydevd.FSNotifyThread")
+        self.watcher = fsnotify.Watcher()
+        self.watch_dirs = watch_dirs
+
+    @overrides(PyDBDaemonThread._on_run)
+    def _on_run(self):
+        try:
+            pydev_log.info('Watching directories for code reload:\n---\n%s\n---' % ('\n'.join(sorted(self.watch_dirs))))
+
+            # i.e.: The first call to set_tracked_paths will do a full scan, so, do it in the thread
+            # too (after everything is configured).
+            self.watcher.set_tracked_paths(self.watch_dirs)
+            while not self._kill_received:
+                for change_enum, change_path in self.watcher.iter_changes():
+                    # We're only interested in modified events
+                    if change_enum == fsnotify.Change.modified:
+                        pydev_log.info('Modified: %s', change_path)
+                        self.api.request_reload_code(self.py_db, -1, None, change_path)
+                    else:
+                        pydev_log.info('Ignored (add or remove) change in: %s', change_path)
+        except:
+            pydev_log.exception('Error when waiting for filesystem changes in FSNotifyThread.')
+
+    @overrides(PyDBDaemonThread.do_kill_pydev_thread)
+    def do_kill_pydev_thread(self):
+        self.watcher.dispose()
+        PyDBDaemonThread.do_kill_pydev_thread(self)
 
 
 class WriterThread(PyDBDaemonThread):
@@ -532,32 +566,66 @@ class InternalThreadCommandForAnyThread(InternalThreadCommand):
         InternalThreadCommand.do_it(self, dbg)
 
 
-def internal_reload_code(dbg, seq, module_name):
-    module_name = module_name
-    if module_name not in sys.modules:
-        if '.' in module_name:
-            new_module_name = module_name.split('.')[-1]
-            if new_module_name in sys.modules:
-                module_name = new_module_name
+def _send_io_message(py_db, s):
+    cmd = py_db.cmd_factory.make_io_message(s, 2)
+    if py_db.writer is not None:
+        py_db.writer.add_command(cmd)
 
-    reloaded_ok = False
 
-    if module_name not in sys.modules:
-        sys.stderr.write('pydev debugger: Unable to find module to reload: "' + module_name + '".\n')
-        # Too much info...
-        # sys.stderr.write('pydev debugger: This usually means you are trying to reload the __main__ module (which cannot be reloaded).\n')
+def internal_reload_code(dbg, seq, module_name, filename):
+    try:
+        found_module_to_reload = False
+        if IS_PY2 and isinstance(filename, unicode):
+            filename = filename.encode(sys.getfilesystemencoding())
 
-    else:
-        sys.stderr.write('pydev debugger: Start reloading module: "' + module_name + '" ... \n')
-        from _pydevd_bundle import pydevd_reload
-        if pydevd_reload.xreload(sys.modules[module_name]):
-            sys.stderr.write('pydev debugger: reload finished\n')
-            reloaded_ok = True
+        if module_name is not None:
+            module_name = module_name
+            if module_name not in sys.modules:
+                if '.' in module_name:
+                    new_module_name = module_name.split('.')[-1]
+                    if new_module_name in sys.modules:
+                        module_name = new_module_name
+
+        modules_to_reload = {}
+        module = sys.modules.get(module_name)
+        if module is not None:
+            modules_to_reload[id(module)] = (module, module_name)
+
+        if filename:
+            filename = pydevd_file_utils.normcase(filename)
+            for module_name, module in sys.modules.copy().items():
+                f = getattr_checked(module, '__file__')
+                if f is not None:
+                    if f.endswith(('.pyc', '.pyo')):
+                        f = f[:-1]
+
+                    if pydevd_file_utils.normcase(f) == filename:
+                        modules_to_reload[id(module)] = (module, module_name)
+
+        if not modules_to_reload:
+            if filename and module_name:
+                _send_io_message(dbg, 'code reload: Unable to find module %s to reload for path: %s\n' % (module_name, filename))
+            elif filename:
+                _send_io_message(dbg, 'code reload: Unable to find module to reload for path: %s\n' % (filename,))
+            elif module_name:
+                _send_io_message(dbg, 'code reload: Unable to find module to reload: %s\n' % (module_name,))
+
         else:
-            sys.stderr.write('pydev debugger: reload finished without applying any change\n')
+            # Too much info...
+            # _send_io_message(dbg, 'code reload: This usually means you are trying to reload the __main__ module (which cannot be reloaded).\n')
+            for module, module_name in modules_to_reload.values():
+                _send_io_message(dbg, 'code reload: Start reloading module: "' + module_name + '" ... \n')
+                found_module_to_reload = True
 
-    cmd = dbg.cmd_factory.make_reloaded_code_message(seq, reloaded_ok)
-    dbg.writer.add_command(cmd)
+                if pydevd_reload.xreload(module):
+                    _send_io_message(dbg, 'code reload: reload finished\n')
+                else:
+                    _send_io_message(dbg, 'code reload: reload finished without applying any change\n')
+
+        cmd = dbg.cmd_factory.make_reloaded_code_message(seq, found_module_to_reload)
+        dbg.writer.add_command(cmd)
+    except:
+        pydev_log.exception('Error reloading code')
 
 
 class InternalGetThreadStack(InternalThreadCommand):
@@ -621,9 +689,30 @@ def internal_step_in_thread(py_db, thread_id, cmd_id, set_additional_thread_info
         resume_threads('*', except_thread=thread_to_step)
 
 
+def internal_smart_step_into(py_db, thread_id, offset, set_additional_thread_info):
+    thread_to_step = pydevd_find_thread_by_id(thread_id)
+    if thread_to_step:
+        info = set_additional_thread_info(thread_to_step)
+        info.pydev_original_step_cmd = CMD_SMART_STEP_INTO
+        info.pydev_step_cmd = CMD_SMART_STEP_INTO
+        info.pydev_step_stop = None
+        info.pydev_smart_parent_offset = int(offset)
+        info.pydev_state = STATE_RUN
+
+    if py_db.stepping_resumes_all_threads:
+        resume_threads('*', except_thread=thread_to_step)
+
+
 class InternalSetNextStatementThread(InternalThreadCommand):
 
     def __init__(self, thread_id, cmd_id, line, func_name, seq=0):
+        '''
+        cmd_id may actually be one of:
+
+        CMD_RUN_TO_LINE
+        CMD_SET_NEXT_STATEMENT
+        CMD_SMART_STEP_INTO
+        '''
         self.thread_id = thread_id
         self.cmd_id = cmd_id
         self.line = line
@@ -639,13 +728,15 @@ class InternalSetNextStatementThread(InternalThreadCommand):
     def do_it(self, dbg):
         t = pydevd_find_thread_by_id(self.thread_id)
         if t:
-            t.additional_info.pydev_original_step_cmd = self.cmd_id
-            t.additional_info.pydev_step_cmd = self.cmd_id
-            t.additional_info.pydev_step_stop = None
-            t.additional_info.pydev_next_line = int(self.line)
-            t.additional_info.pydev_func_name = self.func_name
-            t.additional_info.pydev_state = STATE_RUN
-            t.additional_info.pydev_message = str(self.seq)
+            info = t.additional_info
+            info.pydev_original_step_cmd = self.cmd_id
+            info.pydev_step_cmd = self.cmd_id
+            info.pydev_step_stop = None
+            info.pydev_next_line = int(self.line)
+            info.pydev_func_name = self.func_name
+            info.pydev_message = str(self.seq)
+            info.pydev_smart_parent_offset = -1
+            info.pydev_state = STATE_RUN
 
 
 @silence_warnings_decorator
@@ -861,6 +952,99 @@ def internal_get_frame(dbg, seq, thread_id, frame_id):
             dbg.writer.add_command(cmd)
     except:
         cmd = dbg.cmd_factory.make_error_message(seq, "Error resolving frame: %s from thread: %s" % (frame_id, thread_id))
+        dbg.writer.add_command(cmd)
+
+
+def internal_get_smart_step_into_variants(dbg, seq, thread_id, frame_id, start_line, end_line, set_additional_thread_info):
+    try:
+        thread = pydevd_find_thread_by_id(thread_id)
+        frame = dbg.find_frame(thread_id, frame_id)
+
+        if thread is None or frame is None:
+            cmd = dbg.cmd_factory.make_error_message(seq, "Frame not found: %s from thread: %s" % (frame_id, thread_id))
+            dbg.writer.add_command(cmd)
+            return
+
+        variants = pydevd_bytecode_utils.calculate_smart_step_into_variants(frame, int(start_line), int(end_line))
+        info = set_additional_thread_info(thread)
+
+        # Store the last request (may be used afterwards when stepping).
+        info.pydev_smart_step_into_variants = tuple(variants)
+        xml = "<xml>"
+
+        for variant in variants:
+            xml += '<variant name="%s" isVisited="%s" line="%s" offset="%s" callOrder="%s"/>' % (
+                quote(variant.name),
+                str(variant.is_visited).lower(),
+                variant.line,
+                variant.offset,
+                variant.call_order,
+            )
+
+        xml += "</xml>"
+        cmd = NetCommand(CMD_GET_SMART_STEP_INTO_VARIANTS, seq, xml)
+        dbg.writer.add_command(cmd)
+    except:
+        # Error is expected (if `dis` module cannot be used -- i.e.: Jython).
+        pydev_log.exception('Error calculating Smart Step Into Variants.')
+        cmd = dbg.cmd_factory.make_error_message(
+            seq, "Error getting smart step into variants for frame: %s from thread: %s"
+            % (frame_id, thread_id))
+        dbg.writer.add_command(cmd)
+
+
+def internal_get_step_in_targets_json(dbg, seq, thread_id, frame_id, request, set_additional_thread_info):
+    try:
+        thread = pydevd_find_thread_by_id(thread_id)
+        frame = dbg.find_frame(thread_id, frame_id)
+
+        if thread is None or frame is None:
+            body = StepInTargetsResponseBody([])
+            variables_response = pydevd_base_schema.build_response(
+                request,
+                kwargs={
+                    'body': body,
+                    'success': False,
+                    'message': 'Thread to get step in targets seems to have resumed already.'
+                })
+            cmd = NetCommand(CMD_RETURN, 0, variables_response, is_json=True)
+            dbg.writer.add_command(cmd)
+            return
+
+        start_line = 0
+        end_line = 99999999
+        variants = pydevd_bytecode_utils.calculate_smart_step_into_variants(frame, start_line, end_line)
+        info = set_additional_thread_info(thread)
+        targets = []
+        for variant in variants:
+            if not variant.is_visited:
+                if variant.call_order > 1:
+                    targets.append(StepInTarget(id=variant.offset, label='%s (call %s)' % (variant.name, variant.call_order),))
+                else:
+                    targets.append(StepInTarget(id=variant.offset, label=variant.name))
+
+                if len(targets) >= 15:  # Show at most 15 targets.
+                    break
+
+        # Store the last request (may be used afterwards when stepping).
+        info.pydev_smart_step_into_variants = tuple(variants)
+
+        body = StepInTargetsResponseBody(targets=targets)
+        response = pydevd_base_schema.build_response(request, kwargs={'body': body})
+        cmd = NetCommand(CMD_RETURN, 0, response, is_json=True)
+        dbg.writer.add_command(cmd)
+    except Exception as e:
+        # Error is expected (if `dis` module cannot be used -- i.e.: Jython).
+        pydev_log.exception('Error calculating Smart Step Into Variants.')
+        body = StepInTargetsResponseBody([])
+        variables_response = pydevd_base_schema.build_response(
+            request,
+            kwargs={
+                'body': body,
+                'success': False,
+                'message': str(e)
+            })
+        cmd = NetCommand(CMD_RETURN, 0, variables_response, is_json=True)
         dbg.writer.add_command(cmd)
 
 

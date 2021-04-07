@@ -13,7 +13,6 @@ package org.python.pydev.builder.pylint;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.preference.BooleanFieldEditor;
-import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.FileFieldEditor;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -26,14 +25,17 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_ui.field_editors.LinkFieldEditor;
 import org.python.pydev.shared_ui.field_editors.RadioGroupFieldEditor;
+import org.python.pydev.shared_ui.field_editors.ScopedFieldEditorPreferencePage;
+import org.python.pydev.shared_ui.field_editors.ScopedPreferencesFieldEditor;
 import org.python.pydev.utils.CustomizableFieldEditor;
 
+import com.python.pydev.analysis.PyAnalysisScopedPreferences;
 import com.python.pydev.analysis.pylint.PyLintPreferences;
 
 /**
  * @author Fabio Zadrozny
  */
-public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
+public class PyLintPrefPage extends ScopedFieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
     public static final int COLS = 4;
 
@@ -125,7 +127,7 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
                     public void widgetDefaultSelected(SelectionEvent e) {
                     }
                 }));
-
+        addField(new ScopedPreferencesFieldEditor(parent, PyAnalysisScopedPreferences.ANALYSIS_SCOPE, this));
     }
 
     @Override

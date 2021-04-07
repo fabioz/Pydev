@@ -44,12 +44,12 @@ public class PyCommentTest extends TestCase {
                 "\n" +
                 "\n");
         PySelection ps = new PySelection(doc, 0, 0, doc.getLength());
-        assertEquals(new Tuple<Integer, Integer>(0, 5),
+        assertEquals(new Tuple<Integer, Integer>(0, 6),
                 new PyComment(std).perform(ps, LineCommentOption.ADD_COMMENTS_INDENT_LINE_ORIENTED));
 
         String expected = "#a\n" +
                 "#\n" +
-                "\n";
+                "#\n";
         assertEquals(expected, doc.get());
 
     }
@@ -59,12 +59,12 @@ public class PyCommentTest extends TestCase {
                 "\r" +
                 "\r");
         PySelection ps = new PySelection(doc, 0, 0, doc.getLength());
-        assertEquals(new Tuple<Integer, Integer>(0, 5),
+        assertEquals(new Tuple<Integer, Integer>(0, 6),
                 new PyComment(std).perform(ps, LineCommentOption.ADD_COMMENTS_INDENT_LINE_ORIENTED));
 
         String expected = "#a\r" +
                 "#\r" +
-                "\r";
+                "#\r";
         assertEquals(expected, doc.get());
 
     }
@@ -74,12 +74,12 @@ public class PyCommentTest extends TestCase {
                 "\r\n" +
                 "\r\n");
         PySelection ps = new PySelection(doc, 0, 0, doc.getLength());
-        assertEquals(new Tuple<Integer, Integer>(0, 7),
+        assertEquals(new Tuple<Integer, Integer>(0, 8),
                 new PyComment(std).perform(ps, LineCommentOption.ADD_COMMENTS_INDENT_LINE_ORIENTED));
 
         String expected = "#a\r\n" +
                 "#\r\n" +
-                "\r\n";
+                "#\r\n";
         assertEquals(expected, doc.get());
 
     }
@@ -127,6 +127,46 @@ public class PyCommentTest extends TestCase {
 
     }
 
+    public void testCommentWithDifferentCodingStdLineOriented() throws Exception {
+        std.spacesInStartComment = 1;
+
+        Document doc = new Document(" a\r\n" +
+                "   b\n"
+                + "\n"
+                + "  c\n");
+        PySelection ps = new PySelection(doc, 0, 0, doc.getLength());
+        assertEquals(new Tuple<Integer, Integer>(0, 23),
+                new PyComment(std).perform(ps, LineCommentOption.ADD_COMMENTS_INDENT_LINE_ORIENTED));
+
+        String expected = " # a\r\n"
+                + "   # b\n"
+                + "   #\n"
+                + "  # c\n"
+                + "";
+        assertEquals(expected, doc.get());
+
+    }
+
+    public void testCommentWithDifferentCodingStd3() throws Exception {
+        std.spacesInStartComment = 1;
+
+        Document doc = new Document("\r\n" +
+                "b\n"
+                + "\n"
+                + "c\n");
+        PySelection ps = new PySelection(doc, 0, 0, doc.getLength());
+        assertEquals(new Tuple<Integer, Integer>(0, 14),
+                new PyComment(std).perform(ps, LineCommentOption.ADD_COMMENTS_LINE_START));
+
+        String expected = "# \r\n"
+                + "# b\n"
+                + "# \n"
+                + "# c\n"
+                + "";
+        assertEquals(expected, doc.get());
+
+    }
+
     public void testIdentedComment() throws Exception {
         std.spacesInStartComment = 1;
 
@@ -159,6 +199,65 @@ public class PyCommentTest extends TestCase {
         assertEquals(expected, doc.get());
     }
 
+    public void testIdentedComment3() throws Exception {
+        std.spacesInStartComment = 1;
+
+        Document doc = new Document("def method():\n"
+                + "    if a:\n"
+                + "\n"
+                + "        pass");
+        PySelection ps = new PySelection(doc, 1, 0, doc.getLength() - 13);
+        new PyComment(std).perform(ps, LineCommentOption.ADD_COMMENTS_INDENT);
+
+        String expected = "def method():\n"
+                + "    # if a:\n"
+                + "    #\n"
+                + "    #     pass";
+        assertEquals(expected, doc.get());
+    }
+
+    public void testIdentedComment4() throws Exception {
+        std.spacesInStartComment = 1;
+
+        Document doc = new Document("def method():\n"
+                + "    if a:\n"
+                + "\n"
+                + "        pass\n");
+        PySelection ps = new PySelection(doc, 1, 0, doc.getLength() - 13);
+        new PyComment(std).perform(ps, LineCommentOption.ADD_COMMENTS_INDENT);
+
+        String expected = "def method():\n"
+                + "    # if a:\n"
+                + "    #\n"
+                + "    #     pass\n"
+                + "    #\n"
+                + "";
+        assertEquals(expected, doc.get());
+    }
+
+    public void testIdentedComment5() throws Exception {
+        std.spacesInStartComment = 1;
+
+        Document doc = new Document("def method():\n"
+                + "    if a:\n"
+                + "\n"
+                + "  \n"
+                + "        pass\n"
+                + "\n");
+        PySelection ps = new PySelection(doc, 1, 0, doc.getLength() - 13);
+        new PyComment(std).perform(ps, LineCommentOption.ADD_COMMENTS_INDENT);
+
+        String expected = "def method():\n"
+                + "    # if a:\n"
+                + "    #\n"
+                + "    #\n"
+                + "    #     pass\n"
+                + "    #\n"
+                + "    #\n"
+                + "";
+        assertEquals(expected, doc.get());
+    }
+
     public void testComment5() throws Exception {
         Document doc = new Document("def method():\n"
                 + "    if a:\n"
@@ -186,6 +285,69 @@ public class PyCommentTest extends TestCase {
         String expected = "def method():\n"
                 + "    # if a:\n"
                 + "        # pass";
+        assertEquals(expected, doc.get());
+    }
+
+    public void testComment7() throws Exception {
+        std.spacesInStartComment = 1;
+
+        Document doc = new Document("def method():\n"
+                + "\n"
+                + "\n"
+                + "\n"
+                + "\n");
+        PySelection ps = new PySelection(doc, 1, 0, doc.getLength() - 13);
+        assertEquals(new Tuple<Integer, Integer>(14, 9),
+                new PyComment(std).perform(ps, LineCommentOption.ADD_COMMENTS_INDENT_LINE_ORIENTED));
+
+        String expected = "def method():\n"
+                + "#\n"
+                + "#\n"
+                + "#\n"
+                + "#\n"
+                + "#";
+        assertEquals(expected, doc.get());
+    }
+
+    public void testComment8() throws Exception {
+        std.spacesInStartComment = 1;
+
+        Document doc = new Document("def method():\n"
+                + "\n"
+                + "\n"
+                + "\n"
+                + "\n");
+        PySelection ps = new PySelection(doc, 1, 0, doc.getLength() - 13);
+        assertEquals(new Tuple<Integer, Integer>(14, 10),
+                new PyComment(std).perform(ps, LineCommentOption.ADD_COMMENTS_INDENT));
+
+        String expected = "def method():\n"
+                + "#\n"
+                + "#\n"
+                + "#\n"
+                + "#\n"
+                + "#\n";
+        assertEquals(expected, doc.get());
+    }
+
+    public void testComment9() throws Exception {
+        std.spacesInStartComment = 1;
+
+        Document doc = new Document("def method():\n"
+                + "\n"
+                + "  c\n"
+                + "\n"
+                + "\n");
+        PySelection ps = new PySelection(doc, 1, 0, doc.getLength() - 13);
+        assertEquals(new Tuple<Integer, Integer>(14, 22),
+                new PyComment(std).perform(ps, LineCommentOption.ADD_COMMENTS_INDENT));
+
+        String expected = "def method():\n"
+                + "  #\n"
+                + "  # c\n"
+                + "  #\n"
+                + "  #\n"
+                + "  #\n";
         assertEquals(expected, doc.get());
     }
 }

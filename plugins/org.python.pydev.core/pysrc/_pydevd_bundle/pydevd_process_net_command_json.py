@@ -15,7 +15,8 @@ from _pydevd_bundle._debug_adapter.pydevd_schema import (
     ProcessEvent, Scope, ScopesResponseBody, SetExpressionResponseBody,
     SetVariableResponseBody, SourceBreakpoint, SourceResponseBody,
     VariablesResponseBody, SetBreakpointsResponseBody, Response,
-    Capabilities, PydevdAuthorizeRequest, Request)
+    Capabilities, PydevdAuthorizeRequest, Request, StepInTargetsResponse, StepInTarget,
+    StepInTargetsResponseBody)
 from _pydevd_bundle.pydevd_api import PyDevdAPI
 from _pydevd_bundle.pydevd_breakpoints import get_exception_class
 from _pydevd_bundle.pydevd_comm_constants import (
@@ -30,6 +31,9 @@ from _pydevd_bundle.pydevd_constants import (PY_IMPL_NAME, DebugInfoHolder, PY_V
     PY_IMPL_VERSION_STR, IS_64BIT_PROCESS)
 from _pydevd_bundle.pydevd_trace_dispatch import USING_CYTHON
 from _pydevd_frame_eval.pydevd_frame_eval_main import USING_FRAME_EVAL
+from _pydevd_bundle.pydevd_comm import internal_get_step_in_targets_json
+from _pydevd_bundle.pydevd_additional_thread_info import set_additional_thread_info
+from _pydevd_bundle.pydevd_thread_lifecycle import pydevd_find_thread_by_id
 
 
 def _convert_rules_to_exclude_filters(rules, on_error):
@@ -229,7 +233,7 @@ class PyDevJsonCommandProcessor(object):
             supportsFunctionBreakpoints=False,
             supportsStepBack=False,
             supportsRestartFrame=False,
-            supportsStepInTargetsRequest=False,
+            supportsStepInTargetsRequest=True,
             supportsRestartRequest=False,
             supportsLoadedSourcesRequest=False,
             supportsTerminateThreadsRequest=False,
@@ -397,6 +401,51 @@ class PyDevJsonCommandProcessor(object):
 
             self.api.set_ignore_system_exit_codes(py_db, ignore_system_exit_codes)
 
+        auto_reload = args.get('autoReload', {})
+        if not isinstance(auto_reload, dict):
+            pydev_log.info('Expected autoReload to be a dict. Received: %s' % (auto_reload,))
+            auto_reload = {}
+
+        enable_auto_reload = auto_reload.get('enable', False)
+        watch_dirs = auto_reload.get('watchDirectories')
+        if not watch_dirs:
+            watch_dirs = []
+            # Note: by default this is no longer done because on some cases there are entries in the PYTHONPATH
+            # such as the home directory or /python/x64, where the site packages are in /python/x64/libs, so,
+            # we only watch the current working directory as well as executed script.
+            # check = getattr(sys, 'path', [])[:]
+            # # By default only watch directories that are in the project roots /
+            # # program dir (if available), sys.argv[0], as well as the current dir (we don't want to
+            # # listen to the whole site-packages by default as it can be huge).
+            # watch_dirs = [pydevd_file_utils.absolute_path(w) for w in check]
+            # watch_dirs = [w for w in watch_dirs if py_db.in_project_roots_filename_uncached(w) and os.path.isdir(w)]
+
+            program = args.get('program')
+            if program:
+                if os.path.isdir(program):
+                    watch_dirs.append(program)
+                else:
+                    watch_dirs.append(os.path.dirname(program))
+            watch_dirs.append(os.path.abspath('.'))
+
+            argv = getattr(sys, 'argv', [])
+            if argv:
+                f = argv[0]
+                if os.path.isdir(f):
+                    watch_dirs.append(program)
+                else:
+                    watch_dirs.append(os.path.dirname(f))
+
+        if not isinstance(watch_dirs, (list, set, tuple)):
+            watch_dirs = (watch_dirs,)
+        watch_dirs = set(pydevd_file_utils.get_path_with_real_case(w) for w in watch_dirs)
+
+        poll_target_time = auto_reload.get('pollingInterval', 1)
+        exclude_patterns = auto_reload.get('exclude', ('**/.git/**', '**/__pycache__/**', '**/node_modules/**', '**/.metadata/**', '**/site-packages/**'))
+        include_patterns = auto_reload.get('include', ('**/*.py', '**/*.pyw'))
+        self.api.setup_auto_reload_watcher(
+            py_db, enable_auto_reload, watch_dirs, poll_target_time, exclude_patterns, include_patterns)
+
         if self._options.stop_on_entry and start_reason == 'launch':
             self.api.stop_on_entry()
 
@@ -496,15 +545,66 @@ class PyDevJsonCommandProcessor(object):
         arguments = request.arguments  # : :type arguments: StepInArguments
         thread_id = arguments.threadId
 
-        if py_db.get_use_libraries_filter():
-            step_cmd_id = CMD_STEP_INTO_MY_CODE
-        else:
-            step_cmd_id = CMD_STEP_INTO
+        target_id = arguments.targetId
+        if target_id is not None:
+            thread = pydevd_find_thread_by_id(thread_id)
+            info = set_additional_thread_info(thread)
+            pydev_smart_step_into_variants = info.pydev_smart_step_into_variants
+            if not pydev_smart_step_into_variants:
+                variables_response = pydevd_base_schema.build_response(
+                    request,
+                    kwargs={
+                        'success': False,
+                        'message': 'Unable to step into target (no targets are saved in the thread info).'
+                    })
+                return NetCommand(CMD_RETURN, 0, variables_response, is_json=True)
 
-        self.api.request_step(py_db, thread_id, step_cmd_id)
+            for variant in pydev_smart_step_into_variants:
+                if variant.offset == target_id:
+                    self.api.request_smart_step_into(py_db, request.seq, thread_id, variant.offset)
+                    break
+            else:
+                variables_response = pydevd_base_schema.build_response(
+                    request,
+                    kwargs={
+                        'success': False,
+                        'message': 'Unable to find step into target %s. Available targets: %s' % (
+                            target_id, [variant.offset for variant in pydev_smart_step_into_variants])
+                    })
+                return NetCommand(CMD_RETURN, 0, variables_response, is_json=True)
+
+        else:
+            if py_db.get_use_libraries_filter():
+                step_cmd_id = CMD_STEP_INTO_MY_CODE
+            else:
+                step_cmd_id = CMD_STEP_INTO
+
+            self.api.request_step(py_db, thread_id, step_cmd_id)
 
         response = pydevd_base_schema.build_response(request)
         return NetCommand(CMD_RETURN, 0, response, is_json=True)
+
+    def on_stepintargets_request(self, py_db, request):
+        '''
+        :param StepInTargetsRequest request:
+        '''
+        frame_id = request.arguments.frameId
+        thread_id = py_db.suspended_frames_manager.get_thread_id_for_variable_reference(
+            frame_id)
+
+        if thread_id is None:
+            body = StepInTargetsResponseBody([])
+            variables_response = pydevd_base_schema.build_response(
+                request,
+                kwargs={
+                    'body': body,
+                    'success': False,
+                    'message': 'Unable to get thread_id from frame_id (thread to get step in targets seems to have resumed already).'
+                })
+            return NetCommand(CMD_RETURN, 0, variables_response, is_json=True)
+
+        py_db.post_method_as_internal_command(
+            thread_id, internal_get_step_in_targets_json, request.seq, thread_id, frame_id, request, set_additional_thread_info)
 
     def on_stepout_request(self, py_db, request):
         '''

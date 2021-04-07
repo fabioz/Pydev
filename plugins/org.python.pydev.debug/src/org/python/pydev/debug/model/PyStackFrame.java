@@ -34,8 +34,10 @@ import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import org.python.pydev.debug.model.remote.AbstractRemoteDebugger;
 import org.python.pydev.debug.model.remote.GetFileContentsCommand;
 import org.python.pydev.debug.model.remote.GetFrameCommand;
+import org.python.pydev.debug.model.remote.GetSmartStepIntoVariants;
 import org.python.pydev.debug.model.remote.GetVariableCommand;
 import org.python.pydev.debug.model.remote.ICommandResponseListener;
+import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editorinput.EditorInputFactory;
 import org.python.pydev.editorinput.PySourceLocatorPrefs;
 import org.python.pydev.shared_core.cache.LRUMap;
@@ -265,6 +267,11 @@ public class PyStackFrame extends PlatformObject
     @Override
     public void stepInto() throws DebugException {
         thread.stepInto();
+    }
+
+    public void stepIntoTarget(PyEdit pyEdit, int line, String selectedWord, SmartStepIntoVariant target)
+            throws DebugException {
+        thread.stepIntoTarget(pyEdit, line, selectedWord, target);
     }
 
     @Override
@@ -540,5 +547,17 @@ public class PyStackFrame extends PlatformObject
             Log.log(e);
         }
         return null;
+    }
+
+    public SmartStepIntoVariant[] getStepIntoTargets() {
+        GetSmartStepIntoVariants cmd = new GetSmartStepIntoVariants(target, this.thread.getId(), this.id, 0, 99999999);
+
+        target.postCommand(cmd);
+        try {
+            cmd.waitUntilDone(PySourceLocatorPrefs.getFileContentsTimeout());
+        } catch (InterruptedException e) {
+            Log.log(e); // I.e.: it wasn't able to get it.
+        }
+        return cmd.getResponse();
     }
 }
