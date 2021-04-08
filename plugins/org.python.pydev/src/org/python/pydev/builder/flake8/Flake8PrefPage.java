@@ -6,19 +6,15 @@ import java.util.List;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.preference.FileFieldEditor;
-import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.WrapAndCaseUtils;
-import org.python.pydev.shared_ui.field_editors.ButtonFieldEditor;
 import org.python.pydev.shared_ui.field_editors.JsonFieldEditor;
 import org.python.pydev.shared_ui.field_editors.RadioGroupFieldEditor;
 import org.python.pydev.shared_ui.field_editors.ScopedFieldEditorPreferencePage;
@@ -43,17 +39,6 @@ public class Flake8PrefPage extends ScopedFieldEditorPreferencePage implements I
             { "Search in interpreter", Flake8Preferences.LOCATION_SEARCH },
             { "Specify Location", Flake8Preferences.LOCATION_SPECIFY },
     };
-    private static final String CODES_CONFIG_TEMPLATE = ""
-            + "{\n"
-            + "    \"E\": \"error\",\n"
-            + "    \"W\": \"warning\",\n"
-            + "    \"C9\": \"info\",\n"
-            + "    \"N8\": \"warning\",\n"
-            + "    \"F\": \"warning\",\n"
-            + "    \"E[400,500]\": \"error\",\n"
-            + "    \"E600\": \"error\",\n"
-            + "}"
-            + "";
 
     public Flake8PrefPage() {
         super(FLAT);
@@ -104,39 +89,12 @@ public class Flake8PrefPage extends ScopedFieldEditorPreferencePage implements I
         jsonFieldEditor.setAdditionalJsonValidation((json) -> Flake8CodesConfigHandler.checkJsonFormat(json));
         addField(jsonFieldEditor);
 
-        ButtonFieldEditor btFieldEditor = new ButtonFieldEditor("__UNUSED__", "Add codes config template", parent,
-                new SelectionListener() {
-
-                    @Override
-                    public void widgetSelected(SelectionEvent e) {
-                        addTemplateButtonClick();
-                    }
-
-                    @Override
-                    public void widgetDefaultSelected(SelectionEvent e) {
-                    }
-                });
-        addField(btFieldEditor);
-
         CustomizableFieldEditor stringFieldEditor = new CustomizableFieldEditor(Flake8Preferences.FLAKE8_ARGS,
                 "Arguments to pass to the flake8 command.",
                 parent);
         addField(stringFieldEditor);
 
         addField(new ScopedPreferencesFieldEditor(parent, PyAnalysisScopedPreferences.ANALYSIS_SCOPE, this));
-    }
-
-    private void addTemplateButtonClick() {
-        if (jsonFieldEditor != null) {
-            StyledText textField = jsonFieldEditor.getTextControl(getFieldEditorParent());
-            if (textField != null && !textField.isDisposed()) {
-                FastStringBuffer contentBuffer = new FastStringBuffer();
-                contentBuffer.append(textField.getText()).trim();
-                if (contentBuffer.isEmpty()) {
-                    textField.setText(CODES_CONFIG_TEMPLATE);
-                }
-            }
-        }
     }
 
     @Override
