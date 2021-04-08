@@ -82,4 +82,6 @@ public class Flake8Preferences {
 
     public static String getCodesConfig(IAdaptable projectAdaptable) {
         return PyScopedPreferences.getString(FLAKE8_CODES_CONFIG, projectAdaptable);
+    }
+
 }

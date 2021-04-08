@@ -25,6 +25,7 @@ import org.python.pydev.shared_ui.field_editors.ScopedFieldEditorPreferencePage;
 import org.python.pydev.shared_ui.field_editors.ScopedPreferencesFieldEditor;
 import org.python.pydev.utils.CustomizableFieldEditor;
 
+import com.python.pydev.analysis.PyAnalysisScopedPreferences;
 import com.python.pydev.analysis.flake8.Flake8CodesConfigHandler;
 import com.python.pydev.analysis.flake8.Flake8Preferences;
 
