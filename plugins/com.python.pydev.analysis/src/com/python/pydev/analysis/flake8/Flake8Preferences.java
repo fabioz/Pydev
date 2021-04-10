@@ -41,13 +41,13 @@ public class Flake8Preferences {
     public static final String FLAKE8_CODES_CONFIG = "FLAKE8_CODES_CONFIG";
     public static final String DEFAULT_FLAKE8_CODES_CONFIG = ""
             + "{\n"
+            + "    \"F\": \"error\",\n"
             + "    \"E\": \"error\",\n"
-            + "    \"W\": \"warning\",\n"
-            + "    \"C9\": \"info\",\n"
-            + "    \"N8\": \"warning\",\n"
-            + "    \"F\": \"warning\",\n"
             + "    \"E[400,500]\": \"error\",\n"
             + "    \"E600\": \"error\",\n"
+            + "    \"W\": \"warning\",\n"
+            + "    \"N8\": \"warning\",\n"
+            + "    \"C9\": \"info\"\n"
             + "}"
             + "";
 
