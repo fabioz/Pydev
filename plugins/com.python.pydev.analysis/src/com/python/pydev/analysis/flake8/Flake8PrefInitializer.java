@@ -19,12 +19,7 @@ public class Flake8PrefInitializer {
         node.putBoolean(Flake8Preferences.USE_FLAKE8, Flake8Preferences.DEFAULT_USE_FLAKE8);
         node.putBoolean(Flake8Preferences.FLAKE8_USE_CONSOLE, Flake8Preferences.DEFAULT_FLAKE8_USE_CONSOLE);
         node.put(Flake8Preferences.FLAKE8_ARGS, Flake8Preferences.DEFAULT_FLAKE8_ARGS);
-
-        node.putInt(Flake8Preferences.FLAKE8_C_SEVERITY, Flake8Preferences.DEFAULT_FLAKE8_C_SEVERITY);
-        node.putInt(Flake8Preferences.FLAKE8_F_SEVERITY, Flake8Preferences.DEFAULT_FLAKE8_F_SEVERITY);
-        node.putInt(Flake8Preferences.FLAKE8_E_SEVERITY, Flake8Preferences.DEFAULT_FLAKE8_E_SEVERITY);
-        node.putInt(Flake8Preferences.FLAKE8_W_SEVERITY, Flake8Preferences.DEFAULT_FLAKE8_W_SEVERITY);
-
+        node.put(Flake8Preferences.FLAKE8_CODES_CONFIG, Flake8Preferences.DEFAULT_FLAKE8_CODES_CONFIG);
     }
 
 }
