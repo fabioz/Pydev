@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Shared Core Plug-in
 Bundle-SymbolicName: org.python.pydev.shared_core;singleton:=true
-Bundle-Version: 8.2.0.qualifier
+Bundle-Version: 8.3.0.qualifier
 Bundle-ClassPath: shared_core.jar,
  libs/lucene-analyzers-common-6.1.0.jar,
  libs/lucene-core-6.1.0.jar,
