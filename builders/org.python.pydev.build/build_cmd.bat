@@ -17,12 +17,9 @@ set DRIVE=x:
 set BASE_LOCAL_PYDEV_GIT=x:\pydev
 set BUILD_DIR=X:\pydev_build\build_dir
 set DEPLOY_DIR=X:\pydev_build\deploy_dir
-set JAVA_HOME=C:\bin\jdk1.8.0_172
+set JAVA_HOME=C:\bin\jdk-11.0.9
 set MAVEN_BIN=C:\bin\apache-maven-3.5.3\bin
 set GIT_EXECUTABLE="C:\Program Files\Git\bin\git.exe"
-set ECLIPSE_CLEAN=C:\bin\eclipse_411_clean
-set LAUNCHER_PLUGIN=org.eclipse.equinox.launcher_1.5.300.v20190213-1655.jar
-set BUILDER_PLUGIN=org.eclipse.pde.build_3.10.300.v20190305-0856
 @echo Expected in env var: SIGN_KEYPASS
 @echo Expected in env var: SIGN_STOREPASS
 @echo Expected in env var: SIGN_ALIAS

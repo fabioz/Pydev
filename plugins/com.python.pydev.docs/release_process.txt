@@ -84,7 +84,7 @@ cd org.python.pydev.p2-repo-8.3.0-SNAPSHOT
 "C:\Program Files\7-Zip\7z" x ..\org.python.pydev.p2-repo-8.3.0-SNAPSHOT.zip
 
 cdd X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-8.3.0-SNAPSHOT
-C:\Users\fabio\AppData\Roaming\npm\surge.cmd --domain pydev-8-2-0.surge.sh
+C:\Users\fabio\AppData\Roaming\npm\surge.cmd --domain pydev-8-3-0.surge.sh
 "C:\Program Files\FileZilla FTP Client\filezilla.exe" sftp://fabioz,pydev@frs.sourceforge.net/home/project-web/pydev/htdocs/pydev_update_site --local="X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-8.3.0-SNAPSHOT"
 
 
