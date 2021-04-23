@@ -60,6 +60,9 @@ module Python
 	      | NonLocal(NameTok* names, expr? value)
 	      | Expr(expr value)
 	      | Pass | Break | Continue
+	      
+	      | Match(expr value, stmt* body)
+	      | Case(expr test, suite body)
 
 	      -- XXX Jython will be different
 	      attributes (int lineno)
@@ -108,6 +111,9 @@ module Python
 	     | Name(identifier id, expr_context ctx, bool reserved)
 	     | List(expr* elts, expr_context ctx)
 	     | Tuple(expr *elts, expr_context ctx, bool? endsWithComma)
+	     
+	     -- added in version 3.10
+	     | SubjectExpr(expr* values)
 
 	-- the Artificial context is not actually used in the parser directly. It is used in the application
 	-- to create 'artificial' names, as if it was a regular name (e.g.: create a name for a match inside

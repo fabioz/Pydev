@@ -44,6 +44,7 @@ import org.python.pydev.parser.grammar25.PythonGrammar25;
 import org.python.pydev.parser.grammar26.PythonGrammar26;
 import org.python.pydev.parser.grammar27.PythonGrammar27;
 import org.python.pydev.parser.grammar30.PythonGrammar30;
+import org.python.pydev.parser.grammar310.PythonGrammar310;
 import org.python.pydev.parser.grammar36.PythonGrammar36;
 import org.python.pydev.parser.grammar38.PythonGrammar38;
 import org.python.pydev.parser.grammar_cython.PyParserCython;
@@ -130,6 +131,9 @@ public class PyParser extends BaseParser implements IPyParser {
 
         } else if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_9) {
             return "grammar: Python 3.9";
+
+        } else if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_10) {
+            return "grammar: Python 3.10";
 
         } else if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_CYTHON) {
             return "grammar: Cython";
@@ -523,6 +527,9 @@ public class PyParser extends BaseParser implements IPyParser {
             case IPythonNature.GRAMMAR_PYTHON_VERSION_3_8:
             case IPythonNature.GRAMMAR_PYTHON_VERSION_3_9:
                 grammar = new PythonGrammar38(generateTree, in);
+                break;
+            case IPythonNature.GRAMMAR_PYTHON_VERSION_3_10:
+                grammar = new PythonGrammar310(generateTree, in);
                 break;
             //case CYTHON: not treated here (only in reparseDocument).
             default:

@@ -152,5 +152,9 @@ public interface ITreeConstants {
     public static final int JJTFSTRING = 643;
     public static final int JJTEVAL_INPUT = 644;
     public static final int JJTNAMEDEXPR_TEST = 645;
+    public static final int JJTMATCH_STMT = 646;
+    public static final int JJTCASE_BLOCK = 647;
+    public static final int JJTSUBJECT_EXPR = 648;
+    public static final int JJTSTAR_NAMED_EXPR = 649;
 
 }
