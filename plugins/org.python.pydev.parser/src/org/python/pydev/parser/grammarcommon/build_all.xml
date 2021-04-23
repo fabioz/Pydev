@@ -6,6 +6,8 @@
     	<ant dir="../grammar27" inheritrefs="false"/>
     	<ant dir="../grammar30" inheritrefs="false"/>
     	<ant dir="../grammar36" inheritrefs="false"/>
+    	<ant dir="../grammar38" inheritrefs="false"/>
+    	<ant dir="../grammar310" inheritrefs="false"/>
         <echo>All parsers generated</echo>
     </target>
 

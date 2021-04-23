@@ -185,6 +185,12 @@ public abstract class VisitorBase implements VisitorIF {
         return ret;
     }
 
+    public Object visitMatch(Match node) throws Exception {
+        Object ret = unhandled_node(node);
+        traverse(node);
+        return ret;
+    }
+
     public Object visitBoolOp(BoolOp node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
@@ -336,6 +342,18 @@ public abstract class VisitorBase implements VisitorIF {
     }
 
     public Object visitTuple(Tuple node) throws Exception {
+        Object ret = unhandled_node(node);
+        traverse(node);
+        return ret;
+    }
+
+    public Object visitMatchAs(MatchAs node) throws Exception {
+        Object ret = unhandled_node(node);
+        traverse(node);
+        return ret;
+    }
+
+    public Object visitMatchOr(MatchOr node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;

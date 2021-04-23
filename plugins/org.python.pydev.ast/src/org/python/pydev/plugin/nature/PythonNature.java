@@ -1293,6 +1293,8 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                 return GRAMMAR_PYTHON_VERSION_3_8;
             case "3.9":
                 return GRAMMAR_PYTHON_VERSION_3_9;
+            case "3.10":
+                return GRAMMAR_PYTHON_VERSION_3_10;
 
             default:
                 break;
