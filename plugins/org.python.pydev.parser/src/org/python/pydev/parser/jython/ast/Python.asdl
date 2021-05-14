@@ -61,8 +61,7 @@ module Python
 	      | Expr(expr value)
 	      | Pass | Break | Continue
 	      
-	      | Match(expr value, stmt* body)
-	      | Case(expr test, suite body)
+	      | Match(expr subject, match_case* cases)
 
 	      -- XXX Jython will be different
 	      attributes (int lineno)
@@ -112,8 +111,9 @@ module Python
 	     | List(expr* elts, expr_context ctx)
 	     | Tuple(expr *elts, expr_context ctx, bool? endsWithComma)
 	     
-	     -- added in version 3.10
-	     | SubjectExpr(expr* values)
+         -- only used in patterns
+         | MatchAs(expr pattern, identifier name)
+         | MatchOr(expr* patterns)
 
 	-- the Artificial context is not actually used in the parser directly. It is used in the application
 	-- to create 'artificial' names, as if it was a regular name (e.g.: create a name for a match inside
@@ -168,4 +168,6 @@ module Python
 	decorators = (expr func, expr* args, keyword* keywords, expr? starargs, expr? kwargs, bool? isCall)
 
 	comment = (identifier id)
+	
+	match_case = (expr pattern, expr? guard, stmt* body)
 }

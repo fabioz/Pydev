@@ -4,21 +4,18 @@ package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 import java.util.Arrays;
 
-public final class Match extends stmtType {
-    public exprType subject;
-    public match_caseType[] cases;
+public final class MatchOr extends exprType {
+    public exprType[] patterns;
 
-    public Match(exprType subject, match_caseType[] cases) {
-        this.subject = subject;
-        this.cases = cases;
+    public MatchOr(exprType[] patterns) {
+        this.patterns = patterns;
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((subject == null) ? 0 : subject.hashCode());
-        result = prime * result + Arrays.hashCode(cases);
+        result = prime * result + Arrays.hashCode(patterns);
         return result;
     }
 
@@ -27,29 +24,27 @@ public final class Match extends stmtType {
         if (this == obj) return true;
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
-        Match other = (Match) obj;
-        if (subject == null) { if (other.subject != null) return false;}
-        else if (!subject.equals(other.subject)) return false;
-        if (!Arrays.equals(cases, other.cases)) return false;
+        MatchOr other = (MatchOr) obj;
+        if (!Arrays.equals(patterns, other.patterns)) return false;
         return true;
     }
     @Override
-    public Match createCopy() {
+    public MatchOr createCopy() {
         return createCopy(true);
     }
     @Override
-    public Match createCopy(boolean copyComments) {
-        match_caseType[] new0;
-        if(this.cases != null){
-        new0 = new match_caseType[this.cases.length];
-        for(int i=0;i<this.cases.length;i++){
-            new0[i] = (match_caseType) (this.cases[i] != null?
-            this.cases[i].createCopy(copyComments):null);
+    public MatchOr createCopy(boolean copyComments) {
+        exprType[] new0;
+        if(this.patterns != null){
+        new0 = new exprType[this.patterns.length];
+        for(int i=0;i<this.patterns.length;i++){
+            new0[i] = (exprType) (this.patterns[i] != null?
+            this.patterns[i].createCopy(copyComments):null);
         }
         }else{
-            new0 = this.cases;
+            new0 = this.patterns;
         }
-        Match temp = new Match(subject!=null?(exprType)subject.createCopy(copyComments):null, new0);
+        MatchOr temp = new MatchOr(new0);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
         if(this.specialsBefore != null && copyComments){
@@ -73,30 +68,24 @@ public final class Match extends stmtType {
 
     @Override
     public String toString() {
-        StringBuffer sb = new StringBuffer("Match[");
-        sb.append("subject=");
-        sb.append(dumpThis(this.subject));
-        sb.append(", ");
-        sb.append("cases=");
-        sb.append(dumpThis(this.cases));
+        StringBuffer sb = new StringBuffer("MatchOr[");
+        sb.append("patterns=");
+        sb.append(dumpThis(this.patterns));
         sb.append("]");
         return sb.toString();
     }
 
     @Override
     public Object accept(VisitorIF visitor) throws Exception {
-        return visitor.visitMatch(this);
+        return visitor.visitMatchOr(this);
     }
 
     @Override
     public void traverse(VisitorIF visitor) throws Exception {
-        if (subject != null) {
-            subject.accept(visitor);
-        }
-        if (cases != null) {
-            for (int i = 0; i < cases.length; i++) {
-                if (cases[i] != null) {
-                    cases[i].accept(visitor);
+        if (patterns != null) {
+            for (int i = 0; i < patterns.length; i++) {
+                if (patterns[i] != null) {
+                    patterns[i].accept(visitor);
                 }
             }
         }

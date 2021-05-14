@@ -23,7 +23,6 @@ import org.python.pydev.parser.jython.ast.BinOp;
 import org.python.pydev.parser.jython.ast.BoolOp;
 import org.python.pydev.parser.jython.ast.Break;
 import org.python.pydev.parser.jython.ast.Call;
-import org.python.pydev.parser.jython.ast.Case;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Compare;
 import org.python.pydev.parser.jython.ast.Comprehension;
@@ -49,6 +48,8 @@ import org.python.pydev.parser.jython.ast.Interactive;
 import org.python.pydev.parser.jython.ast.Lambda;
 import org.python.pydev.parser.jython.ast.ListComp;
 import org.python.pydev.parser.jython.ast.Match;
+import org.python.pydev.parser.jython.ast.MatchAs;
+import org.python.pydev.parser.jython.ast.MatchOr;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
@@ -66,7 +67,6 @@ import org.python.pydev.parser.jython.ast.Slice;
 import org.python.pydev.parser.jython.ast.Starred;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.StrJoin;
-import org.python.pydev.parser.jython.ast.SubjectExpr;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.TryExcept;
@@ -766,15 +766,6 @@ public class FindDuplicatesVisitor implements VisitorIF {
     }
 
     @Override
-    public Object visitCase(Case node) throws Exception {
-        boolean ret = unhandled_node(node);
-        if (ret) {
-            traverse(node);
-        }
-        return null;
-    }
-
-    @Override
     public Object visitMatch(Match node) throws Exception {
         boolean ret = unhandled_node(node);
         if (ret) {
@@ -784,7 +775,16 @@ public class FindDuplicatesVisitor implements VisitorIF {
     }
 
     @Override
-    public Object visitSubjectExpr(SubjectExpr node) throws Exception {
+    public Object visitMatchAs(MatchAs node) throws Exception {
+        boolean ret = unhandled_node(node);
+        if (ret) {
+            traverse(node);
+        }
+        return null;
+    }
+
+    @Override
+    public Object visitMatchOr(MatchOr node) throws Exception {
         boolean ret = unhandled_node(node);
         if (ret) {
             traverse(node);
