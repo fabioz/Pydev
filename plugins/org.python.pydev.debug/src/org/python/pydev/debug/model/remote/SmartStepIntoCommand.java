@@ -26,6 +26,10 @@ public class SmartStepIntoCommand extends AbstractDebuggerCommand {
 
     @Override
     public String getOutgoing() {
+        if (stepIntoTarget.childOffset >= 0) {
+            return makeCommand(commandId, sequence, threadId + "\toffset=" + stepIntoTarget.offset + ";"
+                    + stepIntoTarget.childOffset + "\t" + funcName);
+        }
         return makeCommand(commandId, sequence, threadId + "\toffset=" + stepIntoTarget.offset + "\t" + funcName);
     }
 

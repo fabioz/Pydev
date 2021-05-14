@@ -92,7 +92,10 @@ C:\Users\fabio\AppData\Roaming\npm\surge.cmd --domain pydev-8-3-0.surge.sh
       git tag pydev_8_3_0 -a -m "PyDev 8.3.0"
       git push --tags
 
-python X:\release_tools\convert_to_github.py 8.3.0 X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-8.3.0-SNAPSHOT
+SET CONVERT_SOURCE=X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-8.3.0-SNAPSHOT
+SET CONVERT_FINAL_ZIP=X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable\PyDev 8.3.0.zip
+SET CONVERT_TARGET_DIR=X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\github
+python X:\release_tools\convert_to_github.py 8.3.0
 Do GH release in:
     https://github.com/fabioz/Pydev/releases/new?tag=pydev_8_3_0
     Contents in: X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\github

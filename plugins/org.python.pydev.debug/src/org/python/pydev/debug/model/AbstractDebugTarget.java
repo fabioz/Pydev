@@ -606,7 +606,8 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
                     || stopReason_i == AbstractDebuggerCommand.CMD_STEP_CAUGHT_EXCEPTION
                     || stopReason_i == AbstractDebuggerCommand.CMD_STEP_RETURN
                     || stopReason_i == AbstractDebuggerCommand.CMD_RUN_TO_LINE
-                    || stopReason_i == AbstractDebuggerCommand.CMD_SET_NEXT_STATEMENT) {
+                    || stopReason_i == AbstractDebuggerCommand.CMD_SET_NEXT_STATEMENT
+                    || stopReason_i == AbstractDebuggerCommand.CMD_SMART_STEP_INTO) {
 
                 //Code which could be used to know where a caught exception broke the debugger.
                 //if (stopReason_i == AbstractDebuggerCommand.CMD_STEP_CAUGHT_EXCEPTION) {
