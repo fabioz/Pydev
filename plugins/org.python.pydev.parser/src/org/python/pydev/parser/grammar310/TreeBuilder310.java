@@ -21,7 +21,6 @@ import org.python.pydev.parser.jython.ast.Assert;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Await;
 import org.python.pydev.parser.jython.ast.Call;
-import org.python.pydev.parser.jython.ast.Case;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Ellipsis;
 import org.python.pydev.parser.jython.ast.Expr;
@@ -32,7 +31,6 @@ import org.python.pydev.parser.jython.ast.Index;
 import org.python.pydev.parser.jython.ast.Lambda;
 import org.python.pydev.parser.jython.ast.List;
 import org.python.pydev.parser.jython.ast.ListComp;
-import org.python.pydev.parser.jython.ast.Match;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.NamedExpr;
@@ -42,7 +40,6 @@ import org.python.pydev.parser.jython.ast.Return;
 import org.python.pydev.parser.jython.ast.Set;
 import org.python.pydev.parser.jython.ast.Slice;
 import org.python.pydev.parser.jython.ast.Starred;
-import org.python.pydev.parser.jython.ast.SubjectExpr;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.TryExcept;
@@ -561,89 +558,6 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                     }
                 }
                 return expr;
-
-            case JJTSTAR_NAMED_EXPR:
-                NamedExpr star_named_expr = (NamedExpr) n;
-                if (arity == 1) {
-                    SimpleNode popNode = stack.popNode();
-                    try {
-                        NamedExpr named_expr = (NamedExpr) popNode;
-                        star_named_expr = named_expr.createCopy(true);
-                    } catch (Exception e) {
-                        Log.log("Expected named expr. Found: " + popNode);
-                    }
-                } else {
-                    Log.log("Expected arity to be == 1 here.");
-                }
-                return star_named_expr;
-
-            case JJTSUBJECT_EXPR:
-                SubjectExpr subject_expr = (SubjectExpr) n;
-                if (arity > 0) {
-                    java.util.List<NamedExpr> namedExprs = new ArrayList<NamedExpr>();
-                    for (int i = 0; i < arity; i++) {
-                        SimpleNode popNode = stack.popNode();
-                        try {
-                            NamedExpr node = (NamedExpr) popNode;
-                            namedExprs.add(node);
-                        } catch (Exception e) {
-                            Log.log("Expected expr. Found: " + popNode);
-                        }
-                    }
-                    subject_expr = new SubjectExpr(namedExprs.toArray(new NamedExpr[0]));
-                } else {
-                    Log.log("Expected arity to be > 0 here.");
-                }
-                return subject_expr;
-
-            case JJTCASE_BLOCK:
-                Case case_block = null;
-                if (arity == 2) {
-                    SimpleNode popNode = stack.popNode();
-                    suite = null;
-                    try {
-                        suite = (Suite) popNode;
-                    } catch (Exception e) {
-                        Log.log("Expected expr. Found: " + popNode);
-                    }
-                    popNode = stack.popNode();
-                    test = null;
-                    try {
-                        test = (exprType) popNode;
-                    } catch (Exception e) {
-                        Log.log("Expected expr. Found: " + popNode);
-                    }
-                    case_block = new Case(test, suite);
-                } else {
-                    Log.log("Expected arity to be == 2 here.");
-                }
-                return case_block;
-
-            case JJTMATCH_STMT:
-                Match match = null;
-                if (arity > 1) {
-                    java.util.List<Case> case_blocks = new ArrayList<Case>();
-                    for (int i = 0; i < arity - 1; i++) {
-                        SimpleNode popNode = stack.popNode();
-                        try {
-                            case_block = (Case) popNode;
-                            case_blocks.add(case_block);
-                        } catch (Exception e) {
-                            Log.log("Expected expr. Found: " + popNode);
-                        }
-                    }
-                    SimpleNode popNode = stack.popNode();
-                    value = null;
-                    try {
-                        value = (exprType) popNode;
-                    } catch (Exception e) {
-                        Log.log("Expected expr. Found: " + popNode);
-                    }
-                    match = new Match(value, case_blocks.toArray(new Case[0]));
-                } else {
-                    Log.log("Expected arity to be > 1 here.");
-                }
-                return match;
 
             default:
                 Log.log(("Error at TreeBuilder: default not treated:" + n.getId()));
