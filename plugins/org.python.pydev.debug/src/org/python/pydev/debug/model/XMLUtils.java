@@ -142,14 +142,20 @@ public class XMLUtils {
         public void startElement(String uri, String localName, String qName, Attributes attributes)
                 throws SAXException {
             if (qName.equals("variant")) {
-                String name = unescape(attributes.getValue("name"));
+                String name = decode(attributes.getValue("name"));
+                name = unescape(name);
                 boolean isVisited = Boolean.parseBoolean(attributes.getValue("isVisited"));
                 int line = Integer.parseInt(attributes.getValue("line"));
                 int offset = Integer.parseInt(attributes.getValue("offset"));
+                int childOffset = -1;
+                String value = attributes.getValue("childOffset");
+                if (value != null && !value.isEmpty()) {
+                    childOffset = Integer.parseInt(value);
+                }
                 int callOrder = Integer.parseInt(attributes.getValue("callOrder"));
 
-                name = decode(name);
-                variants.add(new SmartStepIntoVariant(target, name, isVisited, line - 1, offset, callOrder));
+                variants.add(
+                        new SmartStepIntoVariant(target, name, isVisited, line - 1, offset, childOffset, callOrder));
             }
         }
     }
