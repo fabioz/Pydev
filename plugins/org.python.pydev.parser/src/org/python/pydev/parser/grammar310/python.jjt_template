@@ -926,16 +926,178 @@ void star_named_expr() #void : {}
     (<MULTIPLY> | <POWER>) namedexpr_test()
 }
 
+void keyword_pattern() #void : {}
+{
+    Name() <EQUAL> pattern()
+}
+
+void keyword_patterns() #void : {}
+{
+    keyword_pattern() (Comma() keyword_pattern())*
+}
+
+void positional_patterns() #void : {}
+{
+    pattern() (Comma() pattern())*
+}
+
+void pattern_arguments() #void : {}
+{
+    LOOKAHEAD(positional_patterns()) positional_patterns() [Comma() keyword_patterns()]
+    | keyword_patterns()
+}
+
+void class_pattern() #void : {}
+{
+    attr() <LPAREN> [pattern_arguments() [Comma()] ] <RPAREN>
+}
+
+void double_star_pattern() #void : {}
+{
+    <POWER> capture_pattern()
+}
+
+void key_value_pattern() #void : {}
+{
+    (
+        LOOKAHEAD(literal_pattern()) literal_pattern()
+        | value_pattern()
+    ) Colon() pattern()
+    | double_star_pattern()
+}
+
+void items_pattern() #void : {}
+{
+    key_value_pattern() (Comma() key_value_pattern())* [Comma()]
+}
+
+void mapping_pattern() #void : {}
+{
+    <LBRACE> [items_pattern()] <RBRACE>
+}
+
+void star_pattern() #void : {}
+{
+    <MULTIPLY> 
+    (
+        capture_pattern()
+        | wildcard_pattern()
+    )
+}
+
+void maybe_star_pattern() #void : {}
+{
+    LOOKAHEAD(star_pattern()) star_pattern()
+    | pattern()
+}
+
+void maybe_sequence_pattern() #void : {}
+{
+    maybe_star_pattern() (Comma() maybe_star_pattern())* [Comma()]
+}
+
+void open_sequence_pattern() #void : {}
+{
+    maybe_star_pattern() Comma() [maybe_sequence_pattern()]
+}
+
+void sequence_pattern() #void : {}
+{
+    <LBRACKET> [maybe_sequence_pattern()] <RBRACKET>
+    | <LPAREN> [open_sequence_pattern()] <RPAREN>
+}
+
+void group_pattern() #void : {}
+{
+    <LPAREN> pattern() <RPAREN>
+}
+
+void attr() #void : {}
+{
+    Name() (<DOT> Name())*
+}
+
+void value_pattern() #void : {}
+{
+    attr()
+}
+
+void wildcard_pattern() #void : {}
+{
+    "_"
+}
+
+void capture_pattern() #void : {}
+{
+    Name()
+}
+
+void signed_number() #void : {}
+{
+    Number()
+    | <MINUS> Number()
+}
+
+void literal_pattern() #void : {}
+{
+    signed_number()
+    | LOOKAHEAD(signed_number() <PLUS>) signed_number() <PLUS> Number()
+    | LOOKAHEAD(signed_number() <MINUS>) signed_number() <MINUS> Number()
+    | String()
+    | <NONE>
+    | <TRUE>
+    | <FALSE>
+}
+
+void closed_pattern() #void : {}
+{
+    literal_pattern()
+    | capture_pattern()
+    | wildcard_pattern()
+    | LOOKAHEAD(value_pattern()) value_pattern()
+    | LOOKAHEAD(group_pattern()) group_pattern()
+    | sequence_pattern()
+    | mapping_pattern()
+    | class_pattern()
+}
+
+void or_pattern() #void : {}
+{
+    closed_pattern() (<OR> closed_pattern())*
+}
+
+void as_pattern() #void : {}
+{
+    or_pattern() $AS capture_pattern()
+}
+
+void pattern() #void : {}
+{
+    LOOKAHEAD(as_pattern()) as_pattern()
+    | or_pattern()
+}
+
+void patterns() #void : {}
+{
+    LOOKAHEAD(open_sequence_pattern()) open_sequence_pattern()
+    | pattern()
+}
+
+void guard() #void : {}
+{
+    <IF> namedexpr_test()
+}
+
+void case_block(): {}
+{
+	<CASE> {this.markLastAsSuiteStart();} patterns() [guard()] <COLON> suite()
+}
+
 // subject_expr: (star_named_expr (, star_named_expr)*) | named_expr
 void subject_expr() #void : {}
 {
-	(star_named_expr() (<COMMA> star_named_expr())*) | namedexpr_test()
-}
-
-// case_block: "case" named_expr_test : suite
-void case_block(): {}
-{
-	<CASE> {this.markLastAsSuiteStart();} namedexpr_test() <COLON> suite()
+	LOOKAHEAD(star_named_expr() Comma()) star_named_expr() Comma() [star_named_expr()]
+    | namedexpr_test()
 }
 
 // match_stmt: "match" subject_expr ':' NEWLINE INDENT case_block+ DEDENT

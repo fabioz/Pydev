@@ -493,6 +493,7 @@ public interface PythonGrammar310Constants {
     "\"\\r\"",
     "<token of kind 179>",
     "<token of kind 180>",
+    "\"_\"",
   };
 
 }
