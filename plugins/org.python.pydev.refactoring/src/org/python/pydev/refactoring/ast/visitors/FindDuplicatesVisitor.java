@@ -67,6 +67,7 @@ import org.python.pydev.parser.jython.ast.Slice;
 import org.python.pydev.parser.jython.ast.Starred;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.StrJoin;
+import org.python.pydev.parser.jython.ast.SubjectExpr;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.TryExcept;
@@ -785,6 +786,15 @@ public class FindDuplicatesVisitor implements VisitorIF {
 
     @Override
     public Object visitMatchOr(MatchOr node) throws Exception {
+        boolean ret = unhandled_node(node);
+        if (ret) {
+            traverse(node);
+        }
+        return null;
+    }
+
+    @Override
+    public Object visitSubjectExpr(SubjectExpr node) throws Exception {
         boolean ret = unhandled_node(node);
         if (ret) {
             traverse(node);

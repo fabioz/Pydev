@@ -60,6 +60,7 @@ public interface VisitorIF {
     public Object visitName(Name node) throws Exception;
     public Object visitList(List node) throws Exception;
     public Object visitTuple(Tuple node) throws Exception;
+    public Object visitSubjectExpr(SubjectExpr node) throws Exception;
     public Object visitMatchAs(MatchAs node) throws Exception;
     public Object visitMatchOr(MatchOr node) throws Exception;
     public Object visitEllipsis(Ellipsis node) throws Exception;
