@@ -272,4 +272,39 @@ public class PyParser310Test extends PyParserTestBase {
                 + "        print(\"I'm feeling the blues :(\")";
         parseLegalDocStr(s);
     }
+
+    public void testLiteralPattern() {
+        String s = "match something:\n"
+                + "    case -10 + 10:\n"
+                + "        pass";
+        parseLegalDocStr(s);
+    }
+
+    public void testLiteralPattern2() {
+        String s = "match something:\n"
+                + "    case 10 + 10:\n"
+                + "        pass";
+        parseLegalDocStr(s);
+    }
+
+    public void testLiteralPattern3() {
+        String s = "match something:\n"
+                + "    case 10 - 10:\n"
+                + "        pass";
+        parseLegalDocStr(s);
+    }
+
+    public void testLiteralPattern4() {
+        String s = "match something:\n"
+                + "    case -10 - 10:\n"
+                + "        pass";
+        parseLegalDocStr(s);
+    }
+
+    public void testLiteralPattern5() {
+        String s = "match something:\n"
+                + "    case -10 + 10:\n"
+                + "        pass";
+        parseLegalDocStr(s);
+    }
 }
