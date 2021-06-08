@@ -943,13 +943,13 @@ void positional_patterns() #void : {}
 
 void pattern_arguments() #void : {}
 {
-    LOOKAHEAD(positional_patterns()) positional_patterns() [Comma() keyword_patterns()]
-    | keyword_patterns()
+    LOOKAHEAD(keyword_patterns()) keyword_patterns()
+    | positional_patterns() [Comma() keyword_patterns()]
 }
 
 void class_pattern() #void : {}
 {
-    attr() <LPAREN> [pattern_arguments() [Comma()] ] <RPAREN>
+    attr() <LPAREN> [pattern_arguments() [Comma()]] <RPAREN>
 }
 
 void double_star_pattern() #void : {}
@@ -1040,9 +1040,9 @@ void signed_number() #void : {}
 
 void literal_pattern() #void : {}
 {
-    signed_number()
-    | LOOKAHEAD(signed_number() <PLUS>) signed_number() <PLUS> Number()
+    LOOKAHEAD(signed_number() <PLUS>) signed_number() <PLUS> Number()
     | LOOKAHEAD(signed_number() <MINUS>) signed_number() <MINUS> Number()
+    | LOOKAHEAD(signed_number()) signed_number()
     | String()
     | <NONE>
     | <TRUE>
@@ -1051,14 +1051,14 @@ void literal_pattern() #void : {}
 
 void closed_pattern() #void : {}
 {
-    literal_pattern()
-    | capture_pattern()
-    | wildcard_pattern()
-    | LOOKAHEAD(value_pattern()) value_pattern()
+    LOOKAHEAD(literal_pattern()) literal_pattern()
+    | LOOKAHEAD(class_pattern()) class_pattern()
     | LOOKAHEAD(group_pattern()) group_pattern()
-    | sequence_pattern()
-    | mapping_pattern()
-    | class_pattern()
+    | LOOKAHEAD(sequence_pattern()) sequence_pattern()
+    | LOOKAHEAD(mapping_pattern()) mapping_pattern()
+    | LOOKAHEAD(value_pattern()) value_pattern()
+    | LOOKAHEAD(capture_pattern()) capture_pattern()
+    | LOOKAHEAD(wildcard_pattern()) wildcard_pattern()
 }
 
 void or_pattern() #void : {}
