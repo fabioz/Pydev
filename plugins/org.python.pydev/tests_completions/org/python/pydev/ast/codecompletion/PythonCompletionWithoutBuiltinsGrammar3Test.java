@@ -271,4 +271,21 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
         assertEquals(1, proposals.length);
         assertEquals("foo()", proposals[0].getDisplayString());
     }
+
+    public void testTypingCast() throws Exception {
+        String s;
+        s = "" +
+                ""
+                + "import typing"
+                + "\n"
+                + "class Foo:\n"
+                + "    def method(self):\n"
+                + "        pass\n"
+                + "\n"
+                + "x = None\n"
+                + "y = typing.cast(Foo, x)\n"
+                + "y.";
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "method()" });
+        System.out.println(comps);
+    }
 }
