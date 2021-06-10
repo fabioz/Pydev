@@ -347,6 +347,12 @@ public abstract class VisitorBase implements VisitorIF {
         return ret;
     }
 
+    public Object visitSubjectExpr(SubjectExpr node) throws Exception {
+        Object ret = unhandled_node(node);
+        traverse(node);
+        return ret;
+    }
+
     public Object visitMatchAs(MatchAs node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
