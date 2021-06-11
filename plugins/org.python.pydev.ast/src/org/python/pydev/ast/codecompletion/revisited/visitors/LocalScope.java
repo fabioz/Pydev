@@ -616,8 +616,11 @@ public class LocalScope implements ILocalScope {
     }
 
     private boolean isTypingCast(Call call) {
-        String callFuncRep = NodeUtils.getFullRepresentationString(call.func);
-        return "typing.cast".equals(callFuncRep);
+        if (call.func != null) {
+            String callFuncRep = NodeUtils.getFullRepresentationString(call.func);
+            return "typing.cast".equals(callFuncRep);
+        }
+        return false;
     }
 
     /**
