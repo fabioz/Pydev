@@ -538,8 +538,10 @@ public class LocalScope implements ILocalScope {
                 }
             } else if (entry.node instanceof Call && isTypingCast((Call) entry.node)) {
                 Call call = (Call) entry.node;
-                exprType type = call.args[0];
-                addRepresentationIfPossible(ret, type);
+                if (call.args != null && call.args.length > 0) {
+                    exprType type = call.args[0];
+                    addRepresentationIfPossible(ret, type);
+                }
             } else {
                 if (entry.node instanceof Str) {
                     lst.add(entry.node);
