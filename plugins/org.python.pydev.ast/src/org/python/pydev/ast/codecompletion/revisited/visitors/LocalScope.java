@@ -500,7 +500,49 @@ public class LocalScope implements ILocalScope {
                 }
                 continue;
             }
-            if (!(entry.node instanceof Assert)) {
+            if (entry.node instanceof Assert) {
+                Assert assrt = (Assert) entry.node;
+                if (assrt.test instanceof Call) {
+                    Call call = (Call) assrt.test;
+                    String rep = NodeUtils.getFullRepresentationString(call.func);
+                    if (rep == null) {
+                        continue;
+                    }
+                    Integer classIndex = ISINSTANCE_POSSIBILITIES.get(FullRepIterable.getLastPart(rep).toLowerCase());
+                    if (classIndex != null) {
+                        if (call.args != null && (call.args.length >= Math.max(classIndex, 1))) {
+                            //in all cases, the instance is the 1st parameter.
+                            String foundActTok = NodeUtils.getFullRepresentationString(call.args[0]);
+
+                            if (foundActTok != null && foundActTok.equals(actTok)) {
+                                if (classIndex > 0) {
+                                    exprType type = call.args[classIndex - 1];
+
+                                    if (type instanceof Tuple) {
+                                        //case: isinstance(obj, (Class1,Class2))
+                                        Tuple tuple = (Tuple) type;
+                                        for (exprType expr : tuple.elts) {
+                                            addRepresentationIfPossible(ret, expr);
+                                        }
+                                    } else {
+                                        //case: isinstance(obj, Class)
+                                        addRepresentationIfPossible(ret, type);
+                                    }
+                                } else {
+                                    //zope case Interface.implementedBy(obj) -> Interface added
+                                    ret.add(new TypeInfo(FullRepIterable.getWithoutLastPart(rep)));
+                                }
+                            }
+                        }
+                    }
+                }
+            } else if (entry.node instanceof Call && isTypingCast((Call) entry.node)) {
+                Call call = (Call) entry.node;
+                if (call.args != null && call.args.length > 0) {
+                    exprType type = call.args[0];
+                    addRepresentationIfPossible(ret, type);
+                }
+            } else {
                 if (entry.node instanceof Str) {
                     lst.add(entry.node);
                 }
@@ -518,42 +560,6 @@ public class LocalScope implements ILocalScope {
                         Attribute attribute = (Attribute) expr.value;
                         if (actTok.equals(NodeUtils.getFullRepresentationString(attribute))) {
                             nameDefinition = attribute;
-                        }
-                    }
-                }
-                continue;
-            }
-            Assert ass = (Assert) entry.node;
-            if (ass.test instanceof Call) {
-                Call call = (Call) ass.test;
-                String rep = NodeUtils.getFullRepresentationString(call.func);
-                if (rep == null) {
-                    continue;
-                }
-                Integer classIndex = ISINSTANCE_POSSIBILITIES.get(FullRepIterable.getLastPart(rep).toLowerCase());
-                if (classIndex != null) {
-                    if (call.args != null && (call.args.length >= Math.max(classIndex, 1))) {
-                        //in all cases, the instance is the 1st parameter.
-                        String foundActTok = NodeUtils.getFullRepresentationString(call.args[0]);
-
-                        if (foundActTok != null && foundActTok.equals(actTok)) {
-                            if (classIndex > 0) {
-                                exprType type = call.args[classIndex - 1];
-
-                                if (type instanceof Tuple) {
-                                    //case: isinstance(obj, (Class1,Class2))
-                                    Tuple tuple = (Tuple) type;
-                                    for (exprType expr : tuple.elts) {
-                                        addRepresentationIfPossible(ret, expr);
-                                    }
-                                } else {
-                                    //case: isinstance(obj, Class)
-                                    addRepresentationIfPossible(ret, type);
-                                }
-                            } else {
-                                //zope case Interface.implementedBy(obj) -> Interface added
-                                ret.add(new TypeInfo(FullRepIterable.getWithoutLastPart(rep)));
-                            }
                         }
                     }
                 }
@@ -609,6 +615,14 @@ public class LocalScope implements ILocalScope {
             }
         }
         return ret;
+    }
+
+    private boolean isTypingCast(Call call) {
+        if (call.func != null) {
+            String callFuncRep = NodeUtils.getFullRepresentationString(call.func);
+            return "typing.cast".equals(callFuncRep);
+        }
+        return false;
     }
 
     /**
