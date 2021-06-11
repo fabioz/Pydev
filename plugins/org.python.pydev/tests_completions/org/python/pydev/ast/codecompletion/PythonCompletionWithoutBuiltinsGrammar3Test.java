@@ -285,7 +285,6 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
                 + "x = None\n"
                 + "y = typing.cast(Foo, x)\n"
                 + "y.";
-        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "method()" });
-        System.out.println(comps);
+        requestCompl(s, s.length(), -1, new String[] { "method()" });
     }
 }
