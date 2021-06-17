@@ -4,6 +4,7 @@ from _pydevd_bundle.pydevd_constants import get_frame, IS_CPYTHON, IS_64BIT_PROC
 from _pydev_imps._pydev_saved_modules import thread, threading
 from _pydev_bundle import pydev_log, pydev_monkey
 from os.path import os
+import platform
 try:
     import ctypes
 except ImportError:
@@ -130,33 +131,92 @@ def _load_python_helper_lib_uncached():
             or hasattr(sys, 'gettotalrefcount') or LOAD_NATIVE_LIB_FLAG in ENV_FALSE_LOWER_VALUES):
         return None
 
-    if IS_WINDOWS:
-        if IS_64BIT_PROCESS:
-            suffix = 'amd64'
-        else:
-            suffix = 'x86'
+    libdir = os.path.join(os.path.dirname(__file__), 'pydevd_attach_to_process')
 
-        filename = os.path.join(os.path.dirname(__file__), 'pydevd_attach_to_process', 'attach_%s.dll' % (suffix,))
+    arch = ''
+    if IS_WINDOWS:
+        # prefer not using platform.machine() when possible (it's a bit heavyweight as it may
+        # spawn a subprocess).
+        arch = os.environ.get("PROCESSOR_ARCHITEW6432", os.environ.get('PROCESSOR_ARCHITECTURE', ''))
+
+    if not arch:
+        arch = platform.machine()
+        if not arch:
+            pydev_log.info('platform.machine() did not return valid value.')  # This shouldn't happen...
+            return None
+
+    if IS_WINDOWS:
+        dllsuffix = '.dll'
 
     elif IS_LINUX:
-        if IS_64BIT_PROCESS:
-            suffix = 'amd64'
-        else:
-            suffix = 'x86'
-
-        filename = os.path.join(os.path.dirname(__file__), 'pydevd_attach_to_process', 'attach_linux_%s.so' % (suffix,))
+        dllsuffix = '.so'
 
     elif IS_MAC:
-        if IS_64BIT_PROCESS:
-            suffix = 'x86_64.dylib'
-        else:
-            suffix = 'x86.dylib'
-
-        filename = os.path.join(os.path.dirname(__file__), 'pydevd_attach_to_process', 'attach_%s' % (suffix,))
+        dllsuffix = '.dylib'
 
     else:
         pydev_log.info('Unable to set trace to all threads in platform: %s', sys.platform)
         return None
+
+    if arch.lower() not in ('amd64', 'x86', 'x86_64', 'i386', 'x86'):
+        # We don't support this processor by default. Still, let's support the case where the
+        # user manually compiled it himself with some heuristics.
+        #
+        # Ideally the user would provide a library in the format: "attach_<arch>.<dllsuffix>"
+        # based on the way it's currently compiled -- see:
+        # - windows/compile_windows.bat
+        # - linux_and_mac/compile_linux.sh
+        # - linux_and_mac/compile_mac.sh
+
+        try:
+            found = [name for name in os.listdir(libdir) if name.startswith('attach_') and name.endswith(dllsuffix)]
+        except:
+            pydev_log.exception('Error listing dir: %s', libdir)
+            return None
+
+        expected_name = 'attach_' + arch + dllsuffix
+        expected_name_linux = 'attach_linux_' + arch + dllsuffix
+
+        filename = None
+        if expected_name in found:  # Heuristic: user compiled with "attach_<arch>.<dllsuffix>"
+            filename = os.path.join(libdir, expected_name)
+
+        elif IS_LINUX and expected_name_linux in found:  # Heuristic: user compiled with "attach_linux_<arch>.<dllsuffix>"
+            filename = os.path.join(libdir, expected_name_linux)
+
+        elif len(found) == 1:  # Heuristic: user removed all libraries and just left his own lib.
+            filename = os.path.join(libdir, found[0])
+
+        else:  # Heuristic: there's one additional library which doesn't seem to be our own. Find the odd one.
+            filtered = [name for name in found if not name.endswith(('amd64' + dllsuffix, 'x86' + dllsuffix))]
+            if len(filtered) == 1:  # If more than one is available we can't be sure...
+                filename = os.path.join(libdir, found[0])
+
+        if filename is None:
+            pydev_log.info(
+                'Unable to set trace to all threads in arch: %s (did not find a %s lib in %s).', (
+                    arch, expected_name, libdir
+                )
+            )
+            return None
+
+        pydev_log.info('Using %s lib in arch: %s.', filename, arch)
+
+    else:
+        if IS_64BIT_PROCESS:
+            suffix = 'amd64'
+        else:
+            suffix = 'x86'
+
+        if IS_WINDOWS or IS_MAC:  # just the dllsuffix changes
+            prefix = 'attach_'
+        elif IS_LINUX:  #
+            prefix = 'attach_linux_'  # historically it has a different name
+        else:
+            pydev_log.info('Unable to set trace to all threads in platform: %s', sys.platform)
+            return None
+
+        filename = os.path.join(libdir, '%s%s%s' % (prefix, suffix, dllsuffix))
 
     if not os.path.exists(filename):
         pydev_log.critical('Expected: %s to exist.', filename)
