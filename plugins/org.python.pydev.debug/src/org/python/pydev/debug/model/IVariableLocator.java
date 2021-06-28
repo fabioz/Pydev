@@ -24,4 +24,8 @@ public interface IVariableLocator {
 
     public String getPyDBLocation();
 
+    public default String getUniqueId() {
+        return getPyDBLocation();
+    };
+
 }
