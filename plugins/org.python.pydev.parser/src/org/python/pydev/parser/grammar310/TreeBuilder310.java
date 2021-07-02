@@ -52,6 +52,7 @@ import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.parser.jython.ast.TryFinally;
+import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.While;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.argumentsType;
@@ -595,21 +596,21 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                 return null;
 
             case JJTSUBJECT_EXPR:
-                if (arity > 1) {
-                    patternType[] patterns = new patternType[arity];
+                if (arity == 2) {
+                    exprType[] elts = new exprType[arity];
                     for (int i = 0; i < arity; i++) {
                         SimpleNode popNode = stack.popNode();
                         try {
-                            patterns[i] = new MatchValue((exprType) popNode);
+                            elts[i] = new Starred((exprType) popNode, Starred.Load);
                         } catch (Exception e) {
                             Log.log("Expected expr. Found: " + popNode);
                         }
                     }
-                    return new MatchSequence(patterns);
+                    return new Tuple(elts, Starred.Load, false);
                 } else if (arity == 1) {
                     return stack.popNode();
                 } else {
-                    Log.log("Expected arity to be > 0 here.");
+                    Log.log("Expected arity to be 1 or 2 here.");
                 }
                 return null;
 
