@@ -38,6 +38,7 @@ import org.python.pydev.parser.jython.ast.MatchClass;
 import org.python.pydev.parser.jython.ast.MatchMapping;
 import org.python.pydev.parser.jython.ast.MatchOr;
 import org.python.pydev.parser.jython.ast.MatchSequence;
+import org.python.pydev.parser.jython.ast.MatchStar;
 import org.python.pydev.parser.jython.ast.MatchValue;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
@@ -833,6 +834,16 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                     return new MatchAs(pattern, name);
                 } else {
                     Log.log("Expected arity to be 1 or 2 here.");
+                }
+                return null;
+
+            case JJTSTAR_PATTERN:
+                if (arity == 1) {
+                    SimpleNode popNode = stack.popNode();
+                    String name = NodeUtils.getFullRepresentationString(popNode);
+                    return new MatchStar(name);
+                } else {
+                    Log.log("Expected arity to be 1 here.");
                 }
                 return null;
 

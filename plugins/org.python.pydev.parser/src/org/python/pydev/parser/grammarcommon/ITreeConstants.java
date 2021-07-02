@@ -164,4 +164,5 @@ public interface ITreeConstants {
     public static final int JJTMAPPING_PATTERN = 655;
     public static final int JJTKEY_VALUE_PATTERN = 656;
     public static final int JJTCLASS_PATTERN = 657;
+    public static final int JJTSTAR_PATTERN = 658;
 }

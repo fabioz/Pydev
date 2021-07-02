@@ -1129,7 +1129,7 @@ void maybe_star_pattern() #void : {}
     | pattern()
 }
 
-void star_pattern() #void : {}
+void star_pattern() : {}
 {
     <MULTIPLY> 
     (
