@@ -60,12 +60,17 @@ public interface ISimpleNodeSwitch {
     public void visit(Name node);
     public void visit(List node);
     public void visit(Tuple node);
-    public void visit(SubjectExpr node);
-    public void visit(MatchAs node);
-    public void visit(MatchOr node);
     public void visit(Ellipsis node);
     public void visit(Slice node);
     public void visit(ExtSlice node);
     public void visit(Index node);
     public void visit(Comprehension node);
+    public void visit(MatchValue node);
+    public void visit(MatchSingleton node);
+    public void visit(MatchSequence node);
+    public void visit(MatchMapping node);
+    public void visit(MatchClass node);
+    public void visit(MatchStar node);
+    public void visit(MatchAs node);
+    public void visit(MatchOr node);
 }

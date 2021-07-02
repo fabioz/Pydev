@@ -4,18 +4,24 @@ package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 import java.util.Arrays;
 
-public final class MatchOr extends patternType {
+public final class MatchMapping extends patternType {
+    public exprType[] keys;
     public patternType[] patterns;
+    public String rest;
 
-    public MatchOr(patternType[] patterns) {
+    public MatchMapping(exprType[] keys, patternType[] patterns, String rest) {
+        this.keys = keys;
         this.patterns = patterns;
+        this.rest = rest;
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
+        result = prime * result + Arrays.hashCode(keys);
         result = prime * result + Arrays.hashCode(patterns);
+        result = prime * result + ((rest == null) ? 0 : rest.hashCode());
         return result;
     }
 
@@ -24,27 +30,39 @@ public final class MatchOr extends patternType {
         if (this == obj) return true;
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
-        MatchOr other = (MatchOr) obj;
+        MatchMapping other = (MatchMapping) obj;
+        if (!Arrays.equals(keys, other.keys)) return false;
         if (!Arrays.equals(patterns, other.patterns)) return false;
+        if (rest == null) { if (other.rest != null) return false;}
+        else if (!rest.equals(other.rest)) return false;
         return true;
     }
     @Override
-    public MatchOr createCopy() {
+    public MatchMapping createCopy() {
         return createCopy(true);
     }
     @Override
-    public MatchOr createCopy(boolean copyComments) {
-        patternType[] new0;
+    public MatchMapping createCopy(boolean copyComments) {
+        exprType[] new0;
+        if(this.keys != null){
+        new0 = new exprType[this.keys.length];
+        for(int i=0;i<this.keys.length;i++){
+            new0[i] = (exprType) (this.keys[i] != null? this.keys[i].createCopy(copyComments):null);
+        }
+        }else{
+            new0 = this.keys;
+        }
+        patternType[] new1;
         if(this.patterns != null){
-        new0 = new patternType[this.patterns.length];
+        new1 = new patternType[this.patterns.length];
         for(int i=0;i<this.patterns.length;i++){
-            new0[i] = (patternType) (this.patterns[i] != null?
+            new1[i] = (patternType) (this.patterns[i] != null?
             this.patterns[i].createCopy(copyComments):null);
         }
         }else{
-            new0 = this.patterns;
+            new1 = this.patterns;
         }
-        MatchOr temp = new MatchOr(new0);
+        MatchMapping temp = new MatchMapping(new0, new1, rest);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
         if(this.specialsBefore != null && copyComments){
@@ -68,20 +86,33 @@ public final class MatchOr extends patternType {
 
     @Override
     public String toString() {
-        StringBuffer sb = new StringBuffer("MatchOr[");
+        StringBuffer sb = new StringBuffer("MatchMapping[");
+        sb.append("keys=");
+        sb.append(dumpThis(this.keys));
+        sb.append(", ");
         sb.append("patterns=");
         sb.append(dumpThis(this.patterns));
+        sb.append(", ");
+        sb.append("rest=");
+        sb.append(dumpThis(this.rest));
         sb.append("]");
         return sb.toString();
     }
 
     @Override
     public Object accept(VisitorIF visitor) throws Exception {
-        return visitor.visitMatchOr(this);
+        return visitor.visitMatchMapping(this);
     }
 
     @Override
     public void traverse(VisitorIF visitor) throws Exception {
+        if (keys != null) {
+            for (int i = 0; i < keys.length; i++) {
+                if (keys[i] != null) {
+                    keys[i].accept(visitor);
+                }
+            }
+        }
         if (patterns != null) {
             for (int i = 0; i < patterns.length; i++) {
                 if (patterns[i] != null) {

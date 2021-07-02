@@ -4,12 +4,10 @@ package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 import java.util.Arrays;
 
-public final class MatchAs extends patternType {
-    public patternType pattern;
+public final class MatchStar extends patternType {
     public String name;
 
-    public MatchAs(patternType pattern, String name) {
-        this.pattern = pattern;
+    public MatchStar(String name) {
         this.name = name;
     }
 
@@ -17,7 +15,6 @@ public final class MatchAs extends patternType {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((pattern == null) ? 0 : pattern.hashCode());
         result = prime * result + ((name == null) ? 0 : name.hashCode());
         return result;
     }
@@ -27,21 +24,18 @@ public final class MatchAs extends patternType {
         if (this == obj) return true;
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
-        MatchAs other = (MatchAs) obj;
-        if (pattern == null) { if (other.pattern != null) return false;}
-        else if (!pattern.equals(other.pattern)) return false;
+        MatchStar other = (MatchStar) obj;
         if (name == null) { if (other.name != null) return false;}
         else if (!name.equals(other.name)) return false;
         return true;
     }
     @Override
-    public MatchAs createCopy() {
+    public MatchStar createCopy() {
         return createCopy(true);
     }
     @Override
-    public MatchAs createCopy(boolean copyComments) {
-        MatchAs temp = new
-        MatchAs(pattern!=null?(patternType)pattern.createCopy(copyComments):null, name);
+    public MatchStar createCopy(boolean copyComments) {
+        MatchStar temp = new MatchStar(name);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
         if(this.specialsBefore != null && copyComments){
@@ -65,10 +59,7 @@ public final class MatchAs extends patternType {
 
     @Override
     public String toString() {
-        StringBuffer sb = new StringBuffer("MatchAs[");
-        sb.append("pattern=");
-        sb.append(dumpThis(this.pattern));
-        sb.append(", ");
+        StringBuffer sb = new StringBuffer("MatchStar[");
         sb.append("name=");
         sb.append(dumpThis(this.name));
         sb.append("]");
@@ -77,14 +68,11 @@ public final class MatchAs extends patternType {
 
     @Override
     public Object accept(VisitorIF visitor) throws Exception {
-        return visitor.visitMatchAs(this);
+        return visitor.visitMatchStar(this);
     }
 
     @Override
     public void traverse(VisitorIF visitor) throws Exception {
-        if (pattern != null) {
-            pattern.accept(visitor);
-        }
     }
 
 }

@@ -5,11 +5,11 @@ import org.python.pydev.parser.jython.SimpleNode;
 import java.util.Arrays;
 
 public final class match_caseType extends SimpleNode {
-    public exprType pattern;
+    public patternType pattern;
     public exprType guard;
     public stmtType[] body;
 
-    public match_caseType(exprType pattern, exprType guard, stmtType[] body) {
+    public match_caseType(patternType pattern, exprType guard, stmtType[] body) {
         this.pattern = pattern;
         this.guard = guard;
         this.body = body;
@@ -54,7 +54,7 @@ public final class match_caseType extends SimpleNode {
             new0 = this.body;
         }
         match_caseType temp = new
-        match_caseType(pattern!=null?(exprType)pattern.createCopy(copyComments):null,
+        match_caseType(pattern!=null?(patternType)pattern.createCopy(copyComments):null,
         guard!=null?(exprType)guard.createCopy(copyComments):null, new0);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
