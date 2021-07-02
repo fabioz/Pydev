@@ -66,7 +66,6 @@ public interface VisitorIF {
     public Object visitIndex(Index node) throws Exception;
     public Object visitComprehension(Comprehension node) throws Exception;
     public Object visitMatchValue(MatchValue node) throws Exception;
-    public Object visitMatchSingleton(MatchSingleton node) throws Exception;
     public Object visitMatchSequence(MatchSequence node) throws Exception;
     public Object visitMatchMapping(MatchMapping node) throws Exception;
     public Object visitMatchClass(MatchClass node) throws Exception;

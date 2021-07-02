@@ -66,7 +66,6 @@ public interface ISimpleNodeSwitch {
     public void visit(Index node);
     public void visit(Comprehension node);
     public void visit(MatchValue node);
-    public void visit(MatchSingleton node);
     public void visit(MatchSequence node);
     public void visit(MatchMapping node);
     public void visit(MatchClass node);

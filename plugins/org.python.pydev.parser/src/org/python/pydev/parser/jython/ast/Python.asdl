@@ -168,7 +168,6 @@ module Python
 	match_case = (pattern pattern, expr? guard, stmt* body)
 	
 	pattern = MatchValue(expr value)
-            | MatchSingleton(expr value)
             | MatchSequence(pattern* patterns)
             | MatchMapping(expr* keys, pattern* patterns, identifier? rest)
             | MatchClass(expr cls, pattern* patterns, identifier* kwd_attrs, pattern* kwd_patterns)

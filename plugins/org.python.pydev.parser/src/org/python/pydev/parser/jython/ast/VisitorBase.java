@@ -383,12 +383,6 @@ public abstract class VisitorBase implements VisitorIF {
         return ret;
     }
 
-    public Object visitMatchSingleton(MatchSingleton node) throws Exception {
-        Object ret = unhandled_node(node);
-        traverse(node);
-        return ret;
-    }
-
     public Object visitMatchSequence(MatchSequence node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
