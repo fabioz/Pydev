@@ -937,7 +937,7 @@ void match_stmt() : {}
 
 void subject_expr() : {}
 {
-	star_named_expr() <COMMA> [star_named_expr()] // tuple
+	star_named_expr() <COMMA> [star_named_expr()]
     | namedexpr_test()
 }
 

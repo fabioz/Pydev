@@ -571,7 +571,6 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                 return expr;
 
             case JJTMATCH_STMT:
-                Match match = null;
                 if (arity > 1) {
                     match_caseType[] caseTypes = new match_caseType[arity - 1];
                     for (int i = 0; i < arity - 1; i++) {
@@ -589,11 +588,11 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                     } catch (Exception e) {
                         Log.log("Expected expr. Found: " + popNode);
                     }
-                    match = new Match(subject, caseTypes);
+                    return new Match(subject, caseTypes);
                 } else {
                     Log.log("Expected arity to be > 1 here.");
                 }
-                return match;
+                return null;
 
             case JJTSUBJECT_EXPR:
                 if (arity > 1) {
