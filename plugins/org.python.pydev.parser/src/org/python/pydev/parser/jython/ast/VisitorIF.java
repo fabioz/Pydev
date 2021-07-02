@@ -60,12 +60,17 @@ public interface VisitorIF {
     public Object visitName(Name node) throws Exception;
     public Object visitList(List node) throws Exception;
     public Object visitTuple(Tuple node) throws Exception;
-    public Object visitSubjectExpr(SubjectExpr node) throws Exception;
-    public Object visitMatchAs(MatchAs node) throws Exception;
-    public Object visitMatchOr(MatchOr node) throws Exception;
     public Object visitEllipsis(Ellipsis node) throws Exception;
     public Object visitSlice(Slice node) throws Exception;
     public Object visitExtSlice(ExtSlice node) throws Exception;
     public Object visitIndex(Index node) throws Exception;
     public Object visitComprehension(Comprehension node) throws Exception;
+    public Object visitMatchValue(MatchValue node) throws Exception;
+    public Object visitMatchSingleton(MatchSingleton node) throws Exception;
+    public Object visitMatchSequence(MatchSequence node) throws Exception;
+    public Object visitMatchMapping(MatchMapping node) throws Exception;
+    public Object visitMatchClass(MatchClass node) throws Exception;
+    public Object visitMatchStar(MatchStar node) throws Exception;
+    public Object visitMatchAs(MatchAs node) throws Exception;
+    public Object visitMatchOr(MatchOr node) throws Exception;
 }

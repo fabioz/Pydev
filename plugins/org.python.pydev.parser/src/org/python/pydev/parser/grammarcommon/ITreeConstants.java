@@ -183,4 +183,6 @@ public interface ITreeConstants {
     public static final int JJTKEYWORD_PATTERNS = 674;
     public static final int JJTKEYWORD_PATTERN = 675;
     public static final int JJTSTAR_NAMED_EXPR = 676;
+    public static final int JJTLIST_PATTERN = 677;
+    public static final int JJTTUPLE_PATTERN = 678;
 }

@@ -4,21 +4,18 @@ package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 import java.util.Arrays;
 
-public final class MatchAs extends patternType {
-    public patternType pattern;
-    public String name;
+public final class MatchValue extends patternType {
+    public exprType value;
 
-    public MatchAs(patternType pattern, String name) {
-        this.pattern = pattern;
-        this.name = name;
+    public MatchValue(exprType value) {
+        this.value = value;
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((pattern == null) ? 0 : pattern.hashCode());
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result + ((value == null) ? 0 : value.hashCode());
         return result;
     }
 
@@ -27,21 +24,18 @@ public final class MatchAs extends patternType {
         if (this == obj) return true;
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
-        MatchAs other = (MatchAs) obj;
-        if (pattern == null) { if (other.pattern != null) return false;}
-        else if (!pattern.equals(other.pattern)) return false;
-        if (name == null) { if (other.name != null) return false;}
-        else if (!name.equals(other.name)) return false;
+        MatchValue other = (MatchValue) obj;
+        if (value == null) { if (other.value != null) return false;}
+        else if (!value.equals(other.value)) return false;
         return true;
     }
     @Override
-    public MatchAs createCopy() {
+    public MatchValue createCopy() {
         return createCopy(true);
     }
     @Override
-    public MatchAs createCopy(boolean copyComments) {
-        MatchAs temp = new
-        MatchAs(pattern!=null?(patternType)pattern.createCopy(copyComments):null, name);
+    public MatchValue createCopy(boolean copyComments) {
+        MatchValue temp = new MatchValue(value!=null?(exprType)value.createCopy(copyComments):null);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
         if(this.specialsBefore != null && copyComments){
@@ -65,25 +59,22 @@ public final class MatchAs extends patternType {
 
     @Override
     public String toString() {
-        StringBuffer sb = new StringBuffer("MatchAs[");
-        sb.append("pattern=");
-        sb.append(dumpThis(this.pattern));
-        sb.append(", ");
-        sb.append("name=");
-        sb.append(dumpThis(this.name));
+        StringBuffer sb = new StringBuffer("MatchValue[");
+        sb.append("value=");
+        sb.append(dumpThis(this.value));
         sb.append("]");
         return sb.toString();
     }
 
     @Override
     public Object accept(VisitorIF visitor) throws Exception {
-        return visitor.visitMatchAs(this);
+        return visitor.visitMatchValue(this);
     }
 
     @Override
     public void traverse(VisitorIF visitor) throws Exception {
-        if (pattern != null) {
-            pattern.accept(visitor);
+        if (value != null) {
+            value.accept(visitor);
         }
     }
 

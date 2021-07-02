@@ -4,18 +4,18 @@ package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 import java.util.Arrays;
 
-public final class SubjectExpr extends exprType {
-    public exprType[] values;
+public final class MatchSequence extends patternType {
+    public patternType[] patterns;
 
-    public SubjectExpr(exprType[] values) {
-        this.values = values;
+    public MatchSequence(patternType[] patterns) {
+        this.patterns = patterns;
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + Arrays.hashCode(values);
+        result = prime * result + Arrays.hashCode(patterns);
         return result;
     }
 
@@ -24,27 +24,27 @@ public final class SubjectExpr extends exprType {
         if (this == obj) return true;
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
-        SubjectExpr other = (SubjectExpr) obj;
-        if (!Arrays.equals(values, other.values)) return false;
+        MatchSequence other = (MatchSequence) obj;
+        if (!Arrays.equals(patterns, other.patterns)) return false;
         return true;
     }
     @Override
-    public SubjectExpr createCopy() {
+    public MatchSequence createCopy() {
         return createCopy(true);
     }
     @Override
-    public SubjectExpr createCopy(boolean copyComments) {
-        exprType[] new0;
-        if(this.values != null){
-        new0 = new exprType[this.values.length];
-        for(int i=0;i<this.values.length;i++){
-            new0[i] = (exprType) (this.values[i] != null?
-            this.values[i].createCopy(copyComments):null);
+    public MatchSequence createCopy(boolean copyComments) {
+        patternType[] new0;
+        if(this.patterns != null){
+        new0 = new patternType[this.patterns.length];
+        for(int i=0;i<this.patterns.length;i++){
+            new0[i] = (patternType) (this.patterns[i] != null?
+            this.patterns[i].createCopy(copyComments):null);
         }
         }else{
-            new0 = this.values;
+            new0 = this.patterns;
         }
-        SubjectExpr temp = new SubjectExpr(new0);
+        MatchSequence temp = new MatchSequence(new0);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
         if(this.specialsBefore != null && copyComments){
@@ -68,24 +68,24 @@ public final class SubjectExpr extends exprType {
 
     @Override
     public String toString() {
-        StringBuffer sb = new StringBuffer("SubjectExpr[");
-        sb.append("values=");
-        sb.append(dumpThis(this.values));
+        StringBuffer sb = new StringBuffer("MatchSequence[");
+        sb.append("patterns=");
+        sb.append(dumpThis(this.patterns));
         sb.append("]");
         return sb.toString();
     }
 
     @Override
     public Object accept(VisitorIF visitor) throws Exception {
-        return visitor.visitSubjectExpr(this);
+        return visitor.visitMatchSequence(this);
     }
 
     @Override
     public void traverse(VisitorIF visitor) throws Exception {
-        if (values != null) {
-            for (int i = 0; i < values.length; i++) {
-                if (values[i] != null) {
-                    values[i].accept(visitor);
+        if (patterns != null) {
+            for (int i = 0; i < patterns.length; i++) {
+                if (patterns[i] != null) {
+                    patterns[i].accept(visitor);
                 }
             }
         }
