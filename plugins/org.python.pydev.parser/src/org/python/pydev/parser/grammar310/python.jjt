@@ -1241,7 +1241,7 @@ void double_star_pattern() #void : {}
     <POWER> Name()
 }
 
-void guard() : {}
+void guard() #void : {}
 {
     <IF> namedexpr_test()
 }

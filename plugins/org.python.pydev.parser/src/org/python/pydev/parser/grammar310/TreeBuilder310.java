@@ -864,14 +864,6 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                 }
                 return null;
 
-            case JJTGUARD:
-                if (arity == 1) {
-                    return stack.popNode();
-                } else {
-                    Log.log("Expected arity to be 1 here.");
-                }
-                return null;
-
             default:
                 Log.log(("Error at TreeBuilder: default not treated:" + n.getId()));
                 return null;
