@@ -859,13 +859,6 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                         }
                     }
                     return new MatchSequence(patterns);
-                } else if (arity == 1) {
-                    SimpleNode popNode = stack.popNode();
-                    if (popNode instanceof patternType) {
-                        return popNode;
-                    } else if (popNode instanceof exprType) {
-                        return new MatchValue((exprType) popNode);
-                    }
                 } else {
                     Log.log("Expected arity to be > 0 here.");
                 }
