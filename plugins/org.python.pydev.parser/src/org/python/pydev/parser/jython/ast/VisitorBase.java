@@ -347,24 +347,6 @@ public abstract class VisitorBase implements VisitorIF {
         return ret;
     }
 
-    public Object visitSubjectExpr(SubjectExpr node) throws Exception {
-        Object ret = unhandled_node(node);
-        traverse(node);
-        return ret;
-    }
-
-    public Object visitMatchAs(MatchAs node) throws Exception {
-        Object ret = unhandled_node(node);
-        traverse(node);
-        return ret;
-    }
-
-    public Object visitMatchOr(MatchOr node) throws Exception {
-        Object ret = unhandled_node(node);
-        traverse(node);
-        return ret;
-    }
-
     public Object visitEllipsis(Ellipsis node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
@@ -390,6 +372,48 @@ public abstract class VisitorBase implements VisitorIF {
     }
 
     public Object visitComprehension(Comprehension node) throws Exception {
+        Object ret = unhandled_node(node);
+        traverse(node);
+        return ret;
+    }
+
+    public Object visitMatchValue(MatchValue node) throws Exception {
+        Object ret = unhandled_node(node);
+        traverse(node);
+        return ret;
+    }
+
+    public Object visitMatchSequence(MatchSequence node) throws Exception {
+        Object ret = unhandled_node(node);
+        traverse(node);
+        return ret;
+    }
+
+    public Object visitMatchMapping(MatchMapping node) throws Exception {
+        Object ret = unhandled_node(node);
+        traverse(node);
+        return ret;
+    }
+
+    public Object visitMatchClass(MatchClass node) throws Exception {
+        Object ret = unhandled_node(node);
+        traverse(node);
+        return ret;
+    }
+
+    public Object visitMatchStar(MatchStar node) throws Exception {
+        Object ret = unhandled_node(node);
+        traverse(node);
+        return ret;
+    }
+
+    public Object visitMatchAs(MatchAs node) throws Exception {
+        Object ret = unhandled_node(node);
+        traverse(node);
+        return ret;
+    }
+
+    public Object visitMatchOr(MatchOr node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;

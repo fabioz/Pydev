@@ -1087,106 +1087,55 @@ void assert_stmt(): {}
 
 
 
-// star_named_expr: [* **] named_expr
+//compound_stmt: if_stmt | while_stmt | for_stmt | try_stmt | with_stmt | funcdef | classdef | decorated | async_stmt | match_stmt
+void compound_stmt() #void : {}
+{
+    if_stmt() | while_stmt() | for_stmt() | try_stmt() | with_stmt() | funcdef() | classdef() | decorated() | match_stmt()
+    // Note: async_stmt() moved to stmt to fix issue resolving async name/async statement.
+}
+
+
+
+
+void match_stmt() : {}
+{
+	<MATCH> subject_expr() {grammarActions.findTokenAndAdd(":");}<COLON> try{<NEWLINE>}catch(ParseException e){handleNoNewline(e);} <INDENT> (case_block())+ <DEDENT>
+}
+
+void subject_expr() : {}
+{
+	star_named_expr() <COMMA> [star_named_expr()]
+    | namedexpr_test()
+}
+
 void star_named_expr() #void : {}
 {
     (<MULTIPLY> | <POWER>) namedexpr_test()
 }
 
-void keyword_pattern() #void : {}
+void case_block() : {}
 {
-    Name() <EQUAL> pattern()
+	<CASE> {this.markLastAsSuiteStart();} open_sequence_pattern() [guard()] <COLON> suite()
 }
 
-void keyword_patterns() #void : {}
+void open_sequence_pattern() : {}
 {
-    keyword_pattern() (Comma() keyword_pattern())*
-}
-
-void positional_patterns() #void : {}
-{
-    pattern() (Comma() pattern())*
-}
-
-void pattern_arguments() #void : {}
-{
-    LOOKAHEAD(keyword_patterns()) keyword_patterns()
-    | positional_patterns() [Comma() keyword_patterns()]
-}
-
-void class_pattern() #void : {}
-{
-    attr() <LPAREN> [pattern_arguments() [Comma()]] <RPAREN>
-}
-
-void double_star_pattern() #void : {}
-{
-    <POWER> capture_pattern()
-}
-
-void key_value_pattern() #void : {}
-{
-    (
-        LOOKAHEAD(literal_pattern()) literal_pattern()
-        | value_pattern()
-    ) Colon() pattern()
-    | double_star_pattern()
-}
-
-void items_pattern() #void : {}
-{
-    key_value_pattern() (Comma() key_value_pattern())* [Comma()]
-}
-
-void mapping_pattern() #void : {}
-{
-    <LBRACE> [items_pattern()] <RBRACE>
-}
-
-void star_pattern() #void : {}
-{
-    <MULTIPLY> 
-    (
-        capture_pattern()
-        | wildcard_pattern()
-    )
+    maybe_star_pattern() (<COMMA> maybe_star_pattern())* [<COMMA>]
 }
 
 void maybe_star_pattern() #void : {}
 {
-    LOOKAHEAD(star_pattern()) star_pattern()
+    star_pattern()
     | pattern()
 }
 
-void maybe_sequence_pattern() #void : {}
+void star_pattern() : {}
 {
-    maybe_star_pattern() (Comma() maybe_star_pattern())* [Comma()]
-}
-
-void open_sequence_pattern() #void : {}
-{
-    maybe_star_pattern() Comma() [maybe_sequence_pattern()]
-}
-
-void sequence_pattern() #void : {}
-{
-    <LBRACKET> [maybe_sequence_pattern()] <RBRACKET>
-    | <LPAREN> [open_sequence_pattern()] <RPAREN>
-}
-
-void group_pattern() #void : {}
-{
-    <LPAREN> pattern() <RPAREN>
-}
-
-void attr() #void : {}
-{
-    Name() (<DOT> Name())*
-}
-
-void value_pattern() #void : {}
-{
-    attr()
+    <MULTIPLY> 
+    (
+        Name()
+        | wildcard_pattern()
+    )
 }
 
 void wildcard_pattern() #void : {}
@@ -1194,9 +1143,35 @@ void wildcard_pattern() #void : {}
     "_"
 }
 
-void capture_pattern() #void : {}
+void pattern() : {}
 {
-    Name()
+    or_pattern() ({grammarActions.findTokenAndAdd("as");}<AS> Name())?
+}
+
+void or_pattern() : {}
+{
+    closed_pattern() (<OR> closed_pattern())*
+}
+
+void closed_pattern() #void : {}
+{
+    literal_pattern()
+    | class_pattern()
+    | sequence_pattern()
+    | mapping_pattern()
+    | wildcard_pattern()
+}
+
+void literal_pattern() #void : {}
+{
+    signed_number() (
+        <PLUS> signed_number()
+        | <MINUS> signed_number()
+    )?
+    | String()
+    | <NONE>
+    | <TRUE>
+    | <FALSE>
 }
 
 void signed_number() #void : {}
@@ -1205,49 +1180,65 @@ void signed_number() #void : {}
     | <MINUS> Number()
 }
 
-void literal_pattern() #void : {}
+void class_pattern() : {}
 {
-    LOOKAHEAD(signed_number() <PLUS>) signed_number() <PLUS> Number()
-    | LOOKAHEAD(signed_number() <MINUS>) signed_number() <MINUS> Number()
-    | LOOKAHEAD(signed_number()) signed_number()
-    | String()
-    | <NONE>
-    | <TRUE>
-    | <FALSE>
+    attr() [<LPAREN> [pattern_arguments() [<COMMA>]] <RPAREN>]
 }
 
-void closed_pattern() #void : {}
+void attr() : {}
 {
-    LOOKAHEAD(literal_pattern()) literal_pattern()
-    | LOOKAHEAD(class_pattern()) class_pattern()
-    | LOOKAHEAD(group_pattern()) group_pattern()
-    | LOOKAHEAD(sequence_pattern()) sequence_pattern()
-    | LOOKAHEAD(mapping_pattern()) mapping_pattern()
-    | LOOKAHEAD(value_pattern()) value_pattern()
-    | LOOKAHEAD(capture_pattern()) capture_pattern()
-    | LOOKAHEAD(wildcard_pattern()) wildcard_pattern()
+    Name() (
+        <EQUAL> pattern()
+        | (<DOT> Name())*
+    )
 }
 
-void or_pattern() #void : {}
+void pattern_arguments() #void : {}
 {
-    closed_pattern() (<OR> closed_pattern())*
+    pattern() (<COMMA> pattern())*
 }
 
-void as_pattern() #void : {}
+void sequence_pattern() : {}
 {
-    or_pattern() {grammarActions.findTokenAndAdd("as");}<AS> capture_pattern()
+    list_pattern()
+    | tuple_pattern()
 }
 
-void pattern() #void : {}
+void list_pattern() #void : {}
 {
-    LOOKAHEAD(as_pattern()) as_pattern()
-    | or_pattern()
+    <LBRACKET> [open_sequence_pattern()] <RBRACKET>
 }
 
-void patterns() #void : {}
+void tuple_pattern() #void : {}
 {
-    LOOKAHEAD(open_sequence_pattern()) open_sequence_pattern()
-    | pattern()
+    <LPAREN> (
+        [open_sequence_pattern()]
+        | pattern()
+    ) <RPAREN>
+}
+
+void mapping_pattern() : {}
+{
+    <LBRACE> [items_pattern()] <RBRACE>
+}
+
+void items_pattern() #void : {}
+{
+    key_value_pattern() (<COMMA> key_value_pattern())* [<COMMA>]
+}
+
+void key_value_pattern() : {}
+{
+    (
+        literal_pattern()
+        | attr()
+    ) <COLON> pattern()
+    | double_star_pattern()
+}
+
+void double_star_pattern() #void : {}
+{
+    <POWER> Name()
 }
 
 void guard() #void : {}
@@ -1255,30 +1246,8 @@ void guard() #void : {}
     <IF> namedexpr_test()
 }
 
-void case_block(): {}
-{
-	<CASE> {this.markLastAsSuiteStart();} patterns() [guard()] <COLON> suite()
-}
 
-// subject_expr: (star_named_expr (, star_named_expr)*) | named_expr
-void subject_expr() #void : {}
-{
-	LOOKAHEAD(star_named_expr() Comma()) star_named_expr() Comma() [star_named_expr()]
-    | namedexpr_test()
-}
 
-// match_stmt: "match" subject_expr ':' NEWLINE INDENT case_block+ DEDENT
-void match_stmt(): {}
-{
-	<MATCH> subject_expr() {grammarActions.findTokenAndAdd(":");}<COLON> try{<NEWLINE>}catch(ParseException e){handleNoNewline(e);} <INDENT> (case_block())+ <DEDENT>
-}
-
-//compound_stmt: if_stmt | while_stmt | for_stmt | try_stmt | with_stmt | funcdef | classdef | decorated | async_stmt | match_stmt
-void compound_stmt() #void : {}
-{
-    if_stmt() | while_stmt() | for_stmt() | try_stmt() | with_stmt() | funcdef() | classdef() | decorated() | match_stmt()
-    // Note: async_stmt() moved to stmt to fix issue resolving async name/async statement.
-}
 
 //async_stmt: ASYNC (funcdef | with_stmt | for_stmt)
 void async_stmt() #void :{}
@@ -1918,4 +1887,3 @@ void String() #void :
 |   ( t=<TRIPLE_FSTRING> { grammarActions.makeString(t, 3, (Str)jjtThis); } {} )#FString
 |   ( t=<TRIPLE_FSTRING2> { grammarActions.makeString(t, 3, (Str)jjtThis); } {} )#FString
 }
-

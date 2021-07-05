@@ -110,12 +110,6 @@ module Python
 	     | Name(identifier id, expr_context ctx, bool reserved)
 	     | List(expr* elts, expr_context ctx)
 	     | Tuple(expr *elts, expr_context ctx, bool? endsWithComma)
-	     
-	     | SubjectExpr(expr* values)
-	     
-         -- only used in patterns
-         | MatchAs(expr pattern, identifier name)
-         | MatchOr(expr* patterns)
 
 	-- the Artificial context is not actually used in the parser directly. It is used in the application
 	-- to create 'artificial' names, as if it was a regular name (e.g.: create a name for a match inside
@@ -171,5 +165,18 @@ module Python
 
 	comment = (identifier id)
 	
-	match_case = (expr pattern, expr? guard, stmt* body)
+	match_case = (pattern pattern, expr? guard, stmt* body)
+	
+	pattern = MatchValue(expr value)
+            | MatchSequence(pattern* patterns)
+            | MatchMapping(expr* keys, pattern* patterns, identifier? rest)
+            | MatchClass(expr cls, pattern* patterns, identifier* kwd_attrs, pattern* kwd_patterns)
+
+            | MatchStar(identifier? name)
+            -- The optional "rest" MatchMapping parameter handles capturing extra mapping keys
+
+            | MatchAs(pattern? pattern, identifier? name)
+            | MatchOr(pattern* patterns)
+
+         	attributes (int lineno, int col_offset, int end_lineno, int end_col_offset)
 }
