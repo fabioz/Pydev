@@ -25,6 +25,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.docutils.TabNannyDocIterator.IndentInfo;
 import org.python.pydev.core.log.Log;
@@ -169,6 +170,14 @@ public final class PySelection extends TextSelectionUtils {
      */
     public PySelection(IDocument doc) {
         this(doc, 0);
+    }
+
+    /**
+     * Used in jython scripting.
+     * @param edit
+     */
+    public PySelection(IPyEdit edit) {
+        this(edit.getDocument(), edit.getTextSelection());
     }
 
     /**
