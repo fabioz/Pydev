@@ -94,7 +94,13 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
             return;
         }
         File workingDir = project.getLocation().toFile();
-        cmdList.addAll(userArgsAsList);
+        for (String s : userArgsAsList) {
+            if (s.startsWith("--format=")) {
+                continue; // ignore that as we'll add the '--format' as needed ourselves.
+            }
+            cmdList.add(s);
+        }
+        cmdList.add("--format=default");
         cmdList.add(target);
         String[] args = cmdList.toArray(new String[0]);
 
