@@ -46,6 +46,7 @@ import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
+import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.wizards.project.IWizardNewProjectNameAndLocationPage;
 import org.python.pydev.ui.wizards.project.PythonProjectWizard;
 
@@ -79,7 +80,8 @@ public class DjangoProjectWizard extends PythonProjectWizard {
         return new DjangoNewProjectPage("Setting project properties");
     }
 
-    protected DjangoSettingsPage createDjangoSettingsPage(ICallback0<IWizardNewProjectNameAndLocationPage> projectPage) {
+    protected DjangoSettingsPage createDjangoSettingsPage(
+            ICallback0<IWizardNewProjectNameAndLocationPage> projectPage) {
         return new DjangoSettingsPage("Django Settings", projectPage);
     }
 
@@ -276,6 +278,9 @@ public class DjangoProjectWizard extends PythonProjectWizard {
 
         } catch (Exception e) {
             Log.log(e);
+            RunInUiThread.async(() -> {
+                PyDialogHelpers.openCritical("Error creating django project", e.getMessage());
+            });
         } finally {
             monitor.done();
         }

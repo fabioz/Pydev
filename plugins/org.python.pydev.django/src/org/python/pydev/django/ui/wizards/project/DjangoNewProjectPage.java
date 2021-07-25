@@ -15,6 +15,7 @@ import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.ui.wizards.project.NewProjectNameAndLocationWizardPage;
 
 public class DjangoNewProjectPage extends NewProjectNameAndLocationWizardPage {
@@ -89,7 +90,12 @@ public class DjangoNewProjectPage extends NewProjectNameAndLocationWizardPage {
 
         String projectName = getProjectName();
         if (projectName.trim().toLowerCase().equals("django")) { //$NON-NLS-1$
-            setErrorMessage("When creating a Django project it cannot be named Django because of conflicts with the default Django install.");
+            setErrorMessage(
+                    "When creating a Django project it cannot be named Django because of conflicts with the default Django install.");
+            return false;
+        }
+        if (!PyStringUtils.isValidIdentifier(projectName, false)) {
+            setErrorMessage("Project name is not a valid identifier.");
             return false;
         }
         return true;
