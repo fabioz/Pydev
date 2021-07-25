@@ -134,7 +134,7 @@ class GrammarsIterator {
         ret.put("3.7", IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_7);
         ret.put("3.8", IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_8);
         ret.put("3.9", IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_9);
-        ret.put("3.9", IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_10);
+        ret.put("3.10", IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_10);
         return Collections.unmodifiableMap(ret);
     }
 }
