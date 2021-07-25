@@ -1828,4 +1828,8 @@ public final class StringUtils {
         return lst;
     }
 
+    public static boolean isASCIIPrintable(char c) {
+        return c >= 32 && c <= 126;
+    }
+
 }
