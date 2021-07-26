@@ -7,14 +7,11 @@ import java.util.Arrays;
 public final class MatchClass extends patternType {
     public exprType cls;
     public patternType[] patterns;
-    public String[] kwd_attrs;
     public patternType[] kwd_patterns;
 
-    public MatchClass(exprType cls, patternType[] patterns, String[] kwd_attrs, patternType[]
-    kwd_patterns) {
+    public MatchClass(exprType cls, patternType[] patterns, patternType[] kwd_patterns) {
         this.cls = cls;
         this.patterns = patterns;
-        this.kwd_attrs = kwd_attrs;
         this.kwd_patterns = kwd_patterns;
     }
 
@@ -24,7 +21,6 @@ public final class MatchClass extends patternType {
         int result = 1;
         result = prime * result + ((cls == null) ? 0 : cls.hashCode());
         result = prime * result + Arrays.hashCode(patterns);
-        result = prime * result + Arrays.hashCode(kwd_attrs);
         result = prime * result + Arrays.hashCode(kwd_patterns);
         return result;
     }
@@ -38,7 +34,6 @@ public final class MatchClass extends patternType {
         if (cls == null) { if (other.cls != null) return false;}
         else if (!cls.equals(other.cls)) return false;
         if (!Arrays.equals(patterns, other.patterns)) return false;
-        if (!Arrays.equals(kwd_attrs, other.kwd_attrs)) return false;
         if (!Arrays.equals(kwd_patterns, other.kwd_patterns)) return false;
         return true;
     }
@@ -58,25 +53,18 @@ public final class MatchClass extends patternType {
         }else{
             new0 = this.patterns;
         }
-        String[] new1;
-        if(this.kwd_attrs != null){
-            new1 = new String[this.kwd_attrs.length];
-            System.arraycopy(this.kwd_attrs, 0, new1, 0, this.kwd_attrs.length);
-        }else{
-            new1 = this.kwd_attrs;
-        }
-        patternType[] new2;
+        patternType[] new1;
         if(this.kwd_patterns != null){
-        new2 = new patternType[this.kwd_patterns.length];
+        new1 = new patternType[this.kwd_patterns.length];
         for(int i=0;i<this.kwd_patterns.length;i++){
-            new2[i] = (patternType) (this.kwd_patterns[i] != null?
+            new1[i] = (patternType) (this.kwd_patterns[i] != null?
             this.kwd_patterns[i].createCopy(copyComments):null);
         }
         }else{
-            new2 = this.kwd_patterns;
+            new1 = this.kwd_patterns;
         }
         MatchClass temp = new MatchClass(cls!=null?(exprType)cls.createCopy(copyComments):null,
-        new0, new1, new2);
+        new0, new1);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
         if(this.specialsBefore != null && copyComments){
@@ -106,9 +94,6 @@ public final class MatchClass extends patternType {
         sb.append(", ");
         sb.append("patterns=");
         sb.append(dumpThis(this.patterns));
-        sb.append(", ");
-        sb.append("kwd_attrs=");
-        sb.append(dumpThis(this.kwd_attrs));
         sb.append(", ");
         sb.append("kwd_patterns=");
         sb.append(dumpThis(this.kwd_patterns));
