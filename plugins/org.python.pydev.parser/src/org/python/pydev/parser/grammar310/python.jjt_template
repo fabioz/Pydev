@@ -937,7 +937,7 @@ void match_stmt() : {}
 
 void subject_expr() : {}
 {
-	star_named_expr() <COMMA> [star_named_expr()]
+	star_named_expr() $COMMA [star_named_expr()]
     | namedexpr_test()
 }
 
@@ -948,12 +948,12 @@ void star_named_expr() #void : {}
 
 void case_block() : {}
 {
-	<CASE> {this.markLastAsSuiteStart();} open_sequence_pattern() [guard()] <COLON> suite()
+	<CASE> {this.markLastAsSuiteStart();} open_sequence_pattern() [guard()] $COLON suite()
 }
 
 void open_sequence_pattern() : {}
 {
-    maybe_star_pattern() (<COMMA> maybe_star_pattern())* [<COMMA>]
+    maybe_star_pattern() ($COMMA maybe_star_pattern())* [$COMMA]
 }
 
 void maybe_star_pattern() #void : {}
@@ -986,10 +986,10 @@ void or_pattern() : {}
     closed_pattern() (<OR> closed_pattern())*
 }
 
-void closed_pattern() #void : {}
+void closed_pattern() : {}
 {
     literal_pattern()
-    | class_pattern()
+    | attr() [class_pattern()]
     | sequence_pattern()
     | mapping_pattern()
     | wildcard_pattern()
@@ -1015,7 +1015,7 @@ void signed_number() #void : {}
 
 void class_pattern() : {}
 {
-    attr() [<LPAREN> [pattern_arguments() [<COMMA>]] <RPAREN>]
+    <LPAREN> [pattern_arguments() [$COMMA]] <RPAREN>
 }
 
 void attr() : {}
@@ -1028,26 +1028,26 @@ void attr() : {}
 
 void pattern_arguments() #void : {}
 {
-    pattern() (<COMMA> pattern())*
+    pattern() ($COMMA pattern())*
 }
 
-void sequence_pattern() : {}
+void sequence_pattern() #void : {}
 {
     list_pattern()
     | tuple_pattern()
 }
 
-void list_pattern() #void : {}
+void list_pattern() : {}
 {
-    <LBRACKET> [open_sequence_pattern()] <RBRACKET>
+    <LBRACKET> {grammarActions.addSpecialToken("[",STRATEGY_BEFORE_NEXT);} [open_sequence_pattern()] {grammarActions.addSpecialToken("]",STRATEGY_ADD_AFTER_PREV);} <RBRACKET>
 }
 
-void tuple_pattern() #void : {}
+void tuple_pattern() : {}
 {
-    <LPAREN> (
+    <LPAREN> {grammarActions.addSpecialToken("(",STRATEGY_BEFORE_NEXT);} (
         [open_sequence_pattern()]
         | pattern()
-    ) <RPAREN>
+    ) {grammarActions.addSpecialToken(")",STRATEGY_ADD_AFTER_PREV);} <RPAREN>
 }
 
 void mapping_pattern() : {}
@@ -1057,7 +1057,7 @@ void mapping_pattern() : {}
 
 void items_pattern() #void : {}
 {
-    key_value_pattern() (<COMMA> key_value_pattern())* [<COMMA>]
+    key_value_pattern() ($COMMA key_value_pattern())* [$COMMA]
 }
 
 void key_value_pattern() : {}
@@ -1065,7 +1065,7 @@ void key_value_pattern() : {}
     (
         literal_pattern()
         | attr()
-    ) <COLON> pattern()
+    ) $COLON pattern()
     | double_star_pattern()
 }
 
