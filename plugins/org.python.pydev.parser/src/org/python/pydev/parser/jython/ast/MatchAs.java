@@ -6,11 +6,11 @@ import java.util.Arrays;
 
 public final class MatchAs extends patternType {
     public patternType pattern;
-    public String name;
+    public NameTokType asname;
 
-    public MatchAs(patternType pattern, String name) {
+    public MatchAs(patternType pattern, NameTokType asname) {
         this.pattern = pattern;
-        this.name = name;
+        this.asname = asname;
     }
 
     @Override
@@ -18,7 +18,7 @@ public final class MatchAs extends patternType {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((pattern == null) ? 0 : pattern.hashCode());
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result + ((asname == null) ? 0 : asname.hashCode());
         return result;
     }
 
@@ -30,8 +30,8 @@ public final class MatchAs extends patternType {
         MatchAs other = (MatchAs) obj;
         if (pattern == null) { if (other.pattern != null) return false;}
         else if (!pattern.equals(other.pattern)) return false;
-        if (name == null) { if (other.name != null) return false;}
-        else if (!name.equals(other.name)) return false;
+        if (asname == null) { if (other.asname != null) return false;}
+        else if (!asname.equals(other.asname)) return false;
         return true;
     }
     @Override
@@ -41,7 +41,8 @@ public final class MatchAs extends patternType {
     @Override
     public MatchAs createCopy(boolean copyComments) {
         MatchAs temp = new
-        MatchAs(pattern!=null?(patternType)pattern.createCopy(copyComments):null, name);
+        MatchAs(pattern!=null?(patternType)pattern.createCopy(copyComments):null,
+        asname!=null?(NameTokType)asname.createCopy(copyComments):null);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
         if(this.specialsBefore != null && copyComments){
@@ -69,8 +70,8 @@ public final class MatchAs extends patternType {
         sb.append("pattern=");
         sb.append(dumpThis(this.pattern));
         sb.append(", ");
-        sb.append("name=");
-        sb.append(dumpThis(this.name));
+        sb.append("asname=");
+        sb.append(dumpThis(this.asname));
         sb.append("]");
         return sb.toString();
     }
@@ -84,6 +85,9 @@ public final class MatchAs extends patternType {
     public void traverse(VisitorIF visitor) throws Exception {
         if (pattern != null) {
             pattern.accept(visitor);
+        }
+        if (asname != null) {
+            asname.accept(visitor);
         }
     }
 

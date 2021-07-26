@@ -7,12 +7,10 @@ import java.util.Arrays;
 public final class MatchMapping extends patternType {
     public exprType[] keys;
     public patternType[] patterns;
-    public String rest;
 
-    public MatchMapping(exprType[] keys, patternType[] patterns, String rest) {
+    public MatchMapping(exprType[] keys, patternType[] patterns) {
         this.keys = keys;
         this.patterns = patterns;
-        this.rest = rest;
     }
 
     @Override
@@ -21,7 +19,6 @@ public final class MatchMapping extends patternType {
         int result = 1;
         result = prime * result + Arrays.hashCode(keys);
         result = prime * result + Arrays.hashCode(patterns);
-        result = prime * result + ((rest == null) ? 0 : rest.hashCode());
         return result;
     }
 
@@ -33,8 +30,6 @@ public final class MatchMapping extends patternType {
         MatchMapping other = (MatchMapping) obj;
         if (!Arrays.equals(keys, other.keys)) return false;
         if (!Arrays.equals(patterns, other.patterns)) return false;
-        if (rest == null) { if (other.rest != null) return false;}
-        else if (!rest.equals(other.rest)) return false;
         return true;
     }
     @Override
@@ -62,7 +57,7 @@ public final class MatchMapping extends patternType {
         }else{
             new1 = this.patterns;
         }
-        MatchMapping temp = new MatchMapping(new0, new1, rest);
+        MatchMapping temp = new MatchMapping(new0, new1);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
         if(this.specialsBefore != null && copyComments){
@@ -92,9 +87,6 @@ public final class MatchMapping extends patternType {
         sb.append(", ");
         sb.append("patterns=");
         sb.append(dumpThis(this.patterns));
-        sb.append(", ");
-        sb.append("rest=");
-        sb.append(dumpThis(this.rest));
         sb.append("]");
         return sb.toString();
     }

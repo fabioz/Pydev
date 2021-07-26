@@ -43,6 +43,14 @@ import org.python.pydev.parser.jython.ast.Index;
 import org.python.pydev.parser.jython.ast.Lambda;
 import org.python.pydev.parser.jython.ast.List;
 import org.python.pydev.parser.jython.ast.ListComp;
+import org.python.pydev.parser.jython.ast.Match;
+import org.python.pydev.parser.jython.ast.MatchAs;
+import org.python.pydev.parser.jython.ast.MatchClass;
+import org.python.pydev.parser.jython.ast.MatchMapping;
+import org.python.pydev.parser.jython.ast.MatchOr;
+import org.python.pydev.parser.jython.ast.MatchSequence;
+import org.python.pydev.parser.jython.ast.MatchStar;
+import org.python.pydev.parser.jython.ast.MatchValue;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
@@ -77,6 +85,7 @@ import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.excepthandlerType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.keywordType;
+import org.python.pydev.parser.jython.ast.match_caseType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
 
@@ -117,6 +126,78 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
 
     @Override
     public Object visitModule(Module node) throws Exception {
+        fixNode(node);
+        traverse(node);
+        fixAfterNode(node);
+        return null;
+    }
+
+    @Override
+    public Object visitMatch(Match node) throws Exception {
+        fixNode(node);
+        node.subject.accept(this);
+        for (match_caseType c : node.cases) {
+            fixNode(c);
+            c.pattern.accept(this);
+            for (SimpleNode n : c.body) {
+                n.accept(this);
+            }
+            fixAfterNode(c);
+        }
+        fixAfterNode(node);
+        return null;
+    }
+
+    @Override
+    public Object visitMatchValue(MatchValue node) throws Exception {
+        fixNode(node);
+        traverse(node);
+        fixAfterNode(node);
+        return null;
+    }
+
+    @Override
+    public Object visitMatchSequence(MatchSequence node) throws Exception {
+        fixNode(node);
+        traverse(node);
+        fixAfterNode(node);
+        return null;
+    }
+
+    @Override
+    public Object visitMatchMapping(MatchMapping node) throws Exception {
+        fixNode(node);
+        traverse(node);
+        fixAfterNode(node);
+        return null;
+    }
+
+    @Override
+    public Object visitMatchClass(MatchClass node) throws Exception {
+        fixNode(node);
+        traverse(node);
+        fixAfterNode(node);
+        return null;
+    }
+
+    @Override
+    public Object visitMatchStar(MatchStar node) throws Exception {
+        fixNode(node);
+        traverse(node);
+        fixAfterNode(node);
+        return null;
+    }
+
+    @Override
+    public Object visitMatchAs(MatchAs node) throws Exception {
+        fixNode(node);
+        traverse(node);
+        fixAfterNode(node);
+        return null;
+    }
+
+    @Override
+    public Object visitMatchOr(MatchOr node) throws Exception {
         fixNode(node);
         traverse(node);
         fixAfterNode(node);

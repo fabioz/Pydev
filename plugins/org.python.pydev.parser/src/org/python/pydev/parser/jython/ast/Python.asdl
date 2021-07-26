@@ -16,7 +16,7 @@ module Python
 
 	NameTok = NameTok(identifier id, name_context ctx)
 
-	name_context = ClassName | FunctionName | KeywordName | ImportName | VarArg | KwArg | ImportModule | Attrib | GlobalName | NonLocalName
+	name_context = PatternName | ClassName | FunctionName | KeywordName | ImportName | VarArg | KwArg | ImportModule | Attrib | GlobalName | NonLocalName
 
 	-- the body is an array of statements (this is not used for all constructs because initially the suite was 'inlined'
 	-- in the constructs, but some information was lost in this way).
@@ -154,7 +154,7 @@ module Python
 
     -- keyword arguments supplied to call
     keyword = (NameTok arg, expr value, bool afterstarargs)
-
+    
     -- import name with optional 'as' alias.
     alias = (NameTok name, NameTok? asname)
 
@@ -167,15 +167,17 @@ module Python
 	
 	match_case = (pattern pattern, expr? guard, stmt* body)
 	
+	enclosing = LIST | TUPLE
+	
 	pattern = MatchValue(expr value)
-            | MatchSequence(pattern* patterns)
-            | MatchMapping(expr* keys, pattern* patterns, identifier? rest)
-            | MatchClass(expr cls, pattern* patterns, identifier* kwd_attrs, pattern* kwd_patterns)
+            | MatchSequence(pattern* patterns, enclosing enclosing)
+            | MatchMapping(expr* keys, pattern* patterns)
+            | MatchClass(expr cls, pattern* patterns, pattern* kwd_patterns)
 
             | MatchStar(identifier? name)
             -- The optional "rest" MatchMapping parameter handles capturing extra mapping keys
 
-            | MatchAs(pattern? pattern, identifier? name)
+            | MatchAs(pattern? pattern, NameTok? asname)
             | MatchOr(pattern* patterns)
 
          	attributes (int lineno, int col_offset, int end_lineno, int end_col_offset)

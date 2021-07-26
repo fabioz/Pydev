@@ -16,6 +16,7 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.For;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.If;
+import org.python.pydev.parser.jython.ast.Match;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.parser.jython.ast.TryFinally;
@@ -23,6 +24,7 @@ import org.python.pydev.parser.jython.ast.VisitorBase;
 import org.python.pydev.parser.jython.ast.While;
 import org.python.pydev.parser.jython.ast.With;
 import org.python.pydev.parser.jython.ast.commentType;
+import org.python.pydev.parser.jython.ast.match_caseType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.shared_core.structure.Tuple;
 
@@ -79,7 +81,8 @@ public class PrettyPrinterUtilsV2 extends VisitorBase {
                 doc.add(specialStr.getBeginLine(), specialStr.getBeginCol(), specialStr.toString(), specialStr);
 
             } else {
-                throw new RuntimeException("Unexpected special: '" + c + "' Class: " + c.getClass() + ". Node: " + node);
+                throw new RuntimeException(
+                        "Unexpected special: '" + c + "' Class: " + c.getClass() + ". Node: " + node);
             }
         }
     }
@@ -96,20 +99,20 @@ public class PrettyPrinterUtilsV2 extends VisitorBase {
     }
 
     protected void beforeNodeWithoutSettintgLastNode(SimpleNode node) throws IOException {
-        if (node instanceof stmtType && !isMultiLineStmt((stmtType) node)) {
+        if (node instanceof stmtType && !isMultiLineStmt(node)) {
             startStatementPart();
         }
         writeSpecialsBefore(node);
     }
 
-    public static boolean isMultiLineStmt(stmtType node) {
+    public static boolean isMultiLineStmt(SimpleNode node) {
         return node instanceof ClassDef || node instanceof For || node instanceof FunctionDef || node instanceof If
                 || node instanceof TryExcept || node instanceof TryFinally || node instanceof While
-                || node instanceof With;
+                || node instanceof With || node instanceof Match || node instanceof match_caseType;
     }
 
     protected void afterNode(SimpleNode node) throws IOException {
-        if (node instanceof stmtType && !isMultiLineStmt((stmtType) node)) {
+        if (node instanceof stmtType && !isMultiLineStmt(node)) {
             endStatementPart(node);
         }
         writeSpecialsAfter(node);
