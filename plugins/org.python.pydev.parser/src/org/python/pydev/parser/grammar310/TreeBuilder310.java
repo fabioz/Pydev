@@ -891,7 +891,9 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
             if (arity == 1) {
                 SimpleNode popNode = stack.popNode();
                 if (popNode instanceof MatchSequence) {
-                    return popNode;
+                    MatchSequence sequence = (MatchSequence) popNode;
+                    sequence.enclosing = enclosing;
+                    return sequence;
                 }
                 return new MatchSequence(new patternType[] { (patternType) popNode }, enclosing);
             }
