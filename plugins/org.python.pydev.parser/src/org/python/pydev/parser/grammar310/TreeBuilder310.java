@@ -57,10 +57,10 @@ import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.While;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.argumentsType;
+import org.python.pydev.parser.jython.ast.enclosingType;
 import org.python.pydev.parser.jython.ast.excepthandlerType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.keywordType;
-import org.python.pydev.parser.jython.ast.keyword_patternType;
 import org.python.pydev.parser.jython.ast.match_caseType;
 import org.python.pydev.parser.jython.ast.name_contextType;
 import org.python.pydev.parser.jython.ast.patternType;
@@ -717,29 +717,11 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                 }
                 return new MatchMapping(new exprType[0], new patternType[0]);
 
-            case JJTSEQUENCE_PATTERN:
-                if (arity > 0) {
-                    if (arity == 1) {
-                        SimpleNode popNode = stack.popNode();
-                        if (popNode instanceof MatchSequence) {
-                            return popNode;
-                        }
-                        return new MatchSequence(new patternType[] { (patternType) popNode });
-                    }
-                    patternType[] patterns = new patternType[arity];
-                    for (int i = 0; i < arity; i++) {
-                        SimpleNode popNode = stack.popNode();
-                        try {
-                            patterns[(arity - 1) - i] = (patternType) popNode;
-                        } catch (Exception e) {
-                            Log.log("Expected pattern. Found: " + popNode);
-                        }
-                    }
-                    return new MatchSequence(patterns);
-                } else {
-                    Log.log("Expected arity to be > 0 here.");
-                }
-                return null;
+            case JJTLIST_PATTERN:
+                return createMatchSequence(arity, enclosingType.LIST);
+
+            case JJTTUPLE_PATTERN:
+                return createMatchSequence(arity, enclosingType.TUPLE);
 
             case JJTATTR:
                 if (arity >= 2) {
@@ -840,7 +822,7 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
             case JJTPATTERN:
                 if (arity == 1) {
                     SimpleNode popNode = stack.popNode();
-                    if (popNode instanceof patternType || popNode instanceof keyword_patternType) {
+                    if (popNode instanceof patternType) {
                         return popNode;
                     } else if (popNode instanceof exprType) {
                         return new MatchValue((exprType) popNode);
@@ -890,7 +872,7 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                             patterns[(arity - 1) - i] = new MatchValue((exprType) popNode);
                         }
                     }
-                    return new MatchSequence(patterns);
+                    return new MatchSequence(patterns, 0);
                 } else if (arity == 1) {
                     return stack.popNode();
                 } else {
@@ -902,6 +884,30 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                 Log.log(("Error at TreeBuilder: default not treated:" + n.getId()));
                 return null;
         }
+    }
+
+    private SimpleNode createMatchSequence(int arity, int enclosing) {
+        if (arity > 0) {
+            if (arity == 1) {
+                SimpleNode popNode = stack.popNode();
+                if (popNode instanceof MatchSequence) {
+                    return popNode;
+                }
+                return new MatchSequence(new patternType[] { (patternType) popNode }, enclosing);
+            }
+            patternType[] patterns = new patternType[arity];
+            for (int i = 0; i < arity; i++) {
+                SimpleNode popNode = stack.popNode();
+                try {
+                    patterns[(arity - 1) - i] = (patternType) popNode;
+                } catch (Exception e) {
+                    Log.log("Expected pattern. Found: " + popNode);
+                }
+            }
+            return new MatchSequence(patterns, enclosing);
+        }
+        Log.log("Expected arity to be > 0 here.");
+        return null;
     }
 
     /**

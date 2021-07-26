@@ -4,11 +4,13 @@ package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 import java.util.Arrays;
 
-public final class MatchSequence extends patternType {
+public final class MatchSequence extends patternType implements enclosingType {
     public patternType[] patterns;
+    public int enclosing;
 
-    public MatchSequence(patternType[] patterns) {
+    public MatchSequence(patternType[] patterns, int enclosing) {
         this.patterns = patterns;
+        this.enclosing = enclosing;
     }
 
     @Override
@@ -16,6 +18,7 @@ public final class MatchSequence extends patternType {
         final int prime = 31;
         int result = 1;
         result = prime * result + Arrays.hashCode(patterns);
+        result = prime * result + enclosing;
         return result;
     }
 
@@ -26,6 +29,7 @@ public final class MatchSequence extends patternType {
         if (getClass() != obj.getClass()) return false;
         MatchSequence other = (MatchSequence) obj;
         if (!Arrays.equals(patterns, other.patterns)) return false;
+        if(this.enclosing != other.enclosing) return false;
         return true;
     }
     @Override
@@ -44,7 +48,7 @@ public final class MatchSequence extends patternType {
         }else{
             new0 = this.patterns;
         }
-        MatchSequence temp = new MatchSequence(new0);
+        MatchSequence temp = new MatchSequence(new0, enclosing);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
         if(this.specialsBefore != null && copyComments){
@@ -71,6 +75,9 @@ public final class MatchSequence extends patternType {
         StringBuffer sb = new StringBuffer("MatchSequence[");
         sb.append("patterns=");
         sb.append(dumpThis(this.patterns));
+        sb.append(", ");
+        sb.append("enclosing=");
+        sb.append(dumpThis(this.enclosing, enclosingType.enclosingTypeNames));
         sb.append("]");
         return sb.toString();
     }

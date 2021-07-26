@@ -167,8 +167,10 @@ module Python
 	
 	match_case = (pattern pattern, expr? guard, stmt* body)
 	
+	enclosing = LIST | TUPLE
+	
 	pattern = MatchValue(expr value)
-            | MatchSequence(pattern* patterns)
+            | MatchSequence(pattern* patterns, enclosing enclosing)
             | MatchMapping(expr* keys, pattern* patterns)
             | MatchClass(expr cls, pattern* patterns, pattern* kwd_patterns)
 

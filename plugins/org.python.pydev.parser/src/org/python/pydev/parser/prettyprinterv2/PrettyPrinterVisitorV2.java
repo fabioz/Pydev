@@ -79,6 +79,7 @@ import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.commentType;
 import org.python.pydev.parser.jython.ast.comprehensionType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
+import org.python.pydev.parser.jython.ast.enclosingType;
 import org.python.pydev.parser.jython.ast.excepthandlerType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.keywordType;
@@ -1654,8 +1655,14 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
 
     @Override
     public Object visitMatchSequence(MatchSequence node) throws Exception {
+        boolean isListEnclosing = node.enclosing == enclosingType.LIST;
+        boolean isTupleEnclosing = node.enclosing == enclosingType.TUPLE;
         beforeNode(node);
-        doc.addRequireOneOf(lastNode, "[", "(");
+        if (isListEnclosing) {
+            doc.addRequire("[", node);
+        } else if (isTupleEnclosing) {
+            doc.addRequire("(", node);
+        }
         for (int i = 0; i < node.patterns.length; i++) {
             if (i > 0) {
                 doc.addRequire(",", lastNode);
@@ -1663,7 +1670,11 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
             patternType p = node.patterns[i];
             p.accept(this);
         }
-        doc.addRequireOneOf(lastNode, "]", ")");
+        if (isListEnclosing) {
+            doc.addRequire("]", lastNode);
+        } else if (isTupleEnclosing) {
+            doc.addRequire(")", lastNode);
+        }
         afterNode(node);
         return null;
     }
