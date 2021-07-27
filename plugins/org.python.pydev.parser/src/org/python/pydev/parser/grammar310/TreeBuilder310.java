@@ -45,6 +45,7 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.NamedExpr;
 import org.python.pydev.parser.jython.ast.NonLocal;
+import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Raise;
 import org.python.pydev.parser.jython.ast.Return;
 import org.python.pydev.parser.jython.ast.Set;
@@ -883,37 +884,36 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
     }
 
     private SimpleNode createMatchSequence(int arity, int enclosing) {
-        if (arity > 0) {
-            if (arity == 1) {
-                SimpleNode popNode = stack.popNode();
-                patternType pattern = null;
-                if (popNode instanceof MatchSequence) {
-                    MatchSequence sequence = (MatchSequence) popNode;
-                    sequence.enclosing = enclosing;
-                    return sequence;
-                } else if (popNode instanceof exprType) {
-                    pattern = new MatchValue((exprType) popNode);
-                } else if (popNode instanceof patternType) {
-                    pattern = (patternType) popNode;
-                } else {
-                    Log.log("Expected patternType or expr. Found: " + popNode);
-                    return null;
-                }
-                return new MatchSequence(new patternType[] { pattern }, enclosing);
-            }
-            patternType[] patterns = new patternType[arity];
-            for (int i = arity - 1; i >= 0; i--) {
-                SimpleNode popNode = stack.popNode();
-                try {
-                    patterns[i] = (patternType) popNode;
-                } catch (Exception e) {
-                    Log.log("Expected pattern. Found: " + popNode);
-                }
-            }
-            return new MatchSequence(patterns, enclosing);
+        if (arity == 0) {
+            return new MatchSequence(new patternType[0], enclosing);
         }
-        Log.log("Expected arity to be > 0 here.");
-        return null;
+        if (arity == 1) {
+            SimpleNode popNode = stack.popNode();
+            patternType pattern = null;
+            if (popNode instanceof MatchSequence) {
+                MatchSequence sequence = (MatchSequence) popNode;
+                sequence.enclosing = enclosing;
+                return sequence;
+            } else if (popNode instanceof exprType) {
+                pattern = new MatchValue((exprType) popNode);
+            } else if (popNode instanceof patternType) {
+                pattern = (patternType) popNode;
+            } else {
+                Log.log("Expected patternType or expr. Found: " + popNode);
+                return null;
+            }
+            return new MatchSequence(new patternType[] { pattern }, enclosing);
+        }
+        patternType[] patterns = new patternType[arity];
+        for (int i = arity - 1; i >= 0; i--) {
+            SimpleNode popNode = stack.popNode();
+            try {
+                patterns[i] = (patternType) popNode;
+            } catch (Exception e) {
+                Log.log("Expected pattern. Found: " + popNode);
+            }
+        }
+        return new MatchSequence(patterns, enclosing);
     }
 
     /**

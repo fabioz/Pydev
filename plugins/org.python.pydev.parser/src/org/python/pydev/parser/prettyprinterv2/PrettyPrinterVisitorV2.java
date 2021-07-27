@@ -187,12 +187,9 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         int id = this.doc.pushRecordChanges();
         this.pushTupleNeedsParens();
         node.left.accept(this);
-        org.python.pydev.shared_core.structure.Tuple<ILinePart, ILinePart> lowerAndHigerFound = this.doc
-                .getLowerAndHigerFound(this.doc
-                        .popRecordChanges(id));
-        ILinePart lastPart = lowerAndHigerFound.o2;
-        doc.add(lastPart.getLine(), lastPart.getBeginCol(), this.prefs.getOperatorMapping(node.op), node);
         node.right.accept(this);
+        doc.replaceRecorded(doc.popRecordChanges(id), "+", " + ");
+        doc.addRequire(this.prefs.getOperatorMapping(node.op), node.left);
         this.popTupleNeedsParens();
         afterNode(node);
         return null;
@@ -1613,7 +1610,7 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         int id = doc.pushRecordChanges();
         startStatementPart();
         beforeNode(node);
-        doc.add(node.beginLine, node.beginLine, "match ", node);
+        doc.add(node.beginLine, node.beginColumn, "match ", node);
         doc.replaceRecorded(doc.popRecordChanges(id), "match", "match ");
         if (node.subject != null) {
             node.subject.accept(this);
@@ -1634,7 +1631,7 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         int id = doc.pushRecordChanges();
         startStatementPart();
         beforeNode(node);
-        doc.add(node.beginLine, node.beginLine, "case ", node);
+        doc.add(node.beginLine, node.beginColumn, "case ", node);
         doc.replaceRecorded(doc.popRecordChanges(id), "case", "case ");
         if (node.pattern != null) {
             node.pattern.accept(this);

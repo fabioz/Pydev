@@ -1165,8 +1165,8 @@ void closed_pattern() : {}
 void literal_pattern() #void : {}
 {
     signed_number() (
-        <PLUS> signed_number()
-        | <MINUS> signed_number()
+        <PLUS> signed_number() #add_2op(2)
+        | <MINUS> signed_number() #sub_2op(2)
     )?
     | String()
     | <NONE>
@@ -1175,9 +1175,9 @@ void literal_pattern() #void : {}
 }
 
 void signed_number() #void : {}
-{
-    Number()
-    | <MINUS> Number()
+{	Number()
+    | <PLUS> Number() #pos_1op(1)
+    | <MINUS> Number() #neg_1op(1)
 }
 
 void class_pattern() : {}
