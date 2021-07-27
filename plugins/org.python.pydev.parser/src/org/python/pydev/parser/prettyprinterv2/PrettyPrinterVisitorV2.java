@@ -187,9 +187,12 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         int id = this.doc.pushRecordChanges();
         this.pushTupleNeedsParens();
         node.left.accept(this);
+        org.python.pydev.shared_core.structure.Tuple<ILinePart, ILinePart> lowerAndHigerFound = this.doc
+                .getLowerAndHigerFound(this.doc
+                        .popRecordChanges(id));
+        ILinePart lastPart = lowerAndHigerFound.o2;
+        doc.add(lastPart.getLine(), lastPart.getBeginCol(), this.prefs.getOperatorMapping(node.op), node);
         node.right.accept(this);
-        doc.replaceRecorded(doc.popRecordChanges(id), "+", " + ");
-        doc.addRequire(this.prefs.getOperatorMapping(node.op), node.left);
         this.popTupleNeedsParens();
         afterNode(node);
         return null;
