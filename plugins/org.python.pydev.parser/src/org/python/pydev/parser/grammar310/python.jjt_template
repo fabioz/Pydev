@@ -978,7 +978,12 @@ void wildcard_pattern() #void : {}
 
 void pattern() : {}
 {
-    or_pattern() ($AS Name())?
+    or_pattern() (as_pattern())?
+}
+
+void as_pattern() : {}
+{
+	$AS Name()
 }
 
 void or_pattern() : {}

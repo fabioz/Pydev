@@ -1145,7 +1145,12 @@ void wildcard_pattern() #void : {}
 
 void pattern() : {}
 {
-    or_pattern() ({grammarActions.findTokenAndAdd("as");}<AS> Name())?
+    or_pattern() (as_pattern())?
+}
+
+void as_pattern() : {}
+{
+	{grammarActions.findTokenAndAdd("as");}<AS> Name()
 }
 
 void or_pattern() : {}
