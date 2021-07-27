@@ -461,22 +461,6 @@ public class NodeUtils {
             FunctionDef c = (FunctionDef) ast2;
             return c.name;
         }
-        if (ast2 instanceof Name) {
-            Name name = (Name) ast2;
-            NameTok tok = new NameTok(name.id, name.ctx);
-            tok.beginLine = name.beginLine;
-            tok.beginColumn = name.beginColumn;
-            tok.specialsBefore = name.specialsBefore;
-            tok.specialsAfter = name.specialsAfter;
-            return tok;
-        }
-        if (ast2 instanceof Str) {
-            Str str = (Str) ast2;
-            NameTok tok = new NameTok(str.s, 0);
-            tok.beginLine = str.beginLine;
-            tok.beginColumn = str.beginColumn;
-            return tok;
-        }
         return ast2;
 
     }
