@@ -136,37 +136,35 @@ public class PrettyPrinter310Test extends AbstractPrettyPrinterTestBase {
         checkPrettyPrintEqual(s);
     }
 
-    //    public void testMatchStmtMatchingPositionalAttribs2() {
-    //        String s = "from dataclasses import dataclass\n"
-    //                + "\n"
-    //                + "@dataclass\n"
-    //                + "class Click:\n"
-    //                + "    position: tuple\n"
-    //                + "    button: Button\n"
-    //                + "\n"
-    //                + "match event.get():\n"
-    //                + "    case Click((x, y), button=Button.LEFT):  # This is a left click\n"
-    //                + "        handle_click_at(x, y)\n"
-    //                + "    case Click():\n"
-    //                + "        pass  # ignore other clicks";
-    //        checkPrettyPrintEqual(s);
-    //    }
-    //
-    //    public void testMatchStmtMappings() {
-    //        String s = "for action in actions:\n"
-    //                + "    match action:\n"
-    //                + "        case {\"text\": message, \"color\": c}:\n"
-    //                + "            ui.set_text_color(c)\n"
-    //                + "            ui.display(message)\n"
-    //                + "        case {\"sleep\": duration}:\n"
-    //                + "            ui.wait(duration)\n"
-    //                + "        case {\"sound\": url, \"format\": \"ogg\"}:\n"
-    //                + "            ui.play(url)\n"
-    //                + "        case {\"sound\": _, \"format\": _}:\n"
-    //                + "            warning(\"Unsupported audio format\")";
-    //        checkPrettyPrintEqual(s);
-    //    }
-    //
+    public void testMatchStmtMatchingPositionalAttribs2() {
+        String s = "from dataclasses import dataclass\n"
+                + "@dataclass\n"
+                + "class Click:\n"
+                + "    position: tuple\n"
+                + "    button: Button\n"
+                + "match event.get():\n"
+                + "    case Click((x,y),button=Button.LEFT):# This is a left click\n"
+                + "        handle_click_at(x,y)\n"
+                + "    case Click():\n"
+                + "        pass# ignore other clicks\n";
+        checkPrettyPrintEqual(s);
+    }
+
+    public void testMatchStmtMappings() {
+        String s = "for action in actions:\n"
+                + "    match action:\n"
+                + "        case {\"text\":message,\"color\":c}:\n"
+                + "            ui.set_text_color(c)\n"
+                + "            ui.display(message)\n"
+                + "        case {\"sleep\":duration}:\n"
+                + "            ui.wait(duration)\n"
+                + "        case {\"sound\":url,\"format\":\"ogg\"}:\n"
+                + "            ui.play(url)\n"
+                + "        case {\"sound\":_,\"format\":_}:\n"
+                + "            warning(\"Unsupported audio format\")\n";
+        checkPrettyPrintEqual(s);
+    }
+
     //    public void testMatchStmtBuiltins() {
     //        String s = "for action in actions:\n"
     //                + "    match action:\n"

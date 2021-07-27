@@ -45,6 +45,7 @@ import org.python.pydev.parser.jython.ast.ListComp;
 import org.python.pydev.parser.jython.ast.Match;
 import org.python.pydev.parser.jython.ast.MatchAs;
 import org.python.pydev.parser.jython.ast.MatchClass;
+import org.python.pydev.parser.jython.ast.MatchKeyword;
 import org.python.pydev.parser.jython.ast.MatchMapping;
 import org.python.pydev.parser.jython.ast.MatchOr;
 import org.python.pydev.parser.jython.ast.MatchSequence;
@@ -1729,22 +1730,13 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         beforeNode(node);
         node.cls.accept(this);
         doc.addRequire("(", node);
-        if (node.patterns != null) {
-            for (int i = 0; i < node.patterns.length; i++) {
+        if (node.args != null) {
+            for (int i = 0; i < node.args.length; i++) {
                 if (i > 0) {
                     doc.addRequire(",", lastNode);
                 }
-                patternType p = node.patterns[i];
+                patternType p = node.args[i];
                 p.accept(this);
-            }
-        }
-        if (node.kwd_patterns != null) {
-            for (int i = 0; i < node.kwd_patterns.length; i++) {
-                if (i > 0) {
-                    doc.addRequire(",", lastNode);
-                }
-                patternType kwd_pattern = node.kwd_patterns[i];
-                kwd_pattern.accept(this);
             }
         }
         doc.addRequire(")", lastNode);
@@ -1753,18 +1745,29 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     }
 
     @Override
-    public Object visitMatchMapping(MatchMapping node) throws Exception {
+    public Object visitMatchKeyword(MatchKeyword node) throws Exception {
         beforeNode(node);
-        for (int i = 0; i < node.keys.length; i++) {
+        node.arg.accept(this);
+        doc.addRequire("=", lastNode);
+        node.value.accept(this);
+        afterNode(node);
+        return null;
+    }
+
+    @Override
+    public Object visitMatchMapping(MatchMapping node) throws Exception {
+        int length = node.keys.length;
+        beforeNode(node);
+        doc.addRequire("{", lastNode);
+        for (int i = 0; i < length; i++) {
             if (i > 0) {
                 doc.addRequire(",", lastNode);
             }
-            exprType key = node.keys[i];
-            patternType pattern = node.patterns[i];
-            key.accept(this);
-            doc.addRequire("=", lastNode);
-            pattern.accept(this);
+            node.keys[i].accept(this);
+            doc.addRequire(":", lastNode);
+            node.values[i].accept(this);
         }
+        doc.addRequire("}", lastNode);
         afterNode(node);
         return null;
     }
