@@ -136,10 +136,15 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
     @Override
     public Object visitMatch(Match node) throws Exception {
         fixNode(node);
-        node.subject.accept(this);
+        handleMatchSubject(node);
         for (match_caseType c : node.cases) {
             fixNode(c);
-            c.pattern.accept(this);
+            if (c.pattern != null) {
+                c.pattern.accept(this);
+            }
+            if (c.guard != null) {
+                c.guard.accept(this);
+            }
             for (SimpleNode n : c.body) {
                 n.accept(this);
             }
@@ -147,6 +152,22 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
         }
         fixAfterNode(node);
         return null;
+    }
+
+    private void handleMatchSubject(Match node) throws Exception {
+        node.subject.accept(this);
+        if (node.subject.specialsBefore != null) {
+            for (Object specialBefore : node.subject.specialsBefore) {
+                if (specialBefore instanceof SimpleNode) {
+                    SimpleNode nodeBefore = (SimpleNode) specialBefore;
+                    if (node.beginLine == nodeBefore.beginLine) {
+                        node.beginLine++;
+                        nextLine();
+                    }
+
+                }
+            }
+        }
     }
 
     @Override

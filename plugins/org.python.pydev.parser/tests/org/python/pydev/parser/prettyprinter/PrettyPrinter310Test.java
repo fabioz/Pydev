@@ -34,10 +34,7 @@ public class PrettyPrinter310Test extends AbstractPrettyPrinterTestBase {
         String s = "match command.split():\n"
                 + "    case (action,obj):\n"
                 + "        pass\n";
-        String expected = "match command.split():\n"
-                + "    case [action,obj]:\n"
-                + "        pass\n";
-        checkPrettyPrintEqual(s, s, expected);
+        checkPrettyPrintEqual(s);
     }
 
     public void testMatchStmtSpecificValues() {
