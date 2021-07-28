@@ -656,15 +656,9 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                     }
                     return popNode;
                 } else if (arity == 2) {
-                    NameTok asname = null;
+                    NameTok asname = makeNameTok(name_contextType.Attrib);
                     patternType pattern = null;
                     SimpleNode popNode = stack.popNode();
-                    try {
-                        asname = (NameTok) popNode;
-                    } catch (Exception e) {
-                        Log.log("Expected NameTok. Found: " + popNode);
-                    }
-                    popNode = stack.popNode();
                     try {
                         pattern = (patternType) popNode;
                     } catch (Exception e) {
@@ -712,13 +706,7 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
 
             case JJTKEY_VALUE_PATTERN:
                 if (arity == 1) {
-                    SimpleNode popNode = stack.popNode();
-                    Name arg = null;
-                    try {
-                        arg = (Name) popNode;
-                    } catch (Exception e) {
-                        Log.log("Expected Name. Found: " + popNode);
-                    }
+                    Name arg = makeName(name_contextType.KeywordName);
                     return new MatchKeyword(arg, null);
                 } else if (arity == 2) {
                     patternType pattern = null;
@@ -772,19 +760,13 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                     if (peekedNode instanceof patternType) {
                         if (arity == 2) {
                             patternType pattern = null;
-                            Name arg = null;
                             SimpleNode popNode = stack.popNode();
                             try {
                                 pattern = (patternType) popNode;
                             } catch (Exception e) {
                                 Log.log("Expected pattern. Found: " + popNode);
                             }
-                            popNode = stack.popNode();
-                            try {
-                                arg = (Name) popNode;
-                            } catch (Exception e) {
-                                Log.log("Expected Name. Found: " + popNode);
-                            }
+                            Name arg = makeName(name_contextType.KeywordName);
                             return new MatchKeyword(arg, pattern);
                         } else {
                             Log.log("Expected arity to be 2 here.");
