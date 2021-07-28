@@ -63,6 +63,7 @@ import org.python.pydev.parser.jython.ast.excepthandlerType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.keywordType;
 import org.python.pydev.parser.jython.ast.match_caseType;
+import org.python.pydev.parser.jython.ast.name_contextType;
 import org.python.pydev.parser.jython.ast.patternType;
 import org.python.pydev.parser.jython.ast.sliceType;
 import org.python.pydev.parser.jython.ast.stmtType;
@@ -676,22 +677,7 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
 
             case JJTAS_PATTERN:
                 if (arity == 1) {
-                    Name name = null;
-                    nameTok = null;
-                    SimpleNode popNode = stack.popNode();
-                    try {
-                        name = (Name) popNode;
-                    } catch (Exception e) {
-                        Log.log("Expected name. Found: " + popNode);
-                    }
-                    if (name != null) {
-                        nameTok = new NameTok(name.id, name.ctx);
-                        nameTok.beginLine = name.beginLine;
-                        nameTok.beginColumn = name.beginColumn;
-                        nameTok.specialsBefore = name.specialsBefore;
-                        nameTok.specialsAfter = name.specialsAfter;
-                    }
-                    return nameTok;
+                    return makeName(name_contextType.PatternName);
                 }
                 Log.log("Expected arity to be 1 here.");
                 return null;
@@ -875,26 +861,21 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
         }
     }
 
-    private SimpleNode popAttribute(int arity, SimpleNode popNode) {
+    private SimpleNode popAttribute(int arity, SimpleNode popNode) throws ParseException {
         Name[] names = new Name[arity];
-        try {
-            names[0] = (Name) popNode;
-        } catch (Exception e) {
-            Log.log("Expected Name. Found: " + popNode);
-        }
-        for (int i = 1; i < arity; i++) {
-            popNode = stack.popNode();
+        for (int i = 0; i < arity; i++) {
             try {
                 names[i] = (Name) popNode;
             } catch (Exception e) {
                 Log.log("Expected Name. Found: " + popNode);
             }
+            if (i != arity - 1) {
+                popNode = stack.popNode();
+            }
         }
         Attribute[] attrs = new Attribute[names.length - 1];
         for (int i = 0; i < attrs.length; i++) {
-            NameTok attr = new NameTok(names[i].id, names[i].ctx);
-            attr.beginLine = names[i].beginLine;
-            attr.beginColumn = names[i].beginColumn;
+            NameTok attr = makeName(name_contextType.Attrib, names[i]);
             attrs[i] = new Attribute(null, attr, attr.ctx);
         }
         for (int i = 0; i < attrs.length - 1; i++) {
