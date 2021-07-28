@@ -556,7 +556,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
                 return n;
 
             case JJTDOT_OP:
-                NameTok attr = makeName(NameTok.Attrib);
+                NameTok attr = makeNameTok(NameTok.Attrib);
                 value = (exprType) stack.popNode();
                 Attribute attribute = (Attribute) n;
                 attribute.value = value;
@@ -595,16 +595,16 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
             case JJTDOTTED_AS_NAME:
                 NameTok asname = null;
                 if (arity > 1) {
-                    asname = makeName(NameTok.ImportName);
+                    asname = makeNameTok(NameTok.ImportName);
                 }
-                return new aliasType(makeName(NameTok.ImportName), asname);
+                return new aliasType(makeNameTok(NameTok.ImportName), asname);
 
             case JJTIMPORT_AS_NAME:
                 asname = null;
                 if (arity > 1) {
-                    asname = makeName(NameTok.ImportName);
+                    asname = makeNameTok(NameTok.ImportName);
                 }
-                return new aliasType(makeName(NameTok.ImportName), asname);
+                return new aliasType(makeNameTok(NameTok.ImportName), asname);
 
             case JJTSTRJOIN:
                 Str str2 = (Str) stack.popNode();
@@ -701,7 +701,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
         }
         NameTok nT;
         if (arity > 0) {
-            nT = makeName(NameTok.ImportModule);
+            nT = makeNameTok(NameTok.ImportModule);
         } else {
             nT = new NameTok("", NameTok.ImportModule);
             Object temporaryTok = this.stack.getGrammar().temporaryToken;
