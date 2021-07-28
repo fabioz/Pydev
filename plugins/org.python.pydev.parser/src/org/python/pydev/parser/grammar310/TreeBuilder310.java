@@ -183,7 +183,7 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                     addSpecialsAndClearOriginal(funcDefReturnAnn, actualReturnAnnotation);
                 }
                 argumentsType arguments = makeArguments(arity - 1);
-                NameTok nameTok = makeName(NameTok.FunctionName);
+                NameTok nameTok = makeNameTok(NameTok.FunctionName);
                 //decorator is always null at this point... it's decorated later on
                 FunctionDef funcDef = new FunctionDef(nameTok, arguments, body, null, actualReturnAnnotation,
                         this.stack.getGrammar().getInsideAsync());
@@ -231,21 +231,21 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                     //nothing here (just '*')
                     return new ExtraArg(null, JJTEXTRAARGLIST, null);
                 }
-                return new ExtraArg(makeName(NameTok.VarArg), JJTEXTRAARGLIST);
+                return new ExtraArg(makeNameTok(NameTok.VarArg), JJTEXTRAARGLIST);
             case JJTEXTRAKEYWORDLIST:
-                return new ExtraArg(makeName(NameTok.KwArg), JJTEXTRAKEYWORDLIST);
+                return new ExtraArg(makeNameTok(NameTok.KwArg), JJTEXTRAKEYWORDLIST);
             case JJTEXTRAARGLIST2: //with type declaration
                 if (arity == 0) {
                     //nothing here (just '*')
                     return new ExtraArg(null, JJTEXTRAARGLIST, null);
                 }
                 jfpDef = (JfpDef) stack.popNode();
-                NameTok jfpDefName = makeName(NameTok.VarArg, jfpDef.nameNode);
+                NameTok jfpDefName = makeNameTok(NameTok.VarArg, jfpDef.nameNode);
                 ExtraArg extra = new ExtraArg(jfpDefName, JJTEXTRAARGLIST, jfpDef.typeDef);
                 return extra;
             case JJTEXTRAKEYWORDLIST2: //with type declaration
                 jfpDef = (JfpDef) stack.popNode();
-                return new ExtraArg(makeName(NameTok.KwArg, jfpDef.nameNode), JJTEXTRAKEYWORDLIST, jfpDef.typeDef);
+                return new ExtraArg(makeNameTok(NameTok.KwArg, jfpDef.nameNode), JJTEXTRAKEYWORDLIST, jfpDef.typeDef);
             case JJTDECORATED:
                 if (stack.nodeArity() != 2) {
                     throw new RuntimeException("Expected 2 nodes at this context, found: " + arity);
@@ -300,7 +300,7 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                 }
 
                 exprType[] bases = makeExprs(nodeArity);
-                nameTok = makeName(NameTok.ClassName);
+                nameTok = makeNameTok(NameTok.ClassName);
                 //decorator is always null at this point... it's decorated later on
                 ClassDef classDef = new ClassDef(nameTok, bases, body, null,
                         classDefKeywords.toArray(new keywordType[classDefKeywords.size()]), starargs, kwargs);
@@ -437,7 +437,7 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
             case JJTARGUMENT:
                 SimpleNode keyword = stack.popNode();
                 if (keyword instanceof keywordType) {
-                    nameTok = makeName(NameTok.KeywordName);
+                    nameTok = makeNameTok(NameTok.KeywordName);
                     ((keywordType) keyword).arg = nameTok;
                 }
                 return keyword;
@@ -677,7 +677,7 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
 
             case JJTAS_PATTERN:
                 if (arity == 1) {
-                    return makeName(name_contextType.PatternName);
+                    return makeNameTok(name_contextType.PatternName);
                 }
                 Log.log("Expected arity to be 1 here.");
                 return null;
@@ -768,11 +768,12 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                 if (arity == 1) {
                     return stack.popNode();
                 } else if (arity >= 2) {
-                    SimpleNode popNode = stack.popNode();
-                    if (popNode instanceof patternType) {
+                    SimpleNode peekedNode = stack.peekNode();
+                    if (peekedNode instanceof patternType) {
                         if (arity == 2) {
                             patternType pattern = null;
                             Name arg = null;
+                            SimpleNode popNode = stack.popNode();
                             try {
                                 pattern = (patternType) popNode;
                             } catch (Exception e) {
@@ -789,7 +790,7 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                             Log.log("Expected arity to be 2 here.");
                         }
                     } else {
-                        return popAttribute(arity, popNode);
+                        return popAttribute(arity);
                     }
                 }
                 Log.log("Expected arity to be > 0 here.");
@@ -861,28 +862,32 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
         }
     }
 
-    private SimpleNode popAttribute(int arity, SimpleNode popNode) throws ParseException {
-        Name[] names = new Name[arity];
-        for (int i = 0; i < arity; i++) {
-            try {
-                names[i] = (Name) popNode;
-            } catch (Exception e) {
-                Log.log("Expected Name. Found: " + popNode);
-            }
-            if (i != arity - 1) {
-                popNode = stack.popNode();
-            }
-        }
-        Attribute[] attrs = new Attribute[names.length - 1];
+    private SimpleNode popAttribute(int arity) throws ParseException {
+        Attribute[] attrs = new Attribute[arity - 1];
         for (int i = 0; i < attrs.length; i++) {
-            NameTok attr = makeName(name_contextType.Attrib, names[i]);
+            NameTok attr = makeNameTok(name_contextType.Attrib);
             attrs[i] = new Attribute(null, attr, attr.ctx);
+            if (i == attrs.length - 1) {
+                attrs[i].value = makeName(name_contextType.Attrib);
+            } else if (i > 0) {
+                attrs[i - 1].value = attrs[i];
+            }
         }
-        for (int i = 0; i < attrs.length - 1; i++) {
-            attrs[i].value = attrs[i + 1];
-        }
-        attrs[attrs.length - 1].value = names[names.length - 1];
         return attrs[0];
+    }
+
+    private Name makeName(int ctx, SimpleNode node) throws ParseException {
+        if (!(node instanceof Name)) {
+            this.stack.getGrammar().addAndReport(
+                    new ParseException("Syntax error. Expected Name, found: " + node.getClass().getName(), node),
+                    "Treated class cast exception making name");
+            node = new Name("invalid", ctx, false);
+        }
+        return (Name) node;
+    }
+
+    private Name makeName(int ctx) throws ParseException {
+        return makeName(ctx, stack.popNode());
     }
 
     private SimpleNode createMatchSequence(int arity, int enclosing) {
