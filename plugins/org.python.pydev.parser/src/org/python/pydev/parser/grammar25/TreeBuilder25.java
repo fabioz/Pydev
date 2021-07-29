@@ -184,7 +184,7 @@ public final class TreeBuilder25 extends AbstractTreeBuilder implements ITreeBui
                 body = suite.body;
 
                 argumentsType arguments = makeArguments(stack.nodeArity() - 2);
-                NameTok nameTok = makeName(NameTok.FunctionName);
+                NameTok nameTok = makeNameTok(NameTok.FunctionName);
                 Decorators decs = (Decorators) stack.popNode();
                 decoratorsType[] decsexp = decs.exp;
                 FunctionDef funcDef = new FunctionDef(nameTok, arguments, body, decsexp, null, false);
@@ -198,14 +198,14 @@ public final class TreeBuilder25 extends AbstractTreeBuilder implements ITreeBui
                 value = (arity == 1) ? null : ((exprType) stack.popNode());
                 return new DefaultArg(((exprType) stack.popNode()), value, n.getId());
             case JJTEXTRAARGLIST:
-                return new ExtraArg(makeName(NameTok.VarArg), JJTEXTRAARGLIST);
+                return new ExtraArg(makeNameTok(NameTok.VarArg), JJTEXTRAARGLIST);
             case JJTEXTRAKEYWORDLIST:
-                return new ExtraArg(makeName(NameTok.KwArg), JJTEXTRAKEYWORDLIST);
+                return new ExtraArg(makeNameTok(NameTok.KwArg), JJTEXTRAKEYWORDLIST);
             case JJTCLASSDEF:
                 suite = (Suite) stack.popNode();
                 body = suite.body;
                 exprType[] bases = makeExprs(stack.nodeArity() - 1);
-                nameTok = makeName(NameTok.ClassName);
+                nameTok = makeNameTok(NameTok.ClassName);
                 ClassDef classDef = new ClassDef(nameTok, bases, body, null, null, null, null);
                 addSpecialsAndClearOriginal(suite, classDef);
                 setParentForFuncOrClass(body, classDef);
@@ -348,7 +348,7 @@ public final class TreeBuilder25 extends AbstractTreeBuilder implements ITreeBui
                 return new ExtraArgValue(((exprType) stack.popNode()), JJTEXTRAARGVALUELIST);
             case JJTKEYWORD:
                 value = (exprType) stack.popNode();
-                nameTok = makeName(NameTok.KeywordName);
+                nameTok = makeNameTok(NameTok.KeywordName);
                 return new keywordType(nameTok, value, false);
             case JJTTUPLE:
                 if (stack.nodeArity() > 0) {

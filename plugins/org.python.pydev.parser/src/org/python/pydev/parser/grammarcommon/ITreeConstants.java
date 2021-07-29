@@ -155,17 +155,16 @@ public interface ITreeConstants {
     public static final int JJTMATCH_STMT = 646;
     public static final int JJTSUBJECT_EXPR = 647;
     public static final int JJTCASE_BLOCK = 648;
-    public static final int JJTGUARD = 649;
     public static final int JJTPATTERN = 650;
     public static final int JJTOR_PATTERN = 651;
     public static final int JJTATTR = 652;
-    public static final int JJTSEQUENCE_PATTERN = 653;
-    public static final int JJTOPEN_SEQUENCE_PATTERN = 654;
-    public static final int JJTMAPPING_PATTERN = 655;
-    public static final int JJTKEY_VALUE_PATTERN = 656;
-    public static final int JJTCLASS_PATTERN = 657;
-    public static final int JJTSTAR_PATTERN = 658;
-    public static final int JJTCLOSED_PATTERN = 659;
-    public static final int JJTLIST_PATTERN = 660;
-    public static final int JJTTUPLE_PATTERN = 661;
+    public static final int JJTOPEN_SEQUENCE_PATTERN = 653;
+    public static final int JJTMAPPING_PATTERN = 654;
+    public static final int JJTKEY_VALUE_PATTERN = 655;
+    public static final int JJTCLASS_PATTERN = 656;
+    public static final int JJTSTAR_PATTERN = 657;
+    public static final int JJTCLOSED_PATTERN = 658;
+    public static final int JJTLIST_PATTERN = 659;
+    public static final int JJTTUPLE_PATTERN = 660;
+    public static final int JJTAS_PATTERN = 661;
 }

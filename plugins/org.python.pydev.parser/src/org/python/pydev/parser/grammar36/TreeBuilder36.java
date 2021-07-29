@@ -165,7 +165,7 @@ public final class TreeBuilder36 extends AbstractTreeBuilder implements ITreeBui
                     addSpecialsAndClearOriginal(funcDefReturnAnn, actualReturnAnnotation);
                 }
                 argumentsType arguments = makeArguments(arity - 1);
-                NameTok nameTok = makeName(NameTok.FunctionName);
+                NameTok nameTok = makeNameTok(NameTok.FunctionName);
                 //decorator is always null at this point... it's decorated later on
                 FunctionDef funcDef = new FunctionDef(nameTok, arguments, body, null, actualReturnAnnotation,
                         this.stack.getGrammar().getInsideAsync());
@@ -213,21 +213,21 @@ public final class TreeBuilder36 extends AbstractTreeBuilder implements ITreeBui
                     //nothing here (just '*')
                     return new ExtraArg(null, JJTEXTRAARGLIST, null);
                 }
-                return new ExtraArg(makeName(NameTok.VarArg), JJTEXTRAARGLIST);
+                return new ExtraArg(makeNameTok(NameTok.VarArg), JJTEXTRAARGLIST);
             case JJTEXTRAKEYWORDLIST:
-                return new ExtraArg(makeName(NameTok.KwArg), JJTEXTRAKEYWORDLIST);
+                return new ExtraArg(makeNameTok(NameTok.KwArg), JJTEXTRAKEYWORDLIST);
             case JJTEXTRAARGLIST2: //with type declaration
                 if (arity == 0) {
                     //nothing here (just '*')
                     return new ExtraArg(null, JJTEXTRAARGLIST, null);
                 }
                 jfpDef = (JfpDef) stack.popNode();
-                NameTok jfpDefName = makeName(NameTok.VarArg, jfpDef.nameNode);
+                NameTok jfpDefName = makeNameTok(NameTok.VarArg, jfpDef.nameNode);
                 ExtraArg extra = new ExtraArg(jfpDefName, JJTEXTRAARGLIST, jfpDef.typeDef);
                 return extra;
             case JJTEXTRAKEYWORDLIST2: //with type declaration
                 jfpDef = (JfpDef) stack.popNode();
-                return new ExtraArg(makeName(NameTok.KwArg, jfpDef.nameNode), JJTEXTRAKEYWORDLIST, jfpDef.typeDef);
+                return new ExtraArg(makeNameTok(NameTok.KwArg, jfpDef.nameNode), JJTEXTRAKEYWORDLIST, jfpDef.typeDef);
             case JJTDECORATED:
                 if (stack.nodeArity() != 2) {
                     throw new RuntimeException("Expected 2 nodes at this context, found: " + arity);
@@ -282,7 +282,7 @@ public final class TreeBuilder36 extends AbstractTreeBuilder implements ITreeBui
                 }
 
                 exprType[] bases = makeExprs(nodeArity);
-                nameTok = makeName(NameTok.ClassName);
+                nameTok = makeNameTok(NameTok.ClassName);
                 //decorator is always null at this point... it's decorated later on
                 ClassDef classDef = new ClassDef(nameTok, bases, body, null,
                         classDefKeywords.toArray(new keywordType[classDefKeywords.size()]), starargs, kwargs);
@@ -407,7 +407,7 @@ public final class TreeBuilder36 extends AbstractTreeBuilder implements ITreeBui
             case JJTARGUMENT:
                 SimpleNode keyword = stack.popNode();
                 if (keyword instanceof keywordType) {
-                    nameTok = makeName(NameTok.KeywordName);
+                    nameTok = makeNameTok(NameTok.KeywordName);
                     ((keywordType) keyword).arg = nameTok;
                 }
                 return keyword;

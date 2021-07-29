@@ -153,7 +153,7 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
         return exprs;
     }
 
-    protected final NameTok makeName(int ctx) throws ParseException {
+    protected final NameTok makeNameTok(int ctx) throws ParseException {
         SimpleNode popNode = stack.popNode();
         if (!(popNode instanceof Name)) {
             this.stack.getGrammar().addAndReport(
@@ -163,10 +163,10 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
         }
 
         Name name = (Name) popNode;
-        return makeName(ctx, name);
+        return makeNameTok(ctx, name);
     }
 
-    protected final NameTok makeName(int ctx, Name name) {
+    protected final NameTok makeNameTok(int ctx, Name name) {
         NameTok n = new NameTok(name.id, ctx);
         n.beginColumn = name.beginColumn;
         n.beginLine = name.beginLine;
@@ -186,7 +186,7 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
     protected final NameTok[] makeIdentifiers(int ctx, int arity) throws ParseException {
         NameTok[] ids = new NameTok[arity];
         for (int i = arity - 1; i >= 0; i--) {
-            ids[i] = makeName(ctx);
+            ids[i] = makeNameTok(ctx);
         }
         return ids;
     }

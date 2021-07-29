@@ -6,11 +6,11 @@ import java.util.Arrays;
 
 public final class MatchMapping extends patternType {
     public exprType[] keys;
-    public patternType[] patterns;
+    public patternType[] values;
 
-    public MatchMapping(exprType[] keys, patternType[] patterns) {
+    public MatchMapping(exprType[] keys, patternType[] values) {
         this.keys = keys;
-        this.patterns = patterns;
+        this.values = values;
     }
 
     @Override
@@ -18,7 +18,7 @@ public final class MatchMapping extends patternType {
         final int prime = 31;
         int result = 1;
         result = prime * result + Arrays.hashCode(keys);
-        result = prime * result + Arrays.hashCode(patterns);
+        result = prime * result + Arrays.hashCode(values);
         return result;
     }
 
@@ -29,7 +29,7 @@ public final class MatchMapping extends patternType {
         if (getClass() != obj.getClass()) return false;
         MatchMapping other = (MatchMapping) obj;
         if (!Arrays.equals(keys, other.keys)) return false;
-        if (!Arrays.equals(patterns, other.patterns)) return false;
+        if (!Arrays.equals(values, other.values)) return false;
         return true;
     }
     @Override
@@ -48,14 +48,14 @@ public final class MatchMapping extends patternType {
             new0 = this.keys;
         }
         patternType[] new1;
-        if(this.patterns != null){
-        new1 = new patternType[this.patterns.length];
-        for(int i=0;i<this.patterns.length;i++){
-            new1[i] = (patternType) (this.patterns[i] != null?
-            this.patterns[i].createCopy(copyComments):null);
+        if(this.values != null){
+        new1 = new patternType[this.values.length];
+        for(int i=0;i<this.values.length;i++){
+            new1[i] = (patternType) (this.values[i] != null?
+            this.values[i].createCopy(copyComments):null);
         }
         }else{
-            new1 = this.patterns;
+            new1 = this.values;
         }
         MatchMapping temp = new MatchMapping(new0, new1);
         temp.beginLine = this.beginLine;
@@ -85,8 +85,8 @@ public final class MatchMapping extends patternType {
         sb.append("keys=");
         sb.append(dumpThis(this.keys));
         sb.append(", ");
-        sb.append("patterns=");
-        sb.append(dumpThis(this.patterns));
+        sb.append("values=");
+        sb.append(dumpThis(this.values));
         sb.append("]");
         return sb.toString();
     }
@@ -105,10 +105,10 @@ public final class MatchMapping extends patternType {
                 }
             }
         }
-        if (patterns != null) {
-            for (int i = 0; i < patterns.length; i++) {
-                if (patterns[i] != null) {
-                    patterns[i].accept(visitor);
+        if (values != null) {
+            for (int i = 0; i < values.length; i++) {
+                if (values[i] != null) {
+                    values[i].accept(visitor);
                 }
             }
         }

@@ -171,11 +171,11 @@ module Python
 	
 	pattern = MatchValue(expr value)
             | MatchSequence(pattern* patterns, enclosing enclosing)
-            | MatchMapping(expr* keys, pattern* patterns)
-            | MatchClass(expr cls, pattern* patterns, pattern* kwd_patterns)
+            | MatchMapping(expr* keys, pattern* values)
+            | MatchClass(expr cls, pattern* args)
+            | MatchKeyword(expr arg, pattern value)
 
             | MatchStar(identifier? name)
-            -- The optional "rest" MatchMapping parameter handles capturing extra mapping keys
 
             | MatchAs(pattern? pattern, NameTok? asname)
             | MatchOr(pattern* patterns)
