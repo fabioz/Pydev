@@ -669,13 +669,6 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                 Log.log("Expected arity to be 1 or 2 here.");
                 return null;
 
-            case JJTAS_PATTERN:
-                if (arity == 1) {
-                    return makeNameTok(name_contextType.PatternName);
-                }
-                Log.log("Expected arity to be 1 here.");
-                return null;
-
             case JJTCLOSED_PATTERN:
                 if (arity == 1) {
                     return stack.popNode();

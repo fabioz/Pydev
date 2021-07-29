@@ -166,5 +166,4 @@ public interface ITreeConstants {
     public static final int JJTCLOSED_PATTERN = 658;
     public static final int JJTLIST_PATTERN = 659;
     public static final int JJTTUPLE_PATTERN = 660;
-    public static final int JJTAS_PATTERN = 661;
 }

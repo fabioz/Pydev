@@ -1148,7 +1148,7 @@ void pattern() : {}
     or_pattern() (as_pattern())?
 }
 
-void as_pattern() : {}
+void as_pattern() #void : {}
 {
 	{grammarActions.findTokenAndAdd("as");}<AS> Name()
 }
