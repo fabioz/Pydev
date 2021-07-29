@@ -70,7 +70,7 @@ public class IndexApi {
 
     public static final boolean DEBUG = false;
 
-    private static final String lucene6dot1Suffix = "L6dot1";
+    public static final String luceneSuffix = "L481";
 
     private final Directory indexDir;
     private IndexWriter writer;
@@ -90,8 +90,8 @@ public class IndexApi {
             FSDirectory dir = (FSDirectory) indexDir;
             java.nio.file.Path indexPath = dir.getDirectory();
             File indexFile = indexPath.toFile();
-            if (!indexFile.getAbsolutePath().endsWith(lucene6dot1Suffix)) {
-                File newIndexFile = new File(indexFile.getAbsolutePath() + lucene6dot1Suffix);
+            if (!indexFile.getAbsolutePath().endsWith(luceneSuffix)) {
+                File newIndexFile = new File(indexFile.getAbsolutePath() + luceneSuffix);
                 resultDir = FSDirectory.open(newIndexFile.toPath());
             }
         }
