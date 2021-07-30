@@ -787,14 +787,13 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
 
     private SimpleNode securePop(Class<? extends SimpleNode> cls) throws Exception {
         SimpleNode ret = null;
-        SimpleNode peekedNode = stack.peekNode();
+        SimpleNode popNode = stack.peekNode();
         try {
-            ret = cls.cast(peekedNode);
-            stack.popNode();
+            ret = cls.cast(popNode);
         } catch (ClassCastException e) {
-            addAndReportException(cls.getName(), peekedNode);
+            addAndReportException(cls.getName(), popNode);
             SimpleNode defaultNode = getDefaultInvalidNode(cls);
-            ret = copyDefaultWithPoppedNode(defaultNode);
+            ret = copyDefaultWithReference(defaultNode, popNode);
         }
         return ret;
     }
@@ -827,11 +826,10 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
         return ret;
     }
 
-    private SimpleNode copyDefaultWithPoppedNode(SimpleNode defaultNode) {
-        SimpleNode poppedNode = stack.popNode();
+    private SimpleNode copyDefaultWithReference(SimpleNode defaultNode, SimpleNode referenceNode) {
         SimpleNode copy = defaultNode.createCopy();
-        copy.beginLine = poppedNode.beginLine;
-        copy.beginColumn = poppedNode.beginColumn;
+        copy.beginLine = referenceNode.beginLine;
+        copy.beginColumn = referenceNode.beginColumn;
         return copy;
     }
 
