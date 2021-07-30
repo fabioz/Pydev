@@ -45,6 +45,7 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.NamedExpr;
 import org.python.pydev.parser.jython.ast.NonLocal;
+import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.jython.ast.Raise;
 import org.python.pydev.parser.jython.ast.Return;
 import org.python.pydev.parser.jython.ast.Set;
@@ -576,79 +577,50 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                 return expr;
 
             case JJTMATCH_STMT:
+                match_caseType defaultMatchCase = new match_caseType(getDefaultInvalidPattern(), null,
+                        getDefaultBody());
                 if (arity > 1) {
                     match_caseType[] cases = new match_caseType[arity - 1];
                     for (int i = arity - 2; i >= 0; i--) {
-                        SimpleNode popNode = stack.popNode();
-                        try {
-                            cases[i] = (match_caseType) popNode;
-                        } catch (Exception e) {
-                            Log.log("Expected match_caseType. Found: " + popNode);
-                        }
+                        cases[i] = (match_caseType) securePop(defaultMatchCase);
                     }
-                    exprType subject = null;
-                    SimpleNode popNode = stack.popNode();
-                    try {
-                        subject = (exprType) popNode;
-                    } catch (Exception e) {
-                        Log.log("Expected expr. Found: " + popNode);
-                    }
+                    exprType subject = (exprType) securePop(getDefaultInvalidExpr());
                     return new Match(subject, cases);
-                } else {
-                    Log.log("Expected arity to be > 1 here.");
                 }
-                return null;
+                addAndReportException(Match.class.getName());
+                return new Match(getDefaultInvalidExpr(), new match_caseType[] { defaultMatchCase });
 
             case JJTSUBJECT_EXPR:
+                popSurplus(arity, 2);
                 if (arity == 1) {
                     return stack.popNode();
                 } else if (arity == 2) {
                     exprType[] elts = new exprType[arity];
                     for (int i = 0; i < arity; i++) {
-                        SimpleNode popNode = stack.popNode();
-                        try {
-                            elts[i] = new Starred((exprType) popNode, Starred.Load);
-                        } catch (Exception e) {
-                            Log.log("Expected expr. Found: " + popNode);
-                        }
+                        exprType secureExpr = (exprType) securePop(getDefaultInvalidExpr());
+                        elts[i] = new Starred(secureExpr, Starred.Load);
                     }
                     return new Tuple(elts, Starred.Load, false);
                 }
-                Log.log("Expected arity to be 1 or 2 here.");
-                return null;
+                addAndReportException(exprType.class.getName());
+                return getDefaultInvalidExpr();
 
             case JJTCASE_BLOCK:
                 if (arity > 1) {
-                    suite = null;
-                    SimpleNode popNode = stack.popNode();
-                    try {
-                        suite = (Suite) popNode;
-                    } catch (Exception e) {
-                        Log.log("Expected suite. Found: " + popNode);
-                    }
+                    Suite defaultSuite = new Suite(getDefaultBody());
+                    suite = (Suite) securePop(defaultSuite);
                     exprType guard = null;
                     if (arity > 2) {
-                        guard = null;
-                        popNode = stack.popNode();
-                        try {
-                            guard = (exprType) popNode;
-                        } catch (Exception e) {
-                            Log.log("Expected expr. Found: " + popNode);
-                        }
+                        guard = (exprType) securePopNullable(exprType.class);
                     }
-                    patternType pattern = null;
-                    popNode = stack.popNode();
-                    try {
-                        pattern = (patternType) popNode;
-                    } catch (Exception e) {
-                        Log.log("Expected pattern. Found: " + popNode);
-                    }
+                    patternType pattern = (patternType) securePop(getDefaultInvalidPattern());
                     return new match_caseType(pattern, guard, suite.body);
                 }
-                Log.log("Expected arity to be > 1 here.");
-                return null;
+                addAndReportException(match_caseType.class.getName());
+                return new match_caseType(getDefaultInvalidPattern(), null, getDefaultBody());
 
             case JJTPATTERN:
+                popSurplus(arity, 2);
                 if (arity == 1) {
                     SimpleNode popNode = stack.popNode();
                     if (popNode instanceof exprType) {
@@ -657,86 +629,51 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                     return popNode;
                 } else if (arity == 2) {
                     NameTok asname = makeNameTok(name_contextType.Attrib);
-                    patternType pattern = null;
-                    SimpleNode popNode = stack.popNode();
-                    try {
-                        pattern = (patternType) popNode;
-                    } catch (Exception e) {
-                        Log.log("Expected pattern. Found: " + popNode);
-                    }
+                    patternType pattern = (patternType) securePop(getDefaultInvalidPattern());
                     return new MatchAs(pattern, asname);
                 }
-                Log.log("Expected arity to be 1 or 2 here.");
-                return null;
+                addAndReportException(patternType.class.getName());
+                return getDefaultInvalidPattern();
 
             case JJTCLOSED_PATTERN:
+                popSurplus(arity, 2);
                 if (arity == 1) {
                     return stack.popNode();
                 } else if (arity == 2) {
-                    MatchClass classPattern = null;
-                    exprType cls = null;
-                    SimpleNode popNode = stack.popNode();
-                    try {
-                        classPattern = (MatchClass) popNode;
-                    } catch (Exception e) {
-                        Log.log("Expected MatchMapping. Found: " + popNode);
-                    }
-                    popNode = stack.popNode();
-                    try {
-                        cls = (exprType) popNode;
-                    } catch (Exception e) {
-                        Log.log("Expected expr. Found: " + popNode);
-                    }
-                    if (classPattern != null) {
-                        // return a complete class pattern (with cls) from `classPattern`
-                        return new MatchClass(cls, classPattern.args);
-                    }
-                    // class instantiation without args
-                    return new MatchClass(cls, null);
+                    MatchClass defaultClass = new MatchClass(getDefaultInvalidExpr(), null);
+                    MatchClass classPattern = (MatchClass) securePop(defaultClass);
+                    exprType cls = (exprType) securePop(getDefaultInvalidExpr());
+                    return new MatchClass(cls, classPattern.args);
                 }
-                Log.log("Expected arity to be 1 or 2 here.");
-                return null;
+                addAndReportException(exprType.class.getName());
+                return getDefaultInvalidExpr();
 
             case JJTKEY_VALUE_PATTERN:
+                popSurplus(arity, 2);
                 if (arity == 1) {
                     Name arg = makeName(name_contextType.KeywordName);
                     return new MatchKeyword(arg, null);
                 } else if (arity == 2) {
-                    patternType pattern = null;
-                    exprType arg = null;
-                    SimpleNode popNode = stack.popNode();
-                    try {
-                        pattern = (patternType) popNode;
-                    } catch (Exception e) {
-                        Log.log("Expected pattern. Found: " + popNode);
-                    }
-                    popNode = stack.popNode();
-                    try {
-                        arg = (exprType) popNode;
-                    } catch (Exception e) {
-                        Log.log("Expected expr. Found: " + popNode);
-                    }
+                    patternType pattern = (patternType) securePop(getDefaultInvalidPattern());
+                    exprType arg = (exprType) securePop(getDefaultInvalidExpr());
                     return new MatchKeyword(arg, pattern);
                 }
-                Log.log("Expected arity to be 1 or 2 here.");
-                return null;
+                addAndReportException(exprType.class.getName());
+                return getDefaultInvalidExpr();
 
             case JJTMAPPING_PATTERN:
                 if (arity > 0) {
+                    MatchKeyword defaultKeyword = new MatchKeyword(getDefaultInvalidExpr(), getDefaultInvalidPattern());
                     exprType[] keys = new exprType[arity];
                     patternType[] patterns = new patternType[arity];
                     for (int i = arity - 1; i >= 0; i--) {
-                        SimpleNode popNode = stack.popNode();
-                        try {
-                            MatchKeyword pattern = (MatchKeyword) popNode;
-                            keys[i] = pattern.arg;
-                            patterns[i] = pattern.value;
-                        } catch (Exception e) {
-                            Log.log("Expected MatchKeyword. Found: " + popNode);
-                        }
+                        MatchKeyword pattern = (MatchKeyword) securePop(defaultKeyword);
+                        keys[i] = pattern.arg;
+                        patterns[i] = pattern.value;
                     }
                     return new MatchMapping(keys, patterns);
                 }
+                addAndReportException(MatchKeyword.class.getName());
                 return new MatchMapping(new exprType[0], new patternType[0]);
 
             case JJTLIST_PATTERN:
@@ -751,39 +688,26 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                 } else if (arity >= 2) {
                     SimpleNode peekedNode = stack.peekNode();
                     if (peekedNode instanceof patternType) {
-                        if (arity == 2) {
-                            patternType pattern = null;
-                            SimpleNode popNode = stack.popNode();
-                            try {
-                                pattern = (patternType) popNode;
-                            } catch (Exception e) {
-                                Log.log("Expected pattern. Found: " + popNode);
-                            }
-                            Name arg = makeName(name_contextType.KeywordName);
-                            return new MatchKeyword(arg, pattern);
-                        } else {
-                            Log.log("Expected arity to be 2 here.");
-                        }
+                        popSurplus(arity, 2);
+                        patternType pattern = (patternType) securePop(getDefaultInvalidPattern());
+                        Name arg = makeName(name_contextType.KeywordName);
+                        return new MatchKeyword(arg, pattern);
                     } else {
                         return popAttribute(arity);
                     }
                 }
-                Log.log("Expected arity to be > 0 here.");
-                return null;
+                addAndReportException(Attribute.class.getName());
+                return getDefaultInvalidExpr();
 
             case JJTCLASS_PATTERN:
                 if (arity > 0) {
                     patternType[] patterns = new patternType[arity];
                     for (int i = arity - 1; i >= 0; i--) {
-                        SimpleNode popNode = stack.popNode();
-                        try {
-                            patterns[i] = (patternType) popNode;
-                        } catch (Exception e) {
-                            Log.log("Expected pattern. Found: " + popNode);
-                        }
+                        patterns[i] = (patternType) securePop(getDefaultInvalidPattern());
                     }
                     return new MatchClass(null, patterns);
                 }
+                addAndReportException(patternType.class.getName());
                 return new MatchClass(null, null);
 
             case JJTOR_PATTERN:
@@ -797,21 +721,23 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                             patterns[i] = (patternType) popNode;
                         } else if (popNode instanceof exprType) {
                             patterns[i] = new MatchValue((exprType) popNode);
+                        } else {
+                            patterns[i] = getDefaultInvalidPattern();
                         }
                     }
                     return new MatchOr(patterns);
                 }
-                Log.log("Expected arity to be > 0 here.");
-                return null;
+                addAndReportException(patternType.class.getName());
+                return new MatchOr(new patternType[0]);
 
             case JJTSTAR_PATTERN:
+                popSurplus(arity, 1);
                 if (arity == 1) {
-                    SimpleNode popNode = stack.popNode();
-                    String name = NodeUtils.getFullRepresentationString(popNode);
+                    String name = NodeUtils.getFullRepresentationString(stack.popNode());
                     return new MatchStar(name);
                 }
-                Log.log("Expected arity to be 1 here.");
-                return null;
+                addAndReportException(SimpleNode.class.getName());
+                return new MatchStar("!INVALID!");
 
             case JJTOPEN_SEQUENCE_PATTERN:
                 if (arity == 1) {
@@ -824,17 +750,71 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                             patterns[i] = (patternType) popNode;
                         } else if (popNode instanceof exprType) {
                             patterns[i] = new MatchValue((exprType) popNode);
+                        } else {
+                            patterns[i] = getDefaultInvalidPattern();
                         }
                     }
                     return new MatchSequence(patterns, 0);
                 }
-                Log.log("Expected arity to be 1 or > 1 here.");
-                return null;
+                addAndReportException(SimpleNode.class.getName());
+                return new MatchSequence(new patternType[0], 0);
 
             default:
                 Log.log(("Error at TreeBuilder: default not treated:" + n.getId()));
                 return null;
         }
+    }
+
+    private stmtType[] getDefaultBody() {
+        return new stmtType[] { new Pass() };
+    }
+
+    private MatchValue getDefaultInvalidPattern() {
+        return new MatchValue(getDefaultInvalidExpr());
+    }
+
+    private exprType getDefaultInvalidExpr() {
+        return new Name("$INVALID$", Name.Artificial, false);
+    }
+
+    private void popSurplus(int arity, int max) {
+        if (arity > max) {
+            Log.log("Popping all surplus nodes. Expected arity: " + max + ". Actual: " + arity);
+            for (int i = 0; i < arity - max; i++) {
+                stack.popNode();
+            }
+        }
+    }
+
+    private SimpleNode securePop(SimpleNode defaultNode) throws ParseException {
+        SimpleNode ret = null;
+        Class<? extends SimpleNode> cls = defaultNode.getClass();
+        SimpleNode popNode = stack.popNode();
+        try {
+            ret = cls.cast(popNode);
+        } catch (Exception e) {
+            addAndReportException(cls.getName(), popNode);
+            ret = copyDefaultWithReference(defaultNode, popNode);
+        }
+        return ret;
+    }
+
+    private SimpleNode securePopNullable(Class<? extends SimpleNode> cls) throws ParseException {
+        SimpleNode ret = null;
+        SimpleNode popNode = stack.popNode();
+        try {
+            ret = cls.cast(popNode);
+        } catch (Exception e) {
+            addAndReportException(cls.getName(), popNode);
+        }
+        return ret;
+    }
+
+    private SimpleNode copyDefaultWithReference(SimpleNode defaultNode, SimpleNode referenceNode) {
+        SimpleNode copy = defaultNode.createCopy();
+        copy.beginLine = referenceNode.beginLine;
+        copy.beginColumn = referenceNode.beginColumn;
+        return copy;
     }
 
     private SimpleNode popAttribute(int arity) throws ParseException {
@@ -865,35 +845,27 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
         return makeName(ctx, stack.popNode());
     }
 
-    private SimpleNode createMatchSequence(int arity, int enclosing) {
+    private SimpleNode createMatchSequence(int arity, int enclosing) throws ParseException {
         if (arity == 0) {
             return new MatchSequence(new patternType[0], enclosing);
         }
         if (arity == 1) {
-            SimpleNode popNode = stack.popNode();
             patternType pattern = null;
-            if (popNode instanceof MatchSequence) {
-                MatchSequence sequence = (MatchSequence) popNode;
+            SimpleNode peekedNode = stack.peekNode();
+            if (peekedNode instanceof MatchSequence) {
+                MatchSequence sequence = (MatchSequence) stack.popNode();
                 sequence.enclosing = enclosing;
                 return sequence;
-            } else if (popNode instanceof exprType) {
-                pattern = new MatchValue((exprType) popNode);
-            } else if (popNode instanceof patternType) {
-                pattern = (patternType) popNode;
+            } else if (peekedNode instanceof exprType) {
+                pattern = new MatchValue((exprType) stack.popNode());
             } else {
-                Log.log("Expected patternType or expr. Found: " + popNode);
-                return null;
+                pattern = (patternType) securePop(getDefaultInvalidPattern());
             }
             return new MatchSequence(new patternType[] { pattern }, enclosing);
         }
         patternType[] patterns = new patternType[arity];
         for (int i = arity - 1; i >= 0; i--) {
-            SimpleNode popNode = stack.popNode();
-            try {
-                patterns[i] = (patternType) popNode;
-            } catch (Exception e) {
-                Log.log("Expected pattern. Found: " + popNode);
-            }
+            patterns[i] = (patternType) securePop(getDefaultInvalidPattern());
         }
         return new MatchSequence(patterns, enclosing);
     }
