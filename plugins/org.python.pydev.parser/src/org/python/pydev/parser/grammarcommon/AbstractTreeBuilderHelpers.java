@@ -161,9 +161,21 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
                     "Treated class cast exception making name");
             popNode = new Name("invalid", ctx, false);
         }
-
         Name name = (Name) popNode;
         return makeNameTok(ctx, name);
+    }
+
+    protected final void addAndReportException(String cls) throws ParseException {
+        this.stack.getGrammar().addAndReport(
+                new ParseException("Syntax error. Expected " + cls + ", found: `null`"),
+                "Treated class cast exception making " + cls);
+    }
+
+    protected final void addAndReportException(String cls, SimpleNode nodeFound) throws ParseException {
+        this.stack.getGrammar().addAndReport(
+                new ParseException("Syntax error. Expected " + cls + ", found: " + nodeFound.getClass().getName(),
+                        nodeFound),
+                "Treated class cast exception making " + cls);
     }
 
     protected final NameTok makeNameTok(int ctx, Name name) {
