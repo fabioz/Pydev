@@ -776,10 +776,13 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
         return new Name("$INVALID$", Name.Artificial, false);
     }
 
-    private void popSurplus(int arity, int max) {
+    private void popSurplus(int arity, int max) throws ParseException {
         if (arity > max) {
-            Log.log("Popping all surplus nodes. Expected arity: " + max + ". Actual: " + arity);
-            for (int i = 0; i < arity - max; i++) {
+            String errorMessage = "Popping all surplus nodes. Expected arity: " + max + ". Actual: " + arity;
+            SimpleNode firstNode = stack.popNode();
+            stack.getGrammar().addAndReport(new ParseException(errorMessage, firstNode),
+                    "Treated node arity greater than max expected.");
+            for (int i = 0; i < (arity - 1) - max; i++) {
                 stack.popNode();
             }
         }
