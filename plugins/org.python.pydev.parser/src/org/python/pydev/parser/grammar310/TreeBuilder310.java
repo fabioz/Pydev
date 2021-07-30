@@ -787,7 +787,7 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
 
     private SimpleNode securePop(Class<? extends SimpleNode> cls) throws Exception {
         SimpleNode ret = null;
-        SimpleNode popNode = stack.peekNode();
+        SimpleNode popNode = stack.popNode();
         try {
             ret = cls.cast(popNode);
         } catch (ClassCastException e) {
