@@ -716,6 +716,9 @@ void stmt() #void: {}
 
         async_stmt()
     |
+    	LOOKAHEAD(2)
+    	match_stmt()
+    |
         non_async_stmt()
 }
 
@@ -1600,6 +1603,10 @@ Token Name() #Name:
             t = <ASYNC>
          |
             t = <AWAIT>
+         |
+         	t = <MATCH>
+         |
+         	t = <CASE>
         )
     }catch(ParseException e){
         t = handleErrorInName(e);
