@@ -307,4 +307,24 @@ public class PyParser310Test extends PyParserTestBase {
                 + "        pass";
         parseLegalDocStr(s);
     }
+
+    public void testMatchAsSoftKeyword() {
+        String s = "match = 10\n"
+                + "print(match)";
+        parseLegalDocStr(s);
+    }
+
+    public void testCaseAsSoftKeyword() {
+        String s = "case = 10\n"
+                + "print(case)";
+        parseLegalDocStr(s);
+    }
+
+    public void testMatchAndCaseAsSoftKeyword() {
+        String s = "match = 30\n"
+                + "case = 10\n"
+                + "result = match + case\n"
+                + "print(result)";
+        parseLegalDocStr(s);
+    }
 }

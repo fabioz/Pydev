@@ -302,4 +302,24 @@ public class PrettyPrinter310Test extends AbstractPrettyPrinterTestBase {
                 + "        pass\n";
         checkPrettyPrintEqual(s);
     }
+
+    public void testMatchAsSoftKeyword() {
+        String s = "match = 10\n"
+                + "print(match)\n";
+        checkPrettyPrintEqual(s);
+    }
+
+    public void testCaseAsSoftKeyword() {
+        String s = "case = 10\n"
+                + "print(case)\n";
+        checkPrettyPrintEqual(s);
+    }
+
+    public void testMatchAndCaseAsSoftKeyword() {
+        String s = "match = 30\n"
+                + "case = 10\n"
+                + "result = match + case\n"
+                + "print(result)\n";
+        checkPrettyPrintEqual(s);
+    }
 }
