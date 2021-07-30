@@ -844,6 +844,9 @@ void stmt() #void: {}
 
         async_stmt()
     |
+    	LOOKAHEAD(2)
+    	match_stmt()
+    |
         non_async_stmt()
 }
 
