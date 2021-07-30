@@ -707,7 +707,6 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                     }
                     return new MatchClass(null, patterns);
                 }
-                addAndReportException(patternType.class.getName());
                 return new MatchClass(null, null);
 
             case JJTOR_PATTERN:
@@ -769,7 +768,7 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
         return new stmtType[] { new Pass() };
     }
 
-    private MatchValue getDefaultInvalidPattern() {
+    private patternType getDefaultInvalidPattern() {
         return new MatchValue(getDefaultInvalidExpr());
     }
 
@@ -788,7 +787,7 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
 
     private SimpleNode securePop(SimpleNode defaultNode) throws ParseException {
         SimpleNode ret = null;
-        Class<? extends SimpleNode> cls = defaultNode.getClass();
+        Class<? extends SimpleNode> cls = (Class<? extends SimpleNode>) defaultNode.getClass().getSuperclass();
         SimpleNode popNode = stack.popNode();
         try {
             ret = cls.cast(popNode);
