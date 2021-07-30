@@ -577,18 +577,16 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                 return expr;
 
             case JJTMATCH_STMT:
-                match_caseType defaultMatchCase = new match_caseType(getDefaultInvalidPattern(), null,
-                        getDefaultBody());
                 if (arity > 1) {
                     match_caseType[] cases = new match_caseType[arity - 1];
                     for (int i = arity - 2; i >= 0; i--) {
-                        cases[i] = (match_caseType) securePop(defaultMatchCase);
+                        cases[i] = (match_caseType) securePop(match_caseType.class);
                     }
-                    exprType subject = (exprType) securePop(getDefaultInvalidExpr());
+                    exprType subject = (exprType) securePop(exprType.class);
                     return new Match(subject, cases);
                 }
                 addAndReportException(Match.class.getName());
-                return new Match(getDefaultInvalidExpr(), new match_caseType[] { defaultMatchCase });
+                return new Match(getDefaultInvalidExpr(), new match_caseType[] { getDefaultInvalidMatchCase() });
 
             case JJTSUBJECT_EXPR:
                 popSurplus(arity, 2);
@@ -597,7 +595,7 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                 } else if (arity == 2) {
                     exprType[] elts = new exprType[arity];
                     for (int i = 0; i < arity; i++) {
-                        exprType secureExpr = (exprType) securePop(getDefaultInvalidExpr());
+                        exprType secureExpr = (exprType) securePop(exprType.class);
                         elts[i] = new Starred(secureExpr, Starred.Load);
                     }
                     return new Tuple(elts, Starred.Load, false);
@@ -607,17 +605,16 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
 
             case JJTCASE_BLOCK:
                 if (arity > 1) {
-                    Suite defaultSuite = new Suite(getDefaultBody());
-                    suite = (Suite) securePop(defaultSuite);
+                    suite = (Suite) securePop(Suite.class);
                     exprType guard = null;
                     if (arity > 2) {
                         guard = (exprType) securePopNullable(exprType.class);
                     }
-                    patternType pattern = (patternType) securePop(getDefaultInvalidPattern());
+                    patternType pattern = (patternType) securePop(patternType.class);
                     return new match_caseType(pattern, guard, suite.body);
                 }
                 addAndReportException(match_caseType.class.getName());
-                return new match_caseType(getDefaultInvalidPattern(), null, getDefaultBody());
+                return getDefaultInvalidMatchCase();
 
             case JJTPATTERN:
                 popSurplus(arity, 2);
@@ -629,7 +626,7 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                     return popNode;
                 } else if (arity == 2) {
                     NameTok asname = makeNameTok(name_contextType.Attrib);
-                    patternType pattern = (patternType) securePop(getDefaultInvalidPattern());
+                    patternType pattern = (patternType) securePop(patternType.class);
                     return new MatchAs(pattern, asname);
                 }
                 addAndReportException(patternType.class.getName());
@@ -640,9 +637,8 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                 if (arity == 1) {
                     return stack.popNode();
                 } else if (arity == 2) {
-                    MatchClass defaultClass = new MatchClass(getDefaultInvalidExpr(), null);
-                    MatchClass classPattern = (MatchClass) securePop(defaultClass);
-                    exprType cls = (exprType) securePop(getDefaultInvalidExpr());
+                    MatchClass classPattern = (MatchClass) securePop(MatchClass.class);
+                    exprType cls = (exprType) securePop(exprType.class);
                     return new MatchClass(cls, classPattern.args);
                 }
                 addAndReportException(exprType.class.getName());
@@ -654,8 +650,8 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                     Name arg = makeName(name_contextType.KeywordName);
                     return new MatchKeyword(arg, null);
                 } else if (arity == 2) {
-                    patternType pattern = (patternType) securePop(getDefaultInvalidPattern());
-                    exprType arg = (exprType) securePop(getDefaultInvalidExpr());
+                    patternType pattern = (patternType) securePop(patternType.class);
+                    exprType arg = (exprType) securePop(exprType.class);
                     return new MatchKeyword(arg, pattern);
                 }
                 addAndReportException(exprType.class.getName());
@@ -663,11 +659,10 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
 
             case JJTMAPPING_PATTERN:
                 if (arity > 0) {
-                    MatchKeyword defaultKeyword = new MatchKeyword(getDefaultInvalidExpr(), getDefaultInvalidPattern());
                     exprType[] keys = new exprType[arity];
                     patternType[] patterns = new patternType[arity];
                     for (int i = arity - 1; i >= 0; i--) {
-                        MatchKeyword pattern = (MatchKeyword) securePop(defaultKeyword);
+                        MatchKeyword pattern = (MatchKeyword) securePop(MatchKeyword.class);
                         keys[i] = pattern.arg;
                         patterns[i] = pattern.value;
                     }
@@ -689,7 +684,7 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                     SimpleNode peekedNode = stack.peekNode();
                     if (peekedNode instanceof patternType) {
                         popSurplus(arity, 2);
-                        patternType pattern = (patternType) securePop(getDefaultInvalidPattern());
+                        patternType pattern = (patternType) securePop(patternType.class);
                         Name arg = makeName(name_contextType.KeywordName);
                         return new MatchKeyword(arg, pattern);
                     } else {
@@ -703,10 +698,11 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                 if (arity > 0) {
                     patternType[] patterns = new patternType[arity];
                     for (int i = arity - 1; i >= 0; i--) {
-                        patterns[i] = (patternType) securePop(getDefaultInvalidPattern());
+                        patterns[i] = (patternType) securePop(patternType.class);
                     }
                     return new MatchClass(null, patterns);
                 }
+                // This is expected when the class_pattern has no given args.
                 return new MatchClass(null, null);
 
             case JJTOR_PATTERN:
@@ -736,7 +732,7 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                     return new MatchStar(name);
                 }
                 addAndReportException(SimpleNode.class.getName());
-                return new MatchStar("!INVALID!");
+                return new MatchStar("$INVALID$");
 
             case JJTOPEN_SEQUENCE_PATTERN:
                 if (arity == 1) {
@@ -764,6 +760,10 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
         }
     }
 
+    private match_caseType getDefaultInvalidMatchCase() {
+        return new match_caseType(getDefaultInvalidPattern(), null, getDefaultBody());
+    }
+
     private stmtType[] getDefaultBody() {
         return new stmtType[] { new Pass() };
     }
@@ -785,17 +785,35 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
         }
     }
 
-    private SimpleNode securePop(SimpleNode defaultNode) throws ParseException {
+    private SimpleNode securePop(Class<? extends SimpleNode> cls) throws Exception {
         SimpleNode ret = null;
-        Class<? extends SimpleNode> cls = (Class<? extends SimpleNode>) defaultNode.getClass().getSuperclass();
-        SimpleNode popNode = stack.popNode();
+        SimpleNode peekedNode = stack.peekNode();
         try {
-            ret = cls.cast(popNode);
-        } catch (Exception e) {
-            addAndReportException(cls.getName(), popNode);
-            ret = copyDefaultWithReference(defaultNode, popNode);
+            ret = cls.cast(peekedNode);
+            stack.popNode();
+        } catch (ClassCastException e) {
+            addAndReportException(cls.getName(), peekedNode);
+            SimpleNode defaultNode = getDefaultInvalidNode(cls);
+            ret = copyDefaultWithPoppedNode(defaultNode);
         }
         return ret;
+    }
+
+    private SimpleNode getDefaultInvalidNode(Class<? extends SimpleNode> cls) throws Exception {
+        if (patternType.class.equals(cls)) {
+            return getDefaultInvalidPattern();
+        } else if (exprType.class.equals(cls)) {
+            return getDefaultInvalidExpr();
+        } else if (match_caseType.class.equals(cls)) {
+            return getDefaultInvalidMatchCase();
+        } else if (Suite.class.equals(cls)) {
+            return new Suite(getDefaultBody());
+        } else if (MatchClass.class.equals(cls)) {
+            return new MatchClass(getDefaultInvalidExpr(), null);
+        } else if (MatchKeyword.class.equals(cls)) {
+            return new MatchKeyword(getDefaultInvalidExpr(), getDefaultInvalidPattern());
+        }
+        throw new Exception("Could not find any invalid default node for " + cls.getName());
     }
 
     private SimpleNode securePopNullable(Class<? extends SimpleNode> cls) throws ParseException {
@@ -809,10 +827,11 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
         return ret;
     }
 
-    private SimpleNode copyDefaultWithReference(SimpleNode defaultNode, SimpleNode referenceNode) {
+    private SimpleNode copyDefaultWithPoppedNode(SimpleNode defaultNode) {
+        SimpleNode poppedNode = stack.popNode();
         SimpleNode copy = defaultNode.createCopy();
-        copy.beginLine = referenceNode.beginLine;
-        copy.beginColumn = referenceNode.beginColumn;
+        copy.beginLine = poppedNode.beginLine;
+        copy.beginColumn = poppedNode.beginColumn;
         return copy;
     }
 
@@ -844,7 +863,7 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
         return makeName(ctx, stack.popNode());
     }
 
-    private SimpleNode createMatchSequence(int arity, int enclosing) throws ParseException {
+    private SimpleNode createMatchSequence(int arity, int enclosing) throws Exception {
         if (arity == 0) {
             return new MatchSequence(new patternType[0], enclosing);
         }
@@ -858,13 +877,13 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
             } else if (peekedNode instanceof exprType) {
                 pattern = new MatchValue((exprType) stack.popNode());
             } else {
-                pattern = (patternType) securePop(getDefaultInvalidPattern());
+                pattern = (patternType) securePop(patternType.class);
             }
             return new MatchSequence(new patternType[] { pattern }, enclosing);
         }
         patternType[] patterns = new patternType[arity];
         for (int i = arity - 1; i >= 0; i--) {
-            patterns[i] = (patternType) securePop(getDefaultInvalidPattern());
+            patterns[i] = (patternType) securePop(patternType.class);
         }
         return new MatchSequence(patterns, enclosing);
     }
