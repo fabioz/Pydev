@@ -14,6 +14,7 @@ import org.python.pydev.ast.runners.SimpleRunner;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.preferences.PydevPrefs;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.PlatformUtils;
 
@@ -142,7 +143,7 @@ public class PipenvHelper {
                 List<File> searchedDirectories = new ArrayList<File>();
                 File pythonExecutable = InterpreterInfo.searchExecutableInContainer("python", venvLocation,
                         searchedDirectories);
-                if (pythonExecutable != null && pythonExecutable.exists()) {
+                if (pythonExecutable != null && FileUtils.enhancedIsFile(pythonExecutable)) {
                     synchronized (PipenvHelper.projectLocationToPipenvPythonLocationChacheLock) {
                         PipenvHelper.projectLocationToPipenvPythonLocationChache.put(projectlocation,
                                 Optional.of(pythonExecutable));

@@ -41,11 +41,11 @@ public class IronpythonShell extends CompletionsShell {
     protected synchronized ProcessCreationInfo createServerProcess(IInterpreterInfo interpreter, int port)
             throws IOException {
         File file = new File(interpreter.getExecutableOrJar());
-        if (file.exists() == false) {
-            throw new RuntimeException("The interpreter location found does not exist. " + interpreter);
-        }
-        if (file.isDirectory() == true) {
+        if (file.isDirectory()) {
             throw new RuntimeException("The interpreter location found is a directory. " + interpreter);
+        }
+        if (!FileUtils.enhancedIsFile(file)) {
+            throw new RuntimeException("The interpreter location found does not exist. " + interpreter);
         }
 
         String[] parameters = SimpleIronpythonRunner.preparePythonCallParameters(interpreter.getExecutableOrJar(),

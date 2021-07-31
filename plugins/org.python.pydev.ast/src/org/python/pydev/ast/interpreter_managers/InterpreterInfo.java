@@ -57,6 +57,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.process.ProcessUtils;
 import org.python.pydev.shared_core.progress.CancelException;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -2029,11 +2030,11 @@ public class InterpreterInfo implements IInterpreterInfo {
     public static File searchExecutable(File pythonContainerDir, String executable) {
         if (PlatformUtils.isWindowsPlatform()) {
             File target2 = new File(pythonContainerDir, executable + ".exe");
-            if (target2.exists()) {
+            if (FileUtils.enhancedIsFile(target2)) {
                 return target2;
             }
             target2 = new File(pythonContainerDir, executable + ".bat");
-            if (target2.exists()) {
+            if (FileUtils.enhancedIsFile(target2)) {
                 return target2;
             }
         } else {

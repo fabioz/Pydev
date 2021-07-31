@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.preferences.PydevPrefs;
+import org.python.pydev.shared_core.io.FileUtils;
 
 public final class PyDevCondaPreferences {
 
@@ -19,7 +20,7 @@ public final class PyDevCondaPreferences {
             return null;
         }
         File condaExecutable = new File(condaPath);
-        if (!condaExecutable.exists()) {
+        if (!FileUtils.enhancedIsFile(condaExecutable)) {
             Log.log("Conda set in preferences: " + condaPath + " does not exist.");
             return null;
         }

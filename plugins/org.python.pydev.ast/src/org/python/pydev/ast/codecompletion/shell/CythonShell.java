@@ -32,7 +32,7 @@ public class CythonShell extends AbstractShell {
     protected synchronized ProcessCreationInfo createServerProcess(IInterpreterInfo interpreter, int port)
             throws IOException {
         File file = new File(interpreter.getExecutableOrJar());
-        if (file.isDirectory() == true) {
+        if (file.isDirectory()) {
             throw new RuntimeException("The interpreter location found is a directory. " + interpreter);
         }
 

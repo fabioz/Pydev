@@ -142,7 +142,7 @@ public class PyProfilePreferences {
 
             }
 
-            if (!new File(pyVmMonitorUILocation).exists()) {
+            if (!FileUtils.enhancedIsFile(new File(pyVmMonitorUILocation))) {
                 if (actualRun) {
                     RunInUiThread.async(new Runnable() {
 

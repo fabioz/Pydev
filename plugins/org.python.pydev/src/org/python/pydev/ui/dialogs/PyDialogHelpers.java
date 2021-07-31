@@ -40,6 +40,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.core.preferences.InterpreterGeneralPreferences;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.image.UIConstants;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.utils.ArrayUtils;
 import org.python.pydev.shared_core.utils.PlatformUtils;
@@ -287,7 +288,7 @@ public class PyDialogHelpers {
         if (PlatformUtils.isWindowsPlatform()) {
             for (File env : envs) {
                 File exec = new File(env, "python.exe");
-                if (exec.exists()) {
+                if (FileUtils.enhancedIsFile(exec)) {
                     ret.add(new NameAndExecutable(env.getName(), exec.getPath()));
                 } else {
                     Log.logInfo("Did not find: " + exec + " in conda environment.");
@@ -296,7 +297,7 @@ public class PyDialogHelpers {
         } else {
             for (File env : envs) {
                 File exec = new File(new File(env, "bin"), "python");
-                if (exec.exists()) {
+                if (FileUtils.enhancedIsFile(exec)) {
                     ret.add(new NameAndExecutable(env.getName(), exec.getPath()));
                 } else {
                     Log.logInfo("Did not find: " + exec + " in conda environment.");

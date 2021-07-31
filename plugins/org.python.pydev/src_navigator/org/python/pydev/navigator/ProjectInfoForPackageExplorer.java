@@ -36,6 +36,7 @@ import org.python.pydev.navigator.elements.PythonSourceFolder;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.image.UIConstants;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.markers.PyMarkerUtils;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -298,7 +299,7 @@ public class ProjectInfoForPackageExplorer {
             //Note: this happened after we let the user keep the original name instead of getting it from the
             //interpreterInfo.py output.
             if (executableOrJar.contains("/") || executableOrJar.contains("\\")) {
-                if (!new File(executableOrJar).exists()) {
+                if (!FileUtils.enhancedIsFile(new File(executableOrJar))) {
                     lst.add(new ProjectConfigError(relatedToProject,
                             "The interpreter configured does not exist in the filesystem: " + executableOrJar));
                 }

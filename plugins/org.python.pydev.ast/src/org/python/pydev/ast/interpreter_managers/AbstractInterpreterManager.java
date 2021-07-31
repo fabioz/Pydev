@@ -51,6 +51,7 @@ import org.python.pydev.plugin.nature.PythonNatureListenersManager;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.callbacks.ICallback2;
 import org.python.pydev.shared_core.callbacks.ListenerList;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -369,7 +370,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         }
         String executableToUse = executableIsUserSpecified ? executableName : null;
         if (executableToUse != null) {
-            if (!new File(executableToUse).exists()) {
+            if (!FileUtils.enhancedIsFile(new File(executableToUse))) {
                 //Only use the user-specified version if the executable does exist (otherwise use the internal info).
                 executableToUse = null;
             }

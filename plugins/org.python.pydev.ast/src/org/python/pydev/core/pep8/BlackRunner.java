@@ -28,7 +28,7 @@ public class BlackRunner {
 
             String executableLocation = std.blackExecutableLocation;
             if (!std.searchBlackInInterpreter && executableLocation != null && !executableLocation.isEmpty()
-                    && new File(executableLocation).exists()) {
+                    && FileUtils.enhancedIsFile(new File(executableLocation))) {
                 SimpleRunner simpleRunner = new SimpleRunner();
                 String[] args = ArrayUtils.concatArrays(new String[] { executableLocation, "-" }, parseArguments);
                 Tuple<Process, String> r = simpleRunner.run(args, workingDir, null, null);

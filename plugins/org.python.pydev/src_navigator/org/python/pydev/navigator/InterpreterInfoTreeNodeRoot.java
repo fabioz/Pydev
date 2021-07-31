@@ -20,6 +20,7 @@ import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.image.UIConstants;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.TreeNode;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 
@@ -50,7 +51,7 @@ public class InterpreterInfoTreeNodeRoot<X> extends InterpreterInfoTreeNode<X> {
 
         String executableOrJar = interpreterInfo.getExecutableOrJar();
         File file = new File(executableOrJar);
-        if (file.exists()) {
+        if (FileUtils.enhancedIsFile(file)) {
             belowRootFiles = new PythonpathTreeNode(root, file.getParentFile(),
                     imageCache.get(UIConstants.PY_INTERPRETER_ICON), true);
         } else {
