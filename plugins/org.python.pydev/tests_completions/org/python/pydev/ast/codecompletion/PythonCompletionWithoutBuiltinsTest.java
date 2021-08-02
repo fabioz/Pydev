@@ -42,6 +42,7 @@ import org.python.pydev.core.TokensOrProposalsList;
 import org.python.pydev.core.docutils.ImportsSelection;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
+import org.python.pydev.core.preferences.InterpreterGeneralPreferences;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.editor.codecompletion.proposals.OverrideMethodCompletionProposal;
 import org.python.pydev.editor.codecompletion.proposals.PyCompletionProposal;
@@ -155,6 +156,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     @Override
     public void setUp() throws Exception {
         super.setUp();
+        InterpreterGeneralPreferences.FORCE_USE_TYPESHED = true;
         CompiledModule.COMPILED_MODULES_ENABLED = false;
         this.restorePythonPath(TestDependent.GetCompletePythonLib(true) +
                 "|" + TestDependent.PYTHON_PIL_PACKAGES +
@@ -184,6 +186,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         super.tearDown();
         PyCodeCompletion.onCompletionRecursionException = null;
         ExtensionHelper.testingParticipants = null;
+        InterpreterGeneralPreferences.FORCE_USE_TYPESHED = null;
     }
 
     public void testCompleteImportCompletion() throws Exception {
@@ -3281,7 +3284,9 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         s = StringUtils.format(original, "");
 
         ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
-        assertEquals(1, proposals.length);
+        if (proposals.length != 1) {
+            fail("Expected a single proposal. Found:\n: " + Arrays.toString(proposals));
+        }
         ICompletionProposalHandle prop = proposals[0];
         assertEquals("bar()", prop.getDisplayString());
     }
@@ -3453,15 +3458,6 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "        print(name)\n"
                 + "        with z.ope";
         requestCompl(s, s.length(), -1, new String[] { "open(name, mode, pwd)" });
-    }
-
-    public void testTypeshed() throws Exception {
-        String s;
-        s = "" +
-                "def main():\n"
-                + "    from re import RegexFlag\n"
-                + "    RegexFlag.";
-        requestCompl(s, s.length(), -1, new String[] { "ASCII" });
     }
 
 }

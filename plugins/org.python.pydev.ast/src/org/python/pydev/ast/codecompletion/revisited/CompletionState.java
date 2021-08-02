@@ -34,6 +34,7 @@ import org.python.pydev.core.TokensList;
 import org.python.pydev.core.preferences.InterpreterGeneralPreferences;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple3;
 
 /**
@@ -63,7 +64,7 @@ public final class CompletionState implements ICompletionState, IModuleRequestSt
     private boolean builtinsGotten = false;
     private boolean localImportsGotten = false;
     private boolean isInCalltip = false;
-    private boolean acceptTypeshed = true;
+    private boolean acceptTypeshed = InterpreterGeneralPreferences.getUseTypeshed();
 
     private LookingFor lookingForInstance = LookingFor.LOOKING_FOR_INSTANCE_UNDEFINED;
     private TokensList tokenImportedModules;
@@ -693,4 +694,14 @@ public final class CompletionState implements ICompletionState, IModuleRequestSt
             }
         };
     }
+
+    @Override
+    public String toString() {
+        FastStringBuffer buf = new FastStringBuffer();
+        buf.append("CompletionState[ ");
+        buf.append(this.activationToken);
+        buf.append(" ]");
+        return buf.toString();
+    }
+
 }

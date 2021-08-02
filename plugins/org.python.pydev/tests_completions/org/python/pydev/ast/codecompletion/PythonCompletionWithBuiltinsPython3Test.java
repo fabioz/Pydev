@@ -8,10 +8,6 @@
 package org.python.pydev.ast.codecompletion;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.python.pydev.ast.codecompletion.revisited.CodeCompletionTestsBase;
@@ -23,10 +19,9 @@ import org.python.pydev.core.BaseModuleRequest;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.IterTokenEntry;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.core.TokensList;
+import org.python.pydev.core.preferences.InterpreterGeneralPreferences;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.string.StringUtils;
 
@@ -84,6 +79,8 @@ public class PythonCompletionWithBuiltinsPython3Test extends CodeCompletionTests
      */
     @Override
     public void setUp() throws Exception {
+        InterpreterGeneralPreferences.FORCE_USE_TYPESHED = true;
+
         super.setUp();
 
         ADD_MX_TO_FORCED_BUILTINS = false;
@@ -110,6 +107,7 @@ public class PythonCompletionWithBuiltinsPython3Test extends CodeCompletionTests
      */
     @Override
     public void tearDown() throws Exception {
+        InterpreterGeneralPreferences.FORCE_USE_TYPESHED = null;
         CompiledModule.COMPILED_MODULES_ENABLED = false;
         AbstractShell.putServerShell(nature, AbstractShell.getShellId(), null);
         super.tearDown();
@@ -349,46 +347,52 @@ public class PythonCompletionWithBuiltinsPython3Test extends CodeCompletionTests
     public void testBuiltins() throws Exception {
         IModule builtinModTypeshed = nature.getBuiltinMod(new BaseModuleRequest(true));
         IModule builtinModCompiled = nature.getBuiltinMod(new BaseModuleRequest(false));
+        // For builtins and typing we don't get the version from typeshed.
+        assertSame(builtinModTypeshed, builtinModCompiled);
 
-        assertNotSame(builtinModTypeshed, builtinModCompiled);
-        TokensList globalTokensTypeshed = builtinModTypeshed.getGlobalTokens();
-        TokensList globalTokensCompiled = builtinModCompiled.getGlobalTokens();
+        // assertNotSame(builtinModTypeshed, builtinModCompiled);
+        // TokensList globalTokensTypeshed = builtinModTypeshed.getGlobalTokens();
+        // TokensList globalTokensCompiled = builtinModCompiled.getGlobalTokens();
+        // Set<String> typeshedNames = new HashSet<String>();
+        // Set<String> compiledNames = new HashSet<String>();
+        // Iterator<IterTokenEntry> iterator = globalTokensTypeshed.iterator();
+        // while (iterator.hasNext()) {
+        //     typeshedNames.add(iterator.next().getToken().getRepresentation());
+        // }
+        // iterator = globalTokensCompiled.iterator();
+        // while (iterator.hasNext()) {
+        //     compiledNames.add(iterator.next().getToken().getRepresentation());
+        // }
+        // Set<String> ignore = new HashSet<>(Arrays.asList(
+        //         "__spec__",
+        //         "__debug__",
+        //         "__package__",
+        //         "__doc__",
+        //         "__class__",
+        //         "__build_class__",
+        //         "__loader__"));
+        // String error = "";
+        // for (String s : compiledNames) {
+        //     if (ignore.contains(s)) {
+        //         continue;
+        //     }
+        // 
+        //     if (!typeshedNames.contains(s)) {
+        //         error += ("Did not find: " + s + "\n");
+        //     }
+        // }
+        // if (!error.isEmpty()) {
+        //     fail(error + "\nAvailable:\n" + typeshedNames);
+        // }
+    }
 
-        Set<String> typeshedNames = new HashSet<String>();
-        Set<String> compiledNames = new HashSet<String>();
-
-        Iterator<IterTokenEntry> iterator = globalTokensTypeshed.iterator();
-        while (iterator.hasNext()) {
-            typeshedNames.add(iterator.next().getToken().getRepresentation());
-        }
-
-        iterator = globalTokensCompiled.iterator();
-        while (iterator.hasNext()) {
-            compiledNames.add(iterator.next().getToken().getRepresentation());
-        }
-
-        Set<String> ignore = new HashSet<>(Arrays.asList(
-                "__spec__",
-                "__debug__",
-                "__package__",
-                "__doc__",
-                "__class__",
-                "__build_class__",
-                "__loader__"));
-
-        String error = "";
-        for (String s : compiledNames) {
-            if (ignore.contains(s)) {
-                continue;
-            }
-
-            if (!typeshedNames.contains(s)) {
-                error += ("Did not find: " + s + "\n");
-            }
-        }
-        if (!error.isEmpty()) {
-            fail(error + "\nAvailable:\n" + typeshedNames);
-        }
+    public void testTypeshed() throws Exception {
+        String s;
+        s = "" +
+                "def main():\n"
+                + "    from re import RegexFlag\n"
+                + "    RegexFlag.";
+        requestCompl(s, s.length(), -1, new String[] { "ASCII" });
     }
 
 }

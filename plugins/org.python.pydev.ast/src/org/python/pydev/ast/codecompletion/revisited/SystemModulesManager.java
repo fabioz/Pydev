@@ -236,7 +236,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
         //with is using predefined modules. Those will
         File predefinedModule = this.info.getPredefinedModule(name, moduleRequest);
         boolean found = predefinedModule != null && predefinedModule.exists();
-        if (!found) {
+        if (!found && !name.endsWith(".__init__")) {
             final String nameWithInit = name + ".__init__";
             predefinedModule = this.info.getPredefinedModule(nameWithInit, moduleRequest);
             found = predefinedModule != null && predefinedModule.exists();

@@ -166,7 +166,7 @@ public final class CompletionStateWrapper implements ICompletionState {
 
     @Override
     public ICompletionState getCopy() {
-        return wrapped.getCopy();
+        return wrapped.getCopyWithActTok(this.activationToken);
     }
 
     @Override

@@ -37,7 +37,12 @@ public class InterpreterGeneralPreferences {
                 DEFAULT_UPDATE_INTERPRETER_INFO_ON_FILESYSTEM_CHANGES);
     }
 
+    public static Boolean FORCE_USE_TYPESHED = null; // For use in tests.
+
     public static boolean getUseTypeshed() {
+        if (FORCE_USE_TYPESHED != null) {
+            return FORCE_USE_TYPESHED;
+        }
         return PydevPrefs.getEclipsePreferences().getBoolean(USE_TYPESHED,
                 DEFAULT_USE_TYPESHED);
     }

@@ -1963,7 +1963,7 @@ public class InterpreterInfo implements IInterpreterInfo {
                 if (this.getGrammarVersion() <= IGrammarVersionProvider.LATEST_GRAMMAR_PY2_VERSION) {
                     f = new File(f, "@python2");
                 }
-                if (f.exists() && f.isDirectory()) {
+                if (f.isDirectory()) {
                     fillTypeshedFromDirInfo(f, "");
                 }
             } catch (CoreException e) {
@@ -1985,16 +1985,19 @@ public class InterpreterInfo implements IInterpreterInfo {
             while (it.hasNext()) {
                 java.nio.file.Path path2 = it.next();
                 File file2 = path2.toFile();
+                String fName = file2.getName();
                 if (file2.isDirectory()) {
-                    String dirname = file2.getName();
+                    String dirname = fName;
                     if (!dirname.contains("@")) {
                         fillTypeshedFromDirInfo(file2,
                                 basename.isEmpty() ? dirname + "." : basename + dirname + ".");
                     }
                 } else {
-                    if (file2.getName().endsWith(".pyi")) {
-                        String n = file2.getName();
-                        String modName = n.substring(0, n.length() - (".pyi".length()));
+                    if (fName.endsWith(".pyi")) {
+                        String modName = fName.substring(0, fName.length() - (".pyi".length()));
+                        if (modName.equals("typing") || modName.equals("builtins") || modName.equals("__builtin__")) {
+                            continue;
+                        }
                         this.typeshedCache.put(basename + modName, file2);
                     }
                 }
