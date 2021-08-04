@@ -114,7 +114,7 @@ module Python
 	-- the Artificial context is not actually used in the parser directly. It is used in the application
 	-- to create 'artificial' names, as if it was a regular name (e.g.: create a name for a match inside
 	-- a comment or string)
-	expr_context = Load | Store | Del | AugLoad | AugStore | Param | Artificial | KwOnlyParam |  NamedStore
+	expr_context = Pattern | Load | Store | Del | AugLoad | AugStore | Param | Artificial | KwOnlyParam |  NamedStore
 
 	-- This identifies whether the list comprehension was created when we were matching a list, tuple or none of those.
 	comp_context = ListCtx | TupleCtx | EmptyCtx
