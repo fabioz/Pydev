@@ -227,6 +227,7 @@ public abstract class ModulesManager implements IModulesManager {
     protected final Object modulesKeysLock = new Object();
 
     protected static final ModulesManagerCache cache = new ModulesManagerCache();
+    protected static final ModulesManagerCache cachePredefined = new ModulesManagerCache();
     private static final CachePyiModules cachePyiModules = new CachePyiModules();
 
     /**
@@ -573,6 +574,7 @@ public abstract class ModulesManager implements IModulesManager {
 
         synchronized (modulesKeysLock) {
             cache.clear();
+            cachePredefined.clear();
             //assign to instance variable
             this.modulesKeys.clear();
             this.modulesKeys.putAll(keys);
@@ -1215,6 +1217,7 @@ public abstract class ModulesManager implements IModulesManager {
      */
     public static void clearCache() {
         ModulesManager.cache.clear();
+        ModulesManager.cachePredefined.clear();
         ModulesManager.cachePyiModules.clear();
     }
 

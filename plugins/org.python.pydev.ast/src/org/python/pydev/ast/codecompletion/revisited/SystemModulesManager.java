@@ -247,7 +247,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
         if (found) {
             keyForCacheAccess.name = name;
             keyForCacheAccess.file = predefinedModule;
-            n = cache.getObj(keyForCacheAccess, this);
+            n = cachePredefined.getObj(keyForCacheAccess, this);
             if ((n instanceof PredefinedSourceModule)) {
                 PredefinedSourceModule predefinedSourceModule = (PredefinedSourceModule) n;
                 if (predefinedSourceModule.isSynched()) {
@@ -321,7 +321,12 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
                             }
                         }
                         n = new PredefinedSourceModule(name, predefinedModule, ast, obj.error);
-                        doAddSingleModule(keyForCacheAccess, n);
+                        cachePredefined.add(keyForCacheAccess, n, this);
+                        // Note: use a separate cache (because we don't want to mess the regular modules
+                        // and in general we just want to find the predefined modules through this API
+                        // -- in particular, we don't want typeshed entries if not accepting typeshed entries
+                        // when looking for a definition).
+                        // doAddSingleModule(keyForCacheAccess, n);
                         return n;
                     }
                     //keep on going

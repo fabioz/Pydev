@@ -97,7 +97,15 @@ public class PyDocstringTextHover extends AbstractPyEditorTextHover {
         }
         String[] tokenAndQual = null;
         try {
+            request.acceptTypeshed = false;
             tokenAndQual = PyRefactoringFindDefinition.findActualDefinition(request, completionCache, selected);
+
+            if (tokenAndQual == null || selected.size() == 0) {
+                // i.e.: if it wasn't able to compute without typeshed, do it once more with typeshed in place.
+                request.acceptTypeshed = true;
+                completionCache = new CompletionState();
+                tokenAndQual = PyRefactoringFindDefinition.findActualDefinition(request, completionCache, selected);
+            }
         } catch (CompletionRecursionException | BadLocationException e1) {
             Log.log(e1);
             buf.append("Unable to compute hover. Details: " + e1.getMessage());
