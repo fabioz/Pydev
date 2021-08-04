@@ -57,6 +57,7 @@ import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.While;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.decoratorsType;
+import org.python.pydev.parser.jython.ast.match_caseType;
 import org.python.pydev.parser.jython.ast.str_typeType;
 import org.python.pydev.shared_core.callbacks.ICallbackListener;
 import org.python.pydev.shared_core.model.ErrorDescription;
@@ -124,7 +125,7 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
     @Override
     public Object visitCompare(Compare node) throws Exception {
         Object ret = super.visitCompare(node);
-        if (isInTestScope == 0) {
+        if (isInTestScope == 0 && !(node.parent instanceof match_caseType)) {
             SourceToken token = AbstractVisitor.makeToken(node, moduleName, this.nature);
             messagesManager.addMessage(IAnalysisPreferences.TYPE_NO_EFFECT_STMT, token);
         }

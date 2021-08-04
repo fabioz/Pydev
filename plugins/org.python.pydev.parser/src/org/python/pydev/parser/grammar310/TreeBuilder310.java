@@ -611,7 +611,11 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                         guard = (exprType) securePopNullable(exprType.class);
                     }
                     patternType pattern = (patternType) securePop(patternType.class);
-                    return new match_caseType(pattern, guard, suite.body);
+                    match_caseType matchCase = new match_caseType(pattern, guard, suite.body);
+                    if (guard != null) {
+                        guard.parent = matchCase;
+                    }
+                    return matchCase;
                 }
                 addAndReportException(match_caseType.class.getName());
                 return getDefaultInvalidMatchCase();
@@ -625,7 +629,7 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                     }
                     return popNode;
                 } else if (arity == 2) {
-                    NameTok asname = makeNameTok(name_contextType.Attrib);
+                    NameTok asname = makeNameTok(NameTok.PatternName);
                     patternType pattern = (patternType) securePop(patternType.class);
                     return new MatchAs(pattern, asname);
                 }
@@ -646,10 +650,7 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
 
             case JJTKEY_VALUE_PATTERN:
                 popSurplus(arity, 2);
-                if (arity == 1) {
-                    Name arg = makeName(name_contextType.KeywordName);
-                    return new MatchKeyword(arg, null);
-                } else if (arity == 2) {
+                if (arity == 2) {
                     patternType pattern = (patternType) securePop(patternType.class);
                     exprType arg = (exprType) securePop(exprType.class);
                     return new MatchKeyword(arg, pattern);
@@ -679,13 +680,17 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
 
             case JJTATTR:
                 if (arity == 1) {
+                    if (isPeekedNodeWildcardPattern()) {
+                        stack.popNode();
+                        return getWildcardPattern();
+                    }
                     return stack.popNode();
                 } else if (arity >= 2) {
                     SimpleNode peekedNode = stack.peekNode();
                     if (peekedNode instanceof patternType) {
                         popSurplus(arity, 2);
                         patternType pattern = (patternType) securePop(patternType.class);
-                        Name arg = makeName(name_contextType.KeywordName);
+                        Name arg = makeName(Name.AugLoad);
                         return new MatchKeyword(arg, pattern);
                     } else {
                         return popAttribute(arity);
@@ -758,6 +763,21 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                 Log.log(("Error at TreeBuilder: default not treated:" + n.getId()));
                 return null;
         }
+    }
+
+    private boolean isPeekedNodeWildcardPattern() {
+        SimpleNode peekedNode = stack.peekNode();
+        if (peekedNode instanceof Name) {
+            Name name = (Name) peekedNode;
+            if ("_".equals(name.id) && name.ctx == Name.Load && name.reserved == false) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private SimpleNode getWildcardPattern() {
+        return new Name("_", Name.Pattern, false);
     }
 
     private match_caseType getDefaultInvalidMatchCase() {
@@ -857,7 +877,9 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                     "Treated class cast exception making name");
             node = new Name("invalid", ctx, false);
         }
-        return (Name) node;
+        Name name = (Name) node;
+        name.ctx = ctx;
+        return name;
     }
 
     private Name makeName(int ctx) throws ParseException {
