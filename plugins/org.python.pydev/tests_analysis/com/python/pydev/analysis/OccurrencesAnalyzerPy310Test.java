@@ -314,7 +314,7 @@ public class OccurrencesAnalyzerPy310Test extends AnalysisTestsBase {
                 + "    def __init__(self, x, y):\n"
                 + "        self.x = x\n"
                 + "        self.y = y\n"
-                + "def where_is(point, x, y):\n"
+                + "def where_is(point):\n"
                 + "    match point:\n"
                 + "        case Point(x=0, y=0):\n"
                 + "            print(\"Origin\")\n"
@@ -435,5 +435,19 @@ public class OccurrencesAnalyzerPy310Test extends AnalysisTestsBase {
                 + "        case Color.BLUE:\n"
                 + "            a == 2");
         checkError("Statement apppears to have no effect");
+    }
+
+    public void testMatchCaseNameBinding() {
+        doc = new Document(""
+                + "class Point:\n"
+                + "    def __init__(self, x, y):\n"
+                + "        self.x = x\n"
+                + "        self.y = y\n"
+                + "def where_is(point):\n"
+                + "    match point:\n"
+                + "        case Point(x=0, y=y):\n"
+                + "            print('Y=', y)\n"
+                + "where_is(Point(0, 0))");
+        checkNoError();
     }
 }
