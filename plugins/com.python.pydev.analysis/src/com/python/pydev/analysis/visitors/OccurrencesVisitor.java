@@ -49,6 +49,7 @@ import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.Lambda;
 import org.python.pydev.parser.jython.ast.ListComp;
+import org.python.pydev.parser.jython.ast.Match;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Print;
 import org.python.pydev.parser.jython.ast.Raise;
@@ -57,7 +58,6 @@ import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.While;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.decoratorsType;
-import org.python.pydev.parser.jython.ast.match_caseType;
 import org.python.pydev.parser.jython.ast.str_typeType;
 import org.python.pydev.shared_core.callbacks.ICallbackListener;
 import org.python.pydev.shared_core.model.ErrorDescription;
@@ -125,10 +125,18 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
     @Override
     public Object visitCompare(Compare node) throws Exception {
         Object ret = super.visitCompare(node);
-        if (isInTestScope == 0 && !(node.parent instanceof match_caseType)) {
+        if (isInTestScope == 0) {
             SourceToken token = AbstractVisitor.makeToken(node, moduleName, this.nature);
             messagesManager.addMessage(IAnalysisPreferences.TYPE_NO_EFFECT_STMT, token);
         }
+        return ret;
+    }
+
+    @Override
+    public Object visitMatch(Match node) throws Exception {
+        isInTestScope++;
+        Object ret = super.visitMatch(node);
+        isInTestScope--;
         return ret;
     }
 
