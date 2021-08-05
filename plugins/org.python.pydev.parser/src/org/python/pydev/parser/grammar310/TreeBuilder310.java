@@ -611,11 +611,7 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                         guard = (exprType) securePopNullable(exprType.class);
                     }
                     patternType pattern = (patternType) securePop(patternType.class);
-                    match_caseType matchCase = new match_caseType(pattern, guard, suite.body);
-                    if (guard != null) {
-                        guard.parent = matchCase;
-                    }
-                    return matchCase;
+                    return new match_caseType(pattern, guard, suite.body);
                 }
                 addAndReportException(match_caseType.class.getName());
                 return getDefaultInvalidMatchCase();
@@ -681,8 +677,7 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
             case JJTATTR:
                 if (arity == 1) {
                     if (isPeekedNodeWildcardPattern()) {
-                        stack.popNode();
-                        return getWildcardPattern();
+                        return makeName(Name.Pattern);
                     }
                     return stack.popNode();
                 } else if (arity >= 2) {
@@ -690,7 +685,7 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                     if (peekedNode instanceof patternType) {
                         popSurplus(arity, 2);
                         patternType pattern = (patternType) securePop(patternType.class);
-                        Name arg = makeName(Name.AugLoad);
+                        Name arg = makeName(Name.Artificial);
                         return new MatchKeyword(arg, pattern);
                     } else {
                         return popAttribute(arity);
@@ -774,10 +769,6 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
             }
         }
         return false;
-    }
-
-    private SimpleNode getWildcardPattern() {
-        return new Name("_", Name.Pattern, false);
     }
 
     private match_caseType getDefaultInvalidMatchCase() {
