@@ -15,39 +15,44 @@ jobs:
       fail-fast: false
       matrix:
         name: [
-          "windows-py27-checkdebug",
-          "ubuntu-py27-cython",
-          "ubuntu-pypy3",
-          "macos-py37-cython",
-          "ubuntu-py38-cython-checkbin",
-          "windows-py39-cython",
+#           "windows-py27-checkdebug",
+#           "ubuntu-py27-cython",
+#           "ubuntu-pypy3",
+#           "macos-py37-cython",
+#           "ubuntu-py38-cython-checkbin",
+#           "windows-py39-cython",
+          "windows-py310",
         ]
         
         include:
-          - name: "windows-py27-checkdebug"
-            python: "2.7"
+#           - name: "windows-py27-checkdebug"
+#             python: "2.7"
+#             os: windows-latest
+#             PYDEVD_USE_CYTHON: NO
+#           - name: "ubuntu-py27-cython"
+#             python: "2.7"
+#             os: ubuntu-latest
+#             PYDEVD_USE_CYTHON: YES
+#           - name: "ubuntu-pypy3"
+#             python: "pypy3"
+#             os: ubuntu-latest
+#             PYDEVD_USE_CYTHON: NO
+#           - name: "macos-py37-cython"
+#             python: "3.7"
+#             os: macos-latest
+#             PYDEVD_USE_CYTHON: YES
+#           - name: "ubuntu-py38-cython-checkbin"
+#             python: "3.8"
+#             os: ubuntu-latest
+#             PYDEVD_USE_CYTHON: YES
+#           - name: "windows-py39-cython"
+#             python: "3.9"
+#             os: windows-latest
+#             PYDEVD_USE_CYTHON: YES
+          - name: "windows-py310"
+            python: "3.10.0-rc.1"
             os: windows-latest
             PYDEVD_USE_CYTHON: NO
-          - name: "ubuntu-py27-cython"
-            python: "2.7"
-            os: ubuntu-latest
-            PYDEVD_USE_CYTHON: YES
-          - name: "ubuntu-pypy3"
-            python: "pypy3"
-            os: ubuntu-latest
-            PYDEVD_USE_CYTHON: NO
-          - name: "macos-py37-cython"
-            python: "3.7"
-            os: macos-latest
-            PYDEVD_USE_CYTHON: YES
-          - name: "ubuntu-py38-cython-checkbin"
-            python: "3.8"
-            os: ubuntu-latest
-            PYDEVD_USE_CYTHON: YES
-          - name: "windows-py39-cython"
-            python: "3.9"
-            os: windows-latest
-            PYDEVD_USE_CYTHON: YES
 
     steps:
     - uses: actions/checkout@v1
