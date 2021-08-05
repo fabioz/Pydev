@@ -686,6 +686,9 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                         popSurplus(arity, 2);
                         patternType pattern = (patternType) securePop(patternType.class);
                         Name arg = makeName(Name.Artificial);
+                        if (isKeywordPatternNameBinding(arg, pattern)) {
+                            arg.ctx = Name.Store;
+                        }
                         return new MatchKeyword(arg, pattern);
                     } else {
                         return popAttribute(arity);
@@ -758,6 +761,20 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                 Log.log(("Error at TreeBuilder: default not treated:" + n.getId()));
                 return null;
         }
+    }
+
+    private boolean isKeywordPatternNameBinding(Name arg, patternType pattern) {
+        if (pattern instanceof MatchValue) {
+            MatchValue matchValue = (MatchValue) pattern;
+            exprType value = matchValue.value;
+            if (value instanceof Name) {
+                Name name = (Name) value;
+                if (name != null && name.id != null && name.id.equals(arg.id)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private boolean isPeekedNodeWildcardPattern() {
