@@ -387,4 +387,24 @@ public class OccurrencesAnalyzerPy310Test extends AnalysisTestsBase {
                 + "            print(\"I'm feeling the blues :(\")");
         checkNoError();
     }
+
+    public void testWildcardPattern() {
+        doc = new Document(""
+                + "match \"foo bar\".split()\n"
+                + "    case (\"doo\", \"lee\"):\n"
+                + "        pass\n"
+                + "    case _:\n"
+                + "        pass");
+        checkNoError();
+    }
+
+    public void testNonPatternWildcard() {
+        doc = new Document(""
+                + "x = 10\n"
+                + "match \"foo bar\".split()\n"
+                + "    case (\"doo\", \"lee\"):\n"
+                + "        pass\n"
+                + "x = _");
+        checkError("Undefined variable: _");
+    }
 }
