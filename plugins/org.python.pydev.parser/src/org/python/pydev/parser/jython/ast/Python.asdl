@@ -175,8 +175,6 @@ module Python
             | MatchClass(expr cls, pattern* args)
             | MatchKeyword(expr arg, pattern value)
 
-            | MatchStar(identifier? name)
-
             | MatchAs(pattern? pattern, NameTok? asname)
             | MatchOr(pattern* patterns)
 

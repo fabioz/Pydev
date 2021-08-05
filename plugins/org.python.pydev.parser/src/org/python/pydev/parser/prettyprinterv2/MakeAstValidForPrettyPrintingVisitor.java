@@ -50,7 +50,6 @@ import org.python.pydev.parser.jython.ast.MatchKeyword;
 import org.python.pydev.parser.jython.ast.MatchMapping;
 import org.python.pydev.parser.jython.ast.MatchOr;
 import org.python.pydev.parser.jython.ast.MatchSequence;
-import org.python.pydev.parser.jython.ast.MatchStar;
 import org.python.pydev.parser.jython.ast.MatchValue;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
@@ -196,14 +195,6 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
 
     @Override
     public Object visitMatchClass(MatchClass node) throws Exception {
-        fixNode(node);
-        traverse(node);
-        fixAfterNode(node);
-        return null;
-    }
-
-    @Override
-    public Object visitMatchStar(MatchStar node) throws Exception {
         fixNode(node);
         traverse(node);
         fixAfterNode(node);

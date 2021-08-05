@@ -49,7 +49,6 @@ import org.python.pydev.parser.jython.ast.MatchKeyword;
 import org.python.pydev.parser.jython.ast.MatchMapping;
 import org.python.pydev.parser.jython.ast.MatchOr;
 import org.python.pydev.parser.jython.ast.MatchSequence;
-import org.python.pydev.parser.jython.ast.MatchStar;
 import org.python.pydev.parser.jython.ast.MatchValue;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
@@ -1684,15 +1683,6 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     public Object visitMatchValue(MatchValue node) throws Exception {
         beforeNode(node);
         node.value.accept(this);
-        afterNode(node);
-        return null;
-    }
-
-    @Override
-    public Object visitMatchStar(MatchStar node) throws Exception {
-        beforeNode(node);
-        doc.addRequire("*", node);
-        doc.addRequire(node.name, node);
         afterNode(node);
         return null;
     }
