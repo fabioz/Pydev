@@ -39,7 +39,6 @@ import org.python.pydev.parser.jython.ast.MatchKeyword;
 import org.python.pydev.parser.jython.ast.MatchMapping;
 import org.python.pydev.parser.jython.ast.MatchOr;
 import org.python.pydev.parser.jython.ast.MatchSequence;
-import org.python.pydev.parser.jython.ast.MatchStar;
 import org.python.pydev.parser.jython.ast.MatchValue;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
@@ -69,7 +68,6 @@ import org.python.pydev.parser.jython.ast.patternType;
 import org.python.pydev.parser.jython.ast.sliceType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
-import org.python.pydev.parser.visitors.NodeUtils;
 
 public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBuilder, ITreeConstants {
 
@@ -621,6 +619,11 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                 if (arity == 1) {
                     SimpleNode popNode = stack.popNode();
                     if (popNode instanceof exprType) {
+                        exprType exprNode = (exprType) popNode;
+                        if (exprNode instanceof Name) {
+                            Name name = (Name) exprNode;
+                            name.ctx = Name.Store;
+                        }
                         return new MatchValue((exprType) popNode);
                     }
                     return popNode;
@@ -677,7 +680,7 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
             case JJTATTR:
                 if (arity == 1) {
                     if (isPeekedNodeWildcardPattern()) {
-                        return makeName(Name.Pattern);
+                        return new MatchValue(makeName(Name.Pattern));
                     }
                     return stack.popNode();
                 } else if (arity >= 2) {
@@ -686,9 +689,6 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                         popSurplus(arity, 2);
                         patternType pattern = (patternType) securePop(patternType.class);
                         Name arg = makeName(Name.Artificial);
-                        if (isKeywordPatternNameBinding(arg, pattern)) {
-                            arg.ctx = Name.Store;
-                        }
                         return new MatchKeyword(arg, pattern);
                     } else {
                         return popAttribute(arity);
@@ -731,11 +731,11 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
             case JJTSTAR_PATTERN:
                 popSurplus(arity, 1);
                 if (arity == 1) {
-                    String name = NodeUtils.getFullRepresentationString(stack.popNode());
-                    return new MatchStar(name);
+                    Name name = makeName(Name.Store);
+                    return new Starred(name, name.ctx);
                 }
                 addAndReportException(SimpleNode.class.getName());
-                return new MatchStar("$INVALID$");
+                return new Starred(getDefaultInvalidExpr(), 0);
 
             case JJTOPEN_SEQUENCE_PATTERN:
                 if (arity == 1) {
@@ -761,20 +761,6 @@ public final class TreeBuilder310 extends AbstractTreeBuilder implements ITreeBu
                 Log.log(("Error at TreeBuilder: default not treated:" + n.getId()));
                 return null;
         }
-    }
-
-    private boolean isKeywordPatternNameBinding(Name arg, patternType pattern) {
-        if (pattern instanceof MatchValue) {
-            MatchValue matchValue = (MatchValue) pattern;
-            exprType value = matchValue.value;
-            if (value instanceof Name) {
-                Name name = (Name) value;
-                if (name != null && name.id != null && name.id.equals(arg.id)) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     private boolean isPeekedNodeWildcardPattern() {

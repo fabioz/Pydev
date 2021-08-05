@@ -1,6 +1,7 @@
 package com.python.pydev.analysis;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.ast.analysis.messages.IMessage;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.parser.jython.ParseException;
 
@@ -99,7 +100,7 @@ public class OccurrencesAnalyzerPy310Test extends AnalysisTestsBase {
         doc = new Document(""
                 + "def quit_game():\n"
                 + "    pass\n"
-                + "def foo(command, current_room, obj, character, direction):\n"
+                + "def foo(command, current_room, character):\n"
                 + "    match command.split():\n"
                 + "        case [\"quit\"]:\n"
                 + "            print(\"Goodbye!\")\n"
@@ -115,7 +116,7 @@ public class OccurrencesAnalyzerPy310Test extends AnalysisTestsBase {
 
     public void testMatchingMultipleValues() {
         doc = new Document(""
-                + "def foo(command, objects, obj, character, current_room):\n"
+                + "def foo(command, character, current_room):\n"
                 + "    match command.split():\n"
                 + "        case [\"drop\", *objects]:\n"
                 + "            for obj in objects:\n"
@@ -125,7 +126,7 @@ public class OccurrencesAnalyzerPy310Test extends AnalysisTestsBase {
 
     public void testMatchWildcard() {
         doc = new Document(""
-                + "def foo(command, direction):\n"
+                + "def foo(command):\n"
                 + "    match command.split():\n"
                 + "        case [\"quit\"]:\n"
                 + "            pass\n"
@@ -135,18 +136,58 @@ public class OccurrencesAnalyzerPy310Test extends AnalysisTestsBase {
                 + "            pass\n"
                 + "        case _:\n"
                 + "            print(f\"Sorry, I couldn't understand {command!r}\")");
+        checkError("Unused variable: direction", "Unused variable: objects");
+    }
+
+    public void testMatchFlexibleBinding() {
+        doc = new Document(""
+                + "def foo(command):\n"
+                + "    match command.split():\n"
+                + "        case [\"quit\"]:\n"
+                + "            pass\n"
+                + "        case [\"go\", direction]:\n"
+                + "            print(direction)\n"
+                + "        case [\"drop\", *objects]:\n"
+                + "            pass");
+        checkError("Unused variable: objects");
+    }
+
+    public void testMatchFlexibleBinding2() {
+        doc = new Document(""
+                + "def foo(command):\n"
+                + "    match command.split():\n"
+                + "        case [\"quit\"]:\n"
+                + "            pass\n"
+                + "        case [\"go\", direction]:\n"
+                + "            pass\n"
+                + "        case [\"drop\", *objects]:\n"
+                + "            print(objects)");
+        checkError("Unused variable: direction");
+    }
+
+    public void testMatchStarPattern() {
+        doc = new Document(""
+                + "def foo(command):\n"
+                + "    match command.split():\n"
+                + "        case [\"quit\"]:\n"
+                + "            pass\n"
+                + "        case [\"drop\", *objects]:\n"
+                + "            print(objects)");
         checkNoError();
     }
 
     public void testMatchOrPatterns() {
         doc = new Document(""
-                + "def foo(command, obj, current_room):\n"
+                + "def foo(command, current_room):\n"
                 + "    match command.split():\n"
                 + "        case [\"north\"] | [\"go\", \"north\"]:\n"
                 + "            current_room = current_room.neighbor(\"north\")\n"
                 + "        case [\"get\", obj] | [\"pick\", \"up\", obj] | [\"pick\", obj, \"up\"]:\n"
                 + "            pass");
-        checkNoError();
+        checkError(3);
+        for (IMessage message : msgs) {
+            assertEquals("Unused variable: obj", message.getMessage());
+        }
     }
 
     public void testMatchSubPatterns() {
@@ -169,7 +210,7 @@ public class OccurrencesAnalyzerPy310Test extends AnalysisTestsBase {
 
     public void testMatchConditionsPattern() {
         doc = new Document(""
-                + "def foo(command, direction, current_room):\n"
+                + "def foo(command, current_room):\n"
                 + "    match command.split():\n"
                 + "        case [\"go\", direction] if direction in current_room.exits:\n"
                 + "            current_room = current_room.neighbor(direction)\n"
@@ -182,9 +223,7 @@ public class OccurrencesAnalyzerPy310Test extends AnalysisTestsBase {
         doc = new Document(""
                 + "def handle_click_at(x, y):\n"
                 + "    pass\n"
-                + "def foo(event, Click, KeyPress, Quit, game, other_event):\n"
-                + "    x = 10\n"
-                + "    y = 20\n"
+                + "def foo(event, Click, KeyPress, Quit, game):\n"
                 + "    match event.get():\n"
                 + "        case Click(position=(x, y)):\n"
                 + "            handle_click_at(x, y)\n"
@@ -207,8 +246,6 @@ public class OccurrencesAnalyzerPy310Test extends AnalysisTestsBase {
                 + "def handle_click_at(x, y):\n"
                 + "    pass\n"
                 + "def foo(event):\n"
-                + "    x = 10\n"
-                + "    y = 20\n"
                 + "    match event.get():\n"
                 + "        case Click((x, y)):\n"
                 + "            handle_click_at(x, y)");
@@ -224,8 +261,6 @@ public class OccurrencesAnalyzerPy310Test extends AnalysisTestsBase {
                 + "def handle_click_at(x, y):\n"
                 + "    pass\n"
                 + "def foo(event, Button):\n"
-                + "    x = 10\n"
-                + "    y = 20\n"
                 + "    match event.get():\n"
                 + "        case Click((x, y), button=Button.LEFT):  # This is a left click\n"
                 + "            handle_click_at(x, y)\n"
@@ -292,8 +327,6 @@ public class OccurrencesAnalyzerPy310Test extends AnalysisTestsBase {
     public void testMatchStmt2() {
         doc = new Document(""
                 + "def foo(point):\n"
-                + "    x = 10\n"
-                + "    y = 20\n"
                 + "    match point:\n"
                 + "        case (0, 0):\n"
                 + "            print(\"Origin\")\n"
@@ -336,10 +369,6 @@ public class OccurrencesAnalyzerPy310Test extends AnalysisTestsBase {
                 + "        self.x = x\n"
                 + "        self.y = y\n"
                 + "def foo(points):\n"
-                + "    x = 0\n"
-                + "    y = 0\n"
-                + "    y1 = 1\n"
-                + "    y2 = 2\n"
                 + "    match points:\n"
                 + "        case []:\n"
                 + "            print(\"No points\")\n"
@@ -361,8 +390,6 @@ public class OccurrencesAnalyzerPy310Test extends AnalysisTestsBase {
                 + "        self.x = x\n"
                 + "        self.y = y\n"
                 + "def foo(point):\n"
-                + "    x = 0\n"
-                + "    y = 1\n"
                 + "    match point:\n"
                 + "        case Point(x, y) if x == y:\n"
                 + "            print(f\"Y=X at {x}\")\n"
@@ -448,6 +475,19 @@ public class OccurrencesAnalyzerPy310Test extends AnalysisTestsBase {
                 + "        case Point(x=0, y=y):\n"
                 + "            print('Y=', y)\n"
                 + "where_is(Point(0, 0))");
+        checkNoError();
+    }
+
+    public void testMatchCaseNameBinding2() {
+        doc = new Document(""
+                + "point = (0, 2)\n"
+                + "match point:\n"
+                + "    case (0, 0):\n"
+                + "        print(\"Origin\")\n"
+                + "    case (0, y):\n"
+                + "        print(f\"Y={y}\")\n"
+                + "    case _:\n"
+                + "        raise ValueError(\"Not a point\")");
         checkNoError();
     }
 }
