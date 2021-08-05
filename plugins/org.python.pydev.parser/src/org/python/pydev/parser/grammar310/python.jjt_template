@@ -967,16 +967,7 @@ void maybe_star_pattern() #void : {}
 
 void star_pattern() : {}
 {
-    <MULTIPLY> 
-    (
-        Name()
-        | wildcard_pattern()
-    )
-}
-
-void wildcard_pattern() #void : {}
-{
-    "_"
+    <MULTIPLY> Name()
 }
 
 void pattern() : {}
@@ -1000,7 +991,7 @@ void closed_pattern() : {}
     | attr() [class_pattern()]
     | sequence_pattern()
     | mapping_pattern()
-    | wildcard_pattern()
+    // | wildcard_pattern() "_" is matched as a regular Name
 }
 
 void literal_pattern() #void : {}

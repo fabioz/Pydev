@@ -57,6 +57,7 @@ import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.While;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.decoratorsType;
+import org.python.pydev.parser.jython.ast.match_caseType;
 import org.python.pydev.parser.jython.ast.str_typeType;
 import org.python.pydev.shared_core.callbacks.ICallbackListener;
 import org.python.pydev.shared_core.model.ErrorDescription;
@@ -129,6 +130,25 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
             messagesManager.addMessage(IAnalysisPreferences.TYPE_NO_EFFECT_STMT, token);
         }
         return ret;
+    }
+
+    public void traverse(match_caseType node) throws Exception {
+        checkStop();
+        isInTestScope += 1;
+        if (node.pattern != null) {
+            node.pattern.accept(this);
+        }
+        if (node.guard != null) {
+            node.guard.accept(this);
+        }
+        isInTestScope -= 1;
+        if (node.body != null) {
+            for (SimpleNode n : node.body) {
+                if (n != null) {
+                    n.accept(this);
+                }
+            }
+        }
     }
 
     public void traverse(If node) throws Exception {
@@ -392,6 +412,8 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
             traverse((While) node);
         } else if (node instanceof ListComp) {
             this.visitListComp((ListComp) node);
+        } else if (node instanceof match_caseType) {
+            traverse((match_caseType) node);
         } else {
             super.traverse(node);
         }
