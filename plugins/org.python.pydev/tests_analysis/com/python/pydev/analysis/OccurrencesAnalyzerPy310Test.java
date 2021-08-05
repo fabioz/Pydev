@@ -408,6 +408,17 @@ public class OccurrencesAnalyzerPy310Test extends AnalysisTestsBase {
         checkError("Undefined variable: _");
     }
 
+    public void testNonPatternWildcard2() {
+        doc = new Document(""
+                + "x = 10\n"
+                + "match \"foo bar\".split()\n"
+                + "    case (\"doo\", \"lee\"):\n"
+                + "        pass\n"
+                + "    case _:\n"
+                + "        x = _");
+        checkError("Undefined variable: _");
+    }
+
     public void testMatchStmtIgnoreNoStatement() {
         doc = new Document(""
                 + "class Color:\n"
