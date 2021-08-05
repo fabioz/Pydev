@@ -49,7 +49,6 @@ import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.Lambda;
 import org.python.pydev.parser.jython.ast.ListComp;
-import org.python.pydev.parser.jython.ast.Match;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Print;
 import org.python.pydev.parser.jython.ast.Raise;
@@ -58,6 +57,7 @@ import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.While;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.decoratorsType;
+import org.python.pydev.parser.jython.ast.match_caseType;
 import org.python.pydev.parser.jython.ast.str_typeType;
 import org.python.pydev.shared_core.callbacks.ICallbackListener;
 import org.python.pydev.shared_core.model.ErrorDescription;
@@ -132,12 +132,23 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
         return ret;
     }
 
-    @Override
-    public Object visitMatch(Match node) throws Exception {
-        isInTestScope++;
-        Object ret = super.visitMatch(node);
-        isInTestScope--;
-        return ret;
+    public void traverse(match_caseType node) throws Exception {
+        checkStop();
+        isInTestScope += 1;
+        if (node.pattern != null) {
+            node.pattern.accept(this);
+        }
+        if (node.guard != null) {
+            node.guard.accept(this);
+        }
+        isInTestScope -= 1;
+        if (node.body != null) {
+            for (SimpleNode n : node.body) {
+                if (n != null) {
+                    n.accept(this);
+                }
+            }
+        }
     }
 
     public void traverse(If node) throws Exception {
@@ -401,6 +412,8 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
             traverse((While) node);
         } else if (node instanceof ListComp) {
             this.visitListComp((ListComp) node);
+        } else if (node instanceof match_caseType) {
+            traverse((match_caseType) node);
         } else {
             super.traverse(node);
         }

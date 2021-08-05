@@ -407,4 +407,22 @@ public class OccurrencesAnalyzerPy310Test extends AnalysisTestsBase {
                 + "x = _");
         checkError("Undefined variable: _");
     }
+
+    public void testMatchStmtIgnoreNoStatement() {
+        doc = new Document(""
+                + "class Color:\n"
+                + "    RED = 0\n"
+                + "    GREEN = 1\n"
+                + "    BLUE = 2\n"
+                + "def foo(color):\n"
+                + "    a = 1\n"
+                + "    match color:\n"
+                + "        case Color.RED:\n"
+                + "            print(\"I see red!\")\n"
+                + "        case Color.GREEN:\n"
+                + "            print(\"Grass is green\")\n"
+                + "        case Color.BLUE:\n"
+                + "            a == 2");
+        checkError("Statement apppears to have no effect");
+    }
 }
