@@ -61,7 +61,7 @@ public final class PySelection extends TextSelectionUtils {
     public static final String[] CLASS_TOKEN = new String[] { "class", };
 
     public static final String[] INDENT_TOKENS = new String[] { "async", "if", "for", "except", "def", "class",
-            "else", "elif", "while", "try", "with", "finally" };
+            "else", "elif", "while", "try", "with", "finally", "match", "case" };
 
     public static final Set<String> STATEMENT_TOKENS = new HashSet<String>();
 
@@ -69,6 +69,7 @@ public final class PySelection extends TextSelectionUtils {
         //Note that lambda is not here because it's usually inside other statements
         STATEMENT_TOKENS.add("assert");
         STATEMENT_TOKENS.add("break");
+        STATEMENT_TOKENS.add("case");
         STATEMENT_TOKENS.add("class");
         STATEMENT_TOKENS.add("continue");
         STATEMENT_TOKENS.add("def");
@@ -80,6 +81,7 @@ public final class PySelection extends TextSelectionUtils {
         STATEMENT_TOKENS.add("from");
         //STATEMENT_TOKENS.add("if"); -- can be used in the construct None if True else ''
         STATEMENT_TOKENS.add("import");
+        STATEMENT_TOKENS.add("match");
         STATEMENT_TOKENS.add("pass");
         STATEMENT_TOKENS.add("raise");
         STATEMENT_TOKENS.add("return");
@@ -99,6 +101,7 @@ public final class PySelection extends TextSelectionUtils {
         ALL_KEYWORD_TOKENS.add("as");
         ALL_KEYWORD_TOKENS.add("assert");
         ALL_KEYWORD_TOKENS.add("break");
+        ALL_KEYWORD_TOKENS.add("case");
         ALL_KEYWORD_TOKENS.add("class");
         ALL_KEYWORD_TOKENS.add("continue");
         ALL_KEYWORD_TOKENS.add("def");
@@ -116,6 +119,7 @@ public final class PySelection extends TextSelectionUtils {
         ALL_KEYWORD_TOKENS.add("in");
         ALL_KEYWORD_TOKENS.add("is");
         ALL_KEYWORD_TOKENS.add("lambda");
+        ALL_KEYWORD_TOKENS.add("match");
         ALL_KEYWORD_TOKENS.add("nonlocal");
         ALL_KEYWORD_TOKENS.add("not");
         ALL_KEYWORD_TOKENS.add("or");

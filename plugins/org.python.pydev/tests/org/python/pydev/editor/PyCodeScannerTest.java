@@ -190,6 +190,24 @@ public class PyCodeScannerTest extends TestCase {
         assertToken(scanner, 6, 0, colorCache.getCodeTextAttribute()); //EOF
     }
 
+    public void testScanner8() throws Exception {
+        PyCodeScanner scanner = createCodeScanner();
+        String str = "re.match"; // not keyword in this case.
+        scanner.setRange(new Document(str), 0, str.length());
+        assertToken(scanner, 0, 2, colorCache.getCodeTextAttribute()); // re
+        assertToken(scanner, 2, 1, colorCache.getCodeTextAttribute()); //.
+        assertToken(scanner, 3, 5, colorCache.getCodeTextAttribute()); //match
+    }
+
+    public void testScanner9() throws Exception {
+        PyCodeScanner scanner = createCodeScanner();
+        String str = "match ="; // not keyword in this case.
+        scanner.setRange(new Document(str), 0, str.length());
+        assertToken(scanner, 0, 5, colorCache.getCodeTextAttribute()); // match
+        assertToken(scanner, 5, 1, colorCache.getCodeTextAttribute()); // 
+        assertToken(scanner, 6, 1, colorCache.getOperatorsTextAttribute()); //=
+    }
+
     private void assertToken(PyCodeScanner scanner, int offset, int len, TextAttribute data) {
         IToken token = scanner.nextToken();
         assertEquals(offset, scanner.getTokenOffset());

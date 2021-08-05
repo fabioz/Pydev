@@ -36,8 +36,6 @@ public class PyWordRule implements IRule {
     /** Internal setting for the un-initialized column constraint */
     protected static final int UNDEFINED = -1;
 
-    /** The word detector used by this rule */
-    protected IWordDetector fDetector;
     /** The default token to be returned on success and if nothing else has been specified. */
     protected IToken fDefaultToken;
     /** The column constraint */
@@ -68,13 +66,11 @@ public class PyWordRule implements IRule {
      *
      * @see #addWord(String, IToken)
      */
-    public PyWordRule(IWordDetector detector, IToken defaultToken, IToken classNameToken, IToken funcNameToken,
+    public PyWordRule(IToken defaultToken, IToken classNameToken, IToken funcNameToken,
             IToken parensToken, IToken operatorsToken) {
 
-        Assert.isNotNull(detector);
         Assert.isNotNull(defaultToken);
 
-        fDetector = detector;
         fDefaultToken = defaultToken;
         this.classNameToken = classNameToken;
         this.funcNameToken = funcNameToken;
@@ -111,10 +107,13 @@ public class PyWordRule implements IRule {
     }
 
     private String lastFound = "";
+    private int lastChar = '\0';
 
     @Override
     public IToken evaluate(ICharacterScanner scanner) {
+        final int currLastChar = lastChar;
         int c = scanner.read();
+        lastChar = c;
 
         IToken found = null;
         switch (c) {
@@ -151,18 +150,33 @@ public class PyWordRule implements IRule {
             return found;
         }
 
-        if (fDetector.isWordStart((char) c)) {
+        if (Character.isJavaIdentifierStart(c)) {
             if (fColumn == UNDEFINED || (fColumn == scanner.getColumn() - 1)) {
 
                 fBuffer.clear();
                 do {
                     fBuffer.append((char) c);
                     c = scanner.read();
-                } while (c != ICharacterScanner.EOF && fDetector.isWordPart((char) c));
+                } while (c != ICharacterScanner.EOF && Character.isJavaIdentifierPart(c));
                 scanner.unread();
 
                 String str = fBuffer.toString();
                 IToken token = fWords.get(str);
+                boolean isSoftKeyword = str.equals("match") || str.equals("case");
+
+                if (isSoftKeyword) {
+                    if (currLastChar == '.') {
+                        // i.e.: re.match
+                        token = null;
+                    } else {
+                        int nextNonWhitespaceChar = lookAheadNextNonWhitespaceChar(scanner);
+                        if (nextNonWhitespaceChar == '=') {
+                            // i.e.: match = 
+                            token = null;
+                        }
+                    }
+                }
+
                 if (token != null) {
                     lastFound = str;
                     return token;
@@ -188,13 +202,29 @@ public class PyWordRule implements IRule {
         return Token.UNDEFINED;
     }
 
+    private int lookAheadNextNonWhitespaceChar(ICharacterScanner scanner) {
+        int readChars = 0;
+        int c;
+        do {
+            c = scanner.read();
+            readChars += 1;
+        } while (Character.isWhitespace(c) && c != ICharacterScanner.EOF);
+
+        // Put chars back.
+        for (int i = 0; i < readChars; i++) {
+            scanner.unread();
+        }
+        return c;
+    }
+
     /**
      * Returns the characters in the buffer to the scanner.
      *
      * @param scanner the scanner to be used
      */
     protected void unreadBuffer(ICharacterScanner scanner) {
-        for (int i = fBuffer.length() - 1; i >= 0; i--) {
+        int lenLess1 = fBuffer.length() - 1;
+        for (int i = lenLess1; i >= 0; i--) {
             scanner.unread();
         }
     }
