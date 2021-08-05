@@ -991,6 +991,7 @@ void closed_pattern() : {}
     | attr() [class_pattern()]
     | sequence_pattern()
     | mapping_pattern()
+    // | wildcard_pattern() "_" is matched as a regular Name
 }
 
 void literal_pattern() #void : {}
