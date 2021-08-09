@@ -7,8 +7,10 @@
 package org.python.pydev.ast.listing_utils;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -23,6 +25,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.preferences.FileTypesPreferences;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -34,6 +37,10 @@ import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
  * @author Fabio
  */
 public class PyFileListing {
+
+    public static interface PyFileListingFilter {
+        boolean accept(Path path, File file, boolean isDirectory);
+    }
 
     /**
      * Information about a python file found (the actual file and the way it was resolved as a python module)
@@ -82,6 +89,86 @@ public class PyFileListing {
         }
     }
 
+    private static void getPyFilesBelowDirectory(PyFileListing result, final Path path, PyFileListingFilter filter,
+            IProgressMonitor monitor, boolean addSubFolders, int level, String currModuleRep,
+            Set<File> canonicalFolders) {
+        FastStringBuffer buf = new FastStringBuffer(currModuleRep, 128);
+        if (level != 0) {
+            FastStringBuffer newModuleRep = buf;
+            if (newModuleRep.length() != 0) {
+                newModuleRep.append('.');
+            }
+            newModuleRep.append(path.getFileName().toString());
+            currModuleRep = newModuleRep.toString();
+        }
+
+        // check if it is a symlink loop
+        try {
+            if (Files.isSymbolicLink(path)) {
+                File file = path.toFile();
+                File canonicalizedDir = file.getCanonicalFile();
+                if (!canonicalizedDir.equals(file)) {
+                    if (canonicalFolders.contains(canonicalizedDir)) {
+                        return;
+                    }
+                }
+                canonicalFolders.add(canonicalizedDir);
+            }
+        } catch (IOException e) {
+            // See: https://www.brainwy.com/tracker/PyDev/921
+            // java.io.IOException: Too many levels of symbolic links at java.io.UnixFileSystem.canonicalize0(Native Method)
+            // at java.io.UnixFileSystem.canonicalize(UnixFileSystem.java:172)
+            // at java.io.File.getCanonicalPath(File.java:618)
+            // at java.io.File.getCanonicalFile(File.java:643)
+            // at org.python.pydev.ast.listing_utils.PyFileListing.getPyFilesBelow(PyFileListing.java:117)
+            return;
+        }
+        result.foldersFound.add(path.toFile());
+
+        List<Path> foldersLater = new LinkedListWarningOnSlowOperations<Path>();
+
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
+            for (Path subpath : stream) {
+                if (monitor.isCanceled()) {
+                    break;
+                }
+                File subpathFile = subpath.toFile();
+                boolean isDirectory;
+                if (Files.isSymbolicLink(subpath)) {
+                    isDirectory = subpathFile.isDirectory();
+                } else {
+                    isDirectory = Files.isDirectory(subpath);
+                }
+                if (filter != null) {
+                    if (!filter.accept(subpath, subpathFile, isDirectory)) {
+                        continue;
+                    }
+                }
+                if (!isDirectory) {
+                    result.addPyFileInfo(new PyFileInfo(subpathFile, currModuleRep));
+
+                    monitor.worked(1);
+                    monitor.setTaskName(buf.clear().append("Found:").append(subpathFile.toString()).toString());
+                } else {
+                    if (addSubFolders) {
+                        foldersLater.add(subpath);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Log.log(e);
+        }
+
+        for (Path folder : foldersLater) {
+            if (monitor.isCanceled()) {
+                break;
+            }
+            getPyFilesBelowDirectory(result, folder, filter, monitor, addSubFolders, level + 1, currModuleRep,
+                    canonicalFolders);
+            monitor.worked(1);
+        }
+    }
+
     /**
      * Returns the directories and python files in a list.
      *
@@ -89,7 +176,7 @@ public class PyFileListing {
      * @param canonicalFolders used to know if we entered a loop in the listing (with symlinks)
      * @return An object with the results of making that listing.
      */
-    private static PyFileListing getPyFilesBelow(PyFileListing result, File file, FileFilter filter,
+    private static PyFileListing getPyFilesBelowInitial(PyFileListing result, File file, PyFileListingFilter filter,
             IProgressMonitor monitor, boolean addSubFolders, int level, String currModuleRep,
             Set<File> canonicalFolders) {
 
@@ -101,79 +188,8 @@ public class PyFileListing {
             //only check files that actually exist
 
             if (file.isDirectory()) {
-                FastStringBuffer buf = new FastStringBuffer(currModuleRep, 128);
-                if (level != 0) {
-                    FastStringBuffer newModuleRep = buf;
-                    if (newModuleRep.length() != 0) {
-                        newModuleRep.append('.');
-                    }
-                    newModuleRep.append(file.getName());
-                    currModuleRep = newModuleRep.toString();
-                }
-
-                // check if it is a symlink loop
-                try {
-                    File canonicalizedDir = file.getCanonicalFile();
-                    if (!canonicalizedDir.equals(file)) {
-                        if (canonicalFolders.contains(canonicalizedDir)) {
-                            return result;
-                        }
-                    }
-                    canonicalFolders.add(canonicalizedDir);
-                } catch (IOException e) {
-                    // See: https://www.brainwy.com/tracker/PyDev/921
-                    // java.io.IOException: Too many levels of symbolic links at java.io.UnixFileSystem.canonicalize0(Native Method)
-                    // at java.io.UnixFileSystem.canonicalize(UnixFileSystem.java:172)
-                    // at java.io.File.getCanonicalPath(File.java:618)
-                    // at java.io.File.getCanonicalFile(File.java:643)
-                    // at org.python.pydev.ast.listing_utils.PyFileListing.getPyFilesBelow(PyFileListing.java:117)
-                    return result;
-                }
-
-                File[] files;
-
-                if (filter != null) {
-                    files = file.listFiles(filter);
-                } else {
-                    files = file.listFiles();
-                }
-
-                List<File> foldersLater = new LinkedListWarningOnSlowOperations<File>();
-
-                if (files != null) {
-                    for (File file2 : files) {
-
-                        if (monitor.isCanceled()) {
-                            break;
-                        }
-
-                        if (file2.isFile()) {
-                            result.addPyFileInfo(new PyFileInfo(file2, currModuleRep));
-
-                            monitor.worked(1);
-                            monitor.setTaskName(buf.clear().append("Found:").append(file2.toString()).toString());
-
-                        } else {
-                            foldersLater.add(file2);
-                        }
-                    }
-                    result.foldersFound.add(file);
-
-                    for (File folder : foldersLater) {
-
-                        if (monitor.isCanceled()) {
-                            break;
-                        }
-
-                        if (folder.isDirectory() && addSubFolders) {
-
-                            getPyFilesBelow(result, folder, filter, monitor, addSubFolders, level + 1,
-                                    currModuleRep, canonicalFolders);
-
-                            monitor.worked(1);
-                        }
-                    }
-                }
+                getPyFilesBelowDirectory(result, file.toPath(), filter, monitor, addSubFolders, level, currModuleRep,
+                        canonicalFolders);
 
             } else { // not dir: must be file
                 result.addPyFileInfo(new PyFileInfo(file, currModuleRep));
@@ -184,13 +200,13 @@ public class PyFileListing {
         return result;
     }
 
-    private static PyFileListing getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor,
+    private static PyFileListing getPyFilesBelow(File file, PyFileListingFilter filter, IProgressMonitor monitor,
             boolean addSubFolders) {
         PyFileListing result = new PyFileListing();
-        return getPyFilesBelow(result, file, filter, monitor, addSubFolders, 0, "", new HashSet<File>());
+        return getPyFilesBelowInitial(result, file, filter, monitor, addSubFolders, 0, "", new HashSet<File>());
     }
 
-    public static PyFileListing getPyFilesBelow(File file, FileFilter filter, IProgressMonitor monitor) {
+    public static PyFileListing getPyFilesBelow(File file, PyFileListingFilter filter, IProgressMonitor monitor) {
         return getPyFilesBelow(file, filter, monitor, true);
     }
 
@@ -198,31 +214,24 @@ public class PyFileListing {
      * @param includeDirs determines if we can include subdirectories
      * @return a file filter only for python files (and other dirs if specified)
      */
-    public static FileFilter getPyFilesFileFilter(final boolean includeDirs) {
+    public static PyFileListingFilter getPyFilesFileFilter(final boolean includeDirs) {
 
-        return new FileFilter() {
+        return new PyFileListingFilter() {
 
             private final String[] dottedValidSourceFiles = FileTypesPreferences.getDottedValidSourceFiles();
 
             @Override
-            public boolean accept(File pathname) {
-                if (includeDirs) {
-                    if (pathname.isDirectory()) {
-                        return true;
-                    }
-                    if (PythonPathHelper.isValidSourceFile(pathname.toString(), dottedValidSourceFiles)) {
-                        return true;
-                    }
-                    return false;
-                } else {
-                    if (pathname.isDirectory()) {
-                        return false;
-                    }
-                    if (PythonPathHelper.isValidSourceFile(pathname.toString(), dottedValidSourceFiles)) {
+            public boolean accept(Path pathname, File file, boolean isDirectory) {
+                if (isDirectory) {
+                    if (includeDirs) {
                         return true;
                     }
                     return false;
                 }
+                if (PythonPathHelper.isValidSourceFile(file.toString(), dottedValidSourceFiles)) {
+                    return true;
+                }
+                return false;
             }
 
         };
@@ -235,7 +244,7 @@ public class PyFileListing {
      * @return tuple with files in pos 0 and folders in pos 1
      */
     public static PyFileListing getPyFilesBelow(File file, IProgressMonitor monitor, final boolean includeDirs) {
-        FileFilter filter = getPyFilesFileFilter(includeDirs);
+        PyFileListingFilter filter = getPyFilesFileFilter(includeDirs);
         return getPyFilesBelow(file, filter, monitor, true);
     }
 
