@@ -1156,7 +1156,25 @@ void begin_except_clause(): {}
 { <EXCEPT> }
 
 
-$PY3K_WITH_STMT
+//with_stmt: 'with' [(]with_item (',' with_item)*)[)]  ':' suite
+void with_stmt(): {}
+{ 
+	<WITH>
+    {grammarActions.addSpecialToken("with ", STRATEGY_BEFORE_NEXT); }
+    (
+		(<LPAREN>
+		with_item()
+		($COMMA with_item())*
+	  	<RPAREN>)
+	  	| (with_item()
+		($COMMA with_item())*)
+  	)
+    $COLON suite()
+}
+
+//with_item: test ['as' expr]
+void with_item():{}
+{ test() [$AS2 expr()]}
 
 
 $SUITE

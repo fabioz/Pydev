@@ -1349,23 +1349,25 @@ void begin_except_clause(): {}
 { <EXCEPT> }
 
 
-
-//with_stmt: 'with' with_item (',' with_item)*  ':' suite
+//with_stmt: 'with' [(]with_item (',' with_item)*)[)]  ':' suite
 void with_stmt(): {}
-{ <WITH>
+{ 
+	<WITH>
     {grammarActions.addSpecialToken("with ", STRATEGY_BEFORE_NEXT); }
-
-    with_item()
-    ({grammarActions.findTokenAndAdd(",");}<COMMA> with_item())*
-
+    (
+		(<LPAREN>
+		with_item()
+		({grammarActions.findTokenAndAdd(",");}<COMMA> with_item())*
+	  	<RPAREN>)
+	  	| (with_item()
+		({grammarActions.findTokenAndAdd(",");}<COMMA> with_item())*)
+  	)
     {grammarActions.findTokenAndAdd(":");}<COLON> suite()
 }
 
 //with_item: test ['as' expr]
 void with_item():{}
 { test() [{temporaryToken=grammarActions.createSpecialStr("as");}<AS> {grammarActions.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);} expr()]}
-
-
 
 
 

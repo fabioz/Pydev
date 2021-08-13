@@ -490,4 +490,28 @@ public class OccurrencesAnalyzerPy310Test extends AnalysisTestsBase {
                 + "        raise ValueError(\"Not a point\")");
         checkNoError();
     }
+
+    public void testWithStmt() {
+        doc = new Document("from contextlib import nullcontext as f\n"
+                + "with (f() as example):\n"
+                + "    print(example)");
+        checkError("Unresolved import: f");
+    }
+
+    public void testWithStmt2() {
+        doc = new Document("from contextlib import nullcontext as f\n"
+                + "with (f('c') as a,\n"
+                + "     f('a') as b):\n"
+                + "    print(a)\n"
+                + "    print(b)");
+        checkError("Unresolved import: f");
+    }
+
+    public void testWithStmt3() {
+        doc = new Document("from contextlib import nullcontext as f\n"
+                + "with f('c') as a, f('a') as b:\n"
+                + "    print(a)\n"
+                + "    print(b)");
+        checkError("Unresolved import: f");
+    }
 }

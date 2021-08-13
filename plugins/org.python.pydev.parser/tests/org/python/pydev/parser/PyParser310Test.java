@@ -327,4 +327,24 @@ public class PyParser310Test extends PyParserTestBase {
                 + "print(result)";
         parseLegalDocStr(s);
     }
+
+    public void testWithStmt() {
+        String s = "from contextlib import nullcontext as f\n"
+                + "with (f() as example):\n"
+                + "    pass";
+        parseLegalDocStr(s);
+    }
+
+    public void testWithStmt2() {
+        String s = "with (f('c') as a,\n"
+                + "     f('a') as b):\n"
+                + "    pass";
+        parseLegalDocStr(s);
+    }
+
+    public void testWithStmt3() {
+        String s = "with f('c') as a, f('a') as b:\n"
+                + "    pass\n";
+        parseLegalDocStr(s);
+    }
 }
