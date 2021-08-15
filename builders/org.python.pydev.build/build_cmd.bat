@@ -57,6 +57,9 @@ git remote update
 git fetch
 git checkout %BRANCH%
 git pull origin %BRANCH%
+git submodule foreach --recursive git reset --hard
+git submodule foreach --recursive git clean -f -d -x
+git submodule update --init --recursive
 @echo If copied/pasted into cmd.exe, it will break here
 
 @echo Create builtin modules
