@@ -1355,12 +1355,27 @@ void with_stmt(): {}
 	<WITH>
     {grammarActions.addSpecialToken("with ", STRATEGY_BEFORE_NEXT); }
     (
-		(<LPAREN>
-		with_item()
-		({grammarActions.findTokenAndAdd(",");}<COMMA> with_item())*
-	  	<RPAREN>)
-	  	| (with_item()
-		({grammarActions.findTokenAndAdd(",");}<COMMA> with_item())*)
+    	// We have to lookahead in this case because we can have something as:
+    	// with (some_expr) as x:
+    	// as well as
+    	// with (some_expr as x):
+    	// and in one case the parens should match the with and in the other the parens
+    	// is for the expression.
+    	// So, it's unfortunate that a lookahead for a full expression is needed, but
+    	// it's pretty much undecidable otherwise in this case as Python no longer tries 
+    	// to keep to an LL(1) language.
+	  	LOOKAHEAD(with_item())
+	  	(
+	  		with_item()
+			({grammarActions.findTokenAndAdd(",");}<COMMA> with_item())*
+		)
+	  	| 
+		(
+			<LPAREN>
+			with_item()
+			({grammarActions.findTokenAndAdd(",");}<COMMA> with_item())*
+		  	<RPAREN>
+	  	)
   	)
     {grammarActions.findTokenAndAdd(":");}<COLON> suite()
 }

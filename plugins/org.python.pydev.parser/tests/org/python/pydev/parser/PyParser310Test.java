@@ -347,4 +347,14 @@ public class PyParser310Test extends PyParserTestBase {
                 + "    pass\n";
         parseLegalDocStr(s);
     }
+
+    public void testWithStmt4() {
+        // Note that the parens of the `with` in this case is not a part of the with
+        // and is actually used to create an expression.
+        String s = "with (sys.stdin if args.flist=='-' else open(args.flist)) as f:\n"
+                + "    for line in f:\n"
+                + "        compile_dests.append(line.strip())\n"
+                + "";
+        parseLegalDocStr(s);
+    }
 }
