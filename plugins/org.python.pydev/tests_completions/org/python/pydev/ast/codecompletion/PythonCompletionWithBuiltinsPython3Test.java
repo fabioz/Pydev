@@ -395,4 +395,88 @@ public class PythonCompletionWithBuiltinsPython3Test extends CodeCompletionTests
         requestCompl(s, s.length(), -1, new String[] { "ASCII" });
     }
 
+    public void testContextManagerCompletion() throws Exception {
+        String s = "import contextlib\n"
+                + "from typing import Iterator\n"
+                + "@contextlib.contextmanager\n"
+                + "def context() -> Iterator[int]:\n"
+                + "    yield 1\n"
+                + "with context() as ctx:\n"
+                + "    ctx.";
+        requestCompl(s, s.length(), -1, new String[] { "denominator" });
+    }
+
+    public void testContextManagerCompletion2() throws Exception {
+        String s = "import contextlib\n"
+                + "from typing import Iterator\n"
+                + "@contextlib.contextmanager\n"
+                + "def context():\n"
+                + "    yield 1\n"
+                + "with context() as ctx:\n"
+                + "    ctx.";
+        requestCompl(s, s.length(), -1, new String[] { "denominator" });
+    }
+
+    public void testContextManagerCompletion3() throws Exception {
+        String s = "from typing import ContextManager\n"
+                + "class Context(ContextManager[int]):\n"
+                + "    def __enter__(self) -> int:\n"
+                + "        return 1\n"
+                + "    def __exit__(self, exc_type, exc_val, exc_tb) -> None:\n"
+                + "        return\n"
+                + "with Context() as ctx:\n"
+                + "    ctx.";
+        requestCompl(s, s.length(), -1, new String[] { "denominator" });
+    }
+
+    public void testContextManagerCompletion4() throws Exception {
+        String s = "class Context():\n"
+                + "    def __enter__(self) -> int:\n"
+                + "        return 1\n"
+                + "    def __exit__(self, exc_type, exc_val, exc_tb) -> None:\n"
+                + "        return\n"
+                + "with Context() as ctx:\n"
+                + "    ctx.";
+        requestCompl(s, s.length(), -1, new String[] { "denominator" });
+    }
+
+    public void testContextManagerCompletion5() throws Exception {
+        String s = "class Context():\n"
+                + "    def __enter__(self) -> int:\n"
+                + "        pass\n"
+                + "    def __exit__(self, exc_type, exc_val, exc_tb) -> None:\n"
+                + "        return\n"
+                + "with Context() as ctx:\n"
+                + "    ctx.";
+        requestCompl(s, s.length(), -1, new String[] { "denominator" });
+    }
+
+    public void testContextManagerCompletion6() throws Exception {
+        String s = "class Context():\n"
+                + "    def __enter__(self):\n"
+                + "        return 1\n"
+                + "    def __exit__(self, exc_type, exc_val, exc_tb) -> None:\n"
+                + "        return\n"
+                + "with Context() as ctx:\n"
+                + "    ctx.";
+        requestCompl(s, s.length(), -1, new String[] { "denominator" });
+    }
+
+    public void testContextManagerCompletion7() throws Exception {
+        String s = "def context() -> int:\n"
+                + "    pass\n"
+                + "with context() as ctx:\n"
+                + "    ctx.";
+        requestCompl(s, s.length(), -1, new String[] { "denominator" });
+    }
+
+    public void testContextManagerCompletion8() throws Exception {
+        String s = "from typing import Iterator\n"
+                + "def context() -> Iterator[int]:\n"
+                + "    pass\n"
+                + "with context() as ctx:\n"
+                + "    ctx.";
+        requestCompl(s, s.length(), -1, new String[] { "denominator" });
+    }
+
 }
