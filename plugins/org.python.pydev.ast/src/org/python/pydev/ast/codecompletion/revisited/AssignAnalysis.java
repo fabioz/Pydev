@@ -40,9 +40,13 @@ import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.UnaryOp;
+import org.python.pydev.parser.jython.ast.With;
+import org.python.pydev.parser.jython.ast.WithItem;
+import org.python.pydev.parser.jython.ast.WithItemType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.TypeInfo;
+import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.string.StringUtils;
 
@@ -211,7 +215,13 @@ public class AssignAnalysis {
                         state, sourceModule, definition, false);
                 ret.addAll(found);
             } else {
-                TokensList found = getNonFunctionDefCompletionsFromAssign(manager, state, sourceModule,
+                TokensList found = getCompletionsFromWithDef(manager, state, sourceModule, definition);
+                if (found != null && !found.empty()) {
+                    ret.addAll(found);
+                    return ret;
+                }
+
+                found = getNonFunctionDefCompletionsFromAssign(manager, state, sourceModule,
                         definition, assignDefinition);
                 //String spaces = new FastStringBuffer().appendN(' ', assignLevel).toString();
                 //System.out.println(spaces + "Tok: " + state.getActivationToken());
@@ -221,6 +231,36 @@ public class AssignAnalysis {
             }
         }
         return ret;
+    }
+
+    private TokensList getCompletionsFromWithDef(ICodeCompletionASTManager manager, ICompletionState state,
+            SourceModule sourceModule,
+            Definition definition) throws CompletionRecursionException {
+        SimpleNode ast = definition.ast;
+        ILocalScope scope = definition.scope;
+        ISimpleNode foundAtASTNode = scope.getFoundAtASTNode();
+        if (ast == null || foundAtASTNode == null) {
+            return new TokensList();
+        }
+        if (ast instanceof Name && foundAtASTNode instanceof With) {
+            With withStmt = (With) foundAtASTNode;
+            for (WithItemType item : withStmt.with_item) {
+                if (item instanceof WithItem) {
+                    WithItem withItem = (WithItem) item;
+                    if (ast.equals(withItem.optional_vars)) {
+                        exprType contextExpr = withItem.context_expr;
+                        ICompletionState copy = state.getCopy();
+                        String token = NodeUtils.getFullRepresentationString(contextExpr);
+                        copy.setCol(contextExpr.beginColumn - 1);
+                        copy.setLine(contextExpr.beginLine - 1);
+                        copy.setActivationToken(token);
+                        copy.pushLookingFor(LookingFor.LOOKING_FOR_WITH_CTX);
+                        return manager.getCompletionsForModule(sourceModule, copy, false, false);
+                    }
+                }
+            }
+        }
+        return new TokensList();
     }
 
     private boolean computeCompletionsFromParameterTypingInfo(ICodeCompletionASTManager manager, ICompletionState state,
