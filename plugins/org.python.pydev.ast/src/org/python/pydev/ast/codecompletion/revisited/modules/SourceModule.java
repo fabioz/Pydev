@@ -52,6 +52,7 @@ import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.NoExceptionCloseable;
 import org.python.pydev.core.TokensList;
 import org.python.pydev.core.TupleN;
+import org.python.pydev.core.UnpackInfo;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.preferences.FileTypesPreferences;
 import org.python.pydev.core.structure.CompletionRecursionException;
@@ -66,6 +67,7 @@ import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Str;
+import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.TypeInfo;
@@ -694,6 +696,14 @@ public class SourceModule extends AbstractModule implements ISourceModule {
             state = initialState.getCopy();
             state.setActivationToken(s);
             return manager.getCompletionsForModule(this, state);
+        } else if (classDef.bases[baseIndex] instanceof Subscript) {
+            TypeInfo type = new TypeInfo(classDef.bases[baseIndex]);
+            if ("ContextManager".equals(type.getActTok())) {
+                ITypeInfo unpacked = type.getUnpacked(new UnpackInfo());
+                state = initialState.getCopy();
+                state.setActivationToken(unpacked.getActTok());
+                return manager.getCompletionsForModule(this, state);
+            }
         }
         return null;
     }

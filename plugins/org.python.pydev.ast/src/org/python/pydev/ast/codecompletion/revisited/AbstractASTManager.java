@@ -76,6 +76,7 @@ import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.Return;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.aliasType;
+import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -161,10 +162,21 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         Definition def = (Definition) definition;
         FunctionDef functionDef = (FunctionDef) def.ast;
 
+        boolean isLookingForWithCtx = state.getLookingFor().equals(LookingFor.LOOKING_FOR_WITH_CTX);
+
+        if (isLookingForWithCtx) {
+            considerYieldTheReturnType = true;
+        }
+
         ITypeInfo type = NodeUtils.getReturnTypeFromFuncDefAST(functionDef);
         if (type != null) {
             ICompletionState copy = state.getCopy();
             copy.setActivationToken(type.getActTok());
+
+            if (isLookingForWithCtx) {
+                ITypeInfo unpacked = type.getUnpacked(new UnpackInfo());
+                copy.setActivationToken(unpacked.getActTok());
+            }
 
             try (NoExceptionCloseable x = copy.pushLookingFor(LookingFor.LOOKING_FOR_INSTANCED_VARIABLE)) {
                 stmtType[] body = functionDef.body;
@@ -244,6 +256,13 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             }
         }
         return ret;
+    }
+
+    private boolean isFunctionDefContextManager(FunctionDef functionDef) {
+        for (decoratorsType dec : functionDef.decs) {
+            System.out.println(dec);
+        }
+        return false;
     }
 
     /**
