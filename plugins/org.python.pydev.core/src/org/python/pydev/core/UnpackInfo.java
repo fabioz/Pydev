@@ -11,26 +11,36 @@ public class UnpackInfo {
     private int unpackTuple = -1;
     private boolean unpackFor = false;
     private boolean unpackBackwards;
+    private boolean unpackWith;
 
     public UnpackInfo() {
 
     }
 
+    public UnpackInfo(boolean unpackFor, boolean unpackWith, int unpackTuple) {
+        this(unpackFor, unpackWith, unpackTuple, false);
+    }
+
     public UnpackInfo(boolean unpackFor, int unpackTuple) {
-        this(unpackFor, unpackTuple, false);
+        this(unpackFor, false, unpackTuple, false);
     }
 
     /**
      * @param unpackBackwards means something as a[-1], a[-2] (but the unpackTuple is still positive)
      */
-    public UnpackInfo(boolean unpackFor, int unpackTuple, boolean unpackBackwards) {
+    public UnpackInfo(boolean unpackFor, boolean unpackWith, int unpackTuple, boolean unpackBackwards) {
         this.unpackFor = unpackFor;
+        this.unpackWith = unpackWith;
         this.unpackTuple = unpackTuple;
         this.unpackBackwards = unpackBackwards;
     }
 
     public void addUnpackFor() {
         unpackFor = true;
+    }
+
+    public void addUnpackWith() {
+        unpackWith = true;
     }
 
     public void addUnpackTuple(int i) {
@@ -61,6 +71,10 @@ public class UnpackInfo {
 
     public boolean getUnpackFor() {
         return this.unpackFor;
+    }
+
+    public boolean getUnpackWith() {
+        return this.unpackWith;
     }
 
     public boolean hasUnpackInfo() {
