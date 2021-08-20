@@ -1296,19 +1296,18 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                         }
                     }
 
-                    ITypeInfo definitionTypeInfo = new TypeInfo(definition.value);
-                    String definitionActTok = definitionTypeInfo.getActTok();
-                    if (definitionActTok != null && !definitionActTok.isEmpty()) {
-                        TokensList tokens = getCompletionsUnpackingType(module, state, unpackPos, definitionTypeInfo);
+                    String docstring = definition.getDocstring(this.getNature(), state);
+                    if (docstring != null && !docstring.isEmpty()) {
+                        TokensList tokens = getCompletionsUnpackingDocstring(module, state, unpackPos, docstring);
                         if (tokens != null && tokens.size() > 0) {
                             return tokens;
                         }
                     }
 
-                    // If it still hasn't returned, try to get it from the docstring
-                    String docstring = definition.getDocstring(this.getNature(), state);
-                    if (docstring != null && !docstring.isEmpty()) {
-                        TokensList tokens = getCompletionsUnpackingDocstring(module, state, unpackPos, docstring);
+                    ITypeInfo definitionTypeInfo = new TypeInfo(definition.value);
+                    String definitionActTok = definitionTypeInfo.getActTok();
+                    if (definitionActTok != null && !definitionActTok.isEmpty()) {
+                        TokensList tokens = getCompletionsUnpackingType(module, state, unpackPos, definitionTypeInfo);
                         if (tokens != null && tokens.size() > 0) {
                             return tokens;
                         }
