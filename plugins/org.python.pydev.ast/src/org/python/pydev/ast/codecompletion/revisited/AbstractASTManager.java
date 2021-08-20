@@ -1132,7 +1132,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                     if (rep != null) {
                         ret = getCompletionsUnpackingObject(module,
                                 state.getCopyWithActTok(rep),
-                                localScope, new UnpackInfo(false, -1));
+                                localScope, new UnpackInfo(true, -1));
                     }
                 }
                 if (ret != null && ret.size() > 0) {
