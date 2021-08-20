@@ -1051,7 +1051,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                     if (ctx_rep != null) {
                         ret = getCompletionsUnpackingObject(module,
                                 state.getCopyWithActTok(ctx_rep),
-                                localScope, new UnpackInfo(false, true, -1));
+                                localScope, new UnpackInfo(false, -1));
                     }
                     if (ret != null && ret.size() > 0) {
                         return ret;
@@ -1132,7 +1132,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                     if (rep != null) {
                         ret = getCompletionsUnpackingObject(module,
                                 state.getCopyWithActTok(rep),
-                                localScope, new UnpackInfo(false, true, -1));
+                                localScope, new UnpackInfo(false, -1));
                     }
                 }
                 if (ret != null && ret.size() > 0) {

@@ -485,7 +485,7 @@ public class AssignAnalysis {
                 if (assignDefinition != null && unpackPos >= 0) {
                     TokensList tks = manager.getCompletionsUnpackingObject(
                             module, copy, assignDefinition.scope,
-                            new UnpackInfo(false, false, unpackPos, unpackBackwards));
+                            new UnpackInfo(false, unpackPos, unpackBackwards));
                     if (tks != null) {
                         ret.addAll(tks);
                     }
