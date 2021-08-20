@@ -74,11 +74,15 @@ import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.Return;
+import org.python.pydev.parser.jython.ast.With;
+import org.python.pydev.parser.jython.ast.WithItem;
+import org.python.pydev.parser.jython.ast.WithItemType;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.parser.visitors.TypeInfo;
 import org.python.pydev.parser.visitors.scope.ReturnVisitor;
 import org.python.pydev.parser.visitors.scope.YieldVisitor;
 import org.python.pydev.shared_core.callbacks.ICallback0;
@@ -919,6 +923,12 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                                 //added the type on the context (because on a for unpacking either we find it
                                 //when checking the for loop unpack or the user has to explicitly give
                                 //us a hint).
+                            } else if (foundAtASTNode instanceof With) {
+                                With with = (With) foundAtASTNode;
+                                TokensList ret = getCompletionsUnpackingWith(module, state, localScope, with);
+                                if (ret != null && ret.size() > 0) {
+                                    return ret;
+                                }
                             }
                         }
                     }
@@ -1022,6 +1032,34 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             }
         }
         return new TokensList();
+    }
+
+    private TokensList getCompletionsUnpackingWith(IModule module, ICompletionState state, ILocalScope localScope,
+            With with) throws CompletionRecursionException {
+        state.checkMaxTimeForCompletion();
+        if (with.with_item == null) {
+            return null;
+        }
+        for (WithItemType o : with.with_item) {
+            if (o instanceof WithItem) {
+                WithItem withItem = (WithItem) o;
+                if (state.getActivationToken().equals(
+                        NodeUtils.getFullRepresentationString(withItem.optional_vars))) {
+                    TokensList ret = null;
+                    String ctx_rep = NodeUtils
+                            .getFullRepresentationString(withItem.context_expr);
+                    if (ctx_rep != null) {
+                        ret = getCompletionsUnpackingObject(module,
+                                state.getCopyWithActTok(ctx_rep),
+                                localScope, new UnpackInfo(false, -1));
+                    }
+                    if (ret != null && ret.size() > 0) {
+                        return ret;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     private TokensList getCompletionsUnpackingForLoop(IModule module, ICompletionState state, ILocalScope localScope,
@@ -1258,10 +1296,18 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                         }
                     }
 
-                    // If it still hasn't returned, try to get it from the docstring
                     String docstring = definition.getDocstring(this.getNature(), state);
                     if (docstring != null && !docstring.isEmpty()) {
                         TokensList tokens = getCompletionsUnpackingDocstring(module, state, unpackPos, docstring);
+                        if (tokens != null && tokens.size() > 0) {
+                            return tokens;
+                        }
+                    }
+
+                    ITypeInfo definitionTypeInfo = new TypeInfo(definition.value);
+                    String definitionActTok = definitionTypeInfo.getActTok();
+                    if (definitionActTok != null && !definitionActTok.isEmpty()) {
+                        TokensList tokens = getCompletionsUnpackingType(module, state, unpackPos, definitionTypeInfo);
                         if (tokens != null && tokens.size() > 0) {
                             return tokens;
                         }
@@ -1485,6 +1531,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                             getItemToken = iToken;
                             break;
                         case "__iter__":
+                        case "__next__":
+                        case "__enter__":
                             //__iter__ has priority over __getitem__
                             //If we find it we'll try to unpack completions from it.
                             if (iToken instanceof SourceToken) {
