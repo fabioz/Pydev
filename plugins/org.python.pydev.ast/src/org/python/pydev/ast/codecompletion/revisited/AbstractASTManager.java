@@ -1037,6 +1037,9 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     private TokensList getCompletionsUnpackingWith(IModule module, ICompletionState state, ILocalScope localScope,
             With with) throws CompletionRecursionException {
         state.checkMaxTimeForCompletion();
+        if (with.with_item == null) {
+            return null;
+        }
         for (WithItemType o : with.with_item) {
             if (o instanceof WithItem) {
                 WithItem withItem = (WithItem) o;
