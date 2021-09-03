@@ -332,7 +332,10 @@ public class InterpreterInfoTest extends TestCase {
     public void testObtainCondaEnv() throws Exception {
         CorePlugin.setBundleInfo(new BundleInfoStub());
 
-        String testFileName = "env_test_vars.bat";
+        String testFileName = "env_test_vars";
+        if (TestDependent.isWindows()) {
+            testFileName += ".bat";
+        }
         String activateFilePath = TestDependent.CONDA_PYTHON_ENV + "etc/conda/activate.d/" + testFileName;
         String deactivateFilePath = TestDependent.CONDA_PYTHON_ENV + "etc/conda/deactivate.d/" + testFileName;
 
@@ -344,8 +347,11 @@ public class InterpreterInfoTest extends TestCase {
         writeFile(activateFilePath, activateCommand);
         writeFile(deactivateFilePath, deactivateCommand);
 
-        String pythonExe = TestDependent.CONDA_PYTHON_ENV + "python.exe";
-        InterpreterInfo interpreterInfo = new InterpreterInfo("3.8", pythonExe, new ArrayList<String>());
+        String pythonExe = TestDependent.CONDA_PYTHON_ENV + "bin/python";
+        if (TestDependent.isWindows()) {
+            pythonExe = TestDependent.CONDA_PYTHON_ENV + "python.exe";
+        }
+        InterpreterInfo interpreterInfo = new InterpreterInfo("3.6", pythonExe, new ArrayList<String>());
         File condaPrefix = interpreterInfo.getCondaPrefix();
         Map<String, String> condaEnv = interpreterInfo.obtainCondaEnv(condaPrefix);
 
