@@ -55,6 +55,14 @@ public class BundleInfoStub implements IBundleInfo {
             return new File(new File(
                     TestDependent.PYSRC_LOC).getParentFile(), "typeshed");
         }
+        if (relative.toString().indexOf("helpers/load-conda-vars.bat") != -1) {
+            return new File(
+                    TestDependent.HELPERS_LOC + "load-conda-vars.bat");
+        }
+        if (relative.toString().indexOf("helpers/load-conda-vars") != -1) {
+            return new File(
+                    TestDependent.HELPERS_LOC + "load-conda-vars");
+        }
         throw new RuntimeException("Not available info on: " + relative);
     }
 

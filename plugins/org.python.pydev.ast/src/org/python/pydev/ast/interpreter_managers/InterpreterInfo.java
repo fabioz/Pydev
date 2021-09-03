@@ -55,6 +55,7 @@ import org.python.pydev.core.IModuleRequestState;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.PropertiesHelper;
+import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.core.interpreters.IInterpreterNewCustomEntries;
 import org.python.pydev.core.log.Log;
@@ -1708,7 +1709,8 @@ public class InterpreterInfo implements IInterpreterInfo {
         return ret;
     }
 
-    private Map<String, String> obtainCondaEnv(File condaPrefix) throws IOException, CoreException {
+    public Map<String, String> obtainCondaEnv(File condaPrefix)
+            throws Exception {
         Map<String, String> condaEnv = new HashMap<String, String>();
         String[] cmdLine;
         File relativePath;
@@ -1725,9 +1727,18 @@ public class InterpreterInfo implements IInterpreterInfo {
         // Note: we must start from the default env and not based on a project nature (otherwise
         // variables in one project could interfere with another project).
         Map<String, String> initialEnv = SimpleRunner.getDefaultSystemEnv(this.getModulesManager().getNature());
+        File condaExec = PyDevCondaPreferences.findCondaExecutable(this);
+        File condaBinDir = condaExec.getParentFile(); // in Windows Systems, this directory is called Scripts
+        File condaActivation = getCondaActivationFile(condaBinDir);
+        if (!condaActivation.exists()) {
+            Log.log("Could not find Conda activate file: " + condaActivation);
+            return initialEnv;
+        }
 
         initialEnv.put("__PYDEV_CONDA_PREFIX__", condaPrefix.toString());
         initialEnv.put("__PYDEV_CONDA_DEFAULT_ENV__", condaPrefix.getName());
+        initialEnv.put("__PYDEV_CONDA_ACTIVATION__", condaActivation.getAbsolutePath()); // in subshell scripts we need to activate conda before calling any conda command.
+
         Process process = SimpleRunner.createProcess(cmdLine, createEnvWithMap(initialEnv),
                 relativePath.getParentFile());
         Tuple<String, String> output = SimpleRunner.getProcessOutput(process,
@@ -1737,6 +1748,7 @@ public class InterpreterInfo implements IInterpreterInfo {
                 Tuple<String, String> split = StringUtils.splitOnFirst(line, '=');
                 if (split.o1.equals("__PYDEV_CONDA_PREFIX__")
                         || split.o1.equals("__PYDEV_CONDA_DEFAULT_ENV__")
+                        || split.o1.equals("__PYDEV_CONDA_ACTIVATION__")
                         || split.o1.equals("_")) {
                     continue;
                 }
@@ -1750,6 +1762,14 @@ public class InterpreterInfo implements IInterpreterInfo {
         Map<String, String> map = new HashMap<>();
         fillMapWithEnv(env, map, null, null);
         return map;
+    }
+
+    private static File getCondaActivationFile(File condaBinDir) throws Exception {
+        if (TestDependent.isWindows()) {
+            return new File(condaBinDir, "activate.bat");
+        } else {
+            return new File(condaBinDir, "activate");
+        }
     }
 
     public static String[] createEnvWithMap(Map<String, String> hashMap) {
@@ -1926,7 +1946,7 @@ public class InterpreterInfo implements IInterpreterInfo {
 
     /**
      * May return null if it doesn't exist.
-     * @param moduleRequest 
+     * @param moduleRequest
      * @return the file that matches the passed module name with the predefined builtins.
      */
     public File getPredefinedModule(String moduleName, IModuleRequestState moduleRequest) {

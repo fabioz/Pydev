@@ -30,6 +30,9 @@ public class TestDependent {
     // TEST_PYDEV_BASE_LOC is only used to set other variables in TestDependent
     public static String TEST_PYDEV_BASE_LOC = null;
 
+    // CONDA_PYTHON_ENV is used to get the default Conda Python environment for Conda tests.
+    public static String CONDA_PYTHON_ENV = null;
+
     //Python (implicitly resolved based on the Python variables above if not specified).
     public static String PYTHON_LIB = null;
     // PYTHON_DLLS applies to Windows only
@@ -54,6 +57,7 @@ public class TestDependent {
 
     // the following are all derived from TEST_PYDEV_BASE_LOC if unset
     public static String PYSRC_LOC = null;
+    public static String HELPERS_LOC = null;
     public static String TEST_PYSRC_TESTING_LOC = null;
     public static String TEST_PYSRC_NAVIGATOR_LOC = null;
     public static String TEST_PYSRC_TESTING_LOC2 = null;
@@ -194,6 +198,16 @@ public class TestDependent {
                 System.err.println("PYTHON_EXE variable points to path that does NOT exist: " + PYTHON_EXE);
             }
 
+            if (CONDA_PYTHON_ENV != null) {
+                if (!new File(CONDA_PYTHON_ENV).exists()) {
+                    System.err.println(
+                            "CONDA_PYTHON_ENV variable points to path that does NOT exist: " + CONDA_PYTHON_ENV);
+                }
+                if (!CONDA_PYTHON_ENV.endsWith("/")) {
+                    throw new RuntimeException("Expecting CONDA_PYTHON_ENV to end with '/'");
+                }
+            }
+
             if (PYTHON_LIB == null) {
                 PYTHON_LIB = PYTHON_INSTALL + "Lib/";
             }
@@ -235,6 +249,17 @@ public class TestDependent {
             }
             if (!TEST_PYDEV_PLUGIN_LOC.endsWith("/")) {
                 throw new RuntimeException("Expecting TEST_PYDEV_PLUGIN_LOC to end with '/'");
+            }
+
+            if (HELPERS_LOC == null) {
+                HELPERS_LOC = TEST_PYDEV_BASE_LOC + "org.python.pydev.core/helpers/";
+            }
+            if (!HELPERS_LOC.endsWith("/")) {
+                throw new RuntimeException("Expecting HELPERS_LOC to end with '/'");
+            }
+            if (!new File(HELPERS_LOC).exists()) {
+                throw new RuntimeException("HELPERS_LOC variable points to path that does NOT exist: "
+                        + HELPERS_LOC);
             }
 
             if (PYSRC_LOC == null) {

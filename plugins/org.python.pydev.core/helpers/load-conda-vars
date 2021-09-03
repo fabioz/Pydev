@@ -1,17 +1,12 @@
 #!/bin/bash
 
-run_activate_scripts() {
-    if [[ -d "$1" ]]; then
-        conda activate "$1"
-    fi
-}
-
-export CONDA_PREFIX="__PYDEV_CONDA_PREFIX__"
-export CONDA_DEFAULT_ENV="__PYDEV_CONDA_DEFAULT_ENV__"
+export CONDA_PREFIX="$__PYDEV_CONDA_PREFIX__"
+export CONDA_DEFAULT_ENV="$__PYDEV_CONDA_DEFAULT_ENV__"
+export CONDA_ACTIVATION="$__PYDEV_CONDA_ACTIVATION__"
 export CONDA_ENV_PATH="$CONDA_PREFIX"
 export CONDA_PATH_BACKUP="$PATH"
 export CONDA_PS1_BACKUP="$PS1"
 
 export PATH="$CONDA_PREFIX/bin:$PATH"
-run_activate_scripts "$CONDA_PREFIX" &&
+source "$CONDA_ACTIVATION" "$CONDA_DEFAULT_ENV"
 printenv
