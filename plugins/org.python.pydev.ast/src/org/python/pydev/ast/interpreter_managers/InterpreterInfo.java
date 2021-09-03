@@ -1708,7 +1708,8 @@ public class InterpreterInfo implements IInterpreterInfo {
         return ret;
     }
 
-    private Map<String, String> obtainCondaEnv(File condaPrefix) throws IOException, CoreException {
+    public Map<String, String> obtainCondaEnv(File condaPrefix)
+            throws IOException, CoreException, UnableToFindExecutableException {
         Map<String, String> condaEnv = new HashMap<String, String>();
         String[] cmdLine;
         File relativePath;
@@ -1728,6 +1729,12 @@ public class InterpreterInfo implements IInterpreterInfo {
 
         initialEnv.put("__PYDEV_CONDA_PREFIX__", condaPrefix.toString());
         initialEnv.put("__PYDEV_CONDA_DEFAULT_ENV__", condaPrefix.getName());
+
+        File condaExec = PyDevCondaPreferences.findCondaExecutable(this);
+        File condaScriptsDir = condaExec.getParentFile();
+        File condaActivation = new File(condaScriptsDir, "activate.bat");
+        initialEnv.put("__PYDEV_CONDA_ACTIVATION__", condaActivation.getAbsolutePath()); // in subshell scripts we need to activate conda before calling any conda command.
+
         Process process = SimpleRunner.createProcess(cmdLine, createEnvWithMap(initialEnv),
                 relativePath.getParentFile());
         Tuple<String, String> output = SimpleRunner.getProcessOutput(process,
@@ -1737,6 +1744,7 @@ public class InterpreterInfo implements IInterpreterInfo {
                 Tuple<String, String> split = StringUtils.splitOnFirst(line, '=');
                 if (split.o1.equals("__PYDEV_CONDA_PREFIX__")
                         || split.o1.equals("__PYDEV_CONDA_DEFAULT_ENV__")
+                        || split.o1.equals("__PYDEV_CONDA_ACTIVATION__")
                         || split.o1.equals("_")) {
                     continue;
                 }

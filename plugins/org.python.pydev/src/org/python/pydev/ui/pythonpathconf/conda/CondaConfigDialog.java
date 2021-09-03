@@ -15,6 +15,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.python.pydev.ast.interpreter_managers.PyDevCondaPreferences;
 import org.python.pydev.shared_ui.field_editors.FileFieldEditorCustom;
 import org.python.pydev.ui.pythonpathconf.ValidationFailedException;
 

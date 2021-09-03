@@ -35,6 +35,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ListDialog;
 import org.python.pydev.ast.interpreter_managers.AbstractInterpreterManager;
+import org.python.pydev.ast.interpreter_managers.PyDevCondaPreferences;
 import org.python.pydev.core.IInterpreterInfo.UnableToFindExecutableException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.preferences.InterpreterGeneralPreferences;
@@ -53,7 +54,6 @@ import org.python.pydev.shared_ui.utils.UIUtils;
 import org.python.pydev.ui.pythonpathconf.InterpreterConfigHelpers;
 import org.python.pydev.ui.pythonpathconf.NameAndExecutable;
 import org.python.pydev.ui.pythonpathconf.conda.CondaConfigDialog;
-import org.python.pydev.ui.pythonpathconf.conda.PyDevCondaPreferences;
 import org.python.pydev.ui.pythonpathconf.package_manager.CondaPackageManager;
 
 /**
