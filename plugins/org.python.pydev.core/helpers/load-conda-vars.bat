@@ -16,10 +16,8 @@
 @set "PATH=%CONDA_PREFIX%;%CONDA_PREFIX%\Scripts;%CONDA_PREFIX%\Library\bin;%PATH%"
 
 @REM activate conda and get the environment
-@if exist "%CONDA_ACTIVATION%" (
-	@call %CONDA_ACTIVATION%
-	@call activate %CONDA_DEFAULT_ENV%
-)
+@call %CONDA_ACTIVATION%
+@call activate %CONDA_DEFAULT_ENV%
 
 @REM Print existing environment variables with the loaded env.
 SET
