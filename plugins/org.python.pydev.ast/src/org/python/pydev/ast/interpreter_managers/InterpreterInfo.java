@@ -1734,6 +1734,10 @@ public class InterpreterInfo implements IInterpreterInfo {
         File condaExec = PyDevCondaPreferences.findCondaExecutable(this);
         File condaBinDir = condaExec.getParentFile(); // in Windows Systems, this directory is called Scripts
         File condaActivation = getCondaActivationFile(condaBinDir);
+        if (!condaActivation.exists()) {
+            Log.log("Could not find Conda activate file.");
+            return condaEnv;
+        }
         initialEnv.put("__PYDEV_CONDA_ACTIVATION__", condaActivation.getAbsolutePath()); // in subshell scripts we need to activate conda before calling any conda command.
 
         Process process = SimpleRunner.createProcess(cmdLine, createEnvWithMap(initialEnv),
