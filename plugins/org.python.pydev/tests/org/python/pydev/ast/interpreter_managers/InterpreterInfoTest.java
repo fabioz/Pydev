@@ -14,8 +14,6 @@ package org.python.pydev.ast.interpreter_managers;
 import static org.junit.Assert.assertNotEquals;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -345,8 +343,8 @@ public class InterpreterInfoTest extends TestCase {
 
         Tuple<String, String> contents = getCondaActivationAndDeactivationTestContent(testVariable);
 
-        writeFile(activateFilePath, contents.o1);
-        writeFile(deactivateFilePath, contents.o2);
+        FileUtils.writeStrToFile(contents.o1, activateFilePath);
+        FileUtils.writeStrToFile(contents.o2, deactivateFilePath);
 
         String pythonExe = TestDependent.CONDA_PYTHON_ENV + "bin/python";
         if (TestDependent.isWindows()) {
@@ -374,42 +372,4 @@ public class InterpreterInfoTest extends TestCase {
             return new Tuple<String, String>(activationContent, deactivationContent);
         }
     }
-
-    private File writeFile(String path, String content) throws Exception {
-        File file = new File(path);
-        if (!file.exists()) {
-            makeDirs(file.getParent());
-            boolean isCreated = file.createNewFile();
-            if (!isCreated) {
-                throw new Exception("Could not create file " + file.getAbsolutePath());
-            }
-        }
-        writeContentInFile(content, file);
-        return file;
-    }
-
-    private void makeDirs(String path) throws Exception {
-        File dir = new File(path);
-        boolean isDirsCreated = dir.mkdirs();
-        if (!isDirsCreated) {
-            throw new Exception("Could create dirs from " + path + " path");
-        }
-    }
-
-    private void writeContentInFile(String content, File file) {
-        FileWriter writer = null;
-        try {
-            writer = new FileWriter(file);
-            writer.write(content);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                writer.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
 }
