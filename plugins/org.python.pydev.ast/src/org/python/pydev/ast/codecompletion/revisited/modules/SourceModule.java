@@ -699,10 +699,10 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         } else if (classDef.bases[baseIndex] instanceof Subscript) {
             TokensList tokens = new TokensList();
             Subscript subscript = (Subscript) classDef.bases[baseIndex];
-            tokens.addAll(getCompletionsForExpr(manager, initialState, subscript.value));
+            tokens.addAll(getCompletionsForValueAsName(manager, initialState, subscript.value));
             if (subscript.slice instanceof Index) {
                 Index index = (Index) subscript.slice;
-                tokens.addAll(getCompletionsForExpr(manager, initialState, index.value));
+                tokens.addAll(getCompletionsForValueAsName(manager, initialState, index.value));
             }
             if (tokens.size() > 0) {
                 return tokens;
@@ -711,12 +711,13 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         return null;
     }
 
-    private TokensList getCompletionsForExpr(ICodeCompletionASTManager manager, ICompletionState state,
+    private TokensList getCompletionsForValueAsName(ICodeCompletionASTManager manager, ICompletionState state,
             exprType value) throws CompletionRecursionException {
         if (value instanceof Name) {
             Name name = (Name) value;
             if (name.id != null && !name.id.isEmpty()) {
                 ICompletionState copiedState = state.getCopy();
+                state.checkMemory(this, name.id);
                 copiedState.setActivationToken(name.id);
                 TokensList subscriptValueToks = manager.getCompletionsForModule(this, copiedState);
                 if (subscriptValueToks != null && subscriptValueToks.size() > 0) {
