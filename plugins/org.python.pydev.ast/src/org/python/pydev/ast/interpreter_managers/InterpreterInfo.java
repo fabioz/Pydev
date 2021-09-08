@@ -1742,6 +1742,9 @@ public class InterpreterInfo implements IInterpreterInfo {
                 relativePath.getParentFile());
         Tuple<String, String> output = SimpleRunner.getProcessOutput(process,
                 ProcessUtils.getArgumentsAsStr(cmdLine), null, null);
+        if (output.o2 != null && !output.o2.isEmpty()) {
+            Log.logInfo("stderr when loading conda env: " + output.o2);
+        }
         for (String line : StringUtils.splitInLines(output.o1, false)) {
             if (!line.trim().isEmpty()) {
                 Tuple<String, String> split = StringUtils.splitOnFirst(line, '=');

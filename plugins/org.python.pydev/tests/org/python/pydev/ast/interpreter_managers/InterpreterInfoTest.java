@@ -113,7 +113,7 @@ public class InterpreterInfoTest extends TestCase {
     }
 
     /**
-     * 
+     *
      */
     public void testInfo() {
         List<String> l = new ArrayList<String>();
@@ -343,6 +343,9 @@ public class InterpreterInfoTest extends TestCase {
 
         Tuple<String, String> contents = getCondaActivationAndDeactivationTestContent(testVariable);
 
+        new File(activateFilePath).getParentFile().mkdirs();
+        new File(deactivateFilePath).getParentFile().mkdirs();
+
         FileUtils.writeStrToFile(contents.o1, activateFilePath);
         FileUtils.writeStrToFile(contents.o2, deactivateFilePath);
 
@@ -350,6 +353,7 @@ public class InterpreterInfoTest extends TestCase {
         if (TestDependent.isWindows()) {
             pythonExe = TestDependent.CONDA_PYTHON_ENV + "python.exe";
         }
+        assertTrue(new File(pythonExe).exists());
         InterpreterInfo interpreterInfo = new InterpreterInfo("3.8", pythonExe, new ArrayList<String>());
         File condaPrefix = interpreterInfo.getCondaPrefix();
         Map<String, String> condaEnv = interpreterInfo.obtainCondaEnv(condaPrefix);
