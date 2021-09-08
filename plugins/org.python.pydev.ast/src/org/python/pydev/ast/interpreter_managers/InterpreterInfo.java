@@ -55,7 +55,6 @@ import org.python.pydev.core.IModuleRequestState;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.PropertiesHelper;
-import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.core.interpreters.IInterpreterNewCustomEntries;
 import org.python.pydev.core.log.Log;
@@ -1765,7 +1764,7 @@ public class InterpreterInfo implements IInterpreterInfo {
     }
 
     private static File getCondaActivationFile(File condaBinDir) throws Exception {
-        if (TestDependent.isWindows()) {
+        if (PlatformUtils.isWindowsPlatform()) {
             return new File(condaBinDir, "activate.bat");
         } else {
             return new File(condaBinDir, "activate");
