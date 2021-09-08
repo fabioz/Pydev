@@ -55,6 +55,7 @@ import org.python.pydev.core.IModuleRequestState;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.PropertiesHelper;
+import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.core.interpreters.IInterpreterNewCustomEntries;
 import org.python.pydev.core.log.Log;
@@ -1709,7 +1710,7 @@ public class InterpreterInfo implements IInterpreterInfo {
     }
 
     public Map<String, String> obtainCondaEnv(File condaPrefix)
-            throws IOException, CoreException, UnableToFindExecutableException {
+            throws Exception {
         Map<String, String> condaEnv = new HashMap<String, String>();
         String[] cmdLine;
         File relativePath;
@@ -1731,8 +1732,8 @@ public class InterpreterInfo implements IInterpreterInfo {
         initialEnv.put("__PYDEV_CONDA_DEFAULT_ENV__", condaPrefix.getName());
 
         File condaExec = PyDevCondaPreferences.findCondaExecutable(this);
-        File condaScriptsDir = condaExec.getParentFile();
-        File condaActivation = new File(condaScriptsDir, "activate.bat");
+        File condaBinDir = condaExec.getParentFile(); // in Windows Systems, this directory is called Scripts
+        File condaActivation = getCondaActivationFile(condaBinDir);
         initialEnv.put("__PYDEV_CONDA_ACTIVATION__", condaActivation.getAbsolutePath()); // in subshell scripts we need to activate conda before calling any conda command.
 
         Process process = SimpleRunner.createProcess(cmdLine, createEnvWithMap(initialEnv),
@@ -1758,6 +1759,14 @@ public class InterpreterInfo implements IInterpreterInfo {
         Map<String, String> map = new HashMap<>();
         fillMapWithEnv(env, map, null, null);
         return map;
+    }
+
+    private static File getCondaActivationFile(File condaBinDir) throws Exception {
+        if (TestDependent.isWindows()) {
+            return new File(condaBinDir, "activate.bat");
+        } else {
+            return new File(condaBinDir, "activate");
+        }
     }
 
     public static String[] createEnvWithMap(Map<String, String> hashMap) {

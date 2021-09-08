@@ -26,6 +26,7 @@ import java.util.Properties;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.ui.BundleInfoStub;
 
 import junit.framework.AssertionFailedError;
@@ -332,19 +333,25 @@ public class InterpreterInfoTest extends TestCase {
     public void testObtainCondaEnv() throws Exception {
         CorePlugin.setBundleInfo(new BundleInfoStub());
 
-        String testFileName = "env_test_vars.bat";
+        String testFileName = "env_vars.sh";
+        if (TestDependent.isWindows()) {
+            testFileName = "env_vars.bat";
+        }
+
         String activateFilePath = TestDependent.CONDA_PYTHON_ENV + "etc/conda/activate.d/" + testFileName;
         String deactivateFilePath = TestDependent.CONDA_PYTHON_ENV + "etc/conda/deactivate.d/" + testFileName;
 
         String testVariable = "MY_INTERPRETERINFO_TEST_KEY";
 
-        String activateCommand = "set " + testVariable + "='interpreterinfo-test-value'";
-        String deactivateCommand = "set " + testVariable + "=";
+        Tuple<String, String> contents = getCondaActivationAndDeactivationTestContent(testVariable);
 
-        writeFile(activateFilePath, activateCommand);
-        writeFile(deactivateFilePath, deactivateCommand);
+        writeFile(activateFilePath, contents.o1);
+        writeFile(deactivateFilePath, contents.o2);
 
-        String pythonExe = TestDependent.CONDA_PYTHON_ENV + "python.exe";
+        String pythonExe = TestDependent.CONDA_PYTHON_ENV + "bin/python";
+        if (TestDependent.isWindows()) {
+            pythonExe = TestDependent.CONDA_PYTHON_ENV + "python.exe";
+        }
         InterpreterInfo interpreterInfo = new InterpreterInfo("3.8", pythonExe, new ArrayList<String>());
         File condaPrefix = interpreterInfo.getCondaPrefix();
         Map<String, String> condaEnv = interpreterInfo.obtainCondaEnv(condaPrefix);
@@ -352,6 +359,19 @@ public class InterpreterInfoTest extends TestCase {
         if (!condaEnv.containsKey(testVariable)) {
             throw new AssertionFailedError("Expected variable `" + testVariable + "` to exist in conda `"
                     + condaPrefix.getAbsolutePath() + "` environment");
+        }
+    }
+
+    private Tuple<String, String> getCondaActivationAndDeactivationTestContent(String key) {
+        if (TestDependent.isWindows()) {
+            String activationContent = "set " + key + "='interpreterinfo-test-value'";
+            String deactivationContent = "set " + key + "=";
+            return new Tuple<String, String>(activationContent, deactivationContent);
+        } else {
+            String header = "#!/bin/sh\n\n";
+            String activationContent = header + "export " + key + "='interpreterinfo-test-value'";
+            String deactivationContent = header + "unset " + key;
+            return new Tuple<String, String>(activationContent, deactivationContent);
         }
     }
 
