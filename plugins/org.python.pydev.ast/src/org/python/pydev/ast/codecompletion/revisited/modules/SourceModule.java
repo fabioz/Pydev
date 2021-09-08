@@ -63,9 +63,11 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.ImportFrom;
+import org.python.pydev.parser.jython.ast.Index;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Str;
+import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.TypeInfo;
@@ -694,8 +696,35 @@ public class SourceModule extends AbstractModule implements ISourceModule {
             state = initialState.getCopy();
             state.setActivationToken(s);
             return manager.getCompletionsForModule(this, state);
+        } else if (classDef.bases[baseIndex] instanceof Subscript) {
+            TokensList tokens = new TokensList();
+            Subscript subscript = (Subscript) classDef.bases[baseIndex];
+            tokens.addAll(getCompletionsForExpr(manager, initialState, subscript.value));
+            if (subscript.slice instanceof Index) {
+                Index index = (Index) subscript.slice;
+                tokens.addAll(getCompletionsForExpr(manager, initialState, index.value));
+            }
+            if (tokens.size() > 0) {
+                return tokens;
+            }
         }
         return null;
+    }
+
+    private TokensList getCompletionsForExpr(ICodeCompletionASTManager manager, ICompletionState state,
+            exprType value) throws CompletionRecursionException {
+        if (value instanceof Name) {
+            Name name = (Name) value;
+            if (name.id != null && !name.id.isEmpty()) {
+                ICompletionState copiedState = state.getCopy();
+                copiedState.setActivationToken(name.id);
+                TokensList subscriptValueToks = manager.getCompletionsForModule(this, copiedState);
+                if (subscriptValueToks != null && subscriptValueToks.size() > 0) {
+                    return subscriptValueToks;
+                }
+            }
+        }
+        return new TokensList();
     }
 
     /**
