@@ -699,10 +699,12 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         } else if (classDef.bases[baseIndex] instanceof Subscript) {
             TokensList tokens = new TokensList();
             Subscript subscript = (Subscript) classDef.bases[baseIndex];
-            tokens.addAll(getCompletionsForValueAsName(manager, initialState, subscript.value));
+            String subscriptValue = NodeUtils.getFullRepresentationString(subscript.value);
+            tokens.addAll(getCompletionsForValue(manager, initialState, subscriptValue));
             if (subscript.slice instanceof Index) {
                 Index index = (Index) subscript.slice;
-                tokens.addAll(getCompletionsForValueAsName(manager, initialState, index.value));
+                String subscriptSlice = NodeUtils.getFullRepresentationString(index.value);
+                tokens.addAll(getCompletionsForValue(manager, initialState, subscriptSlice));
             }
             if (tokens.size() > 0) {
                 return tokens;
@@ -711,18 +713,15 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         return null;
     }
 
-    private TokensList getCompletionsForValueAsName(ICodeCompletionASTManager manager, ICompletionState state,
-            exprType value) throws CompletionRecursionException {
-        if (value instanceof Name) {
-            Name name = (Name) value;
-            if (name.id != null && !name.id.isEmpty()) {
-                ICompletionState copiedState = state.getCopy();
-                state.checkMemory(this, name.id);
-                copiedState.setActivationToken(name.id);
-                TokensList subscriptValueToks = manager.getCompletionsForModule(this, copiedState);
-                if (subscriptValueToks != null && subscriptValueToks.size() > 0) {
-                    return subscriptValueToks;
-                }
+    private TokensList getCompletionsForValue(ICodeCompletionASTManager manager, ICompletionState state,
+            String value) throws CompletionRecursionException {
+        if (value != null && !value.isEmpty()) {
+            ICompletionState copiedState = state.getCopy();
+            state.checkMemory(this, value);
+            copiedState.setActivationToken(value);
+            TokensList tokens = manager.getCompletionsForModule(this, copiedState);
+            if (tokens != null) {
+                return tokens;
             }
         }
         return new TokensList();

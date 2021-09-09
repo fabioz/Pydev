@@ -494,4 +494,15 @@ public class PythonCompletionWithBuiltinsPython3Test extends CodeCompletionTests
         requestCompl(s, s.length(), -1, new String[] { "write(s)", "some_method()", "capitalize()" });
     }
 
+    public void testSubclassWithGenericTypes2() throws Exception {
+        String s = ""
+                + "import typing\n"
+                + "class SubClass(typing.TextIO):\n"
+                + "    def some_method(self) -> str:\n"
+                + "        pass\n"
+                + "c = SubClass()\n"
+                + "c.";
+        requestCompl(s, s.length(), -1, new String[] { "close()", "some_method()" });
+    }
+
 }
