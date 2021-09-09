@@ -63,9 +63,11 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.ImportFrom;
+import org.python.pydev.parser.jython.ast.Index;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Str;
+import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.TypeInfo;
@@ -694,8 +696,35 @@ public class SourceModule extends AbstractModule implements ISourceModule {
             state = initialState.getCopy();
             state.setActivationToken(s);
             return manager.getCompletionsForModule(this, state);
+        } else if (classDef.bases[baseIndex] instanceof Subscript) {
+            TokensList tokens = new TokensList();
+            Subscript subscript = (Subscript) classDef.bases[baseIndex];
+            String subscriptValue = NodeUtils.getFullRepresentationString(subscript.value);
+            tokens.addAll(getCompletionsForValue(manager, initialState, subscriptValue));
+            if (subscript.slice instanceof Index) {
+                Index index = (Index) subscript.slice;
+                String subscriptSlice = NodeUtils.getFullRepresentationString(index.value);
+                tokens.addAll(getCompletionsForValue(manager, initialState, subscriptSlice));
+            }
+            if (tokens.size() > 0) {
+                return tokens;
+            }
         }
         return null;
+    }
+
+    private TokensList getCompletionsForValue(ICodeCompletionASTManager manager, ICompletionState state,
+            String value) throws CompletionRecursionException {
+        if (value != null && !value.isEmpty()) {
+            ICompletionState copiedState = state.getCopy();
+            state.checkMemory(this, value);
+            copiedState.setActivationToken(value);
+            TokensList tokens = manager.getCompletionsForModule(this, copiedState);
+            if (tokens != null) {
+                return tokens;
+            }
+        }
+        return new TokensList();
     }
 
     /**
