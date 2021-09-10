@@ -547,7 +547,7 @@ public final class PySelection extends TextSelectionUtils {
                 StringTokenizer tokenizer = new StringTokenizer(insideParentesisTok, ",");
                 while (tokenizer.hasMoreTokens()) {
                     String tok = tokenizer.nextToken();
-                    if (tok == null || tok.contains("]")) {
+                    if (tok.contains("]")) {
                         continue;
                     }
                     String trimmed = tok.split("=")[0].trim();
