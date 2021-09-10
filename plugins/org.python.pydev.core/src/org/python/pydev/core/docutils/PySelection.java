@@ -573,10 +573,10 @@ public final class PySelection extends TextSelectionUtils {
         return new Tuple<List<String>, Integer>(params, j);
     }
 
-    private static final void addTrimmedBufToList(FastStringBuffer buf, List<String> params) {
+    private static final void addTrimmedBufToList(FastStringBuffer buf, List<String> list) {
         String trimmed = buf.toString().trim();
         if (trimmed.length() > 0) {
-            params.add(trimmed);
+            list.add(trimmed);
         }
     }
 
