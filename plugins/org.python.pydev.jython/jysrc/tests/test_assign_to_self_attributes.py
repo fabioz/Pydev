@@ -206,6 +206,16 @@ class Test(unittest.TestCase):
         self.x = x
 '''
         self.check(initial_doc, final_doc)
+
+    def testAssignToSelfAttributes15(self):
+        initial_doc = '''class Foo:
+    def __init__(self, x: Union[Dict[str, str], None, Empty]):'''
+        
+        final_doc = '''class Foo:
+    def __init__(self, x: Union[Dict[str, str], None, Empty]):
+        self.x = x
+'''
+        self.check(initial_doc, final_doc)
         
     def check(self, initial_doc, final_doc):
         from org.eclipse.jface.text import Document #@UnresolvedImport
