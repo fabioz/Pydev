@@ -95,6 +95,16 @@ class Test(unittest.TestCase):
         self.b = b
 '''
         self.check(initial_doc, final_doc)
+    
+    def testAssignToSelfAttributes4(self):
+        initial_doc = '''class RobotInfoEnv(object):
+    def __init__(self, env: Dict[str, str]):'''
+        
+        final_doc = '''class RobotInfoEnv(object):
+    def __init__(self, env: Dict[str, str]):
+        self.env = env
+'''
+        self.check(initial_doc, final_doc)
         
         
     def check(self, initial_doc, final_doc):
