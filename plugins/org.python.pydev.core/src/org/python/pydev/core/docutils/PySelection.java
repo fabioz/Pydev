@@ -543,13 +543,24 @@ public final class PySelection extends TextSelectionUtils {
                 j = parsingUtils.eatPar(offset, buf);
 
                 final String insideParentesisTok = buf.toString();
+                int validInsideParentesisTokIndex = 0;
 
                 StringTokenizer tokenizer = new StringTokenizer(insideParentesisTok, ",");
                 while (tokenizer.hasMoreTokens()) {
                     String tok = tokenizer.nextToken();
-                    if (tok.contains("]")) {
+
+                    int indexOfTok = insideParentesisTok.indexOf(tok);
+                    if (indexOfTok < validInsideParentesisTokIndex) {
                         continue;
                     }
+
+                    if (tok.contains("[")) {
+                        String shortenedInsideParentesisTok = insideParentesisTok.substring(0, indexOfTok + tok.length());
+                        int tokOpenBracketOffset = StringUtils.rFind(shortenedInsideParentesisTok, '[');
+                        int tokCloseBracketOffset = parsingUtils.eatPar(tokOpenBracketOffset + offset + 1, null, '[');
+                        validInsideParentesisTokIndex = tokCloseBracketOffset - offset;
+                    }
+
                     String trimmed = tok.split("=")[0].trim();
                     trimmed = trimmed.replaceAll("\\(", "");
                     trimmed = trimmed.replaceAll("\\)", "");
