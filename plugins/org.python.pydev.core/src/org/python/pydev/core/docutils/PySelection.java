@@ -494,21 +494,18 @@ public final class PySelection extends TextSelectionUtils {
         String docContents = doc.get();
         int j;
         try {
-            if (isCall) {
-                ParsingUtils parsingUtils = ParsingUtils.create(docContents);
-                j = parsingUtils.eatPar(offset, null);
-                final String insideParentesisTok = docContents.substring(offset + 1, j);
-                final ParsingUtils insideParensParsingUtils = ParsingUtils.create(insideParentesisTok);
-                final int len = insideParentesisTok.length();
-                final FastStringBuffer buf = new FastStringBuffer(len);
+            j = ParsingUtils.create(docContents).eatPar(offset, null);
 
+            final String insideParentesisTok = docContents.substring(offset + 1, j);
+            final ParsingUtils insideParensParsingUtils = ParsingUtils.create(insideParentesisTok);
+            final int len = insideParentesisTok.length();
+            final FastStringBuffer buf = new FastStringBuffer(len);
+
+            if (isCall) {
                 for (int i = 0; i < len; i++) {
                     char c = insideParentesisTok.charAt(i);
                     if (c == ',') {
-                        String trim = buf.toString().trim();
-                        if (trim.length() > 0) {
-                            params.add(trim);
-                        }
+                        addTrimmedBufToList(buf, params);
                         buf.clear();
                     } else {
                         switch (c) {
@@ -532,43 +529,55 @@ public final class PySelection extends TextSelectionUtils {
                         }
                     }
                 }
-                String trim = buf.toString().trim();
-                if (trim.length() > 0) {
-                    params.add(trim);
-                }
-
+                addTrimmedBufToList(buf, params);
             } else {
-                ParsingUtils parsingUtils = ParsingUtils.create(docContents);
-                final FastStringBuffer buf = new FastStringBuffer();
-                j = parsingUtils.eatPar(offset, buf);
-
-                final String insideParentesisTok = buf.toString();
-
-                StringTokenizer tokenizer = new StringTokenizer(insideParentesisTok, ",");
-                while (tokenizer.hasMoreTokens()) {
-                    String tok = tokenizer.nextToken();
-                    String trimmed = tok.split("=")[0].trim();
-                    trimmed = trimmed.replaceAll("\\(", "");
-                    trimmed = trimmed.replaceAll("\\)", "");
-                    if (!addSelf && trimmed.equals("self")) {
-                        // don't add self...
-                    } else if (trimmed.length() > 0) {
-                        int colonPos;
-                        if ((colonPos = trimmed.indexOf(':')) != -1) {
-                            trimmed = trimmed.substring(0, colonPos);
-                            trimmed = trimmed.trim();
+                boolean shouldAppendBuf = true;
+                for (int i = 0; i < len; i++) {
+                    char c = insideParentesisTok.charAt(i);
+                    if (c == ',') {
+                        if (addSelf || !"self".equals(buf.toString().trim())) {
+                            addTrimmedBufToList(buf, params);
                         }
-                        if (trimmed.length() > 0) {
-                            params.add(trimmed);
+                        buf.clear();
+                        shouldAppendBuf = true;
+                    } else {
+                        switch (c) {
+                            case ':':
+                            case '=':
+                                shouldAppendBuf = false;
+                                break;
+                            case '\'':
+                            case '"':
+                                i = insideParensParsingUtils.eatLiterals(null, i);
+                                break;
+
+                            case '{':
+                            case '(':
+                            case '[':
+                                i = insideParensParsingUtils.eatPar(i, null, c);
+                                break;
+
+                            default:
+                                if (shouldAppendBuf) {
+                                    buf.append(c);
+                                }
                         }
                     }
                 }
+                addTrimmedBufToList(buf, params);
             }
         } catch (SyntaxErrorException e) {
             throw new RuntimeException(e);
 
         }
         return new Tuple<List<String>, Integer>(params, j);
+    }
+
+    private static final void addTrimmedBufToList(FastStringBuffer buf, List<String> list) {
+        String trimmed = buf.toString().trim();
+        if (trimmed.length() > 0) {
+            list.add(trimmed);
+        }
     }
 
     public static final String[] TOKENS_BEFORE_ELSE = new String[] { "if", "for", "except", "while", "elif" };
