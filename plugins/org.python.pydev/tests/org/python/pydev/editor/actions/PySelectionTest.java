@@ -478,6 +478,50 @@ public class PySelectionTest extends TestCase {
         assertEquals("x", insideParentesisToks.get(0));
     }
 
+    public void testGetInsideParentesis14() throws Exception {
+        String s = "def __init__(self, x: Union[Dict[str, str], None, Empty], y: str, z: Dict[int, int]):";
+        doc = new Document(s);
+        ps = new PySelection(doc, 0);
+        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).o1;
+        assertEquals(3, insideParentesisToks.size());
+        assertEquals("x", insideParentesisToks.get(0));
+        assertEquals("y", insideParentesisToks.get(1));
+        assertEquals("z", insideParentesisToks.get(2));
+    }
+
+    public void testGetInsideParentesis15() throws Exception {
+        String s = "def __init__(self, x: Dict[str, str], y: Dict[str, str], z: Dict[int, int]):";
+        doc = new Document(s);
+        ps = new PySelection(doc, 0);
+        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).o1;
+        assertEquals(3, insideParentesisToks.size());
+        assertEquals("x", insideParentesisToks.get(0));
+        assertEquals("y", insideParentesisToks.get(1));
+        assertEquals("z", insideParentesisToks.get(2));
+    }
+
+    public void testGetInsideParentesis16() throws Exception {
+        String s = "def __init__(self, x: Dict[str, str], y: Dict[str, str], z: Dict[int, int]): -> Dict[str, int]";
+        doc = new Document(s);
+        ps = new PySelection(doc, 0);
+        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).o1;
+        assertEquals(3, insideParentesisToks.size());
+        assertEquals("x", insideParentesisToks.get(0));
+        assertEquals("y", insideParentesisToks.get(1));
+        assertEquals("z", insideParentesisToks.get(2));
+    }
+
+    public void testGetInsideParentesis17() throws Exception {
+        String s = "def __init__(self, x: Dict[str, str], \ny: Dict[str, str], \nz: Dict[int, int]): -> Dict[str, int]";
+        doc = new Document(s);
+        ps = new PySelection(doc, 0);
+        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).o1;
+        assertEquals(3, insideParentesisToks.size());
+        assertEquals("x", insideParentesisToks.get(0));
+        assertEquals("y", insideParentesisToks.get(1));
+        assertEquals("z", insideParentesisToks.get(2));
+    }
+
     public void testGetLastIf() throws Exception {
         String s = "if False:\n"
                 + "    print foo";
