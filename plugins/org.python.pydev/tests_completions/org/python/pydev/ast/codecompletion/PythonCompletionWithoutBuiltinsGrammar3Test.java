@@ -287,4 +287,112 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
                 + "y.";
         requestCompl(s, s.length(), -1, new String[] { "method()" });
     }
+
+    public void testUnion() throws Exception {
+        String s;
+        s = "" +
+                "from typing import Union\n"
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "def method1(param:Union[A, B]):\n"
+                + "    param.me";
+        requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()" });
+    }
+
+    public void testUnion2() throws Exception {
+        String s;
+        s = "" +
+                "from typing import Union\n"
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "def method1(param:Union[A, B]):\n"
+                + "    pass\n"
+                + "def method2(param:Union[A, B]):\n"
+                + "    param.me";
+        requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()" });
+    }
+
+    public void testUnion3() throws Exception {
+        String s;
+        s = "" +
+                "from typing import Union as Foo\n"
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "def method1(param:Foo[A, B]):\n"
+                + "    param.me";
+        requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()" });
+    }
+
+    public void testUnion4() throws Exception {
+        String s;
+        s = "" +
+                "import typing\n"
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "def method1(param:typing.Union[A, B]):\n"
+                + "    param.me";
+        requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()" });
+    }
+
+    public void testUnion5() throws Exception {
+        String s;
+        s = "" +
+                "import typing as foo\n"
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "def method1(param:foo.Union[A, B]):\n"
+                + "    param.me";
+        requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()" });
+    }
+
+    public void testUnion6() throws Exception {
+        String s;
+        s = "" +
+                "import typing as foo\n"
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "def method1(param: foo.Union[A, B]):\n"
+                + "    param.me";
+        requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()" });
+    }
+
+    public void testUnion7() throws Exception {
+        String s;
+        s = "" +
+                "import typing as foo\n"
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "def method1():\n"
+                + "    param: foo.Union[A, B]\n"
+                + "    param.me";
+        requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()" });
+    }
 }

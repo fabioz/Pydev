@@ -33,6 +33,7 @@ import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.ExtSlice;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Index;
 import org.python.pydev.parser.jython.ast.Name;
@@ -41,6 +42,7 @@ import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.UnaryOp;
 import org.python.pydev.parser.jython.ast.exprType;
+import org.python.pydev.parser.jython.ast.sliceType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.TypeInfo;
 import org.python.pydev.shared_core.string.FullRepIterable;
@@ -237,9 +239,12 @@ public class AssignAnalysis {
                 if (info != null) {
                     List<ITypeInfo> lookForClass = new ArrayList<>();
                     lookForClass.add(info);
-                    ret.addAll(manager.getCompletionsForClassInLocalScope(sourceModule, state,
-                            true, false, lookForClass));
-                    foundAsParamWithTypingInfo = true;
+                    TokensList completions = manager.getCompletionsForClassInLocalScope(sourceModule, state,
+                            true, false, lookForClass);
+                    if (completions != null && completions.size() > 0) {
+                        ret.addAll(completions);
+                        foundAsParamWithTypingInfo = true;
+                    }
                 }
             }
         }
@@ -439,12 +444,20 @@ public class AssignAnalysis {
                 int unpackPos = -1;
                 boolean unpackBackwards = false;
                 if (assignDefinition != null) {
-                    // If we have a type, activation token has already been defined as type
-                    // So let's check first if we can find completions using the type. If we can not find, we just ignore it and continue normally
                     if (assignDefinition.nodeType != null) {
-                        TokensList tks = manager.getCompletionsForModule(module, copy, true, true);
-                        if (tks != null && tks.size() > 0) {
-                            ret.addAll(tks);
+                        TokensList completions = new TokensList();
+                        List<String> typingUnionValues = extractTypingUnionValues(module, assignDefinition);
+                        if (typingUnionValues != null && typingUnionValues.size() > 0) {
+                            for (String value : typingUnionValues) {
+                                ICompletionState customCopy = state.getCopyWithActTok(value);
+                                TokensList valueComps = manager.getCompletionsForModule(module, customCopy);
+                                completions.addAll(valueComps);
+                            }
+                        }
+                        TokensList normalCompletions = manager.getCompletionsForModule(module, copy, true, true);
+                        completions.addAll(normalCompletions);
+                        if (completions != null && completions.size() > 0) {
+                            ret.addAll(completions);
                             return ret;
                         }
                     }
@@ -496,6 +509,48 @@ public class AssignAnalysis {
             }
         }
         return ret;
+    }
+
+    private static List<String> extractTypingUnionValues(IModule module, AssignDefinition assignDefinition)
+            throws CompletionRecursionException {
+        if (assignDefinition.nodeType instanceof Subscript) {
+            Subscript subscript = (Subscript) assignDefinition.nodeType;
+            String type = assignDefinition.type;
+            if (type == null || type.isBlank()) {
+                type = NodeUtils.getFullRepresentationString(subscript, false);
+            }
+            TokensList importedModules = module.getTokenImportedModules();
+            FullRepIterable iterable = new FullRepIterable(type, true);
+            for (String token : iterable) {
+                if (token == null || token.isBlank()) {
+                    continue;
+                }
+                for (IterTokenEntry entry : importedModules) {
+                    IToken importedModule = entry.getToken();
+                    String modRep = importedModule.getRepresentation();
+                    if (modRep == null || modRep.isBlank()) {
+                        continue;
+                    }
+                    if (token.equals(modRep) || (modRep + ".Union").equals(token)) {
+                        if (subscript.slice instanceof ExtSlice) {
+                            List<String> values = new ArrayList<String>();
+                            ExtSlice extSlice = (ExtSlice) subscript.slice;
+                            for (sliceType dim : extSlice.dims) {
+                                if (dim instanceof Index) {
+                                    Index index = (Index) dim;
+                                    String value = NodeUtils.getRepresentationString(index.value);
+                                    if (value != null && !value.isBlank()) {
+                                        values.add(value);
+                                    }
+                                }
+                            }
+                            return values;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     /**
