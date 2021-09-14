@@ -435,7 +435,7 @@ public class NodeUtils {
                 return getRepresentationString(node, true);
             } else {
                 String left = getFullRepresentationString(binOp.left);
-                String opRep = getOperatorRep(binOp.op, true);
+                String opRep = getOperatorRep(binOp.op);
                 String right = getFullRepresentationString(binOp.right);
                 if (left != null && opRep != null && right != null) {
                     return left + opRep + right;
@@ -447,10 +447,6 @@ public class NodeUtils {
     }
 
     public static String getOperatorRep(int op) {
-        return getOperatorRep(op, false);
-    }
-
-    public static String getOperatorRep(int op, boolean whiteSpaces) {
         String operatorRep = null;
         switch (op) {
             case operatorType.Add:
@@ -489,9 +485,6 @@ public class NodeUtils {
             case operatorType.FloorDiv:
                 operatorRep = "//";
                 break;
-        }
-        if (operatorRep != null && whiteSpaces) {
-            return " " + operatorRep + " ";
         }
         return operatorRep;
     }
