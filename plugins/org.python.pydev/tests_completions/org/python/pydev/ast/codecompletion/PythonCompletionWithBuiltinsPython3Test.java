@@ -505,4 +505,13 @@ public class PythonCompletionWithBuiltinsPython3Test extends CodeCompletionTests
         requestCompl(s, s.length(), -1, new String[] { "close()", "some_method()" });
     }
 
+    public void testTypedDict() throws Exception {
+        String s = ""
+                + "class EnvEntry(TypedDict):\n"
+                + "    key: str\n"
+                + "    value: str\n"
+                + "def method(env_entry: EnvEntry):\n"
+                + "    env_entry.";
+        requestCompl(s, s.length(), -1, new String[] { "key", "value" });
+    }
 }
