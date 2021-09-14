@@ -26,7 +26,12 @@ public class TypeInfo implements ITypeInfo {
      */
     public TypeInfo(exprType expr) {
         this.expr = NodeUtils.extractOptionalValueSubscript(expr);
-        this.rep = NodeUtils.getFullRepresentationString(this.expr);
+        String tempRep = NodeUtils.getFullRepresentationString(this.expr);
+        if (tempRep == null) {
+            this.rep = "";
+        } else {
+            this.rep = tempRep;
+        }
     }
 
     /* (non-Javadoc)

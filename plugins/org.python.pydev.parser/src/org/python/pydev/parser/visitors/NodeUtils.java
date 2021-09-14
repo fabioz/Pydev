@@ -77,6 +77,7 @@ import org.python.pydev.parser.jython.ast.comprehensionType;
 import org.python.pydev.parser.jython.ast.excepthandlerType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.keywordType;
+import org.python.pydev.parser.jython.ast.operatorType;
 import org.python.pydev.parser.jython.ast.sliceType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
@@ -432,10 +433,67 @@ public class NodeUtils {
             if (binOp.left instanceof Str && binOp.op == BinOp.Mod) {
                 //It's something as 'aaa' % (1,2), so, we know it's a string.
                 return getRepresentationString(node, true);
+            } else {
+                String left = getFullRepresentationString(binOp.left);
+                String opRep = getOperatorRep(binOp.op, true);
+                String right = getFullRepresentationString(binOp.right);
+                if (left != null && opRep != null && right != null) {
+                    return left + opRep + right;
+                }
             }
         }
 
         return getRepresentationString(node, true);
+    }
+
+    public static String getOperatorRep(int op) {
+        return getOperatorRep(op, false);
+    }
+
+    public static String getOperatorRep(int op, boolean whiteSpaces) {
+        String operatorRep = null;
+        switch (op) {
+            case operatorType.Add:
+                operatorRep = "+";
+                break;
+            case operatorType.Sub:
+                operatorRep = "-";
+                break;
+            case operatorType.Mult:
+                operatorRep = "*";
+                break;
+            case operatorType.Div:
+                operatorRep = "/";
+                break;
+            case operatorType.Mod:
+                operatorRep = "%";
+                break;
+            case operatorType.Pow:
+                operatorRep = "**";
+                break;
+            case operatorType.LShift:
+                operatorRep = "<<";
+                break;
+            case operatorType.RShift:
+                operatorRep = ">>";
+                break;
+            case operatorType.BitOr:
+                operatorRep = "|";
+                break;
+            case operatorType.BitXor:
+                operatorRep = "^";
+                break;
+            case operatorType.BitAnd:
+                operatorRep = "&";
+                break;
+            case operatorType.FloorDiv:
+                operatorRep = "//";
+                break;
+        }
+        if (operatorRep != null && whiteSpaces) {
+            return " " + operatorRep + " ";
+        }
+        return operatorRep;
     }
 
     /**
@@ -1814,7 +1872,8 @@ public class NodeUtils {
         int i = docstring.indexOf('(');
         int j = docstring.indexOf('[');
         int k = docstring.indexOf(' ');
-        if (i == -1 && j == -1 && k == -1) {
+        int m = docstring.indexOf(" | ");
+        if (i == -1 && j == -1 && (k == -1 || m != -1)) {
             return docstring;
         }
         if (i != -1) {

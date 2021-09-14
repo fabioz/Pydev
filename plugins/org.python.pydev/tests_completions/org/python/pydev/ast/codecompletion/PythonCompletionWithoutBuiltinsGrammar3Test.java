@@ -395,4 +395,37 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
                 + "    param.me";
         requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()" });
     }
+
+    public void testUnion8() throws Exception {
+        String s;
+        s = "" +
+                "from typing import Union\n"
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "def method1(param: A | B):\n"
+                + "    param.me";
+        requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()" });
+    }
+
+    public void testUnion9() throws Exception {
+        String s;
+        s = "" +
+                "from typing import Union\n"
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "class C(object):\n"
+                + "    def method_c(self):\n"
+                + "        pass\n"
+                + "def method1(param: A | B | C):\n"
+                + "    param.me";
+        requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()", "method_c()" });
+    }
 }

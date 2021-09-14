@@ -967,7 +967,12 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         if (lookForClass.size() > 0) {
             List<ITypeInfo> lst = new ArrayList<>(lookForClass.size());
             for (ITypeInfo s : lookForClass) {
-                lst.add(s.getPackedType());
+                ITypeInfo packedType = s.getPackedType();
+                String actTok = packedType.getActTok();
+                List<String> splittedTok = StringUtils.split(actTok, '|');
+                for (String token : splittedTok) {
+                    lst.add(new TypeInfo(token.trim()));
+                }
             }
             lookForClass = lst;
 
