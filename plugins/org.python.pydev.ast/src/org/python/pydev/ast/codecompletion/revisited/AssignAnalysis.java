@@ -537,12 +537,14 @@ public class AssignAnalysis {
                         if (subscript.slice instanceof ExtSlice) {
                             List<String> values = new ArrayList<String>();
                             ExtSlice extSlice = (ExtSlice) subscript.slice;
-                            for (sliceType dim : extSlice.dims) {
-                                if (dim instanceof Index) {
-                                    Index index = (Index) dim;
-                                    String value = NodeUtils.getRepresentationString(index.value);
-                                    if (value != null && !value.isBlank()) {
-                                        values.add(value);
+                            if (extSlice != null && extSlice.dims != null) {
+                                for (sliceType dim : extSlice.dims) {
+                                    if (dim instanceof Index) {
+                                        Index index = (Index) dim;
+                                        String value = NodeUtils.getRepresentationString(index.value);
+                                        if (value != null && !value.isBlank()) {
+                                            values.add(value);
+                                        }
                                     }
                                 }
                             }
