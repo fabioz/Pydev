@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
@@ -435,9 +436,9 @@ public class NodeUtils {
                 return getRepresentationString(node, true);
             } else {
                 String left = getFullRepresentationString(binOp.left);
-                String opRep = getOperatorRep(binOp.op);
+                Optional<String> opRep = getOperatorRep(binOp.op);
                 String right = getFullRepresentationString(binOp.right);
-                if (left != null && opRep != null && right != null) {
+                if (left != null && !opRep.isEmpty() && right != null) {
                     return left + opRep + right;
                 }
             }
@@ -446,7 +447,7 @@ public class NodeUtils {
         return getRepresentationString(node, true);
     }
 
-    public static String getOperatorRep(int op) {
+    public static Optional<String> getOperatorRep(int op) {
         String operatorRep = null;
         switch (op) {
             case operatorType.Add:
@@ -486,7 +487,7 @@ public class NodeUtils {
                 operatorRep = "//";
                 break;
         }
-        return operatorRep;
+        return Optional.ofNullable(operatorRep);
     }
 
     /**
