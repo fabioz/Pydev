@@ -528,10 +528,12 @@ public class AssignAnalysis {
                 for (IterTokenEntry entry : importedModules) {
                     IToken importedModule = entry.getToken();
                     String modRep = importedModule.getRepresentation();
+                    String originalRep = importedModule.getOriginalRep();
                     if (modRep == null || modRep.isBlank()) {
                         continue;
                     }
-                    if (token.equals(modRep) || (modRep + ".Union").equals(token)) {
+                    if (("typing.Union".equals(originalRep) || "typing".equals(originalRep))
+                            && (token.equals(modRep) || (modRep + ".Union").equals(token))) {
                         if (subscript.slice instanceof ExtSlice) {
                             List<String> values = new ArrayList<String>();
                             ExtSlice extSlice = (ExtSlice) subscript.slice;
