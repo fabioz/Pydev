@@ -159,7 +159,8 @@ public final class NoSelfChecker {
                             new Tuple<Expected, FunctionDef>(new Expected("self or cls", received), node));
                 }
 
-            } else if (!startsWithSelf && !startsWithCls && !isStaticMethod && !isClassMethod) {
+            } else if (!startsWithSelf && !startsWithCls && !isStaticMethod && !isClassMethod
+                    && !hasInterfaceInBase(node)) {
                 maybeNoSelfDefinedItems.peek().put(rep,
                         new Tuple<Expected, FunctionDef>(new Expected("self", received), node));
 
@@ -174,6 +175,22 @@ public final class NoSelfChecker {
             }
         }
         scope.push(Scope.SCOPE_TYPE_METHOD);
+    }
+
+    private static boolean hasInterfaceInBase(FunctionDef node) {
+        try {
+            ClassDef parent = (ClassDef) node.parent;
+            for (exprType base : parent.bases) {
+                String rep = NodeUtils.getFullRepresentationString(base);
+                String upperCaseRep = rep.toUpperCase();
+                if (upperCaseRep.endsWith(".INTERFACE")) {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            // we should not have any exceptions in the try section, so just skip error handling and then return false in these unexpected cases.
+        }
+        return false;
     }
 
     public void afterFunctionDef(FunctionDef node) {

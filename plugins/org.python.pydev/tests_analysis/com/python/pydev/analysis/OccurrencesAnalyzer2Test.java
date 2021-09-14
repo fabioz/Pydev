@@ -846,4 +846,19 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
     //        );
     //        checkError(1);
     //    }
+
+    public void testNoSelfInZopeInterface() throws Exception {
+        doc = new Document(""
+                + "class I(Interface):\n"
+                + "    def F():\n"
+                + "        \"\"\"Doc\"\"\"\n"
+                + "@implementer(I)\n"
+                + "class Ic:\n"
+                + "    def F(self):\n"
+                + "        print \"->\", self, \"Object\"\n"
+                + "c = Ic()\n"
+                + "print type(I), type(Ic), type(c), type(Ic.F), type(c.F)\n"
+                + "c.F()");
+        checkError("Undefined variable: Interface", "Undefined variable: implementer");
+    }
 }
