@@ -439,7 +439,7 @@ public class NodeUtils {
                 Optional<String> opRep = getOperatorRep(binOp.op);
                 String right = getFullRepresentationString(binOp.right);
                 if (left != null && !opRep.isEmpty() && right != null) {
-                    return left + opRep + right;
+                    return left + opRep.get() + right;
                 }
             }
         }
