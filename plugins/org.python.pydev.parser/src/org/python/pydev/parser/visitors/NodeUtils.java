@@ -2283,7 +2283,7 @@ public class NodeUtils {
         return values;
     }
 
-    private static List<String> extractValuesForBinOp(exprType left, int op) {
+    public static List<String> extractValuesForBinOp(exprType left, int op) {
         List<String> values = new ArrayList<String>();
         if (left instanceof Name) {
             values.add(NodeUtils.getFullRepresentationString(left));
