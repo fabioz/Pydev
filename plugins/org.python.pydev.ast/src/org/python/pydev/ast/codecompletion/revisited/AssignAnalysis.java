@@ -33,7 +33,6 @@ import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
-import org.python.pydev.parser.jython.ast.ExtSlice;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Index;
 import org.python.pydev.parser.jython.ast.Name;
@@ -42,7 +41,6 @@ import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.UnaryOp;
 import org.python.pydev.parser.jython.ast.exprType;
-import org.python.pydev.parser.jython.ast.sliceType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.TypeInfo;
 import org.python.pydev.shared_core.string.FullRepIterable;
@@ -534,22 +532,7 @@ public class AssignAnalysis {
                     }
                     if (("typing.Union".equals(originalRep) || "typing".equals(originalRep))
                             && (token.equals(modRep) || (modRep + ".Union").equals(token))) {
-                        if (subscript.slice instanceof ExtSlice) {
-                            List<String> values = new ArrayList<String>();
-                            ExtSlice extSlice = (ExtSlice) subscript.slice;
-                            if (extSlice != null && extSlice.dims != null) {
-                                for (sliceType dim : extSlice.dims) {
-                                    if (dim instanceof Index) {
-                                        Index index = (Index) dim;
-                                        String value = NodeUtils.getRepresentationString(index.value);
-                                        if (value != null && !value.isBlank()) {
-                                            values.add(value);
-                                        }
-                                    }
-                                }
-                            }
-                            return values;
-                        }
+                        return NodeUtils.extractValuesFromSubscriptSlice(subscript.slice);
                     }
                 }
             }

@@ -1344,30 +1344,36 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             List<ITypeInfo> possibleClassesForActivationToken = scope.getPossibleClassesForActivationToken(state
                     .getActivationToken());
 
+            TokensList completions = new TokensList();
             for (ITypeInfo typeInfo : possibleClassesForActivationToken) {
                 ITypeInfo unpackedTypeFromDocstring = typeInfo.getUnpacked(unpackPos);
-                ICompletionState copyWithActTok = state.getCopyWithActTok(unpackedTypeFromDocstring.getActTok());
-                copyWithActTok.setLookingFor(ICompletionState.LookingFor.LOOKING_FOR_INSTANCED_VARIABLE);
-                TokensList completionsForModule = getCompletionsForModule(module,
-                        copyWithActTok);
-                if (completionsForModule != null && completionsForModule.size() > 0) {
-                    return completionsForModule;
-                } else {
-                    //Try to deal with some token that's not imported
-                    List<IPyDevCompletionParticipant> participants = ExtensionHelper
-                            .getParticipants(ExtensionHelper.PYDEV_COMPLETION);
-                    TokensList lst = new TokensList();
-                    for (IPyDevCompletionParticipant participant : participants) {
-                        TokensList collection = participant.getCompletionsForType(copyWithActTok);
-                        if (collection != null && collection.notEmpty()) {
-                            lst.addAll(collection);
+                String completeActTok = unpackedTypeFromDocstring.getActTok();
+                List<String> actToks = StringUtils.split(completeActTok, TypeInfo.repSeparator);
+                for (String actTok : actToks) {
+                    ICompletionState copyWithActTok = state.getCopyWithActTok(actTok);
+                    copyWithActTok.setLookingFor(ICompletionState.LookingFor.LOOKING_FOR_INSTANCED_VARIABLE);
+                    TokensList completionsForModule = getCompletionsForModule(module,
+                            copyWithActTok);
+                    if (completionsForModule != null && completionsForModule.size() > 0) {
+                        completions.addAll(completionsForModule);
+                    } else {
+                        //Try to deal with some token that's not imported
+                        List<IPyDevCompletionParticipant> participants = ExtensionHelper
+                                .getParticipants(ExtensionHelper.PYDEV_COMPLETION);
+                        TokensList lst = new TokensList();
+                        for (IPyDevCompletionParticipant participant : participants) {
+                            TokensList collection = participant.getCompletionsForType(copyWithActTok);
+                            if (collection != null && collection.notEmpty()) {
+                                lst.addAll(collection);
+                            }
                         }
-                    }
-                    if (lst.notEmpty()) {
-                        return lst;
+                        if (lst.notEmpty()) {
+                            completions.addAll(lst);
+                        }
                     }
                 }
             }
+            return completions;
         }
 
         return null;

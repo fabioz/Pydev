@@ -2227,4 +2227,69 @@ public class NodeUtils {
         return node;
     }
 
+    public static List<String> extractValuesFromSubscriptSlice(sliceType slice) {
+        List<String> values = new ArrayList<String>();
+
+        if (slice instanceof ExtSlice) {
+            ExtSlice extSlice = (ExtSlice) slice;
+            if (extSlice != null && extSlice.dims != null) {
+                for (sliceType dim : extSlice.dims) {
+                    if (dim instanceof Index) {
+                        Index index = (Index) dim;
+                        String value = NodeUtils.getRepresentationString(index.value);
+                        if (value != null && !value.isBlank()) {
+                            values.add(value);
+                        }
+                    }
+                }
+            }
+        } else if (slice instanceof Index) {
+            Index index = (Index) slice;
+            if (index != null) {
+                if (index.value instanceof BinOp) {
+                    BinOp binOp = (BinOp) index.value;
+                    values.addAll(extractValuesFromBinOp(binOp));
+                } else if (index.value instanceof Name) {
+                    values.add(getFullRepresentationString(index.value));
+                } else if (index.value instanceof Subscript) {
+                    Subscript subscript = (Subscript) index.value;
+                    values.addAll(extractValuesFromSubscriptSlice(subscript.slice));
+                }
+            }
+        }
+
+        return values;
+    }
+
+    public static List<String> extractValuesFromBinOp(exprType node) {
+        return extractValuesFromBinOp(node, 0);
+    }
+
+    public static List<String> extractValuesFromBinOp(exprType node, int op) {
+        List<String> values = new ArrayList<String>();
+
+        if (op >= operatorType.operatorTypeNames.length) {
+            return values;
+        }
+
+        if (node instanceof BinOp) {
+            BinOp binOp = (BinOp) node;
+            if (op < 1 || binOp.op == op) {
+                values.addAll(extractValuesForBinOp(binOp.left, op));
+                values.addAll(extractValuesForBinOp(binOp.right, op));
+            }
+        }
+
+        return values;
+    }
+
+    private static List<String> extractValuesForBinOp(exprType left, int op) {
+        List<String> values = new ArrayList<String>();
+        if (left instanceof Name) {
+            values.add(NodeUtils.getFullRepresentationString(left));
+        } else if (left instanceof BinOp) {
+            values.addAll(NodeUtils.extractValuesFromBinOp(left, op));
+        }
+        return values;
+    }
 }

@@ -461,4 +461,51 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
                 + "    param.me";
         requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()", "method_c()" });
     }
+
+    public void testUnion12() throws Exception {
+        String s;
+        s = "" +
+                "from typing import Union\n"
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "def method1(param: List[A|B]):\n"
+                + "    for x in param:\n"
+                + "        x.";
+        requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()" });
+    }
+
+    public void testUnion13() throws Exception {
+        String s;
+        s = "" +
+                "from typing import Union\n"
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "def method1(param: List[Union[A, B]]):\n"
+                + "    for x in param:\n"
+                + "        x.";
+        requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()" });
+    }
+
+    public void testUnion14() throws Exception {
+        String s;
+        s = "" +
+                "from typing import Union\n"
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "def method1(param: Union[A|B]):\n"
+                + "    param.";
+        requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()" });
+    }
 }
