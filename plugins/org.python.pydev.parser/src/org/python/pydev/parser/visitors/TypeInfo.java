@@ -1,20 +1,14 @@
 package org.python.pydev.parser.visitors;
 
-import java.util.List;
-
 import org.python.pydev.core.ITypeInfo;
 import org.python.pydev.core.UnpackInfo;
-import org.python.pydev.parser.jython.ast.BinOp;
 import org.python.pydev.parser.jython.ast.ExtSlice;
 import org.python.pydev.parser.jython.ast.Index;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.sliceType;
-import org.python.pydev.shared_core.string.StringUtils;
 
 public class TypeInfo implements ITypeInfo {
-
-    public static final String repSeparator = "$!sep!";
 
     private final String rep;
     private final exprType expr;
@@ -32,29 +26,11 @@ public class TypeInfo implements ITypeInfo {
      */
     public TypeInfo(exprType expr) {
         this.expr = NodeUtils.extractOptionalValueSubscript(expr);
-        if (this.expr instanceof Subscript) {
-            String rep = NodeUtils.getFullRepresentationString(this.expr);
-            Subscript subscript = (Subscript) this.expr;
-            List<String> repValues = NodeUtils.extractValuesFromSubscriptSlice(subscript.slice);
-            if (rep != null) {
-                repValues.add(rep);
-            }
-            this.rep = StringUtils.join(repSeparator, repValues); // use this separator for later values retrieves that do not directly affects Python syntax
-        } else if (this.expr instanceof BinOp) {
-            BinOp binOp = (BinOp) this.expr;
-            if (binOp.op == BinOp.BitOr) {
-                List<String> repValues = NodeUtils.extractValuesFromBinOp(this.expr);
-                this.rep = StringUtils.join(repSeparator, repValues);
-            } else {
-                this.rep = "";
-            }
+        String tempRep = NodeUtils.getFullRepresentationString(this.expr);
+        if (tempRep == null) {
+            this.rep = "";
         } else {
-            String rep = NodeUtils.getFullRepresentationString(this.expr);
-            if (rep == null) {
-                this.rep = "";
-            } else {
-                this.rep = rep;
-            }
+            this.rep = tempRep;
         }
     }
 
@@ -64,6 +40,11 @@ public class TypeInfo implements ITypeInfo {
     @Override
     public String getActTok() {
         return rep;
+    }
+
+    @Override
+    public exprType getNode() {
+        return expr;
     }
 
     /* (non-Javadoc)

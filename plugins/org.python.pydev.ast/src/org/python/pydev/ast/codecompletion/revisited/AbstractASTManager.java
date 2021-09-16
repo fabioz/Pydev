@@ -65,6 +65,7 @@ import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
+import org.python.pydev.parser.jython.ast.BinOp;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.For;
@@ -74,6 +75,7 @@ import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.Return;
+import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.With;
 import org.python.pydev.parser.jython.ast.WithItem;
 import org.python.pydev.parser.jython.ast.WithItemType;
@@ -1346,9 +1348,27 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
             TokensList completions = new TokensList();
             for (ITypeInfo typeInfo : possibleClassesForActivationToken) {
+                List<String> actToks = new ArrayList<String>();
+
                 ITypeInfo unpackedTypeFromDocstring = typeInfo.getUnpacked(unpackPos);
-                String completeActTok = unpackedTypeFromDocstring.getActTok();
-                List<String> actToks = StringUtils.split(completeActTok, TypeInfo.repSeparator);
+
+                Object unpackedTypeNodeObject = unpackedTypeFromDocstring.getNode();
+                if (unpackedTypeNodeObject instanceof Subscript) {
+                    Subscript subscript = (Subscript) unpackedTypeNodeObject;
+                    List<String> subscriptValues = NodeUtils.extractValuesFromSubscriptSlice(subscript.slice);
+                    actToks.addAll(subscriptValues);
+                } else if (unpackedTypeNodeObject instanceof BinOp) {
+                    BinOp binOp = (BinOp) unpackedTypeNodeObject;
+                    if (binOp.op == BinOp.BitOr) {
+                        List<String> binOpValues = NodeUtils.extractValuesFromBinOp(binOp, BinOp.BitOr);
+                        actToks.addAll(binOpValues);
+                    }
+                }
+
+                if (actToks.size() == 0) {
+                    actToks.add(unpackedTypeFromDocstring.getActTok());
+                }
+
                 for (String actTok : actToks) {
                     ICompletionState copyWithActTok = state.getCopyWithActTok(actTok);
                     copyWithActTok.setLookingFor(ICompletionState.LookingFor.LOOKING_FOR_INSTANCED_VARIABLE);

@@ -51,7 +51,6 @@ import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
 import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.FullRepIterable;
-import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.FastStack;
 
 /**
@@ -460,10 +459,7 @@ public class LocalScope implements ILocalScope {
 
         ITypeInfo typeForParameter = NodeUtils.getTypeForParameterFromAST(actTok, element);
         if (typeForParameter != null) {
-            List<String> possibleTypes = StringUtils.split(typeForParameter.getActTok(), TypeInfo.repSeparator);
-            for (String type : possibleTypes) {
-                ret.add(new TypeInfo(type));
-            }
+            ret.add(typeForParameter);
         }
 
         //Search for assert isinstance().
