@@ -978,9 +978,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                             lst.add(new TypeInfo(token.trim()));
                         }
                     }
-                    ITypeInfo packedType = s.getPackedType();
-                    String actTok = packedType.getActTok();
-                    lst.add(new TypeInfo(actTok.trim()));
+                    lst.add(s.getPackedType());
                 } else if (nodeObject instanceof BinOp) {
                     BinOp binOp = (BinOp) nodeObject;
                     List<String> binOpValues = NodeUtils.extractValuesFromBinOp(binOp, BinOp.BitOr);
@@ -988,9 +986,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                         lst.add(new TypeInfo(token.trim()));
                     }
                 } else {
-                    ITypeInfo packedType = s.getPackedType();
-                    String actTok = packedType.getActTok();
-                    lst.add(new TypeInfo(actTok.trim()));
+                    lst.add(s.getPackedType());
                 }
             }
             lookForClass = lst;
