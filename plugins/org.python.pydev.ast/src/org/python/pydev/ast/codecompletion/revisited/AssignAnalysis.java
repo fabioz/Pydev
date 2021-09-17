@@ -31,6 +31,7 @@ import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
+import org.python.pydev.parser.jython.ast.BinOp;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
@@ -444,7 +445,7 @@ public class AssignAnalysis {
                 if (assignDefinition != null) {
                     if (assignDefinition.nodeType != null) {
                         TokensList completions = new TokensList();
-                        List<String> typingUnionValues = extractTypingUnionValues(module, assignDefinition);
+                        List<String> typingUnionValues = extractTypingUnionValues(manager, module, assignDefinition);
                         if (typingUnionValues != null && typingUnionValues.size() > 0) {
                             for (String value : typingUnionValues) {
                                 ICompletionState customCopy = state.getCopyWithActTok(value);
@@ -509,33 +510,17 @@ public class AssignAnalysis {
         return ret;
     }
 
-    private static List<String> extractTypingUnionValues(IModule module, AssignDefinition assignDefinition)
+    private static List<String> extractTypingUnionValues(ICodeCompletionASTManager manager,
+            IModule module, AssignDefinition assignDefinition)
             throws CompletionRecursionException {
         if (assignDefinition.nodeType instanceof Subscript) {
-            Subscript subscript = (Subscript) assignDefinition.nodeType;
-            String type = assignDefinition.type;
-            if (type == null || type.isBlank()) {
-                type = NodeUtils.getFullRepresentationString(subscript, false);
+            if (manager.isNodeTypingUnionSubscript(module, assignDefinition.nodeType)) {
+                Subscript subscript = (Subscript) assignDefinition.nodeType;
+                return NodeUtils.extractValuesFromSubscriptSlice(subscript.slice);
             }
-            TokensList importedModules = module.getTokenImportedModules();
-            FullRepIterable iterable = new FullRepIterable(type, true);
-            for (String token : iterable) {
-                if (token == null || token.isBlank()) {
-                    continue;
-                }
-                for (IterTokenEntry entry : importedModules) {
-                    IToken importedModule = entry.getToken();
-                    String modRep = importedModule.getRepresentation();
-                    String originalRep = importedModule.getOriginalRep();
-                    if (modRep == null || modRep.isBlank()) {
-                        continue;
-                    }
-                    if (("typing.Union".equals(originalRep) || "typing".equals(originalRep))
-                            && (token.equals(modRep) || (modRep + ".Union").equals(token))) {
-                        return NodeUtils.extractValuesFromSubscriptSlice(subscript.slice);
-                    }
-                }
-            }
+        } else if (assignDefinition.nodeType instanceof BinOp) {
+            BinOp binOp = (BinOp) assignDefinition.nodeType;
+            return NodeUtils.extractValuesFromBinOp(binOp, BinOp.BitOr);
         }
         return null;
     }

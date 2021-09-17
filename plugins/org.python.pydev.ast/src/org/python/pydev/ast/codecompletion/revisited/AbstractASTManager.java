@@ -969,11 +969,28 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         if (lookForClass.size() > 0) {
             List<ITypeInfo> lst = new ArrayList<>(lookForClass.size());
             for (ITypeInfo s : lookForClass) {
-                ITypeInfo packedType = s.getPackedType();
-                String actTok = packedType.getActTok();
-                List<String> splittedTok = StringUtils.split(actTok, '|');
-                for (String token : splittedTok) {
-                    lst.add(new TypeInfo(token.trim()));
+                Object nodeObject = s.getNode();
+                if (nodeObject instanceof Subscript) {
+                    Subscript subscript = (Subscript) nodeObject;
+                    if (isNodeTypingUnionSubscript(module, subscript)) {
+                        List<String> subscriptValues = NodeUtils.extractValuesFromSubscriptSlice(subscript.slice);
+                        for (String token : subscriptValues) {
+                            lst.add(new TypeInfo(token.trim()));
+                        }
+                    }
+                    ITypeInfo packedType = s.getPackedType();
+                    String actTok = packedType.getActTok();
+                    lst.add(new TypeInfo(actTok.trim()));
+                } else if (nodeObject instanceof BinOp) {
+                    BinOp binOp = (BinOp) nodeObject;
+                    List<String> binOpValues = NodeUtils.extractValuesFromBinOp(binOp, BinOp.BitOr);
+                    for (String token : binOpValues) {
+                        lst.add(new TypeInfo(token.trim()));
+                    }
+                } else {
+                    ITypeInfo packedType = s.getPackedType();
+                    String actTok = packedType.getActTok();
+                    lst.add(new TypeInfo(actTok.trim()));
                 }
             }
             lookForClass = lst;
@@ -1000,6 +1017,41 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             return tokens;
         }
         return null;
+    }
+
+    @Override
+    public boolean isNodeTypingUnionSubscript(IModule module, Object node) {
+        if (node instanceof Subscript) {
+            Subscript subscript = (Subscript) node;
+
+            String rep = NodeUtils.getFullRepresentationString(subscript);
+            if (rep == null || rep.isBlank()) {
+                return false;
+            }
+
+            TokensList importedModules = module.getTokenImportedModules();
+            FullRepIterable iterable = new FullRepIterable(rep, true);
+
+            for (String token : iterable) {
+                if (token == null || token.isBlank()) {
+                    continue;
+                }
+                for (IterTokenEntry entry : importedModules) {
+                    IToken importedModule = entry.getToken();
+                    String modRep = importedModule.getRepresentation();
+                    String originalRep = importedModule.getOriginalRep();
+                    if (modRep == null || modRep.isBlank()) {
+                        continue;
+                    }
+                    if (("typing.Union".equals(originalRep) || "typing".equals(originalRep))
+                            && (token.equals(modRep) || (modRep + ".Union").equals(token))) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
     @SuppressWarnings("unchecked")
@@ -1359,10 +1411,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                     actToks.addAll(subscriptValues);
                 } else if (unpackedTypeNodeObject instanceof BinOp) {
                     BinOp binOp = (BinOp) unpackedTypeNodeObject;
-                    if (binOp.op == BinOp.BitOr) {
-                        List<String> binOpValues = NodeUtils.extractValuesFromBinOp(binOp, BinOp.BitOr);
-                        actToks.addAll(binOpValues);
-                    }
+                    List<String> binOpValues = NodeUtils.extractValuesFromBinOp(binOp, BinOp.BitOr);
+                    actToks.addAll(binOpValues);
                 }
 
                 if (actToks.size() == 0) {

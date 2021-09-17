@@ -338,4 +338,6 @@ public interface ICodeCompletionASTManager {
 
     public abstract IModule /* SourceModule */ getPyiStubModule(IModule module, ICompletionState completionState);
 
+    public boolean isNodeTypingUnionSubscript(IModule module, Object node);
+
 }

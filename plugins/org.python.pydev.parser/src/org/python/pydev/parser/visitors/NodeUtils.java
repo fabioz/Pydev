@@ -434,13 +434,6 @@ public class NodeUtils {
             if (binOp.left instanceof Str && binOp.op == BinOp.Mod) {
                 //It's something as 'aaa' % (1,2), so, we know it's a string.
                 return getRepresentationString(node, true);
-            } else {
-                String left = getFullRepresentationString(binOp.left);
-                Optional<String> opRep = getOperatorRep(binOp.op);
-                String right = getFullRepresentationString(binOp.right);
-                if (left != null && !opRep.isEmpty() && right != null) {
-                    return left + opRep.get() + right;
-                }
             }
         }
 
@@ -1866,8 +1859,7 @@ public class NodeUtils {
         int i = docstring.indexOf('(');
         int j = docstring.indexOf('[');
         int k = docstring.indexOf(' ');
-        int m = docstring.indexOf(" | ");
-        if (i == -1 && j == -1 && (k == -1 || m != -1)) {
+        if (i == -1 && j == -1 && k == -1) {
             return docstring;
         }
         if (i != -1) {
