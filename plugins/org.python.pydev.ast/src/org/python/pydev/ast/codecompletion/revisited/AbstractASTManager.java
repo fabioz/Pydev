@@ -1405,13 +1405,12 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                     Subscript subscript = (Subscript) unpackedTypeNodeObject;
                     List<String> subscriptValues = NodeUtils.extractValuesFromSubscriptSlice(subscript.slice);
                     actToks.addAll(subscriptValues);
+                    actToks.add(unpackedTypeFromDocstring.getActTok());
                 } else if (unpackedTypeNodeObject instanceof BinOp) {
                     BinOp binOp = (BinOp) unpackedTypeNodeObject;
                     List<String> binOpValues = NodeUtils.extractValuesFromBinOp(binOp, BinOp.BitOr);
                     actToks.addAll(binOpValues);
-                }
-
-                if (actToks.size() == 0) {
+                } else {
                     actToks.add(unpackedTypeFromDocstring.getActTok());
                 }
 
