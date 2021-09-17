@@ -2240,7 +2240,7 @@ public class NodeUtils {
             if (index != null) {
                 if (index.value instanceof BinOp) {
                     BinOp binOp = (BinOp) index.value;
-                    values.addAll(extractValuesFromBinOp(binOp));
+                    values.addAll(extractValuesFromBinOp(binOp, BinOp.BitOr));
                 } else if (index.value instanceof Name) {
                     values.add(getFullRepresentationString(index.value));
                 } else if (index.value instanceof Subscript) {
@@ -2277,10 +2277,18 @@ public class NodeUtils {
 
     private static List<String> getInternalBinOpNodeValues(exprType node, int op) {
         List<String> values = new ArrayList<String>();
-        if (node instanceof Name) {
-            values.add(NodeUtils.getFullRepresentationString(node));
-        } else if (node instanceof BinOp) {
+        if (node instanceof BinOp) {
             values.addAll(NodeUtils.extractValuesFromBinOp(node, op));
+        } else if (node instanceof Str) {
+            Str str = (Str) node;
+            if (str.s != null && !str.s.isBlank()) {
+                values.add(str.s);
+            }
+        } else {
+            String rep = NodeUtils.getFullRepresentationString(node, true);
+            if (rep != null && !rep.isBlank()) {
+                values.add(rep);
+            }
         }
         return values;
     }
