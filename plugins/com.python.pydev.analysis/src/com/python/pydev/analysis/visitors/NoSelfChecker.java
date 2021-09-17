@@ -20,6 +20,7 @@ import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -181,9 +182,15 @@ public final class NoSelfChecker {
         try {
             ClassDef parent = (ClassDef) node.parent;
             for (exprType base : parent.bases) {
-                String rep = NodeUtils.getFullRepresentationString(base);
+                String rep = null;
+                if (base instanceof Str) {
+                    Str str = (Str) base;
+                    rep = str.s;
+                } else {
+                    rep = NodeUtils.getFullRepresentationString(base);
+                }
                 String upperCaseRep = rep.toUpperCase();
-                if (upperCaseRep.endsWith(".INTERFACE")) {
+                if (upperCaseRep.endsWith("INTERFACE")) {
                     return true;
                 }
             }

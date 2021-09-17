@@ -861,4 +861,12 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
                 + "c.F()");
         checkError("Undefined variable: Interface", "Undefined variable: implementer");
     }
+
+    public void testNoSelfInSomeInterface() throws Exception {
+        doc = new Document(""
+                + "class I('Interface'):\n"
+                + "    def F():\n"
+                + "        \"\"\"Doc\"\"\"\n");
+        checkNoError();
+    }
 }
