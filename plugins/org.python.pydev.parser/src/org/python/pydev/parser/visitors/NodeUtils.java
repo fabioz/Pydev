@@ -2278,10 +2278,7 @@ public class NodeUtils {
     private static List<String> getInternalBinOpNodeValues(exprType node, int op) {
         List<String> values = new ArrayList<String>();
         if (node instanceof Name) {
-            String rep = NodeUtils.getFullRepresentationString(node);
-            if (rep != null && !rep.isBlank()) {
-                values.add(rep);
-            }
+            values.add(NodeUtils.getFullRepresentationString(node));
         } else if (node instanceof BinOp) {
             values.addAll(NodeUtils.extractValuesFromBinOp(node, op));
         }
