@@ -2267,15 +2267,15 @@ public class NodeUtils {
         if (node instanceof BinOp) {
             BinOp binOp = (BinOp) node;
             if (op < 1 || binOp.op == op) {
-                values.addAll(extractValuesForBinOp(binOp.left, op));
-                values.addAll(extractValuesForBinOp(binOp.right, op));
+                values.addAll(getInternalBinOpNodeValues(binOp.left, op));
+                values.addAll(getInternalBinOpNodeValues(binOp.right, op));
             }
         }
 
         return values;
     }
 
-    private static List<String> extractValuesForBinOp(exprType node, int op) {
+    private static List<String> getInternalBinOpNodeValues(exprType node, int op) {
         List<String> values = new ArrayList<String>();
         if (node instanceof Name) {
             String rep = NodeUtils.getFullRepresentationString(node);
