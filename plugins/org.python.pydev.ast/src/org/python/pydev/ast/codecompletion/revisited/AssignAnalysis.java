@@ -513,11 +513,9 @@ public class AssignAnalysis {
     private static List<String> extractTypingUnionValues(ICodeCompletionASTManager manager,
             IModule module, AssignDefinition assignDefinition)
             throws CompletionRecursionException {
-        if (assignDefinition.nodeType instanceof Subscript) {
-            if (manager.isNodeTypingUnionSubscript(module, assignDefinition.nodeType)) {
-                Subscript subscript = (Subscript) assignDefinition.nodeType;
-                return NodeUtils.extractValuesFromSubscriptSlice(subscript.slice);
-            }
+        if (manager.isNodeTypingUnionSubscript(module, assignDefinition.nodeType)) {
+            Subscript subscript = (Subscript) assignDefinition.nodeType;
+            return NodeUtils.extractValuesFromSubscriptSlice(subscript.slice);
         } else if (assignDefinition.nodeType instanceof BinOp) {
             BinOp binOp = (BinOp) assignDefinition.nodeType;
             return NodeUtils.extractValuesFromBinOp(binOp, BinOp.BitOr);
