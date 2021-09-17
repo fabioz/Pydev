@@ -2275,12 +2275,15 @@ public class NodeUtils {
         return values;
     }
 
-    public static List<String> extractValuesForBinOp(exprType left, int op) {
+    private static List<String> extractValuesForBinOp(exprType node, int op) {
         List<String> values = new ArrayList<String>();
-        if (left instanceof Name) {
-            values.add(NodeUtils.getFullRepresentationString(left));
-        } else if (left instanceof BinOp) {
-            values.addAll(NodeUtils.extractValuesFromBinOp(left, op));
+        if (node instanceof Name) {
+            String rep = NodeUtils.getFullRepresentationString(node);
+            if (rep != null && !rep.isBlank()) {
+                values.add(rep);
+            }
+        } else if (node instanceof BinOp) {
+            values.addAll(NodeUtils.extractValuesFromBinOp(node, op));
         }
         return values;
     }
