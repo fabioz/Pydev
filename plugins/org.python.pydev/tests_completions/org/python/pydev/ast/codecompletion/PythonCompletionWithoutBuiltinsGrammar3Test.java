@@ -508,4 +508,118 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
                 + "    param.";
         requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()" });
     }
+
+    public void testNonUnion() throws Exception {
+        String s;
+        s = ""
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "def method1(param: SomeSubscript[A|B]):\n"
+                + "    param.";
+        ICompletionProposalHandle[] completions = requestCompl(s, s.length(), -1, new String[] {});
+        assertEquals(0, completions.length);
+    }
+
+    public void testMultipleUnions() throws Exception {
+        String s;
+        s = "" +
+                "from typing import Union\n"
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "class C(object):\n"
+                + "    def method_c(self):\n"
+                + "        pass\n"
+                + "def method1(param: Union[Union[A, B] | C]):\n"
+                + "    param.";
+        requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()", "method_c()" });
+    }
+
+    public void testMultipleUnions2() throws Exception {
+        String s;
+        s = "" +
+                "from typing import Union\n"
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "class C(object):\n"
+                + "    def method_c(self):\n"
+                + "        pass\n"
+                + "def method1(param: Union[Union[A | B] | C]):\n"
+                + "    param.";
+        requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()", "method_c()" });
+    }
+
+    public void testMultipleUnions3() throws Exception {
+        String s;
+        s = "" +
+                "from typing import Union\n"
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "class C(object):\n"
+                + "    def method_c(self):\n"
+                + "        pass\n"
+                + "class D(object):\n"
+                + "    def method_d(self):\n"
+                + "        pass\n"
+                + "def method1(param: Union[Union[A | B] | Union[C, D]]):\n"
+                + "    param.";
+        requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()", "method_c()", "method_c()" });
+    }
+
+    public void testMultipleUnions4() throws Exception {
+        String s;
+        s = "" +
+                "from typing import Union\n"
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "class C(object):\n"
+                + "    def method_c(self):\n"
+                + "        pass\n"
+                + "class D(object):\n"
+                + "    def method_d(self):\n"
+                + "        pass\n"
+                + "def method1(param: Union[Union[A | B] | Union[C | D]]):\n"
+                + "    param.";
+        requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()", "method_c()", "method_c()" });
+    }
+
+    public void testMultipleUnions5() throws Exception {
+        String s;
+        s = "" +
+                "from typing import Union\n"
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "class C(object):\n"
+                + "    def method_c(self):\n"
+                + "        pass\n"
+                + "class D(object):\n"
+                + "    def method_d(self):\n"
+                + "        pass\n"
+                + "def method1(param: Union[Union[A | B] | C | D]):\n"
+                + "    param.";
+        requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()", "method_c()", "method_c()" });
+    }
 }

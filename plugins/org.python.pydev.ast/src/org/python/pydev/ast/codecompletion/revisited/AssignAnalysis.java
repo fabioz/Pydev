@@ -445,8 +445,10 @@ public class AssignAnalysis {
                 if (assignDefinition != null) {
                     if (assignDefinition.nodeType != null) {
                         TokensList completions = new TokensList();
-                        List<String> typingUnionValues = extractTypingUnionValues(manager, module, assignDefinition);
+                        List<String> typingUnionValues = extractTypingUnionValues(manager, module,
+                                assignDefinition.nodeType);
                         if (typingUnionValues != null && typingUnionValues.size() > 0) {
+                            typingUnionValues.add(NodeUtils.getFullRepresentationString(assignDefinition.nodeType));
                             for (String value : typingUnionValues) {
                                 ICompletionState customCopy = state.getCopyWithActTok(value);
                                 TokensList valueComps = manager.getCompletionsForModule(module, customCopy);
@@ -511,13 +513,13 @@ public class AssignAnalysis {
     }
 
     private static List<String> extractTypingUnionValues(ICodeCompletionASTManager manager,
-            IModule module, AssignDefinition assignDefinition)
+            IModule module, exprType node)
             throws CompletionRecursionException {
-        if (manager.isNodeTypingUnionSubscript(module, assignDefinition.nodeType)) {
-            Subscript subscript = (Subscript) assignDefinition.nodeType;
+        if (manager.isNodeTypingUnionSubscript(module, node)) {
+            Subscript subscript = (Subscript) node;
             return NodeUtils.extractValuesFromSubscriptSlice(subscript.slice);
-        } else if (assignDefinition.nodeType instanceof BinOp) {
-            BinOp binOp = (BinOp) assignDefinition.nodeType;
+        } else if (node instanceof BinOp) {
+            BinOp binOp = (BinOp) node;
             return NodeUtils.extractValuesFromBinOp(binOp, BinOp.BitOr);
         }
         return null;
