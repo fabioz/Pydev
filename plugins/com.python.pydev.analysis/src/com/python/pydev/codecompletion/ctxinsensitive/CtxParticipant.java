@@ -42,7 +42,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.NoExceptionCloseable;
 import org.python.pydev.core.TokensList;
 import org.python.pydev.core.TokensOrProposalsList;
-import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
+import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQualifier;
 import org.python.pydev.core.interactive_console.IScriptConsoleViewer;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
@@ -80,7 +80,7 @@ public class CtxParticipant
      * IPyDevCompletionParticipant2
      */
     @Override
-    public Collection<ICompletionProposalHandle> computeConsoleCompletions(ActivationTokenAndQual tokenAndQual,
+    public Collection<ICompletionProposalHandle> computeConsoleCompletions(ActivationTokenAndQualifier tokenAndQual,
             Set<IPythonNature> naturesUsed, IScriptConsoleViewer viewer, int requestOffset) {
         List<ICompletionProposalHandle> completions = new ArrayList<ICompletionProposalHandle>();
         if (tokenAndQual.activationToken != null && tokenAndQual.activationToken.length() > 0) {

@@ -91,7 +91,7 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
     public ScopeAnalyzerVisitorWithoutImports(IPythonNature nature, String moduleName, IModule current,
             IProgressMonitor monitor, PySelection ps) throws BadLocationException {
         this(nature, moduleName, current, ps.getDoc(), monitor, ps.getCurrToken().o1, ps.getAbsoluteCursorOffset(), ps
-                .getActivationTokenAndQual(true));
+                .getActivationTokenAndQualifier(true));
 
     }
 

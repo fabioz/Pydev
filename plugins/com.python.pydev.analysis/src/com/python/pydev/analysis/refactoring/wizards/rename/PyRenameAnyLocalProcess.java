@@ -30,7 +30,7 @@ public class PyRenameAnyLocalProcess extends AbstractRenameWorkspaceRefactorProc
 
     public boolean getAttributeSearch() {
         if (attributeSearch == null) {
-            String[] tokenAndQual = request.ps.getActivationTokenAndQual(true);
+            String[] tokenAndQual = request.ps.getActivationTokenAndQualifier(true);
             String completeNameToFind = tokenAndQual[0] + tokenAndQual[1];
             attributeSearch = completeNameToFind.indexOf('.') != -1;
         }

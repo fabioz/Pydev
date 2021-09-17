@@ -180,7 +180,7 @@ public class SimpleAssistProposal extends PyCompletionProposal implements ICompl
 
     @Override
     public boolean validate(IDocument document, int offset, DocumentEvent event) {
-        String[] strs = PySelection.getActivationTokenAndQual(document, offset, false);
+        String[] strs = PySelection.getActivationTokenAndQualifier(document, offset, false);
 
         String activationToken = strs[0];
         String qualifier = strs[1];

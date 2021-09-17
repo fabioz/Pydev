@@ -38,7 +38,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TokensList;
 import org.python.pydev.core.docutils.ImportsSelection;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
+import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQualifier;
 import org.python.pydev.core.interactive_console.IScriptConsoleViewer;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
@@ -128,7 +128,8 @@ public class PydevConsoleInterpreter implements IScriptConsoleInterpreter {
             int offset, int whatToShow) throws Exception {
 
         final String text = commandLine.substring(0, position);
-        ActivationTokenAndQual tokenAndQual = PySelection.getActivationTokenAndQual(new Document(text), text.length(),
+        ActivationTokenAndQualifier tokenAndQual = PySelection.getActivationTokenAndQualifier(new Document(text),
+                text.length(),
                 true, false);
         String textForCompletionInConsole = PySelection
                 .getTextForCompletionInConsole(new Document(text), text.length());

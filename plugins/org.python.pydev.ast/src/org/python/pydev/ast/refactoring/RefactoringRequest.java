@@ -286,7 +286,7 @@ public class RefactoringRequest extends DecoratableObject {
      */
     public void fillActivationTokenAndQualifier() {
         try {
-            String[] currToken = ps.getActivationTokenAndQual(true);
+            String[] currToken = ps.getActivationTokenAndQualifier(true);
             activationToken = currToken[0];
             qualifier = currToken[1];
         } catch (Exception e) {

@@ -72,7 +72,7 @@ public class PyRefactoringFindDefinition {
             }
             String modName = request.moduleName;
             request.communicateWork("Module name found:" + modName);
-            tokenAndQual = PySelection.getActivationTokenAndQual(request.getDoc(),
+            tokenAndQual = PySelection.getActivationTokenAndQualifier(request.getDoc(),
                     request.ps.getAbsoluteCursorOffset(), true);
             String tok = tokenAndQual[0] + tokenAndQual[1];
             //2. check findDefinition (SourceModule)

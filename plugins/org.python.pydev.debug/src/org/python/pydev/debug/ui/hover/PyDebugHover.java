@@ -89,7 +89,7 @@ public class PyDebugHover extends AbstractPyEditorTextHover {
                 }
             }
             if (act == null || act.trim().length() == 0) {
-                String[] activationTokenAndQual = ps.getActivationTokenAndQual(true);
+                String[] activationTokenAndQual = ps.getActivationTokenAndQualifier(true);
                 act = activationTokenAndQual[0] + activationTokenAndQual[1];
             }
 

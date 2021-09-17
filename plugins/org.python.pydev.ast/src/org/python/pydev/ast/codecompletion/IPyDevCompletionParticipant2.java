@@ -10,7 +10,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
+import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQualifier;
 import org.python.pydev.core.interactive_console.IScriptConsoleViewer;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 
@@ -32,7 +32,7 @@ public interface IPyDevCompletionParticipant2 {
      * @param requestOffset the offset where the request for completions was issued
      * @return a list of completion proposals to be applied in the console
      */
-    Collection<ICompletionProposalHandle> computeConsoleCompletions(ActivationTokenAndQual tokenAndQual,
+    Collection<ICompletionProposalHandle> computeConsoleCompletions(ActivationTokenAndQualifier tokenAndQual,
             Set<IPythonNature> naturesUsed, IScriptConsoleViewer viewer, int requestOffset);
 
 }

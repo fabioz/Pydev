@@ -35,7 +35,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.TokensList;
 import org.python.pydev.core.TokensOrProposalsList;
-import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
+import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQualifier;
 import org.python.pydev.core.interactive_console.IScriptConsoleViewer;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
@@ -56,7 +56,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
     // Console completions ---------------------------------------------------------------------------------------------
 
     @Override
-    public Collection<ICompletionProposalHandle> computeConsoleCompletions(ActivationTokenAndQual tokenAndQual,
+    public Collection<ICompletionProposalHandle> computeConsoleCompletions(ActivationTokenAndQualifier tokenAndQual,
             Set<IPythonNature> naturesUsed, IScriptConsoleViewer viewer, int requestOffset) {
         ArrayList<ICompletionProposalHandle> completions = new ArrayList<ICompletionProposalHandle>();
 

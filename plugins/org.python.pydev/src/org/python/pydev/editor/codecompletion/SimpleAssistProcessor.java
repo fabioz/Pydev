@@ -32,8 +32,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.python.pydev.ast.codecompletion.ProposalsComparator;
-import org.python.pydev.ast.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.ast.codecompletion.ProposalsComparator.CompareContext;
+import org.python.pydev.ast.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.ast.simpleassist.ISimpleAssistParticipant;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPySyntaxHighlightingAndCodeCompletionEditor;
@@ -226,7 +226,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
         private void updateQualifier() {
             IDocument doc = this.viewer.getDocument();
 
-            String[] strs = PySelection.getActivationTokenAndQual(doc, this.viewer.getSelectedRange().x, false);
+            String[] strs = PySelection.getActivationTokenAndQualifier(doc, this.viewer.getSelectedRange().x, false);
 
             String qualifier = strs[1];
             this.sorter.setQualifier(qualifier);
@@ -245,7 +245,7 @@ public class SimpleAssistProcessor implements IContentAssistProcessor {
     public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int offset) {
         try {
             IDocument doc = viewer.getDocument();
-            String[] strs = PySelection.getActivationTokenAndQual(doc, offset, false);
+            String[] strs = PySelection.getActivationTokenAndQualifier(doc, offset, false);
 
             String activationToken = strs[0];
             String qualifier = strs[1];
