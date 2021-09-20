@@ -290,8 +290,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
 
     public void testUnion() throws Exception {
         String s;
-        s = "" +
-                "from typing import Union\n"
+        s = ""
                 + "class A(object):\n"
                 + "    def method_a(self):\n"
                 + "        pass\n"
@@ -305,8 +304,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
 
     public void testUnion2() throws Exception {
         String s;
-        s = "" +
-                "from typing import Union\n"
+        s = ""
                 + "class A(object):\n"
                 + "    def method_a(self):\n"
                 + "        pass\n"
@@ -322,8 +320,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
 
     public void testUnion3() throws Exception {
         String s;
-        s = "" +
-                "from typing import Union as Foo\n"
+        s = ""
                 + "class A(object):\n"
                 + "    def method_a(self):\n"
                 + "        pass\n"
@@ -337,8 +334,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
 
     public void testUnion4() throws Exception {
         String s;
-        s = "" +
-                "import typing\n"
+        s = ""
                 + "class A(object):\n"
                 + "    def method_a(self):\n"
                 + "        pass\n"
@@ -352,8 +348,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
 
     public void testUnion5() throws Exception {
         String s;
-        s = "" +
-                "import typing as foo\n"
+        s = ""
                 + "class A(object):\n"
                 + "    def method_a(self):\n"
                 + "        pass\n"
@@ -367,8 +362,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
 
     public void testUnion6() throws Exception {
         String s;
-        s = "" +
-                "import typing as foo\n"
+        s = ""
                 + "class A(object):\n"
                 + "    def method_a(self):\n"
                 + "        pass\n"
@@ -382,8 +376,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
 
     public void testUnion7() throws Exception {
         String s;
-        s = "" +
-                "import typing as foo\n"
+        s = ""
                 + "class A(object):\n"
                 + "    def method_a(self):\n"
                 + "        pass\n"
@@ -398,8 +391,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
 
     public void testUnion8() throws Exception {
         String s;
-        s = "" +
-                "from typing import Union\n"
+        s = ""
                 + "class A(object):\n"
                 + "    def method_a(self):\n"
                 + "        pass\n"
@@ -413,8 +405,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
 
     public void testUnion9() throws Exception {
         String s;
-        s = "" +
-                "from typing import Union\n"
+        s = ""
                 + "class A(object):\n"
                 + "    def method_a(self):\n"
                 + "        pass\n"
@@ -431,8 +422,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
 
     public void testUnion10() throws Exception {
         String s;
-        s = "" +
-                "from typing import Union\n"
+        s = ""
                 + "class A(object):\n"
                 + "    def method_a(self):\n"
                 + "        pass\n"
@@ -446,8 +436,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
 
     public void testUnion11() throws Exception {
         String s;
-        s = "" +
-                "from typing import Union\n"
+        s = ""
                 + "class A(object):\n"
                 + "    def method_a(self):\n"
                 + "        pass\n"
@@ -464,8 +453,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
 
     public void testUnion12() throws Exception {
         String s;
-        s = "" +
-                "from typing import Union\n"
+        s = ""
                 + "class A(object):\n"
                 + "    def method_a(self):\n"
                 + "        pass\n"
@@ -480,8 +468,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
 
     public void testUnion13() throws Exception {
         String s;
-        s = "" +
-                "from typing import Union\n"
+        s = ""
                 + "class A(object):\n"
                 + "    def method_a(self):\n"
                 + "        pass\n"
@@ -496,8 +483,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
 
     public void testUnion14() throws Exception {
         String s;
-        s = "" +
-                "from typing import Union\n"
+        s = ""
                 + "class A(object):\n"
                 + "    def method_a(self):\n"
                 + "        pass\n"
@@ -541,8 +527,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
 
     public void testMultipleUnions() throws Exception {
         String s;
-        s = "" +
-                "from typing import Union\n"
+        s = ""
                 + "class A(object):\n"
                 + "    def method_a(self):\n"
                 + "        pass\n"
@@ -559,8 +544,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
 
     public void testMultipleUnions2() throws Exception {
         String s;
-        s = "" +
-                "from typing import Union\n"
+        s = ""
                 + "class A(object):\n"
                 + "    def method_a(self):\n"
                 + "        pass\n"
@@ -577,8 +561,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
 
     public void testMultipleUnions3() throws Exception {
         String s;
-        s = "" +
-                "from typing import Union\n"
+        s = ""
                 + "class A(object):\n"
                 + "    def method_a(self):\n"
                 + "        pass\n"
@@ -598,8 +581,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
 
     public void testMultipleUnions4() throws Exception {
         String s;
-        s = "" +
-                "from typing import Union\n"
+        s = ""
                 + "class A(object):\n"
                 + "    def method_a(self):\n"
                 + "        pass\n"
@@ -619,8 +601,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
 
     public void testMultipleUnions5() throws Exception {
         String s;
-        s = "" +
-                "from typing import Union\n"
+        s = ""
                 + "class A(object):\n"
                 + "    def method_a(self):\n"
                 + "        pass\n"
