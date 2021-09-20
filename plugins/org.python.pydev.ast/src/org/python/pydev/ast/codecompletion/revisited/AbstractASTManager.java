@@ -1019,34 +1019,13 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     public boolean isNodeTypingUnionSubscript(IModule module, Object node) {
         if (node instanceof Subscript) {
             Subscript subscript = (Subscript) node;
-
-            String rep = NodeUtils.getFullRepresentationString(subscript);
-            if (rep == null || rep.isBlank()) {
-                return false;
-            }
-
-            TokensList importedModules = module.getTokenImportedModules();
-            FullRepIterable iterable = new FullRepIterable(rep, true);
-
-            for (String token : iterable) {
-                if (token == null || token.isBlank()) {
-                    continue;
-                }
-                for (IterTokenEntry entry : importedModules) {
-                    IToken importedModule = entry.getToken();
-                    String modRep = importedModule.getRepresentation();
-                    String originalRep = importedModule.getOriginalRep();
-                    if (modRep == null || modRep.isBlank()) {
-                        continue;
-                    }
-                    if (("typing.Union".equals(originalRep) || "typing".equals(originalRep))
-                            && (token.equals(modRep) || (modRep + ".Union").equals(token))) {
-                        return true;
-                    }
+            String rep = NodeUtils.getFullRepresentationString(subscript.value);
+            if (rep != null && !rep.isBlank()) {
+                if (rep.equals("Union") || rep.endsWith(".Union")) {
+                    return true;
                 }
             }
         }
-
         return false;
     }
 

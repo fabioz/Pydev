@@ -11,6 +11,7 @@ package org.python.pydev.parser.visitors;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -2183,30 +2184,34 @@ public class NodeUtils {
             if (extSlice != null && extSlice.dims != null) {
                 for (sliceType dim : extSlice.dims) {
                     if (dim instanceof Index) {
-                        Index index = (Index) dim;
-                        String value = NodeUtils.getRepresentationString(index.value);
-                        if (value != null && !value.isBlank()) {
-                            values.add(value);
+                        List<String> valuesFromIndex = extractValuesFromSubscriptIndex((Index) dim);
+                        if (valuesFromIndex != null && valuesFromIndex.size() > 0) {
+                            values.addAll(valuesFromIndex);
                         }
                     }
                 }
             }
         } else if (slice instanceof Index) {
-            Index index = (Index) slice;
-            if (index != null) {
-                if (index.value instanceof BinOp) {
-                    BinOp binOp = (BinOp) index.value;
-                    values.addAll(extractValuesFromBinOp(binOp, BinOp.BitOr));
-                } else if (index.value instanceof Name) {
-                    values.add(getFullRepresentationString(index.value));
-                } else if (index.value instanceof Subscript) {
-                    Subscript subscript = (Subscript) index.value;
-                    values.addAll(extractValuesFromSubscriptSlice(subscript.slice));
-                }
+            List<String> valuesFromIndex = extractValuesFromSubscriptIndex((Index) slice);
+            if (valuesFromIndex != null && valuesFromIndex.size() > 0) {
+                values.addAll(valuesFromIndex);
             }
         }
 
         return values;
+    }
+
+    private static List<String> extractValuesFromSubscriptIndex(Index index) {
+        if (index.value instanceof BinOp) {
+            BinOp binOp = (BinOp) index.value;
+            return extractValuesFromBinOp(binOp, BinOp.BitOr);
+        } else if (index.value instanceof Name) {
+            return Arrays.asList(new String[] { getFullRepresentationString(index.value) });
+        } else if (index.value instanceof Subscript) {
+            Subscript subscript = (Subscript) index.value;
+            return extractValuesFromSubscriptSlice(subscript.slice);
+        }
+        return null;
     }
 
     public static List<String> extractValuesFromBinOp(exprType node) {

@@ -318,20 +318,6 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
         requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()" });
     }
 
-    public void testUnion3() throws Exception {
-        String s;
-        s = ""
-                + "class A(object):\n"
-                + "    def method_a(self):\n"
-                + "        pass\n"
-                + "class B(object):\n"
-                + "    def method_b(self):\n"
-                + "        pass\n"
-                + "def method1(param:Foo[A, B]):\n"
-                + "    param.me";
-        requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()" });
-    }
-
     public void testUnion4() throws Exception {
         String s;
         s = ""
