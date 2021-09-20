@@ -524,6 +524,21 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
         assertEquals(0, completions.length);
     }
 
+    public void testNonUnion2() throws Exception {
+        String s;
+        s = ""
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "def method1(param: SomeSubscript[A,B]):\n"
+                + "    param.";
+        ICompletionProposalHandle[] completions = requestCompl(s, s.length(), -1, new String[] {});
+        assertEquals(0, completions.length);
+    }
+
     public void testMultipleUnions() throws Exception {
         String s;
         s = "" +

@@ -2279,6 +2279,9 @@ public class NodeUtils {
         List<String> values = new ArrayList<String>();
         if (node instanceof BinOp) {
             values.addAll(NodeUtils.extractValuesFromBinOp(node, op));
+        } else if (node instanceof Subscript) {
+            Subscript subscript = (Subscript) node;
+            values.addAll(NodeUtils.extractValuesFromSubscriptSlice(subscript.slice));
         } else if (node instanceof Str) {
             Str str = (Str) node;
             if (str.s != null && !str.s.isBlank()) {
