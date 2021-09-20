@@ -15,7 +15,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
@@ -438,49 +437,6 @@ public class NodeUtils {
         }
 
         return getRepresentationString(node, true);
-    }
-
-    public static Optional<String> getOperatorRep(int op) {
-        String operatorRep = null;
-        switch (op) {
-            case operatorType.Add:
-                operatorRep = "+";
-                break;
-            case operatorType.Sub:
-                operatorRep = "-";
-                break;
-            case operatorType.Mult:
-                operatorRep = "*";
-                break;
-            case operatorType.Div:
-                operatorRep = "/";
-                break;
-            case operatorType.Mod:
-                operatorRep = "%";
-                break;
-            case operatorType.Pow:
-                operatorRep = "**";
-                break;
-            case operatorType.LShift:
-                operatorRep = "<<";
-                break;
-            case operatorType.RShift:
-                operatorRep = ">>";
-                break;
-            case operatorType.BitOr:
-                operatorRep = "|";
-                break;
-            case operatorType.BitXor:
-                operatorRep = "^";
-                break;
-            case operatorType.BitAnd:
-                operatorRep = "&";
-                break;
-            case operatorType.FloorDiv:
-                operatorRep = "//";
-                break;
-        }
-        return Optional.ofNullable(operatorRep);
     }
 
     /**
