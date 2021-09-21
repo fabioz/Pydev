@@ -31,6 +31,7 @@ import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
+import org.python.pydev.parser.jython.ast.BinOp;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
@@ -237,9 +238,12 @@ public class AssignAnalysis {
                 if (info != null) {
                     List<ITypeInfo> lookForClass = new ArrayList<>();
                     lookForClass.add(info);
-                    ret.addAll(manager.getCompletionsForClassInLocalScope(sourceModule, state,
-                            true, false, lookForClass));
-                    foundAsParamWithTypingInfo = true;
+                    TokensList completions = manager.getCompletionsForClassInLocalScope(sourceModule, state,
+                            true, false, lookForClass);
+                    if (completions != null && completions.size() > 0) {
+                        ret.addAll(completions);
+                        foundAsParamWithTypingInfo = true;
+                    }
                 }
             }
         }
@@ -439,12 +443,22 @@ public class AssignAnalysis {
                 int unpackPos = -1;
                 boolean unpackBackwards = false;
                 if (assignDefinition != null) {
-                    // If we have a type, activation token has already been defined as type
-                    // So let's check first if we can find completions using the type. If we can not find, we just ignore it and continue normally
                     if (assignDefinition.nodeType != null) {
-                        TokensList tks = manager.getCompletionsForModule(module, copy, true, true);
-                        if (tks != null && tks.size() > 0) {
-                            ret.addAll(tks);
+                        TokensList completions = new TokensList();
+                        List<String> typingUnionValues = extractTypingUnionValues(manager, module,
+                                assignDefinition.nodeType);
+                        if (typingUnionValues != null && typingUnionValues.size() > 0) {
+                            typingUnionValues.add(NodeUtils.getFullRepresentationString(assignDefinition.nodeType));
+                            for (String value : typingUnionValues) {
+                                ICompletionState customCopy = state.getCopyWithActTok(value);
+                                TokensList valueComps = manager.getCompletionsForModule(module, customCopy);
+                                completions.addAll(valueComps);
+                            }
+                        }
+                        TokensList normalCompletions = manager.getCompletionsForModule(module, copy, true, true);
+                        completions.addAll(normalCompletions);
+                        if (completions != null && completions.size() > 0) {
+                            ret.addAll(completions);
                             return ret;
                         }
                     }
@@ -496,6 +510,19 @@ public class AssignAnalysis {
             }
         }
         return ret;
+    }
+
+    private static List<String> extractTypingUnionValues(ICodeCompletionASTManager manager,
+            IModule module, exprType node)
+            throws CompletionRecursionException {
+        if (manager.isNodeTypingUnionSubscript(module, node)) {
+            Subscript subscript = (Subscript) node;
+            return NodeUtils.extractValuesFromSubscriptSlice(subscript.slice);
+        } else if (node instanceof BinOp) {
+            BinOp binOp = (BinOp) node;
+            return NodeUtils.extractValuesFromBinOp(binOp, BinOp.BitOr);
+        }
+        return null;
     }
 
     /**
