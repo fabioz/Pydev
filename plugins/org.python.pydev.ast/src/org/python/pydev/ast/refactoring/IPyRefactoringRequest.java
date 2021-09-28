@@ -9,7 +9,7 @@ public interface IPyRefactoringRequest {
 
     List<RefactoringRequest> getRequests();
 
-    void fillInitialNameAndOffset();
+    void fillActivationTokenAndQualifier();
 
     void setInputName(String text);
 

@@ -14,12 +14,12 @@
 * Contributors:
 *     Fabio Zadrozny <fabiofz@gmail.com> - initial implementation
 ******************************************************************************/
-/* 
+/*
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
  * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  *
  * IFS Institute for Software, HSR Rapperswil, Switzerland
- * 
+ *
  */
 
 package org.python.pydev.refactoring.ast.visitors.selection;
@@ -142,7 +142,7 @@ public class SelectionExtenderVisitor extends VisitorBase {
         Str stringNode = null;
         if (o instanceof ISpecialStr) {
             ISpecialStr special = (ISpecialStr) o;
-            stringNode = new Str(special.toString(), Str.SingleDouble, false, false, false, false);
+            stringNode = new Str(special.toString(), Str.SingleDouble, false, false, false, false, null);
             stringNode.beginLine = special.getBeginLine();
             stringNode.beginColumn = special.getBeginCol();
         }

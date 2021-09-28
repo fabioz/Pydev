@@ -327,7 +327,16 @@ public class OccurrencesAnalyzerPy36Test extends AnalysisTestsBase {
         doc = new Document(
                 "def method():\n" +
                         "    d = {0:'zero'}\n" +
-                        "    f'{d[\ny]}'" +
+                        "    f'{d[y]}'" +
+                        "");
+        checkError("Undefined variable: y");
+    }
+
+    public void testFStringErr10() throws Exception {
+        doc = new Document(
+                "def method():\n" +
+                        "    d = {0:'zero'}\n" +
+                        "    f'''{d[\ny]}'''" +
                         "");
         checkError("Undefined variable: y");
     }
@@ -354,4 +363,14 @@ public class OccurrencesAnalyzerPy36Test extends AnalysisTestsBase {
         checkError("Unresolved import: typing");
     }
 
+    public void testErrorTypingAssign() throws Exception {
+        doc = new Document(
+                "from xxx import yyy\n" +
+                        "\n" +
+                        "def method():\n" +
+                        "    a: yyy = None\n" +
+                        "    b: zzz = None");
+        checkError(
+                "Unresolved import: yyy", "Unused variable: a", "Unused variable: b", "Undefined variable: zzz");
+    }
 }

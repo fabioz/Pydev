@@ -21,6 +21,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.string.StringUtils;
 
 public class PythonCompletionWithBuiltinsPython3Test extends CodeCompletionTestsBase {
 
@@ -51,7 +52,7 @@ public class PythonCompletionWithBuiltinsPython3Test extends CodeCompletionTests
 
             @Override
             public int getGrammarVersion() {
-                return IPythonNature.GRAMMAR_PYTHON_VERSION_3_5;
+                return IPythonNature.GRAMMAR_PYTHON_VERSION_3_8;
             }
 
             @Override
@@ -159,6 +160,97 @@ public class PythonCompletionWithBuiltinsPython3Test extends CodeCompletionTests
         requestCompl(s, s.length(), -1, new String[] { "title()", "translate(table)" });
     }
 
+    public void testCodeCompletionPep484ListUnpack2() throws Exception {
+        String s;
+        s = ""
+                + "from typing import List\n" +
+                "\n" +
+                "class Bar(object):\n" +
+                "    def bar(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "def list_bar() -> List[str]:\n" +
+                "    pass\n" +
+                "\n" +
+                "def something():\n" +
+                "    for a in list_bar():\n" +
+                "        a.t";
+        requestCompl(s, s.length(), -1,
+                new String[] { "title()", "translate(table)" });
+    }
+
+    public void testCodeCompletionPep484ListUnpack3() throws Exception {
+        String s;
+        s = "" +
+                "def list_bar() -> str:\n" +
+                "    pass\n" +
+                "\n" +
+                "def something():\n" +
+                "    for a in list_bar():\n" +
+                "        a.t";
+        requestCompl(s, s.length(), -1,
+                new String[] { "title()", "translate(table)" });
+    }
+
+    public void testCodeCompletionPep484ListUnpack4() throws Exception {
+        String s;
+        s = ""
+                + "from typing import List\n" +
+                "\n" +
+                "class Bar(object):\n" +
+                "    def bar(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "def list_bar() -> List[Bar]:\n" +
+                "    pass\n" +
+                "\n" +
+                "def something():\n" +
+                "    for a in list_bar():\n" +
+                "        a.";
+        requestCompl(s, s.length(), -1,
+                new String[] { "bar()" });
+    }
+
+    public void testCodeCompletionPep484ListUnpack5() throws Exception {
+        String s;
+        s = ""
+                + "class Bar(object):\n" +
+                "\n" +
+                "    def bar(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "def list_bar():\n" +
+                "    pass\n" +
+                "\n" +
+                "def something():\n" +
+                "    lst = list_bar()\n" +
+                "    a:List[Bar] = lst\n" +
+                "    for b in a:\n" +
+                "        b.";
+        requestCompl(s, s.length(), -1,
+                new String[] { "bar()" });
+    }
+
+    public void testCodeCompletionPep484ListUnpack6() throws Exception {
+        String s;
+        s = "" +
+                "class Bar(object):\n" +
+                "\n" +
+                "    def bar(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "def list_bar():\n" +
+                "    pass\n" +
+                "\n" +
+                "def something():\n" +
+                "    lst = list_bar()\n" +
+                "    a:List[Bar] = lst\n" +
+                "    b = a[0]\n" +
+                "    b.";
+        requestCompl(s, s.length(), -1,
+                new String[] { "bar()" });
+    }
+
     public void testCodeCompletionPep484DictUnpack3() throws Exception {
         String s;
         s = ""
@@ -188,4 +280,62 @@ public class PythonCompletionWithBuiltinsPython3Test extends CodeCompletionTests
         requestCompl(s, s.length(), -1, new String[] { "title()", "translate(table)" });
     }
 
+    public void testCodeCompletionPep484Return2() throws Exception {
+        String s;
+        s = ""
+                + "class Bar(object):\n" +
+                "\n" +
+                "    def bar(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "def list_bar():\n" +
+                "    pass\n" +
+                "\n" +
+                "def something():\n" +
+                "    lst = list_bar()\n" +
+                "    a:Bar = lst[0]\n" +
+                "    a.";
+        requestCompl(s, s.length(), -1, new String[] { "bar()" });
+    }
+
+    public void testCompletionWithWalrus() throws Exception {
+        String s;
+        String original = "" +
+                "def test_anything():\n" +
+                "    while a := 10:\n" +
+                "        a.d";
+        s = StringUtils.format(original, "");
+        requestCompl(s, s.length(), -1,
+                new String[] { "denominator" });
+    }
+
+    public void testCompletionWithWalrus2() throws Exception {
+        String s;
+        String original = "" +
+                "while (x := 10) > 5:\n" +
+                "  x.d";
+        s = StringUtils.format(original, "");
+        requestCompl(s, s.length(), -1,
+                new String[] { "denominator" });
+    }
+
+    public void testCompletionWithWalrus3() throws Exception {
+        String s;
+        String original = "" +
+                "if x := 10:\n" +
+                "  x.d";
+        s = StringUtils.format(original, "");
+        requestCompl(s, s.length(), -1,
+                new String[] { "denominator" });
+    }
+
+    public void testCompletionWithWalrus4() throws Exception {
+        String s;
+        String original = "" +
+                "if (x := 10) > 5:\n" +
+                "  x.d";
+        s = StringUtils.format(original, "");
+        requestCompl(s, s.length(), -1,
+                new String[] { "denominator" });
+    }
 }

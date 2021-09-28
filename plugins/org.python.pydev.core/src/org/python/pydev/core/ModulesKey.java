@@ -132,10 +132,16 @@ public class ModulesKey implements Comparable<ModulesKey>, Serializable {
             String f = split.get(1);
             return new ModulesKey(split.get(0), f.equals("null") ? null : new File(f));
         }
-        if (size == 3) { //zipPath was empty
+        if (size == 3) { // it is a folder or zipPath was empty
             String f = split.get(1);
-            return new ModulesKeyForZip(split.get(0), f.equals("null") ? null : new File(f), "",
-                    split.get(2).equals("1") ? true : false);
+
+            // it's a folder if it has "^" at last split index
+            if (split.get(2).equals("^")) {
+                return new ModulesKeyForFolder(split.get(0), f.equals("null") ? null : new File(f));
+            } else {
+                return new ModulesKeyForZip(split.get(0), f.equals("null") ? null : new File(f), "",
+                        split.get(2).equals("1") ? true : false);
+            }
         }
         if (size == 4) {
             String f = split.get(1);

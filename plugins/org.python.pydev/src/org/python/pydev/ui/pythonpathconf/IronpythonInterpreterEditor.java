@@ -28,7 +28,7 @@ public class IronpythonInterpreterEditor extends AbstractInterpreterEditor {
     @Override
     protected void doFillIntoGrid(Composite parent, int numColumns) {
         super.doFillIntoGrid(parent, numColumns);
-        this.autoConfigButton.setToolTipText("Will try to find IronPython on the PATH (will fail if not available)");
+        this.autoConfigMenuItem.setToolTipText("Will try to find IronPython on the PATH (will fail if not available)");
     }
 
     @Override

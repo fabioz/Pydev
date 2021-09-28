@@ -12,10 +12,9 @@
 package org.python.pydev.debug.ui.variables;
 
 import org.eclipse.debug.core.DebugException;
-import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.Viewer;
-import org.python.pydev.debug.model.PyVariable;
 import org.python.pydev.debug.model.PyVariableCollection;
+import org.python.pydev.debug.model.PyVariableGroup;
 import org.python.pydev.debug.model.PyVariablesPreferences;
 
 public class ShowPrivateReferencesActionDelegate extends AbstractShowReferencesActionDelegate {
@@ -31,36 +30,27 @@ public class ShowPrivateReferencesActionDelegate extends AbstractShowReferencesA
 
     @Override
     protected boolean isShowReferenceProperty(String property) {
-        return PyVariablesPreferences.DEBUG_UI_VARIABLES_SHOW_PRIVATE_REFERENCES.equals(property);
+        return PyVariablesPreferences.DEBUG_UI_VARIABLES_SHOW_SPECIAL_REFERENCES.equals(property);
     }
 
     @Override
-    protected boolean select(Viewer viewer, Object parentElement, PyVariable variable, String variableName) {
-        if (variableName != null && variableName.startsWith("_")) {
-            // although we want to exclude _ names, don't do that on self and cls 
-            if (parentElement instanceof TreePath) {
-                TreePath path = (TreePath) parentElement;
-                if (path.getSegmentCount() == 1) {
-                    Object segment = path.getFirstSegment();
-                    if (segment instanceof PyVariableCollection) {
-                        PyVariableCollection varCol = (PyVariableCollection) segment;
-                        try {
-                            String varColName = varCol.getName();
-                            if ("self".equals(varColName) || "cls".equals(varColName)) {
-                                // Keep this, it is private to "us" so the user probably want to see it
-                                return true;
-                            }
-                        } catch (DebugException e) {
-                            // If we aren't able to get a name, play it safe and don't
-                            // hide it from the user
-                            return true;
-                        }
+    public boolean select(Viewer viewer, Object parentElement, Object element) {
+        if (isShowReference()) {
+            return true;
+        } else {
+            if (element instanceof PyVariableGroup) {
+                PyVariableGroup variable = (PyVariableGroup) element;
+                try {
+                    String name = variable.getName();
+                    if (PyVariableCollection.SCOPE_SPECIAL_VARS.equals(name)) {
+                        return false;
                     }
+                } catch (DebugException e) {
+                    // Ignore error, if we get one, don't filter
                 }
             }
-            // The variable isn't part of "self" or "cls", filter it out
-            return false;
+
+            return true;
         }
-        return true;
     }
 }

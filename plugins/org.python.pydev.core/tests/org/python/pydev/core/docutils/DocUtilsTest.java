@@ -50,7 +50,7 @@ public class DocUtilsTest extends TestCase {
         String newDocContents = docContents;
         String endLineDelimiter = "\n";
         IDocument doc = new Document(docContents);
-        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
+        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents);
         assertEquals(newDocContents, doc.get());
     }
 
@@ -59,7 +59,7 @@ public class DocUtilsTest extends TestCase {
         String newDocContents = "b\nc\n";
         String endLineDelimiter = "\n";
         IDocument doc = new Document(docContents);
-        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
+        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents);
         assertEquals(newDocContents, doc.get());
     }
 
@@ -68,7 +68,7 @@ public class DocUtilsTest extends TestCase {
         String newDocContents = "x\na\nb\nc\n";
         String endLineDelimiter = "\n";
         IDocument doc = new Document(docContents);
-        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
+        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents);
         assertEquals(newDocContents, doc.get());
     }
 
@@ -77,7 +77,7 @@ public class DocUtilsTest extends TestCase {
         String newDocContents = "x\na\nb\nc\n";
         String endLineDelimiter = "\n";
         IDocument doc = new Document(docContents);
-        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
+        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents);
         assertEquals(newDocContents, doc.get());
     }
 
@@ -86,7 +86,7 @@ public class DocUtilsTest extends TestCase {
         String newDocContents = "x\na\nb\nc\n";
         String endLineDelimiter = "\n";
         IDocument doc = new Document(docContents);
-        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
+        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents);
         assertEquals(newDocContents, doc.get());
     }
 
@@ -95,7 +95,7 @@ public class DocUtilsTest extends TestCase {
         String newDocContents = "x\na\nb\nc\n";
         String endLineDelimiter = "\n";
         IDocument doc = new Document(docContents);
-        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
+        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents);
         assertEquals(newDocContents, doc.get());
     }
 
@@ -104,7 +104,7 @@ public class DocUtilsTest extends TestCase {
         String newDocContents = "";
         String endLineDelimiter = "\n";
         IDocument doc = new Document(docContents);
-        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
+        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents);
         assertEquals(newDocContents, doc.get());
     }
 
@@ -113,7 +113,7 @@ public class DocUtilsTest extends TestCase {
         String newDocContents = "\n";
         String endLineDelimiter = "\n";
         IDocument doc = new Document(docContents);
-        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
+        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents);
         assertEquals(newDocContents, doc.get());
     }
 
@@ -122,7 +122,7 @@ public class DocUtilsTest extends TestCase {
         String newDocContents = "\n\n\n";
         String endLineDelimiter = "\n";
         IDocument doc = new Document(docContents);
-        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
+        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents);
         assertEquals(newDocContents, doc.get());
     }
 
@@ -131,7 +131,7 @@ public class DocUtilsTest extends TestCase {
         String newDocContents = "x";
         String endLineDelimiter = "\n";
         IDocument doc = new Document(docContents);
-        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
+        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents);
         assertEquals(newDocContents, doc.get());
     }
 
@@ -140,7 +140,7 @@ public class DocUtilsTest extends TestCase {
         String newDocContents = "x\n";
         String endLineDelimiter = "\n";
         IDocument doc = new Document(docContents);
-        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
+        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents);
         assertEquals(newDocContents, doc.get());
     }
 
@@ -149,7 +149,7 @@ public class DocUtilsTest extends TestCase {
         String newDocContents = "\na\n";
         String endLineDelimiter = "\n";
         IDocument doc = new Document(docContents);
-        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
+        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents);
         assertEquals(newDocContents, doc.get());
     }
 
@@ -158,7 +158,7 @@ public class DocUtilsTest extends TestCase {
         String newDocContents = "\nc\n";
         String endLineDelimiter = "\n";
         IDocument doc = new Document(docContents);
-        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
+        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents);
         assertEquals(newDocContents, doc.get());
     }
 
@@ -167,7 +167,7 @@ public class DocUtilsTest extends TestCase {
         String newDocContents = "x\nb\nc\n";
         String endLineDelimiter = "\n";
         IDocument doc = new Document(docContents);
-        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
+        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents);
         assertEquals(newDocContents, doc.get());
     }
 
@@ -176,7 +176,7 @@ public class DocUtilsTest extends TestCase {
         String newDocContents = "x\nb\nc\n";
         String endLineDelimiter = "\n";
         IDocument doc = new Document(docContents);
-        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
+        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents);
         assertEquals(newDocContents, doc.get());
     }
 
@@ -185,7 +185,7 @@ public class DocUtilsTest extends TestCase {
         String newDocContents = "x\nx\nx\nx\nx\nb\nc\n";
         String endLineDelimiter = "\n";
         IDocument doc = new Document(docContents);
-        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
+        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents);
         assertEquals(newDocContents, doc.get());
     }
 
@@ -194,7 +194,7 @@ public class DocUtilsTest extends TestCase {
         String newDocContents = "\n";
         String endLineDelimiter = "\n";
         IDocument doc = new Document(docContents);
-        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
+        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents);
         assertEquals(newDocContents, doc.get());
     }
 
@@ -203,7 +203,7 @@ public class DocUtilsTest extends TestCase {
         String newDocContents = "a\nb\nc";
         String endLineDelimiter = "\n";
         IDocument doc = new Document(docContents);
-        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
+        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents);
         assertEquals(newDocContents, doc.get());
     }
 
@@ -212,7 +212,7 @@ public class DocUtilsTest extends TestCase {
         String newDocContents = "a\nb\n";
         String endLineDelimiter = "\n";
         IDocument doc = new Document(docContents);
-        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
+        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents);
         assertEquals(newDocContents, doc.get());
     }
 
@@ -221,7 +221,7 @@ public class DocUtilsTest extends TestCase {
         String newDocContents = "";
         String endLineDelimiter = "\n";
         IDocument doc = new Document(docContents);
-        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
+        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents);
         assertEquals(newDocContents, doc.get());
     }
 
@@ -230,7 +230,7 @@ public class DocUtilsTest extends TestCase {
         String newDocContents = "a\nb\n";
         String endLineDelimiter = "\n";
         IDocument doc = new Document(docContents);
-        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
+        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents);
         assertEquals(newDocContents, doc.get());
     }
 
@@ -247,7 +247,7 @@ public class DocUtilsTest extends TestCase {
                 "";
         String endLineDelimiter = "\n";
         IDocument doc = new Document(docContents);
-        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
+        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents);
         assertEquals(newDocContents, doc.get());
     }
 
@@ -264,7 +264,7 @@ public class DocUtilsTest extends TestCase {
                 "";
         String endLineDelimiter = "\n";
         IDocument doc = new Document(docContents);
-        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
+        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents);
         assertEquals(newDocContents, doc.get());
     }
 
@@ -281,7 +281,7 @@ public class DocUtilsTest extends TestCase {
                 "";
         String endLineDelimiter = "\n";
         IDocument doc = new Document(docContents);
-        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
+        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents);
         assertEquals(newDocContents, doc.get());
     }
 
@@ -302,7 +302,7 @@ public class DocUtilsTest extends TestCase {
                 "";
         String endLineDelimiter = "\n";
         IDocument doc = new Document(docContents);
-        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
+        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents);
         assertEquals(newDocContents, doc.get());
     }
 
@@ -320,7 +320,7 @@ public class DocUtilsTest extends TestCase {
                 "";
         String endLineDelimiter = "\n";
         IDocument doc = new Document(docContents);
-        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
+        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents);
         assertEquals(newDocContents, doc.get());
     }
 
@@ -339,7 +339,7 @@ public class DocUtilsTest extends TestCase {
                 "";
         String endLineDelimiter = "\n";
         IDocument doc = new Document(docContents);
-        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
+        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents);
         assertEquals(newDocContents, doc.get());
     }
 
@@ -357,7 +357,7 @@ public class DocUtilsTest extends TestCase {
                 "";
         String endLineDelimiter = "\n";
         IDocument doc = new Document(docContents);
-        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
+        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents);
         assertEquals(newDocContents, doc.get());
     }
 
@@ -375,7 +375,7 @@ public class DocUtilsTest extends TestCase {
                 "";
         String endLineDelimiter = "\n";
         IDocument doc = new Document(docContents);
-        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
+        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents);
         assertEquals(newDocContents, doc.get());
     }
 
@@ -397,7 +397,7 @@ public class DocUtilsTest extends TestCase {
                 "";
         String endLineDelimiter = "\n";
         IDocument doc = new Document(docContents);
-        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
+        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents);
         assertEquals(newDocContents, doc.get());
     }
 
@@ -417,7 +417,7 @@ public class DocUtilsTest extends TestCase {
                 "";
         String endLineDelimiter = "\n";
         IDocument doc = new Document(docContents);
-        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
+        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents);
         assertEquals(newDocContents, doc.get());
     }
 
@@ -439,7 +439,7 @@ public class DocUtilsTest extends TestCase {
                 "";
         String endLineDelimiter = "\n";
         IDocument doc = new Document(docContents);
-        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents, endLineDelimiter);
+        DocUtils.updateDocRangeWithContents(doc, docContents, newDocContents);
         assertEquals(newDocContents, doc.get());
     }
 
@@ -495,4 +495,5 @@ public class DocUtilsTest extends TestCase {
         assertEquals(new HashSet(Arrays.asList()), set);
         set.clear();
     }
+
 }

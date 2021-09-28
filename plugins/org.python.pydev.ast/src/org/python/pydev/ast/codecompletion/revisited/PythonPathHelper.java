@@ -45,6 +45,7 @@ import org.python.pydev.ast.listing_utils.PyFileListing.PyFileInfo;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.ModulesKeyForFolder;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.preferences.FileTypesPreferences;
@@ -356,7 +357,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
         OUT: for (String pathEntry : baseLocations) {
 
             IPath element = Path.fromOSString(FileUtils.getFileAbsolutePath(pathEntry));
-            if (element.isPrefixOf(modulePath)) {
+            if (FileUtils.isPrefixOf(element, modulePath)) {
                 IPath relative = modulePath.removeFirstSegments(element.segmentCount());
                 if (relative.segmentCount() == 0) {
                     continue;
@@ -676,6 +677,9 @@ public final class PythonPathHelper implements IPythonPathHelper {
 
     public static boolean canAddAstInfoForSourceModule(ModulesKey key) {
         if (key.file != null && key.file.exists()) {
+            if (key instanceof ModulesKeyForFolder) {
+                return true;
+            }
 
             if (PythonPathHelper.isValidSourceFile(key.file.getName())) {
                 return true;
@@ -744,7 +748,7 @@ public final class PythonPathHelper implements IPythonPathHelper {
                 for (Iterator<String> it = keySet.iterator(); it.hasNext();) {
                     String next = it.next();
                     IPath existingInPath = Path.fromPortableString(next);
-                    if (resource.getFullPath().isPrefixOf(existingInPath)) {
+                    if (FileUtils.isPrefixOf(resource.getFullPath(), existingInPath)) {
                         if (operation == PythonPathHelper.OPERATION_MOVE
                                 || operation == PythonPathHelper.OPERATION_DELETE) {
                             it.remove(); //Remove from that project (but not on copy)

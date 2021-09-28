@@ -41,7 +41,7 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.OrderedSet;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.yaml.snakeyaml.Yaml;
+import org.python.pydev.shared_core.yaml.YamlWrapper;
 
 public final class ScopedPreferences implements IScopedPreferences {
 
@@ -272,8 +272,7 @@ public final class ScopedPreferences implements IScopedPreferences {
 
     private void dumpSaveDataToFile(Map<String, Object> saveData, IFile yamlFile, boolean exists) throws IOException,
             CoreException {
-        Yaml yaml = new Yaml();
-        String dumpAsMap = yaml.dumpAsMap(saveData);
+        String dumpAsMap = YamlWrapper.dumpAsMap(saveData);
         if (!exists) {
             // Create empty (so that we can set the charset properly later on).
             yamlFile.create(new ByteArrayInputStream("".getBytes()), true, new NullProgressMonitor());
@@ -284,8 +283,7 @@ public final class ScopedPreferences implements IScopedPreferences {
     }
 
     private void dumpSaveDataToFile(Map<String, Object> saveData, File yamlFile) throws IOException {
-        Yaml yaml = new Yaml();
-        String dumpAsMap = yaml.dumpAsMap(saveData);
+        String dumpAsMap = YamlWrapper.dumpAsMap(saveData);
         FileUtils.writeStrToFile(dumpAsMap, yamlFile);
         // Don't use the code below because we want to dump as a map to have a better layout for the file.
         //
@@ -541,8 +539,7 @@ public final class ScopedPreferences implements IScopedPreferences {
         if (yamlContents.trim().length() == 0) {
             return new HashMap<String, Object>();
         }
-        Yaml yaml = new Yaml();
-        Object load = yaml.load(yamlContents);
+        Object load = YamlWrapper.load(yamlContents);
         if (!(load instanceof Map)) {
             if (load == null) {
                 throw new Exception("Expected top-level element to be a map. Found: null");

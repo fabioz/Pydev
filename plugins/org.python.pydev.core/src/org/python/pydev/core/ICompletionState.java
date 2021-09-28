@@ -119,6 +119,12 @@ public interface ICompletionState extends ICompletionCache {
 
     ICompletionState getCopyWithActTok(String value);
 
+    /**
+     * @param line starting at 0
+     * @param col starting at 0
+     */
+    ICompletionState getCopyWithActTok(String value, int line, int col);
+
     String getQualifier();
 
     LookingFor getLookingFor();

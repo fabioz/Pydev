@@ -9,11 +9,14 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.ast.runners.SimplePythonRunner;
@@ -23,8 +26,11 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.markers.PyMarkerUtils;
+import org.python.pydev.shared_core.markers.PyMarkerUtils.MarkerInfo;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
@@ -39,10 +45,11 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
 /*default*/ final class PyLintAnalysis implements IExternalAnalyzer {
 
     private IResource resource;
-    private IDocument document;
+    private IDocument fDocument;
     private IPath location;
 
-    List<PyMarkerUtils.MarkerInfo> markers = new ArrayList<PyMarkerUtils.MarkerInfo>();
+    private final Map<IResource, List<PyMarkerUtils.MarkerInfo>> fileToMarkers = new HashMap<>();
+
     private IProgressMonitor monitor;
     private Thread processWatchDoc;
     private File pyLintLocation;
@@ -50,7 +57,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
     public PyLintAnalysis(IResource resource, IDocument document, IPath location,
             IProgressMonitor monitor, File pyLintLocation) {
         this.resource = resource;
-        this.document = document;
+        this.fDocument = document;
         this.location = location;
         this.monitor = monitor;
         this.pyLintLocation = pyLintLocation;
@@ -75,7 +82,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
         }
         //user args
         String userArgs = StringUtils.replaceNewLines(
-                PyLintPreferences.getPyLintArgs(), " ");
+                PyLintPreferences.getPyLintArgs(resource), " ");
         StringTokenizer tokenizer2 = new StringTokenizer(userArgs);
         while (tokenizer2.hasMoreTokens()) {
             String token = tokenizer2.nextToken();
@@ -91,7 +98,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
             cmdList.add(token);
         }
         cmdList.add("--output-format=text");
-        cmdList.add("--msg-template='{C}:{line:3d},{column:2d}: {msg} ({symbol})'");
+        cmdList.add("--msg-template='{C}:{line:3d},{column:2d}: ({symbol}) {msg}'");
         // target file to be linted
         cmdList.add(target);
         String[] args = cmdList.toArray(new String[0]);
@@ -99,7 +106,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
         // run pylint in project location
         IProject project = resource.getProject();
         File workingDir = project.getLocation().toFile();
-        Process process;
+        ICallback0<Process> launchProcessCallback;
         if (isPyScript) {
             // run Python script (lint.py) with the interpreter of current project
             PythonNature nature = PythonNature.getPythonNature(project);
@@ -108,27 +115,56 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                 Log.log(e);
                 return;
             }
-            String interpreter = nature.getProjectInterpreter().getExecutableOrJar();
-            WriteToStreamHelper.write("PyLint: Executing command line:", out, script, args);
-            SimplePythonRunner runner = new SimplePythonRunner();
-            String[] parameters = SimplePythonRunner.preparePythonCallParameters(interpreter, script, args);
+            launchProcessCallback = () -> {
+                String interpreter;
+                try {
+                    interpreter = nature.getProjectInterpreter().getExecutableOrJar();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                WriteToStreamHelper.write("PyLint: Executing command line:", out, script, args);
+                SimplePythonRunner runner = new SimplePythonRunner();
+                String[] parameters = SimplePythonRunner.preparePythonCallParameters(interpreter, script, args);
 
-            Tuple<Process, String> r = runner.run(parameters, workingDir, nature, monitor);
-            process = r.o1;
+                Tuple<Process, String> r = runner.run(parameters, workingDir, nature, monitor);
+                return r.o1;
+            };
         } else {
             // run executable command (pylint or pylint.bat or pylint.exe)
-            WriteToStreamHelper.write("PyLint: Executing command line:", out, (Object) args);
-            SimpleRunner simpleRunner = new SimpleRunner();
-            Tuple<Process, String> r = simpleRunner.run(args, workingDir, PythonNature.getPythonNature(project),
-                    null);
-            process = r.o1;
+            launchProcessCallback = () -> {
+                WriteToStreamHelper.write("PyLint: Executing command line:", out, (Object) args);
+                SimpleRunner simpleRunner = new SimpleRunner();
+                Tuple<Process, String> r = simpleRunner.run(args, workingDir, PythonNature.getPythonNature(project),
+                        null);
+                return r.o1;
+            };
         }
-        this.processWatchDoc = new ExternalAnalizerProcessWatchDoc(out, monitor, process, this);
+        this.processWatchDoc = new ExternalAnalizerProcessWatchDoc(out, monitor, this, launchProcessCallback, null,
+                false);
         this.processWatchDoc.start();
     }
 
     @Override
     public void afterRunProcess(String output, String errors, IExternalCodeAnalysisStream out) {
+        boolean resourceIsContainer = resource instanceof IContainer;
+        IProject project = null;
+        IFile moduleFile = null;
+        if (resourceIsContainer) {
+            project = resource.getProject();
+            if (project == null) {
+                Log.log("Expected resource to have project for PyLintAnalysis.");
+                return;
+            }
+            if (!project.isAccessible()) {
+                Log.log("Expected project to be accessible for PyLintAnalysis.");
+                return;
+            }
+        } else if (resource instanceof IFile) {
+            moduleFile = (IFile) resource;
+        } else {
+            return;
+        }
+
         output = output.trim();
         errors = errors.trim();
         if (!output.isEmpty()) {
@@ -141,11 +177,12 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
         StringTokenizer tokenizer = new StringTokenizer(output, "\r\n");
 
         //Set up local values for severity
-        int wSeverity = PyLintPreferences.wSeverity();
-        int eSeverity = PyLintPreferences.eSeverity();
-        int fSeverity = PyLintPreferences.fSeverity();
-        int cSeverity = PyLintPreferences.cSeverity();
-        int rSeverity = PyLintPreferences.rSeverity();
+        int wSeverity = PyLintPreferences.wSeverity(resource);
+        int eSeverity = PyLintPreferences.eSeverity(resource);
+        int fSeverity = PyLintPreferences.fSeverity(resource);
+        int cSeverity = PyLintPreferences.cSeverity(resource);
+        int rSeverity = PyLintPreferences.rSeverity(resource);
+        int iSeverity = PyLintPreferences.iSeverity(resource);
 
         if (monitor.isCanceled()) {
             return;
@@ -161,10 +198,38 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
             Log.log(e);
             return;
         }
+
+        FastStringBuffer moduleNameBuf = new FastStringBuffer();
+        IDocument document = fDocument;
         while (tokenizer.hasMoreTokens()) {
             String tok = tokenizer.nextToken();
             if (monitor.isCanceled()) {
                 return;
+            }
+
+            if (resourceIsContainer) {
+                if (tok.startsWith("*")) {
+                    moduleNameBuf.clear().append(tok);
+                    int i = tok.lastIndexOf("* Module ");
+                    if (i >= 0) {
+                        moduleNameBuf.deleteFirstChars(i + "* Module ".length());
+                    } else {
+                        continue;
+                    }
+                    moduleNameBuf.replaceAll('.', '/').append(".py");
+                    Path modulePath = new Path(moduleNameBuf.toString());
+                    try {
+                        moduleFile = project.getFile(modulePath);
+                    } catch (Exception e) {
+                        Log.log(e);
+                    }
+                    document = FileUtils.getDocFromResource(moduleFile);
+                    continue;
+                }
+
+                if (document == null) {
+                    continue;
+                }
             }
 
             try {
@@ -191,6 +256,9 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                     case 'F':
                         priority = fSeverity;
                         break;
+                    case 'I':
+                        priority = iSeverity;
+                        break;
                 }
 
                 if (priority > -1) { // priority == -1: ignore, 0=info, 1=warning, 2=error.
@@ -202,8 +270,8 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                         if (m.matches()) {
                             line = Integer.parseInt(tok.substring(m.start(1), m.end(1)));
                             column = Integer.parseInt(tok.substring(m.start(2), m.end(2)));
-                            messageId = tok.substring(m.start(4), m.end(4)).trim();
-                            tok = tok.substring(m.start(3), m.end(3)).trim();
+                            messageId = tok.substring(m.start(3), m.end(3)).trim();
+                            tok = tok.substring(m.start(4), m.end(4)).trim();
                         } else {
                             continue;
                         }
@@ -219,7 +287,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                             continue;
                         }
 
-                        addToMarkers(tok, priority, messageId, line - 1, column, lineContents);
+                        addToMarkers(tok, priority, messageId, line - 1, column, lineContents, moduleFile, document);
                     } catch (RuntimeException e2) {
                         Log.log(e2);
                     }
@@ -235,12 +303,18 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
     // \Z = end of the input
 
     private static Pattern PYLINT_MATCH_PATTERN = Pattern
-            .compile("\\A[CRWEF]:\\s*(\\d+)\\s*,\\s*(\\d+)\\s*:(.*)\\((.*)\\)\\s*\\Z");
+            .compile("\\A[CRWEFI]:\\s*(\\d+)\\s*,\\s*(\\d+)\\s*:\\s*\\((.*?)\\)(.*)\\Z");
 
-    private void addToMarkers(String tok, int priority, String id, int line, int column, String lineContents) {
+    private void addToMarkers(String tok, int priority, String id, int line, int column, String lineContents,
+            IFile moduleFile, IDocument document) {
         Map<String, Object> additionalInfo = new HashMap<>();
         additionalInfo.put(PyLintVisitor.PYLINT_MESSAGE_ID, id);
-        markers.add(new PyMarkerUtils.MarkerInfo(document, "PyLint: " + tok,
+        List<MarkerInfo> list = fileToMarkers.get(moduleFile);
+        if (list == null) {
+            list = new ArrayList<>();
+            fileToMarkers.put(moduleFile, list);
+        }
+        list.add(new PyMarkerUtils.MarkerInfo(document, "PyLint: " + tok,
                 PyLintVisitor.PYLINT_PROBLEM_MARKER, priority, false, false, line, column, line, lineContents.length(),
                 additionalInfo));
     }
@@ -260,4 +334,13 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
             }
         }
     }
+
+    public List<MarkerInfo> getMarkers(IResource resource) {
+        List<MarkerInfo> ret = fileToMarkers.get(resource);
+        if (ret == null) {
+            return new ArrayList<>();
+        }
+        return new ArrayList<>(ret); // Return a copy
+    }
+
 }

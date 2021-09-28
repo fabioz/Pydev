@@ -59,6 +59,7 @@ public abstract class AbstractDebuggerCommand {
     static public final int CMD_RUN_TO_LINE = 118;
     static public final int CMD_RELOAD_CODE = 119;
     static public final int CMD_GET_COMPLETIONS = 120;
+    static public final int CMD_STOP_ON_START = 154;
 
     static public final int CMD_CONSOLE_EXEC = 121;
     static public final int CMD_ADD_EXCEPTION_BREAK = 122;
@@ -72,6 +73,8 @@ public abstract class AbstractDebuggerCommand {
     static public final int CMD_SIGNATURE_CALL_TRACE = 130;
 
     static public final int CMD_SET_PY_EXCEPTION = 131;
+    static public final int CMD_SET_PY_EXCEPTION_JSON = 161;
+    static public final int CMD_SET_PATH_MAPPING_JSON = 162;
     static public final int CMD_GET_FILE_CONTENTS = 132;
     static public final int CMD_SET_PROPERTY_TRACE = 133;
     static public final int CMD_EVALUATE_CONSOLE_EXPRESSION = 134;
@@ -86,6 +89,10 @@ public abstract class AbstractDebuggerCommand {
     static public final int CMD_SHOW_RETURN_VALUES = 146;
     static public final int CMD_INPUT_REQUESTED = 147;
     static public final int CMD_PROCESS_CREATED = 149;
+
+    static public final int CMD_GET_SMART_STEP_INTO_VARIANTS = 163;
+
+    static public final int CMD_LOAD_SOURCE_FROM_FRAME_ID = 207;
 
     static public final int CMD_ERROR = 901;
     static public final int CMD_VERSION = 501;

@@ -10,6 +10,9 @@
  */
 package org.python.pydev.debug.model;
 
+import java.io.File;
+import java.util.Arrays;
+
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -21,17 +24,26 @@ import org.eclipse.debug.core.model.IRegisterGroup;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
 import org.eclipse.debug.core.model.IVariable;
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.tasklist.ITaskListResourceAdapter;
+import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.IPyStackFrame;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.model.remote.AbstractDebuggerCommand;
 import org.python.pydev.debug.model.remote.AbstractRemoteDebugger;
 import org.python.pydev.debug.model.remote.GetFileContentsCommand;
 import org.python.pydev.debug.model.remote.GetFrameCommand;
+import org.python.pydev.debug.model.remote.GetSmartStepIntoVariants;
 import org.python.pydev.debug.model.remote.GetVariableCommand;
 import org.python.pydev.debug.model.remote.ICommandResponseListener;
+import org.python.pydev.editor.PyEdit;
+import org.python.pydev.editorinput.EditorInputFactory;
 import org.python.pydev.editorinput.PySourceLocatorPrefs;
+import org.python.pydev.shared_core.cache.LRUMap;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * Represents a stack entry.
@@ -257,6 +269,11 @@ public class PyStackFrame extends PlatformObject
         thread.stepInto();
     }
 
+    public void stepIntoTarget(PyEdit pyEdit, int line, String selectedWord, SmartStepIntoVariant target)
+            throws DebugException {
+        thread.stepIntoTarget(pyEdit, line, selectedWord, target);
+    }
+
     @Override
     public void stepOver() throws DebugException {
         thread.stepOver();
@@ -384,13 +401,32 @@ public class PyStackFrame extends PlatformObject
         return "PyStackFrame: " + this.id;
     }
 
+    @Override
+    public boolean isFileLoadedFromDebugger(IPath path) {
+        if (path.lastSegment().startsWith("<") || path.lastSegment().startsWith("&lt;")) {
+            return true;
+        }
+
+        if (target == null) {
+            return false;
+        }
+        return target.isFileLoadedFromDebugger(path);
+    }
+
+    @Override
+    public void setFileLoadedFromDebugger(IPath path) {
+        if (target != null) {
+            target.setFileLoadedFromDebugger(path);
+        }
+    }
+
     private String fileContents = null;
 
     @Override
     public String getFileContents() {
         if (fileContents == null) {
             // send the command, and then busy-wait
-            GetFileContentsCommand cmd = new GetFileContentsCommand(target, this.path.toOSString());
+            GetFileContentsCommand cmd = new GetFileContentsCommand(target, this.id);
 
             final Object lock = new Object();
             final String[] response = new String[1];
@@ -434,4 +470,94 @@ public class PyStackFrame extends PlatformObject
         return fileContents;
     }
 
+    private IEditorInput editorInput = null;
+    private final static LRUMap<File, File> createdInCurrentSession = new LRUMap<File, File>(200);
+    private final static Object lock = new Object();
+
+    @Override
+    public IEditorInput getEditorInputFromLoadedSource(IPath initialPath) {
+        if (editorInput != null) {
+            return editorInput;
+        }
+        try {
+            String fileContents = this.getFileContents();
+            if (fileContents != null && fileContents.length() > 0) {
+                synchronized (lock) {
+                    this.setFileLoadedFromDebugger(initialPath);
+                    String lastSegment = path.lastSegment();
+                    if (lastSegment.length() > 255) {
+                        lastSegment = lastSegment.substring(0, 255);
+                    }
+                    lastSegment = lastSegment.replaceAll("[\\\\/:*?\"<>|]", "_"); // make it a valid filename.
+                    File workspaceMetadataFile = CorePlugin.getWorkspaceMetadataFile("temporary_files");
+                    if (!workspaceMetadataFile.exists()) {
+                        workspaceMetadataFile.mkdirs();
+                    }
+                    File file = new File(workspaceMetadataFile, lastSegment);
+                    for (int i = 0; i < 1000; i++) {
+                        if (file.exists()) {
+                            if (Arrays.equals(FileUtils.getFileContentsBytes(file), fileContents.getBytes())) {
+                                createdInCurrentSession.put(file, file);
+                                editorInput = EditorInputFactory.create(file, true);
+                                return editorInput;
+                            }
+
+                            if (!createdInCurrentSession.containsKey(file)) {
+                                createdInCurrentSession.put(file, file);
+                                file.delete();
+                                FileUtils.writeStrToFile(fileContents, file);
+                                try {
+                                    file.setReadOnly();
+                                } catch (Exception e) {
+                                    Log.log(e);
+                                }
+                                editorInput = EditorInputFactory.create(file, true);
+                                return editorInput;
+                            } else {
+                                // It was created in this session and it doesn't match, so, generate a new name.
+                                Tuple<String, String> splitted = StringUtils.splitExt(lastSegment);
+                                if (splitted.o2.isEmpty()) {
+                                    file = new File(workspaceMetadataFile,
+                                            StringUtils.format("%s-%s", splitted.o1, i));
+
+                                } else {
+                                    file = new File(workspaceMetadataFile,
+                                            StringUtils.format("%s-%s.%s", splitted.o1, i, splitted.o2));
+
+                                }
+                            }
+
+                        } else {
+                            // File does not exist...
+                            createdInCurrentSession.put(file, file);
+                            FileUtils.writeStrToFile(fileContents, file);
+                            try {
+                                file.setReadOnly();
+                            } catch (Exception e) {
+                                Log.log(e);
+                            }
+                            editorInput = EditorInputFactory.create(file, true);
+                            return editorInput;
+                        }
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            Log.log(e);
+        }
+        return null;
+    }
+
+    public SmartStepIntoVariant[] getStepIntoTargets() {
+        GetSmartStepIntoVariants cmd = new GetSmartStepIntoVariants(target, this.thread.getId(), this.id, 0, 99999999);
+
+        target.postCommand(cmd);
+        try {
+            cmd.waitUntilDone(PySourceLocatorPrefs.getFileContentsTimeout());
+        } catch (InterruptedException e) {
+            Log.log(e); // I.e.: it wasn't able to get it.
+        }
+        return cmd.getResponse();
+    }
 }

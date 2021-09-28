@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -605,6 +606,8 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
             project = ((IResource) parentElement).getProject();
         }
 
+        final Map<PythonNature, Set<String>> natureToSourcePathSet = new HashMap<>();
+
         //we can only get the nature if the project is open
         if (project != null && project.isOpen()) {
             nature = PythonNature.getPythonNature(project);
@@ -646,42 +649,40 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
             if (child instanceof IContainer && !(child instanceof PythonSourceFolder)) {
                 IContainer container = (IContainer) child;
 
-                try {
-                    //check if it is a source folder (and if it is, create it)
-                    if (localNature == null) {
-                        if (container instanceof IProject) {
-                            localProject = (IProject) container;
-                            if (localProject.isOpen() == false) {
-                                continue;
-                            } else {
-                                localNature = PythonNature.getPythonNature(localProject);
-                            }
-                        } else {
+                //check if it is a source folder (and if it is, create it)
+                if (localNature == null) {
+                    if (container instanceof IProject) {
+                        localProject = (IProject) container;
+                        if (localProject.isOpen() == false) {
                             continue;
+                        } else {
+                            localNature = PythonNature.getPythonNature(localProject);
                         }
-                    }
-                    //if it's a python project, the nature can't be null
-                    if (localNature == null) {
+                    } else {
                         continue;
                     }
+                }
+                //if it's a python project, the nature can't be null
+                if (localNature == null) {
+                    continue;
+                }
 
-                    Set<String> sourcePathSet = localNature.getPythonPathNature().getProjectSourcePathSet(true);
-                    IPath fullPath = container.getFullPath();
-                    if (sourcePathSet.contains(fullPath.toString())) {
-                        PythonSourceFolder createdSourceFolder;
-                        if (container instanceof IFolder) {
-                            createdSourceFolder = new PythonSourceFolder(parentElement, (IFolder) container);
-                        } else if (container instanceof IProject) {
-                            createdSourceFolder = new PythonProjectSourceFolder(parentElement, (IProject) container);
-                        } else {
-                            throw new RuntimeException("Should not get here.");
-                        }
-                        ret.set(ret.size() - 1, createdSourceFolder); //replace the element added for the one in the python model
-                        Set<PythonSourceFolder> sourceFolders = getProjectSourceFolders(localProject);
-                        sourceFolders.add(createdSourceFolder);
+                // If possible, don't recalculate the source paths for each new folder (it can be costly).
+                Set<String> sourcePathSet = this.getSourcePathSet(natureToSourcePathSet, localNature);
+
+                IPath fullPath = container.getFullPath();
+                if (sourcePathSet.contains(fullPath.toString())) {
+                    PythonSourceFolder createdSourceFolder;
+                    if (container instanceof IFolder) {
+                        createdSourceFolder = new PythonSourceFolder(parentElement, (IFolder) container);
+                    } else if (container instanceof IProject) {
+                        createdSourceFolder = new PythonProjectSourceFolder(parentElement, (IProject) container);
+                    } else {
+                        throw new RuntimeException("Should not get here.");
                     }
-                } catch (CoreException e) {
-                    throw new RuntimeException(e);
+                    ret.set(ret.size() - 1, createdSourceFolder); //replace the element added for the one in the python model
+                    Set<PythonSourceFolder> sourceFolders = getProjectSourceFolders(localProject);
+                    sourceFolders.add(createdSourceFolder);
                 }
             }
         }
@@ -1269,6 +1270,20 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
                 ((StructuredViewer) viewer).update(getResourceInPythonModel(resource), null);
             }
         };
+    }
+
+    protected Set<String> getSourcePathSet(Map<PythonNature, Set<String>> natureToSourcePathSet, PythonNature nature) {
+        Set<String> sourcePathSet = natureToSourcePathSet.get(nature);
+        if (sourcePathSet == null) {
+            sourcePathSet = new HashSet<String>();
+            try {
+                sourcePathSet = nature.getPythonPathNature().getProjectSourcePathSet(true);
+            } catch (CoreException e) {
+                Log.log(e);
+            }
+            natureToSourcePathSet.put(nature, sourcePathSet);
+        }
+        return Collections.unmodifiableSet(sourcePathSet);
     }
 
 }

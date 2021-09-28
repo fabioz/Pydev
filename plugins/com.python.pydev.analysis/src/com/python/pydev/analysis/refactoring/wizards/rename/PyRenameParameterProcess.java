@@ -171,7 +171,7 @@ public class PyRenameParameterProcess extends PyRenameFunctionProcess {
         }
         if (ret.size() > 0) {
             //only add comments and strings if there's at least some other occurrence
-            List<ASTEntry> commentOccurrences = ScopeAnalysis.getCommentOccurrences(request.initialName, root);
+            List<ASTEntry> commentOccurrences = ScopeAnalysis.getCommentOccurrences(request.qualifier, root);
             for (ASTEntry commentOccurrence : commentOccurrences) {
                 for (Tuple<Integer, Integer> range : acceptedCommentRanges) {
                     if (commentOccurrence.node.beginLine >= range.o1 && commentOccurrence.node.beginLine <= range.o2) {
@@ -187,8 +187,8 @@ public class PyRenameParameterProcess extends PyRenameFunctionProcess {
         //this is the actual function definition, so, let's take a look at its arguments... 
 
         FunctionDef node = (FunctionDef) entry.parent.node;
-        List<ASTEntry> found = ScopeAnalysis.getLocalOccurrences(request.initialName, node);
-        ret.addAll(ScopeAnalysis.getStringOccurrences(request.initialName, node));
+        List<ASTEntry> found = ScopeAnalysis.getLocalOccurrences(request.qualifier, node);
+        ret.addAll(ScopeAnalysis.getStringOccurrences(request.qualifier, node));
         ret.addAll(found);
     }
 
@@ -210,7 +210,7 @@ public class PyRenameParameterProcess extends PyRenameFunctionProcess {
         if (call == null) {
             return;
         }
-        List<ASTEntry> found = ScopeAnalysis.getLocalOccurrences(request.initialName, call);
+        List<ASTEntry> found = ScopeAnalysis.getLocalOccurrences(request.qualifier, call);
         for (ASTEntry entry2 : found) {
             if (entry2.node instanceof NameTok) {
                 NameTok name2 = (NameTok) entry2.node;

@@ -345,45 +345,50 @@ public class FastStringBufferTest extends TestCase {
         assertEquals(1, buf.indexOf("ac", 0));
     }
 
+    public void testReplaceChar() throws Exception {
+        FastStringBuffer buf = new FastStringBuffer("aacc", 0);
+        assertEquals("bbcc", buf.replaceAll('a', 'b').toString());
+    }
+
     //    public void testFastString() throws Exception {
-    //        
+    //
     //        long total=0;
     //        FastStringBuffer fastString = new FastStringBuffer(50);
     //        for(int j=0;j<OUTER_ITERATIONS;j++){
     //            final long start = System.nanoTime();
-    //            
-    //            
+    //
+    //
     //            fastString.clear();
     //            for(int i=0;i<ITERATIONS;i++){
     //                fastString.append("test").append("bar").append("foo").append("foo").append("foo").append("foo");
     //            }
-    //            
+    //
     //            final long end = System.nanoTime();
     //            long delta=(end-start)/1000000;
     //            total+=delta;
     ////            System.out.println("Fast: " + delta);
-    //        }        
+    //        }
     //        System.out.println("Fast Total:"+total);
     //    }
-    //    
+    //
     //    public void testStringBuffer() throws Exception {
-    //        
+    //
     //        long total=0;
     //        StringBuffer fastString = new StringBuffer(50);
     //        for(int j=0;j<OUTER_ITERATIONS;j++){
     //            final long start = System.nanoTime();
-    //            
-    //            
+    //
+    //
     //            fastString.setLength(0);
     //            for(int i=0;i<ITERATIONS;i++){
     //                fastString.append("test").append("bar").append("foo").append("foo").append("foo").append("foo");
     //            }
-    //            
+    //
     //            final long end = System.nanoTime();
     //            long delta=(end-start)/1000000;
     //            total+=delta;
     ////            System.out.println("Buffer: " + delta);
-    //        }   
+    //        }
     //        System.out.println("Buffer Total:"+total);
     //    }
 

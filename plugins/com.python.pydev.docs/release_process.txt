@@ -3,19 +3,25 @@ Update the version:
 
 x:
 cd x:\pydev
-python update_version.py 7.2.1
+python update_version.py 8.3.0
 
 X:\pydev\builders\org.python.pydev.build\build_cmd.bat
 C:\bin\Miniconda\envs\tests_py27\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository -d https://api.bintray.com/content/fabioz/pydev/nightly/
 
 
 --------- For full build ---------
+		Update the version:
+
+			x:
+			cd x:\pydev
+			python update_version.py 8.3.0
+
 		Make sure debugger builtins are updated and commited:
 
 			cd /D x:\PyDev.Debugger
 			set PYTHONPATH=x:\PyDev.Debugger
-			C:\bin\Miniconda\envs\py36_64\python build_tools\build.py
-			C:\bin\Miniconda\envs\py36_64\python build_tools\build_binaries_windows.py
+			C:\bin\Python38-32\python build_tools\build.py
+			C:\bin\Python38-32\python build_tools\build_binaries_windows.py
 
 		Update homepage
 			- index.rst
@@ -27,17 +33,17 @@ C:\bin\Miniconda\envs\tests_py27\python.exe X:\release_tools\pydev_uploader_bint
 		Update the version of all plugins to the new version.
 
 		Run:
-		    - Update version at X:\pydev\plugins\com.python.pydev.docs\build_homepage.py
+		    - Update version at X:\pydev.page\build_homepage.py
 		    - Add version to update sites:
-		    	- com.python.pydev.docs/homepage/update_sites/index.contents.rst_html
-		    - X:\pydev\plugins\com.python.pydev.docs\build_homepage.py
+		    	- pydev.page/homepage/update_sites/index.contents.rst_html
+		    - X:\pydev.page\build_homepage.py
 
 		Commit everything
         Merge with master
 
 		Check that
 
-			C:\bin\Miniconda\envs\py36_64\python -c "import pydevd"
+			C:\bin\Python38-32\python -c "import pydevd"
 
 		throws an exception (it cannot be installed in the environment)
 
@@ -52,9 +58,9 @@ copy X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\rep
 
 x:
 cd X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable
-"C:\Program Files\7-Zip\7z" a -tzip -r "PyDev 7.2.1.zip" features plugins
+"C:\Program Files\7-Zip\7z" a -tzip -r "PyDev 8.3.0.zip" features plugins
 cd X:\pydev_build\build_dir\pydev
-git archive -o "X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable\PyDev 7.2.1-sources.zip" origin/master
+git archive -o "X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable\PyDev 8.3.0-sources.zip" origin/master
 
         ** Submit feature and sources .zip in folder X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable to:
 
@@ -63,7 +69,7 @@ git archive -o "X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo
 Note: check pageant if it does not connect.
 
 Check if the main download button points to the proper place (not to the sources) --
-https://sourceforge.net/projects/pydev/files/pydev/PyDev 7.2.1/ -- choose file > file info > set default.
+https://sourceforge.net/projects/pydev/files/pydev/PyDev 8.3.0/ -- choose file > file info > set default.
 
 
 		** Add contents to the update site
@@ -71,34 +77,43 @@ https://sourceforge.net/projects/pydev/files/pydev/PyDev 7.2.1/ -- choose file >
 
 cd /D X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\
 
-mkdir org.python.pydev.p2-repo-7.2.1-SNAPSHOT
+mkdir org.python.pydev.p2-repo-8.3.0-SNAPSHOT
 
-cd org.python.pydev.p2-repo-7.2.1-SNAPSHOT
+cd org.python.pydev.p2-repo-8.3.0-SNAPSHOT
 
-"C:\Program Files\7-Zip\7z" x ..\org.python.pydev.p2-repo-7.2.1-SNAPSHOT.zip
+"C:\Program Files\7-Zip\7z" x ..\org.python.pydev.p2-repo-8.3.0-SNAPSHOT.zip
 
-C:\bin\Miniconda\envs\py27_tests\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-7.2.1-SNAPSHOT -d https://api.bintray.com/content/fabioz/pydev/nightly/
-Note: if unable to send: remove at https://bintray.com/fabioz/pydev/pydev/nightly/edit add back at https://bintray.com/fabioz/pydev/pydev/new/version
+cdd X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-8.3.0-SNAPSHOT
+C:\Users\fabio\AppData\Roaming\npm\surge.cmd --domain pydev-8-3-0.surge.sh
+"C:\Program Files\FileZilla FTP Client\filezilla.exe" sftp://fabioz,pydev@frs.sourceforge.net/home/project-web/pydev/htdocs/pydev_update_site --local="X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-8.3.0-SNAPSHOT"
 
 
-Create "7.2.1" version in "https://bintray.com/fabioz/pydev/pydev/new/version"
-Add "7.2.1" in X:\release_tools\pydev_uploader_bintray.py
-C:\bin\Miniconda\envs\py27_tests\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-7.2.1-SNAPSHOT -d https://api.bintray.com/content/fabioz/pydev/7.2.1/
+    ** Tag repository:
+      git tag pydev_8_3_0 -a -m "PyDev 8.3.0"
+      git push --tags
+
+python X:\release_tools\convert_to_github.py 8.3.0 X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-8.3.0-SNAPSHOT
+Do GH release in:
+    https://github.com/fabioz/Pydev/releases/new?tag=pydev_8_3_0
+    Contents in: X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\github
+    Message:
+
+        This release contains PyDev 8.3.0
+
+        It's possible to add it as an Eclipse update site using the url:
+
+        https://github.com/fabioz/Pydev/releases/download/pydev_8_3_0/
+
+        Or get a .zip to install manually by unzipping it in the dropins:
+
+        https://github.com/fabioz/Pydev/releases/download/pydev_8_3_0/PyDev.8.3.0.zip
+
 
 		** Update homepage:
 
-		-- other -- robocopy X:\workspace_liclipse\Pydev\plugins\com.python.pydev.docs\homepage\final X:\workspace_liclipse\pydevsite.github.io /xd .git /xd .openshift  /s
-
-robocopy X:\pydev\plugins\com.python.pydev.docs\homepage\final X:\pydevsite.github.io /xd .git /xd .openshift  /s
-cd /D X:\pydevsite.github.io
-mu st
-mu acp "Updated to 7.2.1"
-
-"C:\Program Files\FileZilla FTP Client\filezilla.exe" sftp://fabioz,pydev@frs.sourceforge.net/home/project-web/pydev/htdocs --local="x:\pydev\plugins\com.python.pydev.docs\homepage\final"
-
-		** Tag repository:
-		  git tag pydev_7_2_1 -a -m "PyDev 7.2.1"
-		  git push --tags
+Update version in build_homepage.py
+cd /D X:\pydev.page
+python deploy.py
 
 
 		** update version in eclipse marketplace: http://marketplace.eclipse.org/
@@ -116,5 +131,5 @@ mu acp "Updated to 7.2.1"
         ** Update the versions:
 x:
 cd x:\pydev
-python update_version.py 7.2.1
+python update_version.py 8.3.0
 

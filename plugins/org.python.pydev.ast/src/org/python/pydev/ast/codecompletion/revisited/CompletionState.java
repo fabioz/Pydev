@@ -469,6 +469,19 @@ public final class CompletionState implements ICompletionState {
         return copy;
     }
 
+    /**
+     * @param line starting at 0
+     * @param col starting at 0
+     */
+    @Override
+    public ICompletionState getCopyWithActTok(String value, int line, int col) {
+        ICompletionState copy = getCopy();
+        copy.setLine(line);
+        copy.setCol(col);
+        copy.setActivationToken(value);
+        return copy;
+    }
+
     @Override
     public String getQualifier() {
         return this.qualifier;

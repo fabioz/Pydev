@@ -7,11 +7,15 @@ to download the latest version.
 
 
 def is_variable_to_translate(cls_name, var_name):
-    if var_name in ('variablesReference', 'frameId'):
+    if var_name in ('variablesReference', 'frameId', 'threadId'):
         return True
 
     if cls_name == 'StackFrame' and var_name == 'id':
         # It's frameId everywhere except on StackFrame.
+        return True
+
+    if cls_name == 'Thread' and var_name == 'id':
+        # It's threadId everywhere except on Thread.
         return True
 
     return False
@@ -35,6 +39,11 @@ class _OrderedSet(object):
         if x not in self._contents_as_set:
             self._contents_as_set.add(x)
             self._contents.append(x)
+
+    def discard(self, x):
+        if x in self._contents_as_set:
+            self._contents_as_set.remove(x)
+            self._contents.remove(x)
 
     def copy(self):
         return _OrderedSet(self._contents)
@@ -77,7 +86,7 @@ def load_schema_data():
     json_file = os.path.join(os.path.dirname(__file__), 'debugProtocol.json')
     if not os.path.exists(json_file):
         import requests
-        req = requests.get('https://raw.githubusercontent.com/Microsoft/vscode-debugadapter-node/master/debugProtocol.json')
+        req = requests.get('https://raw.githubusercontent.com/microsoft/debug-adapter-protocol/gh-pages/debugAdapterProtocol.json')
         assert req.status_code == 200
         with open(json_file, 'wb') as stream:
             stream.write(req.content)
@@ -128,6 +137,11 @@ def create_classes_to_generate_structure(json_schema_data):
                     properties.update(definition.get('properties', {}))
                     required.update(_OrderedSet(definition.get('required', _OrderedSet())))
 
+        if isinstance(description, (list, tuple)):
+            description = '\n'.join(description)
+
+        if name == 'ModulesRequest':  # Hack to accept modules request without arguments (ptvsd: 2050).
+            required.discard('arguments')
         class_to_generatees[name] = dict(
             name=name,
             properties=properties,
@@ -221,7 +235,7 @@ def update_class_to_generate_register_dec(classes_to_generate, class_to_generate
                 command = classes_to_generate[request_name]['properties'].get('command')
             else:
                 if response_name == 'ErrorResponse':
-                    command = {'enum' : ['error']}
+                    command = {'enum': ['error']}
                 else:
                     raise AssertionError('Unhandled: %s' % (response_name,))
 
@@ -274,6 +288,10 @@ def update_class_to_generate_to_json(class_to_generate):
     for prop_name, prop in prop_name_and_prop:
         namespace = dict(prop_name=prop_name, noqa=_get_noqa_for_var(prop_name))
         to_dict_body.append('    %(prop_name)s = self.%(prop_name)s%(noqa)s' % namespace)
+
+        if prop.get('type') == 'array':
+            to_dict_body.append('    if %(prop_name)s and hasattr(%(prop_name)s[0], "to_dict"):' % namespace)
+            to_dict_body.append('        %(prop_name)s = [x.to_dict() for x in %(prop_name)s]' % namespace)
 
     if translate_prop_names:
         to_dict_body.append('    if update_ids_to_dap:')
@@ -380,7 +398,8 @@ def update_class_to_generate_init(class_to_generate):
                 ref = prop['type']
                 ref_data = ref.ref_data
                 if ref_data.get('is_enum', False):
-                    init_body.append('    assert %s in %s.VALID_VALUES' % (prop_name, str(ref)))
+                    init_body.append('    if %s is not None:' % (prop_name,))
+                    init_body.append('        assert %s in %s.VALID_VALUES' % (prop_name, str(ref)))
                     init_body.append('    self.%(prop_name)s = %(prop_name)s' % dict(
                         prop_name=prop_name))
                 else:
@@ -408,6 +427,9 @@ def update_class_to_generate_init(class_to_generate):
         prop_type = prop['type']
         prop_description = prop.get('description', '')
 
+        if isinstance(prop_description, (list, tuple)):
+            prop_description = '\n    '.join(prop_description)
+
         docstring.append(':param %(prop_type)s %(prop_name)s: %(prop_description)s' % dict(
             prop_type=prop_type, prop_name=prop_name, prop_description=prop_description))
 
@@ -426,7 +448,7 @@ def update_class_to_generate_init(class_to_generate):
 
     # Note: added kwargs because some messages are expected to be extended by the user (so, we'll actually
     # make all extendable so that we don't have to worry about which ones -- we loose a little on typing,
-    # but may be better than doing a whitelist based on something only pointed out in the documentation).
+    # but may be better than doing a allow list based on something only pointed out in the documentation).
     class_to_generate['init'] = '''def __init__(self%(args)s, update_ids_from_dap=False, **kwargs):  # noqa (update_ids_from_dap may be unused)
     """
 %(docstring)s
@@ -538,6 +560,7 @@ class %(name)s(BaseSchema):
 '''
 
     contents = []
+    contents.append('# coding: utf-8')
     contents.append('# Automatically generated code.')
     contents.append('# Do not edit manually.')
     contents.append('# Generated by running: %s' % os.path.basename(__file__))

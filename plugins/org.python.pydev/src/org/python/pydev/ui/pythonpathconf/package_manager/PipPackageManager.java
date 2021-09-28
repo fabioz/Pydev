@@ -12,6 +12,8 @@ import org.python.pydev.ast.runners.SimpleRunner;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterInfo.UnableToFindExecutableException;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.IPythonPathNature;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.process_window.ProcessWindow;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -141,10 +143,16 @@ public class PipPackageManager extends AbstractPackageManager {
                 AbstractShell.restartAllShells();
 
                 String[] cmdLine = ArrayUtils.concatArrays(new String[] { pipExecutableFinal.toString() }, arguments);
-                return new SimpleRunner().run(cmdLine, workingDir, null, null);
+                return new SimpleRunner().run(cmdLine, workingDir, pythonPathNature.getNature(), null);
             }
         };
-        processWindow.setParameters(null, null, pipExecutableFinal, pipExecutableFinal.getParentFile());
+        IPythonPathNature pythonPathNature = null;
+        try {
+            pythonPathNature = interpreterInfo.getModulesManager().getNature().getPythonPathNature();
+        } catch (Exception e) {
+            Log.log(e);
+        }
+        processWindow.setParameters(null, pythonPathNature, pipExecutableFinal, pipExecutableFinal.getParentFile());
         processWindow.setAutoRun(autoRun);
         processWindow.open();
 

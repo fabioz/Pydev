@@ -23,6 +23,7 @@ import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.text.BadLocationException;
@@ -37,6 +38,7 @@ import org.eclipse.ui.IPropertyListener;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.performanceeval.OptimizationRelatedConstants;
+import org.python.pydev.core.preferences.PyScopedPreferences;
 import org.python.pydev.core.preferences.PydevPrefs;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.parser.jython.ISpecialStr;
@@ -187,7 +189,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener, IPy
                 if (doc != null) { //this can happen if we change the input of the editor very quickly.
                     boolean foldInitial = initialFolding;
                     initialFolding = false;
-                    List<FoldingEntry> marks = getMarks(doc, root2, foldInitial);
+                    List<FoldingEntry> marks = getMarks(doc, root2, foldInitial, editor);
                     Map<ProjectionAnnotation, Position> annotationsToAdd;
                     if (marks.size() > OptimizationRelatedConstants.MAXIMUM_NUMBER_OF_CODE_FOLDING_MARKS) {
                         annotationsToAdd = new HashMap<ProjectionAnnotation, Position>();
@@ -292,6 +294,13 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener, IPy
     private static final Pattern regionStartPattern = Pattern.compile("(\\s)*#(\\s)*\\bregion\\b");
     private static final Pattern regionEndPattern = Pattern.compile("(\\s)*#(\\s)*\\bendregion\\b");
 
+    private static boolean getBooleanPreference(String key, IAdaptable projectAdaptable) {
+        IEclipsePreferences prefs = getPreferences();
+        IEclipsePreferences defaultPrefs = PydevPrefs.getDefaultEclipsePreferences();
+
+        return PyScopedPreferences.get().getBoolean(prefs, defaultPrefs, key, projectAdaptable);
+    }
+
     /**
      * To get the marks, we work a little with the ast and a little with the doc... the ast is good to give us all things but the comments,
      * and the doc will give us the comments.
@@ -300,86 +309,85 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener, IPy
      *
      * Also, there should be no overlap for any of the entries
      */
-    public static List<FoldingEntry> getMarks(IDocument doc, SimpleNode ast, boolean foldInitial) {
+    public static List<FoldingEntry> getMarks(IDocument doc, SimpleNode ast, boolean foldInitial,
+            IAdaptable projectAdaptable) {
 
         List<FoldingEntry> ret = new ArrayList<FoldingEntry>();
 
         CodeFoldingVisitor visitor = CodeFoldingVisitor.create(ast);
         //(re) insert annotations.
-        IEclipsePreferences prefs = getPreferences();
 
-        if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_IMPORTS, PyDevCodeFoldingPrefPage.DEFAULT_FOLD_IMPORTS)) {
+        if (getBooleanPreference(PyDevCodeFoldingPrefPage.FOLD_IMPORTS, projectAdaptable)) {
             createFoldingEntries(ret, visitor,
-                    foldInitial ? prefs.getBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_IMPORTS,
-                            PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_FOLD_IMPORTS) : false,
+                    foldInitial
+                            ? getBooleanPreference(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_IMPORTS, projectAdaptable)
+                            : false,
                     Import.class,
                     ImportFrom.class);
         }
-        if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_CLASSDEF,
-                PyDevCodeFoldingPrefPage.DEFAULT_FOLD_FUNCTIONDEF)) {
+        if (getBooleanPreference(PyDevCodeFoldingPrefPage.FOLD_CLASSDEF, projectAdaptable)) {
             createFoldingEntries(ret, visitor,
-                    foldInitial ? prefs.getBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_CLASSDEF,
-                            PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_FOLD_CLASSDEF) : false,
+                    foldInitial
+                            ? getBooleanPreference(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_CLASSDEF, projectAdaptable)
+                            : false,
                     ClassDef.class);
         }
-        if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_FUNCTIONDEF,
-                PyDevCodeFoldingPrefPage.DEFAULT_FOLD_FUNCTIONDEF)) {
+        if (getBooleanPreference(PyDevCodeFoldingPrefPage.FOLD_FUNCTIONDEF, projectAdaptable)) {
             createFoldingEntries(ret, visitor,
-                    foldInitial ? prefs.getBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_FUNCTIONDEF,
-                            PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_FOLD_FUNCTIONDEF) : false,
+                    foldInitial
+                            ? getBooleanPreference(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_FUNCTIONDEF,
+                                    projectAdaptable)
+                            : false,
                     FunctionDef.class);
         }
-        if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_STRINGS, PyDevCodeFoldingPrefPage.DEFAULT_FOLD_STRINGS)) {
+        if (getBooleanPreference(PyDevCodeFoldingPrefPage.FOLD_STRINGS, projectAdaptable)) {
             createFoldingEntries(ret, visitor,
-                    foldInitial ? prefs.getBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_STRINGS,
-                            PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_FOLD_STRINGS) : false,
+                    foldInitial
+                            ? getBooleanPreference(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_STRINGS, projectAdaptable)
+                            : false,
                     Str.class);
         }
-        if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_WHILE, PyDevCodeFoldingPrefPage.DEFAULT_FOLD_WHILE)) {
+        if (getBooleanPreference(PyDevCodeFoldingPrefPage.FOLD_WHILE, projectAdaptable)) {
             createFoldingEntries(ret, visitor,
-                    foldInitial ? prefs.getBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_WHILE,
-                            PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_FOLD_WHILE) : false,
+                    foldInitial ? getBooleanPreference(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_WHILE, projectAdaptable)
+                            : false,
                     While.class);
         }
-        if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_IF, PyDevCodeFoldingPrefPage.DEFAULT_FOLD_IF)) {
+        if (getBooleanPreference(PyDevCodeFoldingPrefPage.FOLD_IF, projectAdaptable)) {
             createFoldingEntries(ret, visitor,
-                    foldInitial ? prefs.getBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_IF,
-                            PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_FOLD_IF) : false,
+                    foldInitial ? getBooleanPreference(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_IF, projectAdaptable)
+                            : false,
                     If.class);
         }
-        if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_FOR, PyDevCodeFoldingPrefPage.DEFAULT_FOLD_FOR)) {
+        if (getBooleanPreference(PyDevCodeFoldingPrefPage.FOLD_FOR, projectAdaptable)) {
             createFoldingEntries(ret, visitor,
-                    foldInitial ? prefs.getBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_FOR,
-                            PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_FOLD_FOR) : false,
+                    foldInitial ? getBooleanPreference(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_FOR, projectAdaptable)
+                            : false,
                     For.class);
         }
-        if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_WITH, PyDevCodeFoldingPrefPage.DEFAULT_FOLD_WITH)) {
+        if (getBooleanPreference(PyDevCodeFoldingPrefPage.FOLD_WITH, projectAdaptable)) {
             createFoldingEntries(ret, visitor,
-                    foldInitial ? prefs.getBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_WITH,
-                            PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_FOLD_WITH) : false,
+                    foldInitial ? getBooleanPreference(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_WITH, projectAdaptable)
+                            : false,
                     With.class);
         }
-        if (prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_TRY, PyDevCodeFoldingPrefPage.DEFAULT_FOLD_TRY)) {
+        if (getBooleanPreference(PyDevCodeFoldingPrefPage.FOLD_TRY, projectAdaptable)) {
             createFoldingEntries(ret, visitor,
-                    foldInitial ? prefs.getBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_TRY,
-                            PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_FOLD_TRY) : false,
+                    foldInitial ? getBooleanPreference(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_TRY, projectAdaptable)
+                            : false,
                     TryExcept.class, TryFinally.class);
         }
 
         //and at last, get the comments
-        final boolean foldComments = prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_COMMENTS,
-                PyDevCodeFoldingPrefPage.DEFAULT_FOLD_COMMENTS);
-        final boolean foldRegions = prefs.getBoolean(PyDevCodeFoldingPrefPage.FOLD_REGION,
-                PyDevCodeFoldingPrefPage.DEFAULT_FOLD_REGION);
+        final boolean foldComments = getBooleanPreference(PyDevCodeFoldingPrefPage.FOLD_COMMENTS, projectAdaptable);
+        final boolean foldRegions = getBooleanPreference(PyDevCodeFoldingPrefPage.FOLD_REGION, projectAdaptable);
         if (foldComments || foldRegions) {
             boolean collapseComments = foldInitial
-                    ? prefs.getBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_COMMENTS,
-                            PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_FOLD_COMMENTS)
+                    ? getBooleanPreference(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_COMMENTS, projectAdaptable)
                     : false;
 
             boolean collapseRegions = foldInitial
-                    ? prefs.getBoolean(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_REGION,
-                            PyDevCodeFoldingPrefPage.DEFAULT_INITIALLY_FOLD_REGION)
+                    ? getBooleanPreference(PyDevCodeFoldingPrefPage.INITIALLY_FOLD_REGION, projectAdaptable)
                     : false;
 
             DocIterator it = new DocIterator(true, new PySelection(doc, 0));
@@ -588,7 +596,7 @@ public class CodeFoldingSetter implements IModelListener, IPropertyListener, IPy
         return foldingEntry;
     }
 
-    public static IEclipsePreferences getPreferences() {
+    private static IEclipsePreferences getPreferences() {
         if (testingPrefs == null) {
             return PydevPrefs.getEclipsePreferences();
         } else {

@@ -8,8 +8,8 @@ from _pydevd_bundle.pydevd_constants import call_only_once
 from _pydev_imps._pydev_saved_modules import threading
 from _pydevd_bundle.pydevd_constants import dict_items
 from _pydevd_bundle.pydevd_custom_frames import update_custom_frame, remove_custom_frame, add_custom_frame
-from pydevd_file_utils import get_abs_path_real_path_and_base_from_frame
 import stackless  # @UnresolvedImport
+from _pydev_bundle import pydev_log
 
 
 # Used so that we don't loose the id (because we'll remove when it's not alive and would generate a new id for the
@@ -25,21 +25,20 @@ class TaskletToLastId:
         self.tasklet_ref_to_last_id = {}
         self._i = 0
 
-
     def get(self, tasklet):
         return self.tasklet_ref_to_last_id.get(weakref.ref(tasklet))
-
 
     def __setitem__(self, tasklet, last_id):
         self.tasklet_ref_to_last_id[weakref.ref(tasklet)] = last_id
         self._i += 1
-        if self._i % 100 == 0: #Collect at each 100 additions to the dict (no need to rush).
+        if self._i % 100 == 0:  # Collect at each 100 additions to the dict (no need to rush).
             for tasklet_ref in list(self.tasklet_ref_to_last_id.keys()):
                 if tasklet_ref() is None:
                     del self.tasklet_ref_to_last_id[tasklet_ref]
 
 
 _tasklet_to_last_id = TaskletToLastId()
+
 
 #=======================================================================================================================
 # _TaskletInfo
@@ -109,6 +108,7 @@ class _TaskletInfo:
         self.tasklet_name = '%s %s %s (%s)' % (state, name, thread_name, tid)
 
     if not hasattr(stackless.tasklet, "trace_function"):
+
         # bug https://bitbucket.org/stackless-dev/stackless/issue/42
         # is not fixed. Stackless releases before 2014
         def update_name(self):
@@ -143,7 +143,9 @@ class _TaskletInfo:
                 tid = '-'
             self.tasklet_name = '%s %s (%s)' % (name, thread_name, tid)
 
+
 _weak_tasklet_registered_to_info = {}
+
 
 #=======================================================================================================================
 # get_tasklet_info
@@ -165,6 +167,7 @@ def register_tasklet_info(tasklet):
 
 
 _application_set_schedule_callback = None
+
 
 #=======================================================================================================================
 # _schedule_callback
@@ -218,14 +221,15 @@ def _schedule_callback(prev, next):
                         if frame is current_frame:
                             frame = frame.f_back
                         if frame is not None:
-                            abs_real_path_and_base = get_abs_path_real_path_and_base_from_frame(frame)
                             # print >>sys.stderr, "SchedCB: %r, %d, '%s', '%s'" % (tasklet, frame.f_lineno, _filename, base)
-                            if debugger.get_file_type(abs_real_path_and_base) is None:
+                            debugger = get_global_debugger()
+                            if debugger is not None and debugger.get_file_type(frame) is None:
                                 tasklet_info.update_name()
                                 if tasklet_info.frame_id is None:
                                     tasklet_info.frame_id = add_custom_frame(frame, tasklet_info.tasklet_name, tasklet.thread_id)
                                 else:
                                     update_custom_frame(tasklet_info.frame_id, frame, tasklet.thread_id, name=tasklet_info.tasklet_name)
+                            debugger = None
 
                     elif tasklet is next or is_running:
                         if tasklet_info.frame_id is not None:
@@ -233,19 +237,20 @@ def _schedule_callback(prev, next):
                             remove_custom_frame(tasklet_info.frame_id)
                             tasklet_info.frame_id = None
 
-
         finally:
             tasklet = None
             tasklet_info = None
             frame = None
 
     except:
-        import traceback;traceback.print_exc()
+        pydev_log.exception()
 
     if _application_set_schedule_callback is not None:
         return _application_set_schedule_callback(prev, next)
 
+
 if not hasattr(stackless.tasklet, "trace_function"):
+
     # Older versions of Stackless, released before 2014
     # This code does not work reliable! It is affected by several
     # stackless bugs: Stackless issues #44, #42, #40
@@ -285,12 +290,13 @@ if not hasattr(stackless.tasklet, "trace_function"):
                         if tasklet.paused or tasklet.blocked or tasklet.scheduled:
                             if tasklet.frame and tasklet.frame.f_back:
                                 f_back = tasklet.frame.f_back
-                                abs_real_path_and_base = get_abs_path_real_path_and_base_from_frame(f_back)
-                                if debugger.get_file_type(abs_real_path_and_base) is None:
+                                debugger = get_global_debugger()
+                                if debugger is not None and debugger.get_file_type(f_back) is None:
                                     if tasklet_info.frame_id is None:
                                         tasklet_info.frame_id = add_custom_frame(f_back, tasklet_info.tasklet_name, tasklet.thread_id)
                                     else:
                                         update_custom_frame(tasklet_info.frame_id, f_back, tasklet.thread_id)
+                                debugger = None
 
                         elif tasklet.is_current:
                             if tasklet_info.frame_id is not None:
@@ -304,11 +310,10 @@ if not hasattr(stackless.tasklet, "trace_function"):
                 f_back = None
 
         except:
-            import traceback;traceback.print_exc()
+            pydev_log.exception()
 
         if _application_set_schedule_callback is not None:
             return _application_set_schedule_callback(prev, next)
-
 
     _original_setup = stackless.tasklet.setup
 
@@ -321,6 +326,7 @@ if not hasattr(stackless.tasklet, "trace_function"):
         '''
 
         f = self.tempval
+
         def new_f(old_f, args, kwargs):
 
             debugger = get_global_debugger()
@@ -355,9 +361,7 @@ if not hasattr(stackless.tasklet, "trace_function"):
 
         return setup(self, *args, **kwargs)
 
-
     _original_run = stackless.run
-
 
     #=======================================================================================================================
     # run
@@ -369,7 +373,6 @@ if not hasattr(stackless.tasklet, "trace_function"):
         debugger = None
 
         return _original_run(*args, **kwargs)
-
 
 
 #=======================================================================================================================
@@ -409,5 +412,6 @@ def patch_stackless():
 
         run.__doc__ = stackless.run.__doc__
         stackless.run = run
+
 
 patch_stackless = call_only_once(patch_stackless)

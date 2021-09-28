@@ -191,6 +191,12 @@ public abstract class VisitorBase implements VisitorIF {
         return ret;
     }
 
+    public Object visitNamedExpr(NamedExpr node) throws Exception {
+        Object ret = unhandled_node(node);
+        traverse(node);
+        return ret;
+    }
+
     public Object visitBinOp(BinOp node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);

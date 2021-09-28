@@ -35,6 +35,7 @@ import org.python.pydev.core.IInfo;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.ModulesKeyForFolder;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.ObjectsInternPool;
 import org.python.pydev.core.log.Log;
@@ -279,6 +280,9 @@ public abstract class AbstractAdditionalTokensInfo {
     protected abstract IPythonNature getNature();
 
     public List<IInfo> addAstInfo(ModulesKey key, boolean generateDelta) throws Exception {
+        if (key instanceof ModulesKeyForFolder) {
+            return new ArrayList<IInfo>(0);
+        }
         boolean isZipModule = key instanceof ModulesKeyForZip;
         ModulesKeyForZip modulesKeyForZip = null;
         if (isZipModule) {

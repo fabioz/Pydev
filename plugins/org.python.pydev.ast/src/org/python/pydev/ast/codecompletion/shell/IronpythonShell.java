@@ -25,7 +25,7 @@ import org.python.pydev.shared_core.io.FileUtils;
 /**
  * @author Fabio Zadrozny
  */
-public class IronpythonShell extends AbstractShell {
+public class IronpythonShell extends CompletionsShell {
 
     /**
      * Initialize with the default python server file.

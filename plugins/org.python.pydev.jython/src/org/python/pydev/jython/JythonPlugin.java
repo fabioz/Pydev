@@ -19,6 +19,8 @@ import java.util.Properties;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IOConsoleOutputStream;
@@ -41,9 +43,11 @@ import org.python.pydev.shared_core.jython.JythonPep8Core;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.ConsoleColorCache;
+import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.bundle.BundleInfo;
 import org.python.pydev.shared_ui.bundle.IBundleInfo;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.util.PythonInterpreter;
 
 /**
@@ -264,6 +268,17 @@ public class JythonPlugin extends AbstractUIPlugin {
                     }
                 } catch (Exception e) {
                     Log.log(e);
+                    RunInUiThread.async(() -> {
+                        Shell shell = EditorUtils.getShell();
+                        MessageDialog.openError(shell, "Error initializing internal Jython",
+                                "It was not possible to initialize the internal Jython version of PyDev.\n\n"
+                                        + "If you're using Eclipse 2021-03 (4.19), please use an older (or newer) version as "
+                                        + "this version is known to have a critical bug:\n"
+                                        + "\n"
+                                        + "https://bugs.eclipse.org/bugs/show_bug.cgi?id=572634\n"
+                                        + "\n"
+                                        + "which prevents PyDev from working properly and may cause instabilities on other plugins too.");
+                    });
                 } finally {
                     bundles = null;
                 }

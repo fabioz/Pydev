@@ -470,7 +470,7 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
                     natureRefactoring, null);
             request.setAdditionalInfo(RefactoringRequest.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, false);
             request.moduleName = moduleName;
-            request.fillInitialNameAndOffset();
+            request.fillActivationTokenAndQualifier();
             request.inputName = newName;
 
             PyRenameEntryPoint processor = new PyRenameEntryPoint(request);

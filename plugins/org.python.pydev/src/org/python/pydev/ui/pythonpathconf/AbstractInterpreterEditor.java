@@ -916,7 +916,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
             environmentTab.performApply(workingCopy);
             Properties propertiesFromMap = PropertiesHelper.createPropertiesFromMap(this.tabVariables
                     .getTreeItemsAsMap());
-            Properties stringSubstitutionVariables = workingCopyInfo.getStringSubstitutionVariables();
+            Properties stringSubstitutionVariables = workingCopyInfo.getStringSubstitutionVariables(false);
             boolean equals = false;
             if (stringSubstitutionVariables == null) {
                 if (propertiesFromMap == null || propertiesFromMap.size() == 0) {
@@ -957,7 +957,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
             }
 
             environmentTab.initializeFrom(workingCopy);
-            Properties stringSubstitutionVariables = info.getStringSubstitutionVariables();
+            Properties stringSubstitutionVariables = info.getStringSubstitutionVariables(false);
             if (stringSubstitutionVariables != null) {
                 this.tabVariables.setTreeItemsFromMap(PropertiesHelper
                         .createMapFromProperties(stringSubstitutionVariables));
@@ -993,13 +993,21 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
                 operation = InterpreterConfigHelpers.createPipenvInterpreter(interpreterInfos, getShell(), logger,
                         nameToInfo,
                         defaultProjectLocation, interpreterManager);
-
-            } else if (configType != InterpreterConfigHelpers.CONFIG_MANUAL) {
+            } else if (configType == InterpreterConfigHelpers.CONFIG_AUTO
+                    || configType == InterpreterConfigHelpers.CONFIG_ADV_AUTO) {
                 //Auto-config
                 AutoConfigMaker a = new AutoConfigMaker(getInterpreterType(),
                         configType == InterpreterConfigHelpers.CONFIG_ADV_AUTO, logger,
                         nameToInfo);
                 operation = a.autoConfigSearch();
+            } else if (configType == InterpreterConfigHelpers.CONFIG_CONDA) {
+                NameAndExecutable interpreterNameAndExecutable = PyDialogHelpers
+                        .openCondaInterpreterSelection(getShell());
+                if (interpreterNameAndExecutable != null && interpreterNameAndExecutable.o2 != null) {
+                    operation = InterpreterConfigHelpers.tryInterpreter(
+                            interpreterNameAndExecutable, interpreterManager,
+                            false, true, logger, this.getShell());
+                }
             } else {
                 //Manual config
                 logger.println("Information about process of adding new interpreter:");

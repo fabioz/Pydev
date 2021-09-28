@@ -35,5 +35,12 @@
          <run class="org.python.pydev.ast.builder.PyDevBuilder"/>
       </builder>
     </extension>
+    
+    <extension
+          point="org.python.pydev.core.gen_cython_ast">
+       <gen_cython_ast
+             class="org.python.pydev.ast.cython.GenCythonAst">
+       </gen_cython_ast>
+    </extension>
 
 </plugin>

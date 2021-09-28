@@ -22,11 +22,14 @@ public class ToggleLineCommentAction {
     private TextSelectionUtils ps;
     private String commentPattern;
     private int spacesInStart;
+    private boolean addCommentsAtIndent;
 
-    public ToggleLineCommentAction(TextSelectionUtils ps, String commentPattern, int spacesInStart) {
+    public ToggleLineCommentAction(TextSelectionUtils ps, String commentPattern, int spacesInStart,
+            boolean addCommentsAtIndent) {
         this.ps = ps;
         this.commentPattern = commentPattern;
         this.spacesInStart = spacesInStart;
+        this.addCommentsAtIndent = addCommentsAtIndent;
     }
 
     public Tuple<Integer, Integer> execute() throws BadLocationException {
@@ -48,7 +51,8 @@ public class ToggleLineCommentAction {
         if (allStartWithComments) {
             return new LineUncommentAction(ps, commentPattern, spacesInStart).execute();
         } else {
-            return new LineCommentAction(ps, commentPattern, spacesInStart).execute();
+            return new LineCommentAction(ps, commentPattern, spacesInStart,
+                    LineCommentOption.DEFAULT_ADD_COMMENTS_OPTION).execute();
         }
     }
 }

@@ -11,6 +11,8 @@
  */
 package org.python.copiedfromeclipsesrc;
 
+import java.net.MalformedURLException;
+
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.resource.JFaceResources;
@@ -21,11 +23,15 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
@@ -39,6 +45,7 @@ import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.ui.pythonpathconf.InterpreterConfigHelpers;
 import org.python.pydev.ui.pythonpathconf.NameAndExecutable;
+import org.python.pydev.ui.pythonpathconf.conda.CondaConfigDialog;
 
 /**
  * An abstract field editor that manages a list of input values. The editor displays a list containing the values, buttons for adding and
@@ -67,22 +74,22 @@ public abstract class PythonListEditor extends FieldEditor {
     /**
      * The Add button.
      */
-    private Button addButton;
+    private MenuItem configManualMenuItem;
 
     /**
      * The Quick Auto config button.
      */
-    protected Button autoConfigButton;
+    protected MenuItem autoConfigMenuItem;
 
     /**
      * The Pipenv config button (may be null as it's only available for cpython).
      */
-    protected Button pipenvConfigButton;
+    protected MenuItem pipenvConfigMenuItem;
 
     /**
      * The Avanced Auto config button.
      */
-    protected Button advAutoConfigButton;
+    protected MenuItem advAutoConfigMenuItem;
 
     /**
      * The Remove button.
@@ -108,6 +115,16 @@ public abstract class PythonListEditor extends FieldEditor {
      * The image to be shown in each interpreter.
      */
     private Image imageInterpreter;
+
+    private Menu menu;
+
+    private Button configCondaButton;
+
+    private Composite parent;
+
+    private Button setDefaultButton;
+
+    private MenuItem chooseFromCondaMenuItem;
 
     protected abstract IInterpreterManager getInterpreterManager();
 
@@ -182,8 +199,10 @@ public abstract class PythonListEditor extends FieldEditor {
      * Creates the Add, Remove, Up, and Down button in the given button box.
      *
      * @param box the box for the buttons
+     * @throws MalformedURLException
      */
-    private void createButtons(Composite box) {
+    private void createButtons(Composite box) throws MalformedURLException {
+        parent = box.getParent();
         final int interpreterType = getInterpreterManager().getInterpreterType();
         String selectTitle = "";
         switch (interpreterType) {
@@ -202,22 +221,62 @@ public abstract class PythonListEditor extends FieldEditor {
                 selectTitle = "Select executable";
         }
 
-        addButton = createPushButton(box, selectTitle);
+        Button newButton = createPushButton(box, "&New ... ", "Configure a new Python or PyPy interpreter.");
+
+        newButton.addSelectionListener(new SelectionListener() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                Point loc = newButton.getLocation();
+                Rectangle rect = newButton.getBounds();
+
+                Point mLoc = new Point(loc.x - 1, loc.y + rect.height);
+
+                menu.setLocation(newButton.getShell().getDisplay().map(newButton.getParent(), null, mLoc));
+                menu.setVisible(true);
+            }
+
+            @Override
+            public void widgetDefaultSelected(SelectionEvent e) {
+
+            }
+        });
+
+        menu = new Menu(newButton);
+
+        configManualMenuItem = createMenuItem(menu, selectTitle);
 
         if (interpreterType == IPythonNature.INTERPRETER_TYPE_PYTHON) {
-            pipenvConfigButton = createPushButton(box,
+            pipenvConfigMenuItem = createMenuItem(menu,
                     InterpreterConfigHelpers.CONFIG_PIPENV_NAME);
         }
-        autoConfigButton = createPushButton(box,
+
+        autoConfigMenuItem = createMenuItem(menu,
                 InterpreterConfigHelpers.CONFIG_AUTO_NAME);
-        advAutoConfigButton = createPushButton(box,
+
+        advAutoConfigMenuItem = createMenuItem(menu,
                 InterpreterConfigHelpers.CONFIG_ADV_AUTO_NAME);
-        removeButton = createPushButton(box, "ListEditor.remove");//$NON-NLS-1$
-        upButton = createPushButton(box, "ListEditor.up");//$NON-NLS-1$
-        downButton = createPushButton(box, "ListEditor.down");//$NON-NLS-1$
-        advAutoConfigButton
+        advAutoConfigMenuItem
                 .setToolTipText(
                         "Choose from a list of valid interpreters, and select the folders to be in the SYSTEM pythonpath.");
+
+        if (interpreterType == IPythonNature.INTERPRETER_TYPE_PYTHON) {
+            chooseFromCondaMenuItem = createMenuItem(menu, InterpreterConfigHelpers.CONFIG_CONDA_NAME);
+        }
+
+        upButton = createButtonWithImage(box, UIConstants.UP_ARROW, "Move selected Python interpreter up");
+        upButton.setText("&Up");
+        downButton = createButtonWithImage(box, UIConstants.DOWN_ARROW, "Move selected Python interpreter down");
+        downButton.setText("&Down");
+        setDefaultButton = createPushButton(box, "&Set as Default",
+                "Make the selected Python interpreter the default interpreter");
+        removeButton = createButtonWithImage(box, UIConstants.REMOVE, "Remove the selected interpreter");
+        removeButton.setText("&Remove");
+
+        if (interpreterType == IPythonNature.INTERPRETER_TYPE_PYTHON) {
+            configCondaButton = createPushButton(box,
+                    "Config &Conda", "Configures conda (to be able to manage conda-based Python interpreters)");
+        }
     }
 
     /**
@@ -234,17 +293,38 @@ public abstract class PythonListEditor extends FieldEditor {
      * @param key the resource name used to supply the button's label text
      * @return Button
      */
-    private Button createPushButton(Composite parent, String key) {
+    private Button createPushButton(Composite parent, String key, String tooltip) {
         Button button = new Button(parent, SWT.PUSH);
         button.setText(JFaceResources.getString(key));
         button.setFont(parent.getFont());
-        GridData data = new GridData(GridData.FILL_HORIZONTAL);
-        //        data.heightHint = convertVerticalDLUsToPixels(button, IDialogConstants.BUTTON_HEIGHT);
-        int widthHint = convertHorizontalDLUsToPixels(button, IDialogConstants.BUTTON_WIDTH);
-        data.widthHint = Math.max(widthHint, button.computeSize(SWT.DEFAULT, SWT.DEFAULT, true).x);
-        button.setLayoutData(data);
+        setControlLayout(button);
+        button.setToolTipText(tooltip);
         button.addSelectionListener(getSelectionListener());
         return button;
+    }
+
+    private Button createButtonWithImage(Composite parent, String imageURL, String tooltip) {
+        Button button = new Button(parent, SWT.NONE);
+        button.setImage(ImageCache.asImage(SharedUiPlugin.getImageCache().get(imageURL)));
+        button.setToolTipText(tooltip);
+        setControlLayout(button);
+        button.addSelectionListener(getSelectionListener());
+        return button;
+    }
+
+    private void setControlLayout(Control control) {
+        GridData data = new GridData(GridData.FILL_HORIZONTAL);
+        //        data.heightHint = convertVerticalDLUsToPixels(button, IDialogConstants.BUTTON_HEIGHT);
+        int widthHint = convertHorizontalDLUsToPixels(control, IDialogConstants.BUTTON_WIDTH);
+        data.widthHint = Math.max(widthHint, control.computeSize(SWT.DEFAULT, SWT.DEFAULT, true).x);
+        control.setLayoutData(data);
+    }
+
+    private MenuItem createMenuItem(Menu menu, String key) {
+        MenuItem menuItem = new MenuItem(menu, SWT.NONE);
+        menuItem.setText(key);
+        menuItem.addSelectionListener(getSelectionListener());
+        return menuItem;
     }
 
     /**
@@ -255,14 +335,20 @@ public abstract class PythonListEditor extends FieldEditor {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 Widget widget = event.widget;
-                if (widget == addButton) {
+                if (widget == configManualMenuItem) {
                     addPressed(InterpreterConfigHelpers.CONFIG_MANUAL);
-                } else if (widget == autoConfigButton) {
+                } else if (widget == autoConfigMenuItem) {
                     addPressed(InterpreterConfigHelpers.CONFIG_AUTO);
-                } else if (pipenvConfigButton != null && widget == pipenvConfigButton) {
+                } else if (pipenvConfigMenuItem != null && widget == pipenvConfigMenuItem) {
                     addPressed(InterpreterConfigHelpers.CONFIG_PIPENV);
-                } else if (widget == advAutoConfigButton) {
+                } else if (widget == advAutoConfigMenuItem) {
                     addPressed(InterpreterConfigHelpers.CONFIG_ADV_AUTO);
+                } else if (widget == chooseFromCondaMenuItem) {
+                    addPressed(InterpreterConfigHelpers.CONFIG_CONDA);
+                } else if (configCondaButton != null && widget == configCondaButton) {
+                    configCondaPressed();
+                } else if (widget == setDefaultButton) {
+                    setDefaultPressed();
                 } else if (widget == removeButton) {
                     removePressed();
                 } else if (widget == upButton) {
@@ -274,6 +360,18 @@ public abstract class PythonListEditor extends FieldEditor {
                 }
             }
         };
+    }
+
+    private void configCondaPressed() {
+        CondaConfigDialog condaConfigDialog = new CondaConfigDialog(parent.getShell());
+        condaConfigDialog.open();
+    }
+
+    private void setDefaultPressed() {
+        boolean ret = true;
+        while (ret) {
+            ret = swap(true);
+        }
     }
 
     /*
@@ -336,13 +434,17 @@ public abstract class PythonListEditor extends FieldEditor {
             GridLayout layout = new GridLayout();
             layout.marginWidth = 0;
             buttonBox.setLayout(layout);
-            createButtons(buttonBox);
+            try {
+                createButtons(buttonBox);
+            } catch (MalformedURLException e) {
+                Log.log(e);
+            }
             buttonBox.addDisposeListener(new DisposeListener() {
                 @Override
                 public void widgetDisposed(DisposeEvent event) {
-                    addButton = null;
-                    autoConfigButton = null;
-                    pipenvConfigButton = null;
+                    configManualMenuItem = null;
+                    autoConfigMenuItem = null;
+                    pipenvConfigMenuItem = null;
                     removeButton = null;
                     upButton = null;
                     downButton = null;
@@ -429,10 +531,10 @@ public abstract class PythonListEditor extends FieldEditor {
      * @return the shell
      */
     protected Shell getShell() {
-        if (addButton == null) {
+        if (configManualMenuItem == null) {
             return null;
         }
-        return addButton.getShell();
+        return configManualMenuItem.getParent().getShell();
     }
 
     /**
@@ -470,6 +572,7 @@ public abstract class PythonListEditor extends FieldEditor {
 
         removeButton.setEnabled(index >= 0);
         upButton.setEnabled(size > 1 && index > 0);
+        setDefaultButton.setEnabled(size > 1 && index > 0);
         downButton.setEnabled(size > 1 && index >= 0 && index < size - 1);
     }
 
@@ -501,12 +604,12 @@ public abstract class PythonListEditor extends FieldEditor {
      *
      * @param up <code>true</code> if the item should move up, and <code>false</code> if it should move down
      */
-    private void swap(boolean up) {
+    private boolean swap(boolean up) {
         setPresentsDefaultValue(false);
         int index = getSelectionIndex();
         int target = up ? index - 1 : index + 1;
-
-        if (index >= 0) {
+        boolean ret = target >= 0 && target < treeWithInterpreters.getItemCount();
+        if (ret) {
             TreeItem curr = treeWithInterpreters.getItem(index);
             TreeItem replace = treeWithInterpreters.getItem(target);
 
@@ -517,8 +620,9 @@ public abstract class PythonListEditor extends FieldEditor {
             curr.setText(new String[] { col0, col1 });
 
             treeWithInterpreters.setSelection(treeWithInterpreters.getItem(target));
+            selectionChanged();
         }
-        selectionChanged();
+        return ret;
     }
 
     /**
@@ -535,10 +639,10 @@ public abstract class PythonListEditor extends FieldEditor {
     public void setEnabled(boolean enabled, Composite parent) {
         super.setEnabled(enabled, parent);
         getListControl(parent).setEnabled(enabled);
-        addButton.setEnabled(enabled);
-        autoConfigButton.setEnabled(enabled);
-        if (pipenvConfigButton != null) {
-            pipenvConfigButton.setEnabled(enabled);
+        configManualMenuItem.setEnabled(enabled);
+        autoConfigMenuItem.setEnabled(enabled);
+        if (pipenvConfigMenuItem != null) {
+            pipenvConfigMenuItem.setEnabled(enabled);
         }
         removeButton.setEnabled(enabled);
         upButton.setEnabled(enabled);

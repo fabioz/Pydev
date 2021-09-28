@@ -13,7 +13,6 @@ package org.python.pydev.builder.pylint;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.preference.BooleanFieldEditor;
-import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.FileFieldEditor;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -26,20 +25,24 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_ui.field_editors.LinkFieldEditor;
 import org.python.pydev.shared_ui.field_editors.RadioGroupFieldEditor;
+import org.python.pydev.shared_ui.field_editors.ScopedFieldEditorPreferencePage;
+import org.python.pydev.shared_ui.field_editors.ScopedPreferencesFieldEditor;
 import org.python.pydev.utils.CustomizableFieldEditor;
 
+import com.python.pydev.analysis.PyAnalysisScopedPreferences;
 import com.python.pydev.analysis.pylint.PyLintPreferences;
 
 /**
  * @author Fabio Zadrozny
  */
-public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
+public class PyLintPrefPage extends ScopedFieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
     public static final int COLS = 4;
 
     public static final String[][] LABEL_AND_VALUE = new String[][] {
             { "Error", String.valueOf(IMarker.SEVERITY_ERROR) },
-            { "Warning", String.valueOf(IMarker.SEVERITY_WARNING) }, { "Info", String.valueOf(IMarker.SEVERITY_INFO) },
+            { "Warning", String.valueOf(IMarker.SEVERITY_WARNING) },
+            { "Info", String.valueOf(IMarker.SEVERITY_INFO) },
             { "Ignore", String.valueOf(PyLintPreferences.SEVERITY_IGNORE) }, };
 
     public static final String[][] SEARCH_PYLINT_LOCATION_OPTIONS = new String[][] {
@@ -87,19 +90,23 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
                 true, parent);
         addField(fileField);
 
-        addField(new RadioGroupFieldEditor(PyLintPreferences.SEVERITY_FATAL, "FATAL Severity", COLS, LABEL_AND_VALUE, parent, true));
+        addField(new RadioGroupFieldEditor(PyLintPreferences.SEVERITY_FATAL, "FATAL Severity", COLS, LABEL_AND_VALUE,
+                parent, true));
 
-        addField(new RadioGroupFieldEditor(PyLintPreferences.SEVERITY_ERRORS, "ERRORS Severity", COLS, LABEL_AND_VALUE, parent, true));
+        addField(new RadioGroupFieldEditor(PyLintPreferences.SEVERITY_ERRORS, "ERRORS Severity", COLS, LABEL_AND_VALUE,
+                parent, true));
 
-        addField(
-                new RadioGroupFieldEditor(PyLintPreferences.SEVERITY_WARNINGS, "WARNINGS Severity", COLS, LABEL_AND_VALUE, parent, true));
+        addField(new RadioGroupFieldEditor(PyLintPreferences.SEVERITY_WARNINGS, "WARNINGS Severity", COLS,
+                LABEL_AND_VALUE, parent, true));
 
-        addField(new RadioGroupFieldEditor(PyLintPreferences.SEVERITY_CODING_STANDARD, "CONVENTIONS Severity", COLS, LABEL_AND_VALUE,
-                parent,
-                true));
+        addField(new RadioGroupFieldEditor(PyLintPreferences.SEVERITY_CODING_STANDARD, "CONVENTIONS Severity", COLS,
+                LABEL_AND_VALUE, parent, true));
 
-        addField(
-                new RadioGroupFieldEditor(PyLintPreferences.SEVERITY_REFACTOR, "REFACTOR Severity", COLS, LABEL_AND_VALUE, parent, true));
+        addField(new RadioGroupFieldEditor(PyLintPreferences.SEVERITY_REFACTOR, "REFACTOR Severity", COLS,
+                LABEL_AND_VALUE, parent, true));
+
+        addField(new RadioGroupFieldEditor(PyLintPreferences.SEVERITY_INFO, "INFORMATIONAL Severity", COLS,
+                LABEL_AND_VALUE, parent, true));
 
         CustomizableFieldEditor stringFieldEditor = new CustomizableFieldEditor(PyLintPreferences.PYLINT_ARGS,
                 "Arguments to pass to the pylint command (customize its output):\n"
@@ -120,7 +127,7 @@ public class PyLintPrefPage extends FieldEditorPreferencePage implements IWorkbe
                     public void widgetDefaultSelected(SelectionEvent e) {
                     }
                 }));
-
+        addField(new ScopedPreferencesFieldEditor(parent, PyAnalysisScopedPreferences.ANALYSIS_SCOPE, this));
     }
 
     @Override

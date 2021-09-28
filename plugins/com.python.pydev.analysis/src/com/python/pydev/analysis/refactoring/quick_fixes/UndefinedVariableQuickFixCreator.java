@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.ast.codecompletion.ProposalsComparator.CompareContext;
 import org.python.pydev.core.ICodeCompletionASTManager;
@@ -26,8 +27,9 @@ import com.python.pydev.analysis.additionalinfo.AbstractAdditionalTokensInfo;
 import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo;
 
 public class UndefinedVariableQuickFixCreator {
-    
-    public static void createImportQuickProposalsFromMarkerSelectedText(PySelection ps, int offset,
+
+    public static void createImportQuickProposalsFromMarkerSelectedText(IAdaptable projectAdaptable, PySelection ps,
+            int offset,
             IPythonNature initialNature,
             List<ICompletionProposalHandle> props, ICodeCompletionASTManager astManager, int start, int end,
             boolean forceReparseOnApply)
@@ -38,7 +40,8 @@ public class UndefinedVariableQuickFixCreator {
 
         IModulesManager projectModulesManager = astManager.getModulesManager();
         IModulesManager[] managersInvolved = projectModulesManager.getManagersInvolved(true);
-        boolean doIgnoreImportsStartingWithUnder = AnalysisPreferences.doIgnoreImportsStartingWithUnder();
+        boolean doIgnoreImportsStartingWithUnder = AnalysisPreferences
+                .doIgnoreImportsStartingWithUnder(projectAdaptable);
 
         // Use a single buffer to create all the strings
         FastStringBuffer buffer = new FastStringBuffer();

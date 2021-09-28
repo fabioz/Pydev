@@ -978,6 +978,25 @@ public final class StringUtils {
         return count;
     }
 
+    public static int count(String name, String str) {
+        final int strLen = str.length();
+        if (strLen == 0) {
+            return 0;
+        }
+        int count = 0;
+        final int len = name.length();
+        int i = name.indexOf(str);
+        while (i != -1) {
+            count++;
+            if (i + strLen < len) {
+                i = name.indexOf(str, i + str.length());
+                continue;
+            }
+            break;
+        }
+        return count;
+    }
+
     /**
      * Returns whether the given input (to the number of bytes passed in len) is to be considered a valid text string
      * (otherwise, it's considered a binary string).
@@ -992,6 +1011,13 @@ public final class StringUtils {
             len = buffer.length;
         }
         String s = new String(buffer, 0, len, StandardCharsets.ISO_8859_1); //Decode as latin1
+        return isValidTextString(s);
+    }
+
+    /**
+     * @return true if this is not a string containing binary contents.
+     */
+    public static boolean isValidTextString(String s) {
         int maxLen = s.length();
         for (int i = 0; i < maxLen; i++) {
             char c = s.charAt(i);
@@ -1415,6 +1441,18 @@ public final class StringUtils {
     }
 
     /**
+     * Splits some string given some char in 2 parts (basename, ext)
+     */
+    public static Tuple<String, String> splitExt(String fullRep) {
+        int i = fullRep.lastIndexOf(".");
+        if (i != -1) {
+            return new Tuple<String, String>(fullRep.substring(0, i), fullRep.substring(i + 1));
+        } else {
+            return new Tuple<String, String>(fullRep, "");
+        }
+    }
+
+    /**
      * Splits some string given some char in 2 parts. If the separator is not found,
      * everything is put in the 1st part.
      */
@@ -1771,6 +1809,23 @@ public final class StringUtils {
         BufferedReader bufferedReader = new BufferedReader(reader);
         //java8 idiom to read all lines.
         return bufferedReader.lines().collect(Collectors.joining());
+    }
+
+    public static String truncateIfNeeded(String s, int len) {
+        if (s.length() <= len) {
+            return s;
+        }
+        return s.substring(0, len - 3) + "...";
+    }
+
+    public static List<Integer> findWordOffsets(String line, String selectedWord) {
+        List<Integer> lst = new ArrayList<>();
+        int i = line.indexOf(selectedWord);
+        while (i >= 0) {
+            lst.add(i);
+            i = line.indexOf(selectedWord, i + selectedWord.length());
+        }
+        return lst;
     }
 
 }

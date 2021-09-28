@@ -17,7 +17,12 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -33,6 +38,9 @@ import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.newconsole.EvaluateDebugConsoleExpression;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotRecognizedException;
@@ -113,10 +121,35 @@ public class XMLUtils {
         public void startElement(String uri, String localName, String qName, Attributes attributes)
                 throws SAXException {
             if (qName.equals("thread")) {
-                String name = attributes.getValue("name");
+                String name = unescape(attributes.getValue("name"));
                 String id = attributes.getValue("id");
                 name = decode(name);
                 threads.add(new PyThread(target, name, id));
+            }
+        }
+    }
+
+    static class XMLToSmartStepIntoVariants extends DefaultHandler {
+
+        public AbstractDebugTarget target;
+        public List<SmartStepIntoVariant> variants = new ArrayList<SmartStepIntoVariant>();
+
+        public XMLToSmartStepIntoVariants(AbstractDebugTarget target) {
+            this.target = target;
+        }
+
+        @Override
+        public void startElement(String uri, String localName, String qName, Attributes attributes)
+                throws SAXException {
+            if (qName.equals("variant")) {
+                String name = unescape(attributes.getValue("name"));
+                boolean isVisited = Boolean.parseBoolean(attributes.getValue("isVisited"));
+                int line = Integer.parseInt(attributes.getValue("line"));
+                int offset = Integer.parseInt(attributes.getValue("offset"));
+                int callOrder = Integer.parseInt(attributes.getValue("callOrder"));
+
+                name = decode(name);
+                variants.add(new SmartStepIntoVariant(target, name, isVisited, line - 1, offset, callOrder));
             }
         }
     }
@@ -140,6 +173,22 @@ public class XMLUtils {
         }
     }
 
+    public static SmartStepIntoVariant[] SmartStepIntoTargetsFromXML(AbstractDebugTarget target, String payload)
+            throws CoreException {
+        try {
+            SAXParser parser = getSAXParser();
+            XMLToSmartStepIntoVariants info = new XMLToSmartStepIntoVariants(target);
+            parser.parse(new ByteArrayInputStream(payload.getBytes()), info);
+            return info.variants.toArray(new SmartStepIntoVariant[0]);
+        } catch (CoreException e) {
+            throw e;
+        } catch (SAXException e) {
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected XML error", e));
+        } catch (IOException e) {
+            throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "Unexpected XML error", e));
+        }
+    }
+
     /**
      * Creates a variable from XML attributes
      * <var name="self" type="ObjectType" value="<DeepThread>"/>
@@ -151,10 +200,11 @@ public class XMLUtils {
         String qualifier = decodeIgnoreError(attributes.getValue("qualifier"));
         String value = decodeIgnoreError(attributes.getValue("value"));
         String isContainer = attributes.getValue("isContainer");
+        String scope = attributes.getValue("scope");
         if ("True".equals(isContainer)) {
-            var = new PyVariableCollection(target, name, type, value, locator);
+            var = new PyVariableCollection(target, name, type, value, locator, scope);
         } else {
-            var = new PyVariable(target, name, type, value, locator);
+            var = new PyVariable(target, name, type, value, locator, scope);
         }
         var.setQualifier(qualifier);
         String isRetVal = attributes.getValue("isRetVal");
@@ -171,6 +221,49 @@ public class XMLUtils {
         }
 
         return var;
+    }
+
+    private static final Map<String, String> ESCAPE = new HashMap<String, String>();
+    static {
+        ESCAPE.put("&amp;", "&");
+        ESCAPE.put("&apos;", "'");
+        ESCAPE.put("&quot;", "\"");
+        ESCAPE.put("&lt;", "<");
+        ESCAPE.put("&gt;", ">");
+    }
+
+    private static String unescape(final String text) {
+        // Note: doesn't escape everything, just a few common constructs.
+        if (text == null) {
+            return "";
+        }
+        FastStringBuffer result = new FastStringBuffer(text.length());
+        final int textLen = text.length();
+
+        int i = 0;
+        while (i < textLen) {
+            char c = text.charAt(i);
+            if (c != '&') {
+                result.append(c);
+                i++;
+            } else {
+                Set<Entry<String, String>> entrySet = ESCAPE.entrySet();
+                boolean found = false;
+                for (Entry<String, String> entry : entrySet) {
+                    if (text.startsWith(entry.getKey(), i)) {
+                        result.append(entry.getValue());
+                        i += entry.getKey().length();
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    result.append(c);
+                    i++;
+                }
+            }
+        }
+        return result.toString();
     }
 
     /**
@@ -199,12 +292,14 @@ public class XMLUtils {
         }
 
         private void startFrame(Attributes attributes) {
-            String name = attributes.getValue("name");
+            String name = unescape(attributes.getValue("name"));
             String id = attributes.getValue("id");
             String file = attributes.getValue("file");
+
             try {
                 if (file != null) {
                     file = URLDecoder.decode(file, "UTF-8");
+                    file = unescape(file);
                     File tempFile = new File(file);
                     if (tempFile.exists()) {
                         file = FileUtils.getFileAbsolutePath(tempFile);
@@ -732,4 +827,30 @@ public class XMLUtils {
         }
         return exceptionStackTraceList;
     }
+
+    public static Element createBinaryElement(Document document, String elementName, String contents) {
+        Element element = document.createElement(elementName);
+        if (StringUtils.isValidTextString(contents)) {
+            element.appendChild(document.createCDATASection(contents));
+        } else {
+            element.setAttribute("encoding", "base64");
+            element.appendChild(document.createCDATASection(
+                    Base64.getEncoder()
+                            .encodeToString(contents.getBytes(StandardCharsets.ISO_8859_1))));
+
+        }
+        return element;
+    }
+
+    public static String decodeFromEncoding(String captured, String encoding) {
+        if (captured == null) {
+            return "";
+        }
+        if ("base64".equals(encoding)) {
+            return new String(Base64.getDecoder().decode(captured.getBytes(StandardCharsets.ISO_8859_1)),
+                    StandardCharsets.ISO_8859_1);
+        }
+        return captured;
+    }
+
 }

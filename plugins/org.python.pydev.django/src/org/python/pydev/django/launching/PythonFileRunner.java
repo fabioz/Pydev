@@ -28,14 +28,14 @@ import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.plugin.nature.PythonNature;
 
 /**
- * Used to *programatically* run a python file located inside a project 
+ * Used to *programatically* run a python file located inside a project
  * (as opposed than throught the UI shourtcuts mechanism).
- * 
+ *
  * Automatically sets the right environment to run the script and
  * shows the output on a console.
- * 
+ *
  * Motivating use case: Django projects and their manage.py script.
- * 
+ *
  * @author Leo Soto
  */
 public class PythonFileRunner {
@@ -62,13 +62,13 @@ public class PythonFileRunner {
                     null));
         }
 
-        String location = resource.getRawLocation().toString();
+        String location = resource.getLocation().toString();
         String name = manager.generateUniqueLaunchConfigurationNameFrom(resource.getName());
         String baseDirectory = new File(location).getParent();
         int resourceType = IResource.FILE;
 
         ILaunchConfigurationWorkingCopy workingCopy = type.newInstance(null, name);
-        // Python Main Tab Arguments        
+        // Python Main Tab Arguments
         workingCopy.setAttribute(Constants.ATTR_PROJECT, project.getName());
         workingCopy.setAttribute(Constants.ATTR_RESOURCE_TYPE, resourceType);
         workingCopy.setAttribute(Constants.ATTR_INTERPRETER, nature.getProjectInterpreter().getExecutableOrJar());

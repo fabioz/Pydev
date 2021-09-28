@@ -45,6 +45,8 @@ import org.python.pydev.parser.grammar26.PythonGrammar26;
 import org.python.pydev.parser.grammar27.PythonGrammar27;
 import org.python.pydev.parser.grammar30.PythonGrammar30;
 import org.python.pydev.parser.grammar36.PythonGrammar36;
+import org.python.pydev.parser.grammar38.PythonGrammar38;
+import org.python.pydev.parser.grammar_cython.PyParserCython;
 import org.python.pydev.parser.jython.FastCharStream;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -102,6 +104,8 @@ public class PyParser extends BaseParser implements IPyParser {
      */
     private final IGrammarVersionProvider grammarVersionProvider;
 
+    public static boolean USE_NEW_CYTHON_PARSER = true;
+
     public static String getGrammarVersionStr(int grammarVersion) {
         if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5) {
             return "grammar: Python 2.5";
@@ -120,6 +124,12 @@ public class PyParser extends BaseParser implements IPyParser {
 
         } else if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_7) {
             return "grammar: Python 3.7";
+
+        } else if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_8) {
+            return "grammar: Python 3.8";
+
+        } else if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_9) {
+            return "grammar: Python 3.9";
 
         } else if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_CYTHON) {
             return "grammar: Cython";
@@ -359,7 +369,7 @@ public class PyParser extends BaseParser implements IPyParser {
 
     //static methods that can be used to get the ast (and error if any) --------------------------------------
 
-    public final static class ParserInfo {
+    public final static class ParserInfo implements IGrammarVersionProvider {
         public IDocument document;
 
         /**
@@ -402,9 +412,11 @@ public class PyParser extends BaseParser implements IPyParser {
             this(document, nature.getGrammarVersion(), nature.getAdditionalGrammarVersions());
         }
 
-        public ParserInfo(IDocument document, IGrammarVersionProvider nature, String moduleName, File file)
+        public ParserInfo(IDocument document, IGrammarVersionProvider grammarVersionProvider, String moduleName,
+                File file)
                 throws MisconfigurationException {
-            this(document, nature.getGrammarVersion(), moduleName, file, true, nature.getAdditionalGrammarVersions());
+            this(document, grammarVersionProvider.getGrammarVersion(), moduleName, file, true,
+                    grammarVersionProvider.getAdditionalGrammarVersions());
         }
 
         public ParserInfo(IDocument document, int grammarVersion, String name, File f, boolean generateTree,
@@ -441,6 +453,16 @@ public class PyParser extends BaseParser implements IPyParser {
             }
             buf.append("]");
             return buf.toString();
+        }
+
+        @Override
+        public int getGrammarVersion() throws MisconfigurationException {
+            return this.grammarVersion;
+        }
+
+        @Override
+        public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions() throws MisconfigurationException {
+            return additionalGrammarVersionsToCheck;
         }
     }
 
@@ -498,6 +520,10 @@ public class PyParser extends BaseParser implements IPyParser {
             case IPythonNature.GRAMMAR_PYTHON_VERSION_3_7:
                 grammar = new PythonGrammar36(generateTree, in);
                 break;
+            case IPythonNature.GRAMMAR_PYTHON_VERSION_3_8:
+            case IPythonNature.GRAMMAR_PYTHON_VERSION_3_9:
+                grammar = new PythonGrammar38(generateTree, in);
+                break;
             //case CYTHON: not treated here (only in reparseDocument).
             default:
                 throw new RuntimeException("The grammar specified for parsing is not valid: " + grammarVersion);
@@ -528,8 +554,7 @@ public class PyParser extends BaseParser implements IPyParser {
      */
     public static ParseOutput reparseDocument(ParserInfo info) {
         if (info.grammarVersion == IPythonNature.GRAMMAR_PYTHON_VERSION_CYTHON) {
-            IDocument doc = info.document;
-            return new ParseOutput(createCythonAst(doc), ((IDocumentExtension4) info.document).getModificationStamp());
+            return createCythonAst(info);
         }
 
         // create a stream with document's data
@@ -647,12 +672,30 @@ public class PyParser extends BaseParser implements IPyParser {
         return new ParseOutput(returnVar, modifiedTime);
     }
 
-    public static Tuple<ISimpleNode, Throwable> createCythonAst(IDocument doc) {
-        List<stmtType> classesAndFunctions = FastParser.parseCython(doc);
-        return new Tuple<ISimpleNode, Throwable>(new Module(
-                classesAndFunctions.toArray(new stmtType[classesAndFunctions
-                        .size()])),
-                null);
+    public static ParseOutput createCythonAst(ParserInfo info) {
+        ParseOutput parseOutput = null;
+
+        if (USE_NEW_CYTHON_PARSER) {
+            PyParserCython parserCython = new PyParserCython(info);
+            try {
+                parseOutput = parserCython.parse();
+                parseOutput.isCython = true;
+            } catch (Exception e) {
+                Log.log(e); // If cython is not available, an error is expected.
+            }
+        }
+        if (parseOutput == null || parseOutput.ast == null) {
+            // If we couldn't parse with cython, try to give something even if not really complete.
+            List<stmtType> classesAndFunctions = FastParser.parseCython(info.document);
+            Module ast = new Module(classesAndFunctions.toArray(new stmtType[classesAndFunctions
+                    .size()]));
+
+            parseOutput = new ParseOutput(ast, parseOutput != null ? parseOutput.error : null,
+                    ((IDocumentExtension4) info.document).getModificationStamp());
+            parseOutput.isCython = true;
+        }
+        return parseOutput;
+
     }
 
     /**

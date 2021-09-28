@@ -65,7 +65,7 @@ public class AssistImportToLocal implements IAssistProps {
                                     (PyEdit) edit, ps);
                             req.setAdditionalInfo(RefactoringRequest.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
                             req.setAdditionalInfo(RefactoringRequest.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, true);
-                            req.fillInitialNameAndOffset();
+                            req.fillActivationTokenAndQualifier();
 
                             ret.add(CompletionProposalFactory.get().createMoveImportsToLocalCompletionProposal(
                                     req,

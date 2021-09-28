@@ -8,6 +8,7 @@ package org.python.pydev.navigator.sorter;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
@@ -31,6 +32,10 @@ public class PythonModelSorter extends ViewerSorter {
     public int category(Object element) {
         if (element instanceof TreeNode) {
             return ISortedElement.RANK_TREE_NODE;
+        }
+
+        if (element instanceof IProject) {
+            return ISortedElement.RANK_PROJECT;
         }
 
         if (element instanceof ISortedElement) {

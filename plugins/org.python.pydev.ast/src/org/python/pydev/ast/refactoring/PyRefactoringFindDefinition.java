@@ -49,17 +49,17 @@ public class PyRefactoringFindDefinition {
      * @param request OUT: the request to be used in the find definition. It'll be prepared inside this method, and if it's not
      * a suitable request for the find definition, the return of this function will be null, otherwise, it was correctly
      * prepared for a find definition action.
-     * 
+     *
      * @param completionCache the completion cache to be used
      * @param selected OUT: fills the array with the found definitions
-     * 
+     *
      * @return an array with 2 strings: the activation token and the qualifier used. The return may be null, in which case
      *      the refactoring request is not valid for a find definition.
-     * @throws CompletionRecursionException 
-     * @throws BadLocationException 
+     * @throws CompletionRecursionException
+     * @throws BadLocationException
      */
     public static String[] findActualDefinition(RefactoringRequest request, CompletionCache completionCache,
-            ArrayList<IDefinition> selected) throws CompletionRecursionException, BadLocationException {
+            List<IDefinition> selected) throws CompletionRecursionException, BadLocationException {
         //ok, let's find the definition.
         request.getMonitor().beginTask("Find actual definition", 5);
         String[] tokenAndQual;
@@ -100,10 +100,10 @@ public class PyRefactoringFindDefinition {
 
     /**
      * Prepares a request to a find definition operation.
-     *  
+     *
      * @param request IN/OUT the request that's being used for a find definition operation. Will change it so that
      * a find definition can be done.
-     * 
+     *
      * @return the module to be used or null if the given request is not suitable for a find definition operation.
      */
     private static IModule prepareRequestForFindDefinition(RefactoringRequest request) {
@@ -157,29 +157,40 @@ public class PyRefactoringFindDefinition {
         return mod;
     }
 
+    public static void findActualDefinition(IProgressMonitor monitor, IModule mod, String tok,
+            List<IDefinition> selected, int beginLine, int beginCol, IPythonNature pythonNature,
+            ICompletionCache completionCache) throws CompletionRecursionException, Exception {
+        findActualDefinition(monitor, mod, tok, selected, beginLine, beginCol, pythonNature, completionCache, true);
+    }
+
     /**
      * This method will try to find the actual definition given all the needed parameters (but it will not try to find
      * matches in the whole workspace if it's not able to find an exact match in the context)
-     * 
+     *
      * Note that the request must be already properly configured to be used in this function. Otherwise, the
      * function that should be used is {@link #findActualDefinition(RefactoringRequest, CompletionCache, ArrayList)}
-     * 
-     * 
+     *
+     *
      * @param request: used only to communicateWork and checkCancelled
      * @param mod this is the module where we should find the definition
      * @param tok the token we're looking for (complete with dots)
-     * @param selected OUT: this is where the definitions should be added
+     * @param foundDefinitions OUT: this is where the definitions should be added
      * @param beginLine starts at 1
      * @param beginCol starts at 1
      * @param pythonNature the nature that we should use to find the definition
      * @param completionCache cache to store completions
-     * 
+     * @return
+     *
      * @throws Exception
      */
-    public static void findActualDefinition(IProgressMonitor monitor, IModule mod, String tok,
-            ArrayList<IDefinition> selected, int beginLine, int beginCol, IPythonNature pythonNature,
-            ICompletionCache completionCache) throws Exception, CompletionRecursionException {
+    public static List<IDefinition> findActualDefinition(IProgressMonitor monitor, IModule mod, String tok,
+            List<IDefinition> foundDefinitions, int beginLine, int beginCol, IPythonNature pythonNature,
+            ICompletionCache completionCache, boolean searchForMethodParameterFromParticipants)
+            throws Exception, CompletionRecursionException {
 
+        if (foundDefinitions == null) {
+            foundDefinitions = new ArrayList<IDefinition>();
+        }
         ICompletionState completionState = CompletionStateFactory.getEmptyCompletionState(tok, pythonNature,
                 beginLine - 1, beginCol - 1, completionCache);
         IDefinition[] definitions = mod.findDefinition(completionState, beginLine, beginCol, pythonNature);
@@ -188,7 +199,7 @@ public class PyRefactoringFindDefinition {
             monitor.setTaskName("Found:" + definitions.length + " definitions");
             monitor.worked(1);
             if (monitor.isCanceled()) {
-                return;
+                return foundDefinitions;
             }
         }
 
@@ -198,49 +209,56 @@ public class PyRefactoringFindDefinition {
             boolean doAdd = true;
             if (definition instanceof Definition) {
                 Definition d = (Definition) definition;
-                doAdd = !findActualTokenFromImportFromDefinition(pythonNature, tok, selected, d, completionCache);
+                doAdd = !findActualTokenFromImportFromDefinition(pythonNature, tok, foundDefinitions, d,
+                        completionCache,
+                        searchForMethodParameterFromParticipants);
             }
             if (monitor != null && monitor.isCanceled()) {
-                return;
+                return foundDefinitions;
             }
             if (doAdd) {
-                selected.add(definition);
+                foundDefinitions.add(definition);
             }
         }
+        return foundDefinitions;
     }
 
-    /** 
+    /**
      * Given some definition, find its actual token (if that's possible)
      * @param request the original request
      * @param tok the token we're looking for
      * @param lFindInfo place to store info
      * @param selected place to add the new definition (if found)
      * @param d the definition found before (this function will only work if this definition
+     * @param completionCache all completions found previously
+     * @param searchForMethodParameterFromParticipants find definition for method parameters
      * maps to an ImportFrom)
-     *  
+     *
      * @return true if we found a new definition (and false otherwise)
      * @throws Exception
      */
     private static boolean findActualTokenFromImportFromDefinition(IPythonNature nature, String tok,
-            ArrayList<IDefinition> selected, Definition d, ICompletionCache completionCache) throws Exception {
+            List<IDefinition> selected, Definition d, ICompletionCache completionCache,
+            boolean searchForMethodParameterFromParticipants) throws Exception {
         boolean didFindNewDef = false;
 
         Set<Tuple3<String, Integer, Integer>> whereWePassed = new HashSet<Tuple3<String, Integer, Integer>>();
 
-        tok = FullRepIterable.getLastPart(tok); //in an import..from, the last part will always be the token imported 
-
-        if (d.ast instanceof Name) {
-            Name name = (Name) d.ast;
-            if (name.ctx == Name.Param) {
-                if (d.scope != null && !d.scope.getScopeStack().empty()) {
-                    Object peek = d.scope.getScopeStack().peek();
-                    if (peek instanceof FunctionDef) {
-                        IDefinition found = CompletionParticipantsHelper
-                                .findDefinitionForMethodParameterFromParticipants(d, nature,
-                                        completionCache);
-                        if (found != null) {
-                            selected.add(found);
-                            return true;
+        tok = FullRepIterable.getLastPart(tok); //in an import..from, the last part will always be the token imported
+        if (searchForMethodParameterFromParticipants) {
+            if (d.ast instanceof Name) {
+                Name name = (Name) d.ast;
+                if (name.ctx == Name.Param) {
+                    if (d.scope != null && !d.scope.getScopeStack().empty()) {
+                        Object peek = d.scope.getScopeStack().peek();
+                        if (peek instanceof FunctionDef) {
+                            IDefinition found = CompletionParticipantsHelper
+                                    .findDefinitionForMethodParameterFromParticipants(d, nature,
+                                            completionCache);
+                            if (found != null) {
+                                selected.add(found);
+                                return true;
+                            }
                         }
                     }
                 }

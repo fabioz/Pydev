@@ -31,6 +31,7 @@ import org.python.pydev.parser.jython.ast.Dict;
 import org.python.pydev.parser.jython.ast.DictComp;
 import org.python.pydev.parser.jython.ast.Ellipsis;
 import org.python.pydev.parser.jython.ast.Exec;
+import org.python.pydev.parser.jython.ast.ExtSlice;
 import org.python.pydev.parser.jython.ast.For;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Global;
@@ -133,9 +134,22 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
             recordChanges = this.doc.popRecordChanges(id);
             lowerAndHigher = doc.getLowerAndHigerFound(recordChanges);
         }
-        doc.add(lowerAndHigher.o2.getLine(), lowerAndHigher.o2.getBeginCol(), this.prefs.getAssignPunctuation(), node);
 
-        node.value.accept(this);
+        if (node.type != null) {
+            doc.add(lowerAndHigher.o2.getLine(), lowerAndHigher.o2.getBeginCol(),
+                    this.prefs.getTypePunctuationColon(), node);
+            id = this.doc.pushRecordChanges();
+            node.type.accept(this);
+            recordChanges = this.doc.popRecordChanges(id);
+            lowerAndHigher = doc.getLowerAndHigerFound(recordChanges);
+        }
+
+        if (node.value != null) {
+            doc.add(lowerAndHigher.o2.getLine(), lowerAndHigher.o2.getBeginCol(), this.prefs.getAssignPunctuation(),
+                    node);
+            node.value.accept(this);
+        }
+
         afterNode(node);
         return null;
     }
@@ -1300,6 +1314,21 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         afterNode(node);
 
         this.doc.replaceRecorded(this.doc.popRecordChanges(id), "import", "import ");
+        return null;
+    }
+
+    @Override
+    public Object visitExtSlice(ExtSlice node) throws Exception {
+        beforeNode(node);
+        if (node.dims != null) {
+            for (int i = 0; i < node.dims.length; i++) {
+                if (i > 0) {
+                    this.doc.addRequire(",", lastNode);
+                }
+                node.dims[i].accept(this);
+            }
+        }
+        afterNode(node);
         return null;
     }
 

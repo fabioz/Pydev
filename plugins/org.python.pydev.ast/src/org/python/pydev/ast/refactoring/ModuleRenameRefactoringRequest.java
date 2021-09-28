@@ -38,11 +38,11 @@ public class ModuleRenameRefactoringRequest extends RefactoringRequest {
     }
 
     @Override
-    public void fillInitialNameAndOffset() {
+    public void fillActivationTokenAndQualifier() {
         try {
-            initialName = nature.resolveModule(file);
-            if (initialName.endsWith(".__init__")) {
-                initialName = initialName.substring(0, initialName.length() - 9);
+            qualifier = nature.resolveModule(file);
+            if (qualifier.endsWith(".__init__")) {
+                qualifier = qualifier.substring(0, qualifier.length() - 9);
             }
         } catch (MisconfigurationException e) {
             throw new RuntimeException(e);

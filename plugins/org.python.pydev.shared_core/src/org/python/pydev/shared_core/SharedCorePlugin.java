@@ -81,7 +81,7 @@ public class SharedCorePlugin extends Plugin {
             }
         }
 
-        IPath rawLocation = f.getRawLocation();
+        IPath rawLocation = f.getLocation();
         if (rawLocation == null) {
             return null; //yes, we could have a resource that was deleted but we still have it's representation...
         }

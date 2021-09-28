@@ -1,3 +1,4 @@
+from _pydev_bundle import pydev_log
 
 try:
     import trace
@@ -98,8 +99,7 @@ class SignatureFactory(object):
                 signature.set_args(frame, recursive=True)
             return signature
         except:
-            import traceback
-            traceback.print_exc()
+            pydev_log.exception()
 
     def file_module_function_of(self, frame):  # this code is take from trace module and fixed to work with new-style classes
         code = frame.f_code
@@ -174,7 +174,7 @@ def create_signature_message(signature):
 
 
 def send_signature_call_trace(dbg, frame, filename):
-    if dbg.signature_factory and dbg.in_project_scope(filename):
+    if dbg.signature_factory and dbg.in_project_scope(frame):
         signature = dbg.signature_factory.create_signature(frame, filename)
         if signature is not None:
             if dbg.signature_factory.cache is not None:
@@ -192,7 +192,7 @@ def send_signature_call_trace(dbg, frame, filename):
 
 
 def send_signature_return_trace(dbg, frame, filename, return_value):
-    if dbg.signature_factory and dbg.in_project_scope(filename):
+    if dbg.signature_factory and dbg.in_project_scope(frame):
         signature = dbg.signature_factory.create_signature(frame, filename, with_args=False)
         signature.return_type = get_type_of_value(return_value, recursive=True)
         dbg.writer.add_command(create_signature_message(signature))

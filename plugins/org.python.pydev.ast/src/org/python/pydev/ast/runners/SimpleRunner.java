@@ -115,7 +115,6 @@ public class SimpleRunner {
 
             case IPythonNature.INTERPRETER_TYPE_IRONPYTHON:
                 env.put("IRONPYTHONPATH", pythonPathEnvStr); //put the environment
-
                 break;
         }
         return getMapEnvAsArray(env);

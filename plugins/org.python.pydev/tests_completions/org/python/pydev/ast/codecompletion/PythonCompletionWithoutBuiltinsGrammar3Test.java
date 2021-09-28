@@ -9,7 +9,6 @@ package org.python.pydev.ast.codecompletion;
 import java.io.File;
 
 import org.eclipse.core.runtime.CoreException;
-import org.python.pydev.ast.codecompletion.PyCodeCompletion;
 import org.python.pydev.ast.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.ast.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
@@ -20,6 +19,7 @@ import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
+import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * This tests the 'whole' code completion, passing through all modules.
@@ -94,7 +94,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
 
             @Override
             public int getGrammarVersion() {
-                return IPythonNature.GRAMMAR_PYTHON_VERSION_3_6;
+                return IPythonNature.LATEST_GRAMMAR_PY3_VERSION;
             }
         };
     }
@@ -150,5 +150,125 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
         assertEquals(1, proposals.length);
         ICompletionProposalHandle prop = proposals[0];
         assertEquals("method()", prop.getDisplayString());
+    }
+
+    public void testAssignCompletionWithTypeAsString() throws Exception {
+        String s = ""
+                + "class Bar(object):\n" +
+                "    def bar(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "def method():\n" +
+                "    foo: 'Bar'\n" +
+                "    foo.";
+
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+        assertEquals(1, proposals.length);
+        ICompletionProposalHandle prop = proposals[0];
+        assertEquals("bar()", prop.getDisplayString());
+    }
+
+    public void testParamTypeInfoAsString() throws Exception {
+        String s = ""
+                + "class Bar(object):\n" +
+                "    def bar(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "def method(a: 'Bar'):\n" +
+                "    a.";
+
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+        assertEquals(1, proposals.length);
+        ICompletionProposalHandle prop = proposals[0];
+        assertEquals("bar()", prop.getDisplayString());
+    }
+
+    public void testParamTypeInfoAsString2() throws Exception {
+        String s = ""
+                + "class Bar(object):\n" +
+                "    def bar(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "def method(a: 'List[Bar]'):\n" +
+                "    for b in a:\n" +
+                "        b.";
+
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+        assertEquals(1, proposals.length);
+        ICompletionProposalHandle prop = proposals[0];
+        assertEquals("bar()", prop.getDisplayString());
+    }
+
+    public void testParamTypeInfoAsString3() throws Exception {
+        String s = ""
+                + "class Bar(object):\n" +
+                "    def bar(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "class MyClass(object):\n" +
+                "    def __init__(self, a: 'Bar'):\n" +
+                "        self.bar = a\n" +
+                "        self.bar.";
+
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+        assertEquals(1, proposals.length);
+        ICompletionProposalHandle prop = proposals[0];
+        assertEquals("bar()", prop.getDisplayString());
+    }
+
+    public void testCompletionForOptional() throws Exception {
+        String s = ""
+                + "from typing import Protocol, Optional\n" +
+                "\n" +
+                "class IFoo(Protocol):\n" +
+                "    def some_method(self) -> bool:\n" +
+                "        pass\n" +
+                "\n" +
+                "def method() -> Optional[IFoo]:\n" +
+                "    pass\n" +
+                "\n" +
+                "a = method()\n" +
+                "a.";
+
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+        assertEquals(1, proposals.length);
+        ICompletionProposalHandle prop = proposals[0];
+        assertEquals("some_method()", prop.getDisplayString());
+    }
+
+    public void testCompletionForOptional2() throws Exception {
+        String s = ""
+                + "from typing import Protocol, Optional\r\n" +
+                "\n" +
+                "class IFoo(Protocol):\n" +
+                "    def some_method(self) -> bool:\n" +
+                "        pass\n" +
+                "def method():\n" +
+                "    pass\n" +
+                "\n" +
+                "a: Optional[IFoo] = method()\n" +
+                "a.";
+
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+        assertEquals(1, proposals.length);
+        ICompletionProposalHandle prop = proposals[0];
+        assertEquals("some_method()", prop.getDisplayString());
+    }
+
+    public void testCompletionWithWalrus() throws Exception {
+        String s;
+        String original = "class Foo(object):\n" +
+                "\n" +
+                "    def foo(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "\n" +
+                "def test_anything():\n" +
+                "    if a := Foo():\n" +
+                "        a.";
+        s = StringUtils.format(original, "");
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
+        assertEquals(1, proposals.length);
+        assertEquals("foo()", proposals[0].getDisplayString());
     }
 }

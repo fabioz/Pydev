@@ -21,17 +21,20 @@ build_tools\pydevd_release_process.txt
 for release process.
 '''
 
-
 from setuptools import setup
 from setuptools.dist import Distribution
 from distutils.extension import Extension
 import os
 
+
 class BinaryDistribution(Distribution):
+
     def is_pure(self):
         return False
 
+
 data_files = []
+
 
 def accept_file(f):
     f = f.lower()
@@ -40,6 +43,7 @@ def accept_file(f):
             return True
 
     return f in ['readme', 'makefile']
+
 
 data_files.append(('pydevd_attach_to_process', [os.path.join('pydevd_attach_to_process', f) for f in os.listdir('pydevd_attach_to_process') if accept_file(f)]))
 for root, dirs, files in os.walk("pydevd_attach_to_process"):
@@ -52,7 +56,7 @@ version = pydevd.__version__
 args = dict(
     name='pydevd',
     version=version,
-    description = 'PyDev.Debugger (used in PyDev, PyCharm and VSCode Python)',
+    description='PyDev.Debugger (used in PyDev, PyCharm and VSCode Python)',
     author='Fabio Zadrozny and others',
     url='https://github.com/fabioz/PyDev.Debugger/',
     license='EPL (Eclipse Public License)',
@@ -67,7 +71,7 @@ args = dict(
 
         # 'pydev_sitecustomize', -- Not actually a package (not added)
 
-        # 'pydevd_attach_to_process', -- Not actually a package (included in MANIFEST.in)
+        'pydevd_attach_to_process',
 
         'pydevd_concurrency_analyser',
         'pydevd_plugins',
@@ -106,6 +110,7 @@ args = dict(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Topic :: Software Development :: Debuggers',
     ],
     entry_points={
@@ -119,17 +124,51 @@ args = dict(
     zip_safe=False,
 )
 
-
-
 import sys
 try:
+    extra_compile_args = []
+    extra_link_args = []
+
+    if 'linux' in sys.platform:
+        # Enabling -flto brings executable from 4MB to 0.56MB and -Os to 0.41MB
+        # Profiling shows an execution around 3-5% slower with -Os vs -O3,
+        # so, kept only -flto.
+        extra_compile_args = ["-flto", "-O3"]
+        extra_link_args = extra_compile_args[:]
+
+        # Note: also experimented with profile-guided optimization. The executable
+        # size became a bit smaller (from 0.56MB to 0.5MB) but this would add an
+        # extra step to run the debugger to obtain the optimizations
+        # so, skipped it for now (note: the actual benchmarks time was in the
+        # margin of a 0-1% improvement, which is probably not worth it for
+        # speed increments).
+        # extra_compile_args = ["-flto", "-fprofile-generate"]
+        # ... Run benchmarks ...
+        # extra_compile_args = ["-flto", "-fprofile-use", "-fprofile-correction"]
+    elif 'win32' in sys.platform:
+        pass
+        # uncomment to generate pdbs for visual studio.
+        # extra_compile_args=["-Zi", "/Od"]
+        # extra_link_args=["-debug"]
+
+    kwargs = {}
+    if extra_link_args:
+        kwargs['extra_link_args'] = extra_link_args
+    if extra_compile_args:
+        kwargs['extra_compile_args'] = extra_compile_args
+
     args_with_binaries = args.copy()
     args_with_binaries.update(dict(
         distclass=BinaryDistribution,
         ext_modules=[
             # In this setup, don't even try to compile with cython, just go with the .c file which should've
             # been properly generated from a tested version.
-            Extension('_pydevd_bundle.pydevd_cython', ["_pydevd_bundle/pydevd_cython.c",])
+            Extension(
+                '_pydevd_bundle.pydevd_cython',
+                ["_pydevd_bundle/pydevd_cython.c", ],
+                define_macros = [('Py_BUILD_CORE_MODULE', '1')],
+                **kwargs
+            )
         ]
     ))
     setup(**args_with_binaries)

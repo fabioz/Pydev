@@ -28,13 +28,16 @@ public class MypyPreferences {
     public static final String MYPY_USE_CONSOLE = "MYPY_USE_CONSOLE";
     public static final boolean DEFAULT_MYPY_USE_CONSOLE = false;
 
+    public static final String MYPY_ADD_PROJECT_FOLDERS_TO_MYPYPATH = "MYPY_ADD_PROJECT_FOLDERS_TO_MYPYPATH";
+    public static final boolean DEFAULT_MYPY_ADD_PROJECT_FOLDERS_TO_MYPYPATH = true;
+
     public static final String SEARCH_MYPY_LOCATION = "SEARCH_MYPY_LOCATION";
     public static final String LOCATION_SEARCH = "SEARCH";
     public static final String LOCATION_SPECIFY = "SPECIFY";
     public static final String DEFAULT_SEARCH_MYPY_LOCATION = LOCATION_SEARCH;
 
     public static final String MYPY_ARGS = "MYPY_ARGS";
-    public static final String DEFAULT_MYPY_ARGS = "";
+    public static final String DEFAULT_MYPY_ARGS = "--follow-imports=silent --show-column-numbers";
 
     public static boolean useMypy(IAdaptable projectAdaptable) {
         return PyScopedPreferences.getBoolean(USE_MYPY, projectAdaptable);
@@ -42,6 +45,10 @@ public class MypyPreferences {
 
     public static boolean useMypyConsole(IAdaptable projectAdaptable) {
         return PyScopedPreferences.getBoolean(MYPY_USE_CONSOLE, projectAdaptable);
+    }
+
+    public static boolean getAddProjectFoldersToMyPyPath(IAdaptable projectAdaptable) {
+        return PyScopedPreferences.getBoolean(MYPY_ADD_PROJECT_FOLDERS_TO_MYPYPATH, projectAdaptable);
     }
 
     public static String getMypyArgs(IAdaptable projectAdaptable) {

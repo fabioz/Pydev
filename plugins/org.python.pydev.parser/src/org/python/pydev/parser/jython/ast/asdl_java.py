@@ -222,6 +222,12 @@ class JavaVisitor(EmitVisitor):
             self.emit("beginLine = body[0].beginLine;", depth + 2)
             self.emit("}", depth + 1)
 
+        if str(ctorname) == 'Expr':
+            self.emit("if(value != null){", depth + 1)
+            self.emit("beginColumn = value.beginColumn;", depth + 2)
+            self.emit("beginLine = value.beginLine;", depth + 2)
+            self.emit("}", depth + 1)
+
         self.emit("}", depth)
         self.emit("", 0)
 

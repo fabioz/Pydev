@@ -50,7 +50,7 @@ public class PyRenameRefactoring {
 
             PyRenameEntryPoint entryPoint = new PyRenameEntryPoint(request);
             RenameRefactoring renameRefactoring = new RenameRefactoring(entryPoint);
-            request.fillInitialNameAndOffset();
+            request.fillActivationTokenAndQualifier();
 
             String title = "Rename";
             if (request instanceof MultiModuleMoveRefactoringRequest) {

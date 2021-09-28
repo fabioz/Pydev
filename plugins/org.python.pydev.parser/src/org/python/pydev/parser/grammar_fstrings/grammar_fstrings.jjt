@@ -218,7 +218,7 @@ void format_spec(): {Token start, end, bStart;boolean empty=true;SimpleNode bTex
 {
     <COLON>
     (
-    	(<TEXT>)+
+    	(<TEXT> | <COLON>)+
         |
 	    start = <LBRACE>
 		try{

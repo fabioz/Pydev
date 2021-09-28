@@ -14,6 +14,8 @@ import org.eclipse.search.ui.NewSearchUI;
 import org.python.pydev.ast.refactoring.AbstractPyRefactoring;
 import org.python.pydev.ast.refactoring.IPyRefactoring2;
 import org.python.pydev.ast.refactoring.RefactoringRequest;
+import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.editor.actions.refactoring.PyRefactorAction;
 
 import com.python.pydev.refactoring.search.FindOccurrencesSearchQuery;
@@ -24,8 +26,22 @@ public class PyFindAllOccurrences extends PyRefactorAction {
     protected String perform(IAction action, IProgressMonitor monitor) throws Exception {
         IPyRefactoring2 r = (IPyRefactoring2) AbstractPyRefactoring.getPyRefactoring();
         RefactoringRequest req = getRefactoringRequest(new NullProgressMonitor()); //as we're doing it in the background
-        req.fillInitialNameAndOffset();
-        if (req.initialName != null && req.initialName.trim().length() > 0) {
+        req.fillActivationTokenAndQualifier();
+        if (req.qualifier != null && req.qualifier.trim().length() > 0) {
+            if (req.activationToken != null && req.activationToken.trim().length() == 0
+                    && "__init__".equals(req.qualifier)) {
+                LineStartingScope line = ps.getPreviousLineThatStartsScope(PySelection.CLASS_TOKEN, false,
+                        Integer.MAX_VALUE);
+                if (line != null) {
+                    String className = PySelection.getClassNameInLine(line.lineStartingScope);
+                    if (className != null && className.length() > 0) {
+                        int col = line.lineStartingScope.indexOf(className);
+                        int len = className.length();
+                        req.ps = new PySelection(ps.getDoc(), line.iLineStartingScope, col, len);
+                        req.fillActivationTokenAndQualifier();
+                    }
+                }
+            }
             NewSearchUI.runQueryInBackground(newQuery(r, req));
         }
         return null;

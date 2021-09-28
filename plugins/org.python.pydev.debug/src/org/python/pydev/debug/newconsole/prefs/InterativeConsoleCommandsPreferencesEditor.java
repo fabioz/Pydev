@@ -43,9 +43,9 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.preferences.IScopedPreferences;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.yaml.YamlWrapper;
 import org.python.pydev.shared_ui.bindings.KeyBindingHelper;
 import org.python.pydev.shared_ui.dialogs.DialogHelpers;
-import org.yaml.snakeyaml.Yaml;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class InterativeConsoleCommandsPreferencesEditor {
@@ -144,7 +144,8 @@ public class InterativeConsoleCommandsPreferencesEditor {
 
         label = new Label(parent, SWT.NONE);
         label.setLayoutData(GridDataFactory.fillDefaults().span(4, 1).create());
-        label.setText("Command text.\n\n${text} is replaced by the currently selected text\nor the full line if no text is selected.");
+        label.setText(
+                "Command text.\n\n${text} is replaced by the currently selected text\nor the full line if no text is selected.");
 
         textCommand = new Text(parent, SWT.MULTI | SWT.BORDER);
         textCommand.setLayoutData(createTextGridData());
@@ -173,7 +174,8 @@ public class InterativeConsoleCommandsPreferencesEditor {
         errorLabel = new Label(parent, SWT.NONE);
         errorLabel.setLayoutData(GridDataFactory.fillDefaults().span(4, 1).create());
         errorLabel
-                .setText("Command text.\n\n${text} is replaced by the currently selected text\nor the full line if no text is selected.");
+                .setText(
+                        "Command text.\n\n${text} is replaced by the currently selected text\nor the full line if no text is selected.");
         errorLabel.setVisible(false);
 
         red = new Color(Display.getCurrent(), 255, 0, 0);
@@ -292,7 +294,6 @@ public class InterativeConsoleCommandsPreferencesEditor {
     }
 
     public void performSave() {
-        Yaml yaml = new Yaml();
 
         Map map = new HashMap<>();
         ArrayList<Object> commands = new ArrayList<>();
@@ -311,7 +312,7 @@ public class InterativeConsoleCommandsPreferencesEditor {
         if (!yamlFile.getParentFile().exists()) {
             yamlFile.getParentFile().mkdirs();
         }
-        String dumpAsMap = yaml.dumpAsMap(map);
+        String dumpAsMap = YamlWrapper.dumpAsMap(map);
         FileUtils.writeStrToFile(dumpAsMap, yamlFile);
         InteractiveConsoleCommand.keepBindingsUpdated();
     }
@@ -408,7 +409,7 @@ public class InterativeConsoleCommandsPreferencesEditor {
 
             IBindingService bindingService = null;
             try {
-                bindingService = (IBindingService) PlatformUI.getWorkbench().getService(
+                bindingService = PlatformUI.getWorkbench().getService(
                         IBindingService.class);
             } catch (Throwable e) {
             }

@@ -26,28 +26,129 @@ public class LineCommentAction {
     private String commentPattern;
     private int spacesInStart;
 
-    public LineCommentAction(TextSelectionUtils ps, String commentPattern, int spacesInStart) {
+    private final String addCommentsOption;
+
+    public LineCommentAction(TextSelectionUtils ps, String commentPattern, int spacesInStart,
+            String addCommentsOption) {
         this.ps = ps;
         this.commentPattern = commentPattern;
         this.spacesInStart = spacesInStart;
+        this.addCommentsOption = addCommentsOption;
     }
 
     public FastStringBuffer commentLines(String selectedText) {
         List<String> ret = StringUtils.splitInLines(selectedText);
-
         FastStringBuffer strbuf = new FastStringBuffer(selectedText.length() + ret.size()
                 + ((spacesInStart + 2) * ret.size()));
+        if (ret.isEmpty()) {
+            ret.add(selectedText);
+        } else {
+            if (selectedText.endsWith("\r") || selectedText.endsWith("\n")) {
+                ret.add("");
+            }
+        }
+
         String spacesInStartComment = null;
         if (spacesInStart > 0) {
             spacesInStartComment = StringUtils.createSpaceString(spacesInStart);
         }
 
-        for (String line : ret) {
-            strbuf.append(commentPattern);
-            if (spacesInStartComment != null) {
-                strbuf.append(spacesInStartComment);
+        // Used only when adding comments at the current indent.
+        int lastFirstCharPosition = 0;
+        FastStringBuffer lineBuf = new FastStringBuffer();
+        boolean addSpacesInStartComment;
+
+        int lowestIndent = -1;
+        if (LineCommentOption.ADD_COMMENTS_INDENT.equals(addCommentsOption)) {
+            for (String line : ret) {
+                if (line.trim().isEmpty()) {
+                    continue;
+                }
+                int indent = TextSelectionUtils.getFirstCharPosition(line);
+                if (lowestIndent == -1 || indent < lowestIndent) {
+                    lowestIndent = indent;
+                    if (lowestIndent == 0) {
+                        break;
+                    }
+                }
             }
-            strbuf.append(line);
+        }
+
+        if (lowestIndent < 0) {
+            lowestIndent = 0;
+        }
+
+        if (LineCommentOption.ADD_COMMENTS_INDENT_LINE_ORIENTED.equals(addCommentsOption)) {
+            for (String line : ret) {
+                addSpacesInStartComment = true;
+
+                lineBuf.clear();
+                lineBuf.append(line);
+                lineBuf.leftTrim();
+
+                if (lineBuf.length() == 0) {
+                    // Not even the '\n' at the end of the line remained.
+                    addSpacesInStartComment = false;
+                    lineBuf.append(line);
+                    if (lastFirstCharPosition > 0) {
+                        lineBuf.leftTrimSpacesAndTabs(); // i.e.: don't trim new lines this time.
+                        strbuf.append(StringUtils.createSpaceString(lastFirstCharPosition));
+                    } else {
+                        // i.e.: empty line and there were no contents before, let's keep the current
+                        // indent.
+                        lineBuf.rightTrimNewLines();
+                        lastFirstCharPosition = lineBuf.length();
+                        strbuf.append(lineBuf);
+                        lineBuf.clear();
+                        lineBuf.append(line);
+                        lineBuf.leftTrimSpacesAndTabs();
+                    }
+                } else {
+                    strbuf.append(StringUtils.createSpaceString(line.length() - lineBuf.length()));
+                    lastFirstCharPosition = TextSelectionUtils.getFirstCharPosition(line);
+                }
+
+                strbuf.append(commentPattern);
+                if (spacesInStartComment != null && addSpacesInStartComment) {
+                    strbuf.append(spacesInStartComment);
+                }
+                strbuf.append(lineBuf);
+            }
+        } else if (LineCommentOption.ADD_COMMENTS_INDENT.equals(addCommentsOption)) {
+            String lowestIndentSpaceString = StringUtils.createSpaceString(lowestIndent);
+            for (String line : ret) {
+                lineBuf.clear();
+                if (!line.trim().isEmpty()) {
+                    lineBuf.append(line);
+                    if (lowestIndent > 0) {
+                        lineBuf.deleteFirstChars(lowestIndent);
+                        strbuf.append(lowestIndentSpaceString);
+                    }
+                    strbuf.append(commentPattern);
+                    if (spacesInStartComment != null) {
+                        strbuf.append(spacesInStartComment);
+                    }
+                    strbuf.append(lineBuf);
+                } else {
+                    strbuf.append(lowestIndentSpaceString);
+                    strbuf.append(commentPattern);
+                    if (line.endsWith("\r\n")) {
+                        strbuf.append("\r\n");
+                    } else if (line.endsWith("\r")) {
+                        strbuf.append("\r");
+                    } else {
+                        strbuf.append("\n");
+                    }
+                }
+            }
+        } else {
+            for (String line : ret) {
+                strbuf.append(commentPattern);
+                if (spacesInStartComment != null) {
+                    strbuf.append(spacesInStartComment);
+                }
+                strbuf.append(line);
+            }
         }
         return strbuf;
     }

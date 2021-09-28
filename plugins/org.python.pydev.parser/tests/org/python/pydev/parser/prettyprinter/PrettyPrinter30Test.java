@@ -662,4 +662,14 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase {
         checkPrettyPrintEqual(s, s, s, s);
     }
 
+    public void testExtSlice() throws Exception {
+        String s = "o[x:y,z]\n";
+        checkPrettyPrintEqual(s, s, s, s);
+    }
+
+    public void testExtSlice2() throws Exception {
+        String s = "o[x,y:z]\n";
+        checkPrettyPrintEqual(s, s, s, s);
+    }
+
 }

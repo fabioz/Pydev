@@ -20,13 +20,12 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeSet;
 
-import org.python.pydev.ast.codecompletion.revisited.ModulesManager;
-import org.python.pydev.ast.codecompletion.revisited.ProjectModulesManager;
-import org.python.pydev.ast.codecompletion.revisited.PyPublicTreeMap;
-import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
-import org.python.pydev.ast.codecompletion.revisited.SystemModulesManager;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.ModulesKeyForFolder;
 import org.python.pydev.core.ModulesKeyForZip;
+import org.python.pydev.core.TestDependent;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
@@ -101,6 +100,7 @@ public class ModulesManagerTest extends CodeCompletionTestsBase {
         manager.addModule(new ModulesKey("foo", new File("foo.py")));
         manager.addModule(new ModulesKey("empty", null));
         manager.addModule(new ModulesKeyForZip("zip", new File("zip.zip"), "path", true));
+        manager.addModule(new ModulesKeyForFolder("folder.__init__", new File("folder")));
 
         PythonPathHelper pythonPathHelper = manager.getPythonPathHelper();
         pythonPathHelper.setPythonPath("rara|boo");
@@ -118,24 +118,33 @@ public class ModulesManagerTest extends CodeCompletionTestsBase {
             SystemModulesManager loaded = new SystemModulesManager(null);
             SystemModulesManager.loadFromFile(loaded, f);
             ModulesKey[] onlyDirectModules = loaded.getOnlyDirectModules();
-            boolean found = false;
+            boolean foundZip = false;
+            boolean foundFolder = false;
             for (ModulesKey modulesKey : onlyDirectModules) {
                 if (modulesKey.name.equals("zip")) {
                     ModulesKeyForZip z = (ModulesKeyForZip) modulesKey;
                     assertEquals(z.zipModulePath, "path");
                     assertEquals(z.file, new File("zip.zip"));
                     assertEquals(z.isFile, true);
-                    found = true;
+                    foundZip = true;
+                } else if (modulesKey.name.equals("folder.__init__")) {
+                    ModulesKeyForFolder folder = (ModulesKeyForFolder) modulesKey;
+                    assertEquals(folder.file, new File("folder"));
+                    foundFolder = true;
                 }
             }
-            if (!found) {
+            if (!foundZip) {
                 fail("Did not find ModulesKeyForZip.");
+            }
+            if (!foundFolder) {
+                fail("Did not find ModulesKeyForFolder.");
             }
             Set<String> set = new HashSet<String>();
             set.add("bar");
             set.add("foo");
             set.add("empty");
             set.add("zip");
+            set.add("folder.__init__");
             assertEquals(set, loaded.getAllModuleNames(true, ""));
             assertEquals(Arrays.asList("rara", "boo"), loaded.getPythonPathHelper().getPythonpath());
         } finally {
@@ -300,6 +309,25 @@ public class ModulesManagerTest extends CodeCompletionTestsBase {
         assertEquals(0, manager.getAllDirectModulesStartingWith("ab").size());
     }
 
+    public void testBuildKeysForRegularEntries() {
+        ProjectModulesManager modulesManager = (ProjectModulesManager) nature2.getAstManager().getModulesManager();
+        String pythonpath = TestDependent.TEST_PYSRC_TESTING_LOC + "namespace_pkg/";
+        ProjectStub project = new ProjectStub("testProjectStubRefactoring", pythonpath, new IProject[0],
+                new IProject[0]);
+        IProgressMonitor monitor = getProgressMonitor();
+        modulesManager.pythonPathHelper.setPythonPath(pythonpath);
+        ModulesFoundStructure modulesFound = modulesManager.pythonPathHelper.getModulesFoundStructure(project, monitor);
+        PyPublicTreeMap<ModulesKey, ModulesKey> keys = ModulesManager.buildKeysFromModulesFound(monitor, modulesFound);
+
+        ModulesManager.buildKeysForRegularEntries(monitor, modulesFound, keys, false);
+
+        assertTrue(keys.containsKey(new ModulesKey("folder1.__init__", null)));
+        assertTrue(keys.containsKey(new ModulesKey("folder1.folder2.__init__", null)));
+        assertTrue(keys.containsKey(new ModulesKey("folder1.folder2.mymod", null)));
+
+        assertFalse(keys.containsKey(new ModulesKey(".__init__", null)));
+    }
+
     /**
      * Helper to check for membership.
      */
@@ -309,4 +337,5 @@ public class ModulesManagerTest extends CodeCompletionTestsBase {
             assertTrue(result.contains(e));
         }
     }
+
 }

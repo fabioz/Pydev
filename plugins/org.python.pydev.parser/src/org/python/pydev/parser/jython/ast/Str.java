@@ -11,14 +11,17 @@ public final class Str extends exprType implements str_typeType {
     public boolean raw;
     public boolean binary;
     public boolean fstring;
+    public stmtType[] fstring_nodes;
 
-    public Str(String s, int type, boolean unicode, boolean raw, boolean binary, boolean fstring) {
+    public Str(String s, int type, boolean unicode, boolean raw, boolean binary, boolean fstring,
+    stmtType[] fstring_nodes) {
         this.s = s;
         this.type = type;
         this.unicode = unicode;
         this.raw = raw;
         this.binary = binary;
         this.fstring = fstring;
+        this.fstring_nodes = fstring_nodes;
     }
 
     @Override
@@ -31,6 +34,7 @@ public final class Str extends exprType implements str_typeType {
         result = prime * result + (raw ? 17 : 137);
         result = prime * result + (binary ? 17 : 137);
         result = prime * result + (fstring ? 17 : 137);
+        result = prime * result + Arrays.hashCode(fstring_nodes);
         return result;
     }
 
@@ -47,6 +51,7 @@ public final class Str extends exprType implements str_typeType {
         if(this.raw != other.raw) return false;
         if(this.binary != other.binary) return false;
         if(this.fstring != other.fstring) return false;
+        if (!Arrays.equals(fstring_nodes, other.fstring_nodes)) return false;
         return true;
     }
     @Override
@@ -55,7 +60,17 @@ public final class Str extends exprType implements str_typeType {
     }
     @Override
     public Str createCopy(boolean copyComments) {
-        Str temp = new Str(s, type, unicode, raw, binary, fstring);
+        stmtType[] new0;
+        if(this.fstring_nodes != null){
+        new0 = new stmtType[this.fstring_nodes.length];
+        for(int i=0;i<this.fstring_nodes.length;i++){
+            new0[i] = (stmtType) (this.fstring_nodes[i] != null?
+            this.fstring_nodes[i].createCopy(copyComments):null);
+        }
+        }else{
+            new0 = this.fstring_nodes;
+        }
+        Str temp = new Str(s, type, unicode, raw, binary, fstring, new0);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
         if(this.specialsBefore != null && copyComments){
@@ -97,6 +112,9 @@ public final class Str extends exprType implements str_typeType {
         sb.append(", ");
         sb.append("fstring=");
         sb.append(dumpThis(this.fstring));
+        sb.append(", ");
+        sb.append("fstring_nodes=");
+        sb.append(dumpThis(this.fstring_nodes));
         sb.append("]");
         return sb.toString();
     }
@@ -108,6 +126,13 @@ public final class Str extends exprType implements str_typeType {
 
     @Override
     public void traverse(VisitorIF visitor) throws Exception {
+        if (fstring_nodes != null) {
+            for (int i = 0; i < fstring_nodes.length; i++) {
+                if (fstring_nodes[i] != null) {
+                    fstring_nodes[i].accept(visitor);
+                }
+            }
+        }
     }
 
 }

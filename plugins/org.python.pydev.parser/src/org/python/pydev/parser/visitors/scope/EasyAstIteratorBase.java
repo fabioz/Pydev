@@ -173,6 +173,7 @@ public abstract class EasyAstIteratorBase extends VisitorBase {
         entry = createEntry();
         entry.node = node;
         entry.endLine = NodeUtils.getLineEnd(node);
+        entry.endCol = NodeUtils.getColDefinition(node);
         doAddNode(entry);
         return entry;
     }
@@ -276,6 +277,9 @@ public abstract class EasyAstIteratorBase extends VisitorBase {
             node.name.accept(this);
         if (node.args != null)
             node.args.accept(this);
+        if (node.returns != null) {
+            node.returns.accept(this);
+        }
         if (node.body != null) {
             for (int i = 0; i < node.body.length; i++) {
                 if (node.body[i] != null)

@@ -46,7 +46,7 @@ public class TokenMgrError extends Error {
      * Replaces unprintable characters by their espaced (or unicode escaped)
      * equivalents in the given string
      */
-    protected static final String addEscapes(String str) {
+    public static final String addEscapes(String str) {
         StringBuffer retval = new StringBuffer();
         char ch;
         for (int i = 0; i < str.length(); i++) {
@@ -118,8 +118,10 @@ public class TokenMgrError extends Error {
                 + ", column "
                 + errorColumn
                 + ".  Encountered: "
-                + (EOFSeen ? "<EOF> " : ("\"" + addEscapes(String.valueOf(curChar)) + "\"") + " (" + (int) curChar
-                        + "), ") + "after : \"" + addEscapes(errorAfter) + "\"");
+                + (EOFSeen ? "<EOF> "
+                        : ("\"" + addEscapes(String.valueOf(curChar)) + "\"") + " (" + (int) curChar
+                                + "), ")
+                + "after : \"" + addEscapes(errorAfter) + "\"");
     }
 
     /**

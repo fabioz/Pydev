@@ -6,13 +6,11 @@
  */
 package org.python.pydev.core.docutils;
 
-import java.util.Iterator;
-
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.shared_core.string.StringUtils;
 
-public class PyDocIterator implements Iterator<String> {
+public class PyDocIterator implements IPyDocIterator {
 
     private int offset;
     private IDocument doc;
@@ -41,6 +39,7 @@ public class PyDocIterator implements Iterator<String> {
      * @param changeLiteralsForSpaces whether we should replace the literals with spaces (so that we don't loose offset information)
      * @param addComments if true, comments found will be yielded (otherwise, no comments will be shown)
      */
+
     public PyDocIterator(IDocument doc, boolean addNewLinesToRet, boolean returnNewLinesOnLiterals,
             boolean changeLiteralsForSpaces, boolean addComments) {
         this(doc);
@@ -54,11 +53,20 @@ public class PyDocIterator implements Iterator<String> {
         this.doc = doc;
     }
 
+    public PyDocIterator(IDocument doc, int startingLine) throws BadLocationException {
+        this.doc = doc;
+        this.offset = doc.getLineOffset(startingLine);
+        this.addNewLinesToRet = false;
+        this.returnNewLinesOnLiterals = true;
+        this.changeLiteralsForSpaces = true;
+        this.addComments = false;
+    }
+
     /**
      * Changes the current offset in the document. Note: this method is not safe for use after the iteration
      * started!
-     * 
-     * @param offset the offset where this class should start parsing (note: the offset must be a 
+     *
+     * @param offset the offset where this class should start parsing (note: the offset must be a
      * code partition, otherwise the yielded values will be wrong).
      */
     public void setStartingOffset(int offset) {
@@ -70,6 +78,7 @@ public class PyDocIterator implements Iterator<String> {
         return offset < doc.getLength();
     }
 
+    @Override
     public int getLastReturnedLine() {
         try {
             lastReturned = doc.getLineOfOffset(offset - 1);
@@ -101,8 +110,7 @@ public class PyDocIterator implements Iterator<String> {
             }
 
             if (ch == '\r') {
-                ch = doc.getChar(offset + 1);
-                if (ch == '\n') {
+                if (doc.getChar(offset) == '\n') {
                     offset++;
                     ch = '\n';
                 }

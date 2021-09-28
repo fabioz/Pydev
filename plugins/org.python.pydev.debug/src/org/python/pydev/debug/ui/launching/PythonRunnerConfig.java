@@ -528,6 +528,8 @@ public class PythonRunnerConfig {
         }
         envp = StringUtils.addString(envp,
                 "IDE_PROJECT_ROOTS=" + StringUtils.join(File.pathSeparator, ideProjectRoots));
+        envp = StringUtils.addString(envp,
+                "PYDEVD_SHOW_COMPILE_CYTHON_COMMAND_LINE=True");
         this.pythonpathUsed = p;
     }
 
@@ -967,6 +969,7 @@ public class PythonRunnerConfig {
             if (DebugPrefsPage.getDebugMultiprocessingEnabled()) {
                 cmdArgs.add("--multiprocess");
             }
+            cmdArgs.add("--protocol-http");
 
             cmdArgs.add("--print-in-debugger-startup");
 
@@ -977,6 +980,7 @@ public class PythonRunnerConfig {
                     case "pyqt5":
                     case "pyqt4":
                     case "pyside":
+                    case "pyside2":
                         cmdArgs.add("--qt-support=" + qtThreadsDebugMode);
                         break;
                 }

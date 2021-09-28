@@ -1070,7 +1070,7 @@ public class TextSelectionUtils {
      * @param docContents should be == doc.get() (just optimizing if the user already did that before).
      */
     public static void setOnlyDifferentCode(IDocument doc, String docContents, String newContents) {
-        DocUtils.updateDocRangeWithContents(doc, docContents, newContents, TextSelectionUtils.getDelimiter(doc));
+        DocUtils.updateDocRangeWithContents(doc, docContents, newContents);
     }
 
     public Tuple<String, Integer> getCurrDottedStatement(ICharacterPairMatcher2 pairMatcher)
@@ -1211,4 +1211,54 @@ public class TextSelectionUtils {
             return "";
         }
     }
+
+    /**
+     * Just see if we can find a word at a given position in the document (same as JavaWordFinder)
+     */
+    public static IRegion findWord(IDocument document, int offset) {
+
+        int start = -2;
+        int end = -1;
+
+        try {
+            int pos = offset;
+            char c;
+
+            while (pos >= 0) {
+                c = document.getChar(pos);
+                if (!Character.isJavaIdentifierPart(c)) {
+                    break;
+                }
+                --pos;
+            }
+            start = pos;
+
+            pos = offset;
+            int length = document.getLength();
+
+            while (pos < length) {
+                c = document.getChar(pos);
+                if (!Character.isJavaIdentifierPart(c)) {
+                    break;
+                }
+                ++pos;
+            }
+            end = pos;
+
+        } catch (BadLocationException x) {
+        }
+
+        if (start >= -1 && end > -1) {
+            if (start == offset && end == offset) {
+                return new Region(offset, 0);
+            } else if (start == offset) {
+                return new Region(start, end - start);
+            } else {
+                return new Region(start + 1, end - start - 1);
+            }
+        }
+
+        return null;
+    }
+
 }

@@ -1,3 +1,6 @@
+import os
+
+
 class ArgHandlerWithParam:
     '''
     Handler for some arguments which needs a value
@@ -26,6 +29,7 @@ class ArgHandlerWithParam:
         setup[self.arg_name] = val
         del argv[i]
 
+
 class ArgHandlerBool:
     '''
     If a given flag is received, mark it as 'True' in setup.
@@ -47,26 +51,47 @@ class ArgHandlerBool:
         setup[self.arg_name] = True
 
 
+def convert_ppid(ppid):
+    ret = int(ppid)
+    if ret != 0:
+        if ret == os.getpid():
+            raise AssertionError(
+                'ppid passed is the same as the current process pid (%s)!' % (ret,))
+    return ret
+
+
 ACCEPTED_ARG_HANDLERS = [
     ArgHandlerWithParam('port', int, 0),
+    ArgHandlerWithParam('ppid', convert_ppid, 0),
     ArgHandlerWithParam('vm_type'),
     ArgHandlerWithParam('client'),
+    ArgHandlerWithParam('access-token'),
+    ArgHandlerWithParam('client-access-token'),
 
     ArgHandlerBool('server'),
     ArgHandlerBool('DEBUG_RECORD_SOCKET_READS'),
-    ArgHandlerBool('multiproc'), # Used by PyCharm (reuses connection: ssh tunneling)
-    ArgHandlerBool('multiprocess'), # Used by PyDev (creates new connection to ide)
+    ArgHandlerBool('multiproc'),  # Used by PyCharm (reuses connection: ssh tunneling)
+    ArgHandlerBool('multiprocess'),  # Used by PyDev (creates new connection to ide)
     ArgHandlerBool('save-signatures'),
     ArgHandlerBool('save-threading'),
     ArgHandlerBool('save-asyncio'),
     ArgHandlerBool('print-in-debugger-startup'),
     ArgHandlerBool('cmd-line'),
     ArgHandlerBool('module'),
+    ArgHandlerBool('skip-notify-stdin'),
+
+    # The ones below should've been just one setting to specify the protocol, but for compatibility
+    # reasons they're passed as a flag but are mutually exclusive.
+    ArgHandlerBool('json-dap'),  # Protocol used by ptvsd to communicate with pydevd (a single json message in each read)
+    ArgHandlerBool('json-dap-http'),  # Actual DAP (json messages over http protocol).
+    ArgHandlerBool('protocol-quoted-line'),  # Custom protocol with quoted lines.
+    ArgHandlerBool('protocol-http'),  # Custom protocol with http.
 ]
 
 ARGV_REP_TO_HANDLER = {}
 for handler in ACCEPTED_ARG_HANDLERS:
     ARGV_REP_TO_HANDLER[handler.arg_v_rep] = handler
+
 
 def get_pydevd_file():
     import pydevd
@@ -76,6 +101,7 @@ def get_pydevd_file():
     elif f.endswith('$py.class'):
         f = f[:-len('$py.class')] + '.py'
     return f
+
 
 def setup_to_argv(setup):
     '''
@@ -90,6 +116,7 @@ def setup_to_argv(setup):
         if handler.arg_name in setup:
             handler.to_argv(ret, setup)
     return ret
+
 
 def process_command_line(argv):
     """ parses the arguments.
@@ -111,13 +138,13 @@ def process_command_line(argv):
             # The --qt-support is special because we want to keep backward compatibility:
             # Previously, just passing '--qt-support' meant that we should use the auto-discovery mode
             # whereas now, if --qt-support is passed, it should be passed as --qt-support=<mode>, where
-            # mode can be one of 'auto', 'none', 'pyqt5', 'pyqt4', 'pyside'.
+            # mode can be one of 'auto', 'none', 'pyqt5', 'pyqt4', 'pyside', 'pyside2'.
             if argv[i] == '--qt-support':
                 setup['qt-support'] = 'auto'
 
             elif argv[i].startswith('--qt-support='):
                 qt_support = argv[i][len('--qt-support='):]
-                valid_modes = ('none', 'auto', 'pyqt5', 'pyqt4', 'pyside')
+                valid_modes = ('none', 'auto', 'pyqt5', 'pyqt4', 'pyside', 'pyside2')
                 if qt_support not in valid_modes:
                     raise ValueError("qt-support mode invalid: " + qt_support)
                 if qt_support == 'none':
@@ -134,7 +161,7 @@ def process_command_line(argv):
             # --file is special because it's the last one (so, no handler for it).
             del argv[i]
             setup['file'] = argv[i]
-            i = len(argv) # pop out, file is our last argument
+            i = len(argv)  # pop out, file is our last argument
 
         elif argv[i] == '--DEBUG':
             from pydevd import set_debug

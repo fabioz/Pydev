@@ -47,7 +47,7 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery {
     private FindOccurrencesSearchResult findOccurrencesSearchResult;
 
     public FindOccurrencesSearchQuery(IPyRefactoring2 r, RefactoringRequest req) {
-        super(req.initialName);
+        super(req.qualifier);
         this.pyRefactoring = r;
         this.req = req;
     }
@@ -78,7 +78,7 @@ public class FindOccurrencesSearchQuery extends AbstractPythonSearchQuery {
             if (occurrences == null) {
                 return Status.OK_STATUS;
             }
-            int length = req.initialName.length();
+            int length = req.qualifier.length();
 
             HashSet<Integer> foundOffsets = new HashSet<Integer>();
             try {

@@ -399,7 +399,7 @@ public class PythonPathNature implements IPythonPathNature {
                     if (p.isEmpty()) {
                         continue; //go to the next...
                     }
-                    if (projectPath != null && !projectPath.isPrefixOf(p)) {
+                    if (projectPath != null && !FileUtils.isPrefixOf(projectPath, p)) {
                         p = p.removeFirstSegments(1);
                         p = projectPath.append(p);
                         restore = true;
@@ -518,7 +518,7 @@ public class PythonPathNature implements IPythonPathNature {
         if (addInterpreterInfoSubstitutions) {
 
             IInterpreterInfo info = nature.getProjectInterpreter();
-            Properties stringSubstitutionVariables = info.getStringSubstitutionVariables();
+            Properties stringSubstitutionVariables = info.getStringSubstitutionVariables(true);
             if (stringSubstitutionVariables == null) {
                 variableSubstitution = new HashMap<String, String>();
             } else {
@@ -531,7 +531,7 @@ public class PythonPathNature implements IPythonPathNature {
         //no need to validate because those are always 'file-system' related
         Map<String, String> variableSubstitution2 = nature.getStore().getMapProperty(
                 PythonPathNature.getProjectVariableSubstitutionQualifiedName());
-        if (variableSubstitution2 != null) {
+        if (variableSubstitution2 != null && !variableSubstitution2.isEmpty()) {
             if (variableSubstitution != null) {
                 variableSubstitution.putAll(variableSubstitution2);
             } else {

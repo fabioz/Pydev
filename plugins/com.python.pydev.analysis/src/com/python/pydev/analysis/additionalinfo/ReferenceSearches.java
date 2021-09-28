@@ -31,6 +31,7 @@ import org.python.pydev.ast.codecompletion.revisited.ModulesManager;
 import org.python.pydev.ast.codecompletion.revisited.PyPublicTreeMap;
 import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.ModulesKeyForFolder;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
@@ -167,11 +168,6 @@ public class ReferenceSearches implements IReferenceSearches {
         this.abstractAdditionalDependencyInfo = new WeakReference<>(abstractAdditionalDependencyInfo);
     }
 
-    @Override
-    public void dispose() {
-
-    }
-
     private void fill(FastStringBuffer bufFileContents, InputStream stream) throws IOException {
         for (int i = 0; i < 5; i++) {
             try {
@@ -243,6 +239,9 @@ public class ReferenceSearches implements IReferenceSearches {
 
             //Get from regular files found
             for (ModulesKey entry : keys.values()) {
+                if (entry instanceof ModulesKeyForFolder) {
+                    continue;
+                }
                 if (monitor.isCanceled()) {
                     break;
                 }

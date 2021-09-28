@@ -18,10 +18,12 @@ import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.IPyEdit;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ITypeInfo;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.UnpackInfo;
@@ -31,6 +33,8 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.parser.PyParser;
+import org.python.pydev.parser.PyParser.ParserInfo;
 import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
@@ -56,6 +60,7 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.NameTokType;
 import org.python.pydev.parser.jython.ast.Num;
+import org.python.pydev.parser.jython.ast.Set;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.Suite;
@@ -81,6 +86,8 @@ import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
 import org.python.pydev.parser.visitors.scope.EasyASTIteratorWithLoop;
 import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
+import org.python.pydev.shared_core.model.ISimpleNode;
+import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -404,10 +411,16 @@ public class NodeUtils {
 
                 } else {
                     //otherwise, just add another dot and keep going.
+
+                    String representationString = getRepresentationString((SimpleNode) part, true);
+                    if ("!<MissingName>!".equals(representationString)) {
+                        continue;
+                    }
+
                     if (buf.length() > 0) {
                         buf.append(".");
                     }
-                    buf.append(getRepresentationString((SimpleNode) part, true));
+                    buf.append(representationString);
                 }
             }
             return buf.toString();
@@ -474,10 +487,16 @@ public class NodeUtils {
             }
         }
         if (ast2 instanceof FunctionDef) {
-            return ((FunctionDef) ast2).name.beginLine;
+            NameTokType name = ((FunctionDef) ast2).name;
+            if (name != null) {
+                return name.beginLine;
+            }
         }
         if (ast2 instanceof ClassDef) {
-            return ((ClassDef) ast2).name.beginLine;
+            NameTokType name = ((ClassDef) ast2).name;
+            if (name != null) {
+                return name.beginLine;
+            }
         }
         return ast2.beginLine;
     }
@@ -1540,14 +1559,11 @@ public class NodeUtils {
             stmtType stmtType = body[i];
             if (stmtType instanceof Assign) {
                 Assign assign = (Assign) stmtType;
-                if (assign.type != null) {
-                    String representationString = getRepresentationString(assign.type);
-                    if (attributeWithoutSelf.equals(representationString)) {
-                        return new TypeInfo(assign.value);
-                    }
-                }
                 if (assign.targets != null && assign.targets.length == 1) {
                     if (attributeWithoutSelf.equals(getRepresentationString(assign.targets[0]))) {
+                        if (assign.type != null) {
+                            return new TypeInfo(assign.type);
+                        }
                         ArrayList<commentType> collectComments = NodeUtils.collectComments(stmtType);
                         for (commentType commentType : collectComments) {
                             if (commentType.id != null) {
@@ -1642,7 +1658,7 @@ public class NodeUtils {
             FunctionDef functionDef = (FunctionDef) node;
             exprType returns = functionDef.returns;
             if (returns != null) {
-                return new TypeInfo(returns);
+                return new TypeInfo(NodeUtils.extractOptionalValueSubscript(returns));
             }
         }
         return null;
@@ -2122,6 +2138,40 @@ public class NodeUtils {
             }
         }
         return false;
+    }
+
+    public static exprType[] extractElts(ISimpleNode node) {
+        if (node instanceof Set) {
+            return ((Set) node).elts;
+        }
+        if (node instanceof org.python.pydev.parser.jython.ast.List) {
+            return ((org.python.pydev.parser.jython.ast.List) node).elts;
+        }
+        if (node instanceof Tuple) {
+            return ((Tuple) node).elts;
+        }
+        return null;
+    }
+
+    public static exprType extractOptionalValueSubscript(exprType node) {
+        if (node instanceof Str) {
+            ParseOutput objects = PyParser
+                    .reparseDocument(new ParserInfo(new Document(((Str) node).s),
+                            IPythonNature.LATEST_GRAMMAR_PY3_VERSION, null));
+            if (objects.error == null && objects.ast != null && objects.ast instanceof Module
+                    && ((Module) objects.ast).body.length == 1 && ((Module) objects.ast).body[0] != null
+                    && ((Module) objects.ast).body[0] instanceof Expr) {
+                return extractOptionalValueSubscript(((Expr) ((Module) objects.ast).body[0]).value);
+            }
+        } else if (node instanceof Subscript
+                && ((Subscript) node).slice != null
+                && ((Subscript) node).value instanceof Name
+                && "Optional".equals(((Name) ((Subscript) node).value).id)
+                && ((Subscript) node).slice instanceof Index
+                && ((Index) ((Subscript) node).slice).value != null) {
+            return ((Index) ((Subscript) node).slice).value;
+        }
+        return node;
     }
 
 }

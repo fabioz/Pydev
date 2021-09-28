@@ -291,6 +291,9 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
             IFile r = iter.next();
 
             CorePlugin.markAsPyDevFileIfDetected(r);
+            if (OperationsOnAllAddedFiles.checkDerived(r)) {
+                continue;
+            }
 
             IPythonNature nature = PythonNature.getPythonNature(r);
             if (nature == null) {

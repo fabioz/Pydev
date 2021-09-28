@@ -46,4 +46,5 @@ public class ExtensionHelper extends BaseExtensionHelper {
 
     // Module resolver
     public static final String PYDEV_PYTHON_MODULE_RESOLVER = "org.python.pydev.pydev_python_module_resolver";
+    public static final String GEN_CYTHON_AST = "org.python.pydev.core.gen_cython_ast";
 }

@@ -1,17 +1,23 @@
-PyDev 7.2.0 Released
+PyDev 8.1.0 Released
 
-PyDev 7.2.0 Release Highlights
+PyDev 8.1.0 Release Highlights
 -------------------------------
 
+* **Interactive Console**
+	* The selection for which console to open may be saved. (**#PyDev-1112**)
+	* When the **current editor** option is selected, the related interpreter is no longer asked. (**#PyDev-1112**)
 
+* **Debugger** (updated to pydevd 2.2.0)
+	* Better support for Python flags when auto-attaching to subprocesses.
+	* Fixes to path translation (when debugging in a different machine).
+	* Catch warnings related to **imp** import from **pkg_resources**.
+	* No longer crashing when running with **Pyjion** (patch by Anthony Shaw).
 
-* Debugger improvements (updated to pydevd 1.6.0).
-
-    * Fixed issue quoting/unquoting parameters for subprocess.
-    * Fixed exception breakpoints for Django and Jinja2.
-    * Console hook import compatibility with matplotlib and pylab fixed.
-
-* Fixed issue where pipenv executable search was being executed over and over when it was not found.
+* **Others**
+	* Code analysis now supports **from __future__ import anotations**. (**#PyDev-1040**)
+	* AST pretty-printing supports printing slices. (**#PyDev-1106**)
+	* Code-completion with auto imports for the builtin module is no longer shown. (**#PyDev-1117**)
+	* MyPy messages from a different file are no longer shown in the current editor. (**#PyDev-1114**)
 
 
 

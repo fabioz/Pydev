@@ -31,6 +31,7 @@ import org.python.pydev.parser.jython.ast.DictComp;
 import org.python.pydev.parser.jython.ast.Ellipsis;
 import org.python.pydev.parser.jython.ast.Exec;
 import org.python.pydev.parser.jython.ast.Expr;
+import org.python.pydev.parser.jython.ast.ExtSlice;
 import org.python.pydev.parser.jython.ast.For;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Global;
@@ -182,7 +183,14 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
             nextCol();
         }
 
-        node.value.accept(this);
+        if (node.type != null) {
+            node.type.accept(this);
+            nextCol();
+        }
+
+        if (node.value != null) {
+            node.value.accept(this);
+        }
         nextCol();
         fixAfterNode(node);
         return null;
@@ -191,9 +199,13 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
     @Override
     public Object visitAugAssign(AugAssign node) throws Exception {
         fixNode(node);
-        node.target.accept(this);
+        if (node.target != null) {
+            node.target.accept(this);
+        }
         nextCol();
-        node.value.accept(this);
+        if (node.value != null) {
+            node.value.accept(this);
+        }
         nextCol();
         fixAfterNode(node);
         return null;
@@ -202,9 +214,13 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
     @Override
     public Object visitBinOp(BinOp node) throws Exception {
         fixNode(node);
-        node.left.accept(this);
+        if (node.left != null) {
+            node.left.accept(this);
+        }
         nextCol();
-        node.right.accept(this);
+        if (node.right != null) {
+            node.right.accept(this);
+        }
         nextCol();
         fixAfterNode(node);
         return null;
@@ -1067,6 +1083,19 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
     @Override
     public Object visitExpr(Expr node) throws Exception {
         handleSimpleNode(node);
+        return null;
+    }
+
+    @Override
+    public Object visitExtSlice(ExtSlice node) throws Exception {
+        fixNode(node);
+        if (node.dims != null) {
+            for (int i = 0; i < node.dims.length; i++) {
+                node.dims[i].accept(this);
+                nextCol();
+            }
+        }
+        fixAfterNode(node);
         return null;
     }
 

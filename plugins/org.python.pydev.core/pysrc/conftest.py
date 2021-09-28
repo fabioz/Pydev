@@ -2,14 +2,15 @@ import pytest
 import sys
 from _pydevd_bundle.pydevd_constants import IS_JYTHON, IS_IRONPYTHON
 from tests_python.debug_constants import TEST_CYTHON
-from tests_python.debug_constants import TEST_JYTHON
+from tests_python.debug_constants import PYDEVD_TEST_VM
 import site
 import os
+from _pydev_bundle import pydev_log
 
 
 def pytest_report_header(config):
     print('PYDEVD_USE_CYTHON: %s' % (TEST_CYTHON,))
-    print('PYDEVD_TEST_JYTHON: %s' % (TEST_JYTHON,))
+    print('PYDEVD_TEST_VM: %s' % (PYDEVD_TEST_VM,))
     try:
         import multiprocessing
     except ImportError:
@@ -18,6 +19,7 @@ def pytest_report_header(config):
         print('Number of processors: %s' % (multiprocessing.cpu_count(),))
 
     print('Relevant system paths:')
+    print('sys.executable: %s' % (sys.executable,))
     print('sys.prefix: %s' % (sys.prefix,))
 
     if hasattr(sys, 'base_prefix'):
@@ -98,7 +100,7 @@ def pytest_unconfigure():
     _start_monitoring_threads()
 
 
-@pytest.yield_fixture(scope="session", autouse=True)
+@pytest.fixture(scope="session", autouse=True)
 def check_no_threads():
     yield
     _start_monitoring_threads()
@@ -106,11 +108,11 @@ def check_no_threads():
 
 # see: http://goo.gl/kTQMs
 SYMBOLS = {
-    'customary'     : ('B', 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'),
-    'customary_ext' : ('byte', 'kilo', 'mega', 'giga', 'tera', 'peta', 'exa',
+    'customary': ('B', 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'),
+    'customary_ext': ('byte', 'kilo', 'mega', 'giga', 'tera', 'peta', 'exa',
                        'zetta', 'iotta'),
-    'iec'           : ('Bi', 'Ki', 'Mi', 'Gi', 'Ti', 'Pi', 'Ei', 'Zi', 'Yi'),
-    'iec_ext'       : ('byte', 'kibi', 'mebi', 'gibi', 'tebi', 'pebi', 'exbi',
+    'iec': ('Bi', 'Ki', 'Mi', 'Gi', 'Ti', 'Pi', 'Ei', 'Zi', 'Yi'),
+    'iec_ext': ('byte', 'kibi', 'mebi', 'gibi', 'tebi', 'pebi', 'exbi',
                        'zebi', 'yobi'),
 }
 
@@ -188,11 +190,19 @@ DEBUG_MEMORY_INFO = False
 
 _global_collect_info = False
 
+PRINT_MEMORY_BEFORE_AFTER_TEST = False  # This makes running tests slower (but it may be handy to diagnose memory issues).
 
-@pytest.yield_fixture(autouse=True)
+
+@pytest.fixture(autouse=PRINT_MEMORY_BEFORE_AFTER_TEST)
 def before_after_each_function(request):
     global _global_collect_info
-    import psutil
+
+    try:
+        import psutil  # Don't fail if not there
+    except ImportError:
+        yield
+        return
+
     current_pids = set(proc.pid for proc in psutil.process_iter())
     before_curr_proc_memory_info = psutil.Process().memory_info()
 
@@ -201,7 +211,7 @@ def before_after_each_function(request):
             from pympler import summary, muppy
             sum1 = summary.summarize(muppy.get_objects())
         except:
-            import traceback;traceback.print_exc()
+            pydev_log.exception()
 
     sys.stdout.write(
 '''
@@ -216,14 +226,19 @@ Memory before: %s
     for proc in psutil.process_iter():
         if proc.pid not in current_pids:
             try:
+                try:
+                    cmdline = proc.cmdline()
+                except:
+                    cmdline = '<unable to get>'
                 processes_info.append(
-                    'New Process: %s(%s) - %s' % (
+                    'New Process: %s(%s - %s) - %s' % (
                         proc.name(),
                         proc.pid,
+                        cmdline,
                         format_process_memory_info(proc.memory_info())
                     )
                 )
-            except psutil.NoSuchProcess:
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
                 pass  # The process could've died in the meanwhile
 
     after_curr_proc_memory_info = psutil.Process().memory_info()
@@ -247,7 +262,7 @@ Memory before: %s
             else:
                 _global_collect_info = False
         except:
-            import traceback;traceback.print_exc()
+            pydev_log.exception()
 
     sys.stdout.write(
 '''
@@ -265,6 +280,87 @@ Memory after: %s
 
 
 from tests_python.regression_check import data_regression, datadir, original_datadir
+
+
+@pytest.fixture
+def pyfile(request, tmpdir):
+    """
+    Based on debugpy pyfile fixture (adapter for older versions of Python)
+
+    A fixture providing a factory function that generates .py files.
+
+    The returned factory takes a single function with an empty argument list,
+    generates a temporary file that contains the code corresponding to the
+    function body, and returns the full path to the generated file. Idiomatic
+    use is as a decorator, e.g.:
+
+        @pyfile
+        def script_file():
+            print('fizz')
+            print('buzz')
+
+    will produce a temporary file named script_file.py containing:
+
+        print('fizz')
+        print('buzz')
+
+    and the variable script_file will contain the path to that file.
+
+    In order for the factory to be able to extract the function body properly,
+    function header ("def") must all be on a single line, with nothing after
+    the colon but whitespace.
+
+    Note that because the code is physically in a separate file when it runs,
+    it cannot reuse top-level module imports - it must import all the modules
+    that it uses locally. When linter complains, use #noqa.
+
+    Returns a py.path.local instance that has the additional attribute "lines".
+    After the source is writen to disk, tests.code.get_marked_line_numbers() is
+    invoked on the resulting file to compute the value of that attribute.
+    """
+    import types
+    import inspect
+
+    def factory(source):
+        assert isinstance(source, types.FunctionType)
+        name = source.__name__
+        source, _ = inspect.getsourcelines(source)
+
+        # First, find the "def" line.
+        def_lineno = 0
+        for line in source:
+            line = line.strip()
+            if line.startswith("def") and line.endswith(":"):
+                break
+            def_lineno += 1
+        else:
+            raise ValueError("Failed to locate function header.")
+
+        # Remove everything up to and including "def".
+        source = source[def_lineno + 1:]
+        assert source
+
+        # Now we need to adjust indentation. Compute how much the first line of
+        # the body is indented by, then dedent all lines by that amount. Blank
+        # lines don't matter indentation-wise, and might not be indented to begin
+        # with, so just replace them with a simple newline.
+        for line in source:
+            if line.strip():
+                break  # i.e.: use first non-empty line
+        indent = len(line) - len(line.lstrip())
+        source = [l[indent:] if l.strip() else "\n" for l in source]
+        source = "".join(source)
+
+        # Write it to file.
+        tmpfile = os.path.join(str(tmpdir), name + ".py")
+        assert not os.path.exists(tmpfile), '%s already exists.' % (tmpfile,)
+        with open(tmpfile, 'w') as stream:
+            stream.write(source)
+
+        return tmpfile
+
+    return factory
+
 
 if IS_JYTHON or IS_IRONPYTHON:
 

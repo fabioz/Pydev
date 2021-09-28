@@ -763,6 +763,15 @@
       </page>
 </extension>
 
+<extension point="org.eclipse.ui.preferencePages">
+      <page
+            name="Path Mappings"
+            category="org.python.pydev.prefs.debugPage"
+            class="org.python.pydev.debug.ui.PathMappingsPrefsPage"
+            id="org.python.pydev.prefs.debugPage.PathMappingsPrefsPage">
+      </page>
+</extension>
+
 <extension point="org.python.pydev.pydev_pyedit_listener">
 	<pyedit_listener_participant class="org.python.pydev.debug.ui.PyEditBreakpointSync"/>
 </extension>
@@ -884,12 +893,45 @@
         id="org.python.pydev.debug.pyunit.pyUnitView"/>
 </extension>
 
+ <extension
+       point="org.eclipse.ui.handlers">
+    <handler
+          class="org.python.pydev.debug.handlers.StepIntoEditorSelectionHandler"
+          commandId="org.python.pydev.debug.stepIntoSelection">
+       <enabledWhen>
+         <with
+               variable="activeEditor">
+            <instanceof
+                  value="org.python.pydev.editor.PyEdit">
+            </instanceof>
+         </with>
+       </enabledWhen>
+    </handler>
+ </extension>
+ <extension
+       point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectors">
+    <hyperlinkDetector
+          activate="true"
+          class="org.python.pydev.debug.handlers.StepIntoSelectionHyperlinkDetector"
+          description="Step Into Selection"
+          id="org.python.pydev.debug.hyperlinkdetector.stepIntoSelection"
+          modifierKeys="M1+M3"
+          name="Step Into Selection"
+          targetId="org.python.pydev.editor.PythonEditor">
+    </hyperlinkDetector>
+ </extension>
+ 
  <!--Extension Points for SetNext Statement-->
     <extension
 		point="org.eclipse.ui.commands">
  		<command
         	id="org.python.pydev.debug.setnext"
         	name="Set Next Statement"
+        	categoryId="org.python.pydev.ui.category.run">
+		</command>
+ 		<command
+        	id="org.python.pydev.debug.stepIntoSelection"
+        	name="Step Into Editor Selection"
         	categoryId="org.python.pydev.ui.category.run">
 		</command>
  	</extension>
@@ -945,6 +987,11 @@
         sequence="M1+M3+R"
         commandId="org.python.pydev.debug.setnext"
         schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"/>
+   <key
+        sequence="M1+F5"
+        contextId="org.python.pydev.ui.editor.scope"
+        commandId="org.python.pydev.debug.stepIntoSelection"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"/>
    </extension>
    <extension point="org.eclipse.ui.actionSets">
 	<actionSet
@@ -1063,6 +1110,7 @@
 <extension point="org.eclipse.ui.perspectiveExtensions">
     <perspectiveExtension targetID="org.eclipse.debug.ui.DebugPerspective">
         <showInPart id="org.eclipse.ui.views.ContentOutline"/>
+        <showInPart id="org.python.pydev.navigator.view"/>
     </perspectiveExtension>
 </extension>
 
@@ -1141,31 +1189,45 @@
          <action
                class="org.python.pydev.debug.ui.variables.ShowPrivateReferencesActionDelegate"
                id="org.python.pydev.debug.variableViewActions.ShowPrivateReferences"
-               label="Show Private References"
+               label="Show Special Variables"
                menubarPath="org.python.pydev.debug.VariableView.pydevSubmenu/pydevPart"
                style="toggle"
-               tooltip="Show Private References (those beginning with an underscore)"/>
+               tooltip="Show Special Variables"/>
+         <action
+               class="org.python.pydev.debug.ui.variables.ShowProtectedReferencesActionDelegate"
+               id="org.python.pydev.debug.variableViewActions.ShowProtectedReferences"
+               label="Show Protected Variables"
+               menubarPath="org.python.pydev.debug.VariableView.pydevSubmenu/pydevPart"
+               style="toggle"
+               tooltip="Show Protected Variables"/>
+         <action
+               class="org.python.pydev.debug.ui.variables.ShowClassReferencesActionDelegate"
+               id="org.python.pydev.debug.variableViewActions.ShowClassReferences"
+               label="Show Class Variables"
+               menubarPath="org.python.pydev.debug.VariableView.pydevSubmenu/pydevPart"
+               style="toggle"
+               tooltip="Show Class Variables"/>
+         <action
+               class="org.python.pydev.debug.ui.variables.ShowFunctionReferencesActionDelegate"
+               id="org.python.pydev.debug.variableViewActions.ShowFunctionReferences"
+               label="Show Function Variables"
+               menubarPath="org.python.pydev.debug.VariableView.pydevSubmenu/pydevPart"
+               style="toggle"
+               tooltip="Show Function Variables"/>
          <action
                class="org.python.pydev.debug.ui.variables.ShowCapitalizedReferencesActionDelegate"
                id="org.python.pydev.debug.variableViewActions.ShowCapitalizedReferences"
-               label="Show Capitalized References"
+               label="Show Capitalized Variables"
                menubarPath="org.python.pydev.debug.VariableView.pydevSubmenu/pydevPart"
                style="toggle"
-               tooltip="Show Capitalized References (those beginning with an uppercase letter)"/>
+               tooltip="Show Capitalized Variables (those beginning with an uppercase letter)"/>
          <action
                class="org.python.pydev.debug.ui.variables.ShowAllUppercaseReferencesActionDelegate"
                id="org.python.pydev.debug.variableViewActions.ShowAllUppercaseReferences"
-               label="Show All Uppercase References"
+               label="Show All Uppercase Variables"
                menubarPath="org.python.pydev.debug.VariableView.pydevSubmenu/pydevPart"
                style="toggle"
-               tooltip="Show All Uppercase References (those with no lower case letters)"/>
-         <action
-               class="org.python.pydev.debug.ui.variables.ShowFunctionAndModuleReferencesActionDelegate"
-               id="org.python.pydev.debug.variableViewActions.ShowFunctionAndModulsReferences"
-               label="Show Function and Module References"
-               menubarPath="org.python.pydev.debug.VariableView.pydevSubmenu/pydevPart"
-               style="toggle"
-               tooltip="Show Function and Module References"/>
+               tooltip="Show All Uppercase Variables (those with no lower case letters)"/>
          <menu
                id="org.python.pydev.debug.VariableView.pydevSubmenu"
                label="PyDev"

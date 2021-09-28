@@ -6,9 +6,10 @@
  */
 package org.python.pydev.editor.commentblocks;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.jface.preference.BooleanFieldEditor;
-import org.eclipse.jface.preference.FieldEditorPreferencePage;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
@@ -18,23 +19,31 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.python.pydev.core.preferences.PyScopedPreferences;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.actions.LineCommentOption;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_ui.FontUtils;
 import org.python.pydev.shared_ui.IFontUsage;
+import org.python.pydev.shared_ui.field_editors.ComboFieldEditor;
+import org.python.pydev.shared_ui.field_editors.ScopedFieldEditorPreferencePage;
+import org.python.pydev.shared_ui.field_editors.ScopedPreferencesFieldEditor;
 
-public class CommentBlocksPreferences extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
+public class CommentBlocksPreferences extends ScopedFieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
     private StringFieldEditor multiBlock;
     private StringFieldEditor singleBlock;
     private BooleanFieldEditor alignSingle;
+    private Label labelSep0;
     private Label labelMulti;
     private Label labelSingle;
+    private Label labelSep1;
 
     public CommentBlocksPreferences() {
         super(FLAT);
         setPreferenceStore(PydevPlugin.getDefault().getPreferenceStore());
-        setDescription("Comment Block Preferences");
+        setDescription("Comment Preferences");
     }
 
     public static final String MULTI_BLOCK_COMMENT_CHAR = "MULTI_BLOCK_COMMENT_CHAR";
@@ -52,9 +61,33 @@ public class CommentBlocksPreferences extends FieldEditorPreferencePage implemen
     public static final String SINGLE_BLOCK_COMMENT_ALIGN_RIGHT = "SINGLE_BLOCK_COMMENT_ALIGN_RIGHT";
     public static final boolean DEFAULT_SINGLE_BLOCK_COMMENT_ALIGN_RIGHT = true;
 
+    public static final String ADD_COMMENTS_OPTION = "ADD_COMMENTS_OPTION";
+    private static final String[][] ENTRIES_AND_VALUES_FOR_ADD_COMMENTS_OPTION = new String[][] {
+            { "Indent", LineCommentOption.ADD_COMMENTS_INDENT },
+            { "Line start", LineCommentOption.ADD_COMMENTS_LINE_START },
+            { "Indent (computed for each line)", LineCommentOption.ADD_COMMENTS_INDENT_LINE_ORIENTED },
+    };
+
+    public static final List<String> getValuesForAddCommentsOption() {
+        List<String> ret = new ArrayList<String>();
+        for (String[] option : ENTRIES_AND_VALUES_FOR_ADD_COMMENTS_OPTION) {
+            ret.add(option[1]);
+        }
+        return ret;
+    }
+
     @Override
     protected void createFieldEditors() {
         final Composite p = getFieldEditorParent();
+
+        addField(new ComboFieldEditor(ADD_COMMENTS_OPTION, "Comment location",
+                ENTRIES_AND_VALUES_FOR_ADD_COMMENTS_OPTION, p));
+
+        labelSep0 = new Label(p, SWT.NONE);
+        labelSep0.setText("       (otherwise, add '#' to the start of the line)");
+
+        labelSep1 = new Label(p, SWT.NONE);
+
         multiBlock = new StringFieldEditor(MULTI_BLOCK_COMMENT_CHAR, "Multi-block char (ctrl+4):", 2, p);
         multiBlock.getTextControl(p).setTextLimit(1);
         multiBlock.setEmptyStringAllowed(false);
@@ -77,18 +110,21 @@ public class CommentBlocksPreferences extends FieldEditorPreferencePage implemen
         addField(alignSingle);
         labelSingle = new Label(p, SWT.NONE);
 
-        IPreferenceStore store = getPreferenceStore();
-        setLabelFont(p, labelSingle);
-        setLabelFont(p, labelMulti);
+        setLabelFont(p, labelSingle, true);
+        setLabelFont(p, labelMulti, true);
 
-        updateMulti(store.getString(MULTI_BLOCK_COMMENT_CHAR));
-        updateSingle(store.getString(SINGLE_BLOCK_COMMENT_CHAR), store.getBoolean(SINGLE_BLOCK_COMMENT_ALIGN_RIGHT));
+        updateMulti(PyScopedPreferences.getString(MULTI_BLOCK_COMMENT_CHAR, null));
+        updateSingle(PyScopedPreferences.getString(SINGLE_BLOCK_COMMENT_CHAR, null),
+                PyScopedPreferences.getBoolean(SINGLE_BLOCK_COMMENT_ALIGN_RIGHT, null));
+        addField(new ScopedPreferencesFieldEditor(p, SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_SCOPE, this));
     }
 
-    private void setLabelFont(Composite composite, Label label) {
+    private void setLabelFont(Composite composite, Label label, boolean bold) {
         try {
             FontData labelFontData = FontUtils.getFontData(IFontUsage.WIDGET, true);
-            labelFontData.setStyle(SWT.BOLD);
+            if (bold) {
+                labelFontData.setStyle(SWT.BOLD);
+            }
             label.setFont(new Font(composite.getDisplay(), labelFontData));
         } catch (Throwable e) {
             //ignore

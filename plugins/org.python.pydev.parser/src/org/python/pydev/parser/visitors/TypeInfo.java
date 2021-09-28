@@ -25,8 +25,8 @@ public class TypeInfo implements ITypeInfo {
      * Used when the info comes from typing with actual types.
      */
     public TypeInfo(exprType expr) {
-        this.expr = expr;
-        this.rep = NodeUtils.getFullRepresentationString(expr);
+        this.expr = NodeUtils.extractOptionalValueSubscript(expr);
+        this.rep = NodeUtils.getFullRepresentationString(this.expr);
     }
 
     /* (non-Javadoc)

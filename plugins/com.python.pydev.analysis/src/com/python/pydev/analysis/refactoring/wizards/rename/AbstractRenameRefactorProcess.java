@@ -228,7 +228,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
      */
     protected boolean occurrencesValid(RefactoringStatus status) {
         if (docOccurrences.size() == 0 && !(request.isModuleRenameRefactoringRequest())) {
-            status.addFatalError("No occurrences found for:" + request.initialName);
+            status.addFatalError("No occurrences found for:" + request.qualifier);
             return false;
         }
         return true;
@@ -265,16 +265,16 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
 
         try {
             ScopeAnalyzerVisitor visitor;
-            if (!request.ps.getCurrToken().o1.equals(request.initialName)) {
+            if (!request.ps.getCurrToken().o1.equals(request.qualifier)) {
                 //i.e.: it seems it wasn't started from the editor, so, we need to search using the
                 //initial name and not the current selection
                 PySelection ps = request.ps;
                 visitor = new ScopeAnalyzerVisitor(request.nature, module.getName(), module,
                         ps.getDoc(),
                         new NullProgressMonitor(),
-                        request.initialName,
+                        request.qualifier,
                         -1,
-                        ActivationTokenAndQual.splitActAndQualifier(request.initialName));
+                        ActivationTokenAndQual.splitActAndQualifier(request.qualifier));
             } else {
 
                 visitor = new ScopeAnalyzerVisitor(request.nature, module.getName(), module,

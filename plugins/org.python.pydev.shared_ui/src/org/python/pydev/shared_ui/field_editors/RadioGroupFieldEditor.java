@@ -14,6 +14,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
 
 /**
  * A field editor for an enumeration type preference.
@@ -357,5 +358,25 @@ public class RadioGroupFieldEditor extends FieldEditor {
 
     public void updateRadioForValue(String value) {
         updateValue(value);
+    }
+
+    public void setVisible(boolean visible, Composite parent) {
+        if (!useGroup) {
+            Label labelControl = getLabelControl(parent);
+            labelControl.setVisible(visible);
+            Object layoutData = labelControl.getLayoutData();
+            if (layoutData instanceof GridData) {
+                ((GridData) layoutData).exclude = !visible;
+            }
+
+            radioBox.setVisible(visible);
+            layoutData = radioBox.getLayoutData();
+            if (layoutData instanceof GridData) {
+                ((GridData) layoutData).exclude = !visible;
+            }
+        } else {
+            // TODO: Implement when needed.
+        }
+
     }
 }

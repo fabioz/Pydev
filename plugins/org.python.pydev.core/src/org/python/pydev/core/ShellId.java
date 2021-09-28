@@ -1,0 +1,5 @@
+package org.python.pydev.core;
+
+public enum ShellId {
+    MAIN_THREAD_SHELL, OTHER_THREADS_SHELL, CYTHON_MAIN_THREAD_SHELL, CYTHON_OTHER_THREADS_SHELL
+}

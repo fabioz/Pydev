@@ -7,8 +7,10 @@
 package com.python.pydev.analysis.mypy;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -32,6 +34,7 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
 
     private IDocument document;
     private IProgressMonitor monitor;
+    private final Object lock = new Object();
 
     /*default*/ MypyVisitor(IResource resource, IDocument document, ICallback<IModule, Integer> module,
             IProgressMonitor monitor) {
@@ -47,7 +50,8 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
      */
     @Override
     public void startVisit() {
-        if (document == null || resource == null || MypyPreferences.useMypy(resource) == false) {
+        if (resource == null || MypyPreferences.useMypy(resource) == false
+                || (document == null && !(resource instanceof IContainer))) {
             deleteMarkers();
             return;
         }
@@ -80,18 +84,42 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
             deleteMarkers();
             return;
         }
-        if (project != null && resource instanceof IFile) {
-            IFile file = (IFile) resource;
-            IPath location = file.getRawLocation();
-            if (location != null) {
-                mypyRunnable = new MypyAnalysis(resource, document, location,
-                        new NullProgressMonitorWrapper(monitor), mypyLocation);
+        synchronized (lock) {
+            if (mypyRunnable != null) {
+                // If the mypyRunnable is already created, don't recreate it
+                // (we should be analyzing multiple resources in a single call).
+                return;
+            }
 
-                try {
-                    IExternalCodeAnalysisStream out = MypyPreferences.getConsoleOutputStream(project);
-                    mypyRunnable.createMypyProcess(out);
-                } catch (final Exception e) {
-                    Log.log(e);
+            if (project != null) {
+                if (resource instanceof IFile) {
+                    IFile file = (IFile) resource;
+                    IPath location = file.getLocation();
+                    if (location != null) {
+                        mypyRunnable = new MypyAnalysis(resource, document, location,
+                                new NullProgressMonitorWrapper(monitor), mypyLocation);
+
+                        try {
+                            IExternalCodeAnalysisStream out = MypyPreferences.getConsoleOutputStream(project);
+                            mypyRunnable.createMypyProcess(out);
+                        } catch (final Exception e) {
+                            Log.log(e);
+                        }
+                    }
+                } else if (resource instanceof IContainer) {
+                    IContainer dir = (IContainer) resource;
+                    IPath location = dir.getLocation();
+                    if (location != null) {
+                        mypyRunnable = new MypyAnalysis(resource, null, location,
+                                new NullProgressMonitorWrapper(monitor), mypyLocation);
+
+                        try {
+                            IExternalCodeAnalysisStream out = MypyPreferences.getConsoleOutputStream(project);
+                            mypyRunnable.createMypyProcess(out);
+                        } catch (final Exception e) {
+                            Log.log(e);
+                        }
+                    }
                 }
             }
         }
@@ -105,11 +133,12 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
     }
 
     @Override
-    public List<PyMarkerUtils.MarkerInfo> getMarkers() {
+    public List<PyMarkerUtils.MarkerInfo> getMarkers(IResource resource) {
+        List<PyMarkerUtils.MarkerInfo> ret = new ArrayList<PyMarkerUtils.MarkerInfo>();
         if (mypyRunnable == null) {
-            return null;
+            return ret;
         }
-        return mypyRunnable.markers;
+        return mypyRunnable.getMarkers(resource);
     }
 
     @Override

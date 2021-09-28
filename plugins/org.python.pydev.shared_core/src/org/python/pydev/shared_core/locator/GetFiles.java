@@ -11,6 +11,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.log.Log;
 
 public class GetFiles {
@@ -102,7 +103,7 @@ public class GetFiles {
     public static final IFile getFileInContainer(IPath location, IContainer container, boolean mustExist) {
         IPath containerLocation = container.getLocation();
         if (containerLocation != null) {
-            if (containerLocation.isPrefixOf(location)) {
+            if (FileUtils.isPrefixOf(containerLocation, location)) {
                 int segmentsToRemove = containerLocation.segmentCount();
                 IPath removingFirstSegments = location.removeFirstSegments(segmentsToRemove);
                 if (removingFirstSegments.segmentCount() == 0) {

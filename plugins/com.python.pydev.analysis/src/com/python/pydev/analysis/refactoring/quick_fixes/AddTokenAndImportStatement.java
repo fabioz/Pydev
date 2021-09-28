@@ -18,7 +18,9 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.shared_core.log.Log;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
 public class AddTokenAndImportStatement {
@@ -140,13 +142,9 @@ public class AddTokenAndImportStatement {
                                     }
                                     if (realImportHandleInfo.getFromImportStrWithoutUnwantedChars().equals(
                                             importHandleInfo.getFromImportStrWithoutUnwantedChars())) {
-                                        List<String> commentsForImports = importHandleInfo.getCommentsForImports();
-                                        if (commentsForImports.size() > 0
-                                                && commentsForImports.get(commentsForImports.size() - 1)
-                                                        .length() == 0) {
-                                            groupInto = importHandleInfo;
-                                            break;
-                                        }
+
+                                        groupInto = importHandleInfo;
+                                        break;
                                     }
                                 }
                             }
@@ -193,42 +191,75 @@ public class AddTokenAndImportStatement {
 
             if (groupInto != null && realImportHandleInfo != null) {
                 //let's try to group it
-                int endLine = groupInto.getEndLine();
-                IRegion lineInformation = document.getLineInformation(endLine);
-                String strToAdd = ", " + realImportHandleInfo.getImportedStr().get(0);
+                int endLineNum = groupInto.getEndLine(); // get the number of last line of import
+                String endLineWithoutComment = PySelection
+                        .getLineWithoutCommentsOrLiterals(PySelection.getLine(document, endLineNum)); // also get the string of last line, but without comments
+                String endLineTrimmedWithoutComment = endLineWithoutComment.trim();
 
-                String line = PySelection.getLine(document, endLine);
-                if (line.length() + strToAdd.length() > maxCols) {
-                    if (line.indexOf('#') == -1) {
-                        //no comments: just add it in the next line
-                        int len = line.length();
-                        if (line.trim().endsWith(")")) {
-                            len = line.indexOf(")");
-                            strToAdd = "," + delimiter + computedInfo.indentString
-                                    + realImportHandleInfo.getImportedStr().get(0);
-                        } else {
-                            strToAdd = ",\\" + delimiter + computedInfo.indentString
-                                    + realImportHandleInfo.getImportedStr().get(0);
-                        }
+                FastStringBuffer lastImportLineBuf = new FastStringBuffer();
+                // let's assume that the last import line is the import end line
+                lastImportLineBuf.append(endLineWithoutComment).rightTrim();
+                int lastImportLineNum = endLineNum;
 
-                        int end = lineInformation.getOffset() + len;
-                        computedInfo.importLen = strToAdd.length();
-                        computedInfo.replace(end, 0, strToAdd);
-                        return;
-
+                if (endLineNum != groupInto.getStartLine()) {
+                    // it is a multi-line import
+                    String penultLineWithoutComment = PySelection
+                            .getLineWithoutCommentsOrLiterals(TextSelectionUtils.getLine(document, endLineNum - 1));
+                    if (")".equals(endLineTrimmedWithoutComment)) {
+                        /* this is something like:
+                         * from mod import (
+                         *      XXXXXX
+                         * )
+                         */
+                        // so let's switch the end line with the penult line
+                        lastImportLineBuf.clear().append(penultLineWithoutComment);
+                        lastImportLineNum--;
+                    } else if (endLineTrimmedWithoutComment.isEmpty()
+                            && penultLineWithoutComment.trim().endsWith("\\")) {
+                        /* this is something like:
+                         * from mod import \
+                         *      XXXXXX,\
+                         *
+                         */
+                        // so let's switch the end line with the penult line and remove the '\' from it's end
+                        lastImportLineBuf.clear().append(penultLineWithoutComment).rightTrim().deleteLast();
+                        lastImportLineNum--;
                     }
+                }
 
+                // get the last import line length without comments or literals
+                int lastImportLineLen = lastImportLineBuf.length();
+
+                if (lastImportLineBuf.endsWith(')') || lastImportLineBuf.endsWith('\\')) {
+                    lastImportLineBuf.deleteLast();
+                }
+
+                offset = TextSelectionUtils.getAbsoluteCursorOffset(document, lastImportLineNum,
+                        lastImportLineBuf.length());
+                offset -= lastImportLineBuf.length() - lastImportLineBuf.rightTrim().length();
+
+                while (lastImportLineBuf.endsWith(',')) {
+                    offset--;
+                    lastImportLineBuf.deleteLast();
+                }
+
+                String strToAdd = ", " + realImportHandleInfo.getImportedStr().get(0); // add the standard and the new import
+
+                if (lastImportLineLen + strToAdd.length() > maxCols) {
+                    if (endLineTrimmedWithoutComment.endsWith(")")) {
+                        strToAdd = "," + delimiter + computedInfo.indentString
+                                + realImportHandleInfo.getImportedStr().get(0);
+                    } else {
+                        strToAdd = ",\\" + delimiter + computedInfo.indentString
+                                + realImportHandleInfo.getImportedStr().get(0);
+                    }
+                    computedInfo.importLen = strToAdd.length();
+                    computedInfo.replace(offset, 0, strToAdd);
+                    return;
                 } else {
                     //regular addition (it won't pass the number of columns expected).
-                    line = PySelection.getLineWithoutCommentsOrLiterals(line);
-                    int len = line.length();
-                    if (line.trim().endsWith(")")) {
-                        len = line.indexOf(")");
-                    }
-
-                    int end = lineInformation.getOffset() + len;
                     computedInfo.importLen = strToAdd.length();
-                    computedInfo.replace(end, 0, strToAdd);
+                    computedInfo.replace(offset, 0, strToAdd);
                     return;
                 }
             }

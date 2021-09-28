@@ -10,12 +10,13 @@
  */
 package org.python.pydev.editor.actions;
 
-import junit.framework.TestCase;
-
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.formatter.FormatStd;
+import org.python.pydev.shared_core.actions.LineCommentOption;
 import org.python.pydev.shared_core.structure.Tuple;
+
+import junit.framework.TestCase;
 
 public class PyToggleCommentTest extends TestCase {
 
@@ -44,9 +45,25 @@ public class PyToggleCommentTest extends TestCase {
         Document doc = new Document(" a\r\n" +
                 "b");
         PySelection ps = new PySelection(doc, 0, 0, doc.getLength());
-        assertEquals(new Tuple<Integer, Integer>(0, 9), new PyToggleComment(std).perform(ps));
+        assertEquals(new Tuple<Integer, Integer>(0, 9),
+                new PyToggleComment(std).perform(ps, LineCommentOption.ADD_COMMENTS_LINE_START));
 
         String expected = "#  a\r\n" +
+                "# b";
+        assertEquals(expected, doc.get());
+
+    }
+
+    public void testCommentWithDifferentCodingStd2() throws Exception {
+        std.spacesInStartComment = 1;
+
+        Document doc = new Document(" a\r\n" +
+                "b");
+        PySelection ps = new PySelection(doc, 0, 0, doc.getLength());
+        assertEquals(new Tuple<Integer, Integer>(0, 9),
+                new PyToggleComment(std).perform(ps, LineCommentOption.ADD_COMMENTS_INDENT_LINE_ORIENTED));
+
+        String expected = " # a\r\n" +
                 "# b";
         assertEquals(expected, doc.get());
 
@@ -57,7 +74,21 @@ public class PyToggleCommentTest extends TestCase {
         Document doc = new Document("# a\n" +
                 "#b");
         PySelection ps = new PySelection(doc, 0, 0, doc.getLength());
-        assertEquals(new Tuple<Integer, Integer>(0, 4), new PyToggleComment(std).perform(ps));
+        assertEquals(new Tuple<Integer, Integer>(0, 4),
+                new PyToggleComment(std).perform(ps, LineCommentOption.ADD_COMMENTS_LINE_START));
+
+        String expected = " a\n" +
+                "b";
+        assertEquals(expected, doc.get());
+    }
+
+    public void testUncommentToProperIndentation2() throws Exception {
+        //When uncommenting, we should move the code uncommented to a proper indentation.
+        Document doc = new Document("# a\n" +
+                "#b");
+        PySelection ps = new PySelection(doc, 0, 0, doc.getLength());
+        assertEquals(new Tuple<Integer, Integer>(0, 4),
+                new PyToggleComment(std).perform(ps, LineCommentOption.ADD_COMMENTS_INDENT_LINE_ORIENTED));
 
         String expected = " a\n" +
                 "b";

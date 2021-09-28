@@ -28,6 +28,7 @@ import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.ITypeInfo;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
@@ -267,24 +268,48 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
 
     public Definition rebaseAssignDefinition(AssignDefinition assignDef, IPythonNature nature,
             ICompletionCache completionCache) throws Exception {
-        //if the value is currently None, it will be set later on
-        if (assignDef.value.equals("None")) {
+        IDefinition[] definitions2;
+        if ("None".equals(assignDef.type)) {
             return assignDef; // keep the old one
         }
-
-        //ok, go to the definition of whatever is set
-        IDefinition[] definitions2 = assignDef.module.findDefinition(
-                CompletionStateFactory.getEmptyCompletionState(assignDef.value, nature, completionCache),
-                assignDef.line, assignDef.col, nature);
-
-        if (definitions2.length > 0) {
-            return (Definition) definitions2[0];
+        if (assignDef.nodeType != null) {
+            definitions2 = assignDef.module.findDefinition(
+                    CompletionStateFactory.getEmptyCompletionState(assignDef.type, nature, completionCache),
+                    assignDef.line, assignDef.col, nature);
+            if (definitions2.length > 0) {
+                return (Definition) definitions2[0];
+            }
         }
+        if ("None".equals(assignDef.value)) {
+            return assignDef; // keep the old one
+        }
+        if (assignDef.nodeValue != null) {
+            //ok, go to the definition of whatever is set
+            definitions2 = assignDef.module.findDefinition(
+                    CompletionStateFactory.getEmptyCompletionState(assignDef.value, nature, completionCache),
+                    assignDef.line, assignDef.col, nature);
+            if (definitions2.length > 0) {
+                return (Definition) definitions2[0];
+            }
+        }
+
         return assignDef;
     }
 
     public Definition rebaseFunctionDef(Definition definition, IPythonNature nature, ICompletionCache completionCache)
             throws Exception {
+        ITypeInfo type = NodeUtils.getReturnTypeFromFuncDefAST(definition.ast);
+        if (type != null) {
+            // ok, go to the definition of whatever is set
+            IDefinition[] definitions2 = definition.module.findDefinition(
+                    CompletionStateFactory.getEmptyCompletionState(type.getActTok(), nature, completionCache),
+                    definition.line,
+                    definition.col, nature);
+            if (definitions2.length == 1) {
+                return (Definition) definitions2[0];
+            }
+        }
+
         List<Return> returns = ReturnVisitor.findReturns((FunctionDef) definition.ast);
         for (Return returnFound : returns) {
             String act = NodeUtils.getFullRepresentationString(returnFound.value);

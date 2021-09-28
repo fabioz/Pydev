@@ -6,15 +6,25 @@
  */
 package org.python.pydev.ast.codecompletion.revisited;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import org.eclipse.jface.text.Document;
-import org.python.pydev.ast.codecompletion.revisited.CompletionCache;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.ast.refactoring.PyRefactoringFindDefinition;
+import org.python.pydev.ast.refactoring.RefactoringRequest;
 import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.TestDependent;
+import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.io.FileUtils;
+
+import com.python.pydev.analysis.refactoring.refactorer.Refactorer;
+import com.python.pydev.analysis.refactoring.wizards.rename.PyReferenceSearcher;
 
 /**
  * @author Fabio
@@ -129,5 +139,37 @@ public class FindActualDefinitionTest extends CodeCompletionTestsBase {
         PyRefactoringFindDefinition.findActualDefinition(null, mod, "x.items", selected, 13, 23, nature,
                 completionCache);
         assertEquals(1, selected.size());
+    }
+
+    public void testFindActualDefinitionImported() throws Exception {
+        File file = new File(TestDependent.TEST_PYSRC_TESTING_LOC + "findActualDefinition/foo.py");
+        IModule mod = SourceModule.createModule("findActualDefinition.foo", file, nature, false);
+        ICompletionCache completionCache = new CompletionCache();
+        ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
+        PyRefactoringFindDefinition.findActualDefinition(null, mod, "self._endpoint.notify", selected, 5, 29, nature,
+                completionCache);
+        assertEquals(1, selected.size());
+    }
+
+    public void testOccurrencesForDefinition() throws Exception {
+        int usedGrammar = GRAMMAR_TO_USE_FOR_PARSING;
+        GRAMMAR_TO_USE_FOR_PARSING = PythonNature.LATEST_GRAMMAR_PY3_VERSION;
+        try {
+            File file = new File(TestDependent.TEST_PYSRC_TESTING_LOC + "occurrencesForDefinition/foo.py");
+            PySelection selection = new PySelection(new Document(FileUtils.getFileContents(file)), 0, 19, 4);
+            Refactorer.setPyRefactoring(new Refactorer());
+            RefactoringRequest req = new RefactoringRequest(file, selection, nature);
+            req.fillActivationTokenAndQualifier();
+            req.setAdditionalInfo(RefactoringRequest.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
+            req.setAdditionalInfo(RefactoringRequest.FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE, true);
+
+            PyReferenceSearcher pyReferenceSearcher = new PyReferenceSearcher(req);
+            pyReferenceSearcher.prepareSearch(req);
+            pyReferenceSearcher.search(req);
+            HashSet<ASTEntry> ref = pyReferenceSearcher.getLocalReferences(req);
+            assertEquals(4, ref.size());
+        } finally {
+            GRAMMAR_TO_USE_FOR_PARSING = usedGrammar;
+        }
     }
 }

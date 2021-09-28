@@ -26,7 +26,6 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.string.FullRepIterable;
 
-
 /**
  * @author Hussain Bohra
  */
@@ -38,7 +37,8 @@ public class PySetNextTarget implements ISetNextTarget {
     }
 
     @Override
-    public boolean setNextToLine(IWorkbenchPart part, ISelection selection, ISuspendResume target) throws CoreException {
+    public boolean setNextToLine(IWorkbenchPart part, ISelection selection, ISuspendResume target)
+            throws CoreException {
         // System.out.println("Run to line:"+target);
         PyStackFrame stack = null;
         if (target instanceof PyStackFrame) {
@@ -74,7 +74,7 @@ public class PySetNextTarget implements ISetNextTarget {
             }
 
             try {
-                sourceModule = (SourceModule) AbstractModule.createModuleFromDoc("", null, doc, nature, true);
+                sourceModule = AbstractModule.createModuleFromDoc("", pyEdit.getEditorFile(), doc, nature, true);
             } catch (MisconfigurationException e) {
                 Log.log(e);
                 return false;

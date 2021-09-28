@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -83,6 +84,11 @@ import com.python.pydev.analysis.visitors.ScopeItems;
  * @author Fabio
  */
 public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
+
+    /**
+     * __future__.annotations imported
+     */
+    public boolean futureAnnotationsImported = false;
 
     /**
      * nature is needed for imports
@@ -321,12 +327,14 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
                 continue;
             }
             IToken tok = single.tok;
-            String rep = tok.getRepresentation();
-            if (rep.equals(token.getRepresentation())) {
+            String firstPart = FullRepIterable.getFirstPart(tok.getRepresentation());
+
+            if (firstPart.equals(token.getRepresentation())) {
                 //found match in names to ignore...
 
-                if (finishClassScope && foundScopeType == Scope.SCOPE_TYPE_CLASS
-                        && scope.getCurrScopeId() < single.scopeFound.getScopeId()) {
+                if (finishClassScope && scope.getCurrScopeId() < single.scopeFound.getScopeId()
+                        && (!futureAnnotationsImported && foundScopeType == Scope.SCOPE_TYPE_CLASS ||
+                                (!futureAnnotationsImported && foundScopeType == Scope.SCOPE_TYPE_ANNOTATION))) {
                     it.remove();
                     onAddUndefinedMessage(tok, found);
                 } else {
@@ -378,6 +386,39 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
             }
         }
 
+        //visit keyword only args with defaults
+        if (args.kw_defaults != null) {
+            for (exprType expr : args.kw_defaults) {
+                if (expr != null) {
+                    expr.accept(visitor);
+                }
+            }
+        }
+
+        if (args.kwonlyargannotation != null) {
+            for (exprType expr : args.kwonlyargannotation) {
+                if (expr != null) {
+                    expr.accept(visitor);
+                }
+            }
+        }
+
+        //visit annotation
+        if (args.annotation != null) {
+            for (exprType expr : args.annotation) {
+                if (expr != null) {
+                    startScope(Scope.SCOPE_TYPE_ANNOTATION, expr);
+                    expr.accept(visitor);
+                    endScope(expr);
+                }
+            }
+        }
+
+        //visit the return
+        if (node.returns != null) {
+            node.returns.accept(visitor);
+        }
+
         //then the decorators (no, still not in method scope)
         handleDecorators(node.decs);
 
@@ -405,25 +446,13 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
         //visit keyword only args
         if (args.kwonlyargs != null) {
             for (exprType expr : args.kwonlyargs) {
-                expr.accept(visitor);
-            }
-        }
-        scope.isInMethodDefinition = false;
-
-        //visit annotation
-
-        if (args.annotation != null) {
-            for (exprType expr : args.annotation) {
                 if (expr != null) {
                     expr.accept(visitor);
                 }
             }
         }
 
-        //visit the return
-        if (node.returns != null) {
-            node.returns.accept(visitor);
-        }
+        scope.isInMethodDefinition = false;
 
         //visit the body
         if (node.body != null) {
@@ -570,7 +599,6 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
     public Object visitImportFrom(ImportFrom node) throws Exception {
         unhandled_node(node);
         try {
-
             if (AbstractVisitor.isWildImport(node)) {
                 IToken wildImport = AbstractVisitor.makeWildImportToken(node, null, moduleName, nature);
 
@@ -583,6 +611,17 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
                 }
             } else {
                 List<IToken> list = AbstractVisitor.makeImportToken(node, null, moduleName, true, nature);
+
+                ListIterator<IToken> listIterator = list.listIterator();
+                while (listIterator.hasNext()) {
+                    IToken token = listIterator.next();
+                    if ("__future__.annotations".equals(token.getOriginalRep())) {
+                        listIterator.remove();
+                        futureAnnotationsImported = true;
+                        break;
+                    }
+                }
+
                 scope.addImportTokens(new TokensList(list), null, this.completionCache);
             }
 
@@ -608,7 +647,8 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
             found = markRead(token);
         }
 
-        if (node.ctx == Name.Store || node.ctx == Name.Param || node.ctx == Name.KwOnlyParam
+        if (node.ctx == Name.Store || node.ctx == Attribute.NamedStore || node.ctx == Name.Param
+                || node.ctx == Name.KwOnlyParam
                 || (node.ctx == Name.AugStore && found)) { //if it was undefined on augstore, we do not go on to creating the token
             String rep = token.getRepresentation();
             if (checkCurrentScopeForAssignmentsToBuiltins()) {
@@ -624,6 +664,9 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
 
                 if (!rep.equals("self") && !rep.equals("cls")) {
                     scope.addToken(token, token);
+                    if (node.ctx == Attribute.NamedStore) {
+                        markRead(token);
+                    }
                 } else {
                     addToNamesToIgnore(node, false, false); //ignore self
                 }
@@ -694,7 +737,8 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
 
             String fullRep = representation;
 
-            if (node.ctx == Attribute.Store || node.ctx == Attribute.Param || node.ctx == Attribute.KwOnlyParam
+            if (node.ctx == Attribute.Store || node.ctx == Attribute.NamedStore || node.ctx == Attribute.Param
+                    || node.ctx == Attribute.KwOnlyParam
                     || node.ctx == Attribute.AugStore) {
                 //in a store attribute, the first part is always a load
                 int i = fullRep.indexOf('.', 0);
@@ -792,7 +836,9 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
         } else if (value instanceof Attribute) {
             return visitNeededValues(((Attribute) value).value, base);
         } else {
-            value.accept(base);
+            if (value != null) {
+                value.accept(base);
+            }
             return true;
         }
     }
@@ -846,6 +892,10 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
         //in 'target1 = target2 = value', this is 'value'
         if (node.value != null) {
             node.value.accept(this);
+        }
+
+        if (node.type != null) {
+            node.type.accept(this);
         }
 
         //in 'target1 = target2 = a', this is 'target1, target2'

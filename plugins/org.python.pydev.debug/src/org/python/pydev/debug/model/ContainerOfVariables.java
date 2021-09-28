@@ -6,6 +6,7 @@ import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IVariable;
 import org.python.pydev.debug.model.remote.GetVariableCommand;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 public class ContainerOfVariables {
 
@@ -35,19 +36,18 @@ public class ContainerOfVariables {
         if (p == null) {
             return newVars;
         }
-        AbstractDebugTarget target = p.getTarget();
         this.variables = newVars;
+        AbstractDebugTarget target = p.getTarget();
 
-        if (!gettingInitialVariables) {
-            if (target != null) {
+        if (!gettingInitialVariables && target != null) {
+            RunInUiThread.async(() -> {
                 target.fireEvent(new DebugEvent(p, DebugEvent.CHANGE, DebugEvent.CONTENT));
-            }
+            });
         }
         return newVars;
     }
 
     public IVariable[] getVariables() throws DebugException {
-        // System.out.println("get variables: " + super.toString() + " initial: " + this.variables);
         if (onAskGetNewVars) {
             synchronized (lock) {
                 //double check idiom for accessing onAskGetNewVars.
@@ -77,10 +77,12 @@ public class ContainerOfVariables {
 
         AbstractDebugTarget target = p.getTarget();
         if (target != null) {
-            // I.e.: if we do a new DebugEvent(this, DebugEvent.CHANGE, DebugEvent.CONTENT), the selection
-            // of the editor is redone (thus, if the user uses F2 it'd get back to the current breakpoint
-            // location because it'd be reselected).
-            target.fireEvent(new DebugEvent(p, DebugEvent.CHANGE, DebugEvent.UNSPECIFIED));
+            RunInUiThread.async(() -> {
+                // I.e.: if we do a new DebugEvent(this, DebugEvent.CHANGE, DebugEvent.CONTENT), the selection
+                // of the editor is redone (thus, if the user uses F2 it'd get back to the current breakpoint
+                // location because it'd be reselected).
+                target.fireEvent(new DebugEvent(p, DebugEvent.CHANGE, DebugEvent.UNSPECIFIED));
+            });
         }
     }
 

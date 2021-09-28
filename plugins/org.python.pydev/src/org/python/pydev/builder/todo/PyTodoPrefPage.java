@@ -27,7 +27,7 @@ import org.python.pydev.plugin.PydevPlugin;
  */
 public class PyTodoPrefPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
-    public static final String DEFAULT_PY_TODO_TAGS = "TODO: FIXME:";
+    public static final String DEFAULT_PY_TODO_TAGS = "TODO: FIXME: XXX:";
     public static final String PY_TODO_TAGS = "PY_TODO_TAGS";
 
     public PyTodoPrefPage() {

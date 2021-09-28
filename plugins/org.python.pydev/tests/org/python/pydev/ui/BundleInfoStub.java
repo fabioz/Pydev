@@ -43,6 +43,14 @@ public class BundleInfoStub implements IBundleInfo {
             return new File(
                     TestDependent.PYSRC_LOC + "stubs/_django_manager_body.py");
         }
+        if (relative.toString().indexOf("pysrc/third_party/cython_json.py") != -1) {
+            return new File(
+                    TestDependent.PYSRC_LOC + "third_party/cython_json.py");
+        }
+        if (relative.toString().indexOf("pysrc/third_party/isort_container") != -1) {
+            return new File(
+                    TestDependent.PYSRC_LOC + "third_party/isort_container");
+        }
         throw new RuntimeException("Not available info on: " + relative);
     }
 

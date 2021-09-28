@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.python.pydev.ast.codecompletion.CompletionRequest;
 import org.python.pydev.ast.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.ast.codecompletion.IPyDevCompletionParticipant2;
@@ -69,7 +70,7 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
                 && naturesUsed != null && naturesUsed.size() > 0) { //at least n characters required...
 
             int qlen = qual.length();
-            boolean addAutoImport = AnalysisPreferences.doAutoImport();
+            boolean addAutoImport = AnalysisPreferences.doAutoImport(null);
 
             for (IPythonNature nature : naturesUsed) {
                 fillCompletions(requestOffset, completions, qual, nature, qlen, addAutoImport, viewer);
@@ -266,7 +267,8 @@ public class ImportsCompletionParticipant implements IPyDevCompletionParticipant
     @Override
     public TokensOrProposalsList getGlobalCompletions(CompletionRequest request, ICompletionState state)
             throws MisconfigurationException {
-        return getThem(request, state, AnalysisPreferences.doAutoImport());
+        IAdaptable projectAdaptable = request.getNature() != null ? request.getNature().getProject() : null;
+        return getThem(request, state, AnalysisPreferences.doAutoImport(projectAdaptable));
     }
 
     @Override

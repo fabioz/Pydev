@@ -8,6 +8,20 @@ from _pydevd_bundle.pydevd_constants import IS_PY3K
 LIB_FILE = 1
 PYDEV_FILE = 2
 
+DONT_TRACE_DIRS = {
+    '_pydev_bundle': PYDEV_FILE,
+    '_pydev_imps': PYDEV_FILE,
+    '_pydev_runfiles': PYDEV_FILE,
+    '_pydevd_bundle': PYDEV_FILE,
+    '_pydevd_frame_eval': PYDEV_FILE,
+    'pydev_ipython': PYDEV_FILE,
+    'pydev_sitecustomize': PYDEV_FILE,
+    'pydevd_attach_to_process': PYDEV_FILE,
+    'pydevd_concurrency_analyser': PYDEV_FILE,
+    'pydevd_plugins': PYDEV_FILE,
+    'test_pydevd_reload': PYDEV_FILE,
+}
+
 DONT_TRACE = {
     # commonly used things from the stdlib that we don't want to trace
     'Queue.py':LIB_FILE,
@@ -19,7 +33,7 @@ DONT_TRACE = {
     'threading.py':LIB_FILE,
     'dis.py':LIB_FILE,
 
-    #things from pydev that we don't want to trace
+    # things from pydev that we don't want to trace
     '_pydev_execfile.py':PYDEV_FILE,
     '__main__pydevd_gen_debug_adapter_protocol.py': PYDEV_FILE,
     '_pydev_BaseHTTPServer.py': PYDEV_FILE,
@@ -38,10 +52,8 @@ DONT_TRACE = {
     '_pydev_saved_modules.py': PYDEV_FILE,
     '_pydev_sys_patch.py': PYDEV_FILE,
     '_pydev_tipper_common.py': PYDEV_FILE,
-    '_pydev_uuid_old.py': PYDEV_FILE,
     '_pydev_xmlrpclib.py': PYDEV_FILE,
     'django_debug.py': PYDEV_FILE,
-    'fix_getpass.py': PYDEV_FILE,
     'jinja2_debug.py': PYDEV_FILE,
     'pycompletionserver.py': PYDEV_FILE,
     'pydev_app_engine_debug_startup.py': PYDEV_FILE,
@@ -57,6 +69,14 @@ DONT_TRACE = {
     'pydev_monkey_qt.py': PYDEV_FILE,
     'pydev_override.py': PYDEV_FILE,
     'pydev_run_in_console.py': PYDEV_FILE,
+    'pydev_runfiles.py': PYDEV_FILE,
+    'pydev_runfiles_coverage.py': PYDEV_FILE,
+    'pydev_runfiles_nose.py': PYDEV_FILE,
+    'pydev_runfiles_parallel.py': PYDEV_FILE,
+    'pydev_runfiles_parallel_client.py': PYDEV_FILE,
+    'pydev_runfiles_pytest2.py': PYDEV_FILE,
+    'pydev_runfiles_unittest.py': PYDEV_FILE,
+    'pydev_runfiles_xml_rpc.py': PYDEV_FILE,
     'pydev_umd.py': PYDEV_FILE,
     'pydev_versioncheck.py': PYDEV_FILE,
     'pydevconsole.py': PYDEV_FILE,
@@ -67,7 +87,9 @@ DONT_TRACE = {
     'pydevd_api.py': PYDEV_FILE,
     'pydevd_base_schema.py': PYDEV_FILE,
     'pydevd_breakpoints.py': PYDEV_FILE,
-    'pydevd_collect_try_except_info.py': PYDEV_FILE,
+    'pydevd_bytecode_utils.py': PYDEV_FILE,
+    'pydevd_code_to_source.py': PYDEV_FILE,
+    'pydevd_collect_bytecode_info.py': PYDEV_FILE,
     'pydevd_comm.py': PYDEV_FILE,
     'pydevd_comm_constants.py': PYDEV_FILE,
     'pydevd_command_line_handling.py': PYDEV_FILE,
@@ -76,6 +98,8 @@ DONT_TRACE = {
     'pydevd_constants.py': PYDEV_FILE,
     'pydevd_custom_frames.py': PYDEV_FILE,
     'pydevd_cython_wrapper.py': PYDEV_FILE,
+    'pydevd_daemon_thread.py': PYDEV_FILE,
+    'pydevd_defaults.py': PYDEV_FILE,
     'pydevd_dont_trace.py': PYDEV_FILE,
     'pydevd_dont_trace_files.py': PYDEV_FILE,
     'pydevd_exec.py': PYDEV_FILE,
@@ -93,7 +117,6 @@ DONT_TRACE = {
     'pydevd_import_class.py': PYDEV_FILE,
     'pydevd_io.py': PYDEV_FILE,
     'pydevd_json_debug_options.py': PYDEV_FILE,
-    'pydevd_kill_all_pydevd_threads.py': PYDEV_FILE,
     'pydevd_modify_bytecode.py': PYDEV_FILE,
     'pydevd_net_command.py': PYDEV_FILE,
     'pydevd_net_command_factory_json.py': PYDEV_FILE,
@@ -111,9 +134,12 @@ DONT_TRACE = {
     'pydevd_schema.py': PYDEV_FILE,
     'pydevd_schema_log.py': PYDEV_FILE,
     'pydevd_signature.py': PYDEV_FILE,
+    'pydevd_source_mapping.py': PYDEV_FILE,
     'pydevd_stackless.py': PYDEV_FILE,
     'pydevd_suspended_frames.py': PYDEV_FILE,
+    'pydevd_thread_lifecycle.py': PYDEV_FILE,
     'pydevd_thread_wrappers.py': PYDEV_FILE,
+    'pydevd_timeout.py': PYDEV_FILE,
     'pydevd_trace_api.py': PYDEV_FILE,
     'pydevd_trace_dispatch.py': PYDEV_FILE,
     'pydevd_trace_dispatch_regular.py': PYDEV_FILE,
@@ -123,6 +149,7 @@ DONT_TRACE = {
     'pydevd_vars.py': PYDEV_FILE,
     'pydevd_vm_type.py': PYDEV_FILE,
     'pydevd_xml.py': PYDEV_FILE,
+    'scandir_vendored.py': PYDEV_FILE,
 }
 
 if IS_PY3K:

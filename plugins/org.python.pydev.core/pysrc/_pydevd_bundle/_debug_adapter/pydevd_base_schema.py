@@ -17,6 +17,8 @@ class BaseSchema(object):
 
     @staticmethod
     def _translate_id_to_dap(obj_id):
+        if obj_id == '*':
+            return '*'
         # Note: we don't invalidate ids, so, if some object starts using the same id
         # of another object, the same id will be used.
         dap_id = BaseSchema._obj_id_to_dap_id.get(obj_id)
@@ -27,6 +29,8 @@ class BaseSchema(object):
 
     @staticmethod
     def _translate_id_from_dap(dap_id):
+        if dap_id == '*':
+            return '*'
         try:
             return BaseSchema._dap_id_to_obj_id[dap_id]
         except:
@@ -109,11 +113,12 @@ def from_dict(dct, update_ids_from_dap=False):
         raise
 
 
-def from_json(json_msg, update_ids_from_dap=False):
+def from_json(json_msg, update_ids_from_dap=False, on_dict_loaded=lambda dct:None):
     if isinstance(json_msg, bytes):
         json_msg = json_msg.decode('utf-8')
 
     as_dict = json.loads(json_msg)
+    on_dict_loaded(as_dict)
     try:
         return from_dict(as_dict, update_ids_from_dap=update_ids_from_dap)
     except:

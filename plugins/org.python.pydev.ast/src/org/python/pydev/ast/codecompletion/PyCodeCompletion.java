@@ -34,6 +34,7 @@ import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.ast.codecompletion.revisited.visitors.FindScopeVisitor;
 import org.python.pydev.ast.codecompletion.shell.AbstractShell;
+import org.python.pydev.ast.codecompletion.shell.CompletionsShell;
 import org.python.pydev.ast.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.ast.refactoring.RefactoringRequest;
 import org.python.pydev.core.ExtensionHelper;
@@ -47,6 +48,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.ITokenCompletionRequest;
+import org.python.pydev.core.ITypeInfo;
 import org.python.pydev.core.IterEntry;
 import org.python.pydev.core.IterTokenEntry;
 import org.python.pydev.core.MisconfigurationException;
@@ -80,7 +82,6 @@ import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.string.FullRepIterable;
-import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.FastStack;
 import org.python.pydev.shared_core.structure.ImmutableTuple;
 import org.python.pydev.shared_core.structure.OrderedMap;
@@ -185,7 +186,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             } else {
                 //go to globals
                 if (request.isInCalltip) {
-                    // # SomeCall(|<- here) 
+                    // # SomeCall(|<- here)
                     state.setLookingFor(ICompletionState.LookingFor.LOOKING_FOR_INSTANCED_VARIABLE);
                 }
                 doGlobalsCompletion(request, astManager, tokensList, state);
@@ -210,9 +211,10 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                     for (Iterator<IterEntry> it = tokensList.iterator(); it.hasNext();) {
                         i++;
                         if (i > 10000) {
-                            Log.logWarn(StringUtils.format(
-                                    "Warning: computed %s completions (trimming to 10000).\nRequest: %s",
-                                    tokensList.size(), request));
+                            // Don't warn about it anymore (it's ok).
+                            // Log.logWarn(StringUtils.format(
+                            //         "Warning: computed %s completions (trimming to 10000).\nRequest: %s",
+                            //         tokensList.size(), request));
                             break;
                         }
 
@@ -550,7 +552,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             Log.log(e);
         }
 
-        AbstractShell shell = AbstractShell.getServerShell(nature, AbstractShell.getShellId());
+        CompletionsShell shell = (CompletionsShell) AbstractShell.getServerShell(nature, AbstractShell.getShellId());
         String charset = "utf-8";
         //                    if (viewer instanceof PySourceViewer) {
         //                        PySourceViewer pySourceViewer = (PySourceViewer) viewer;
@@ -811,6 +813,24 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
     public static void getSelfOrClsCompletions(ILocalScope scope, ITokenCompletionRequest request, TokensList theList,
             ICompletionState state, boolean getOnlySupers) throws BadLocationException, MisconfigurationException {
         for (Iterator<SimpleNode> it = scope.iterator(); it.hasNext();) {
+
+            List<ITypeInfo> possibleClassesForActivationToken = scope
+                    .getPossibleClassesForActivationToken(request.getActivationToken());
+
+            if (possibleClassesForActivationToken != null && possibleClassesForActivationToken.size() > 0) {
+                ICodeCompletionASTManager astManager = request.getNature().getAstManager();
+                IModule module = request.getModule();
+                if (module != null) {
+                    try {
+                        TokensList completions = astManager.getCompletionsFromTokenInLocalScope(module,
+                                state.getCopyWithActTok(request.getActivationToken()), false,
+                                false, scope);
+                        theList.addAll(completions);
+                    } catch (CompletionRecursionException e) {
+                    }
+                }
+            }
+
             SimpleNode node = it.next();
             if (node instanceof ClassDef) {
                 ClassDef d = (ClassDef) node;

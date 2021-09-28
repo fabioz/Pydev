@@ -27,7 +27,6 @@ import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ListDialog;
@@ -44,11 +43,14 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.debug.core.PydevDebugPlugin;
 import org.python.pydev.debug.model.PyStackFrame;
 import org.python.pydev.debug.newconsole.PydevConsoleConstants;
+import org.python.pydev.debug.newconsole.prefs.InteractiveConsolePrefs;
 import org.python.pydev.debug.newconsole.prefs.InteractiveConsoleUMDPrefs;
 import org.python.pydev.editor.PyEdit;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.net.SocketUtil;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.PlatformUtils;
+import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.ui.pythonpathconf.AbstractInterpreterPreferencesPage;
 
 /**
@@ -118,10 +120,8 @@ public class PydevIProcessFactory {
      * @throws Exception
      */
     public PydevConsoleLaunchInfo createInteractiveLaunch() throws UserCanceledException, Exception {
-
-        IWorkbenchWindow workbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-        IWorkbenchPage activePage = workbenchWindow.getActivePage();
-        IEditorPart activeEditor = activePage.getActiveEditor();
+        IWorkbenchWindow workbenchWindow = EditorUtils.getActiveWorkbenchWindow();
+        IEditorPart activeEditor = EditorUtils.getActiveEditor();
         PyEdit edit = null;
 
         if (activeEditor instanceof PyEdit) {
@@ -129,7 +129,17 @@ public class PydevIProcessFactory {
         }
 
         ChooseProcessTypeDialog dialog = new ChooseProcessTypeDialog(getShell(), edit);
-        if (dialog.open() == ChooseProcessTypeDialog.OK) {
+        String rep = InteractiveConsolePrefs.getDefaultInteractiveConsole();
+        boolean hasPrefs = false;
+        if (!rep.isEmpty()) {
+            dialog.create();
+            hasPrefs = dialog.setInteractiveConsoleInterpreterPref(rep);
+            if (hasPrefs) {
+                dialog.okPressed();
+            }
+        }
+
+        if (hasPrefs || dialog.open() == ChooseProcessTypeDialog.OK) {
 
             PyStackFrame selectedFrame = dialog.getSelectedFrame();
             if (selectedFrame != null) {
@@ -158,19 +168,31 @@ public class PydevIProcessFactory {
             }
 
             if (interpreter == null) {
-                SelectionDialog listDialog = AbstractInterpreterPreferencesPage.createChooseIntepreterInfoDialog(
-                        workbenchWindow, interpreters, "Select interpreter to be used.", false);
-
-                int open = listDialog.open();
-                if (open != ListDialog.OK || listDialog.getResult().length > 1) {
-                    return null;
+                if (PydevConsoleConstants.ACTIVE_EDITOR_INTERPRETER_REPRESENTATION
+                        .equals(dialog.getSelectedInteractiveConsoleInterpreterRep())) {
+                    if (edit != null) {
+                        PythonNature pythonNature = PythonNature.getPythonNature(edit.getProject());
+                        if (pythonNature != null) {
+                            interpreter = pythonNature.getProjectInterpreter();
+                        }
+                    }
                 }
-                Object[] result = listDialog.getResult();
-                if (result == null || result.length == 0) {
-                    interpreter = interpreters[0];
 
-                } else {
-                    interpreter = ((IInterpreterInfo) result[0]);
+                if (interpreter == null) {
+                    SelectionDialog listDialog = AbstractInterpreterPreferencesPage.createChooseIntepreterInfoDialog(
+                            workbenchWindow, interpreters, "Select interpreter to be used.", false);
+
+                    int open = listDialog.open();
+                    if (open != ListDialog.OK || listDialog.getResult().length > 1) {
+                        return null;
+                    }
+                    Object[] result = listDialog.getResult();
+                    if (result == null || result.length == 0) {
+                        interpreter = interpreters[0];
+
+                    } else {
+                        interpreter = ((IInterpreterInfo) result[0]);
+                    }
                 }
             }
 

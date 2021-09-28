@@ -118,6 +118,9 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
             }
             return ImageCache.asImage(imageCache.get("icons/greendot_big.gif"));
 
+        } else if (element instanceof PyVariableGroup) {
+            return ImageCache.asImage(imageCache.get("icons/greendot_big.gif"));
+
         } else if (element instanceof PyVariable) {
             PyVariable pyVariable = (PyVariable) element;
             if (pyVariable.isReturnValue()) {
@@ -307,7 +310,7 @@ public class PyDebugModelPresentation implements IDebugModelPresentation {
      * <p>
      * Use {@link IDE#getEditorDescriptor(String)} rather than sending a static String; this'll open the editior
      * attached to the file instead of always Python editor (which expect Python code).
-     * 
+     *
      * @see <a href="http://git.eclipse.org/c/jdt/eclipse.jdt.debug.git/tree/org.eclipse.jdt.debug.ui/ui/org/eclipse/jdt/internal/debug/ui/JDIModelPresentation.java#n1216">JDIModelPresentation</a>
      */
     @Override

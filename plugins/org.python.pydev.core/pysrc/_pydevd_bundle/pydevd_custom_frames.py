@@ -1,7 +1,8 @@
-from _pydevd_bundle.pydevd_constants import get_current_thread_id, Null
+from _pydevd_bundle.pydevd_constants import get_current_thread_id, Null, ForkSafeLock
 from pydevd_file_utils import get_abs_path_real_path_and_base_from_frame
 from _pydev_imps._pydev_saved_modules import thread, threading
 import sys
+from _pydev_bundle import pydev_log
 
 DEBUG = False
 
@@ -20,7 +21,7 @@ class CustomFramesContainer:
 
 def custom_frames_container_init():  # Note: no staticmethod on jython 2.1 (so, use free-function)
 
-    CustomFramesContainer.custom_frames_lock = thread.allocate_lock()
+    CustomFramesContainer.custom_frames_lock = ForkSafeLock()
 
     # custom_frames can only be accessed if properly locked with custom_frames_lock!
     # Key is a string identifying the frame (as well as the thread it belongs to).
@@ -101,7 +102,7 @@ def update_custom_frame(frame_custom_thread_id, frame, thread_id, name=None):
             old.thread_id = thread_id
         except:
             sys.stderr.write('Unable to get frame to replace: %s\n' % (frame_custom_thread_id,))
-            import traceback;traceback.print_exc()
+            pydev_log.exception()
 
         CustomFramesContainer._py_db_command_thread_event.set()
 

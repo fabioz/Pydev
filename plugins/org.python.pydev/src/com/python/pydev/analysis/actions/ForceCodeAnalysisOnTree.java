@@ -22,6 +22,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.python.pydev.ast.builder.PyDevBuilderVisitor;
 import org.python.pydev.ast.builder.VisitorMemo;
+import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.ast.listing_utils.PyFileListing;
 import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.IModule;
@@ -33,6 +34,11 @@ import org.python.pydev.ui.actions.resources.PyResourceAction;
 
 import com.python.pydev.analysis.additionalinfo.builders.AnalysisBuilderRunnable;
 import com.python.pydev.analysis.additionalinfo.builders.AnalysisBuilderVisitor;
+import com.python.pydev.analysis.additionalinfo.builders.AnalysisRunner;
+import com.python.pydev.analysis.external.IExternalCodeAnalysisVisitor;
+import com.python.pydev.analysis.flake8.Flake8VisitorFactory;
+import com.python.pydev.analysis.mypy.MypyVisitorFactory;
+import com.python.pydev.analysis.pylint.PyLintVisitorFactory;
 
 /**
  * @author fabioz
@@ -71,27 +77,42 @@ public class ForceCodeAnalysisOnTree extends PyResourceAction implements IObject
      */
     @Override
     protected int doActionOnResource(IResource next, IProgressMonitor monitor) {
+        List<IExternalCodeAnalysisVisitor> externalVisitors = new ArrayList<IExternalCodeAnalysisVisitor>();
         List<IFile> filesToVisit = new ArrayList<IFile>();
+        PythonNature nature = PythonNature.getPythonNature(next);
+        if (nature == null) {
+            return 1;
+        }
         if (next instanceof IContainer) {
             List<IFile> l = PyFileListing.getAllIFilesBelow((IContainer) next);
 
             for (Iterator<IFile> iter = l.iterator(); iter.hasNext();) {
                 IFile element = iter.next();
                 if (element != null) {
-                    filesToVisit.add(element);
+                    if (PythonPathHelper.isValidSourceFile(element)) {
+                        filesToVisit.add(element);
+                    }
                 }
             }
+            IExternalCodeAnalysisVisitor pyLintVisitor = PyLintVisitorFactory.create(next, null, null, monitor);
+            IExternalCodeAnalysisVisitor mypyVisitor = MypyVisitorFactory.create(next, null, null, monitor);
+            IExternalCodeAnalysisVisitor flake8Visitor = Flake8VisitorFactory.create(next, null, null, monitor);
+            externalVisitors.add(pyLintVisitor);
+            externalVisitors.add(mypyVisitor);
+            externalVisitors.add(flake8Visitor);
         } else if (next instanceof IFile) {
-            filesToVisit.add((IFile) next);
+            if (PythonPathHelper.isValidSourceFile((IFile) next)) {
+                filesToVisit.add((IFile) next);
+            }
         }
 
-        PythonNature nature = PythonNature.getPythonNature(next);
-        forceCodeAnalysisOnFiles(nature, monitor, filesToVisit, filesVisited);
+        forceCodeAnalysisOnFiles(nature, monitor, filesToVisit, filesVisited, externalVisitors);
+
         return 1;
     }
 
     public static void forceCodeAnalysisOnFiles(PythonNature nature, IProgressMonitor monitor, List<IFile> filesToVisit,
-            Set<IFile> filesVisited) {
+            Set<IFile> filesVisited, List<IExternalCodeAnalysisVisitor> externalVisitors) {
         if (nature == null) {
             return;
         }
@@ -106,6 +127,7 @@ public class ForceCodeAnalysisOnTree extends PyResourceAction implements IObject
                 continue;
             }
             filesVisited.add(f);
+
             monitor.setTaskName(buf.clear().append("Scheduling: ").append(f.getName()).toString());
             IDocument doc = FileUtilsFileBuffer.getDocFromResource(f);
             visitor.memo = new VisitorMemo();
@@ -123,13 +145,19 @@ public class ForceCodeAnalysisOnTree extends PyResourceAction implements IObject
                 continue;
             }
             AnalysisBuilderVisitor.setModuleNameInCache(visitor.memo, f, moduleName);
+
+            if (!PythonPathHelper.isValidSourceFile(f)) {
+                AnalysisRunner.deleteMarkers(f, true);
+                continue;
+            }
+
             IModule module = nature.getAstManager().getModule(moduleName, nature, true);
             if (module == null) {
                 Log.log(IStatus.WARNING, "Unable to get module: " + moduleName + " for resource: " + f, null);
                 continue;
             }
             visitor.doVisitChangedResource(nature, f, doc, null, module, new NullProgressMonitor(), true,
-                    AnalysisBuilderRunnable.ANALYSIS_CAUSE_PARSER, documentTime, false);
+                    AnalysisBuilderRunnable.ANALYSIS_CAUSE_PARSER, documentTime, false, externalVisitors);
         }
         visitor.visitingEnded(new NullProgressMonitor());
     }

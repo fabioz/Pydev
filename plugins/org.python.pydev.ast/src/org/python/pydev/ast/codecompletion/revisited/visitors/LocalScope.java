@@ -28,6 +28,7 @@ import org.python.pydev.core.TokensList;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assert;
+import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -36,9 +37,11 @@ import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Str;
+import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.commentType;
+import org.python.pydev.parser.jython.ast.excepthandlerType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -194,7 +197,23 @@ public class LocalScope implements ILocalScope {
 
                 for (int i = 0; i < args.args.length; i++) {
                     String s = NodeUtils.getRepresentationString(args.args[i]);
-                    comps.add(new SourceToken(args.args[i], s, "", "", "", IToken.TYPE_PARAM, nature));
+                    if (args.annotation != null && args.annotation.length > i && args.annotation[i] != null) {
+                        exprType[] targets = { args.args[i] };
+                        exprType value = null;
+                        if (args.defaults != null && args.defaults.length > i && args.defaults[i] != null) {
+                            value = args.defaults[i];
+                        }
+                        exprType type = args.annotation[i];
+                        comps.add(new SourceToken(new Assign(targets, value, type), s, "", "", "", IToken.TYPE_PARAM,
+                                nature));
+                    } else if (args.defaults != null && args.defaults.length > i && args.defaults[i] != null) {
+                        exprType[] targets = { args.args[i] };
+                        exprType value = args.defaults[i];
+                        comps.add(new SourceToken(new Assign(targets, value, null), s, "", "", "", IToken.TYPE_PARAM,
+                                nature));
+                    } else {
+                        comps.add(new SourceToken(args.args[i], s, "", "", "", IToken.TYPE_PARAM, nature));
+                    }
                 }
                 if (args.vararg != null) {
                     String s = NodeUtils.getRepresentationString(args.vararg);
@@ -338,11 +357,13 @@ public class LocalScope implements ILocalScope {
 
             if (element instanceof FunctionDef) {
                 FunctionDef f = (FunctionDef) element;
-                for (int i = 0; i < f.body.length; i++) {
-                    stmtType stmt = f.body[i];
-                    if (stmt != null) {
-                        importedModules.addAll(GlobalModelVisitor.getTokens(stmt, GlobalModelVisitor.ALIAS_MODULES,
-                                moduleName, null, false, this.nature));
+                if (f.body != null) {
+                    for (int i = 0; i < f.body.length; i++) {
+                        stmtType stmt = f.body[i];
+                        if (stmt != null) {
+                            importedModules.addAll(GlobalModelVisitor.getTokens(stmt, GlobalModelVisitor.ALIAS_MODULES,
+                                    moduleName, null, false, this.nature));
+                        }
                     }
                 }
             }
@@ -457,6 +478,28 @@ public class LocalScope implements ILocalScope {
                 lst.addAll(entry.node.specialsBefore);
             }
 
+            if (entry.node instanceof TryExcept) {
+                excepthandlerType[] handlers = ((TryExcept) entry.node).handlers;
+                if (handlers != null) {
+                    for (excepthandlerType handle : handlers) {
+                        if (handle.name != null && actTok.equals(NodeUtils.getFullRepresentationString(handle.name))) {
+                            if (handle.type instanceof Tuple) {
+                                exprType[] tupElts = ((Tuple) handle.type).elts;
+                                if (tupElts != null) {
+                                    for (exprType type : tupElts) {
+                                        if (type != null) {
+                                            ret.add(new TypeInfo(NodeUtils.getFullRepresentationString(type)));
+                                        }
+                                    }
+                                }
+                            } else if (handle.type != null) {
+                                ret.add(new TypeInfo(NodeUtils.getFullRepresentationString(handle.type)));
+                            }
+                        }
+                    }
+                }
+                continue;
+            }
             if (!(entry.node instanceof Assert)) {
                 if (entry.node instanceof Str) {
                     lst.add(entry.node);

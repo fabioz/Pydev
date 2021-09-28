@@ -335,6 +335,23 @@ public final class FastStringBuffer implements CharSequence {
         return this;
     }
 
+    public FastStringBuffer append(String chars, int offset, int len) {
+        int newCount = count + len;
+        if (newCount > value.length) {
+            //was: resizeForMinimum(newCount);
+            int newCapacity = (value.length + 1) * 2;
+            if (newCount > newCapacity) {
+                newCapacity = newCount;
+            }
+            char newValue[] = new char[newCapacity];
+            System.arraycopy(value, 0, newValue, 0, count);
+            value = newValue;
+        }
+        System.arraycopy(chars, offset, value, count, len);
+        count = newCount;
+        return this;
+    }
+
     /**
      * Reverses the contents on this buffer
      */
@@ -599,6 +616,20 @@ public final class FastStringBuffer implements CharSequence {
         return this;
     }
 
+    /**
+     * Replaces all the occurrences of a string in this buffer for another string and returns the
+     * altered version.
+     */
+    public FastStringBuffer replaceAll(char replace, char with) {
+        for (int i = 0; i < this.count; i++) {
+            if (this.value[i] == replace) {
+                this.value[i] = with;
+            }
+        }
+
+        return this;
+    }
+
     public FastStringBuffer replaceFirst(String replace, String with) {
         int replaceLen = replace.length();
 
@@ -733,6 +764,14 @@ public final class FastStringBuffer implements CharSequence {
         return this;
     }
 
+    public FastStringBuffer rightTrimNewLines() {
+        char c;
+        while (this.count > 0 && ((c = this.value[this.count - 1]) == '\n' || c == '\r')) {
+            this.count--;
+        }
+        return this;
+    }
+
     public FastStringBuffer rightTrimWhitespacesAndTabs() {
         char c;
         while (this.count > 0 && ((c = this.value[this.count - 1]) == ' ' || c == '\t')) {
@@ -747,6 +786,24 @@ public final class FastStringBuffer implements CharSequence {
         while (i < this.count) {
             c = this.value[i];
             if (c == ' ' || Character.isWhitespace(c)) {
+                i++;
+            } else {
+                break;
+            }
+        }
+        if (i > 0) {
+            System.arraycopy(value, i, value, 0, count - i);
+            count -= i;
+        }
+        return this;
+    }
+
+    public FastStringBuffer leftTrimSpacesAndTabs() {
+        char c;
+        int i = 0;
+        while (i < this.count) {
+            c = this.value[i];
+            if (c == ' ' || c == '\t') {
                 i++;
             } else {
                 break;

@@ -257,13 +257,9 @@ public class PyUnitTestRun {
                 test.setAttribute("test", pyUnitTestResult.test);
                 test.setAttribute("time", pyUnitTestResult.time);
 
-                Element stdout = document.createElement("stdout");
-                test.appendChild(stdout);
-                stdout.appendChild(document.createCDATASection(pyUnitTestResult.capturedOutput));
+                test.appendChild(XMLUtils.createBinaryElement(document, "stdout", pyUnitTestResult.capturedOutput));
+                test.appendChild(XMLUtils.createBinaryElement(document, "stderr", pyUnitTestResult.errorContents));
 
-                Element stderr = document.createElement("stderr");
-                test.appendChild(stderr);
-                stderr.appendChild(document.createCDATASection(pyUnitTestResult.errorContents));
                 root.appendChild(test);
             }
 
@@ -309,11 +305,17 @@ public class PyUnitTestRun {
         private String fTime;
         private boolean fInStdout;
         private boolean fInStderr;
+        private boolean fInLaunchMemento;
+        private String fLaunchMode;
+
+        // Things which may have binary contents.
         private String fErrorContents;
         private String fCapturedOutput;
-        private boolean fInLaunchMemento;
         private String fLaunchMementoContents;
-        private String fLaunchMode;
+
+        private String fCapturedErrorEncoding;
+        private String fCapturedOutputEncoding;
+        private String fLaunchMementoEncoding;
 
         public FillTestRunXmlHandler(PyUnitTestRun testRun) {
             this.testRun = testRun;
@@ -340,17 +342,25 @@ public class PyUnitTestRun {
             //}
             if ("stdout".equals(qName)) {
                 this.fInStdout = true;
+                this.fCapturedOutputEncoding = attributes.getValue("encoding");
+
             } else if ("stderr".equals(qName)) {
                 this.fInStderr = true;
+                this.fCapturedErrorEncoding = attributes.getValue("encoding");
+
             } else if ("launch_memento".equals(qName)) {
                 this.fInLaunchMemento = true;
+                this.fLaunchMementoEncoding = attributes.getValue("encoding");
+
             } else if ("launch".equals(qName)) {
                 this.fLaunchMode = attributes.getValue("mode");
+
             } else if ("test".equals(qName)) {
                 fStatus = attributes.getValue("status");
                 fLocation = attributes.getValue("location");
                 fTest = attributes.getValue("test");
                 fTime = attributes.getValue("time");
+
             } else if ("summary".equals(qName)) {
                 // name: auto
                 // errors: auto
@@ -379,7 +389,8 @@ public class PyUnitTestRun {
             } else if ("launch_memento".equals(qName)) {
                 this.fInLaunchMemento = false;
             } else if ("launch".equals(qName)) {
-                IPyUnitLaunch fromIO = PyUnitLaunch.fromIO(fLaunchMode, fLaunchMementoContents);
+                IPyUnitLaunch fromIO = PyUnitLaunch.fromIO(fLaunchMode,
+                        decode(fLaunchMementoContents, fLaunchMementoEncoding));
                 testRun.pyUnitLaunch = fromIO;
             } else if ("test".equals(qName)) {
                 if (fStatus == null) {
@@ -394,12 +405,8 @@ public class PyUnitTestRun {
                 if (fTime == null) {
                     fTime = "<no time>";
                 }
-                if (fCapturedOutput == null) {
-                    fCapturedOutput = "";
-                }
-                if (fErrorContents == null) {
-                    fErrorContents = "";
-                }
+                fCapturedOutput = decode(fCapturedOutput, fCapturedOutputEncoding);
+                fErrorContents = decode(fErrorContents, fCapturedErrorEncoding);
                 PyUnitTestResult result = new PyUnitTestResult(testRun, fStatus, fLocation, fTest, fCapturedOutput,
                         fErrorContents, fTime);
                 testRun.addResult(result);
@@ -408,6 +415,10 @@ public class PyUnitTestRun {
             } else if ("summary".equals(qName)) {
                 // we only have attributes, so, it's filled at open.
             }
+        }
+
+        private String decode(String captured, String encoding) {
+            return XMLUtils.decodeFromEncoding(captured, encoding);
         }
 
     }

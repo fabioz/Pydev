@@ -1,5 +1,5 @@
-import sys
-from _pydevd_bundle.pydevd_constants import STATE_RUN, PYTHON_SUSPEND, IS_JYTHON, IS_IRONPYTHON
+from _pydevd_bundle.pydevd_constants import (STATE_RUN, PYTHON_SUSPEND, SUPPORT_GEVENT, ForkSafeLock,
+    _current_frames)
 from _pydev_bundle import pydev_log
 # IFDEF CYTHON
 # pydev_log.debug("Using Cython speedups")
@@ -8,49 +8,6 @@ from _pydevd_bundle.pydevd_frame import PyDBFrame
 # ENDIF
 
 version = 11
-
-if not hasattr(sys, '_current_frames'):
-
-    # Some versions of Jython don't have it (but we can provide a replacement)
-    if IS_JYTHON:
-        from java.lang import NoSuchFieldException
-        from org.python.core import ThreadStateMapping
-        try:
-            cachedThreadState = ThreadStateMapping.getDeclaredField('globalThreadStates')  # Dev version
-        except NoSuchFieldException:
-            cachedThreadState = ThreadStateMapping.getDeclaredField('cachedThreadState')  # Release Jython 2.7.0
-        cachedThreadState.accessible = True
-        thread_states = cachedThreadState.get(ThreadStateMapping)
-
-        def _current_frames():
-            as_array = thread_states.entrySet().toArray()
-            ret = {}
-            for thread_to_state in as_array:
-                thread = thread_to_state.getKey()
-                if thread is None:
-                    continue
-                thread_state = thread_to_state.getValue()
-                if thread_state is None:
-                    continue
-
-                frame = thread_state.frame
-                if frame is None:
-                    continue
-
-                ret[thread.getId()] = frame
-            return ret
-
-    elif IS_IRONPYTHON:
-        _tid_to_last_frame = {}
-
-        # IronPython doesn't have it. Let's use our workaround...
-        def _current_frames():
-            return _tid_to_last_frame
-
-    else:
-        raise RuntimeError('Unable to proceed (sys._current_frames not available in this Python implementation).')
-else:
-    _current_frames = sys._current_frames
 
 
 #=======================================================================================================================
@@ -68,9 +25,9 @@ class PyDBAdditionalThreadInfo(object):
     __slots__ = [
         'pydev_state',
         'pydev_step_stop',
+        'pydev_original_step_cmd',
         'pydev_step_cmd',
         'pydev_notify_kill',
-        'pydev_smart_step_stop',
         'pydev_django_resolve_frame',
         'pydev_call_from_jinja2',
         'pydev_call_inside_jinja2',
@@ -85,19 +42,36 @@ class PyDBAdditionalThreadInfo(object):
         'top_level_thread_tracer_no_back_frames',
         'top_level_thread_tracer_unhandled',
         'thread_tracer',
+        'step_in_initial_location',
+
+        # Used for CMD_SMART_STEP_INTO (to know which smart step into variant to use)
+        'pydev_smart_parent_offset',
+
+        # Used for CMD_SMART_STEP_INTO (list[_pydevd_bundle.pydevd_bytecode_utils.Variant])
+        # Filled when the cmd_get_smart_step_into_variants is requested (so, this is a copy
+        # of the last request for a given thread and pydev_smart_parent_offset relies on it).
+        'pydev_smart_step_into_variants',
     ]
     # ENDIF
 
     def __init__(self):
         self.pydev_state = STATE_RUN  # STATE_RUN or STATE_SUSPEND
         self.pydev_step_stop = None
+
+        # Note: we have `pydev_original_step_cmd` and `pydev_step_cmd` because the original is to
+        # say the action that started it and the other is to say what's the current tracing behavior
+        # (because it's possible that we start with a step over but may have to switch to a
+        # different step strategy -- for instance, if a step over is done and we return the current
+        # method the strategy is changed to a step in).
+
+        self.pydev_original_step_cmd = -1  # Something as CMD_STEP_INTO, CMD_STEP_OVER, etc.
         self.pydev_step_cmd = -1  # Something as CMD_STEP_INTO, CMD_STEP_OVER, etc.
+
         self.pydev_notify_kill = False
-        self.pydev_smart_step_stop = None
         self.pydev_django_resolve_frame = False
         self.pydev_call_from_jinja2 = None
         self.pydev_call_inside_jinja2 = None
-        self.is_tracing = False
+        self.is_tracing = 0
         self.conditional_breakpoint_exception = None
         self.pydev_message = ''
         self.suspend_type = PYTHON_SUSPEND
@@ -108,6 +82,9 @@ class PyDBAdditionalThreadInfo(object):
         self.top_level_thread_tracer_no_back_frames = []
         self.top_level_thread_tracer_unhandled = None
         self.thread_tracer = None
+        self.step_in_initial_location = None
+        self.pydev_smart_parent_offset = -1
+        self.pydev_smart_step_into_variants = ()
 
     def get_topmost_frame(self, thread):
         '''
@@ -117,15 +94,28 @@ class PyDBAdditionalThreadInfo(object):
         '''
         # sys._current_frames(): dictionary with thread id -> topmost frame
         current_frames = _current_frames()
-        return current_frames.get(thread.ident)
+        topmost_frame = current_frames.get(thread.ident)
+        if topmost_frame is None:
+            # Note: this is expected for dummy threads (so, getting the topmost frame should be
+            # treated as optional).
+            pydev_log.info(
+                'Unable to get topmost frame for thread: %s, thread.ident: %s, id(thread): %s\nCurrent frames: %s.\n'
+                'GEVENT_SUPPORT: %s',
+                thread,
+                thread.ident,
+                id(thread),
+                current_frames,
+                SUPPORT_GEVENT,
+            )
+
+        return topmost_frame
 
     def __str__(self):
         return 'State:%s Stop:%s Cmd: %s Kill:%s' % (
             self.pydev_state, self.pydev_step_stop, self.pydev_step_cmd, self.pydev_notify_kill)
 
 
-from _pydev_imps._pydev_saved_modules import threading
-_set_additional_thread_info_lock = threading.Lock()
+_set_additional_thread_info_lock = ForkSafeLock()
 
 
 def set_additional_thread_info(thread):

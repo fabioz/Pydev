@@ -81,9 +81,17 @@ public class AssignAnalysis {
                     if (defs.length > 0) {
                         for (int i = 0; i < defs.length; i++) {
                             //go through all definitions found and make a merge of it...
-                            TokensList completionsFromDefinition = getCompletionsFromDefinition(defs[i], state,
+                            Definition definition = defs[i];
+                            TokensList completionsFromDefinition = getCompletionsFromDefinition(definition, state,
                                     sourceModule, manager);
                             if (completionsFromDefinition != null && completionsFromDefinition.notEmpty()) {
+                                if (definition instanceof AssignDefinition) {
+                                    AssignDefinition assignDefinition = (AssignDefinition) definition;
+                                    if (assignDefinition.nodeValue instanceof Call) {
+                                        completionsFromDefinition
+                                                .setLookingFor(LookingFor.LOOKING_FOR_INSTANCED_VARIABLE);
+                                    }
+                                }
                                 ret.addAll(completionsFromDefinition);
                             }
                         }
@@ -355,6 +363,19 @@ public class AssignAnalysis {
                                     }
                                 }
                             }
+                            if (args instanceof Str) {
+                                Str str = (Str) args;
+                                if (str.s != null) {
+                                    for (String s : str.s.split("(\\s|,)+")) {
+                                        if (!s.isEmpty()) {
+                                            ret.addAll(new TokensList(new IToken[] { new SourceToken(str,
+                                                    s, "",
+                                                    "", sourceModule.getName(), sourceModule.getNature()) }));
+                                        }
+                                    }
+                                    return ret;
+                                }
+                            }
                         }
                     }
 
@@ -375,9 +396,16 @@ public class AssignAnalysis {
                 }
 
                 if (lookForAssign) {
-                    TokensList tokens = searchInLocalTokens(manager, state, lookForAssign,
-                            definition.line, definition.col, definition.module, assignDefinition.scope,
-                            assignDefinition.value);
+                    TokensList tokens = null;
+                    if (assign.type != null) {
+                        tokens = searchInLocalTokens(manager, state, lookForAssign,
+                                definition.line, definition.col, definition.module, assignDefinition.scope,
+                                assignDefinition.type);
+                    } else if (assign.value != null) {
+                        tokens = searchInLocalTokens(manager, state, lookForAssign,
+                                definition.line, definition.col, definition.module, assignDefinition.scope,
+                                assignDefinition.value);
+                    }
                     if (tokens != null && tokens.size() > 0) {
                         ret.addAll(tokens);
                         lookForAssign = false;
@@ -391,6 +419,8 @@ public class AssignAnalysis {
                 ICompletionState copy = state.getCopy();
                 if (definition.ast instanceof Attribute) {
                     copy.setActivationToken(NodeUtils.getFullRepresentationString(definition.ast));
+                } else if (definition.type != null && !definition.type.isEmpty()) {
+                    copy.setActivationToken(definition.type);
                 } else {
                     copy.setActivationToken(definition.value);
                 }
@@ -409,6 +439,15 @@ public class AssignAnalysis {
                 int unpackPos = -1;
                 boolean unpackBackwards = false;
                 if (assignDefinition != null) {
+                    // If we have a type, activation token has already been defined as type
+                    // So let's check first if we can find completions using the type. If we can not find, we just ignore it and continue normally
+                    if (assignDefinition.nodeType != null) {
+                        TokensList tks = manager.getCompletionsForModule(module, copy, true, true);
+                        if (tks != null && tks.size() > 0) {
+                            ret.addAll(tks);
+                            return ret;
+                        }
+                    }
                     unpackPos = assignDefinition.unpackPos;
                     // Let's see if we have
                     if (definition.ast instanceof Assign) {

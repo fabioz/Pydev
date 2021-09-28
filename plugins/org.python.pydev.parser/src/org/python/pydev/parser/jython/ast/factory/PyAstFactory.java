@@ -11,12 +11,17 @@ import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.NameTokType;
 import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.jython.ast.Return;
 import org.python.pydev.parser.jython.ast.Str;
+import org.python.pydev.parser.jython.ast.Suite;
+import org.python.pydev.parser.jython.ast.TryExcept;
+import org.python.pydev.parser.jython.ast.TryFinally;
 import org.python.pydev.parser.jython.ast.VisitorBase;
 import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
@@ -37,16 +42,48 @@ public class PyAstFactory {
     }
 
     public FunctionDef createFunctionDef(String name) {
-        FunctionDef functionDef = new FunctionDef(new NameTok(name, NameTok.FunctionName), null, null, null, null,
+        return createFunctionDef(new NameTok(name, NameTok.FunctionName));
+    }
+
+    public FunctionDef createFunctionDef(NameTokType name) {
+        FunctionDef functionDef = new FunctionDef(name, null, null, null, null,
                 false);
         return functionDef;
     }
 
+    private static final exprType[] EMPTY_EXPR_TYPE = new exprType[0];
+    private static final keywordType[] EMPTY_KEYWORD_TYPE = new keywordType[0];
+    private static final stmtType[] EMPTY_STMT_TYPE = new stmtType[0];
+
+    public argumentsType createEmptyArgumentsType() {
+        exprType[] args = EMPTY_EXPR_TYPE;
+        NameTokType vararg = null;
+        NameTokType kwarg = null;
+        exprType[] defaults = EMPTY_EXPR_TYPE;
+        exprType[] kwonlyargs = EMPTY_EXPR_TYPE;
+        exprType[] kw_defaults = EMPTY_EXPR_TYPE;
+        exprType[] annotation = EMPTY_EXPR_TYPE;
+        exprType varargannotation = null;
+        exprType kwargannotation = null;
+        exprType[] kwonlyargannotation = EMPTY_EXPR_TYPE;
+        argumentsType argsType = new argumentsType(args,
+                vararg,
+                kwarg,
+                defaults,
+                kwonlyargs,
+                kw_defaults,
+                annotation,
+                varargannotation,
+                kwargannotation,
+                kwonlyargannotation);
+        return argsType;
+    }
+
     public ClassDef createClassDef(String name) {
-        exprType[] bases = null;
-        stmtType[] body = null;
+        exprType[] bases = EMPTY_EXPR_TYPE;
+        stmtType[] body = EMPTY_STMT_TYPE;
         decoratorsType[] decs = null;
-        keywordType[] keywords = null;
+        keywordType[] keywords = EMPTY_KEYWORD_TYPE;
         exprType starargs = null;
         exprType kwargs = null;
 
@@ -106,7 +143,7 @@ public class PyAstFactory {
 
     public Call createCall(String call, String... params) {
         List<exprType> lst = createParamsList(params);
-        return createCall(call, lst, null, null, null);
+        return createCall(call, lst, new keywordType[0], null, null);
     }
 
     public List<exprType> createParamsList(String... params) {
@@ -124,7 +161,12 @@ public class PyAstFactory {
             return new Call(createAttribute(call), array, keywords, starargs, kwargs);
         }
         return new Call(new Name(call, Name.Load, false), array, keywords, starargs, kwargs);
+    }
 
+    public Call createCall(exprType name, List<exprType> params, keywordType[] keywords, exprType starargs,
+            exprType kwargs) {
+        exprType[] array = params != null ? params.toArray(new exprType[0]) : new exprType[0];
+        return new Call(name, array, keywords, starargs, kwargs);
     }
 
     public Attribute createAttribute(String attribute) {
@@ -153,28 +195,82 @@ public class PyAstFactory {
         functionDef.body = createStmtArray(body);
     }
 
+    public void setBody(TryFinally tryFinally, Object... body) {
+        tryFinally.body = createStmtArray(body);
+    }
+
+    public void setBody(TryExcept tryExcept, Object... body) {
+        tryExcept.body = createStmtArray(body);
+    }
+
+    public void setFinally(TryFinally tryFinally, Object... body) {
+        tryFinally.finalbody = new Suite(createStmtArray(body));
+    }
+
+    public void setBody(If ifNode, Object... body) {
+        ifNode.body = createStmtArray(body);
+    }
+
     public void setBody(ClassDef def, Object... body) {
         def.body = createStmtArray(body);
     }
 
-    private stmtType[] createStmtArray(Object... body) {
+    public void setBases(ClassDef classDef, Object... bases) {
+        classDef.bases = createExprArray(bases);
+    }
+
+    public exprType[] createExprArray(Object... body) {
+        ArrayList<exprType> newBases = new ArrayList<exprType>(body.length);
+        for (Object b : body) {
+            exprType expr = asExpr(b);
+            if (expr != null) {
+                newBases.add(expr);
+            }
+        }
+        return newBases.toArray(new exprType[0]);
+    }
+
+    public exprType asExpr(Object node) {
+        if (node instanceof exprType) {
+            return (exprType) node;
+        } else if (node instanceof Expr) {
+            return ((Expr) node).value;
+        } else if (node == null) {
+            return null;
+        } else {
+            Log.log("Unhandled: " + node);
+        }
+        return null;
+    }
+
+    public stmtType[] createStmtArray(Object... body) {
         ArrayList<stmtType> newBody = new ArrayList<stmtType>();
 
         for (Object o : body) {
-            if (o instanceof exprType) {
-                newBody.add(new Expr((exprType) o));
-            } else if (o instanceof stmtType) {
-                newBody.add((stmtType) o);
-            } else {
-                throw new RuntimeException("Unhandled: " + o);
+            stmtType asStmt = asStmt(o);
+            if (asStmt != null) {
+                newBody.add(asStmt);
             }
         }
         stmtType[] bodyArray = newBody.toArray(new stmtType[newBody.size()]);
         return bodyArray;
     }
 
+    public stmtType asStmt(Object o) {
+        if (o instanceof exprType) {
+            return new Expr((exprType) o);
+        } else if (o instanceof stmtType) {
+            return (stmtType) o;
+        } else if (o == null) {
+            return null;
+        } else {
+            Log.log("Unhandled: " + o);
+        }
+        return null;
+    }
+
     public Str createString(String string) {
-        return new Str(string, Str.TripleSingle, false, false, false, false);
+        return new Str(string, Str.TripleSingle, false, false, false, false, null);
     }
 
     public Pass createPass() {
@@ -185,7 +281,7 @@ public class PyAstFactory {
 
     /**
      * @param functionDef the function for the override body
-     * @param currentClassName 
+     * @param currentClassName
      */
     public stmtType createOverrideBody(FunctionDef functionDef, String parentClassName, String currentClassName) {
         //create a copy because we do not want to retain the original line/col and we may change the originals here.
@@ -272,8 +368,8 @@ public class PyAstFactory {
             //Expr[value=
             //    Call[func=
             //        Attribute[value=
-            //            Call[func=Name[id=super, ctx=Load, reserved=false], args=[Name[id=Current, ctx=Load, reserved=false], Name[id=cls, ctx=Load, reserved=false]], keywords=[], starargs=null, kwargs=null], 
-            //        attr=NameTok[id=test, ctx=Attrib], ctx=Load], 
+            //            Call[func=Name[id=super, ctx=Load, reserved=false], args=[Name[id=Current, ctx=Load, reserved=false], Name[id=cls, ctx=Load, reserved=false]], keywords=[], starargs=null, kwargs=null],
+            //        attr=NameTok[id=test, ctx=Attrib], ctx=Load],
             //    args=[], keywords=[], starargs=null, kwargs=null]
             //]
 
@@ -298,6 +394,22 @@ public class PyAstFactory {
 
     public Module createModule(List<stmtType> body) {
         return new Module(body.toArray(new stmtType[body.size()]));
+    }
+
+    public Name createNone() {
+        Name node = createName("None");
+        node.reserved = true;
+        return node;
+    }
+
+    public decoratorsType createEmptyDecoratorsType() {
+        exprType[] args = EMPTY_EXPR_TYPE;
+        boolean isCall = false;
+        exprType kwargs = null;
+        exprType starargs = null;
+        keywordType[] keywords = EMPTY_KEYWORD_TYPE;
+        exprType func = null;
+        return new decoratorsType(func, args, keywords, starargs, kwargs, isCall);
     }
 
 }

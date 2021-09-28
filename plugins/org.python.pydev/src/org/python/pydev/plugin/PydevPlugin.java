@@ -101,6 +101,7 @@ import org.python.pydev.ui.dialogs.SelectNDialog;
 import org.python.pydev.ui.dialogs.TreeNodeLabelProvider;
 import org.python.pydev.ui.pythonpathconf.PythonSelectionLibrariesDialog;
 
+import com.python.pydev.analysis.flake8.Flake8Preferences;
 import com.python.pydev.analysis.mypy.MypyPreferences;
 import com.python.pydev.analysis.pylint.PyLintPreferences;
 
@@ -188,11 +189,23 @@ public class PydevPlugin extends AbstractUIPlugin {
 
         CorePlugin.pydevStatelocation = Platform.getStateLocation(getBundle()).toFile();
 
-        PyLintPreferences.createPyLintStream = (() -> {
-            if (PyLintPreferences.useConsole()) {
+        PyLintPreferences.createPyLintStream = ((IAdaptable projectAdaptable) -> {
+            if (PyLintPreferences.useConsole(projectAdaptable)) {
                 IOConsoleOutputStream console = MessageConsoles.getConsoleOutputStream("PyLint",
                         UIConstants.PY_LINT_ICON);
 
+                return ((string) -> {
+                    console.write(string);
+                });
+            } else {
+                return null;
+            }
+        });
+
+        Flake8Preferences.createFlake8Stream = ((IAdaptable projectAdaptable) -> {
+            if (Flake8Preferences.useFlake8Console(projectAdaptable)) {
+                IOConsoleOutputStream console = MessageConsoles.getConsoleOutputStream("Flake8",
+                        UIConstants.FLAKE8_ICON);
                 return ((string) -> {
                     console.write(string);
                 });

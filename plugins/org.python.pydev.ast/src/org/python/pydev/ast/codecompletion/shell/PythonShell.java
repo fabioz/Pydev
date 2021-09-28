@@ -27,7 +27,7 @@ import org.python.pydev.shared_core.io.FileUtils;
 /**
  * @author Fabio Zadrozny
  */
-public class PythonShell extends AbstractShell {
+public class PythonShell extends CompletionsShell {
 
     /**
      * Initialize with the default python server file.

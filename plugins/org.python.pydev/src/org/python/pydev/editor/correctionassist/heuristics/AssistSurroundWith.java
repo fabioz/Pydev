@@ -59,6 +59,8 @@ public class AssistSurroundWith extends AbstractTemplateCodeCompletion implement
 
         ps.selectCompleteLine();
         String selectedText = ps.getSelectedText();
+        // Templates substitute things as $var, so, make sure that we don't get this occurrence.
+        selectedText = selectedText.replace("$", "$$");
         List<String> splitInLines = StringUtils.splitInLines(selectedText);
         int firstCharPosition = -1;
         int firstCommentCharPosition = -1;

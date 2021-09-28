@@ -37,6 +37,7 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
     protected String type;
     protected String qualifier;
     protected String value;
+    protected String scope;
     protected AbstractDebugTarget target;
     protected boolean isModified;
     protected IVariableLocator locator;
@@ -44,13 +45,15 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
     //Only create one instance of an empty array to be returned
     static final IVariable[] EMPTY_IVARIABLE_ARRAY = new IVariable[0];
 
-    public PyVariable(AbstractDebugTarget target, String name, String type, String value, IVariableLocator locator) {
+    public PyVariable(AbstractDebugTarget target, String name, String type, String value, IVariableLocator locator,
+            String scope) {
         this.value = value;
         this.name = name;
         this.type = type;
         this.target = target;
         this.locator = locator;
-        isModified = false;
+        this.scope = scope;
+        this.isModified = false;
     }
 
     /**
@@ -162,9 +165,11 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
     @Override
     public void setValue(String expression) throws DebugException {
         ChangeVariableCommand changeVariableCommand = getChangeVariableCommand(target, expression);
-        target.postCommand(changeVariableCommand);
-        this.value = expression;
-        target.fireEvent(new DebugEvent(this, DebugEvent.CONTENT | DebugEvent.CHANGE));
+        if (changeVariableCommand != null) {
+            target.postCommand(changeVariableCommand);
+            this.value = expression;
+            target.fireEvent(new DebugEvent(this, DebugEvent.CONTENT | DebugEvent.CHANGE));
+        }
     }
 
     @Override

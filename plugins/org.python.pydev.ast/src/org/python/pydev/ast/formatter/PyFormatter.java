@@ -194,6 +194,7 @@ public class PyFormatter {
                 case '^':
                 case '~':
                 case '|':
+                case ':':
 
                     i = handleOperator(std, cs, buf, parsingUtils, i, c);
                     c = cs[i];
@@ -517,6 +518,7 @@ public class PyFormatter {
         char localC = c;
         char prev = '\0';
         boolean backOne = true;
+        int initial = i;
         while (isOperatorPart(localC, prev)) {
             buf.append(localC);
             prev = localC;
@@ -529,6 +531,17 @@ public class PyFormatter {
                 //when we get to an assign, we have found a full stmt (with assign) -- e.g.: a \\=  a += a ==
                 buf.append(localC);
                 backOne = false;
+                break;
+            } else if (c == ':') {
+                buf.deleteLastChars(i - initial);
+                buf.rightTrim();
+                buf.append(c);
+                if (localC == ' ') {
+                    buf.append(localC);
+                }
+                isUnary = true;
+                backOne = false;
+                i = initial;
                 break;
             }
         }
@@ -574,6 +587,7 @@ public class PyFormatter {
             case '~':
             case '|':
             case '=':
+            case ':':
                 return true;
         }
         return false;
@@ -910,8 +924,7 @@ public class PyFormatter {
 
                 return formatted;
             case BLACK:
-                parameters = std.blackParameters;
-                formatted = BlackRunner.formatWithBlack(nature, doc, parameters, workingDir);
+                formatted = BlackRunner.formatWithBlack(nature, doc, std, workingDir);
                 if (formatted == null) {
                     formatted = doc.get();
                 }

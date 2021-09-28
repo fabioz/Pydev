@@ -387,7 +387,7 @@ public class PythonConsoleLineTracker implements IConsoleLineTracker {
         }
 
         IPath workingDir = getWorkingDirectory();
-        if (workingDir != null) {
+        if (workingDir != null && project != null) {
             if (!workingDir.equals(project.getLocation())) {
                 IPath full = workingDir.append(path);
                 File file = full.toFile();

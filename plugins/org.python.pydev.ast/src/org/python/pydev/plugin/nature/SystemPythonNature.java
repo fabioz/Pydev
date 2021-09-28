@@ -74,7 +74,7 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
         @Override
         public Map<String, String> getVariableSubstitution() throws CoreException, MisconfigurationException,
                 PythonNatureWithoutProjectException {
-            Properties stringSubstitutionVariables = SystemPythonNature.this.info.getStringSubstitutionVariables();
+            Properties stringSubstitutionVariables = SystemPythonNature.this.info.getStringSubstitutionVariables(false);
             Map<String, String> variableSubstitution;
             if (stringSubstitutionVariables == null) {
                 variableSubstitution = new HashMap<String, String>();

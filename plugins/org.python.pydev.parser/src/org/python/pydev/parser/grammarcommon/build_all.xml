@@ -1,7 +1,6 @@
 <project name="Build All" default="build_all">
 
     <target name="build_all" >
-    	<ant dir="../grammar24" inheritrefs="false"/>
     	<ant dir="../grammar25" inheritrefs="false"/>
     	<ant dir="../grammar26" inheritrefs="false"/>
     	<ant dir="../grammar27" inheritrefs="false"/>

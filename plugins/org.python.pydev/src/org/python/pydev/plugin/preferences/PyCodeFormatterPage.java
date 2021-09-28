@@ -17,10 +17,13 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
@@ -38,9 +41,12 @@ import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.field_editors.BooleanFieldEditorCustom;
 import org.python.pydev.shared_ui.field_editors.ComboFieldEditor;
 import org.python.pydev.shared_ui.field_editors.CustomStringFieldEditor;
+import org.python.pydev.shared_ui.field_editors.FileFieldEditorCustom;
 import org.python.pydev.shared_ui.field_editors.LinkFieldEditor;
+import org.python.pydev.shared_ui.field_editors.RadioGroupFieldEditor;
 import org.python.pydev.shared_ui.field_editors.ScopedFieldEditorPreferencePage;
 import org.python.pydev.shared_ui.field_editors.ScopedPreferencesFieldEditor;
+import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 /**
  * @author Fabio Zadrozny
@@ -48,7 +54,6 @@ import org.python.pydev.shared_ui.field_editors.ScopedPreferencesFieldEditor;
 public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
     private StyledText labelExample;
-    // private BooleanFieldEditorCustom formatWithAutoPep8; deprecated
     private BooleanFieldEditorCustom spaceAfterComma;
     private BooleanFieldEditorCustom onlyChangedLines;
     private BooleanFieldEditorCustom spaceForParentesis;
@@ -104,6 +109,13 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
     private BooleanFieldEditorCustom manageBlankLines;
     private IntegerFieldEditor blankLinesTopLevel;
     private IntegerFieldEditor blankLinesInner;
+    private RadioGroupFieldEditor blackFormatterLocation;
+    private FileFieldEditorCustom blackFileField;
+
+    public static final String[][] SEARCH_FORMATTER_LOCATION_OPTIONS = new String[][] {
+            { "Search in interpreter", PyFormatterPreferences.LOCATION_SEARCH },
+            { "Specify Location", PyFormatterPreferences.LOCATION_SPECIFY },
+    };
 
     /**
      * @see org.eclipse.jface.preference.FieldEditorPreferencePage#createFieldEditors()
@@ -132,10 +144,23 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
                 ENTRIES_AND_VALUES_FOR_FORMATTER, p);
         addField(formatterStyle);
 
-        // deprecated
-        // formatWithAutoPep8 = createBooleanFieldEditorCustom(PyFormatterPreferences.FORMAT_WITH_AUTOPEP8,
-        //         "Use autopep8.py for code formatting?", p);
-        // addField(formatWithAutoPep8);
+        blackFormatterLocation = new RadioGroupFieldEditor(PyFormatterPreferences.BLACK_FORMATTER_LOCATION_OPTION,
+                "Black executable", 2, SEARCH_FORMATTER_LOCATION_OPTIONS, p);
+
+        for (Button b : blackFormatterLocation.getRadioButtons()) {
+            b.addSelectionListener(new SelectionAdapter() {
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                    updateState();
+                }
+            });
+        }
+
+        addField(blackFormatterLocation);
+        blackFileField = new FileFieldEditorCustom(PyFormatterPreferences.BLACK_FORMATTER_FILE_LOCATION,
+                "Location of the black executable:",
+                p, 1);
+        addField(blackFileField);
 
         interpreterLink = new LinkFieldEditor("link_autopep8_interpreter",
                 "Note: the default configured <a>Python Interpreter</a> will be used to execute autopep8.py/black", p,
@@ -226,6 +251,16 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
         labelExample.setLayoutData(layoutData);
 
         addField(new ScopedPreferencesFieldEditor(p, SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_SCOPE, this));
+
+        RunInUiThread.async(new Runnable() {
+
+            @Override
+            public void run() {
+                if (!disposed) {
+                    updateState();
+                }
+            }
+        }, false);
     }
 
     private void createTabs(Composite p) {
@@ -287,42 +322,51 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
 
     private void updateState() {
         FormatterEnum currFormatterStyle = getComboFormatterStyle();
-        interpreterLink.setEnabled(
-                currFormatterStyle == FormatterEnum.AUTOPEP8 || currFormatterStyle == FormatterEnum.BLACK, fieldParent);
-        autopep8Parameters.setEnabled(currFormatterStyle == FormatterEnum.AUTOPEP8, fieldParent);
-        blackParameters.setEnabled(currFormatterStyle == FormatterEnum.BLACK, fieldParent);
+        autopep8Parameters.setVisible(currFormatterStyle == FormatterEnum.AUTOPEP8, fieldParent);
+        blackParameters.setVisible(currFormatterStyle == FormatterEnum.BLACK, fieldParent);
 
         switch (currFormatterStyle) {
             case AUTOPEP8:
             case BLACK:
-                assignWithSpaceInsideParentesis.setEnabled(false, spacingParent);
-                operatorsWithSpace.setEnabled(false, spacingParent);
-                spaceForParentesis.setEnabled(false, spacingParent);
-                spaceAfterComma.setEnabled(false, spacingParent);
-                rightTrimLines.setEnabled(false, spacingParent);
-                rightTrimMultilineLiterals.setEnabled(false, spacingParent);
+                blackFormatterLocation.setVisible(currFormatterStyle == FormatterEnum.BLACK, fieldParent);
+                boolean showFile = currFormatterStyle == FormatterEnum.BLACK && PyFormatterPreferences.LOCATION_SPECIFY
+                        .equals(blackFormatterLocation.getRadioValue());
+                blackFileField.setVisible(showFile);
+                interpreterLink.setVisible(!showFile);
 
-                addNewLineAtEndOfFile.setEnabled(false, blankLinesParent);
-                manageBlankLines.setEnabled(false, blankLinesParent);
+                assignWithSpaceInsideParentesis.setVisible(false, spacingParent);
+                operatorsWithSpace.setVisible(false, spacingParent);
+                spaceForParentesis.setVisible(false, spacingParent);
+                spaceAfterComma.setVisible(false, spacingParent);
+                rightTrimLines.setVisible(false, spacingParent);
+                rightTrimMultilineLiterals.setVisible(false, spacingParent);
+
+                addNewLineAtEndOfFile.setVisible(false, blankLinesParent);
+                manageBlankLines.setVisible(false, blankLinesParent);
                 blankLinesTopLevel.setEnabled(false, blankLinesParent);
                 blankLinesInner.setEnabled(false, blankLinesParent);
 
                 spacesBeforeComment.setEnabled(false, commentsParent);
                 spacesInStartComment.setEnabled(false, commentsParent);
 
-                onlyChangedLines.setEnabled(false, fieldParent);
+                onlyChangedLines.setVisible(false, fieldParent);
+                setVisible(tabFolder, false);
                 break;
 
             default:
-                assignWithSpaceInsideParentesis.setEnabled(true, spacingParent);
-                operatorsWithSpace.setEnabled(true, spacingParent);
-                spaceForParentesis.setEnabled(true, spacingParent);
-                spaceAfterComma.setEnabled(true, spacingParent);
-                rightTrimLines.setEnabled(true, spacingParent);
-                rightTrimMultilineLiterals.setEnabled(true, spacingParent);
+                blackFormatterLocation.setVisible(false, fieldParent);
+                blackFileField.setVisible(false);
+                interpreterLink.setVisible(false);
 
-                addNewLineAtEndOfFile.setEnabled(true, blankLinesParent);
-                manageBlankLines.setEnabled(true, blankLinesParent);
+                assignWithSpaceInsideParentesis.setVisible(true, spacingParent);
+                operatorsWithSpace.setVisible(true, spacingParent);
+                spaceForParentesis.setVisible(true, spacingParent);
+                spaceAfterComma.setVisible(true, spacingParent);
+                rightTrimLines.setVisible(true, spacingParent);
+                rightTrimMultilineLiterals.setVisible(true, spacingParent);
+
+                addNewLineAtEndOfFile.setVisible(true, blankLinesParent);
+                manageBlankLines.setVisible(true, blankLinesParent);
                 if (manageBlankLines.getBooleanValue()) {
                     blankLinesTopLevel.setEnabled(true, blankLinesParent);
                     blankLinesInner.setEnabled(true, blankLinesParent);
@@ -335,9 +379,16 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
                 spacesBeforeComment.setEnabled(true, commentsParent);
                 spacesInStartComment.setEnabled(true, commentsParent);
 
-                onlyChangedLines.setEnabled(true, fieldParent);
+                onlyChangedLines.setVisible(true, fieldParent);
+                setVisible(tabFolder, true);
         }
         fieldParent.layout(true);
+    }
+
+    private void setVisible(Control control, boolean visible) {
+        control.setVisible(visible);
+        GridData layoutData = (GridData) control.getLayoutData();
+        layoutData.exclude = !visible;
     }
 
     private BooleanFieldEditorCustom createBooleanFieldEditorCustom(String name, String label, Composite parent) {
@@ -434,6 +485,9 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
         formatStd.formatterStyle = getComboFormatterStyle();
         formatStd.autopep8Parameters = this.autopep8Parameters.getStringValue();
         formatStd.blackParameters = this.blackParameters.getStringValue();
+        formatStd.searchBlackInInterpreter = !PyFormatterPreferences.LOCATION_SPECIFY
+                .equals(this.blackFormatterLocation.getRadioValue());
+        formatStd.blackExecutableLocation = this.blackFileField.getStringValue();
         formatStd.updateFormatterStyle();
         return formatStd;
     }

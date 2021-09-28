@@ -11,9 +11,11 @@
 package org.python.pydev.navigator;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
@@ -22,14 +24,12 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.navigator.IPipelinedTreeContentProvider;
 import org.eclipse.ui.navigator.PipelinedShapeModification;
 import org.eclipse.ui.navigator.PipelinedViewerUpdate;
-import org.python.pydev.core.log.Log;
 import org.python.pydev.navigator.elements.IWrappedResource;
 import org.python.pydev.navigator.elements.ProjectConfigError;
 import org.python.pydev.navigator.elements.PythonFile;
@@ -86,11 +86,12 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
      * @see org.eclipse.ui.navigator.IPipelinedTreeContentProvider#getPipelinedChildren(java.lang.Object, java.util.Set)
      */
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public void getPipelinedChildren(Object parent, Set currentElements) {
         if (DEBUG) {
             System.out.println("getPipelinedChildren for: " + parent);
         }
+        final Map<PythonNature, Set<String>> natureToSourcePathSet = new HashMap<>();
 
         if (parent instanceof IWrappedResource) {
             //Note: It seems that this NEVER happens (IWrappedResources only have getChildren called, not getPipelinedChildren)
@@ -137,14 +138,13 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
         }
 
         PipelinedShapeModification modification = new PipelinedShapeModification(parent, currentElements);
-        convertToPythonElementsAddOrRemove(modification, true);
+        convertToPythonElementsAddOrRemove(modification, true, natureToSourcePathSet);
         if (DEBUG) {
             System.out.println("getPipelinedChildren RETURN: " + modification.getChildren());
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private void fillChildrenForProject(Set currentElements, IProject project, Object parent) {
+    private void fillChildrenForProject(Set<Object> currentElements, IProject project, Object parent) {
         ProjectInfoForPackageExplorer projectInfo = ProjectInfoForPackageExplorer.getProjectInfo(project);
         if (projectInfo != null) {
             currentElements.addAll(projectInfo.configErrors);
@@ -162,6 +162,7 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
      *
      * @see org.eclipse.ui.navigator.IPipelinedTreeContentProvider#getPipelinedElements(java.lang.Object, java.util.Set)
      */
+    @SuppressWarnings("rawtypes")
     @Override
     public void getPipelinedElements(Object input, Set currentElements) {
         if (DEBUG) {
@@ -221,10 +222,12 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
         if (DEBUG) {
             System.out.println("interceptAdd");
         }
-        convertToPythonElementsAddOrRemove(addModification, true);
+        final Map<PythonNature, Set<String>> natureToSourcePathSet = new HashMap<>();
+        convertToPythonElementsAddOrRemove(addModification, true, natureToSourcePathSet);
         return addModification;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean interceptRefresh(PipelinedViewerUpdate refreshSynchronization) {
         if (DEBUG) {
@@ -238,10 +241,12 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
         if (DEBUG) {
             System.out.println("interceptRemove");
         }
-        convertToPythonElementsAddOrRemove(removeModification, false);
+        final Map<PythonNature, Set<String>> natureToSourcePathSet = new HashMap<>();
+        convertToPythonElementsAddOrRemove(removeModification, false, natureToSourcePathSet);
         return removeModification;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean interceptUpdate(PipelinedViewerUpdate updateSynchronization) {
         if (DEBUG) {
@@ -296,11 +301,14 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
 
     /**
      * Converts the shape modification to use Python elements.
+     * @param natureToSourcePathSet
      *
      * @param modification: the shape modification to convert
      * @param isAdd: boolean indicating whether this convertion is happening in an add operation
      */
-    private void convertToPythonElementsAddOrRemove(PipelinedShapeModification modification, boolean isAdd) {
+    @SuppressWarnings("unchecked")
+    private void convertToPythonElementsAddOrRemove(PipelinedShapeModification modification, boolean isAdd,
+            Map<PythonNature, Set<String>> natureToSourcePathSet) {
         if (DEBUG) {
             debug("Before", modification);
         }
@@ -312,7 +320,8 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
             if (pythonParent instanceof IWrappedResource) {
                 IWrappedResource parentResource = (IWrappedResource) pythonParent;
                 modification.setParent(parentResource);
-                wrapChildren(parentResource, parentResource.getSourceFolder(), modification.getChildren(), isAdd);
+                wrapChildren(parentResource, parentResource.getSourceFolder(), modification.getChildren(), isAdd,
+                        natureToSourcePathSet);
 
             } else if (pythonParent == null) {
 
@@ -335,7 +344,7 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
                     if (parentContainer instanceof IProject) {
                         //we got to the project without finding any part of a python model already there, so, let's see
                         //if any of the parts was actually a source folder (that was still not added)
-                        tryCreateModelFromProject((IProject) parentContainer, found);
+                        tryCreateModelFromProject((IProject) parentContainer, found, natureToSourcePathSet);
                         //and now, if it was created, try to convert it to the python model (without any further add)
                         convertToPythonElementsUpdateOrRefresh(modification.getChildren());
                         return;
@@ -371,11 +380,12 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
                     parentContainer = parentContainer.getParent();
                 }
 
-                wrapChildren(parentInWrap, sourceFolderInWrap, modification.getChildren(), isAdd);
+                wrapChildren(parentInWrap, sourceFolderInWrap, modification.getChildren(), isAdd,
+                        natureToSourcePathSet);
             }
 
         } else if (parent == null) {
-            wrapChildren(null, null, modification.getChildren(), isAdd);
+            wrapChildren(null, null, modification.getChildren(), isAdd, natureToSourcePathSet);
         }
 
         if (DEBUG) {
@@ -387,18 +397,15 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
      * Given a Path from the 1st child of the project, will try to create that path in the python model.
      * @param project the project
      * @param found a stack so that the last element added is the leaf of the path we want to discover
+     * @param natureToSourcePathSet
      */
-    private void tryCreateModelFromProject(IProject project, FastStack<Object> found) {
+    private void tryCreateModelFromProject(IProject project, FastStack<Object> found,
+            Map<PythonNature, Set<String>> natureToSourcePathSet) {
         PythonNature nature = PythonNature.getPythonNature(project);
         if (nature == null) {
             return;//if the python nature is not available, we won't have any python elements here
         }
-        Set<String> sourcePathSet = new HashSet<String>();
-        try {
-            sourcePathSet = nature.getPythonPathNature().getProjectSourcePathSet(true);
-        } catch (CoreException e) {
-            Log.log(e);
-        }
+        Set<String> sourcePathSet = this.getSourcePathSet(natureToSourcePathSet, nature);
 
         Object currentParent = project;
         PythonSourceFolder pythonSourceFolder = null;
@@ -423,7 +430,7 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
             }
 
             if (pythonSourceFolder != null) {
-                IWrappedResource r = doWrap(currentParent, pythonSourceFolder, child);
+                IWrappedResource r = doWrap(currentParent, pythonSourceFolder, child, natureToSourcePathSet);
                 if (r != null) {
                     child = r;
                 }
@@ -445,14 +452,14 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
      *        or if it is actually a resource that has already been removed)
      * @param currentChildren those are the children that should be wrapped
      * @param isAdd whether this is an add operation or not
+     * @param natureToSourcePathSet
      * @return
      */
-    @SuppressWarnings("unchecked")
-    protected boolean wrapChildren(Object parent, PythonSourceFolder pythonSourceFolder, Set currentChildren,
-            boolean isAdd) {
-        LinkedHashSet convertedChildren = new LinkedHashSet();
+    private boolean wrapChildren(Object parent, PythonSourceFolder pythonSourceFolder, Set<Object> currentChildren,
+            boolean isAdd, Map<PythonNature, Set<String>> natureToSourcePathSet) {
+        LinkedHashSet<Object> convertedChildren = new LinkedHashSet<>();
 
-        for (Iterator childrenItr = currentChildren.iterator(); childrenItr.hasNext();) {
+        for (Iterator<Object> childrenItr = currentChildren.iterator(); childrenItr.hasNext();) {
             Object child = childrenItr.next();
 
             if (child == null) {
@@ -470,7 +477,7 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
             if (existing == null) {
                 if (isAdd) {
                     //add
-                    IWrappedResource w = doWrap(parent, pythonSourceFolder, child);
+                    IWrappedResource w = doWrap(parent, pythonSourceFolder, child, natureToSourcePathSet);
                     if (w != null) { //if it is null, it is not below a python source folder
                         childrenItr.remove();
                         convertedChildren.add(w);
@@ -506,13 +513,15 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
      * @param parent the parent of the wrapped resource
      * @param pythonSourceFolder the source folder that contains this resource
      * @param child the object that should be wrapped
+     * @param natureToSourcePathSet
      * @return the object as an object from the python model
      */
-    protected IWrappedResource doWrap(Object parent, PythonSourceFolder pythonSourceFolder, Object child) {
+    protected IWrappedResource doWrap(Object parent, PythonSourceFolder pythonSourceFolder, Object child,
+            Map<PythonNature, Set<String>> natureToSourcePathSet) {
         if (child instanceof IProject) {
             //ok, let's see if the child is a source folder (as the default project can be the actual source folder)
             if (pythonSourceFolder == null && parent != null) {
-                PythonSourceFolder f = doWrapPossibleSourceFolder(parent, (IProject) child);
+                PythonSourceFolder f = doWrapPossibleSourceFolder(parent, (IProject) child, natureToSourcePathSet);
                 if (f != null) {
                     return f;
                 }
@@ -523,7 +532,7 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
 
             //it may be a PythonSourceFolder
             if (pythonSourceFolder == null && parent != null) {
-                PythonSourceFolder f = doWrapPossibleSourceFolder(parent, folder);
+                PythonSourceFolder f = doWrapPossibleSourceFolder(parent, folder, natureToSourcePathSet);
                 if (f != null) {
                     return f;
                 }
@@ -552,26 +561,24 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
 
     /**
      * Try to wrap a folder or project as a source folder...
+     * @param natureToSourcePathSet
      */
-    private PythonSourceFolder doWrapPossibleSourceFolder(Object parent, IContainer container) {
-        try {
-            IProject project;
-            if (!(container instanceof IProject)) {
-                project = ((IContainer) parent).getProject();
-            } else {
-                project = (IProject) container;
+    private PythonSourceFolder doWrapPossibleSourceFolder(Object parent, IContainer container,
+            Map<PythonNature, Set<String>> natureToSourcePathSet) {
+        IProject project;
+        if (!(container instanceof IProject)) {
+            project = ((IContainer) parent).getProject();
+        } else {
+            project = (IProject) container;
+        }
+        PythonNature nature = PythonNature.getPythonNature(project);
+        if (nature != null) {
+            //check for source folder
+            Set<String> sourcePathSet = this.getSourcePathSet(natureToSourcePathSet, nature);
+            PythonSourceFolder newSourceFolder = tryWrapSourceFolder(parent, container, sourcePathSet);
+            if (newSourceFolder != null) {
+                return newSourceFolder;
             }
-            PythonNature nature = PythonNature.getPythonNature(project);
-            if (nature != null) {
-                //check for source folder
-                Set<String> sourcePathSet = nature.getPythonPathNature().getProjectSourcePathSet(true);
-                PythonSourceFolder newSourceFolder = tryWrapSourceFolder(parent, container, sourcePathSet);
-                if (newSourceFolder != null) {
-                    return newSourceFolder;
-                }
-            }
-        } catch (CoreException e) {
-            throw new RuntimeException(e);
         }
         return null;
     }
@@ -603,10 +610,10 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
     /**
      * Converts elements to the python model -- but only creates it if it's parent is found in the python model
      */
-    @SuppressWarnings("unchecked")
-    protected boolean convertToPythonElementsUpdateOrRefresh(Set currentChildren) {
-        LinkedHashSet convertedChildren = new LinkedHashSet();
-        for (Iterator childrenItr = currentChildren.iterator(); childrenItr.hasNext();) {
+    protected boolean convertToPythonElementsUpdateOrRefresh(Set<Object> currentChildren) {
+        final Map<PythonNature, Set<String>> natureToSourcePathSet = new HashMap<>();
+        LinkedHashSet<Object> convertedChildren = new LinkedHashSet<>();
+        for (Iterator<Object> childrenItr = currentChildren.iterator(); childrenItr.hasNext();) {
             Object child = childrenItr.next();
 
             if (child == null) {
@@ -663,12 +670,9 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
                         if (nature == null) {
                             continue;
                         }
-                        Set<String> sourcePathSet = new HashSet<String>();
-                        try {
-                            sourcePathSet = nature.getPythonPathNature().getProjectSourcePathSet(true);
-                        } catch (CoreException e) {
-                            Log.log(e);
-                        }
+
+                        Set<String> sourcePathSet = this.getSourcePathSet(natureToSourcePathSet, nature);
+
                         PythonSourceFolder wrapped = tryWrapSourceFolder(p, folder, sourcePathSet);
                         if (wrapped != null) {
                             childrenItr.remove();
@@ -676,7 +680,6 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
                         }
                     }
                 }
-
             }
         }
         if (!convertedChildren.isEmpty()) {
@@ -686,4 +689,5 @@ public final class PythonModelProvider extends PythonBaseModelProvider implement
         return false;
 
     }
+
 }

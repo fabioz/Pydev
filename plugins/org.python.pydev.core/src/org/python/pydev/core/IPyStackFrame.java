@@ -6,6 +6,8 @@
  */
 package org.python.pydev.core;
 
+import org.eclipse.core.runtime.IPath;
+
 /**
  * @author fabioz
  *
@@ -13,5 +15,11 @@ package org.python.pydev.core;
 public interface IPyStackFrame {
 
     String getFileContents();
+
+    void setFileLoadedFromDebugger(IPath path);
+
+    boolean isFileLoadedFromDebugger(IPath path);
+
+    /*IEditorInput*/ Object getEditorInputFromLoadedSource(IPath path);
 
 }

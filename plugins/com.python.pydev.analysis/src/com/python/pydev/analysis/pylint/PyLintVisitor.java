@@ -14,6 +14,7 @@ package com.python.pydev.analysis.pylint;
 import java.io.File;
 import java.util.List;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -37,8 +38,9 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
  */
 /*default*/ public final class PyLintVisitor extends OnlyRemoveMarkersPyLintVisitor {
 
-    private IDocument document;
-    private IProgressMonitor monitor;
+    private final IDocument document;
+    private final IProgressMonitor monitor;
+    private final Object lock = new Object();
 
     /*default*/ PyLintVisitor(IResource resource, IDocument document, ICallback<IModule, Integer> module,
             IProgressMonitor monitor) {
@@ -54,7 +56,8 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
      */
     @Override
     public void startVisit() {
-        if (document == null || resource == null || PyLintPreferences.usePyLint() == false) {
+        if (resource == null || PyLintPreferences.usePyLint(resource) == false
+                || (document == null && !(resource instanceof IContainer))) {
             deleteMarkers();
             return;
         }
@@ -66,7 +69,7 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
             return;
         }
 
-        File pyLintLocation = PyLintPreferences.getPyLintLocation(pythonNature);
+        File pyLintLocation = PyLintPreferences.getPyLintLocation(pythonNature, resource);
         if (pyLintLocation == null || !pyLintLocation.exists()) {
             deleteMarkers();
             return;
@@ -82,18 +85,42 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
             deleteMarkers();
             return;
         }
-        if (project != null && resource instanceof IFile) {
-            IFile file = (IFile) resource;
-            IPath location = file.getRawLocation();
-            if (location != null) {
-                pyLintRunnable = new PyLintAnalysis(resource, document, location,
-                        new NullProgressMonitorWrapper(monitor), pyLintLocation);
+        synchronized (lock) {
 
-                try {
-                    IExternalCodeAnalysisStream out = PyLintPreferences.getConsoleOutputStream();
-                    pyLintRunnable.createPyLintProcess(out);
-                } catch (final Exception e) {
-                    Log.log(e);
+            if (pyLintRunnable != null) {
+                // If the pyLintRunnable is already created, don't recreate it
+                // (we should be analyzing multiple resources in a single call).
+                return;
+            }
+            if (project != null) {
+                if (resource instanceof IFile) {
+                    IFile file = (IFile) resource;
+                    IPath location = file.getLocation();
+                    if (location != null) {
+                        pyLintRunnable = new PyLintAnalysis(resource, document, location,
+                                new NullProgressMonitorWrapper(monitor), pyLintLocation);
+
+                        try {
+                            IExternalCodeAnalysisStream out = PyLintPreferences.getConsoleOutputStream(resource);
+                            pyLintRunnable.createPyLintProcess(out);
+                        } catch (final Exception e) {
+                            Log.log(e);
+                        }
+                    }
+                } else if (resource instanceof IContainer) {
+                    IContainer dir = (IContainer) resource;
+                    IPath location = dir.getLocation();
+                    if (location != null) {
+                        pyLintRunnable = new PyLintAnalysis(resource, null, location,
+                                new NullProgressMonitorWrapper(monitor), pyLintLocation);
+
+                        try {
+                            IExternalCodeAnalysisStream out = PyLintPreferences.getConsoleOutputStream(resource);
+                            pyLintRunnable.createPyLintProcess(out);
+                        } catch (final Exception e) {
+                            Log.log(e);
+                        }
+                    }
                 }
             }
         }
@@ -107,11 +134,11 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
     }
 
     @Override
-    public List<PyMarkerUtils.MarkerInfo> getMarkers() {
+    public List<PyMarkerUtils.MarkerInfo> getMarkers(IResource resource) {
         if (pyLintRunnable == null) {
             return null;
         }
-        return pyLintRunnable.markers;
+        return pyLintRunnable.getMarkers(resource);
     }
 
     @Override

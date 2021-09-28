@@ -89,6 +89,9 @@ public class InteractiveConsolePrefs extends FieldEditorPreferencePage implement
                 "Enable GUI event loop integration?",
                 PydevConsoleConstants.ENTRIES_VALUES_INTERACTIVE_CONSOLE_ENABLE_GUI_ON_STARTUP, p));
 
+        addField(new ComboFieldEditor(PydevConsoleConstants.INTERACTIVE_CONSOLE_DEFAULT_INTERPRETER,
+                "Default interpreter?",
+                PydevConsoleConstants.ENTRIES_VALUES_INTERACTIVE_CONSOLE_DEFAULT_INTERPRETER, p));
     }
 
     @Override
@@ -158,6 +161,26 @@ public class InteractiveConsolePrefs extends FieldEditorPreferencePage implement
         PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
         return plugin.getPreferenceStore().getString(
                 PydevConsoleConstants.INTERACTIVE_CONSOLE_ENABLE_GUI_ON_STARTUP);
+    }
+
+    public static String getDefaultInteractiveConsole() {
+        if (SharedCorePlugin.inTestMode()) {
+            return PydevConsoleConstants.DEFAULT_INTERACTIVE_CONSOLE_DEFAULT_INTERPRETER;
+        }
+        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
+        return plugin.getPreferenceStore().getString(
+                PydevConsoleConstants.INTERACTIVE_CONSOLE_DEFAULT_INTERPRETER);
+    }
+
+    public static void setDefaultInteractiveConsole(String pref) {
+        if (SharedCorePlugin.inTestMode() || pref == null
+                || !PydevConsoleConstants.INTERACTIVE_CONSOLE_INTERPRETERS.contains(pref)) {
+            return;
+        }
+        PydevDebugPlugin plugin = PydevDebugPlugin.getDefault();
+        plugin.getPreferenceStore().setValue(PydevConsoleConstants.INTERACTIVE_CONSOLE_DEFAULT_INTERPRETER,
+                pref);
+
     }
 
 }

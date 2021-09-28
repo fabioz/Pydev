@@ -31,7 +31,7 @@ import org.python.pydev.shared_core.structure.Tuple;
  * is attached to PyEdit (a view), and it listens to document changes On every
  * document change, the syntax tree is regenerated The reparsing of the document
  * is done on a ParsingThread
- * 
+ *
  * Clients that need to know when new parse tree has been generated should
  * register as parseListeners.
  */
@@ -44,7 +44,7 @@ public abstract class BaseParser implements IParser {
     public static boolean ACCEPT_NULL_INPUT_EDITOR = false;
 
     /**
-     * this is the document we should parse 
+     * this is the document we should parse
      */
     protected volatile IDocument document;
 
@@ -219,7 +219,7 @@ public abstract class BaseParser implements IParser {
     // ---------------------------------------------------------------------------- notifications
     /**
      * stock listener implementation event is fired whenever we get a new root
-     * @param original 
+     * @param original
      */
     protected void fireParserChanged(ChangedParserInfoForObservers info) {
         this.root = info.root;
@@ -248,7 +248,7 @@ public abstract class BaseParser implements IParser {
 
     /**
      * stock listener implementation event is fired when parse fails
-     * @param original 
+     * @param original
      */
     protected void fireParserError(ErrorParserInfoForObservers info) {
         List<IParserObserver> temp;
@@ -275,6 +275,7 @@ public abstract class BaseParser implements IParser {
         public final long modificationStamp;
         public final Throwable error;
         public final ISimpleNode ast;
+        public boolean isCython;
 
         public ParseOutput(Tuple<ISimpleNode, Throwable> astInfo, long modificationStamp) {
             this.ast = astInfo.o1;
@@ -298,11 +299,11 @@ public abstract class BaseParser implements IParser {
 
     /**
      * Parses the document, generates error annotations
-     * 
+     *
      * @param argsToReparse: will be passed to fireParserError / fireParserChanged so that the IParserObserver2
      * can check it. This is useful when the reparse was done with some specific thing in mind, so that its requestor
      * can pass some specific thing to the parser observers
-     * 
+     *
      * @return a tuple with the SimpleNode root(if parsed) and the error (if any).
      *         if we are able to recover from a reparse, we have both, the root and the error.
      */

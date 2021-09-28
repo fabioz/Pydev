@@ -21,6 +21,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.python.pydev.ast.codecompletion.IPyCompletionProposal2;
+import org.python.pydev.ast.codecompletion.PriorityLRU;
 import org.python.pydev.ast.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPySourceViewer;
@@ -108,6 +109,11 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
                 compareContext);
         this.infoTypeForImage = infoTypeForImage;
         this.realImportRep = realImportRep;
+
+        Integer lruPriority = PriorityLRU.getPriority(realImportRep);
+        if (lruPriority != null) {
+            this.priority = lruPriority;
+        }
     }
 
     @Override
@@ -188,6 +194,7 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
     }
 
     protected void apply(IDocument document, char trigger, int stateMask, int offset, IAdaptable projectAdaptable) {
+        PriorityLRU.appliedCompletion(realImportRep);
         if (this.indentString == null) {
             throw new RuntimeException("Indent string not set (not called with a PyEdit as viewer?)");
         }

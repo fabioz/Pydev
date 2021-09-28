@@ -18,14 +18,23 @@ import org.python.pydev.shared_core.SharedCorePlugin;
 
 public class PyVariablesPreferences {
 
-    public static final String DEBUG_UI_VARIABLES_SHOW_PRIVATE_REFERENCES = "DEBUG_UI_VARIABLES_SHOW_PRIVATE_REFERENCES";
-    public static final boolean DEBUG_UI_VARIABLES_DEFAULT_SHOW_PRIVATE_REFERENCES = true;
+    public static final String DEBUG_UI_VARIABLES_SHOW_SPECIAL_REFERENCES = "DEBUG_UI_VARIABLES_SHOW_SPECIAL_REFERENCES";
+    public static final boolean DEBUG_UI_VARIABLES_DEFAULT_SHOW_SPECIAL_REFERENCES = false;
+
+    public static final String DEBUG_UI_VARIABLES_SHOW_FUNCTION_REFERENCES = "DEBUG_UI_VARIABLES_SHOW_FUNCTION_REFERENCES";
+    public static final boolean DEBUG_UI_VARIABLES_DEFAULT_SHOW_FUNCTION_REFERENCES = false;
+
+    public static final String DEBUG_UI_VARIABLES_SHOW_CLASS_REFERENCES = "DEBUG_UI_VARIABLES_SHOW_CLASS_REFERENCES";
+    public static final boolean DEBUG_UI_VARIABLES_DEFAULT_SHOW_CLASS_REFERENCES = true;
+
+    public static final String DEBUG_UI_VARIABLES_SHOW_PROTECTED_REFERENCES = "DEBUG_UI_VARIABLES_SHOW_PROTECTED_REFERENCES";
+    public static final boolean DEBUG_UI_VARIABLES_DEFAULT_SHOW_PROTECTED_REFERENCES = true;
+
     public static final String DEBUG_UI_VARIABLES_SHOW_CAPITALIZED_REFERENCES = "DEBUG_UI_VARIABLES_SHOW_CAPITALIZED_REFERENCES";
     public static final boolean DEBUG_UI_VARIABLES_DEFAULT_SHOW_CAPITALIZED_REFERENCES = true;
+
     public static final String DEBUG_UI_VARIABLES_SHOW_ALLUPPERCASE_REFERENCES = "DEBUG_UI_VARIABLES_SHOW_ALLUPPERCASE_REFERENCES";
     public static final boolean DEBUG_UI_VARIABLES_DEFAULT_SHOW_ALLUPPERCASE_REFERENCES = true;
-    public static final String DEBUG_UI_VARIABLES_SHOW_FUNCTION_AND_MODULE_REFERENCES = "DEBUG_UI_VARIABLES_SHOW_FUNCTION_AND_MODULE_REFERENCES";
-    public static final boolean DEBUG_UI_VARIABLES_DEFAULT_SHOW_FUNCTION_AND_MODULE_REFERENCES = true;
 
     private static boolean getHelper(String key, boolean defaultValue) {
         if (SharedCorePlugin.inTestMode()) {
@@ -58,12 +67,12 @@ public class PyVariablesPreferences {
     }
 
     public static boolean isShowPrivateReferences() {
-        return getHelper(PyVariablesPreferences.DEBUG_UI_VARIABLES_SHOW_PRIVATE_REFERENCES,
-                PyVariablesPreferences.DEBUG_UI_VARIABLES_DEFAULT_SHOW_PRIVATE_REFERENCES);
+        return getHelper(PyVariablesPreferences.DEBUG_UI_VARIABLES_SHOW_SPECIAL_REFERENCES,
+                PyVariablesPreferences.DEBUG_UI_VARIABLES_DEFAULT_SHOW_SPECIAL_REFERENCES);
     }
 
     public static void setShowPrivateReferences(boolean value) {
-        setHelper(PyVariablesPreferences.DEBUG_UI_VARIABLES_SHOW_PRIVATE_REFERENCES, value);
+        setHelper(PyVariablesPreferences.DEBUG_UI_VARIABLES_SHOW_SPECIAL_REFERENCES, value);
     }
 
     public static boolean isShowCapitalizedReferences() {
@@ -85,23 +94,50 @@ public class PyVariablesPreferences {
     }
 
     public static boolean isShowFunctionAndModuleReferences() {
-        return getHelper(PyVariablesPreferences.DEBUG_UI_VARIABLES_SHOW_FUNCTION_AND_MODULE_REFERENCES,
-                PyVariablesPreferences.DEBUG_UI_VARIABLES_DEFAULT_SHOW_FUNCTION_AND_MODULE_REFERENCES);
+        return getHelper(PyVariablesPreferences.DEBUG_UI_VARIABLES_SHOW_FUNCTION_REFERENCES,
+                PyVariablesPreferences.DEBUG_UI_VARIABLES_DEFAULT_SHOW_FUNCTION_REFERENCES);
     }
 
     public static void setShowFunctionAndModuleReferences(boolean value) {
-        setHelper(PyVariablesPreferences.DEBUG_UI_VARIABLES_SHOW_FUNCTION_AND_MODULE_REFERENCES, value);
+        setHelper(PyVariablesPreferences.DEBUG_UI_VARIABLES_SHOW_FUNCTION_REFERENCES, value);
+    }
+
+    public static boolean isShowClassReferences() {
+        return getHelper(PyVariablesPreferences.DEBUG_UI_VARIABLES_SHOW_CLASS_REFERENCES,
+                PyVariablesPreferences.DEBUG_UI_VARIABLES_DEFAULT_SHOW_CLASS_REFERENCES);
+    }
+
+    public static void setShowClassReferences(boolean value) {
+        setHelper(PyVariablesPreferences.DEBUG_UI_VARIABLES_SHOW_CLASS_REFERENCES, value);
+    }
+
+    public static boolean isShowProtectedReferences() {
+        return getHelper(PyVariablesPreferences.DEBUG_UI_VARIABLES_SHOW_PROTECTED_REFERENCES,
+                PyVariablesPreferences.DEBUG_UI_VARIABLES_DEFAULT_SHOW_PROTECTED_REFERENCES);
+    }
+
+    public static void setShowProtectedReferences(boolean value) {
+        setHelper(PyVariablesPreferences.DEBUG_UI_VARIABLES_SHOW_PROTECTED_REFERENCES, value);
     }
 
     public static void initializeDefaultPreferences() {
-        setDefaultHelper(PyVariablesPreferences.DEBUG_UI_VARIABLES_SHOW_PRIVATE_REFERENCES,
-                PyVariablesPreferences.DEBUG_UI_VARIABLES_DEFAULT_SHOW_PRIVATE_REFERENCES);
+        setDefaultHelper(PyVariablesPreferences.DEBUG_UI_VARIABLES_SHOW_SPECIAL_REFERENCES,
+                PyVariablesPreferences.DEBUG_UI_VARIABLES_DEFAULT_SHOW_SPECIAL_REFERENCES);
+
         setDefaultHelper(PyVariablesPreferences.DEBUG_UI_VARIABLES_SHOW_CAPITALIZED_REFERENCES,
                 PyVariablesPreferences.DEBUG_UI_VARIABLES_DEFAULT_SHOW_CAPITALIZED_REFERENCES);
+
         setDefaultHelper(PyVariablesPreferences.DEBUG_UI_VARIABLES_SHOW_ALLUPPERCASE_REFERENCES,
                 PyVariablesPreferences.DEBUG_UI_VARIABLES_DEFAULT_SHOW_ALLUPPERCASE_REFERENCES);
-        setDefaultHelper(PyVariablesPreferences.DEBUG_UI_VARIABLES_SHOW_FUNCTION_AND_MODULE_REFERENCES,
-                PyVariablesPreferences.DEBUG_UI_VARIABLES_DEFAULT_SHOW_FUNCTION_AND_MODULE_REFERENCES);
+
+        setDefaultHelper(PyVariablesPreferences.DEBUG_UI_VARIABLES_SHOW_FUNCTION_REFERENCES,
+                PyVariablesPreferences.DEBUG_UI_VARIABLES_DEFAULT_SHOW_FUNCTION_REFERENCES);
+
+        setDefaultHelper(PyVariablesPreferences.DEBUG_UI_VARIABLES_SHOW_CLASS_REFERENCES,
+                PyVariablesPreferences.DEBUG_UI_VARIABLES_DEFAULT_SHOW_CLASS_REFERENCES);
+
+        setDefaultHelper(PyVariablesPreferences.DEBUG_UI_VARIABLES_SHOW_PROTECTED_REFERENCES,
+                PyVariablesPreferences.DEBUG_UI_VARIABLES_DEFAULT_SHOW_PROTECTED_REFERENCES);
 
     }
 

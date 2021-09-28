@@ -16,7 +16,10 @@ import org.eclipse.jface.bindings.TriggerSequence;
 import org.eclipse.jface.bindings.keys.KeySequence;
 import org.eclipse.jface.bindings.keys.KeyStroke;
 import org.eclipse.jface.bindings.keys.ParseException;
+import org.eclipse.jface.bindings.keys.SWTKeySupport;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.keys.IBindingService;
@@ -36,7 +39,7 @@ public class KeyBindingHelper {
      * @return true if the given event matches a content assistant keystroke (and false otherwise).
      */
     public static boolean matchesContentAssistKeybinding(KeyEvent event) {
-        return matchesKeybinding(event, ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS);
+        return matchesCommandKeybinding(event, ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS);
     }
 
     /**
@@ -50,7 +53,7 @@ public class KeyBindingHelper {
      * @return true if the given event matches a quick assistant keystroke (and false otherwise).
      */
     public static boolean matchesQuickAssistKeybinding(KeyEvent event) {
-        return matchesKeybinding(event, ITextEditorActionDefinitionIds.QUICK_ASSIST);
+        return matchesCommandKeybinding(event, ITextEditorActionDefinitionIds.QUICK_ASSIST);
     }
 
     /**
@@ -60,26 +63,21 @@ public class KeyBindingHelper {
         return getCommandKeyBinding(ITextEditorActionDefinitionIds.QUICK_ASSIST);
     }
 
-    //END pre-defined helpers
-
     /**
-     * @param event the key event to be checked
-     * @param commandId the command to be checked
-     * @return true if the given key event can trigger the passed command (and false otherwise).
+     * @return true if the given event matches the given KeySequence.
      */
-    public static boolean matchesKeybinding(KeyEvent event, String commandId) {
-        int keyCode = event.keyCode;
-        int stateMask = event.stateMask;
-
-        return matchesKeybinding(keyCode, stateMask, commandId);
+    public static boolean matchesKeysequence(Event event, KeySequence keySequence) {
+        List<KeyStroke> possibleKeyStrokes = generatePossibleKeyStrokes(event);
+        return matchesKeyStokesAndKeySequence(possibleKeyStrokes, keySequence);
     }
 
-    public static KeySequence getKeySequence(String text) throws ParseException, IllegalArgumentException {
-        KeySequence keySequence = KeySequence.getInstance(KeyStroke.getInstance(text));
-        return keySequence;
+    public static boolean matchesCommandKeybinding(Event event, String commandId) {
+        List<KeyStroke> possibleKeyStrokes = generatePossibleKeyStrokes(event);
+        return matchesCommandKeybinding(possibleKeyStrokes, commandId);
     }
 
-    public static boolean matchesKeybinding(int keyCode, int stateMask, String commandId) {
+    private static boolean matchesCommandKeybinding(List<KeyStroke> possibleKeyStrokes, String commandId) {
+
         final IBindingService bindingSvc = PlatformUI.getWorkbench()
                 .getAdapter(IBindingService.class);
         TriggerSequence[] activeBindingsFor = bindingSvc.getActiveBindingsFor(commandId);
@@ -87,7 +85,7 @@ public class KeyBindingHelper {
         for (TriggerSequence seq : activeBindingsFor) {
             if (seq instanceof KeySequence) {
                 KeySequence keySequence = (KeySequence) seq;
-                if (matchesKeybinding(keyCode, stateMask, keySequence)) {
+                if (matchesKeyStokesAndKeySequence(possibleKeyStrokes, keySequence)) {
                     return true;
                 }
             }
@@ -96,15 +94,69 @@ public class KeyBindingHelper {
         return false;
     }
 
-    public static boolean matchesKeybinding(int keyCode, int stateMask, KeySequence keySequence) {
+    /**
+     * @param event the key event to be checked
+     * @param commandId the command to be checked
+     * @return true if the given key event can trigger the passed command (and false otherwise).
+     */
+    public static boolean matchesCommandKeybinding(KeyEvent keyEvent, String commandId) {
+        Event event = new Event();
+        event.stateMask = keyEvent.stateMask;
+        event.keyCode = keyEvent.keyCode;
+        event.character = keyEvent.character;
+        return matchesCommandKeybinding(event, commandId);
+    }
+
+    public static KeySequence getKeySequence(String text) throws ParseException, IllegalArgumentException {
+        KeySequence keySequence = KeySequence.getInstance(KeyStroke.getInstance(text));
+        return keySequence;
+    }
+
+    /**
+     * Gotten from: org.eclipse.e4.ui.bindings.keys.KeyBindingDispatcher
+     */
+    private static List<KeyStroke> generatePossibleKeyStrokes(Event event) {
+        final List<KeyStroke> keyStrokes = new ArrayList<>(3);
+
+        /*
+         * If this is not a keyboard event, then there are no key strokes. This can happen if we are
+         * listening to focus traversal events.
+         */
+        if ((event.stateMask == 0) && (event.keyCode == 0) && (event.character == 0)) {
+            return keyStrokes;
+        }
+
+        // Add each unique key stroke to the list for consideration.
+        final int firstAccelerator = SWTKeySupport.convertEventToUnmodifiedAccelerator(event);
+        keyStrokes.add(SWTKeySupport.convertAcceleratorToKeyStroke(firstAccelerator));
+
+        // We shouldn't allow delete to undergo shift resolution.
+        if (event.character == SWT.DEL) {
+            return keyStrokes;
+        }
+
+        final int secondAccelerator = SWTKeySupport
+                .convertEventToUnshiftedModifiedAccelerator(event);
+        if (secondAccelerator != firstAccelerator) {
+            keyStrokes.add(SWTKeySupport.convertAcceleratorToKeyStroke(secondAccelerator));
+        }
+
+        final int thirdAccelerator = SWTKeySupport.convertEventToModifiedAccelerator(event);
+        if ((thirdAccelerator != secondAccelerator) && (thirdAccelerator != firstAccelerator)) {
+            keyStrokes.add(SWTKeySupport.convertAcceleratorToKeyStroke(thirdAccelerator));
+        }
+
+        return keyStrokes;
+    }
+
+    private static boolean matchesKeyStokesAndKeySequence(List<KeyStroke> possibleKeyStrokes, KeySequence keySequence) {
         KeyStroke[] keyStrokes = keySequence.getKeyStrokes();
 
         for (KeyStroke keyStroke : keyStrokes) {
-
-            if (keyStroke.getNaturalKey() == keyCode
-                    && ((keyStroke.getModifierKeys() & stateMask) != 0 || keyStroke.getModifierKeys() == stateMask)) {
-
-                return true;
+            for (KeyStroke possibleKeyStroke : possibleKeyStrokes) {
+                if (keyStroke.equals(possibleKeyStroke)) {
+                    return true;
+                }
             }
         }
         return false;

@@ -1,40 +1,38 @@
 import os
-import sys
 
-from _pydevd_bundle.pydevd_constants import IS_PYCHARM
-
-IS_PY36_OR_GREATER = sys.version_info >= (3, 6)
+from _pydev_bundle import pydev_log
+from _pydevd_bundle.pydevd_trace_dispatch import USING_CYTHON
+from _pydevd_bundle.pydevd_constants import USE_CYTHON_FLAG, ENV_FALSE_LOWER_VALUES, \
+    ENV_TRUE_LOWER_VALUES, IS_PY36_OR_GREATER, SUPPORT_GEVENT
 
 frame_eval_func = None
 stop_frame_eval = None
 dummy_trace_dispatch = None
-show_frame_eval_warning = False
 clear_thread_local_info = None
 
-# "NO" means we should not use frame evaluation, 'YES' we should use it (and fail if not there) and unspecified uses if possible.
-use_frame_eval = os.environ.get('PYDEVD_USE_FRAME_EVAL', None)
+USING_FRAME_EVAL = False
 
-if use_frame_eval == 'NO':
+# "NO" means we should not use frame evaluation, 'YES' we should use it (and fail if not there) and unspecified uses if possible.
+use_frame_eval = os.environ.get('PYDEVD_USE_FRAME_EVAL', '').lower()
+
+if use_frame_eval in ENV_FALSE_LOWER_VALUES or USE_CYTHON_FLAG in ENV_FALSE_LOWER_VALUES or not USING_CYTHON:
     pass
 
-elif use_frame_eval == 'YES':
+elif SUPPORT_GEVENT:
+    pass
+    # i.e gevent and frame eval mode don't get along very well.
+    # https://github.com/microsoft/debugpy/issues/189
+
+elif use_frame_eval in ENV_TRUE_LOWER_VALUES:
     # Fail if unable to use
     from _pydevd_frame_eval.pydevd_frame_eval_cython_wrapper import frame_eval_func, stop_frame_eval, dummy_trace_dispatch, clear_thread_local_info
+    USING_FRAME_EVAL = True
 
-elif use_frame_eval is None:
+else:
     # Try to use if possible
     if IS_PY36_OR_GREATER:
         try:
             from _pydevd_frame_eval.pydevd_frame_eval_cython_wrapper import frame_eval_func, stop_frame_eval, dummy_trace_dispatch, clear_thread_local_info
+            USING_FRAME_EVAL = True
         except ImportError:
-            from _pydev_bundle.pydev_monkey import log_error_once
-
-            dirname = os.path.dirname(os.path.dirname(__file__))
-            if not IS_PYCHARM:
-                log_error_once("warning: Debugger speedups using cython not found. Run '\"%s\" \"%s\" build_ext --inplace' to build." % (
-                    sys.executable, os.path.join(dirname, 'setup_cython.py')))
-            else:
-                show_frame_eval_warning = True
-
-else:
-    raise RuntimeError('Unexpected value for PYDEVD_USE_FRAME_EVAL: %s (accepted: YES, NO)' % (use_frame_eval,))
+            pydev_log.show_compile_cython_command_line()

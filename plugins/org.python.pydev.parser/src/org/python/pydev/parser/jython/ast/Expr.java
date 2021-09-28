@@ -9,6 +9,10 @@ public final class Expr extends stmtType {
 
     public Expr(exprType value) {
         this.value = value;
+        if(value != null){
+            beginColumn = value.beginColumn;
+            beginLine = value.beginLine;
+        }
     }
 
     @Override

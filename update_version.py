@@ -44,7 +44,7 @@ def compare_lines(lines_obtained, lines_expected):
     raise AssertionError(msg)
 
 def find_files(top):
-    print top
+    print(top)
     for root, dirs, files in os.walk(top):
         for d in ('.svn', '.git', '.metadata'):
             if d in dirs:

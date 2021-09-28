@@ -17,11 +17,17 @@ from tests_python.debugger_unittest import (CMD_SET_PROPERTY_TRACE, REASON_CAUGH
     IS_APPVEYOR, wait_for_condition, CMD_GET_FRAME, CMD_GET_BREAKPOINT_EXCEPTION,
     CMD_THREAD_SUSPEND, CMD_STEP_OVER, REASON_STEP_OVER, CMD_THREAD_SUSPEND_SINGLE_NOTIFICATION,
     CMD_THREAD_RESUME_SINGLE_NOTIFICATION, REASON_STEP_RETURN, REASON_STEP_RETURN_MY_CODE,
-    REASON_STEP_OVER_MY_CODE, REASON_STEP_INTO, CMD_THREAD_KILL)
-from _pydevd_bundle.pydevd_constants import IS_WINDOWS
-from _pydevd_bundle.pydevd_comm_constants import CMD_RELOAD_CODE
+    REASON_STEP_OVER_MY_CODE, REASON_STEP_INTO, CMD_THREAD_KILL, IS_PYPY, REASON_STOP_ON_START,
+    CMD_SMART_STEP_INTO)
+from _pydevd_bundle.pydevd_constants import IS_WINDOWS, IS_PY38_OR_GREATER, \
+    IS_MAC
+from _pydevd_bundle.pydevd_comm_constants import CMD_RELOAD_CODE, CMD_INPUT_REQUESTED
 import json
 import pydevd_file_utils
+import subprocess
+import threading
+from tests_python.debug_constants import IS_PY26
+from _pydev_bundle import pydev_log
 try:
     from urllib import unquote
 except ImportError:
@@ -44,7 +50,7 @@ else:
     builtin_qualifier = "builtins"
 
 
-@pytest.mark.skipif(IS_IRONPYTHON or IS_JYTHON, reason='Test needs gc.get_referrers to really check anything.')
+@pytest.mark.skipif(not IS_CPYTHON, reason='Test needs gc.get_referrers/reference counting to really check anything.')
 def test_case_referrers(case_setup):
     with case_setup.test_file('_debugger_case1.py') as writer:
         writer.log.append('writing add breakpoint')
@@ -121,21 +127,26 @@ def test_case_2(case_setup):
         [['ValueError'], ['Exception']],
         [['Exception'], ['ValueError']],  # ValueError will also suspend/print since we're dealing with a NameError
     )
- )
+)
 def test_case_breakpoint_condition_exc(case_setup, skip_suspend_on_breakpoint_exception, skip_print_breakpoint_exception):
 
     msgs_in_stderr = (
         'Error while evaluating expression: i > 5',
-        "NameError: name 'i' is not defined",
         'Traceback (most recent call last):',
         'File "<string>", line 1, in <module>',
+    )
+
+    # It could be one or the other in PyPy depending on the version.
+    msgs_one_in_stderr = (
+        "NameError: name 'i' is not defined",
+        "global name 'i' is not defined",
     )
 
     def _ignore_stderr_line(line):
         if original_ignore_stderr_line(line):
             return True
 
-        for msg in msgs_in_stderr:
+        for msg in msgs_in_stderr + msgs_one_in_stderr:
             if msg in line:
                 return True
 
@@ -146,8 +157,15 @@ def test_case_breakpoint_condition_exc(case_setup, skip_suspend_on_breakpoint_ex
         if skip_print_breakpoint_exception in ([], ['ValueError']):
             for msg in msgs_in_stderr:
                 assert msg in stderr
+
+            for msg in msgs_one_in_stderr:
+                if msg in stderr:
+                    break
+            else:
+                raise AssertionError('Did not find any of: %s in stderr: %s' % (
+                    msgs_one_in_stderr, stderr))
         else:
-            for msg in msgs_in_stderr:
+            for msg in msgs_in_stderr + msgs_one_in_stderr:
                 assert msg not in stderr
 
     with case_setup.test_file('_debugger_case_breakpoint_condition_exc.py') as writer:
@@ -194,13 +212,38 @@ def test_case_breakpoint_condition_exc(case_setup, skip_suspend_on_breakpoint_ex
         writer.finished_ok = True
 
 
+def test_case_remove_breakpoint(case_setup):
+    with case_setup.test_file('_debugger_case_remove_breakpoint.py') as writer:
+        breakpoint_id = writer.write_add_breakpoint(writer.get_line_index_with_content('break here'))
+        writer.write_make_initial_run()
+
+        hit = writer.wait_for_breakpoint_hit()
+        writer.write_remove_breakpoint(breakpoint_id)
+        writer.write_run_thread(hit.thread_id)
+
+        writer.finished_ok = True
+
+
+def test_case_double_remove_breakpoint(case_setup):
+
+    with case_setup.test_file('_debugger_case_remove_breakpoint.py') as writer:
+        breakpoint_id = writer.write_add_breakpoint(writer.get_line_index_with_content('break here'))
+        writer.write_make_initial_run()
+
+        hit = writer.wait_for_breakpoint_hit()
+        writer.write_remove_breakpoint(breakpoint_id)
+        writer.write_remove_breakpoint(breakpoint_id)  # Double-remove (just check that we don't have an error).
+        writer.write_run_thread(hit.thread_id)
+
+        writer.finished_ok = True
+
+
 @pytest.mark.skipif(IS_IRONPYTHON, reason='This test fails once in a while due to timing issues on IronPython, so, skipping it.')
 def test_case_3(case_setup):
     with case_setup.test_file('_debugger_case3.py') as writer:
         writer.write_make_initial_run()
         time.sleep(.5)
         breakpoint_id = writer.write_add_breakpoint(4, '')
-        writer.write_add_breakpoint(5, 'FuncNotAvailable')  # Check that it doesn't get hit in the global when a function is available
 
         hit = writer.wait_for_breakpoint_hit()
         thread_id = hit.thread_id
@@ -219,8 +262,6 @@ def test_case_3(case_setup):
         writer.write_remove_breakpoint(breakpoint_id)
 
         writer.write_run_thread(thread_id)
-
-        assert 17 == writer._sequence, 'Expected 17. Had: %s' % writer._sequence
 
         writer.finished_ok = True
 
@@ -503,7 +544,7 @@ def test_case_11(case_setup):
 
         writer.write_step_over(hit.thread_id)
 
-        hit = writer.wait_for_breakpoint_hit(REASON_STEP_INTO, line=12)  # Reverts to step in
+        hit = writer.wait_for_breakpoint_hit(REASON_STEP_OVER, line=12)  # Reverts to step in
         assert hit.name == 'Method2'
 
         writer.write_step_over(hit.thread_id)
@@ -512,23 +553,25 @@ def test_case_11(case_setup):
         assert hit.name == 'Method2'
 
         writer.write_step_over(hit.thread_id)
-        hit = writer.wait_for_breakpoint_hit(REASON_STEP_INTO, line=18)  # Reverts to step in
+        hit = writer.wait_for_breakpoint_hit(REASON_STEP_OVER, line=18)  # Reverts to step in
         assert hit.name == '<module>'
 
         # Finish with a step over
         writer.write_step_over(hit.thread_id)
 
         if IS_JYTHON:
-            # Jython got to the exit functions (CPython does it builtin,
-            # so we have no traces from Python).
-            hit = writer.wait_for_breakpoint_hit(REASON_STEP_INTO)  # Reverts to step in
-            assert hit.name == '_run_exitfuncs'
             writer.write_run_thread(hit.thread_id)
+        else:
+            # Finish with a step over
+            writer.write_step_over(hit.thread_id)
 
         writer.finished_ok = True
 
 
 def test_case_12(case_setup):
+    # Note: In CPython we now ignore the function names, so, we'll stop at the breakpoint in line 2
+    # regardless of the function name (we decide whether to stop in a line or not through the function
+    # lines).
     with case_setup.test_file('_debugger_case_simple_calls.py') as writer:
         writer.write_add_breakpoint(2, '')  # Should not be hit: setting empty function (not None) should only hit global.
         writer.write_add_breakpoint(6, 'Method1a')
@@ -539,11 +582,14 @@ def test_case_12(case_setup):
 
         writer.write_step_return(hit.thread_id)
 
-        hit = writer.wait_for_breakpoint_hit('111', line=6)  # not a return (it stopped in the other breakpoint)
+        hit = writer.wait_for_breakpoint_hit('111', line=6 if IS_JYTHON else 2)  # not a return (it stopped in the other breakpoint)
 
         writer.write_run_thread(hit.thread_id)
 
-        assert 13 == writer._sequence, 'Expected 13. Had: %s' % writer._sequence
+        if not IS_JYTHON:
+            hit = writer.wait_for_breakpoint_hit('111', line=6)
+
+            writer.write_run_thread(hit.thread_id)
 
         writer.finished_ok = True
 
@@ -580,7 +626,7 @@ def test_case_13(case_setup):
         # Should go inside setter method
 
         writer.write_step_in(hit.thread_id)
-        hit = writer.wait_for_breakpoint_hit('107')
+        hit = writer.wait_for_breakpoint_hit('107', line=36)
 
         writer.write_step_in(hit.thread_id)
         hit = writer.wait_for_breakpoint_hit('107', line=21)
@@ -663,7 +709,7 @@ def test_case_15(case_setup):
         writer.finished_ok = True
 
 
-def test_case_16(case_setup):
+def test_case_16_resolve_numpy_array(case_setup):
     # numpy.ndarray resolver
     try:
         import numpy
@@ -704,7 +750,7 @@ def test_case_16(case_setup):
             '<var name="min" type="complex128"',
             '<var name="max" type="complex128"',
             '<var name="shape" type="tuple"',
-            '<var name="dtype" type="dtype"',
+            '<var name="dtype" type="dtype',
             '<var name="size" type="int"',
         ))
         # ...and check that the internals are resolved properly
@@ -726,7 +772,7 @@ def test_case_16(case_setup):
                 '<var name="max" type="int32" qualifier="numpy" value="int32%253A 99999"',
             ],
             '<var name="shape" type="tuple"',
-            '<var name="dtype" type="dtype"',
+            '<var name="dtype" type="dtype',
             '<var name="size" type="int"'
         ))
         writer.write_get_variable(hit.thread_id, hit.frame_id, 'bigarray\t__internals__')
@@ -749,7 +795,7 @@ def test_case_16(case_setup):
                 '<var name="max" type="str" qualifier="{0}" value="str%3A ndarray too big%252C calculating max would slow down debugging" />'.format(builtin_qualifier),
             ],
             '<var name="shape" type="tuple"',
-            '<var name="dtype" type="dtype"',
+            '<var name="dtype" type="dtype',
             '<var name="size" type="int"',
         ))
         writer.write_get_variable(hit.thread_id, hit.frame_id, 'hugearray\t__internals__')
@@ -763,19 +809,35 @@ def test_case_17(case_setup):
     # Check dont trace
     with case_setup.test_file('_debugger_case17.py') as writer:
         writer.write_enable_dont_trace(True)
-        writer.write_add_breakpoint(27, 'main')
-        writer.write_add_breakpoint(29, 'main')
-        writer.write_add_breakpoint(31, 'main')
-        writer.write_add_breakpoint(33, 'main')
+        writer.write_add_breakpoint(writer.get_line_index_with_content('break1'), 'main')
+        writer.write_add_breakpoint(writer.get_line_index_with_content('break2'), 'main')
+        writer.write_add_breakpoint(writer.get_line_index_with_content('break3'), 'main')
+        writer.write_add_breakpoint(writer.get_line_index_with_content('break4'), 'main')
         writer.write_make_initial_run()
 
-        for _i in range(4):
-            hit = writer.wait_for_breakpoint_hit(REASON_STOP_ON_BREAKPOINT)
+        hit = writer.wait_for_breakpoint_hit(REASON_STOP_ON_BREAKPOINT)
+        writer.write_step_in(hit.thread_id)
+        hit = writer.wait_for_breakpoint_hit('107', line=2)
+        # Should Skip step into properties setter
+        writer.write_run_thread(hit.thread_id)
 
-            writer.write_step_in(hit.thread_id)
-            hit = writer.wait_for_breakpoint_hit('107', line=2)
-            # Should Skip step into properties setter
-            writer.write_run_thread(hit.thread_id)
+        hit = writer.wait_for_breakpoint_hit(REASON_STOP_ON_BREAKPOINT)
+        writer.write_step_in(hit.thread_id)
+        hit = writer.wait_for_breakpoint_hit('107', line=2)
+        # Should Skip step into properties setter
+        writer.write_run_thread(hit.thread_id)
+
+        hit = writer.wait_for_breakpoint_hit(REASON_STOP_ON_BREAKPOINT)
+        writer.write_step_in(hit.thread_id)
+        hit = writer.wait_for_breakpoint_hit('107', line=2)
+        # Should Skip step into properties setter
+        writer.write_run_thread(hit.thread_id)
+
+        hit = writer.wait_for_breakpoint_hit(REASON_STOP_ON_BREAKPOINT)
+        writer.write_step_in(hit.thread_id)
+        hit = writer.wait_for_breakpoint_hit('107', line=2)
+        # Should Skip step into properties setter
+        writer.write_run_thread(hit.thread_id)
 
         writer.finished_ok = True
 
@@ -784,13 +846,15 @@ def test_case_17a(case_setup):
     # Check dont trace return
     with case_setup.test_file('_debugger_case17a.py') as writer:
         writer.write_enable_dont_trace(True)
-        writer.write_add_breakpoint(2, 'm1')
+        break1_line = writer.get_line_index_with_content('break 1 here')
+        writer.write_add_breakpoint(break1_line, 'm1')
         writer.write_make_initial_run()
 
-        hit = writer.wait_for_breakpoint_hit(REASON_STOP_ON_BREAKPOINT, line=2)
+        hit = writer.wait_for_breakpoint_hit(REASON_STOP_ON_BREAKPOINT, line=break1_line)
 
         writer.write_step_in(hit.thread_id)
-        hit = writer.wait_for_breakpoint_hit('107', line=10)
+        break2_line = writer.get_line_index_with_content('break 2 here')
+        hit = writer.wait_for_breakpoint_hit('107', line=break2_line)
 
         # Should Skip step into properties setter
         assert hit.name == 'm3'
@@ -1259,6 +1323,82 @@ def test_check_tracer_with_exceptions(case_setup):
         writer.finished_ok = True
 
 
+@pytest.mark.parametrize('target_file', [
+    '_debugger_case_unhandled_exceptions_generator.py',
+    '_debugger_case_unhandled_exceptions_listcomp.py',
+    ])
+@pytest.mark.parametrize('unhandled', [False, True])
+@pytest.mark.skipif(IS_JYTHON, reason='Not ok for Jython.')
+def test_case_handled_and_unhandled_exception_generator(case_setup, target_file, unhandled):
+
+    def check_test_suceeded_msg(writer, stdout, stderr):
+        # Don't call super (we have an unhandled exception in the stack trace).
+        return 'TEST SUCEEDED' in ''.join(stdout) and 'TEST SUCEEDED' in ''.join(stderr)
+
+    def additional_output_checks(writer, stdout, stderr):
+        if 'ZeroDivisionError' not in stderr:
+            raise AssertionError('Expected test to have an unhandled exception.\nstdout:\n%s\n\nstderr:\n%s' % (
+                stdout, stderr))
+
+    with case_setup.test_file(
+            target_file,
+            check_test_suceeded_msg=check_test_suceeded_msg,
+            additional_output_checks=additional_output_checks,
+            EXPECTED_RETURNCODE=1,
+        ) as writer:
+
+        if unhandled:
+            writer.write_add_exception_breakpoint_with_policy('Exception', "0", "1", "0")
+        else:
+            writer.write_add_exception_breakpoint_with_policy('Exception', "1", "0", "0")
+
+        writer.write_make_initial_run()
+
+        hit = writer.wait_for_breakpoint_hit(REASON_UNCAUGHT_EXCEPTION if unhandled else REASON_CAUGHT_EXCEPTION)
+        assert hit.line == writer.get_line_index_with_content('# exc line')
+
+        if 'generator' in target_file:
+            expected_frame_names = ['<genexpr>', 'f', '<module>']
+        else:
+            if IS_PY27 or IS_PY26:
+                expected_frame_names = ['f', '<module>']
+            else:
+                expected_frame_names = ['<listcomp>', 'f', '<module>']
+
+        writer.write_get_current_exception(hit.thread_id)
+        msg = writer.wait_for_message(accept_message=lambda msg:'exc_type="' in msg and 'exc_desc="' in msg, unquote_msg=False)
+
+        frame_names = [unquote(f['name']).replace('&lt;', '<').replace('&gt;', '>') for f in msg.thread.frame]
+        assert frame_names == expected_frame_names
+
+        writer.write_run_thread(hit.thread_id)
+
+        if not unhandled:
+            if (IS_PY26 or IS_PY27) and 'listcomp' in target_file:
+                expected_lines = [
+                    writer.get_line_index_with_content('# call exc'),
+                ]
+            else:
+                expected_lines = [
+                    writer.get_line_index_with_content('# exc line'),
+                    writer.get_line_index_with_content('# call exc'),
+                ]
+
+            for expected_line in expected_lines:
+                hit = writer.wait_for_breakpoint_hit(REASON_CAUGHT_EXCEPTION)
+                assert hit.line == expected_line
+
+                writer.write_get_current_exception(hit.thread_id)
+                msg = writer.wait_for_message(accept_message=lambda msg:'exc_type="' in msg and 'exc_desc="' in msg, unquote_msg=False)
+
+                frame_names = [unquote(f['name']).replace('&lt;', '<').replace('&gt;', '>') for f in msg.thread.frame]
+                assert frame_names == expected_frame_names
+
+                writer.write_run_thread(hit.thread_id)
+
+        writer.finished_ok = True
+
+
 @pytest.mark.skipif(IS_JYTHON, reason='Failing on Jython -- needs to be investigated).')
 def test_unhandled_exceptions_basic(case_setup):
 
@@ -1396,7 +1536,10 @@ def test_unhandled_exceptions_in_top_level3(case_setup_unhandled_exceptions):
         ) as writer:
 
         # Handled and unhandled
-        writer.write_add_exception_breakpoint_with_policy('Exception', "1", "1", "0")
+        # PySide2 has a bug in shibokensupport which will try to do: sys._getframe(1).
+        # during the teardown (which will fail as there's no back frame in this case).
+        # So, mark ignore libraries in this case.
+        writer.write_add_exception_breakpoint_with_policy('Exception', "1", "1", ignore_libraries="1")
         writer.write_make_initial_run()
 
         # Will stop in main thread twice: once one we find that the exception is being
@@ -1498,6 +1641,50 @@ def test_unhandled_exceptions_get_stack(case_setup_unhandled_exceptions):
         writer.finished_ok = True
 
 
+@pytest.mark.skipif(not IS_PY36_OR_GREATER, reason='Requires Python 3.')
+def test_case_throw_exc_reason_xml(case_setup):
+
+    def check_test_suceeded_msg(self, stdout, stderr):
+        return 'TEST SUCEEDED' in ''.join(stderr)
+
+    def additional_output_checks(writer, stdout, stderr):
+        assert "raise RuntimeError('TEST SUCEEDED')" in stderr
+        assert "raise RuntimeError from e" in stderr
+        assert "raise Exception('another while handling')" in stderr
+
+    with case_setup.test_file(
+            '_debugger_case_raise_with_cause.py',
+            EXPECTED_RETURNCODE=1,
+            check_test_suceeded_msg=check_test_suceeded_msg,
+            additional_output_checks=additional_output_checks
+        ) as writer:
+
+        writer.write_add_exception_breakpoint_with_policy('Exception', "0", "1", "0")
+        writer.write_make_initial_run()
+
+        el = writer.wait_for_curr_exc_stack()
+        name_and_lines = []
+        for frame in el.thread.frame:
+            name_and_lines.append((frame['name'], frame['line']))
+
+        assert name_and_lines == [
+            ('method2', '2'),
+            ('method', '6'),
+            ('foobar', '16'),
+            ('handle', '10'),
+            ('foobar', '18'),
+            ('foobar', '20'),
+            ('<module>', '23'),
+        ]
+
+        hit = writer.wait_for_breakpoint_hit(REASON_UNCAUGHT_EXCEPTION)
+        writer.write_get_thread_stack(hit.thread_id)
+
+        writer.write_run_thread(hit.thread_id)
+
+        writer.finished_ok = True
+
+
 @pytest.mark.skipif(not IS_CPYTHON, reason='Only for Python.')
 def test_case_get_next_statement_targets(case_setup):
     with case_setup.test_file('_debugger_case_get_next_statement_targets.py') as writer:
@@ -1508,6 +1695,11 @@ def test_case_get_next_statement_targets(case_setup):
 
         writer.write_get_next_statement_targets(hit.thread_id, hit.frame_id)
         targets = writer.wait_for_get_next_statement_targets()
+        # Note: 20 may appear as a side-effect of the frame eval
+        # mode (so, we have to ignore it here) -- this isn't ideal, but
+        # it's also not that bad (that line has no code in the source and
+        # executing it will just set the tracing for the method).
+        targets.discard(20)
         expected = set((2, 3, 5, 8, 9, 10, 12, 13, 14, 15, 17, 18, 19, 21))
         assert targets == expected, 'Expected targets to be %s, was: %s' % (expected, targets)
 
@@ -1805,10 +1997,16 @@ def test_redirect_output(case_setup):
         def _ignore_stderr_line(line):
             if original_ignore_stderr_line(line):
                 return True
+
+            binary_junk = b'\xe8\xF0\x80\x80\x80'
+            if sys.version_info[0] >= 3:
+                binary_junk = binary_junk.decode('utf-8', 'replace')
+
             return line.startswith((
                 'text',
                 'binary',
-                'a'
+                'a',
+                binary_junk,
             ))
 
         writer._ignore_stderr_line = _ignore_stderr_line
@@ -1827,6 +2025,11 @@ def test_redirect_output(case_setup):
                 'ação2\n'.encode(encoding='latin1').decode('utf-8', 'replace'),
                 'ação3\n',
             ))
+
+        binary_junk = '\xef\xbf\xbd\xef\xbf\xbd\xef\xbf\xbd\n\n'
+        if sys.version_info[0] >= 3:
+            binary_junk = "\ufffd\ufffd\ufffd\ufffd\ufffd\n\n"
+        expected.append(binary_junk)
 
         new_expected = [(x, 'stdout') for x in expected]
         new_expected.extend([(x, 'stderr') for x in expected])
@@ -1932,6 +2135,74 @@ def test_path_translation(case_setup, mixed_case):
         writer.finished_ok = True
 
 
+@pytest.mark.skipif(not IS_CPYTHON, reason='CPython only test.')
+def test_linecache_xml(case_setup, tmpdir):
+    from _pydevd_bundle.pydevd_comm_constants import CMD_LOAD_SOURCE_FROM_FRAME_ID
+
+    with case_setup.test_file('_debugger_case_linecache.py') as writer:
+        writer.write_add_breakpoint(writer.get_line_index_with_content('breakpoint'))
+        writer.write_make_initial_run()
+
+        # First hit is for breakpoint reached via a stack frame that doesn't have source.
+        hit = writer.wait_for_breakpoint_hit()
+
+        writer.write_get_thread_stack(hit.thread_id)
+        msg = writer.wait_for_get_thread_stack_message()
+        frame_ids = set()
+        for frame in  msg.thread.frame:
+            if frame['file'] == '<foo bar>':
+                frame_ids.add(frame['id'])
+
+        assert len(frame_ids) == 2
+
+        for frame_id in frame_ids:
+            writer.write_load_source_from_frame_id(frame_id)
+            writer.wait_for_message(
+                lambda msg:
+                    '%s\t' % CMD_LOAD_SOURCE_FROM_FRAME_ID in msg and (
+                        "[x for x in range(10)]" in msg and "def somemethod():" in msg
+                    )
+                , expect_xml=False)
+
+        writer.write_run_thread(hit.thread_id)
+
+        writer.finished_ok = True
+
+
+@pytest.mark.skipif(not IS_CPYTHON, reason='CPython only test.')
+def test_show_bytecode_xml(case_setup, tmpdir):
+    from _pydevd_bundle.pydevd_comm_constants import CMD_LOAD_SOURCE_FROM_FRAME_ID
+
+    with case_setup.test_file('_debugger_case_show_bytecode.py') as writer:
+        writer.write_add_breakpoint(writer.get_line_index_with_content('breakpoint'))
+        writer.write_make_initial_run()
+
+        # First hit is for breakpoint reached via a stack frame that doesn't have source.
+        hit = writer.wait_for_breakpoint_hit()
+
+        writer.write_get_thread_stack(hit.thread_id)
+        msg = writer.wait_for_get_thread_stack_message()
+        frame_ids = set()
+        for frame in  msg.thread.frame:
+            if frame['file'] == '<something>':
+                frame_ids.add(frame['id'])
+
+        assert len(frame_ids) == 2
+
+        for frame_id in frame_ids:
+            writer.write_load_source_from_frame_id(frame_id)
+            writer.wait_for_message(
+                lambda msg:
+                    '%s\t' % CMD_LOAD_SOURCE_FROM_FRAME_ID in msg and (
+                        "MyClass" in msg or "foo()" in msg
+                    )
+                , expect_xml=False)
+
+        writer.write_run_thread(hit.thread_id)
+
+        writer.finished_ok = True
+
+
 def test_evaluate_errors(case_setup):
     with case_setup.test_file('_debugger_case_local_variables.py') as writer:
         writer.write_add_breakpoint(writer.get_line_index_with_content('Break here'), 'Call')
@@ -1985,6 +2256,36 @@ def test_case_lamdda(case_setup):
         writer.write_make_initial_run()
 
         for _ in range(3):  # We'll hit the same breakpoint 3 times.
+            hit = writer.wait_for_breakpoint_hit()
+
+            writer.write_run_thread(hit.thread_id)
+
+        writer.finished_ok = True
+
+
+@pytest.mark.skipif(IS_JYTHON, reason='Not working on Jython (needs to be investigated).')
+def test_case_lamdda_multiline(case_setup):
+    with case_setup.test_file('_debugger_case_lambda_multiline.py') as writer:
+        writer.write_add_breakpoint(writer.get_line_index_with_content('Break here'), 'None')
+        writer.write_make_initial_run()
+
+        for _ in range(2):  # We'll hit the same breakpoint 2 times.
+            hit = writer.wait_for_breakpoint_hit()
+
+            writer.write_run_thread(hit.thread_id)
+
+        writer.finished_ok = True
+
+
+@pytest.mark.skipif(IS_JYTHON, reason='Not working on Jython (needs to be investigated).')
+def test_case_method_single_line(case_setup):
+    with case_setup.test_file('_debugger_case_method_single_line.py') as writer:
+        writer.write_add_breakpoint(writer.get_line_index_with_content('Break here'), 'None')
+        writer.write_make_initial_run()
+
+        for _ in range(5):
+            # We'll hit the same breakpoint 5 times (method creation,
+            # (enter method, exit method) * 2.
             hit = writer.wait_for_breakpoint_hit()
 
             writer.write_run_thread(hit.thread_id)
@@ -2103,7 +2404,7 @@ def test_stop_on_start_regular(case_setup):
         writer.write_stop_on_start()
         writer.write_make_initial_run()
 
-        hit = writer.wait_for_breakpoint_hit(REASON_STEP_INTO_MY_CODE, file='_debugger_case_simple_calls.py', line=1)
+        hit = writer.wait_for_breakpoint_hit(REASON_STOP_ON_START, file='_debugger_case_simple_calls.py', line=1)
 
         writer.write_run_thread(hit.thread_id)
 
@@ -2161,7 +2462,7 @@ def test_stop_on_start_m_switch(case_setup_m_switch):
         writer.write_stop_on_start()
         writer.write_make_initial_run()
 
-        hit = writer.wait_for_breakpoint_hit(REASON_STEP_INTO_MY_CODE, file='_debugger_case_m_switch.py', line=1)
+        hit = writer.wait_for_breakpoint_hit(REASON_STOP_ON_START, file='_debugger_case_m_switch.py', line=1)
 
         writer.write_run_thread(hit.thread_id)
 
@@ -2174,7 +2475,7 @@ def test_stop_on_start_entry_point(case_setup_m_switch_entry_point):
         writer.write_stop_on_start()
         writer.write_make_initial_run()
 
-        hit = writer.wait_for_breakpoint_hit(REASON_STEP_INTO_MY_CODE, file='_debugger_case_module_entry_point.py', line=1)
+        hit = writer.wait_for_breakpoint_hit(REASON_STOP_ON_START, file='_debugger_case_module_entry_point.py', line=1)
 
         writer.write_run_thread(hit.thread_id)
 
@@ -2234,10 +2535,16 @@ def test_debug_zip_files(case_setup, tmpdir):
 
 
 @pytest.mark.skipif(not IS_CPYTHON, reason='CPython only test.')
-def test_multiprocessing_simple(case_setup_multiprocessing):
+@pytest.mark.parametrize('file_to_check', [
+    '_debugger_case_multiprocessing_2.py',
+    '_debugger_case_multiprocessing.py',
+    '_debugger_case_python_c.py',
+    '_debugger_case_multiprocessing_pool.py'
+])
+def test_multiprocessing_simple(case_setup_multiprocessing, file_to_check):
     import threading
     from tests_python.debugger_unittest import AbstractWriterThread
-    with case_setup_multiprocessing.test_file('_debugger_case_multiprocessing.py') as writer:
+    with case_setup_multiprocessing.test_file(file_to_check) as writer:
         break1_line = writer.get_line_index_with_content('break 1 here')
         break2_line = writer.get_line_index_with_content('break 2 here')
 
@@ -2255,23 +2562,27 @@ def test_multiprocessing_simple(case_setup_multiprocessing):
 
             def run(self):
                 from tests_python.debugger_unittest import ReaderThread
-                server_socket.listen(1)
-                self.server_socket = server_socket
-                new_sock, addr = server_socket.accept()
+                expected_connections = 1
 
-                reader_thread = ReaderThread(new_sock)
-                reader_thread.name = '  *** Multiprocess Reader Thread'
-                reader_thread.start()
+                for _ in range(expected_connections):
+                    server_socket.listen(1)
+                    self.server_socket = server_socket
+                    new_sock, addr = server_socket.accept()
 
-                writer2 = SecondaryProcessWriterThread()
+                    reader_thread = ReaderThread(new_sock)
+                    reader_thread.name = '  *** Multiprocess Reader Thread'
+                    reader_thread.start()
 
-                writer2.reader_thread = reader_thread
-                writer2.sock = new_sock
+                    writer2 = SecondaryProcessWriterThread()
 
-                writer2.write_version()
-                writer2.write_add_breakpoint(break1_line)
-                writer2.write_add_breakpoint(break2_line)
-                writer2.write_make_initial_run()
+                    writer2.reader_thread = reader_thread
+                    writer2.sock = new_sock
+
+                    writer2.write_version()
+                    writer2.write_add_breakpoint(break1_line)
+                    writer2.write_add_breakpoint(break2_line)
+                    writer2.write_make_initial_run()
+
                 hit = writer2.wait_for_breakpoint_hit()
                 writer2.write_run_thread(hit.thread_id)
 
@@ -2280,14 +2591,15 @@ def test_multiprocessing_simple(case_setup_multiprocessing):
         writer.write_make_initial_run()
         hit2 = writer.wait_for_breakpoint_hit()
         secondary_process_thread_communication.join(10)
-        if secondary_process_thread_communication.isAlive():
+        if secondary_process_thread_communication.is_alive():
             raise AssertionError('The SecondaryProcessThreadCommunication did not finish')
         writer.write_run_thread(hit2.thread_id)
         writer.finished_ok = True
 
 
 @pytest.mark.skipif(not IS_CPYTHON, reason='CPython only test.')
-def test_multiprocessing_with_stopped_breakpoints(case_setup_multiprocessing):
+@pytest.mark.parametrize('count', range(5))  # Call multiple times to exercise timing issues.
+def test_multiprocessing_with_stopped_breakpoints(case_setup_multiprocessing, count, debugger_runner_simple):
     import threading
     from tests_python.debugger_unittest import AbstractWriterThread
     with case_setup_multiprocessing.test_file('_debugger_case_multiprocessing_stopped_threads.py') as writer:
@@ -2300,6 +2612,7 @@ def test_multiprocessing_with_stopped_breakpoints(case_setup_multiprocessing):
         writer.write_add_breakpoint(break_process_line)
 
         server_socket = writer.server_socket
+        listening_event = threading.Event()
 
         class SecondaryProcessWriterThread(AbstractWriterThread):
 
@@ -2312,13 +2625,18 @@ def test_multiprocessing_with_stopped_breakpoints(case_setup_multiprocessing):
                 from tests_python.debugger_unittest import ReaderThread
                 server_socket.listen(1)
                 self.server_socket = server_socket
+                listening_event.set()
+                writer.log.append('  *** Multiprocess waiting on server_socket.accept()')
                 new_sock, addr = server_socket.accept()
 
                 reader_thread = ReaderThread(new_sock)
                 reader_thread.name = '  *** Multiprocess Reader Thread'
                 reader_thread.start()
+                writer.log.append('  *** Multiprocess started ReaderThread')
 
                 writer2 = SecondaryProcessWriterThread()
+                writer2._WRITE_LOG_PREFIX = '  *** Multiprocess write: '
+                writer2.log = writer.log
 
                 writer2.reader_thread = reader_thread
                 writer2.sock = new_sock
@@ -2333,6 +2651,10 @@ def test_multiprocessing_with_stopped_breakpoints(case_setup_multiprocessing):
 
         secondary_process_thread_communication = SecondaryProcessThreadCommunication()
         secondary_process_thread_communication.start()
+
+        ok = listening_event.wait(timeout=10)
+        if not IS_PY26:
+            assert ok
         writer.write_make_initial_run()
         hit2 = writer.wait_for_breakpoint_hit()  # Breaks in thread.
         writer.write_step_over(hit2.thread_id)
@@ -2347,12 +2669,15 @@ def test_multiprocessing_with_stopped_breakpoints(case_setup_multiprocessing):
         main_hit = writer.wait_for_breakpoint_hit(REASON_STOP_ON_BREAKPOINT)
 
         secondary_process_thread_communication.join(10)
-        if secondary_process_thread_communication.isAlive():
+        if secondary_process_thread_communication.is_alive():
             raise AssertionError('The SecondaryProcessThreadCommunication did not finish')
 
         writer.write_run_thread(hit2.thread_id)
         writer.write_run_thread(main_hit.thread_id)
 
+        # We must have found at least 2 debug files when doing multiprocessing (one for
+        # each pid).
+        assert len(pydev_log.list_log_files(debugger_runner_simple.pydevd_debug_file)) == 2
         writer.finished_ok = True
 
 
@@ -2383,8 +2708,6 @@ def test_subprocess_quoted_args(case_setup_multiprocessing):
                 # connection.
 
                 expected_connections = 1
-                if sys.platform != 'win32' and IS_PY2:
-                    expected_connections = 2
 
                 for _ in range(expected_connections):
                     server_socket.listen(1)
@@ -2411,8 +2734,85 @@ def test_subprocess_quoted_args(case_setup_multiprocessing):
         writer.write_make_initial_run()
 
         secondary_process_thread_communication.join(10)
-        if secondary_process_thread_communication.isAlive():
+        if secondary_process_thread_communication.is_alive():
             raise AssertionError('The SecondaryProcessThreadCommunication did not finish')
+
+        writer.finished_ok = True
+
+
+def _attach_to_writer_pid(writer):
+    import pydevd
+    assert writer.process is not None
+
+    def attach():
+        attach_pydevd_file = os.path.join(os.path.dirname(pydevd.__file__), 'pydevd_attach_to_process', 'attach_pydevd.py')
+        subprocess.call([sys.executable, attach_pydevd_file, '--pid', str(writer.process.pid), '--port', str(writer.port)])
+
+    threading.Thread(target=attach).start()
+
+    wait_for_condition(lambda: writer.finished_initialization)
+
+
+@pytest.mark.skipif(not IS_CPYTHON or IS_MAC, reason='CPython only test (brittle on Mac).')
+@pytest.mark.parametrize('reattach', [True, False])
+def test_attach_to_pid_no_threads(case_setup_remote, reattach):
+    with case_setup_remote.test_file('_debugger_case_attach_to_pid_simple.py', wait_for_port=False) as writer:
+        time.sleep(1)  # Give it some time to initialize to get to the while loop.
+        _attach_to_writer_pid(writer)
+
+        bp_line = writer.get_line_index_with_content('break here')
+        bp_id = writer.write_add_breakpoint(bp_line)
+        writer.write_make_initial_run()
+
+        hit = writer.wait_for_breakpoint_hit(line=bp_line)
+
+        if reattach:
+            # This would be the same as a second attach to pid, so, the idea is closing the current
+            # connection and then doing a new attach to pid.
+            writer.write_remove_breakpoint(bp_id)
+            writer.write_run_thread(hit.thread_id)
+
+            writer.do_kill()  # This will simply close the open sockets without doing anything else.
+            time.sleep(1)
+
+            t = threading.Thread(target=writer.start_socket)
+            t.start()
+            wait_for_condition(lambda: hasattr(writer, 'port'))
+            time.sleep(1)
+            writer.process = writer.process
+            _attach_to_writer_pid(writer)
+            wait_for_condition(lambda: hasattr(writer, 'reader_thread'))
+            time.sleep(1)
+
+            bp_id = writer.write_add_breakpoint(bp_line)
+            writer.write_make_initial_run()
+
+            hit = writer.wait_for_breakpoint_hit(line=bp_line)
+
+        writer.write_change_variable(hit.thread_id, hit.frame_id, 'wait', 'False')
+        writer.wait_for_var('<xml><var name="" type="bool"')
+
+        writer.write_run_thread(hit.thread_id)
+
+        writer.finished_ok = True
+
+
+@pytest.mark.skipif(not IS_CPYTHON or IS_MAC, reason='CPython only test (brittle on Mac).')
+def test_attach_to_pid_halted(case_setup_remote):
+    with case_setup_remote.test_file('_debugger_case_attach_to_pid_multiple_threads.py', wait_for_port=False) as writer:
+        time.sleep(1)  # Give it some time to initialize and get to the proper halting condition
+        _attach_to_writer_pid(writer)
+
+        bp_line = writer.get_line_index_with_content('break thread here')
+        writer.write_add_breakpoint(bp_line)
+        writer.write_make_initial_run()
+
+        hit = writer.wait_for_breakpoint_hit(line=bp_line)
+
+        writer.write_change_variable(hit.thread_id, hit.frame_id, 'wait', 'False')
+        writer.wait_for_var('<xml><var name="" type="bool"')
+
+        writer.write_run_thread(hit.thread_id)
 
         writer.finished_ok = True
 
@@ -2436,6 +2836,32 @@ def test_remote_debugger_basic(case_setup_remote):
             writer.log.append('assert failed!')
             raise
         writer.log.append('asserted')
+
+        writer.finished_ok = True
+
+
+@pytest.mark.skipif(not IS_CPYTHON, reason='CPython only test.')
+def test_remote_debugger_threads(case_setup_remote):
+    with case_setup_remote.test_file('_debugger_case_remote_threads.py') as writer:
+        writer.write_make_initial_run()
+
+        hit_in_main = writer.wait_for_breakpoint_hit()
+
+        bp_line = writer.get_line_index_with_content('break here')
+        writer.write_add_breakpoint(bp_line)
+
+        # Break in the 2 threads.
+        hit_in_thread1 = writer.wait_for_breakpoint_hit(line=bp_line)
+        hit_in_thread2 = writer.wait_for_breakpoint_hit(line=bp_line)
+
+        writer.write_change_variable(hit_in_thread1.thread_id, hit_in_thread1.frame_id, 'wait', 'False')
+        writer.wait_for_var('<xml><var name="" type="bool"')
+        writer.write_change_variable(hit_in_thread2.thread_id, hit_in_thread2.frame_id, 'wait', 'False')
+        writer.wait_for_var('<xml><var name="" type="bool"')
+
+        writer.write_run_thread(hit_in_main.thread_id)
+        writer.write_run_thread(hit_in_thread1.thread_id)
+        writer.write_run_thread(hit_in_thread2.thread_id)
 
         writer.finished_ok = True
 
@@ -2501,7 +2927,14 @@ def test_py_37_breakpoint_remote_no_import(case_setup_remote):
 
 
 @pytest.mark.skipif(not IS_CPYTHON, reason='CPython only test.')
-def test_remote_debugger_multi_proc(case_setup_remote):
+@pytest.mark.parametrize('authenticate', [True, False])
+def test_remote_debugger_multi_proc(case_setup_remote, authenticate):
+
+    access_token = None
+    client_access_token = None
+    if authenticate:
+        access_token = 'tok123'
+        client_access_token = 'tok456'
 
     class _SecondaryMultiProcProcessWriterThread(debugger_unittest.AbstractWriterThread):
 
@@ -2518,11 +2951,18 @@ def test_remote_debugger_multi_proc(case_setup_remote):
 
             from tests_python.debugger_unittest import ReaderThread
             self.reader_thread = ReaderThread(self.sock)
+            self.reader_thread.name = 'Secondary Reader Thread'
             self.reader_thread.start()
 
             self._sequence = -1
             # initial command is always the version
             self.write_version()
+
+            if authenticate:
+                self.wait_for_message(lambda msg:'Client not authenticated.' in msg, expect_xml=False)
+                self.write_authenticate(access_token=access_token, client_access_token=client_access_token)
+                self.write_version()
+
             self.log.append('start_socket')
             self.write_make_initial_run()
             time.sleep(.5)
@@ -2536,7 +2976,9 @@ def test_remote_debugger_multi_proc(case_setup_remote):
     with case_setup_remote.test_file(
             '_debugger_case_remote_1.py',
             do_kill=do_kill,
-            EXPECTED_RETURNCODE='any'
+            EXPECTED_RETURNCODE='any',
+            access_token=access_token,
+            client_access_token=client_access_token,
         ) as writer:
 
         # It seems sometimes it becomes flaky on the ci because the process outlives the writer thread...
@@ -2547,6 +2989,11 @@ def test_remote_debugger_multi_proc(case_setup_remote):
 
         writer.log.append('making initial run')
         writer.write_make_initial_run()
+
+        if authenticate:
+            writer.wait_for_message(lambda msg:'Client not authenticated.' in msg, expect_xml=False)
+            writer.write_authenticate(access_token=access_token, client_access_token=client_access_token)
+            writer.write_make_initial_run()
 
         writer.log.append('waiting for breakpoint hit')
         hit = writer.wait_for_breakpoint_hit()
@@ -2568,7 +3015,7 @@ def test_remote_debugger_multi_proc(case_setup_remote):
 
         writer.log.append('Secondary process finished!')
         try:
-            assert 5 == writer._sequence, 'Expected 5. Had: %s' % writer._sequence
+            assert writer._sequence == 5 if not authenticate else 9, 'Found: %s' % writer._sequence
         except:
             writer.log.append('assert failed!')
             raise
@@ -2663,17 +3110,6 @@ def test_case_single_notification_on_step(case_setup):
 @pytest.mark.skipif(IS_JYTHON, reason='Not ok for Jython.')
 def test_reload(case_setup, tmpdir):
 
-    def additional_output_checks(writer, stdout, stderr):
-        # Don't call super as we have an expected exception
-        for line in (
-                'pydev debugger: Start reloading module: "my_temp2"',
-                'pydev debugger: Updated function code: <function call',
-                'pydev debugger: reload finished',
-            ):
-            if line not in stderr:
-                raise AssertionError('%s" not in stderr.\nstdout:\n%s\n\nstderr:\n%s' % (
-                    line, stdout, stderr))
-
     path = tmpdir.join('my_temp.py')
     path.write('''
 import my_temp2
@@ -2688,7 +3124,7 @@ print('TEST SUCEEDED!')
 def call():
     return 1
 ''')
-    with case_setup.test_file(str(path), additional_output_checks=additional_output_checks) as writer:
+    with case_setup.test_file(str(path)) as writer:
         break_line = writer.get_line_index_with_content('break here')
         writer.write_add_breakpoint(break_line, '')
         writer.write_make_initial_run()
@@ -2701,6 +3137,17 @@ def call():
 ''')
 
         writer.write_reload('my_temp2')
+        output = writer.wait_for_output()
+        output2 = writer.wait_for_output()
+        output3 = writer.wait_for_output()
+
+        assert output[0].startswith('code reload: Start reloading module: "my_temp2"')
+        assert output2[0].startswith('code reload: Updated function code:')
+        assert output3[0].startswith('code reload: reload finished')
+        assert output[1] == 'stderr'
+        assert output2[1] == 'stderr'
+        assert output3[1] == 'stderr'
+
         writer.wait_for_message(CMD_RELOAD_CODE)
         writer.write_run_thread(hit.thread_id)
         writer.finished_ok = True
@@ -2734,12 +3181,17 @@ def test_custom_frames(case_setup):
 
         # Check that the frame-related threads have been killed.
         for _ in range(i):
-            writer.wait_for_message(CMD_THREAD_KILL, expect_xml=False)
+            try:
+                writer.wait_for_message(CMD_THREAD_KILL, expect_xml=False, timeout=1)
+            except debugger_unittest.TimeoutError:
+                # Flaky: sometimes the thread kill is not received because
+                # the process exists before the message is sent.
+                break
 
         writer.finished_ok = True
 
 
-@pytest.mark.skipif((not (IS_PY36 or IS_PY27)) or IS_JYTHON, reason='Gevent only installed on Py36/Py27 for tests.')
+@pytest.mark.skipif(not TEST_GEVENT, reason='Gevent not installed.')
 def test_gevent(case_setup):
 
     def get_environ(writer):
@@ -2756,16 +3208,33 @@ def test_gevent(case_setup):
         writer.finished_ok = True
 
 
+@pytest.mark.skipif(not TEST_GEVENT, reason='Gevent not installed.')
+def test_gevent_remote(case_setup_remote):
+
+    def get_environ(writer):
+        env = os.environ.copy()
+        env['GEVENT_SUPPORT'] = 'True'
+        return env
+
+    with case_setup_remote.test_file('_debugger_case_gevent.py', get_environ=get_environ, append_command_line_args=['remote']) as writer:
+        writer.write_add_breakpoint(writer.get_line_index_with_content('break here'))
+        writer.write_make_initial_run()
+        for _i in range(10):
+            hit = writer.wait_for_breakpoint_hit(name='run')
+            writer.write_run_thread(hit.thread_id)
+        writer.finished_ok = True
+
+
 def test_return_value(case_setup):
     with case_setup.test_file('_debugger_case_return_value.py') as writer:
         break_line = writer.get_line_index_with_content('break here')
-        writer.write_add_breakpoint(break_line, '')
+        writer.write_add_breakpoint(break_line)
         writer.write_show_return_vars()
         writer.write_make_initial_run()
-        hit = writer.wait_for_breakpoint_hit(name='<module>', line=break_line)
+        hit = writer.wait_for_breakpoint_hit(name='main', line=break_line)
 
         writer.write_step_over(hit.thread_id)
-        hit = writer.wait_for_breakpoint_hit(REASON_STEP_OVER, name='<module>', line=break_line + 1)
+        hit = writer.wait_for_breakpoint_hit(REASON_STEP_OVER, name='main', line=break_line + 1)
         writer.write_get_frame(hit.thread_id, hit.frame_id)
         writer.wait_for_vars([
             [
@@ -2775,12 +3244,30 @@ def test_return_value(case_setup):
         ])
 
         writer.write_step_over(hit.thread_id)
-        hit = writer.wait_for_breakpoint_hit(REASON_STEP_OVER, name='<module>', line=break_line + 2)
+        hit = writer.wait_for_breakpoint_hit(REASON_STEP_OVER, name='main', line=break_line + 2)
         writer.write_get_frame(hit.thread_id, hit.frame_id)
         writer.wait_for_vars([
             [
                 '<var name="method2" type="int" qualifier="%s" value="int: 2" isRetVal="True"' % (builtin_qualifier,),
                 '<var name="method2" type="int"  value="int%253A 2" isRetVal="True"',
+            ],
+        ])
+
+        writer.write_run_thread(hit.thread_id)
+        writer.finished_ok = True
+
+
+def test_gettr_warning(case_setup):
+    with case_setup.test_file('_debugger_case_warnings.py') as writer:
+        break_line = writer.get_line_index_with_content('break here')
+        writer.write_add_breakpoint(break_line)
+        writer.write_make_initial_run()
+        hit = writer.wait_for_breakpoint_hit(line=break_line)
+
+        writer.write_get_frame(hit.thread_id, hit.frame_id)
+        writer.wait_for_vars([
+            [
+                '<var name="obj'
             ],
         ])
 
@@ -2921,13 +3408,11 @@ def test_top_level_exceptions_on_attach(case_setup_remote, check_scenario):
 
 
 @pytest.mark.parametrize('filename, break_at_lines', [
-    # Known limitation: when it's added to the first line of the module, the
-    # module becomes traced.
-    ('_debugger_case_tracing.py', {2: 'trace'}),
+    ('_debugger_case_tracing.py', {2: 'frame_eval'}),
 
     ('_debugger_case_tracing.py', {3: 'frame_eval'}),
     ('_debugger_case_tracing.py', {4: 'frame_eval'}),
-    ('_debugger_case_tracing.py', {2: 'trace', 4: 'trace'}),
+    ('_debugger_case_tracing.py', {2: 'frame_eval', 4: 'trace'}),
 
     ('_debugger_case_tracing.py', {8: 'frame_eval'}),
     ('_debugger_case_tracing.py', {9: 'frame_eval'}),
@@ -2937,7 +3422,7 @@ def test_top_level_exceptions_on_attach(case_setup_remote, check_scenario):
     # hit the first frame eval we don't actually stop tracing a given
     # frame (known limitation to be fixed in the future).
     # -- needs a better test
-    ('_debugger_case_tracing.py', {8: 'frame_eval', 10: 'frame_eval'}),
+    ('_debugger_case_tracing.py', {8: 'frame_eval', 10: 'trace'}),
 ])
 def test_frame_eval_limitations(case_setup, filename, break_at_lines):
     '''
@@ -2994,6 +3479,57 @@ def test_step_return_my_code(case_setup):
         writer.finished_ok = True
 
 
+@pytest.mark.skipif(IS_PY2, reason='Python 3 onwards required.')
+def test_smart_step_into_case1(case_setup):
+    with case_setup.test_file('_debugger_case_smart_step_into.py') as writer:
+        line = writer.get_line_index_with_content('break here')
+        writer.write_add_breakpoint(line)
+        writer.write_make_initial_run()
+        hit = writer.wait_for_breakpoint_hit(line=line)
+
+        found = writer.get_step_into_variants(hit.thread_id, hit.frame_id, line, line)
+
+        # Remove the offset to compare (as it changes for each python version)
+        assert [x[:-1] for x in found] == [
+            ('bar', 'false', '14', '1'), ('foo', 'false', '14', '1'), ('call_outer', 'false', '14', '1')]
+
+        # Note: this is just using the name, not really taking using the context.
+        writer.write_smart_step_into(hit.thread_id, line, 'foo')
+        hit = writer.wait_for_breakpoint_hit(reason=CMD_SMART_STEP_INTO)
+        assert hit.line == writer.get_line_index_with_content('on foo mark')
+
+        writer.write_run_thread(hit.thread_id)
+        writer.finished_ok = True
+
+
+@pytest.mark.skipif(IS_PY2, reason='Python 3 onwards required.')
+def test_smart_step_into_case2(case_setup):
+    with case_setup.test_file('_debugger_case_smart_step_into2.py') as writer:
+        line = writer.get_line_index_with_content('break here')
+        writer.write_add_breakpoint(line)
+        writer.write_make_initial_run()
+        hit = writer.wait_for_breakpoint_hit(line=line)
+
+        found = writer.get_step_into_variants(hit.thread_id, hit.frame_id, line, line)
+
+        # Note: we have multiple 'foo' calls, so, we have to differentiate to
+        # know in which one we want to stop.
+        writer.write_smart_step_into(hit.thread_id, 'offset=' + found[2][-1], 'foo')
+        hit = writer.wait_for_breakpoint_hit(reason=CMD_SMART_STEP_INTO)
+        assert hit.line == writer.get_line_index_with_content('on foo mark')
+
+        writer.write_get_frame(hit.thread_id, hit.frame_id)
+        writer.wait_for_var([
+            (
+                '<var name="arg" type="int" qualifier="__builtin__" value="int: 3"',
+                '<var name="arg" type="int" qualifier="builtins" value="int: 3"',
+            )
+        ])
+
+        writer.write_run_thread(hit.thread_id)
+        writer.finished_ok = True
+
+
 def test_step_over_my_code(case_setup):
     with case_setup.test_file('my_code/my_code.py') as writer:
         writer.write_set_project_roots([debugger_unittest._get_debugger_test_file('my_code')])
@@ -3010,11 +3546,11 @@ def test_step_over_my_code(case_setup):
         assert hit.name == 'callback2'
 
         writer.write_step_over_my_code(hit.thread_id)
-        hit = writer.wait_for_breakpoint_hit(reason=REASON_STEP_INTO_MY_CODE)  # Note: goes from step over to step into
+        hit = writer.wait_for_breakpoint_hit(reason=REASON_STEP_OVER_MY_CODE)  # Note: goes from step over to step into
         assert hit.name == 'callback1'
 
         writer.write_step_over_my_code(hit.thread_id)
-        hit = writer.wait_for_breakpoint_hit(reason=REASON_STEP_INTO_MY_CODE)  # Note: goes from step over to step into
+        hit = writer.wait_for_breakpoint_hit(reason=REASON_STEP_OVER_MY_CODE)  # Note: goes from step over to step into
         assert hit.name == '<module>'
 
         writer.write_step_over_my_code(hit.thread_id)
@@ -3143,6 +3679,16 @@ def test_exception_on_filtered_file(case_setup):
         )
 
         writer.write_make_initial_run()
+
+        # Note: the unhandled exception was initially raised in a file which is filtered out, but we
+        # should be able to see the frames which are part of the project.
+        hit = writer.wait_for_breakpoint_hit(
+            REASON_UNCAUGHT_EXCEPTION,
+            file='my_code_exception_on_other.py',
+            line=writer.get_line_index_with_content('other.raise_exception()')
+        )
+        writer.write_run_thread(hit.thread_id)
+
         writer.finished_ok = True
 
 
@@ -3151,6 +3697,7 @@ def test_exception_on_filtered_file(case_setup):
     {'PYDEVD_FILTERS': json.dumps({'**/other.py': True})},  # specify as json
     {'PYDEVD_FILTERS': '**/other.py'},  # specify ';' separated list
 ])
+@pytest.mark.skipif(IS_JYTHON, reason='Flaky on Jython.')
 def test_step_over_my_code_global_settings(case_setup, environ, step_method):
 
     def get_environ(writer):
@@ -3161,7 +3708,7 @@ def test_step_over_my_code_global_settings(case_setup, environ, step_method):
     def do_step():
         if step_method == 'step_over':
             writer.write_step_over(hit.thread_id)
-            return REASON_STEP_INTO  # Note: goes from step over to step into
+            return REASON_STEP_OVER  # Note: goes from step over to step into
         elif step_method == 'step_return':
             writer.write_step_return(hit.thread_id)
             return REASON_STEP_RETURN
@@ -3239,6 +3786,52 @@ def test_step_over_my_code_global_setting_and_explicit_include(case_setup):
         writer.finished_ok = True
 
 
+def test_access_token(case_setup):
+
+    def update_command_line_args(self, args):
+        args.insert(2, '--access-token')
+        args.insert(3, 'bar123')
+        args.insert(2, '--client-access-token')
+        args.insert(3, 'foo234')
+        return args
+
+    with case_setup.test_file('_debugger_case_print.py', update_command_line_args=update_command_line_args) as writer:
+        writer.write_add_breakpoint(1, 'None')  # I.e.: should not work (not authenticated).
+
+        writer.wait_for_message(lambda msg:'Client not authenticated.' in msg, expect_xml=False)
+
+        writer.write_authenticate(access_token='bar123', client_access_token='foo234')
+
+        writer.write_version()
+
+        writer.write_make_initial_run()
+
+        writer.finished_ok = True
+
+
+def test_namedtuple(case_setup):
+    '''
+    Check that we don't step into <string> in the namedtuple constructor.
+    '''
+    with case_setup.test_file('_debugger_case_namedtuple.py') as writer:
+        line = writer.get_line_index_with_content('break here')
+        writer.write_add_breakpoint(line)
+        writer.write_make_initial_run()
+
+        hit = writer.wait_for_breakpoint_hit()
+
+        expected_line = line
+
+        for _ in range(2):
+            expected_line += 1
+            writer.write_step_in(hit.thread_id)
+            hit = writer.wait_for_breakpoint_hit(
+                reason=REASON_STEP_INTO, file='_debugger_case_namedtuple.py', line=expected_line)
+
+        writer.write_run_thread(hit.thread_id)
+        writer.finished_ok = True
+
+
 def test_matplotlib_activation(case_setup):
     try:
         import matplotlib
@@ -3261,6 +3854,405 @@ def test_matplotlib_activation(case_setup):
 
         writer.finished_ok = True
 
+
+_GENERATOR_FILES = [
+    '_debugger_case_generator3.py',
+]
+
+if not IS_PY2:
+    _GENERATOR_FILES.append('_debugger_case_generator.py')
+    _GENERATOR_FILES.append('_debugger_case_generator2.py')
+
+
+@pytest.mark.parametrize('target_filename', _GENERATOR_FILES)
+@pytest.mark.skipif(IS_JYTHON, reason='We do not detect generator returns on Jython.')
+def test_generator_step_over_basic(case_setup, target_filename):
+    with case_setup.test_file(target_filename) as writer:
+        line = writer.get_line_index_with_content('break here')
+        writer.write_add_breakpoint(line)
+        writer.write_make_initial_run()
+
+        hit = writer.wait_for_breakpoint_hit()
+
+        # Note: not using for so that we know which step failed in the ci if it fails.
+        writer.write_step_over(hit.thread_id)
+        hit = writer.wait_for_breakpoint_hit(
+            reason=REASON_STEP_OVER,
+            file=target_filename,
+            line=writer.get_line_index_with_content('step 1')
+        )
+
+        writer.write_step_over(hit.thread_id)
+        hit = writer.wait_for_breakpoint_hit(
+            reason=REASON_STEP_OVER,
+            file=target_filename,
+            line=writer.get_line_index_with_content('step 2')
+        )
+
+        if IS_PY38_OR_GREATER and target_filename == '_debugger_case_generator2.py':
+            # On py 3.8 it goes back to the return line.
+            writer.write_step_over(hit.thread_id)
+            hit = writer.wait_for_breakpoint_hit(
+                reason=REASON_STEP_OVER,
+                file=target_filename,
+                line=writer.get_line_index_with_content('return \\')
+            )
+
+        writer.write_step_over(hit.thread_id)
+        hit = writer.wait_for_breakpoint_hit(
+            reason=REASON_STEP_OVER,
+            file=target_filename,
+            line=writer.get_line_index_with_content('step 3')
+        )
+
+        writer.write_run_thread(hit.thread_id)
+        writer.finished_ok = True
+
+
+@pytest.mark.parametrize('target_filename', _GENERATOR_FILES)
+@pytest.mark.skipif(IS_JYTHON, reason='We do not detect generator returns on Jython.')
+def test_generator_step_return(case_setup, target_filename):
+    with case_setup.test_file(target_filename) as writer:
+        line = writer.get_line_index_with_content('break here')
+        writer.write_add_breakpoint(line)
+        writer.write_make_initial_run()
+
+        hit = writer.wait_for_breakpoint_hit()
+
+        # Note: not using for so that we know which step failed in the ci if it fails.
+        writer.write_step_return(hit.thread_id)
+        hit = writer.wait_for_breakpoint_hit(
+            reason=REASON_STEP_RETURN,
+            file=target_filename,
+            line=writer.get_line_index_with_content('generator return')
+        )
+
+        writer.write_step_over(hit.thread_id)
+        hit = writer.wait_for_breakpoint_hit(
+            reason=REASON_STEP_OVER,
+            file=target_filename,
+            line=writer.get_line_index_with_content('step 3')
+        )
+
+        writer.write_run_thread(hit.thread_id)
+        writer.finished_ok = True
+
+
+@pytest.mark.skipif(not IS_PY36_OR_GREATER, reason='Only CPython 3.6 onwards')
+def test_stepin_not_my_code_coroutine(case_setup):
+
+    def get_environ(writer):
+        environ = {'PYDEVD_FILTERS': '{"**/not_my_coroutine.py": true}'}
+        env = os.environ.copy()
+        env.update(environ)
+        return env
+
+    with case_setup.test_file('my_code/my_code_coroutine.py', get_environ=get_environ) as writer:
+        writer.write_set_project_roots([debugger_unittest._get_debugger_test_file('my_code')])
+        writer.write_add_breakpoint(writer.get_line_index_with_content('break here'))
+        writer.write_make_initial_run()
+        hit = writer.wait_for_breakpoint_hit()
+
+        writer.write_step_in(hit.thread_id)
+        hit = writer.wait_for_breakpoint_hit(reason=REASON_STEP_INTO)
+        assert hit.name == 'main'
+
+        writer.write_run_thread(hit.thread_id)
+        writer.finished_ok = True
+
+
+@pytest.mark.skipif(IS_JYTHON, reason='Flaky on Jython')
+def test_generator_step_in(case_setup):
+    with case_setup.test_file('_debugger_case_generator_step_in.py') as writer:
+        line = writer.get_line_index_with_content('stop 1')
+        writer.write_add_breakpoint(line)
+        writer.write_make_initial_run()
+
+        hit = writer.wait_for_breakpoint_hit()
+
+        for i in range(2, 5):
+            writer.write_step_in(hit.thread_id)
+            kwargs = {}
+            if not IS_JYTHON:
+                kwargs['line'] = writer.get_line_index_with_content('stop %s' % (i,))
+            hit = writer.wait_for_breakpoint_hit(
+                reason=REASON_STEP_INTO,
+                file='_debugger_case_generator_step_in.py',
+                **kwargs
+            )
+
+        writer.write_run_thread(hit.thread_id)
+        writer.finished_ok = True
+
+
+@pytest.mark.parametrize(
+    'target_filename',
+    [
+        '_debugger_case_asyncio.py',
+        '_debugger_case_trio.py',
+    ]
+)
+@pytest.mark.skipif(not IS_CPYTHON or not IS_PY36_OR_GREATER, reason='Only CPython 3.6 onwards')
+def test_asyncio_step_over_basic(case_setup, target_filename):
+    with case_setup.test_file(target_filename) as writer:
+        line = writer.get_line_index_with_content('break main')
+        writer.write_add_breakpoint(line)
+        writer.write_make_initial_run()
+
+        hit = writer.wait_for_breakpoint_hit()
+
+        writer.write_step_over(hit.thread_id)
+        hit = writer.wait_for_breakpoint_hit(
+            reason=REASON_STEP_OVER,
+            file=target_filename,
+            line=writer.get_line_index_with_content('step main')
+        )
+
+        writer.write_run_thread(hit.thread_id)
+        writer.finished_ok = True
+
+
+@pytest.mark.parametrize(
+    'target_filename',
+    [
+        '_debugger_case_asyncio.py',
+        '_debugger_case_trio.py',
+    ]
+)
+@pytest.mark.skipif(not IS_CPYTHON or not IS_PY36_OR_GREATER, reason='Only CPython 3.6 onwards')
+def test_asyncio_step_over_end_of_function(case_setup, target_filename):
+    with case_setup.test_file(target_filename) as writer:
+        line = writer.get_line_index_with_content('break count 2')
+        writer.write_add_breakpoint(line)
+        writer.write_make_initial_run()
+
+        hit = writer.wait_for_breakpoint_hit()
+
+        writer.write_step_over(hit.thread_id)
+        hit = writer.wait_for_breakpoint_hit(
+            reason=REASON_STEP_OVER,
+            name=('sleep', 'wait_task_rescheduled'),
+        )
+        writer.write_run_thread(hit.thread_id)
+        writer.finished_ok = True
+
+
+@pytest.mark.parametrize(
+    'target_filename',
+    [
+        '_debugger_case_asyncio.py',
+        '_debugger_case_trio.py',
+    ]
+)
+@pytest.mark.skipif(not IS_CPYTHON or not IS_PY36_OR_GREATER, reason='Only CPython 3.6 onwards')
+def test_asyncio_step_in(case_setup, target_filename):
+    with case_setup.test_file(target_filename) as writer:
+        line = writer.get_line_index_with_content('break count 1')
+        writer.write_add_breakpoint(line)
+        writer.write_make_initial_run()
+
+        hit = writer.wait_for_breakpoint_hit()
+
+        writer.write_step_return(hit.thread_id)
+        hit = writer.wait_for_breakpoint_hit(
+            reason=REASON_STEP_RETURN,
+            file=target_filename,
+            line=writer.get_line_index_with_content('break main')
+        )
+
+        writer.write_step_in(hit.thread_id)
+        hit = writer.wait_for_breakpoint_hit(
+            reason=REASON_STEP_INTO,
+            name=('sleep', 'wait_task_rescheduled'),
+        )
+
+        writer.write_run_thread(hit.thread_id)
+        writer.finished_ok = True
+
+
+@pytest.mark.parametrize(
+    'target_filename',
+    [
+        '_debugger_case_asyncio.py',
+        '_debugger_case_trio.py',
+    ]
+)
+@pytest.mark.skipif(not IS_CPYTHON or not IS_PY36_OR_GREATER, reason='Only CPython 3.6 onwards')
+def test_asyncio_step_return(case_setup, target_filename):
+    with case_setup.test_file(target_filename) as writer:
+        line = writer.get_line_index_with_content('break count 1')
+        writer.write_add_breakpoint(line)
+        writer.write_make_initial_run()
+
+        hit = writer.wait_for_breakpoint_hit()
+
+        writer.write_step_return(hit.thread_id)
+        hit = writer.wait_for_breakpoint_hit(
+            reason=REASON_STEP_RETURN,
+            file=target_filename,
+            line=writer.get_line_index_with_content('break main')
+        )
+
+        writer.write_run_thread(hit.thread_id)
+        writer.finished_ok = True
+
+
+def test_notify_stdin(case_setup, pyfile):
+
+    @pyfile
+    def case_stdin():
+        import sys
+        print('Write something:')
+        contents = sys.stdin.readline()
+        print('Found: ' + contents)
+
+        print('TEST SUCEEDED')
+
+    def additional_output_checks(writer, stdout, stderr):
+        assert 'Found: foo' in stdout
+
+    with case_setup.test_file(
+            case_stdin,
+            additional_output_checks=additional_output_checks,
+        ) as writer:
+            writer.write_make_initial_run()
+            msg = writer.wait_for_message(CMD_INPUT_REQUESTED, expect_xml=False)
+            assert msg.split('\t')[-1] == 'True'
+            process = writer.process
+            process.stdin.write(b'foo\n')
+            process.stdin.flush()
+            msg = writer.wait_for_message(CMD_INPUT_REQUESTED, expect_xml=False)
+            assert msg.split('\t')[-1] == 'False'
+
+            writer.finished_ok = True
+
+
+def test_frame_eval_mode_corner_case_01(case_setup):
+
+    with case_setup.test_file(
+            'wrong_bytecode/_debugger_case_wrong_bytecode.py',
+        ) as writer:
+            line = writer.get_line_index_with_content('break here')
+            writer.write_add_breakpoint(line)
+            writer.write_make_initial_run()
+            hit = writer.wait_for_breakpoint_hit(line=writer.get_line_index_with_content('break here'), file='_debugger_case_wrong_bytecode.py')
+            writer.write_step_over(hit.thread_id)
+
+            hit = writer.wait_for_breakpoint_hit(line=writer.get_line_index_with_content('step 1'), file='_debugger_case_wrong_bytecode.py', reason=REASON_STEP_OVER)
+            writer.write_step_over(hit.thread_id)
+
+            hit = writer.wait_for_breakpoint_hit(line=writer.get_line_index_with_content('step 2'), file='_debugger_case_wrong_bytecode.py', reason=REASON_STEP_OVER)
+            writer.write_step_over(hit.thread_id)
+
+            hit = writer.wait_for_breakpoint_hit(line=writer.get_line_index_with_content('step 3'), file='_debugger_case_wrong_bytecode.py', reason=REASON_STEP_OVER)
+            writer.write_step_over(hit.thread_id)
+
+            hit = writer.wait_for_breakpoint_hit(line=writer.get_line_index_with_content('step 4'), file='_debugger_case_wrong_bytecode.py', reason=REASON_STEP_OVER)
+            writer.write_step_over(hit.thread_id)
+
+            hit = writer.wait_for_breakpoint_hit(line=writer.get_line_index_with_content('step 5'), file='_debugger_case_wrong_bytecode.py', reason=REASON_STEP_OVER)
+            writer.write_run_thread(hit.thread_id)
+
+            writer.finished_ok = True
+
+
+@pytest.mark.skipif(not IS_PY36_OR_GREATER, reason='Only CPython 3.6 onwards')
+def test_frame_eval_mode_corner_case_02(case_setup):
+
+    with case_setup.test_file(
+            '_bytecode_super.py',
+        ) as writer:
+            line = writer.get_line_index_with_content('break here')
+            writer.write_add_breakpoint(line)
+            writer.write_make_initial_run()
+
+            hit = writer.wait_for_breakpoint_hit(line=line, file='_bytecode_super.py')
+
+            writer.write_run_thread(hit.thread_id)
+
+            writer.finished_ok = True
+
+
+@pytest.mark.skipif(not IS_PY36_OR_GREATER, reason='Only CPython 3.6 onwards')
+def test_frame_eval_mode_corner_case_03(case_setup):
+
+    with case_setup.test_file(
+            '_bytecode_constructs.py',
+        ) as writer:
+            line = writer.get_line_index_with_content('break while')
+            writer.write_add_breakpoint(line)
+            writer.write_make_initial_run()
+
+            hit = writer.wait_for_breakpoint_hit(line=line)
+
+            writer.write_step_over(hit.thread_id)
+            hit = writer.wait_for_breakpoint_hit(line=line + 1, reason=REASON_STEP_OVER)
+
+            writer.write_step_over(hit.thread_id)  # i.e.: check that the jump target is still ok.
+            hit = writer.wait_for_breakpoint_hit(line=line, reason=REASON_STEP_OVER)
+
+            writer.write_step_over(hit.thread_id)
+            hit = writer.wait_for_breakpoint_hit(line=line + 1, reason=REASON_STEP_OVER)
+
+            writer.write_step_over(hit.thread_id)
+            hit = writer.wait_for_breakpoint_hit(line=line, reason=REASON_STEP_OVER)
+
+            writer.write_run_thread(hit.thread_id)
+
+            writer.finished_ok = True
+
+
+@pytest.mark.skipif(not IS_PY36_OR_GREATER, reason='Only CPython 3.6 onwards')
+def test_frame_eval_mode_corner_case_04(case_setup):
+
+    with case_setup.test_file(
+            '_bytecode_constructs.py',
+        ) as writer:
+            line = writer.get_line_index_with_content('break for')
+            writer.write_add_breakpoint(line)
+            writer.write_make_initial_run()
+
+            hit = writer.wait_for_breakpoint_hit(line=line)
+            writer.write_run_thread(hit.thread_id)
+
+            hit = writer.wait_for_breakpoint_hit(line=line)
+            writer.write_run_thread(hit.thread_id)
+
+            hit = writer.wait_for_breakpoint_hit(line=line)
+            writer.write_run_thread(hit.thread_id)
+
+            writer.finished_ok = True
+
+
+@pytest.mark.skipif(not IS_PY36_OR_GREATER, reason='Only CPython 3.6 onwards')
+@pytest.mark.parametrize(
+    'break_name',
+    [
+        'break except',
+        'break with',
+        'break try 1',
+        'break try 2',
+        'break finally 1',
+        'break except 2',
+        'break finally 2',
+        'break in dict',
+        'break else',
+    ]
+)
+def test_frame_eval_mode_corner_case_many(case_setup, break_name):
+    # Check the constructs where we stop only once and proceed.
+    with case_setup.test_file(
+            '_bytecode_constructs.py',
+        ) as writer:
+            line = writer.get_line_index_with_content(break_name)
+            writer.write_add_breakpoint(line)
+            writer.write_make_initial_run()
+
+            hit = writer.wait_for_breakpoint_hit(line=line)
+            writer.write_run_thread(hit.thread_id)
+
+            writer.finished_ok = True
+
 # Jython needs some vars to be set locally.
 # set JAVA_HOME=c:\bin\jdk1.8.0_172
 # set PATH=%PATH%;C:\bin\jython2.7.0\bin
@@ -3269,4 +4261,4 @@ def test_matplotlib_activation(case_setup):
 
 
 if __name__ == '__main__':
-    pytest.main(['-k', 'test_unhandled_exceptions_in_top_level2'])
+    pytest.main(['-k', 'test_case_12'])

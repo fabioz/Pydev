@@ -16,6 +16,7 @@ import java.util.List;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.VisitorBase;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.shared_core.string.StringUtils;
 
 class FlatVisitor extends VisitorBase {
 
@@ -30,29 +31,72 @@ class FlatVisitor extends VisitorBase {
 
     @Override
     public void traverse(SimpleNode node) throws Exception {
-        node.traverse(this);
+        if (node != null) {
+            node.traverse(this);
+        }
     }
 
 }
 
 public class SimpleNodeComparator {
 
+    LineColComparator lineColComparator;
+
+    public SimpleNodeComparator() {
+        this(false);
+    }
+
+    public SimpleNodeComparator(boolean compareLineCol) {
+        this(compareLineCol ? new RegularLineComparator() : null);
+    }
+
+    public static abstract class LineColComparator {
+
+        public abstract void compareLineCol(SimpleNode node, SimpleNode node2) throws DifferException;
+
+    }
+
+    public static class RegularLineComparator extends LineColComparator {
+
+        @Override
+        public void compareLineCol(SimpleNode node, SimpleNode node2) throws DifferException {
+            if (node.beginLine != node2.beginLine) {
+                throw new DifferException(StringUtils.format("Nodes beginLine differ. (%s != %s) (%s -- %s)",
+                        node.beginLine, node2.beginLine, node, node2));
+            }
+        }
+
+    }
+
+    public SimpleNodeComparator(LineColComparator lineColComparator) {
+        this.lineColComparator = lineColComparator;
+    }
+
     public void compare(SimpleNode original, SimpleNode newNode) throws Exception, DifferException {
         FlatVisitor flatVisitorOriginal = new FlatVisitor();
         flatVisitorOriginal.traverse(original);
 
         FlatVisitor flatVisitor = new FlatVisitor();
-        flatVisitor.traverse(original);
+        flatVisitor.traverse(newNode);
 
         Iterator<SimpleNode> it = flatVisitorOriginal.visited.iterator();
         Iterator<SimpleNode> it2 = flatVisitor.visited.iterator();
 
-        while (it.hasNext() && it2.hasNext()) {
-            SimpleNode node = it.next();
-            SimpleNode node2 = it2.next();
+        while (true) {
+            if (!it.hasNext() && !it2.hasNext()) {
+                break;
+            }
+            SimpleNode node = it.hasNext() ? it.next() : null;
+            SimpleNode node2 = it2.hasNext() ? it2.next() : null;
+            if (node == null || node2 == null) {
+                throw new DifferException("Nodes differ. " + node + " != " + node2);
+            }
             if (node.getClass() != node2.getClass()) {
                 throw new DifferException("Nodes differ. " + node.getClass().getName() + " != "
                         + node2.getClass().getName());
+            }
+            if (lineColComparator != null) {
+                lineColComparator.compareLineCol(node, node2);
             }
             String s1 = NodeUtils.getFullRepresentationString(node);
             String s2 = NodeUtils.getFullRepresentationString(node2);

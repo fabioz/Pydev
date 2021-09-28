@@ -228,7 +228,7 @@ public class PyUnitViewTestsHolder {
                                 testRunRestored);
                         addServerListener(serverListener);
                     } catch (Exception e) {
-                        Log.log("Error with contents: " + fileContents, e);
+                        Log.log("Error with contents: " + fileContents + " File: " + file, e);
                     }
                 } catch (Exception e) {
                     Log.log(e);

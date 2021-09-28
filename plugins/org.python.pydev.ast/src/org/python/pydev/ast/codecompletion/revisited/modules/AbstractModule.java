@@ -33,9 +33,11 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.IterTokenEntry;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.ModulesKeyForFolder;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.TokensList;
 import org.python.pydev.core.TupleN;
+import org.python.pydev.core.preferences.FileTypesPreferences;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -300,7 +302,24 @@ public abstract class AbstractModule implements IModule {
 
     public static SourceModule createModuleFromDoc(String name, File f, IDocument doc, IPythonNature nature,
             boolean checkForPath) throws MisconfigurationException {
-        return createModuleFromDoc(name, f, doc, nature, checkForPath, nature);
+        IGrammarVersionProvider grammarVersionProvider = nature;
+        // In tests f may be null.
+        if (f != null && FileTypesPreferences.isCythonFile(f.getName())) {
+            grammarVersionProvider = new IGrammarVersionProvider() {
+
+                @Override
+                public int getGrammarVersion() throws MisconfigurationException {
+                    return IPythonNature.GRAMMAR_PYTHON_VERSION_CYTHON;
+                }
+
+                @Override
+                public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions()
+                        throws MisconfigurationException {
+                    return nature.getAdditionalGrammarVersions();
+                }
+            };
+        }
+        return createModuleFromDoc(name, f, doc, nature, checkForPath, grammarVersionProvider);
     }
 
     /**
@@ -372,6 +391,8 @@ public abstract class AbstractModule implements IModule {
             ModulesKeyForZip e = ((ModulesKeyForZip) key);
             return new EmptyModuleForZip(key.name, key.file, e.zipModulePath, e.isFile);
 
+        } else if (key instanceof ModulesKeyForFolder) {
+            return new EmptyModuleForFolder(key.name, key.file);
         } else {
             return new EmptyModule(key.name, key.file);
         }

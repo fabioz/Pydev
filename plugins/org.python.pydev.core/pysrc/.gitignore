@@ -19,6 +19,7 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+.vscode
 
 # Installer logs
 pip-log.txt
@@ -35,3 +36,4 @@ coverage.xml
 snippet.py
 build/*
 .pytest_cache
+/.mypy_cache/

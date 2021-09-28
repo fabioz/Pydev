@@ -17,9 +17,11 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.ITextEditorExtension;
 import org.eclipse.ui.texteditor.ITextEditorExtension2;
+import org.python.pydev.core.log.Log;
 
 public class BaseAction extends Action implements IEditorActionDelegate {
 
@@ -79,7 +81,7 @@ public class BaseAction extends Action implements IEditorActionDelegate {
      * This function returns the text editor.
      */
     protected ITextEditor getTextEditor() {
-        if (targetEditor instanceof ITextEditor) {
+        if (targetEditor instanceof ITextEditor || targetEditor == null) {
             return (ITextEditor) targetEditor;
         } else {
             throw new RuntimeException("Expecting text editor. Found:" + targetEditor.getClass().getName());
@@ -98,5 +100,17 @@ public class BaseAction extends Action implements IEditorActionDelegate {
     @Override
     public void run(IAction action) {
 
+    }
+
+    /*
+     * Beep...humm... yeah....beep....ehehheheh
+     */
+    protected static void beep(Exception e) {
+        try {
+            PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay().beep();
+        } catch (Throwable x) {
+            //ignore, workbench has still not been created
+        }
+        Log.log(e);
     }
 }

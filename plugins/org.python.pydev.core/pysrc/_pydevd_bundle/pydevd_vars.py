@@ -2,9 +2,16 @@
     resolution/conversion to XML.
 """
 import pickle
-from _pydevd_bundle.pydevd_constants import get_frame, get_current_thread_id, xrange
+from _pydevd_bundle.pydevd_constants import get_frame, get_current_thread_id, xrange, IS_PY2, \
+    iter_chars, silence_warnings_decorator
 
 from _pydevd_bundle.pydevd_xml import ExceptionOnEvaluate, get_type, var_to_xml
+from _pydev_bundle import pydev_log
+import codecs
+import os
+import functools
+from _pydevd_bundle.pydevd_thread_lifecycle import resume_threads, mark_thread_suspended, suspend_all_threads
+from _pydevd_bundle.pydevd_comm_constants import CMD_SET_BREAK
 
 try:
     from StringIO import StringIO
@@ -14,7 +21,7 @@ import sys  # @Reimport
 
 from _pydev_imps._pydev_saved_modules import threading
 import traceback
-from _pydevd_bundle import pydevd_save_locals
+from _pydevd_bundle import pydevd_save_locals, pydevd_timeout, pydevd_constants, pydevd_utils
 from _pydev_bundle.pydev_imports import Exec, execfile
 from _pydevd_bundle.pydevd_utils import to_string
 
@@ -42,6 +49,7 @@ def dump_frames(thread_id):
         sys.stdout.write('%s\n' % pickle.dumps(frame))
 
 
+@silence_warnings_decorator
 def getVariable(dbg, thread_id, frame_id, scope, attrs):
     """
     returns the value of a variable
@@ -72,7 +80,7 @@ def getVariable(dbg, thread_id, frame_id, scope, attrs):
                     if attrs is not None:
                         attrList = attrs.split('\t')
                         for k in attrList:
-                            _type, _typeName, resolver = get_type(var)
+                            _type, _type_name, resolver = get_type(var)
                             var = resolver.resolve(var, k)
 
                     return var
@@ -99,7 +107,7 @@ def getVariable(dbg, thread_id, frame_id, scope, attrs):
                 # An Expression can be in any scope (globals/locals), therefore it needs to evaluated as an expression
                 var = evaluate_expression(dbg, frame, attrList[count], False)
             else:
-                _type, _typeName, resolver = get_type(var)
+                _type, _type_name, resolver = get_type(var)
                 var = resolver.resolve(var, attrList[count])
     else:
         if scope == "GLOBAL":
@@ -112,7 +120,7 @@ def getVariable(dbg, thread_id, frame_id, scope, attrs):
             var.update(frame.f_locals)
 
         for k in attrList:
-            _type, _typeName, resolver = get_type(var)
+            _type, _type_name, resolver = get_type(var)
             var = resolver.resolve(var, k)
 
     return var
@@ -133,12 +141,11 @@ def resolve_compound_variable_fields(dbg, thread_id, frame_id, scope, attrs):
     var = getVariable(dbg, thread_id, frame_id, scope, attrs)
 
     try:
-        _type, _typeName, resolver = get_type(var)
-        return _typeName, resolver.get_dictionary(var)
+        _type, type_name, resolver = get_type(var)
+        return type_name, resolver.get_dictionary(var)
     except:
-        sys.stderr.write('Error evaluating: thread_id: %s\nframe_id: %s\nscope: %s\nattrs: %s\n' % (
-            thread_id, frame_id, scope, attrs,))
-        traceback.print_exc()
+        pydev_log.exception('Error evaluating: thread_id: %s\nframe_id: %s\nscope: %s\nattrs: %s.',
+            thread_id, frame_id, scope, attrs)
 
 
 def resolve_var_object(var, attrs):
@@ -154,7 +161,7 @@ def resolve_var_object(var, attrs):
     else:
         attr_list = []
     for k in attr_list:
-        type, _typeName, resolver = get_type(var)
+        type, _type_name, resolver = get_type(var)
         var = resolver.resolve(var, k)
     return var
 
@@ -170,14 +177,14 @@ def resolve_compound_var_object_fields(var, attrs):
     attr_list = attrs.split('\t')
 
     for k in attr_list:
-        type, _typeName, resolver = get_type(var)
+        type, _type_name, resolver = get_type(var)
         var = resolver.resolve(var, k)
 
     try:
-        type, _typeName, resolver = get_type(var)
+        type, _type_name, resolver = get_type(var)
         return resolver.get_dictionary(var)
     except:
-        traceback.print_exc()
+        pydev_log.exception()
 
 
 def custom_operation(dbg, thread_id, frame_id, scope, attrs, style, code_or_file, operation_fn_name):
@@ -200,14 +207,58 @@ def custom_operation(dbg, thread_id, frame_id, scope, attrs, style, code_or_file
 
         return str(namespace[operation_fn_name](expressionValue))
     except:
-        traceback.print_exc()
+        pydev_log.exception()
+
+
+def _expression_to_evaluate(expression):
+    keepends = True
+    lines = expression.splitlines(keepends)
+    # find first non-empty line
+    chars_to_strip = 0
+    for line in lines:
+        if line.strip():  # i.e.: check first non-empty line
+            for c in iter_chars(line):
+                if c.isspace():
+                    chars_to_strip += 1
+                else:
+                    break
+            break
+
+    if chars_to_strip:
+        # I.e.: check that the chars we'll remove are really only whitespaces.
+        proceed = True
+        new_lines = []
+        for line in lines:
+            if not proceed:
+                break
+            for c in iter_chars(line[:chars_to_strip]):
+                if not c.isspace():
+                    proceed = False
+                    break
+
+            new_lines.append(line[chars_to_strip:])
+
+        if proceed:
+            if isinstance(expression, bytes):
+                expression = b''.join(new_lines)
+            else:
+                expression = u''.join(new_lines)
+
+    if IS_PY2 and isinstance(expression, unicode):
+        # In Python 2 we need to compile with bytes and not unicode (otherwise it'd use
+        # the default encoding which could be ascii).
+        # See https://github.com/microsoft/ptvsd/issues/1864 and https://bugs.python.org/issue18870
+        # for why we're using the utf-8 bom.
+        # i.e.: ... if an utf-8 bom is present, it is considered utf-8 in eval/exec.
+        expression = codecs.BOM_UTF8 + expression.encode('utf-8')
+    return expression
 
 
 def eval_in_context(expression, globals, locals):
     result = None
     try:
-        result = eval(expression, globals, locals)
-    except Exception:
+        result = eval(_expression_to_evaluate(expression), globals, locals)
+    except (Exception, KeyboardInterrupt):
         s = StringIO()
         traceback.print_exc(file=s)
         result = s.getvalue()
@@ -225,10 +276,15 @@ def eval_in_context(expression, globals, locals):
 
         # Ok, we have the initial error message, but let's see if we're dealing with a name mangling error...
         try:
-            if '__' in expression:
-                # Try to handle '__' name mangling...
+            if IS_PY2 and isinstance(expression, unicode):
+                expression = expression.encode('utf-8')
+
+            if '.__' in expression:
+                # Try to handle '__' name mangling (for simple cases such as self.__variable.__another_var).
                 split = expression.split('.')
-                curr = locals.get(split[0])
+                entry = split[0]
+
+                curr = locals[entry]  # Note: we want the KeyError if it's not there.
                 for entry in split[1:]:
                     if entry.startswith('__') and not hasattr(curr, entry):
                         entry = '_%s%s' % (curr.__class__.__name__, entry)
@@ -240,39 +296,153 @@ def eval_in_context(expression, globals, locals):
     return result
 
 
-def evaluate_expression(dbg, frame, expression, is_exec):
-    '''returns the result of the evaluated expression
-    @param is_exec: determines if we should do an exec or an eval
+def _run_with_interrupt_thread(original_func, py_db, curr_thread, frame, expression, is_exec):
+    on_interrupt_threads = None
+    timeout_tracker = py_db.timeout_tracker  # : :type timeout_tracker: TimeoutTracker
+
+    interrupt_thread_timeout = pydevd_constants.PYDEVD_INTERRUPT_THREAD_TIMEOUT
+
+    if interrupt_thread_timeout > 0:
+        on_interrupt_threads = pydevd_timeout.create_interrupt_this_thread_callback()
+        pydev_log.info('Doing evaluate with interrupt threads timeout: %s.', interrupt_thread_timeout)
+
+    if on_interrupt_threads is None:
+        return original_func(py_db, frame, expression, is_exec)
+    else:
+        with timeout_tracker.call_on_timeout(interrupt_thread_timeout, on_interrupt_threads):
+            return original_func(py_db, frame, expression, is_exec)
+
+
+def _run_with_unblock_threads(original_func, py_db, curr_thread, frame, expression, is_exec):
+    on_timeout_unblock_threads = None
+    timeout_tracker = py_db.timeout_tracker  # : :type timeout_tracker: TimeoutTracker
+
+    if py_db.multi_threads_single_notification:
+        unblock_threads_timeout = pydevd_constants.PYDEVD_UNBLOCK_THREADS_TIMEOUT
+    else:
+        unblock_threads_timeout = -1  # Don't use this if threads are managed individually.
+
+    if unblock_threads_timeout >= 0:
+        pydev_log.info('Doing evaluate with unblock threads timeout: %s.', unblock_threads_timeout)
+        tid = get_current_thread_id(curr_thread)
+
+        def on_timeout_unblock_threads():
+            on_timeout_unblock_threads.called = True
+            pydev_log.info('Resuming threads after evaluate timeout.')
+            resume_threads('*', except_thread=curr_thread)
+            py_db.threads_suspended_single_notification.on_thread_resume(tid)
+
+        on_timeout_unblock_threads.called = False
+
+    try:
+        if on_timeout_unblock_threads is None:
+            return _run_with_interrupt_thread(original_func, py_db, curr_thread, frame, expression, is_exec)
+        else:
+            with timeout_tracker.call_on_timeout(unblock_threads_timeout, on_timeout_unblock_threads):
+                return _run_with_interrupt_thread(original_func, py_db, curr_thread, frame, expression, is_exec)
+
+    finally:
+        if on_timeout_unblock_threads is not None and on_timeout_unblock_threads.called:
+            mark_thread_suspended(curr_thread, CMD_SET_BREAK)
+            py_db.threads_suspended_single_notification.increment_suspend_time()
+            suspend_all_threads(py_db, except_thread=curr_thread)
+            py_db.threads_suspended_single_notification.on_thread_suspend(tid, CMD_SET_BREAK)
+
+
+def _evaluate_with_timeouts(original_func):
+    '''
+    Provides a decorator that wraps the original evaluate to deal with slow evaluates.
+
+    If some evaluation is too slow, we may show a message, resume threads or interrupt them
+    as needed (based on the related configurations).
+    '''
+
+    @functools.wraps(original_func)
+    def new_func(py_db, frame, expression, is_exec):
+        warn_evaluation_timeout = pydevd_constants.PYDEVD_WARN_EVALUATION_TIMEOUT
+        curr_thread = threading.current_thread()
+
+        def on_warn_evaluation_timeout():
+            py_db.writer.add_command(py_db.cmd_factory.make_evaluation_timeout_msg(
+                py_db, expression, curr_thread))
+
+        timeout_tracker = py_db.timeout_tracker  # : :type timeout_tracker: TimeoutTracker
+        with timeout_tracker.call_on_timeout(warn_evaluation_timeout, on_warn_evaluation_timeout):
+            return _run_with_unblock_threads(original_func, py_db, curr_thread, frame, expression, is_exec)
+
+    return new_func
+
+
+@_evaluate_with_timeouts
+def evaluate_expression(py_db, frame, expression, is_exec):
+    '''
+    There are some changes in this function depending on whether it's an exec or an eval.
+
+    When it's an exec (i.e.: is_exec==True):
+        This function returns None.
+        Any exception that happens during the evaluation is reraised.
+        If the expression could actually be evaluated, the variable is printed to the console if not None.
+
+    When it's an eval (i.e.: is_exec==False):
+        This function returns the result from the evaluation.
+        If some exception happens in this case, the exception is caught and a ExceptionOnEvaluate is returned.
+        Also, in this case we try to resolve name-mangling (i.e.: to be able to add a self.__my_var watch).
+
+    :param is_exec: determines if we should do an exec or an eval.
     '''
     if frame is None:
         return
 
-    # Not using frame.f_globals because of https://sourceforge.net/tracker2/?func=detail&aid=2541355&group_id=85796&atid=577329
-    # (Names not resolved in generator expression in method)
-    # See message: http://mail.python.org/pipermail/python-list/2009-January/526522.html
+    # Note: not using frame.f_globals directly because we need variables to be mutated in that
+    # context to support generator expressions (i.e.: the case below doesn't work unless
+    # globals=locals) because a generator expression actually creates a new function context.
+    # i.e.:
+    # global_vars = {}
+    # local_vars = {'ar':["foo", "bar"], 'y':"bar"}
+    # print eval('all((x == y for x in ar))', global_vars, local_vars)
+    # See: https://mail.python.org/pipermail/python-list/2009-January/522213.html
+
     updated_globals = {}
     updated_globals.update(frame.f_globals)
     updated_globals.update(frame.f_locals)  # locals later because it has precedence over the actual globals
 
     try:
-        expression = str(expression.replace('@LINE@', '\n'))
+        if IS_PY2 and isinstance(expression, unicode):
+            expression = expression.replace(u'@LINE@', u'\n')
+        else:
+            expression = expression.replace('@LINE@', '\n')
 
         if is_exec:
             try:
                 # try to make it an eval (if it is an eval we can print it, otherwise we'll exec it and
                 # it will have whatever the user actually did)
-                compiled = compile(expression, '<string>', 'eval')
-            except:
-                Exec(expression, updated_globals, frame.f_locals)
+                compiled = compile(_expression_to_evaluate(expression), '<string>', 'eval')
+            except Exception:
+                Exec(_expression_to_evaluate(expression), updated_globals, frame.f_locals)
                 pydevd_save_locals.save_locals(frame)
             else:
                 result = eval(compiled, updated_globals, frame.f_locals)
                 if result is not None:  # Only print if it's not None (as python does)
+                    if IS_PY2 and isinstance(result, unicode):
+                        encoding = sys.stdout.encoding
+                        if not encoding:
+                            encoding = os.environ.get('PYTHONIOENCODING', 'utf-8')
+                        result = result.encode(encoding, 'replace')
                     sys.stdout.write('%s\n' % (result,))
             return
 
         else:
-            return eval_in_context(expression, updated_globals, frame.f_locals)
+            ret = eval_in_context(expression, updated_globals, frame.f_locals)
+            try:
+                is_exception_returned = ret.__class__ == ExceptionOnEvaluate
+            except:
+                pass
+            else:
+                if not is_exception_returned:
+                    # i.e.: by using a walrus assignment (:=), expressions can change the locals,
+                    # so, make sure that we save the locals back to the frame.
+                    pydevd_save_locals.save_locals(frame)
+            return ret
     finally:
         # Should not be kept alive if an exception happens and this frame is kept in the stack.
         del updated_globals
@@ -317,7 +487,7 @@ def change_attr_expression(frame, attr, expression, dbg, value=SENTINEL_VALUE):
             return result
 
     except Exception:
-        traceback.print_exc()
+        pydev_log.exception()
 
 
 MAXIMUM_ARRAY_SIZE = 100

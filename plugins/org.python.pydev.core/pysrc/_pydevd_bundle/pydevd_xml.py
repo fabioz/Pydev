@@ -1,5 +1,4 @@
 from _pydev_bundle import pydev_log
-import traceback
 from _pydevd_bundle import pydevd_extension_utils
 from _pydevd_bundle import pydevd_resolver
 import sys
@@ -8,6 +7,8 @@ from _pydevd_bundle.pydevd_constants import dict_iter_items, dict_keys, IS_PY3K,
     DEFAULT_VALUE
 from _pydev_bundle.pydev_imports import quote
 from _pydevd_bundle.pydevd_extension_api import TypeResolveProvider, StrPresentationProvider
+from _pydevd_bundle.pydevd_utils import isinstance_checked, hasattr_checked, DAPGrouper
+from _pydevd_bundle.pydevd_resolver import get_var_scope
 
 try:
     import types
@@ -46,6 +47,13 @@ def _create_default_type_map():
         (dict, pydevd_resolver.dictResolver),
     ]
     try:
+        from collections import OrderedDict
+        default_type_map.insert(0, (OrderedDict, pydevd_resolver.orderedDictResolver))
+        # we should put it before dict
+    except:
+        pass
+
+    try:
         default_type_map.append((long, None))  # @UndefinedVariable
     except:
         pass  # not available on all python versions
@@ -54,6 +62,8 @@ def _create_default_type_map():
         default_type_map.append((unicode, None))  # @UndefinedVariable
     except:
         pass  # not available on all python versions
+
+    default_type_map.append((DAPGrouper, pydevd_resolver.dapGrouperResolver))
 
     try:
         default_type_map.append((set, pydevd_resolver.setResolver))
@@ -156,13 +166,13 @@ class TypeResolveHandler(object):
                     return type_object, type_name, resolver
 
             for t in self._default_type_map:
-                if isinstance(o, t[0]):
+                if isinstance_checked(o, t[0]):
                     # Cache it
                     resolver = t[1]
                     self._type_to_resolver_cache[type_object] = resolver
                     return (type_object, type_name, resolver)
         except:
-            traceback.print_exc()
+            pydev_log.exception()
 
         # No match return default (and cache it).
         resolver = pydevd_resolver.defaultResolver
@@ -206,13 +216,13 @@ _TYPE_RESOLVE_HANDLER = TypeResolveHandler()
 
 """
 def get_type(o):
-    Receives object and returns a triple (typeObject, typeString, resolver).
+    Receives object and returns a triple (type_object, type_string, resolver).
 
     resolver != None means that variable is a container, and should be displayed as a hierarchy.
 
     Use the resolver to get its attributes.
 
-    All container objects should have a resolver.
+    All container objects (i.e.: dict, list, tuple, object, etc) should have a resolver.
 """
 get_type = _TYPE_RESOLVE_HANDLER.get_type
 
@@ -224,7 +234,7 @@ def is_builtin(x):
 
 
 def should_evaluate_full_value(val):
-    return not LOAD_VALUES_ASYNC or (is_builtin(type(val)) and not isinstance(val, (list, tuple, dict)))
+    return not LOAD_VALUES_ASYNC or (is_builtin(type(val)) and not isinstance_checked(val, (list, tuple, dict)))
 
 
 def return_values_from_dict_to_xml(return_dict):
@@ -253,6 +263,9 @@ def frame_vars_to_xml(frame_f_locals, hidden_ns=None):
             v = frame_f_locals[k]
             eval_full_val = should_evaluate_full_value(v)
 
+            if k == '_pydev_stop_at_break':
+                continue
+
             if k == RETURN_VALUES_DICT:
                 for name, val in dict_iter_items(v):
                     return_values_xml += var_to_xml(val, name, additional_in_xml=' isRetVal="True"')
@@ -264,8 +277,7 @@ def frame_vars_to_xml(frame_f_locals, hidden_ns=None):
                 else:
                     xml += var_to_xml(v, str(k), evaluate_full_value=eval_full_val)
         except Exception:
-            traceback.print_exc()
-            pydev_log.error("Unexpected error, recovered safely.\n")
+            pydev_log.exception("Unexpected error, recovered safely.")
 
     # Show return values as the first entry.
     return return_values_xml + xml
@@ -296,7 +308,7 @@ def get_variable_details(val, evaluate_full_value=True, to_string=None):
             elif to_string is not None:
                 value = to_string(v)
 
-            elif hasattr(v, '__class__'):
+            elif hasattr_checked(v, '__class__'):
                 if v.__class__ == frame_type:
                     value = pydevd_resolver.frameResolver.get_frame_name(v)
 
@@ -348,6 +360,7 @@ def var_to_xml(val, name, trim_if_too_big=True, additional_in_xml='', evaluate_f
     type_name, type_qualifier, is_exception_on_eval, resolver, value = get_variable_details(
         val, evaluate_full_value)
 
+    scope = get_var_scope(name, val, '', True)
     try:
         name = quote(name, '/>_= ')  # TODO: Fix PY-5834 without using quote
     except:
@@ -378,4 +391,7 @@ def var_to_xml(val, name, trim_if_too_big=True, additional_in_xml='', evaluate_f
         else:
             xml_container = ''
 
-    return ''.join((xml, xml_qualifier, xml_value, xml_container, additional_in_xml, ' />\n'))
+    if scope:
+        return ''.join((xml, xml_qualifier, xml_value, xml_container, additional_in_xml, ' scope="', scope, '"', ' />\n'))
+    else:
+        return ''.join((xml, xml_qualifier, xml_value, xml_container, additional_in_xml, ' />\n'))

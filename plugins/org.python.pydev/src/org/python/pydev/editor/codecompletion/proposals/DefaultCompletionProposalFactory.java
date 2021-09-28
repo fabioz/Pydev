@@ -9,11 +9,11 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateContext;
 import org.eclipse.swt.widgets.Display;
-import org.python.pydev.ast.codecompletion.shell.AbstractShell;
 import org.python.pydev.ast.refactoring.RefactoringRequest;
 import org.python.pydev.core.ICompletionRequest;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.ShellId;
 import org.python.pydev.core.docutils.ImportHandle.ImportHandleInfo;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.DocstringInfo;
@@ -245,8 +245,15 @@ public class DefaultCompletionProposalFactory implements ICompletionProposalFact
     }
 
     @Override
-    public int getShellId() {
-        return Display.getCurrent() != null ? AbstractShell.MAIN_THREAD_SHELL : AbstractShell.OTHER_THREADS_SHELL;
+    public ShellId getShellId() {
+        return Display.getCurrent() != null ? ShellId.MAIN_THREAD_SHELL
+                : ShellId.OTHER_THREADS_SHELL;
+    }
+
+    @Override
+    public ShellId getCythonShellId() {
+        return Display.getCurrent() != null ? ShellId.CYTHON_MAIN_THREAD_SHELL
+                : ShellId.CYTHON_OTHER_THREADS_SHELL;
     }
 
     @Override

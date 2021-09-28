@@ -3,24 +3,28 @@ import sys
 import traceback
 from _pydev_bundle.pydev_imports import xmlrpclib, _queue, Exec
 from  _pydev_bundle._pydev_calltip_util import get_description
-from _pydev_imps._pydev_saved_modules import thread
 from _pydevd_bundle import pydevd_vars
 from _pydevd_bundle import pydevd_xml
-from _pydevd_bundle.pydevd_constants import IS_JYTHON, dict_iter_items, NEXT_VALUE_SEPARATOR, Null
-import signal
+from _pydevd_bundle.pydevd_constants import (IS_JYTHON, dict_iter_items, NEXT_VALUE_SEPARATOR, get_global_debugger,
+    silence_warnings_decorator)
+from contextlib import contextmanager
+from _pydev_bundle import pydev_log
+from _pydevd_bundle.pydevd_utils import interrupt_main_thread
 
 try:
-    import cStringIO as StringIO #may not always be available @UnusedImport
+    import cStringIO as StringIO  # may not always be available @UnusedImport
 except:
     try:
-        import StringIO #@Reimport
+        import StringIO  # @Reimport
     except:
         import io as StringIO
+
 
 # =======================================================================================================================
 # BaseStdIn
 # =======================================================================================================================
 class BaseStdIn:
+
     def __init__(self, original_stdin=sys.stdin, *args, **kwargs):
         try:
             self.encoding = sys.stdin.encoding
@@ -32,7 +36,7 @@ class BaseStdIn:
         try:
             self.errors = sys.stdin.errors  # Who knew? sys streams have an errors attribute!
         except:
-            #Not sure if it's available in all Python versions...
+            # Not sure if it's available in all Python versions...
             pass
 
     def readline(self, *args, **kwargs):
@@ -85,7 +89,7 @@ class StdIn(BaseStdIn):
             server = xmlrpclib.Server('http://%s:%s' % (self.host, self.client_port))
             requested_input = server.RequestInput()
             if not requested_input:
-                return '\n' #Yes, a readline must return something (otherwise we can get an EOFError on the input() call).
+                return '\n'  # Yes, a readline must return something (otherwise we can get an EOFError on the input() call).
             else:
                 # readline should end with '\n' (not doing so makes IPython 5 remove the last *valid* character).
                 requested_input += '\n'
@@ -98,6 +102,7 @@ class StdIn(BaseStdIn):
     def close(self, *args, **kwargs):
         pass  # expected in StdIn
 
+
 #=======================================================================================================================
 # DebugConsoleStdIn
 #=======================================================================================================================
@@ -106,27 +111,52 @@ class DebugConsoleStdIn(BaseStdIn):
         Object to be added to stdin (to emulate it as non-blocking while the next line arrives)
     '''
 
-    def __init__(self, dbg, original_stdin):
+    def __init__(self, py_db, original_stdin):
+        '''
+        :param py_db:
+            If None, get_global_debugger() is used.
+        '''
         BaseStdIn.__init__(self, original_stdin)
-        self.debugger = dbg
+        self._py_db = py_db
+        self._in_notification = 0
 
-    def __pydev_run_command(self, is_started):
+    def __send_input_requested_message(self, is_started):
         try:
-            cmd = self.debugger.cmd_factory.make_input_requested_message(is_started)
-            self.debugger.writer.add_command(cmd)
+            py_db = self._py_db
+            if py_db is None:
+                py_db = get_global_debugger()
+
+            if py_db is None:
+                return
+
+            cmd = py_db.cmd_factory.make_input_requested_message(is_started)
+            py_db.writer.add_command(cmd)
         except Exception:
-            traceback.print_exc()
-            return '\n'
+            pydev_log.exception()
+
+    @contextmanager
+    def notify_input_requested(self):
+        self._in_notification += 1
+        if self._in_notification == 1:
+            self.__send_input_requested_message(True)
+        try:
+            yield
+        finally:
+            self._in_notification -= 1
+            if self._in_notification == 0:
+                self.__send_input_requested_message(False)
 
     def readline(self, *args, **kwargs):
-        # Notify Java side about input and call original function
-        self.__pydev_run_command(True)
-        result = self.original_stdin.readline(*args, **kwargs)
-        self.__pydev_run_command(False)
-        return result
+        with self.notify_input_requested():
+            return self.original_stdin.readline(*args, **kwargs)
+
+    def read(self, *args, **kwargs):
+        with self.notify_input_requested():
+            return self.original_stdin.read(*args, **kwargs)
 
 
 class CodeFragment:
+
     def __init__(self, text, is_single_line=True):
         self.text = text
         self.is_single_line = is_single_line
@@ -141,6 +171,7 @@ class CodeFragment:
 # BaseInterpreterInterface
 # =======================================================================================================================
 class BaseInterpreterInterface:
+
     def __init__(self, mainThread, connect_status_queue=None):
         self.mainThread = mainThread
         self.interruptable = False
@@ -208,7 +239,7 @@ class BaseInterpreterInterface:
         if debugger is None:
             return StdIn(self, self.host, self.client_port, original_stdin=original_std_in)
         else:
-            return DebugConsoleStdIn(dbg=debugger, original_stdin=original_std_in)
+            return DebugConsoleStdIn(py_db=debugger, original_stdin=original_std_in)
 
     def add_exec(self, code_fragment, debugger=None):
         # In case sys.excepthook called, use original excepthook #PyDev-877: Debug console freezes with Python 3.5+
@@ -370,43 +401,9 @@ class BaseInterpreterInterface:
         self.buffer = None  # Also clear the buffer when it's interrupted.
         try:
             if self.interruptable:
-                called = False
-                try:
-                    # Fix for #PyDev-500: Console interrupt can't interrupt on sleep
-                    if os.name == 'posix':
-                        # On Linux we can't interrupt 0 as in Windows because it's
-                        # actually owned by a process -- on the good side, signals
-                        # work much better on Linux!
-                        os.kill(os.getpid(), signal.SIGINT)
-                        called = True
+                # Fix for #PyDev-500: Console interrupt can't interrupt on sleep
+                interrupt_main_thread(self.mainThread)
 
-                    elif os.name == 'nt':
-                        # Stupid windows: sending a Ctrl+C to a process given its pid
-                        # is absurdly difficult.
-                        # There are utilities to make it work such as
-                        # http://www.latenighthacking.com/projects/2003/sendSignal/
-                        # but fortunately for us, it seems Python does allow a CTRL_C_EVENT
-                        # for the current process in Windows if pid 0 is passed... if we needed
-                        # to send a signal to another process the approach would be
-                        # much more difficult.
-                        # Still, note that CTRL_C_EVENT is only Python 2.7 onwards...
-                        # Also, this doesn't seem to be documented anywhere!? (stumbled
-                        # upon it by chance after digging quite a lot).
-                        os.kill(0, signal.CTRL_C_EVENT)
-                        called = True
-                except:
-                    # Many things to go wrong (from CTRL_C_EVENT not being there
-                    # to failing import signal)... if that's the case, ask for
-                    # forgiveness and go on to the approach which will interrupt
-                    # the main thread (but it'll only work when it's executing some Python
-                    # code -- not on sleep() for instance).
-                    pass
-
-                if not called:
-                    if hasattr(thread, 'interrupt_main'):  # Jython doesn't have it
-                        thread.interrupt_main()
-                    else:
-                        self.mainThread._thread.interrupt()  # Jython
             self.finish_exec(False)
             return True
         except:
@@ -451,6 +448,7 @@ class BaseInterpreterInterface:
 
         return xml.getvalue()
 
+    @silence_warnings_decorator
     def getVariable(self, attributes):
         xml = StringIO.StringIO()
         xml.write("<xml>")
@@ -458,8 +456,7 @@ class BaseInterpreterInterface:
         if val_dict is None:
             val_dict = {}
 
-        keys = val_dict.keys()
-        for k in keys:
+        for k, val in dict_iter_items(val_dict):
             val = val_dict[k]
             evaluate_full_value = pydevd_xml.should_evaluate_full_value(val)
             xml.write(pydevd_vars.var_to_xml(val, k, evaluate_full_value=evaluate_full_value))
@@ -481,6 +478,7 @@ class BaseInterpreterInterface:
         xml.write("</xml>")
         return xml.getvalue()
 
+    @silence_warnings_decorator
     def loadFullValue(self, seq, scope_attrs):
         """
         Evaluate full value for async Console variables in a separate thread and send results to IDE side
@@ -507,10 +505,20 @@ class BaseInterpreterInterface:
                 var_objects.append((var_object, name))
 
         from _pydevd_bundle.pydevd_comm import GetValueAsyncThreadConsole
-        t = GetValueAsyncThreadConsole(self.get_server(), seq, var_objects)
+        py_db = getattr(self, 'debugger', None)
+
+        if py_db is None:
+            py_db = get_global_debugger()
+
+        if py_db is None:
+            from pydevd import PyDB
+            py_db = PyDB()
+
+        t = GetValueAsyncThreadConsole(py_db, self.get_server(), seq, var_objects)
         t.start()
 
     def changeVariable(self, attr, value):
+
         def do_change_variable():
             Exec('%s=%s' % (attr, value), self.get_namespace(), self.get_namespace())
 
@@ -544,11 +552,10 @@ class BaseInterpreterInterface:
                 # Try to import the packages needed to attach the debugger
                 import pydevd
                 from _pydev_imps._pydev_saved_modules import threading
-
             except:
                 # This happens on Jython embedded in host eclipse
                 traceback.print_exc()
-                sys.stderr.write('pydevd is not available, cannot connect\n', )
+                sys.stderr.write('pydevd is not available, cannot connect\n')
 
             from _pydevd_bundle.pydevd_constants import set_thread_id
             from _pydev_bundle import pydev_localhost
@@ -604,6 +611,7 @@ class BaseInterpreterInterface:
             As with IPython, enabling multiple GUIs isn't an error, but
             only the last one's main loop runs and it may not work
         '''
+
         def do_enable_gui():
             from _pydev_bundle.pydev_versioncheck import versionok_for_gui
             if versionok_for_gui():

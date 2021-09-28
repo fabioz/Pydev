@@ -13,6 +13,7 @@ import java.io.File;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -157,7 +158,11 @@ public class AnalysisParserObserver implements IParserObserver, IParserObserver3
                 return; // we only analyze resources that are in the pythonpath
             }
 
-            String file = fileAdapter.getRawLocation().toOSString();
+            IPath location = fileAdapter.getLocation();
+            if (location == null) {
+                return;
+            }
+            String file = location.toOSString();
             module = AbstractModule.createModule(root, new File(file), moduleName, nature);
 
         } catch (Exception e) {

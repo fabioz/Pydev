@@ -56,7 +56,6 @@ import org.eclipse.jface.text.source.LineNumberRulerColumn;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
-import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
@@ -101,6 +100,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ITabChangedListener;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.NotConfiguredInterpreterException;
+import org.python.pydev.core.ShellId;
 import org.python.pydev.core.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PythonPairMatcher;
@@ -113,7 +113,6 @@ import org.python.pydev.core.partition.PyPartitionScanner;
 import org.python.pydev.core.preferences.FileTypesPreferences;
 import org.python.pydev.core.preferences.PyDevCoreEditorPreferences;
 import org.python.pydev.core.preferences.PydevPrefs;
-import org.python.pydev.editor.actions.FirstCharAction;
 import org.python.pydev.editor.actions.IExecuteLineAction;
 import org.python.pydev.editor.actions.OfflineAction;
 import org.python.pydev.editor.actions.OfflineActionTarget;
@@ -419,11 +418,6 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
 
         viewer.appendVerifyKeyListener(PyPeerLinker.createVerifyKeyListener(viewer));
         viewer.appendVerifyKeyListener(PyBackspace.createVerifyKeyListener(viewer, this));
-        VerifyKeyListener createVerifyKeyListener = FirstCharAction.createVerifyKeyListener(viewer, this.getSite(),
-                false);
-        if (createVerifyKeyListener != null) {
-            viewer.appendVerifyKeyListener(createVerifyKeyListener);
-        }
         this.onCreateSourceViewer.call(viewer);
 
         return viewer;
@@ -557,7 +551,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
             //we also want to initialize our shells...
             //we use 2: one for the main thread and one for the other threads.
             //just preemptively start the one for the main thread.
-            final int mainThreadShellId = AbstractShell.getShellId();
+            final ShellId mainThreadShellId = AbstractShell.getShellId();
             Thread thread2 = new Thread() {
                 @Override
                 public void run() {
@@ -1574,6 +1568,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
         };
     }
 
+    @Override
     public boolean isCythonFile() {
         IFile iFile = getIFile();
         String fileName = null;

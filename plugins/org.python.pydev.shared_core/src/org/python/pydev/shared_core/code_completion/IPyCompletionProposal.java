@@ -16,6 +16,7 @@ package org.python.pydev.shared_core.code_completion;
  */
 public interface IPyCompletionProposal {
 
+    int LOWER_PRIORITY = -100;
     int PRIORITY_LOCALS = -1;
 
     //those have local priorities, but for some reason have a lower priority than locals

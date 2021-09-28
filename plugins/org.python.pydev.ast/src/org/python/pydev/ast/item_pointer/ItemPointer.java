@@ -198,7 +198,7 @@ public class ItemPointer extends BaseItemPointer {
         IPath path;
         if (file instanceof IFile) {
             IFile f = (IFile) file;
-            path = f.getRawLocation();
+            path = f.getLocation();
 
         } else if (file instanceof IPath) {
             path = (IPath) file;

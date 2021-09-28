@@ -17,12 +17,9 @@ set DRIVE=x:
 set BASE_LOCAL_PYDEV_GIT=x:\pydev
 set BUILD_DIR=X:\pydev_build\build_dir
 set DEPLOY_DIR=X:\pydev_build\deploy_dir
-set JAVA_HOME=C:\bin\jdk1.8.0_172
+set JAVA_HOME=C:\bin\jdk-11.0.9
 set MAVEN_BIN=C:\bin\apache-maven-3.5.3\bin
 set GIT_EXECUTABLE="C:\Program Files\Git\bin\git.exe"
-set ECLIPSE_CLEAN=C:\bin\eclipse_48rc4a_clean
-set LAUNCHER_PLUGIN=org.eclipse.equinox.launcher_1.5.0.v20180512-1130.jar
-set BUILDER_PLUGIN=org.eclipse.pde.build_3.10.0.v20180512-1217
 @echo Expected in env var: SIGN_KEYPASS
 @echo Expected in env var: SIGN_STOREPASS
 @echo Expected in env var: SIGN_ALIAS
@@ -37,12 +34,12 @@ set BASEWS=win32
 set BASEARCH=x86
 
 set PATH=
-set PATH=p:\FastCopy211;%PATH%
+set PATH=C:\bin\FastCopy211;%PATH%
 set PATH=C:\Windows\system32;%PATH%
 set PATH=%MAVEN_BIN%;%PATH%
 set PATH=%JAVA_HOME%\bin;%PATH%
 set PATH="C:\Program Files\Git\bin\";%PATH%
-set PATH=%ECLIPSE_CLEAN%\plugins\org.apache.ant_1.10.1.v20170504-0840\bin;%PATH%
+set PATH=%ECLIPSE_CLEAN%\plugins\org.apache.ant_1.10.5.v20180808-0324\bin;%PATH%
 
 
 @echo actual build command
@@ -64,11 +61,11 @@ git pull origin %BRANCH%
 
 @echo Create builtin modules
 set PYTHONPATH=%BUILD_DIR%/Pydev/plugins/org.python.pydev.core/pysrc
-C:\bin\Miniconda\envs\py36_64\python %BUILD_DIR%/Pydev/plugins/org.python.pydev.core/pysrc/build_tools/build.py
-C:\bin\Miniconda\envs\py36_64\python %BUILD_DIR%/Pydev/plugins/org.python.pydev.core/pysrc/build_tools/build_binaries_windows.py
+C:\bin\Python38-32\python %BUILD_DIR%/Pydev/plugins/org.python.pydev.core/pysrc/build_tools/build.py
+C:\bin\Python38-32\python %BUILD_DIR%/Pydev/plugins/org.python.pydev.core/pysrc/build_tools/build_binaries_windows.py
 
 @echo to clean after the build: -DcleanAfter.set=true
-mvn install -o
+mvn install
 
 
 

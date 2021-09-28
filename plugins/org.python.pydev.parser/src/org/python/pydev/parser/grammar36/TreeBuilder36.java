@@ -526,11 +526,7 @@ public final class TreeBuilder36 extends AbstractTreeBuilder implements ITreeBui
                 return starred;
 
             case JJTANN_ASSIGN:
-                value = (exprType) stack.popNode();
-                type = (exprType) stack.popNode();
-                exprs = makeExprs(arity - 2);
-                ctx.setStore(exprs);
-                return new Assign(exprs, value, type);
+                return typedDeclaration(arity, stack, ctx);
 
             case JJTEVAL_INPUT:
                 Expr expr = (Expr) n;

@@ -502,8 +502,17 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                     if (assign.value instanceof Call) {
                                         lookingFor = LookingFor.LOOKING_FOR_INSTANCED_VARIABLE;
                                     }
-                                    value = NodeUtils.getRepresentationString(assign.value);
-                                    definitions = findDefinition(initialState.getCopyWithActTok(value), d.line, d.col,
+                                    if (assign.type != null) {
+                                        value = NodeUtils.getRepresentationString(assign.type);
+                                        lookingFor = LookingFor.LOOKING_FOR_INSTANCED_VARIABLE;
+                                    } else if (assign.value != null) {
+                                        value = NodeUtils.getRepresentationString(assign.value);
+                                    }
+                                    if (value == null) {
+                                        break;
+                                    }
+                                    definitions = findDefinition(initialState.getCopyWithActTok(value), d.line,
+                                            d.col,
                                             manager.getNature());
                                 } else if (d.ast instanceof ClassDef) {
                                     TokensList toks = ((SourceModule) d.module).getClassToks(initialState,
@@ -873,6 +882,13 @@ public class SourceModule extends AbstractModule implements ISourceModule {
 
             final String tokenRep = tok.getRepresentation();
             if (tokenRep.equals(actTok)) {
+                if (tok instanceof SourceToken && ((SourceToken) tok).getAst() instanceof Assign) {
+                    Assign node = (Assign) ((SourceToken) tok).getAst();
+                    String target = tok.getRepresentation();
+                    return new Definition[] {
+                            FindDefinitionModelVisitor.getAssignDefinition(node, target, 0, line, col,
+                                    scopeVisitor.scope, this, -1) };
+                }
                 return new Definition[] { new Definition(tok, scopeVisitor.scope, this, true) };
             } else if (actTok.startsWith(tokenRep + ".") && !actTok.startsWith("self.")) {
                 final int tokenRepLen = tokenRep.length();
@@ -1083,8 +1099,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         }
 
         //mod == this if we are now checking the globals (or maybe not)...heheheh
-        ICompletionState copy = state.getCopy();
-        copy.setActivationToken(tok);
+        ICompletionState copy = state.getCopyWithActTok(tok, line - 1, col - 1);
+        // further on this we will get the first part of the same tok, so token line and column will be the same
         try {
             state.checkFindDefinitionMemory(mod, tok);
             findDefinitionsFromModAndTok(nature, toRet, visitor.moduleImported, mod, copy);
@@ -1105,7 +1121,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         String tok = state.getActivationToken();
         if (tok != null) {
             if (tok.length() > 0) {
-                Definition d = mod.findGlobalTokDef(state.getCopyWithActTok(tok), nature);
+                Definition d = mod.findGlobalTokDef(state.getCopyWithActTok(tok, state.getLine(), state.getCol()),
+                        nature);
                 if (d != null) {
                     toRet.add(d);
 
@@ -1194,7 +1211,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         // }
         if (tokens == null || tokens.empty()) {
             if (nature != null) {
-                tokens = nature.getAstManager().getCompletionsForModule(this, state.getCopyWithActTok(firstPart), true);
+                tokens = nature.getAstManager().getCompletionsForModule(this,
+                        state.getCopyWithActTok(firstPart, state.getLine(), state.getCol()), true);
             } else {
                 tokens = getGlobalTokens();
             }

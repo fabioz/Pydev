@@ -33,6 +33,9 @@ public interface IMiscConstants {
     String MYPY_PROBLEM_MARKER = "org.python.pydev.mypyproblemmarker";
     String MYPY_MESSAGE_ID = "mypy_message_id";
 
+    String FLAKE8_PROBLEM_MARKER = "org.python.pydev.flake8problemmarker";
+    String FLAKE8_MESSAGE_ID = "flake8_message_id";
+
     int TYPE_UNUSED_IMPORT = 1;
     int TYPE_UNUSED_VARIABLE = 2;
     int TYPE_UNDEFINED_VARIABLE = 3;

@@ -36,7 +36,9 @@ import org.python.pydev.ast.codecompletion.revisited.PyPublicTreeMap.Entry;
 import org.python.pydev.ast.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.ast.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.ast.codecompletion.revisited.modules.EmptyModule;
+import org.python.pydev.ast.codecompletion.revisited.modules.EmptyModuleForFolder;
 import org.python.pydev.ast.codecompletion.revisited.modules.EmptyModuleForZip;
+import org.python.pydev.ast.codecompletion.revisited.modules.InitFromDirModule;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.FileUtilsFileBuffer;
@@ -48,12 +50,14 @@ import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.ModulesKeyForFolder;
 import org.python.pydev.core.ModulesKeyForZip;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.preferences.FileTypesPreferences;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
+import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.Module;
@@ -82,9 +86,10 @@ import org.python.pydev.shared_core.structure.Tuple;
 public abstract class ModulesManager implements IModulesManager {
 
     /**
-     * Note: MODULES_MANAGER_V1 had a bug when writing/reading ModulesKeyForZip entries.
+     * MODULES_MANAGER_V3: fixed a bug when writing/reading ModulesKeyForZip entries.
+     * MODULES_MANAGER_V3: support for namespace packages.
      */
-    private static final String MODULES_MANAGER_V2 = "MODULES_MANAGER_V2\n";
+    private static final String MODULES_MANAGER_V3 = "MODULES_MANAGER_V3\n";
 
     private final static boolean DEBUG_BUILD = false;
 
@@ -114,14 +119,18 @@ public abstract class ModulesManager implements IModulesManager {
      * It will not actually make any computations (the managers must be set from the outside)
      */
     protected static class CompletionCache {
-        public IModulesManager[] referencedManagers;
+        public IModulesManager[] referencedManagersWithoutSystem;
 
-        public IModulesManager[] referredManagers;
+        public IModulesManager[] referredManagersWithoutSystem;
+
+        public IModulesManager[] referencedManagersWithSystem;
+
+        public IModulesManager[] referredManagersWithSystem;
 
         private long creationTime;
         private int calls = 0;
 
-        public IModulesManager[] getManagers(boolean referenced) {
+        public IModulesManager[] getManagers(boolean referenced, boolean checkSystemManager) {
             calls += 1;
             if (calls % 30 == 0) {
                 long diff = System.currentTimeMillis() - creationTime;
@@ -133,20 +142,37 @@ public abstract class ModulesManager implements IModulesManager {
                 }
             }
             if (referenced) {
-                return this.referencedManagers;
+                if (checkSystemManager) {
+                    return this.referencedManagersWithSystem;
+                } else {
+                    return this.referencedManagersWithoutSystem;
+                }
             } else {
-                return this.referredManagers;
+                if (checkSystemManager) {
+                    return this.referredManagersWithSystem;
+                } else {
+                    return this.referredManagersWithoutSystem;
+                }
             }
         }
 
-        public void setManagers(IModulesManager[] ret, boolean referenced) {
+        public void setManagers(IModulesManager[] ret, boolean referenced, boolean checkSystemManager) {
             if (this.creationTime == 0) {
                 this.creationTime = System.currentTimeMillis();
             }
             if (referenced) {
-                this.referencedManagers = ret;
+                if (checkSystemManager) {
+                    this.referencedManagersWithSystem = ret;
+
+                } else {
+                    this.referencedManagersWithoutSystem = ret;
+                }
             } else {
-                this.referredManagers = ret;
+                if (checkSystemManager) {
+                    this.referredManagersWithSystem = ret;
+                } else {
+                    this.referredManagersWithoutSystem = ret;
+                }
             }
         }
     }
@@ -232,7 +258,7 @@ public abstract class ModulesManager implements IModulesManager {
 
         synchronized (modulesKeysLock) {
             buf = new FastStringBuffer(this.modulesKeys.size() * 50);
-            buf.append(MODULES_MANAGER_V2);
+            buf.append(MODULES_MANAGER_V3);
 
             for (Iterator<ModulesKey> iter = this.modulesKeys.keySet().iterator(); iter.hasNext();) {
                 ModulesKey next = iter.next();
@@ -255,6 +281,12 @@ public abstract class ModulesManager implements IModulesManager {
                             buf.append("|");
                             buf.append(modulesKeyForZip.isFile ? '1' : '0');
                         }
+                    } else if (next instanceof ModulesKeyForFolder) {
+                        ModulesKeyForFolder modulesKeyForFolder = (ModulesKeyForFolder) next;
+                        if (modulesKeyForFolder.file != null) {
+                            buf.append(modulesKeyForFolder.file.toString());
+                            buf.append("|^");
+                        }
                     } else {
                         buf.append(next.file.toString());
                     }
@@ -264,7 +296,7 @@ public abstract class ModulesManager implements IModulesManager {
         }
         if (commonTokens.size() > 0) {
             FastStringBuffer header = new FastStringBuffer(buf.length() + (commonTokens.size() * 50));
-            header.append(MODULES_MANAGER_V2);
+            header.append(MODULES_MANAGER_V3);
             header.append("--COMMON--\n");
             for (Map.Entry<String, Integer> entries : commonTokens.entrySet()) {
                 header.append(entries.getValue());
@@ -300,13 +332,13 @@ public abstract class ModulesManager implements IModulesManager {
         }
 
         String fileContents = FileUtils.getFileContents(modulesKeysFile);
-        if (!fileContents.startsWith(MODULES_MANAGER_V2)) {
+        if (!fileContents.startsWith(MODULES_MANAGER_V3)) {
             throw new RuntimeException(
                     "Could not load modules manager from " + modulesKeysFile + " (version changed).");
         }
 
         HashMap<Integer, String> intToString = new HashMap<Integer, String>();
-        fileContents = fileContents.substring(MODULES_MANAGER_V2.length());
+        fileContents = fileContents.substring(MODULES_MANAGER_V3.length());
         if (fileContents.startsWith("--COMMON--\n")) {
             String header = fileContents.substring("--COMMON--\n".length());
             header = header.substring(0, header.indexOf("--END-COMMON--\n"));
@@ -326,8 +358,8 @@ public abstract class ModulesManager implements IModulesManager {
                 }
 
             }
-            if (fileContents.startsWith(MODULES_MANAGER_V2)) {
-                fileContents = fileContents.substring(MODULES_MANAGER_V2.length());
+            if (fileContents.startsWith(MODULES_MANAGER_V3)) {
+                fileContents = fileContents.substring(MODULES_MANAGER_V3.length());
             }
         }
 
@@ -491,6 +523,13 @@ public abstract class ModulesManager implements IModulesManager {
                 //restore with empty modules.
                 lst.add(key);
 
+            } else if (size == 3) {
+                try {
+                    key = new ModulesKeyForFolder(split[0], new File(split[1]));
+                    lst.add(key);
+                } catch (NumberFormatException e) {
+                    Log.log(e);
+                }
             } else if (size == 4) {
                 try {
                     key = new ModulesKeyForZip(split[0], //module name
@@ -596,6 +635,10 @@ public abstract class ModulesManager implements IModulesManager {
 
         int j = 0;
         FastStringBuffer buffer = new FastStringBuffer();
+        Map<String, File> packages = new HashMap<String, File>();
+        String packageM;
+        File packageF;
+
         //now, create in memory modules for all the loaded files (empty modules).
         for (Iterator<Map.Entry<File, String>> iterator = modulesFound.regularModules.entrySet().iterator(); iterator
                 .hasNext() && monitor.isCanceled() == false; j++) {
@@ -619,12 +662,19 @@ public abstract class ModulesManager implements IModulesManager {
                         continue;
                     }
                 }
-                ModulesKey modulesKey = new ModulesKey(m, f);
 
+                packageM = FullRepIterable.getParentModule(m);
+                packageF = f.getParentFile();
+                while (!packageM.isEmpty()) {
+                    packages.put(packageM, packageF);
+                    packageM = FullRepIterable.getParentModule(packageM);
+                    packageF = packageF.getParentFile();
+                }
+
+                ModulesKey modulesKey = new ModulesKey(m, f);
                 //no conflict (easy)
                 if (!keys.containsKey(modulesKey)) {
                     keys.put(modulesKey, modulesKey);
-
                 } else {
                     //we have a conflict, so, let's resolve which one to keep (the old one or this one)
                     if (PythonPathHelper.isValidSourceFile(f.getName(), dottedValidSourceFiles)) {
@@ -633,6 +683,19 @@ public abstract class ModulesManager implements IModulesManager {
                         keys.put(modulesKey, modulesKey);
                     }
                 }
+            }
+        }
+
+        for (Map.Entry<String, File> packageEntry : packages.entrySet()) {
+            buffer.clear();
+
+            File f = packageEntry.getValue();
+
+            ModulesKey modulesKeyForFolder = new ModulesKeyForFolder(
+                    buffer.append(packageEntry.getKey()).append(".__init__").toString(), f);
+
+            if (!keys.containsKey(modulesKeyForFolder)) {
+                keys.put(modulesKeyForFolder, modulesKeyForFolder);
             }
         }
     }
@@ -942,7 +1005,15 @@ public abstract class ModulesManager implements IModulesManager {
                                     n = null;
                                 }
                             }
-
+                        } else if (e instanceof EmptyModuleForFolder) {
+                            try {
+                                n = new InitFromDirModule(name, e.f, new Module(new stmtType[0]), null,
+                                        this.getNature());
+                                n = decorateModule(n, nature);
+                            } catch (Exception e1) {
+                                Log.log(e1);
+                                n = null;
+                            }
                         } else {
                             //regular case... just go on and create it.
                             try {
@@ -1101,6 +1172,17 @@ public abstract class ModulesManager implements IModulesManager {
 
                     }
                 }
+            } else if ("typing".equals(n.getName())) {
+                Module module = (Module) ((SourceModule) n).getAst();
+                for (SimpleNode node : module.body) {
+                    if (node instanceof Assign && ((Assign) node).value instanceof Call
+                            && ((Call) ((Assign) node).value).func instanceof Name
+                            && "_alias".equals(((Name) ((Call) ((Assign) node).value).func).id)
+                            && ((Call) ((Assign) node).value).args.length >= 1) {
+                        Assign assign = (Assign) node;
+                        assign.value = ((Call) assign.value).args[0];
+                    }
+                }
             }
         }
         return n;
@@ -1147,7 +1229,7 @@ public abstract class ModulesManager implements IModulesManager {
      */
     @Override
     public String resolveModule(IResource member, IProject container) {
-        File inOs = member.getRawLocation().toFile();
+        File inOs = member.getLocation().toFile();
         return pythonPathHelper.resolveModule(FileUtils.getFileAbsolutePath(inOs), false, container);
     }
 

@@ -37,6 +37,7 @@ import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.NameTokType;
+import org.python.pydev.parser.jython.ast.NamedExpr;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.aliasType;
@@ -350,7 +351,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
                     org.python.pydev.parser.jython.ast.List valueList = (org.python.pydev.parser.jython.ast.List) node.value;
                     checkTupleAssignTarget(targetTuple, valueList.elts, false);
 
-                } else {
+                } else if (node.value != null) {
                     checkTupleAssignTarget(targetTuple, new exprType[] { node.value }, true);
                 }
 
@@ -358,18 +359,11 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
                 String rep = NodeUtils.getFullRepresentationString(target);
 
                 if (tokenToFind.equals(rep)) { //note, order of equals is important (because one side may be null).
-                    exprType nodeValue = node.value;
-                    String value = NodeUtils.getFullRepresentationString(nodeValue);
-                    if (value == null) {
-                        value = "";
-                    }
-
                     //get the line and column correspondent to the target
                     int line = NodeUtils.getLineDefinition(target);
                     int col = NodeUtils.getColDefinition(target);
-
-                    AssignDefinition definition = new AssignDefinition(value, rep, i, node, line, col, scope,
-                            module.get(), nodeValue, unpackPos);
+                    AssignDefinition definition = getAssignDefinition(node, rep, i, line, col, scope, module.get(),
+                            unpackPos);
 
                     //mark it as global (if it was found as global in some of the previous contexts).
                     for (Set<String> globals : globalDeclarationsStack) {
@@ -384,6 +378,28 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
         }
 
         return super.visitAssign(node);
+    }
+
+    /**
+     * @see org.python.pydev.parser.jython.ast.VisitorBase#visitNamedExpr(org.python.pydev.parser.jython.ast.NamedExpr)
+     */
+    @Override
+    public Object visitNamedExpr(NamedExpr node) throws Exception {
+        ILocalScope scope = new LocalScope(nature, this.defsStack);
+        scope.setFoundAtASTNode(node);
+        if (foundAsDefinition && !scope.equals(definitionFound.scope)) { //if it is found as a definition it is an 'exact' match, so, we do not keep checking it
+            return null;
+        }
+        if (tokenToFind.equals(NodeUtils.getFullRepresentationString(node.target)) && node.value != null) {
+            String rep = NodeUtils.getFullRepresentationString(node.value);
+            if (rep != null && !rep.isEmpty()) {
+                definitions
+                        .add(getAssignDefinition(new Assign(new exprType[] { node.target }, node.value, null),
+                                rep, 0, line, col, scope,
+                                module.get(), -1));
+            }
+        }
+        return super.visitNamedExpr(node);
     }
 
     @Override
@@ -520,5 +536,21 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
 
             }
         }
+    }
+
+    public static AssignDefinition getAssignDefinition(Assign node, String target, int targetPos, int line, int col,
+            ILocalScope scope, IModule module, int unpackPos) {
+        exprType nodeValue = node.value;
+        exprType nodeType = NodeUtils.extractOptionalValueSubscript(node.type);
+        String value = NodeUtils.getFullRepresentationString(nodeValue);
+        String type = NodeUtils.getFullRepresentationString(nodeType);
+        if (value == null) {
+            value = "";
+        }
+        if (type == null) {
+            type = "";
+        }
+        return new AssignDefinition(value, type, target, targetPos, node, line, col, scope, module, nodeValue, nodeType,
+                unpackPos);
     }
 }

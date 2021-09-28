@@ -145,7 +145,9 @@ public class AttachToProcess implements IWorkbenchWindowActionDelegate {
                     "--port",
                     "" + DebugPluginPrefsInitializer.getRemoteDebuggerPort(),
                     "--pid",
-                    "" + pid
+                    "" + pid,
+                    "--protocol",
+                    "http"
             };
 
             IPythonNature nature = new SystemPythonNature(interpreterManager, interpreter);

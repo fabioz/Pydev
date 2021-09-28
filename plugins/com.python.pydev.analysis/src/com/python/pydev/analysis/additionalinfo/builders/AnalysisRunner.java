@@ -47,6 +47,7 @@ public class AnalysisRunner {
 
     public static final String PYLINT_PROBLEM_MARKER = IMiscConstants.PYLINT_PROBLEM_MARKER;
     public static final String MYPY_PROBLEM_MARKER = IMiscConstants.MYPY_PROBLEM_MARKER;
+    public static final String FLAKE8_PROBLEM_MARKER = IMiscConstants.FLAKE8_PROBLEM_MARKER;
 
     /**
      * do we want to debug this class?
@@ -120,6 +121,13 @@ public class AnalysisRunner {
             Log.log(e3);
         }
 
+        try {
+            if (resource != null) {
+                resource.deleteMarkers(FLAKE8_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
+            }
+        } catch (CoreException e3) {
+            Log.log(e3);
+        }
     }
 
     /**

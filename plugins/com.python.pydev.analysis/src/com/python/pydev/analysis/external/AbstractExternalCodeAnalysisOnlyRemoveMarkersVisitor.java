@@ -9,7 +9,7 @@ import org.python.pydev.shared_core.markers.PyMarkerUtils;
 
 public abstract class AbstractExternalCodeAnalysisOnlyRemoveMarkersVisitor implements IExternalCodeAnalysisVisitor {
 
-    protected IResource resource;
+    protected final IResource resource;
 
     public AbstractExternalCodeAnalysisOnlyRemoveMarkersVisitor(IResource resource) {
         this.resource = resource;
@@ -26,7 +26,7 @@ public abstract class AbstractExternalCodeAnalysisOnlyRemoveMarkersVisitor imple
     }
 
     @Override
-    public List<PyMarkerUtils.MarkerInfo> getMarkers() {
+    public List<PyMarkerUtils.MarkerInfo> getMarkers(IResource resource) {
         return null;
     }
 

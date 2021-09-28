@@ -12,6 +12,9 @@ import org.python.pydev.ast.runners.SimpleRunner;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterInfo.UnableToFindExecutableException;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.json.eclipsesource.JsonArray;
+import org.python.pydev.json.eclipsesource.JsonObject;
+import org.python.pydev.json.eclipsesource.JsonValue;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.process_window.ProcessWindow;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -21,10 +24,7 @@ import org.python.pydev.shared_core.utils.ArrayUtils;
 import org.python.pydev.shared_core.utils.PlatformUtils;
 import org.python.pydev.shared_ui.utils.UIUtils;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
-
-import com.eclipsesource.json.JsonArray;
-import com.eclipsesource.json.JsonObject;
-import com.eclipsesource.json.JsonValue;
+import org.python.pydev.ui.pythonpathconf.conda.PyDevCondaPreferences;
 
 public class CondaPackageManager extends AbstractPackageManager {
 
@@ -33,6 +33,22 @@ public class CondaPackageManager extends AbstractPackageManager {
     public CondaPackageManager(IInterpreterInfo interpreterInfo, File prefix) {
         super(interpreterInfo);
         this.prefix = prefix;
+    }
+
+    public static List<File> listCondaEnvironments(File condaExecutable) {
+        List<File> lst = new ArrayList<>();
+        String encoding = "utf-8";
+        Tuple<String, String> output = new SimpleRunner().runAndGetOutput(
+                new String[] { condaExecutable.toString(), "env", "list", "--json" }, null, null,
+                null,
+                encoding);
+        Log.logInfo(output.o1);
+        JsonObject jsonOutput = JsonValue.readFrom(output.o1).asObject();
+        JsonArray envs = jsonOutput.get("envs").asArray();
+        for (JsonValue env : envs.values()) {
+            lst.add(new File(env.asString()));
+        }
+        return lst;
     }
 
     @Override
@@ -88,8 +104,13 @@ public class CondaPackageManager extends AbstractPackageManager {
         return listed;
     }
 
-    public File findCondaExecutable() throws UnableToFindExecutableException {
-        File condaExecutable = null;
+    private File findCondaExecutable() throws UnableToFindExecutableException {
+
+        // Try to get from the preferences first.
+        File condaExecutable = PyDevCondaPreferences.getExecutable();
+        if (condaExecutable != null) {
+            return condaExecutable;
+        }
         try {
             condaExecutable = interpreterInfo.searchExecutableForInterpreter("conda", true);
         } catch (UnableToFindExecutableException e) {

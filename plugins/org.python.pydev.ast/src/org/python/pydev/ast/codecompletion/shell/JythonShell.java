@@ -24,7 +24,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_core.io.FileUtils;
 
-public class JythonShell extends AbstractShell {
+public class JythonShell extends CompletionsShell {
 
     public JythonShell() throws IOException, CoreException {
         super(CorePlugin.getScriptWithinPySrc("pycompletionserver.py"));

@@ -303,6 +303,11 @@ public final class FastDefinitionsParser {
                                 if (lineContents.length() == 0) {
                                     continue;
                                 }
+                                int colonIndex = lineContents.indexOf(':');
+                                if (colonIndex > 0) {
+                                    lineContents = lineContents.substring(0, colonIndex);
+                                }
+
                                 boolean add = true;
                                 int lineContentsLen = lineContents.length();
                                 for (int i = 0; i < lineContentsLen; i++) {
@@ -574,7 +579,7 @@ public final class FastDefinitionsParser {
      * Start a new class scope with the given row and column.
      * @param startClassRow the row where the scope should start
      * @param startClassCol the column where the scope should start
-     * @param leadingTabsInLine2 
+     * @param leadingTabsInLine2
      */
     private void startClass(String name, int startClassRow, int startClassCol, int nameCol, int leadingTabs) {
         NameTok nameTok = new NameTok(name, NameTok.ClassName);

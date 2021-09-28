@@ -26,6 +26,7 @@ cdef extern from *:
 
 cdef extern from "frameobject.h":
     ctypedef struct PyFrameObject:
+        PyFrameObject *f_back
         PyCodeObject *f_code       # code segment
         PyObject *f_builtins       # builtin symbol table (PyDictObject)
         PyObject *f_globals        # global symbol table (PyDictObject) */
@@ -45,7 +46,7 @@ cdef extern from "frameobject.h":
         PyObject *f_localsplus[1];
 
 cdef extern from "release_mem.h":
-    void release_co_extra(void *) 
+    void release_co_extra(void *)
 
 cdef extern from "code.h":
     ctypedef void freefunc(void *)
@@ -60,7 +61,9 @@ cdef extern from "Python.h":
     object PyObject_GetAttrString(object o, char *attr_name)
 
 cdef extern from "pystate.h":
-    ctypedef PyObject* _PyFrameEvalFunction(PyFrameObject *frame, int exc)
+    # ctypedef PyObject* _PyFrameEvalFunction(PyThreadState* tstate, PyFrameObject *frame, int exc)
+    # ctypedef PyObject* _PyFrameEvalFunction(PyFrameObject *frame, int exc)
+    ctypedef PyObject* _PyFrameEvalFunction(...)
 
     ctypedef struct PyInterpreterState:
         PyInterpreterState *next
@@ -95,8 +98,28 @@ cdef extern from "pystate.h":
     PyThreadState *PyThreadState_Get()
 
 cdef extern from "ceval.h":
+    '''
+#if PY_VERSION_HEX >= 0x03090000
+PyObject * noop(PyFrameObject *frame, int exc) {
+    return NULL;
+}
+#define CALL_EvalFrameDefault_38(a, b)    noop(a, b)
+#define CALL_EvalFrameDefault_39(a, b, c)    _PyEval_EvalFrameDefault(a, b, c)
+#else
+PyObject * noop(PyThreadState* tstate, PyFrameObject *frame, int exc) {
+    return NULL;
+}
+#define CALL_EvalFrameDefault_39(a, b, c)    noop(a, b, c)
+#define CALL_EvalFrameDefault_38(a, b)    _PyEval_EvalFrameDefault(a, b)
+#endif
+    '''
+
     int _PyEval_RequestCodeExtraIndex(freefunc)
     PyFrameObject *PyEval_GetFrame()
     PyObject* PyEval_CallFunction(PyObject *callable, const char *format, ...)
 
-    PyObject* _PyEval_EvalFrameDefault(PyFrameObject *frame, int exc)
+    # PyObject* _PyEval_EvalFrameDefault(PyThreadState* tstate, PyFrameObject *frame, int exc)
+    # PyObject* _PyEval_EvalFrameDefault(PyFrameObject *frame, int exc)
+    PyObject* _PyEval_EvalFrameDefault(...)
+    PyObject* CALL_EvalFrameDefault_38(PyFrameObject *frame, int exc)  # Actually a macro.
+    PyObject* CALL_EvalFrameDefault_39(PyThreadState* tstate, PyFrameObject *frame, int exc)  # Actually a macro.

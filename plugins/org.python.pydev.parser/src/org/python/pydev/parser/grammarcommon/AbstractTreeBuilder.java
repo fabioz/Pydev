@@ -13,6 +13,7 @@ import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.Token;
+import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.AugAssign;
 import org.python.pydev.parser.jython.ast.BinOp;
@@ -34,6 +35,7 @@ import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.NamedExpr;
 import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.jython.ast.Set;
@@ -57,9 +59,9 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 
 /**
  * Provides the basic behavior for a tree builder (opening and closing node scopes).
- * 
+ *
  * Subclasses must provide actions where it's not common.
- * 
+ *
  * @author Fabio
  */
 public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
@@ -136,7 +138,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
             case JJTBINARY:
             case JJTFSTRING:
                 //the actual number will be set during the parsing (token image) -- see Num construct
-                ret = new Str(null, -1, false, false, false, false);
+                ret = new Str(null, -1, false, false, false, false, null);
                 break;
 
             case JJTFOR_STMT:
@@ -165,6 +167,10 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
 
             case JJTIF_STMT:
                 ret = new If(null, null, null);
+                break;
+
+            case JJTNAMEDEXPR_TEST:
+                ret = new NamedExpr(null, null);
                 break;
 
             case JJTAUG_PLUS:
@@ -627,7 +633,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
 
     /**
      * Handles a found if construct.
-     * 
+     *
      * @param n the node that opened the if scope.
      * @param arity the current number of nodes in the stack.
      * @return the If node that should close this context.
@@ -826,6 +832,24 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
         addSpecialsAndClearOriginal(suite, s);
 
         return new With(items, s, stack.getGrammar().getInsideAsync());
+    }
+
+    public final Assign typedDeclaration(int arity, JJTPythonGrammarState stack, CtxVisitor ctx)
+            throws Exception {
+        exprType type;
+        exprType[] exprs;
+        if (arity >= 3) {
+            exprType value = (exprType) stack.popNode();
+            type = (exprType) stack.popNode();
+            exprs = makeExprs(arity - 2);
+            ctx.setStore(exprs);
+            return new Assign(exprs, value, type);
+        } else {
+            type = (exprType) stack.popNode();
+            exprs = makeExprs(arity - 1);
+            ctx.setStore(exprs);
+            return new Assign(exprs, null, type);
+        }
     }
 
 }

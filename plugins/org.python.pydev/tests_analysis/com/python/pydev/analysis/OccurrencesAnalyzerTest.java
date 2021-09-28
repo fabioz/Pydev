@@ -1069,8 +1069,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testUnusedVariable6() throws Exception {
         doc = new Document("def m():         \n" +
                 "    try:         \n" +
-                "        c = 'a'  \n"
-                +
+                "        c = 'a'  \n" +
                 "    finally:     \n" +
                 "        c = 'b'  \n" +
                 "");
@@ -2701,6 +2700,99 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         printMessages(msgs, 0);
     }
 
+    public void testDefaultMarksAsUsed() {
+        int initial = GRAMMAR_TO_USE_FOR_PARSING;
+        try {
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_5;
+            doc = new Document("import threading\n" +
+                    "def method(*, t=threading):\n"
+                    + "    print(t)\n" +
+                    "");
+            analyzer = new OccurrencesAnalyzer();
+            msgs = analyzeDoc();
+
+            printMessages(msgs, 0);
+        } finally {
+            GRAMMAR_TO_USE_FOR_PARSING = initial;
+        }
+    }
+
+    public void testAnnotationNotImported() {
+        int initial = GRAMMAR_TO_USE_FOR_PARSING;
+        try {
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_5;
+            doc = new Document("\n" +
+                    "def method(*, t=threading):\n"
+                    + "    print(t)\n" +
+                    "");
+            analyzer = new OccurrencesAnalyzer();
+            msgs = analyzeDoc();
+
+            printMessages(msgs, 1);
+        } finally {
+            GRAMMAR_TO_USE_FOR_PARSING = initial;
+        }
+    }
+
+    public void testAnnotationMarksAsUsed() {
+        int initial = GRAMMAR_TO_USE_FOR_PARSING;
+        try {
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_5;
+            doc = new Document("\n" +
+                    "def method(*, t:threading=None):\n"
+                    + "    print(t)\n" +
+                    "");
+            analyzer = new OccurrencesAnalyzer();
+            msgs = analyzeDoc();
+
+            printMessages(msgs, 1);
+        } finally {
+            GRAMMAR_TO_USE_FOR_PARSING = initial;
+        }
+    }
+
+    public void testDefaultFromScope() {
+        int initial = GRAMMAR_TO_USE_FOR_PARSING;
+        try {
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_5;
+            doc = new Document("\n" +
+                    "class F(object):\n" +
+                    "    \n" +
+                    "    another = 1\n" +
+                    "    \n" +
+                    "    def method(self, *, a=another):\n" +
+                    "        print(a)\n" +
+                    "");
+            analyzer = new OccurrencesAnalyzer();
+            msgs = analyzeDoc();
+
+            printMessages(msgs, 0);
+        } finally {
+            GRAMMAR_TO_USE_FOR_PARSING = initial;
+        }
+    }
+
+    public void testAnnotationFromScope() {
+        int initial = GRAMMAR_TO_USE_FOR_PARSING;
+        try {
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_5;
+            doc = new Document("\n" +
+                    "class F(object):\n" +
+                    "    \n" +
+                    "    another = 1\n" +
+                    "    \n" +
+                    "    def method(self, *, a:another):\n" +
+                    "        print(a)\n" +
+                    "");
+            analyzer = new OccurrencesAnalyzer();
+            msgs = analyzeDoc();
+
+            printMessages(msgs, 0);
+        } finally {
+            GRAMMAR_TO_USE_FOR_PARSING = initial;
+        }
+    }
+
     public void testRelativeOnPy3() throws IOException, MisconfigurationException {
         int initial = GRAMMAR_TO_USE_FOR_PARSING;
         try {
@@ -2780,5 +2872,13 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
                 new NullProgressMonitor(), new TestIndentPrefs(true, 4));
 
         printMessages(msgs, 0); //No errors in Python 2.x
+    }
+
+    public void testNamespacePackages() throws IOException, MisconfigurationException {
+        doc = new Document("import namespace_pkg.folder1.folder2");
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyzeDoc();
+
+        printMessages(msgs, 1);
     }
 }

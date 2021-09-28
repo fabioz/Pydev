@@ -8,9 +8,9 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.parser.fastparser.grammar_fstrings_common.FStringsAST;
-import org.python.pydev.parser.fastparser.grammar_fstrings_common.SimpleNode;
+import org.python.pydev.parser.fastparser.grammar_fstrings_common.FStringsAST.FStringExpressionContent;
 import org.python.pydev.parser.grammar_fstrings.FStringsGrammar;
-import org.python.pydev.parser.jython.FastCharStream;
+import org.python.pydev.parser.grammar_fstrings.FStringsGrammarFactory;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -21,8 +21,7 @@ import junit.framework.TestCase;
 public class FStringsParserTest extends TestCase {
 
     private Tuple<FStringsAST, List> check(String str) throws ParseException {
-        FastCharStream in = new FastCharStream(str.toCharArray());
-        FStringsGrammar fStringsGrammar = new FStringsGrammar(in);
+        FStringsGrammar fStringsGrammar = FStringsGrammarFactory.createGrammar(str);
         FStringsAST ast = fStringsGrammar.f_string();
         //Note: we always try to generate a valid AST and get any errors in getParseErrors().
         List<ParseException> parseErrors = fStringsGrammar.getParseErrors();
@@ -47,9 +46,8 @@ public class FStringsParserTest extends TestCase {
         IDocument doc = new Document(str);
         // ret.o1.dump(doc);
         Set<String> found = new HashSet<>();
-        for (SimpleNode b : ret.o1.getBalancedExpressionsToBeEvaluatedInRegularGrammar()) {
-            String contents = b.getContentsFromString(doc);
-            found.add(contents);
+        for (FStringExpressionContent f : ret.o1.getFStringExpressionsContent(doc)) {
+            found.add(f.string);
         }
         assertEquals(exprs, found);
         return ret;
@@ -77,6 +75,30 @@ public class FStringsParserTest extends TestCase {
     }
 
     public void testFStringParsing() throws ParseException, BadLocationException {
+        checkExprs("{var1:format_1:format_2}", ArrayUtils.asSet("var1"));
+
+        checkExprs("{foo=}", ArrayUtils.asSet("foo"));
+        checkExprs("{foo!r}", ArrayUtils.asSet("foo"));
+        checkExprs("{foo!s}", ArrayUtils.asSet("foo"));
+        checkExprs("{foo!a}", ArrayUtils.asSet("foo"));
+        checkExprs("{foo: %A}", ArrayUtils.asSet("foo"));
+        checkExprs("{foo: #06x}", ArrayUtils.asSet("foo"));
+
+        checkExprs("\\N{foo}", ArrayUtils.asSet());
+        checkExprs("\\N{\\N{foo}}", ArrayUtils.asSet());
+        checkExprs("\\N{\\N{}}", ArrayUtils.asSet());
+        checkExprs("\\N{\\N{\\N{foo}}}", ArrayUtils.asSet());
+        checkExprs("\\N{", ArrayUtils.asSet());
+        checkExprs("\\N{foo} {foo}", ArrayUtils.asSet("foo"));
+        checkExprs("\\N{foo}{foo}", ArrayUtils.asSet("foo"));
+        checkExprs("\\N{foo}\\N{foo}", ArrayUtils.asSet());
+        checkExprs("\\N{\\N{foo}}\\N{foo}", ArrayUtils.asSet());
+        checkExprs("\\N{\\N{}} \\N{foo}", ArrayUtils.asSet());
+        checkExprs("\\N{\\N{\\N{foo}}} \\N{foo}", ArrayUtils.asSet());
+        checkExprs("\\N{foo", ArrayUtils.asSet());
+        checkExprs("\\N{foo} \\N{\\N{\\N{foo}}}", ArrayUtils.asSet());
+        checkExprs("\\N{foo} \\N{foo} {foo}", ArrayUtils.asSet("foo"));
+
         checkExprs("{val:{width}.{precision}f}", ArrayUtils.asSet("val", "width", "precision"));
         checkExprs("{a:>{width}}", ArrayUtils.asSet("a", "width"));
         checkExprs("{a:>{{width}}}", ArrayUtils.asSet("a"));
