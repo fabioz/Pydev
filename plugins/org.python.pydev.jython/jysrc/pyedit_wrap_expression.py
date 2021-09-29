@@ -7,34 +7,34 @@ standard python coding style (PEP8): wrap on comma, one item per line.
 
 Use case
 ========
-Wrap long def lines, lists, tuples and dict literals for maximum 
-readability. Or unwrap them again if you decide that looks better. 
+Wrap long def lines, lists, tuples and dict literals for maximum
+readability. Or unwrap them again if you decide that looks better.
 
-This assist is also useful when reading code, as it is pretty simple to 
+This assist is also useful when reading code, as it is pretty simple to
 wrap a complex expression and immediately see what the items are, and what
-part belong to nested expressions. At the same time it's equally simple to 
-just Undo the wrap when you are done reading and return the code to 
-pristine condition. 
+part belong to nested expressions. At the same time it's equally simple to
+just Undo the wrap when you are done reading and return the code to
+pristine condition.
 
-Valid when 
+Valid when
 ==========
-The cursor is in a parenthesized (or bracketed, or braced) expression that 
-contains non-nested commas, but is free from comments or block quote 
-boundaries. It also works when the cursor is placed "to the left" of the 
+The cursor is in a parenthesized (or bracketed, or braced) expression that
+contains non-nested commas, but is free from comments or block quote
+boundaries. It also works when the cursor is placed "to the left" of the
 start of such an expression (eg. on the word "def" on a function def line).
 
-This assist is written to be reasonably independent from surrounding code, 
+This assist is written to be reasonably independent from surrounding code,
 and should work even in code examples within block quotes, or within larger
-blocks with syntactically incorrect code, as long as the expression itself 
-is not affected. Try it! If it doesn't work or doesn't do what you want, 
-then well, that's what Undo is for. 
+blocks with syntactically incorrect code, as long as the expression itself
+is not affected. Try it! If it doesn't work or doesn't do what you want,
+then well, that's what Undo is for.
 
 Installation
 ============
 Place this file in your pydev jython script dir, open a new editor, and you
-are ready to go. 
+are ready to go.
 
-See the pydev docs if you don't know where your jython script dir is. 
+See the pydev docs if you don't know where your jython script dir is.
 
 Example
 =======
@@ -68,22 +68,22 @@ See PyDev license for details.
 http://pydev.sourceforge.net
 '''
 
-# 
+#
 # Boring boilerplate preamble code. This can be safely copied to every pydev
 # jython script that you write. The interesting stuff is further down below.
 #
 
-# Set to True to do inefficient stuff that is only useful for debugging 
+# Set to True to do inefficient stuff that is only useful for debugging
 # and development purposes. Should always be False if not debugging.
 DEBUG_WRAP_EXPRESSION = False
 
-# This is a magic trick that tells the PyDev Extensions editor about the 
+# This is a magic trick that tells the PyDev Extensions editor about the
 # namespace provided for pydev scripts:
 if False:
     from org.python.pydev.editor import PyEdit #@UnresolvedImport
     cmd = 'command string'
     editor = PyEdit
-assert cmd is not None 
+assert cmd is not None
 assert editor is not None
 
 # We don't need to add the same assist proposal more than once.
@@ -108,7 +108,7 @@ closers = ')]}'
 quotes = "\"'"
 
 def skip_over_string_literal(text, offset):
-    current_open_quote = text[offset] 
+    current_open_quote = text[offset]
     escaped = False
     for pos in range(offset + 1, len(text)):
         char = text[pos]
@@ -123,7 +123,7 @@ def skip_over_string_literal(text, offset):
     if DEBUG_WRAP_EXPRESSION:
         print "no unclosed string literals allowed"
     return -1
-            
+
 def escape_from_string_literal(line, column):
     pos = 0
     while pos < column:
@@ -222,10 +222,12 @@ def get_closer_offset(text, offset, closer):
             pos, _ignored, _ignored = get_closer_offset(text, pos, closers[openers.index(char)])
         elif char in quotes:
             pos = skip_over_string_literal(text, pos)
-            if pos < 0:
-                break
-            if pos < old_pos:
-                pos = old_pos # Make sure we always go forward
+
+        if pos < 0:
+            break
+        if pos < old_pos:
+            pos = old_pos # Make sure we always go forward
+
         pos += 1
     return -1, False, True
 
@@ -238,7 +240,7 @@ class WrapExpression(AssistProposal):
         self.opener_offset = opener_offset
         self.closer_offset = closer_offset
         self.indent = indent
-    
+
     def isValid(self, selection, current_line, editor, offset):
         col = selection.getCursorColumn()
         col = escape_from_string_literal(current_line, col)
@@ -265,7 +267,7 @@ class WrapExpression(AssistProposal):
         prefs = editor.getIndentPrefs()
         if prefs.getIndentToParLevel():
             indent = ' ' * (opener_offset - line_offset + 1)
-        else: 
+        else:
             first_line = document[line_offset:opener_offset + 1]
             first_line_indent = selection.getIndentationFromLine(first_line)
             n_extra_indents = 1
@@ -284,7 +286,7 @@ class WrapExpression(AssistProposal):
         depth = 0
         offset = previous + 1
         while offset < self.closer_offset:
-            char = text[offset] 
+            char = text[offset]
             if char == ',':
                 lines.append(text[previous + 1:offset + 1].strip())
                 previous = offset
@@ -300,8 +302,8 @@ class WrapExpression(AssistProposal):
         else:
             replacement_text = indent + indent.join(lines)
         length = self.closer_offset - self.opener_offset - 1
-        document.replace(self.opener_offset + 1, length, replacement_text) 
-                           
+        document.replace(self.opener_offset + 1, length, replacement_text)
+
 class UnwrapExpression(AssistProposal):
     description = "Unwrap expression"
     tag = "UNWRAP_EXPRESSION"
@@ -327,7 +329,7 @@ class UnwrapExpression(AssistProposal):
             return False
         if selection.getLineOfOffset(opener_offset) == selection.getLineOfOffset(closer_offset):
             if DEBUG_WRAP_EXPRESSION:
-                print "expression is already single line" 
+                print "expression is already single line"
             return False
         self.store_data(opener_offset, closer_offset)
         return True
@@ -337,7 +339,7 @@ class UnwrapExpression(AssistProposal):
         text = document.get()[self.opener_offset+1:self.closer_offset]
         replacement_text = re.sub(r'\s*\n *', ' ', text.replace('\r', '')).strip()
         length = self.closer_offset - self.opener_offset - 1
-        document.replace(self.opener_offset + 1, length, replacement_text) 
+        document.replace(self.opener_offset + 1, length, replacement_text)
 
 register_proposal(WrapExpression(), DEBUG_WRAP_EXPRESSION)
 register_proposal(UnwrapExpression(), DEBUG_WRAP_EXPRESSION)
