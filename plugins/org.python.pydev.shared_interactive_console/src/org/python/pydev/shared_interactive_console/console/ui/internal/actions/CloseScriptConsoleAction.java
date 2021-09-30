@@ -10,7 +10,9 @@
 package org.python.pydev.shared_interactive_console.console.ui.internal.actions;
 
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.widgets.Display;
 import org.python.pydev.shared_interactive_console.InteractiveConsolePlugin;
 import org.python.pydev.shared_interactive_console.console.ui.ScriptConsole;
 import org.python.pydev.shared_interactive_console.console.ui.ScriptConsoleManager;
@@ -32,7 +34,10 @@ public class CloseScriptConsoleAction extends Action {
 
     @Override
     public void run() {
-        ScriptConsoleManager.getInstance().close(console);
+        if (MessageDialog.openQuestion(Display.getDefault().getActiveShell(), "Closing Console", "Are you sure you want to"
+                + "close this console?")) {
+            ScriptConsoleManager.getInstance().close(console);
+        }
     }
 
     public void update() {
