@@ -287,14 +287,4 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
                 + "y.";
         requestCompl(s, s.length(), -1, new String[] { "method()" });
     }
-
-    public void testTypedDict() throws Exception {
-        String s = ""
-                + "class EnvEntry(TypedDict):\n"
-                + "    key: str\n"
-                + "    value: str\n"
-                + "def method(env_entry: EnvEntry):\n"
-                + "    env_entry['";
-        requestCompl(s, s.length(), -1, new String[] { "'key'", "'value'" });
-    }
 }

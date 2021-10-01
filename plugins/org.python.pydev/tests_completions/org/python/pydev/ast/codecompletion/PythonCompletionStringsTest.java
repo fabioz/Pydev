@@ -259,4 +259,24 @@ public class PythonCompletionStringsTest extends CodeCompletionTestsBase {
         assertEquals("bar()", proposals[0].getDisplayString());
     }
 
+    public void testTypedDict() throws Exception {
+        String s = ""
+                + "class EnvEntry(TypedDict):\n"
+                + "    key: str\n"
+                + "    value: str\n"
+                + "def method(env_entry: EnvEntry):\n"
+                + "    env_entry['";
+        requestCompl(s, s.length(), -1, new String[] { "key", "value" });
+    }
+
+    public void testTypedDict2() throws Exception {
+        String s = ""
+                + "class EnvEntry(TypedDict):\n"
+                + "    key: str\n"
+                + "    value: str\n"
+                + "def method(env_entry: EnvEntry):\n"
+                + "    env_entry['va']";
+        requestCompl(s, s.length(), -1, new String[] { "value" });
+    }
+
 }
