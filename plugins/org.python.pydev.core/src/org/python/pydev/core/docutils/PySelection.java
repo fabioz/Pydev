@@ -973,7 +973,7 @@ public final class PySelection extends TextSelectionUtils {
                         //activation token and qualifier as if we were just before the last parenthesis
                         //(that is, if we're in a function call and not inside a list, string or dict declaration)
                         parOffset = calltipOffset;
-                        calltipOffset = getBeforeRef(doc, docOffset, '(');
+                        calltipOffset = getBeforeParentesisCall(doc, docOffset);
 
                         if (calltipOffset != -1) {
                             documentOffset = calltipOffset;
@@ -990,7 +990,7 @@ public final class PySelection extends TextSelectionUtils {
                         }
                         if (c == '(' || c == ',') {
                             int docOffset = calltipOffset + lineOffset;
-                            calltipOffset = getBeforeRef(doc, docOffset, '(');
+                            calltipOffset = getBeforeParentesisCall(doc, docOffset);
                             if (calltipOffset != -1) {
                                 offsetForKeywordParam = calltipOffset;
                                 isInMethodKeywordParam = true;
@@ -1135,20 +1135,19 @@ public final class PySelection extends TextSelectionUtils {
      *
      * @param doc: an IDocument, String, StringBuffer or char[]
      * @param calltipOffset the offset we should start looking for it
-     * @param ref 
      * @return the offset that points the location just after the activation token and qualifier.
      *
      * @throws BadLocationException
      */
-    public static int getBeforeRef(Object doc, int calltipOffset, char ref) {
+    public static int getBeforeParentesisCall(Object doc, int calltipOffset) {
         ParsingUtils parsingUtils = ParsingUtils.create(doc);
         char c = parsingUtils.charAt(calltipOffset);
 
-        while (calltipOffset > 0 && c != ref) {
+        while (calltipOffset > 0 && c != '(') {
             calltipOffset--;
             c = parsingUtils.charAt(calltipOffset);
         }
-        if (c == ref) {
+        if (c == '(') {
             while (calltipOffset > 0 && Character.isWhitespace(c)) {
                 calltipOffset--;
                 c = parsingUtils.charAt(calltipOffset);
