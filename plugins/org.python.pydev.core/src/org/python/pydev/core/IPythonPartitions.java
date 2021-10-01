@@ -78,10 +78,4 @@ public interface IPythonPartitions {
             PY_SINGLELINE_FSTRING1,
             PY_SINGLELINE_FSTRING2));
 
-    public final static Set<String> STRING_PARTITIONS = new HashSet<String>(Arrays.asList(
-            PY_SINGLELINE_BYTES_OR_UNICODE1,
-            PY_SINGLELINE_BYTES_OR_UNICODE2,
-            PY_MULTILINE_BYTES_OR_UNICODE1,
-            PY_MULTILINE_BYTES_OR_UNICODE2));
-
 }

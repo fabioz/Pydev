@@ -247,21 +247,19 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
 
     private TokensOrProposalsList getCompletionsForTypedDict(CompletionRequest request) throws CoreException,
             BadLocationException, IOException, MisconfigurationException, PythonNatureWithoutProjectException {
-        if (request.isInKeytip) {
-            Optional<Tuple<String, String>> maybeActivationTokenAndQualifier = getActivationTokenAndQualifierStringsForDictKey(
-                    request);
-            if (maybeActivationTokenAndQualifier.isPresent()) {
-                Tuple<String, String> activationTokenAndQualifier = maybeActivationTokenAndQualifier.get();
-                String activationToken = activationTokenAndQualifier.o1;
-                String qualifier = activationTokenAndQualifier.o2;
+        Optional<Tuple<String, String>> maybeActivationTokenAndQualifier = getActivationTokenAndQualifierStringsForDictKey(
+                request);
+        if (maybeActivationTokenAndQualifier.isPresent()) {
+            Tuple<String, String> activationTokenAndQualifier = maybeActivationTokenAndQualifier.get();
+            String activationToken = activationTokenAndQualifier.o1;
+            String qualifier = activationTokenAndQualifier.o2;
 
-                CompletionRequest artificialRequest = new CompletionRequest(
-                        request.editorFile, request.nature, request.doc, activationToken,
-                        request.documentOffset, request.qlen, request.codeCompletion, qualifier,
-                        request.useSubstringMatchInCodeCompletion, request.isInKeytip);
+            CompletionRequest artificialRequest = new CompletionRequest(
+                    request.editorFile, request.nature, request.doc, activationToken,
+                    request.documentOffset, request.qlen, request.codeCompletion, qualifier,
+                    request.useSubstringMatchInCodeCompletion);
 
-                return new PyCodeCompletion().getCodeCompletionProposals(artificialRequest);
-            }
+            return new PyCodeCompletion().getCodeCompletionProposals(artificialRequest);
         }
         return null;
     }
@@ -288,16 +286,17 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
         ITypedRegion partition = fastPartitioner.getPartition(request.documentOffset);
         if (IPythonPartitions.PY_DEFAULT.equals(partition.getType())) { // string probably is open
             for (int docOffset = request.documentOffset - 1; docOffset > 0; docOffset--) {
-                partition = fastPartitioner.getPartition(docOffset);
-                if (IPythonPartitions.STRING_PARTITIONS.contains(partition.getType())) {
-                    int pOffset = partition.getOffset();
-                    if (docOffset == pOffset) { // string is open
-                        return Optional.of(new Tuple<String, Integer>("", pOffset));
+                char c = doc.getChar(docOffset);
+                if (c == '\'' || c == '"') {
+                    ITypedRegion p = fastPartitioner.getPartition(docOffset);
+                    if (docOffset == p.getOffset()) {
+                        return Optional.of(new Tuple<String, Integer>("", docOffset));
                     }
                     break;
                 }
             }
-        } else if (IPythonPartitions.STRING_PARTITIONS.contains(partition.getType())) {
+        } else if (IPythonPartitions.PY_SINGLELINE_BYTES_OR_UNICODE1.equals(partition.getType())
+                || IPythonPartitions.PY_SINGLELINE_BYTES_OR_UNICODE2.equals(partition.getType())) {
             int pOffset = partition.getOffset();
             return Optional.of(new Tuple<String, Integer>(doc.get(pOffset, partition.getLength()), pOffset));
         }

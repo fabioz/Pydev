@@ -831,7 +831,6 @@ public final class PySelection extends TextSelectionUtils {
             this.isInMethodKeywordParam = isInMethodKeywordParam;
             this.offsetForKeywordParam = offsetForKeywordParam;
             this.calltipOffset = calltipOffset;
-            this.isInKeytip = isInKeytip;
         }
 
         public final String activationToken;
@@ -841,7 +840,6 @@ public final class PySelection extends TextSelectionUtils {
         public final boolean isInMethodKeywordParam;
         public final int offsetForKeywordParam; //only set when isInMethodKeywordParam == true
         public final int calltipOffset; //this is where the parameters start
-        public final boolean isInKeytip;
 
         public static String[] splitActAndQualifier(String activationToken) {
             //we complete on '.' and '('.
