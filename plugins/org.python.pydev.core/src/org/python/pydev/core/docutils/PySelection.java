@@ -951,45 +951,34 @@ public final class PySelection extends TextSelectionUtils {
             int calltipOffset = documentOffset - 1;
             if (calltipOffset > 0 && calltipOffset < doc.getLength()) {
                 try {
-                    int line = doc.getLineOfOffset(calltipOffset);
-                    int lineOffset = doc.getLineOffset(line);
-                    int lineLen = doc.getLineLength(line);
-                    String rawLineContent = doc.get(lineOffset, lineLen);
-                    String lineContent = PySelection.getLineWithoutCommentsOrLiterals(rawLineContent);
-
-                    calltipOffset = calltipOffset - lineOffset;
-
-                    char c = lineContent.charAt(calltipOffset);
+                    char c = doc.getChar(calltipOffset);
                     while (Character.isWhitespace(c) && calltipOffset > 0) {
                         calltipOffset--;
-                        c = lineContent.charAt(calltipOffset);
+                        c = doc.getChar(calltipOffset);
                     }
                     if (c == '(' || c == ',') {
-                        int docOffset = calltipOffset + lineOffset;
                         //ok, we're just after a parenthesis or comma, so, we have to get the
                         //activation token and qualifier as if we were just before the last parenthesis
                         //(that is, if we're in a function call and not inside a list, string or dict declaration)
                         parOffset = calltipOffset;
-                        calltipOffset = getBeforeParentesisCall(doc, docOffset);
-
+                        calltipOffset = getBeforeParentesisCall(doc, calltipOffset);
                         if (calltipOffset != -1) {
                             documentOffset = calltipOffset;
                             changedForCalltip = true;
-                            foundCalltipOffset = calculateProperCalltipOffset(doc, docOffset);
+                            foundCalltipOffset = calculateProperCalltipOffset(doc, calltipOffset);
                         }
                     } else {
-                        c = lineContent.charAt(calltipOffset);
+                        c = doc.getChar(calltipOffset);
                         while ((Character.isJavaIdentifierPart(c) || Character.isWhitespace(c)) && calltipOffset > 0) {
                             calltipOffset--;
-                            c = lineContent.charAt(calltipOffset);
+                            c = doc.getChar(calltipOffset);
                         }
                         if (c == '(' || c == ',') {
-                            int docOffset = calltipOffset + lineOffset;
-                            calltipOffset = getBeforeParentesisCall(doc, docOffset);
+                            calltipOffset = getBeforeParentesisCall(doc, calltipOffset);
                             if (calltipOffset != -1) {
                                 offsetForKeywordParam = calltipOffset;
                                 isInMethodKeywordParam = true;
-                                foundCalltipOffset = calculateProperCalltipOffset(doc, docOffset);
+                                foundCalltipOffset = calculateProperCalltipOffset(doc, calltipOffset);
                             }
                         }
                     }
