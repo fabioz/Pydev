@@ -11,6 +11,7 @@
  */
 package org.python.pydev.plugin.preferences;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.jface.util.PropertyChangeEvent;
@@ -37,6 +38,7 @@ import org.python.pydev.editor.StyledTextForShowingCodeFactory;
 import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.preferences.IScopedPreferences;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.field_editors.BooleanFieldEditorCustom;
 import org.python.pydev.shared_ui.field_editors.ComboFieldEditor;
@@ -261,6 +263,24 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
                 }
             }
         }, false);
+    }
+
+    @Override
+    public void loadFromProjectSettings(IScopedPreferences iScopedPreferences, IProject project) {
+        super.loadFromProjectSettings(iScopedPreferences, project);
+        updateState();
+    }
+
+    @Override
+    public void loadFromUserSettings(IScopedPreferences iScopedPreferences) {
+        super.loadFromUserSettings(iScopedPreferences);
+        updateState();
+    }
+
+    @Override
+    public void loadFromWorkspace() {
+        super.loadFromWorkspace();
+        updateState();
     }
 
     private void createTabs(Composite p) {

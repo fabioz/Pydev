@@ -65,6 +65,7 @@ import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
+import org.python.pydev.parser.jython.ast.BinOp;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.For;
@@ -74,6 +75,7 @@ import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.Return;
+import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.With;
 import org.python.pydev.parser.jython.ast.WithItem;
 import org.python.pydev.parser.jython.ast.WithItemType;
@@ -967,7 +969,25 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         if (lookForClass.size() > 0) {
             List<ITypeInfo> lst = new ArrayList<>(lookForClass.size());
             for (ITypeInfo s : lookForClass) {
-                lst.add(s.getPackedType());
+                Object nodeObject = s.getNode();
+                if (nodeObject instanceof Subscript) {
+                    Subscript subscript = (Subscript) nodeObject;
+                    if (isNodeTypingUnionSubscript(module, subscript)) {
+                        List<String> subscriptValues = NodeUtils.extractValuesFromSubscriptSlice(subscript.slice);
+                        for (String token : subscriptValues) {
+                            lst.add(new TypeInfo(token.trim()));
+                        }
+                    }
+                    lst.add(s.getPackedType());
+                } else if (nodeObject instanceof BinOp) {
+                    BinOp binOp = (BinOp) nodeObject;
+                    List<String> binOpValues = NodeUtils.extractValuesFromBinOp(binOp, BinOp.BitOr);
+                    for (String token : binOpValues) {
+                        lst.add(new TypeInfo(token.trim()));
+                    }
+                } else {
+                    lst.add(s.getPackedType());
+                }
             }
             lookForClass = lst;
 
@@ -993,6 +1013,20 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             return tokens;
         }
         return null;
+    }
+
+    @Override
+    public boolean isNodeTypingUnionSubscript(IModule module, Object node) {
+        if (node instanceof Subscript) {
+            Subscript subscript = (Subscript) node;
+            String rep = NodeUtils.getFullRepresentationString(subscript.value);
+            if (rep != null && !rep.isBlank()) {
+                if (rep.equals("Union") || rep.endsWith(".Union")) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @SuppressWarnings("unchecked")
@@ -1339,30 +1373,51 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             List<ITypeInfo> possibleClassesForActivationToken = scope.getPossibleClassesForActivationToken(state
                     .getActivationToken());
 
+            TokensList completions = new TokensList();
             for (ITypeInfo typeInfo : possibleClassesForActivationToken) {
+                List<String> actToks = new ArrayList<String>();
+
                 ITypeInfo unpackedTypeFromDocstring = typeInfo.getUnpacked(unpackPos);
-                ICompletionState copyWithActTok = state.getCopyWithActTok(unpackedTypeFromDocstring.getActTok());
-                copyWithActTok.setLookingFor(ICompletionState.LookingFor.LOOKING_FOR_INSTANCED_VARIABLE);
-                TokensList completionsForModule = getCompletionsForModule(module,
-                        copyWithActTok);
-                if (completionsForModule != null && completionsForModule.size() > 0) {
-                    return completionsForModule;
+
+                Object unpackedTypeNodeObject = unpackedTypeFromDocstring.getNode();
+                if (unpackedTypeNodeObject instanceof Subscript) {
+                    Subscript subscript = (Subscript) unpackedTypeNodeObject;
+                    List<String> subscriptValues = NodeUtils.extractValuesFromSubscriptSlice(subscript.slice);
+                    actToks.addAll(subscriptValues);
+                    actToks.add(unpackedTypeFromDocstring.getActTok());
+                } else if (unpackedTypeNodeObject instanceof BinOp) {
+                    BinOp binOp = (BinOp) unpackedTypeNodeObject;
+                    List<String> binOpValues = NodeUtils.extractValuesFromBinOp(binOp, BinOp.BitOr);
+                    actToks.addAll(binOpValues);
                 } else {
-                    //Try to deal with some token that's not imported
-                    List<IPyDevCompletionParticipant> participants = ExtensionHelper
-                            .getParticipants(ExtensionHelper.PYDEV_COMPLETION);
-                    TokensList lst = new TokensList();
-                    for (IPyDevCompletionParticipant participant : participants) {
-                        TokensList collection = participant.getCompletionsForType(copyWithActTok);
-                        if (collection != null && collection.notEmpty()) {
-                            lst.addAll(collection);
+                    actToks.add(unpackedTypeFromDocstring.getActTok());
+                }
+
+                for (String actTok : actToks) {
+                    ICompletionState copyWithActTok = state.getCopyWithActTok(actTok);
+                    copyWithActTok.setLookingFor(ICompletionState.LookingFor.LOOKING_FOR_INSTANCED_VARIABLE);
+                    TokensList completionsForModule = getCompletionsForModule(module,
+                            copyWithActTok);
+                    if (completionsForModule != null && completionsForModule.size() > 0) {
+                        completions.addAll(completionsForModule);
+                    } else {
+                        //Try to deal with some token that's not imported
+                        List<IPyDevCompletionParticipant> participants = ExtensionHelper
+                                .getParticipants(ExtensionHelper.PYDEV_COMPLETION);
+                        TokensList lst = new TokensList();
+                        for (IPyDevCompletionParticipant participant : participants) {
+                            TokensList collection = participant.getCompletionsForType(copyWithActTok);
+                            if (collection != null && collection.notEmpty()) {
+                                lst.addAll(collection);
+                            }
                         }
-                    }
-                    if (lst.notEmpty()) {
-                        return lst;
+                        if (lst.notEmpty()) {
+                            completions.addAll(lst);
+                        }
                     }
                 }
             }
+            return completions;
         }
 
         return null;

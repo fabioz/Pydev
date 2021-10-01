@@ -240,4 +240,9 @@ public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
+    public boolean isNodeTypingUnionSubscript(IModule module, Object node) {
+        throw new RuntimeException("Not implemented");
+    }
+
 }
