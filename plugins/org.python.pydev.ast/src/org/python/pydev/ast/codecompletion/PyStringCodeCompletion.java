@@ -29,6 +29,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.TokensOrProposalsList;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.partition.PyPartitionScanner;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.parser.fastparser.grammar_fstrings_common.FStringsAST;
@@ -245,21 +246,25 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
         return ret;
     }
 
-    private TokensOrProposalsList getCompletionsForTypedDict(CompletionRequest request) throws CoreException,
-            BadLocationException, IOException, MisconfigurationException, PythonNatureWithoutProjectException {
-        Optional<Tuple<String, String>> maybeActivationTokenAndQualifier = getActivationTokenAndQualifierStringsForDictKey(
-                request);
-        if (maybeActivationTokenAndQualifier.isPresent()) {
-            Tuple<String, String> activationTokenAndQualifier = maybeActivationTokenAndQualifier.get();
-            String activationToken = activationTokenAndQualifier.o1;
-            String qualifier = activationTokenAndQualifier.o2;
+    private TokensOrProposalsList getCompletionsForTypedDict(CompletionRequest request)
+            throws CoreException, IOException, MisconfigurationException, PythonNatureWithoutProjectException {
+        try {
+            Optional<Tuple<String, String>> maybeActivationTokenAndQualifier = getActivationTokenAndQualifierStringsForDictKey(
+                    request);
+            if (maybeActivationTokenAndQualifier.isPresent()) {
+                Tuple<String, String> activationTokenAndQualifier = maybeActivationTokenAndQualifier.get();
+                String activationToken = activationTokenAndQualifier.o1;
+                String qualifier = activationTokenAndQualifier.o2;
 
-            CompletionRequest artificialRequest = new CompletionRequest(
-                    request.editorFile, request.nature, request.doc, activationToken,
-                    request.documentOffset, request.qlen, request.codeCompletion, qualifier,
-                    request.useSubstringMatchInCodeCompletion);
+                CompletionRequest artificialRequest = new CompletionRequest(
+                        request.editorFile, request.nature, request.doc, activationToken,
+                        request.documentOffset, request.qlen, request.codeCompletion, qualifier,
+                        request.useSubstringMatchInCodeCompletion);
 
-            return new PyCodeCompletion().getCodeCompletionProposals(artificialRequest);
+                return new PyCodeCompletion().getCodeCompletionProposals(artificialRequest);
+            }
+        } catch (BadLocationException e) {
+            Log.log(e);
         }
         return null;
     }

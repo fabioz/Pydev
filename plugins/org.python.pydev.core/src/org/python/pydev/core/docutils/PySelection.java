@@ -823,7 +823,7 @@ public final class PySelection extends TextSelectionUtils {
     public static class ActivationTokenAndQualifier {
         public ActivationTokenAndQualifier(String activationToken, String qualifier, boolean changedForCalltip,
                 boolean alreadyHasParams, boolean isInMethodKeywordParam, int offsetForKeywordParam,
-                int calltipOffset, boolean isInKeytip) {
+                int calltipOffset) {
             this.activationToken = activationToken;
             this.qualifier = qualifier;
             this.changedForCalltip = changedForCalltip;
@@ -947,7 +947,6 @@ public final class PySelection extends TextSelectionUtils {
         boolean isInMethodKeywordParam = false;
         int offsetForKeywordParam = -1;
         int foundCalltipOffset = -1;
-        boolean isInKeytip = false;
         if (handleForCalltips) {
             int calltipOffset = documentOffset - 1;
             if (calltipOffset > 0 && calltipOffset < doc.getLength()) {
@@ -978,8 +977,6 @@ public final class PySelection extends TextSelectionUtils {
                             changedForCalltip = true;
                             foundCalltipOffset = calculateProperCalltipOffset(doc, docOffset);
                         }
-                    } else if (c == '[') {
-                        isInKeytip = true;
                     } else {
                         c = lineContent.charAt(calltipOffset);
                         while ((Character.isJavaIdentifierPart(c) || Character.isWhitespace(c)) && calltipOffset > 0) {
@@ -994,8 +991,6 @@ public final class PySelection extends TextSelectionUtils {
                                 isInMethodKeywordParam = true;
                                 foundCalltipOffset = calculateProperCalltipOffset(doc, docOffset);
                             }
-                        } else if (c == '[') {
-                            isInKeytip = true;
                         }
                     }
                 } catch (BadLocationException e) {
@@ -1104,7 +1099,7 @@ public final class PySelection extends TextSelectionUtils {
         activationToken = splitActAndQualifier[0];
         String qualifier = splitActAndQualifier[1];
         return new ActivationTokenAndQualifier(activationToken, qualifier, changedForCalltip, alreadyHasParams,
-                isInMethodKeywordParam, offsetForKeywordParam, foundCalltipOffset, isInKeytip);
+                isInMethodKeywordParam, offsetForKeywordParam, foundCalltipOffset);
     }
 
     private static String getOffsetLineContent(IDocument doc, int documentOffset) throws BadLocationException {
