@@ -35,7 +35,7 @@ public class CloseScriptConsoleAction extends Action {
     @Override
     public void run() {
         if (MessageDialog.openQuestion(Display.getDefault().getActiveShell(), "Closing Console", "Are you sure you want to"
-                + "close this console?")) {
+                + " close this console?")) {
             ScriptConsoleManager.getInstance().close(console);
         }
     }
