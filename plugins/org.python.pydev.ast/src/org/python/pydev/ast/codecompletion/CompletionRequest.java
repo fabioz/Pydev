@@ -40,7 +40,7 @@ public final class CompletionRequest implements ICompletionRequest, ITokenComple
      */
     public CompletionRequest(File editorFile, IPythonNature nature, IDocument doc, String activationToken,
             int documentOffset, int qlen, IPyCodeCompletion codeCompletion, String qualifier,
-            boolean useSubstringMatchInCodeCompletion) {
+            boolean useSubstringMatchInCodeCompletion, boolean isInKeytip) {
 
         this.editorFile = editorFile;
         this.nature = nature;
@@ -58,6 +58,7 @@ public final class CompletionRequest implements ICompletionRequest, ITokenComple
         this.alreadyHasParams = false;
         this.offsetForKeywordParam = 0;
         this.useSubstringMatchInCodeCompletion = useSubstringMatchInCodeCompletion;
+        this.isInKeytip = isInKeytip;
     }
 
     /**
@@ -84,6 +85,7 @@ public final class CompletionRequest implements ICompletionRequest, ITokenComple
         this.offsetForKeywordParam = act.offsetForKeywordParam;
         this.alreadyHasParams = act.alreadyHasParams;
         this.calltipOffset = act.calltipOffset;
+        this.isInKeytip = act.isInKeytip;
 
         int qlen = qualifier.length();
 
@@ -200,6 +202,8 @@ public final class CompletionRequest implements ICompletionRequest, ITokenComple
      * This is a field that is filled in the code-completion engine indicating whether templates should be shown or not.
      */
     public boolean showTemplates = true;
+
+    public final boolean isInKeytip;
 
     @Override
     public String toString() {

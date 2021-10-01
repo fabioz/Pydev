@@ -823,7 +823,7 @@ public final class PySelection extends TextSelectionUtils {
     public static class ActivationTokenAndQualifier {
         public ActivationTokenAndQualifier(String activationToken, String qualifier, boolean changedForCalltip,
                 boolean alreadyHasParams, boolean isInMethodKeywordParam, int offsetForKeywordParam,
-                int calltipOffset) {
+                int calltipOffset, boolean isInKeytip) {
             this.activationToken = activationToken;
             this.qualifier = qualifier;
             this.changedForCalltip = changedForCalltip;
@@ -831,6 +831,7 @@ public final class PySelection extends TextSelectionUtils {
             this.isInMethodKeywordParam = isInMethodKeywordParam;
             this.offsetForKeywordParam = offsetForKeywordParam;
             this.calltipOffset = calltipOffset;
+            this.isInKeytip = isInKeytip;
         }
 
         public final String activationToken;
@@ -840,6 +841,7 @@ public final class PySelection extends TextSelectionUtils {
         public final boolean isInMethodKeywordParam;
         public final int offsetForKeywordParam; //only set when isInMethodKeywordParam == true
         public final int calltipOffset; //this is where the parameters start
+        public final boolean isInKeytip;
 
         public static String[] splitActAndQualifier(String activationToken) {
             //we complete on '.' and '('.
@@ -946,43 +948,56 @@ public final class PySelection extends TextSelectionUtils {
         int parOffset = -1;
         boolean isInMethodKeywordParam = false;
         int offsetForKeywordParam = -1;
-
         int foundCalltipOffset = -1;
+        boolean isInKeytip = false;
         if (handleForCalltips) {
             int calltipOffset = documentOffset - 1;
-            //ok, in this case, we have to check if we're just after a ( or ,
             if (calltipOffset > 0 && calltipOffset < doc.getLength()) {
                 try {
-                    char c = doc.getChar(calltipOffset);
+                    int line = doc.getLineOfOffset(calltipOffset);
+                    int lineOffset = doc.getLineOffset(line);
+                    int lineLen = doc.getLineLength(line);
+                    String rawLineContent = doc.get(lineOffset, lineLen);
+                    String lineContent = PySelection.getLineWithoutCommentsOrLiterals(rawLineContent);
+
+                    calltipOffset = calltipOffset - lineOffset;
+
+                    char c = lineContent.charAt(calltipOffset);
                     while (Character.isWhitespace(c) && calltipOffset > 0) {
                         calltipOffset--;
-                        c = doc.getChar(calltipOffset);
+                        c = lineContent.charAt(calltipOffset);
                     }
                     if (c == '(' || c == ',') {
+                        int docOffset = calltipOffset + lineOffset;
                         //ok, we're just after a parenthesis or comma, so, we have to get the
                         //activation token and qualifier as if we were just before the last parenthesis
                         //(that is, if we're in a function call and not inside a list, string or dict declaration)
                         parOffset = calltipOffset;
-                        calltipOffset = getBeforeParentesisCall(doc, calltipOffset);
+                        calltipOffset = getBeforeRef(doc, docOffset, '(');
 
                         if (calltipOffset != -1) {
                             documentOffset = calltipOffset;
                             changedForCalltip = true;
-                            foundCalltipOffset = calculateProperCalltipOffset(doc, calltipOffset);
+                            foundCalltipOffset = calculateProperCalltipOffset(doc, docOffset);
                         }
+                    } else if (c == '[') {
+                        isInKeytip = true;
                     } else {
-                        c = doc.getChar(calltipOffset);
+                        c = lineContent.charAt(calltipOffset);
                         while ((Character.isJavaIdentifierPart(c) || Character.isWhitespace(c)) && calltipOffset > 0) {
                             calltipOffset--;
-                            c = doc.getChar(calltipOffset);
+                            c = lineContent.charAt(calltipOffset);
                         }
                         if (c == '(' || c == ',') {
-                            calltipOffset = getBeforeParentesisCall(doc, calltipOffset);
+                            int docOffset = calltipOffset + lineOffset;
+                            calltipOffset = getBeforeRef(doc, docOffset, '(');
                             if (calltipOffset != -1) {
                                 offsetForKeywordParam = calltipOffset;
                                 isInMethodKeywordParam = true;
-                                foundCalltipOffset = calculateProperCalltipOffset(doc, calltipOffset);
+                                foundCalltipOffset = calculateProperCalltipOffset(doc, docOffset);
                             }
+                        } else if (c == '[') {
+                            isInKeytip = true;
                         }
                     }
                 } catch (BadLocationException e) {
@@ -1091,7 +1106,14 @@ public final class PySelection extends TextSelectionUtils {
         activationToken = splitActAndQualifier[0];
         String qualifier = splitActAndQualifier[1];
         return new ActivationTokenAndQualifier(activationToken, qualifier, changedForCalltip, alreadyHasParams,
-                isInMethodKeywordParam, offsetForKeywordParam, foundCalltipOffset);
+                isInMethodKeywordParam, offsetForKeywordParam, foundCalltipOffset, isInKeytip);
+    }
+
+    private static String getOffsetLineContent(IDocument doc, int documentOffset) throws BadLocationException {
+        int line = doc.getLineOfOffset(documentOffset);
+        int lineOffset = doc.getLineOffset(line);
+        int lineLen = doc.getLineLength(line);
+        return doc.get(lineOffset, lineLen);
     }
 
     private static int calculateProperCalltipOffset(IDocument doc, int calltipOffset) {
@@ -1113,19 +1135,20 @@ public final class PySelection extends TextSelectionUtils {
      *
      * @param doc: an IDocument, String, StringBuffer or char[]
      * @param calltipOffset the offset we should start looking for it
+     * @param ref 
      * @return the offset that points the location just after the activation token and qualifier.
      *
      * @throws BadLocationException
      */
-    public static int getBeforeParentesisCall(Object doc, int calltipOffset) {
+    public static int getBeforeRef(Object doc, int calltipOffset, char ref) {
         ParsingUtils parsingUtils = ParsingUtils.create(doc);
         char c = parsingUtils.charAt(calltipOffset);
 
-        while (calltipOffset > 0 && c != '(') {
+        while (calltipOffset > 0 && c != ref) {
             calltipOffset--;
             c = parsingUtils.charAt(calltipOffset);
         }
-        if (c == '(') {
+        if (c == ref) {
             while (calltipOffset > 0 && Character.isWhitespace(c)) {
                 calltipOffset--;
                 c = parsingUtils.charAt(calltipOffset);

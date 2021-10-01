@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
@@ -174,11 +175,12 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
         TokensOrProposalsList ret = new TokensOrProposalsList();
         if (completionProposals.size() == 0) {
             //if the size is not 0, it means that this is a place for the '@' stuff, and not for the 'default' context for a string.
-            IDocument doc = request.doc;
-            ITypedRegion partition = ((FastPartitioner) PyPartitionScanner.checkPartitionScanner(doc))
-                    .getPartition(request.documentOffset);
-            String partitionType = partition.getType();
 
+            IDocument doc = request.doc;
+            FastPartitioner fastPartitioner = ((FastPartitioner) PyPartitionScanner.checkPartitionScanner(doc));
+            ITypedRegion partition = fastPartitioner.getPartition(request.documentOffset);
+
+            String partitionType = partition.getType();
             if (IPythonPartitions.F_STRING_PARTITIONS.contains(partitionType)) {
                 // Now we are going to check whether where we are in the given completion offset
                 int requestOffset = request.documentOffset;
@@ -227,6 +229,9 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
                             request.activationToken, request.nature, new CompletionCache()));
             ret.addAll(stringGlobalsFromParticipants);
 
+            TokensOrProposalsList completionsForTypedDict = getCompletionsForTypedDict(request);
+            ret.addAll(completionsForTypedDict);
+
             //the code-below does not work well because the module may not have an actual import for the activation token,
             //so, it is useless too many times
             //if(request.activationToken.length() != 0){
@@ -238,6 +243,88 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
         fillWithParams(request, completionProposals);
         ret.addAll(new TokensOrProposalsList(completionProposals));
         return ret;
+    }
+
+    private TokensOrProposalsList getCompletionsForTypedDict(CompletionRequest request) throws CoreException,
+            BadLocationException, IOException, MisconfigurationException, PythonNatureWithoutProjectException {
+        if (request.isInKeytip) {
+            Optional<Tuple<String, String>> maybeActivationTokenAndQualifier = getActivationTokenAndQualifierStringsForDictKey(
+                    request);
+            if (maybeActivationTokenAndQualifier.isPresent()) {
+                Tuple<String, String> activationTokenAndQualifier = maybeActivationTokenAndQualifier.get();
+                String activationToken = activationTokenAndQualifier.o1;
+                String qualifier = activationTokenAndQualifier.o2;
+
+                CompletionRequest artificialRequest = new CompletionRequest(
+                        request.editorFile, request.nature, request.doc, activationToken,
+                        request.documentOffset, request.qlen, request.codeCompletion, qualifier,
+                        request.useSubstringMatchInCodeCompletion, request.isInKeytip);
+
+                return new PyCodeCompletion().getCodeCompletionProposals(artificialRequest);
+            }
+        }
+        return null;
+    }
+
+    final private static Optional<Tuple<String, String>> getActivationTokenAndQualifierStringsForDictKey(
+            CompletionRequest request)
+            throws BadLocationException {
+        Optional<Tuple<String, Integer>> maybeQualifierAndOffset = getQualifierAndOffsetForDictKey(request);
+        if (maybeQualifierAndOffset.isPresent()) {
+            Tuple<String, Integer> qualifierAndOffset = maybeQualifierAndOffset.get();
+            Optional<String> activationToken = getActivationTokenForDictKey(request, qualifierAndOffset.o2);
+            if (activationToken.isPresent()) {
+                return Optional.of(new Tuple<String, String>(activationToken.get(), qualifierAndOffset.o1));
+            }
+        }
+        return Optional.empty();
+    }
+
+    final private static Optional<Tuple<String, Integer>> getQualifierAndOffsetForDictKey(CompletionRequest request)
+            throws BadLocationException {
+        final IDocument doc = request.doc;
+        final FastPartitioner fastPartitioner = ((FastPartitioner) PyPartitionScanner.checkPartitionScanner(doc));
+
+        ITypedRegion partition = fastPartitioner.getPartition(request.documentOffset);
+        if (IPythonPartitions.PY_DEFAULT.equals(partition.getType())) { // string probably is open
+            for (int docOffset = request.documentOffset - 1; docOffset > 0; docOffset--) {
+                partition = fastPartitioner.getPartition(docOffset);
+                if (IPythonPartitions.STRING_PARTITIONS.contains(partition.getType())) {
+                    int pOffset = partition.getOffset();
+                    if (docOffset == pOffset) { // string is open
+                        return Optional.of(new Tuple<String, Integer>("", pOffset));
+                    }
+                    break;
+                }
+            }
+        } else if (IPythonPartitions.STRING_PARTITIONS.contains(partition.getType())) {
+            int pOffset = partition.getOffset();
+            return Optional.of(new Tuple<String, Integer>(doc.get(pOffset, partition.getLength()), pOffset));
+        }
+
+        return Optional.empty();
+    }
+
+    final private static Optional<String> getActivationTokenForDictKey(CompletionRequest request, int keyOffset)
+            throws BadLocationException {
+        final IDocument doc = request.doc;
+        for (keyOffset--; keyOffset > 0; keyOffset--) {
+            char c = doc.getChar(keyOffset);
+            if (c == '[') {
+                int line = doc.getLineOfOffset(keyOffset);
+                int lineOffset = doc.getLineOffset(line);
+                int activationTokenOffset = keyOffset - 1;
+                for (; activationTokenOffset > lineOffset; activationTokenOffset--) {
+                    c = doc.getChar(activationTokenOffset);
+                    if (!Character.isJavaIdentifierPart(c) && !Character.isWhitespace(c)) {
+                        break;
+                    }
+                }
+                String rawActivationToken = doc.get(activationTokenOffset, keyOffset - activationTokenOffset);
+                return Optional.of(rawActivationToken.trim());
+            }
+        }
+        return Optional.empty();
     }
 
     /**
