@@ -276,7 +276,7 @@ public class PythonCompletionStringsTest extends CodeCompletionTestsBase {
                 + "    value: str\n"
                 + "def method(env_entry: EnvEntry):\n"
                 + "    env_entry['va']";
-        requestCompl(s, s.length() - 2, -1, new String[] { "value" });
+        requestCompl(s, s.length()-2, -1, new String[] { "value" });
     }
 
 }

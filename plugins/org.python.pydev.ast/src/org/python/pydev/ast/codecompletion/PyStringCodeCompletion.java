@@ -316,7 +316,7 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
                 int activationTokenOffset = keyOffset - 1;
                 for (; activationTokenOffset > lineOffset; activationTokenOffset--) {
                     c = doc.getChar(activationTokenOffset);
-                    if (!Character.isJavaIdentifierPart(c) && !Character.isWhitespace(c)) {
+                    if (!Character.isJavaIdentifierPart(c) && !Character.isWhitespace(c) && c != '.') {
                         break;
                     }
                 }
