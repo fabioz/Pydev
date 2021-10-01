@@ -287,13 +287,16 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
         if (IPythonPartitions.PY_DEFAULT.equals(partition.getType())) { // string probably is open
             for (int docOffset = request.documentOffset - 1; docOffset > 0; docOffset--) {
                 char c = doc.getChar(docOffset);
+                if (Character.isWhitespace(c)) {
+                    continue;
+                }
                 if (c == '\'' || c == '"') {
                     ITypedRegion p = fastPartitioner.getPartition(docOffset);
                     if (docOffset == p.getOffset()) {
                         return Optional.of(new Tuple<String, Integer>("", docOffset));
                     }
-                    break;
                 }
+                break;
             }
         } else if (IPythonPartitions.PY_SINGLELINE_BYTES_OR_UNICODE1.equals(partition.getType())
                 || IPythonPartitions.PY_SINGLELINE_BYTES_OR_UNICODE2.equals(partition.getType())) {
