@@ -305,8 +305,12 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
             }
         } else if (IPythonPartitions.PY_SINGLELINE_BYTES_OR_UNICODE1.equals(partition.getType())
                 || IPythonPartitions.PY_SINGLELINE_BYTES_OR_UNICODE2.equals(partition.getType())) {
-            int pOffset = partition.getOffset();
-            return Optional.of(new Tuple<String, Integer>(doc.get(pOffset, partition.getLength()), pOffset));
+            int strContentOffset = partition.getOffset() + 1;
+            int strContentLen = partition.getLength() - 2; // we have to ignore both of str identifiers (i.e.: `'` or `"`).
+            Tuple<String, Integer> ret = new Tuple<String, Integer>(
+                    doc.get(strContentOffset, strContentLen),
+                    strContentOffset);
+            return Optional.of(ret);
         }
 
         return Optional.empty();
