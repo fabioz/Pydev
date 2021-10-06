@@ -246,10 +246,10 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
         return ret;
     }
 
-    private TokensOrProposalsList getCompletionsForTypedDict(CompletionRequest request)
+    private static TokensOrProposalsList getCompletionsForTypedDict(CompletionRequest request)
             throws CoreException, IOException, MisconfigurationException, PythonNatureWithoutProjectException {
         try {
-            Optional<Tuple<String, String>> maybeActivationTokenAndQualifier = getActivationTokenAndQualifierStringsForDictKey(
+            Optional<Tuple<String, String>> maybeActivationTokenAndQualifier = getActivationTokenAndQualifierForDictKey(
                     request);
             if (maybeActivationTokenAndQualifier.isPresent()) {
                 Tuple<String, String> activationTokenAndQualifier = maybeActivationTokenAndQualifier.get();
@@ -269,21 +269,23 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
         return null;
     }
 
-    final private static Optional<Tuple<String, String>> getActivationTokenAndQualifierStringsForDictKey(
+    final private static Optional<Tuple<String, String>> getActivationTokenAndQualifierForDictKey(
             CompletionRequest request)
             throws BadLocationException {
-        Optional<Tuple<String, Integer>> maybeQualifierAndOffset = getQualifierAndOffsetForDictKey(request);
+        Optional<Tuple<Optional<String>, Integer>> maybeQualifierAndOffset = getQualifierAndOffsetForDictKey(request);
         if (maybeQualifierAndOffset.isPresent()) {
-            Tuple<String, Integer> qualifierAndOffset = maybeQualifierAndOffset.get();
+            Tuple<Optional<String>, Integer> qualifierAndOffset = maybeQualifierAndOffset.get();
+            Optional<String> qualifier = fixDocAndGetParsedQualifier(request.doc, qualifierAndOffset);
             Optional<String> activationToken = getActivationTokenForDictKey(request, qualifierAndOffset.o2);
             if (activationToken.isPresent()) {
-                return Optional.of(new Tuple<String, String>(activationToken.get(), qualifierAndOffset.o1));
+                return Optional.of(new Tuple<String, String>(activationToken.get(), qualifier.get()));
             }
         }
         return Optional.empty();
     }
 
-    final private static Optional<Tuple<String, Integer>> getQualifierAndOffsetForDictKey(CompletionRequest request)
+    final private static Optional<Tuple<Optional<String>, Integer>> getQualifierAndOffsetForDictKey(
+            CompletionRequest request)
             throws BadLocationException {
         final IDocument doc = request.doc;
         final FastPartitioner fastPartitioner = ((FastPartitioner) PyPartitionScanner.checkPartitionScanner(doc));
@@ -297,8 +299,8 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
                 }
                 if (c == '\'' || c == '"') {
                     ITypedRegion p = fastPartitioner.getPartition(docOffset);
-                    if (docOffset == p.getOffset()) {
-                        return Optional.of(new Tuple<String, Integer>("", docOffset));
+                    if (docOffset == p.getOffset()) { // the string start and end is at the same offset, meaning that we have an open string declaration.
+                        return Optional.of(new Tuple<Optional<String>, Integer>(Optional.empty(), docOffset));
                     }
                 }
                 break;
@@ -307,13 +309,29 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
                 || IPythonPartitions.PY_SINGLELINE_BYTES_OR_UNICODE2.equals(partition.getType())) {
             int strContentOffset = partition.getOffset() + 1;
             int strContentLen = partition.getLength() - 2; // we have to ignore both of str identifiers (i.e.: `'` or `"`).
-            Tuple<String, Integer> ret = new Tuple<String, Integer>(
-                    doc.get(strContentOffset, strContentLen),
-                    strContentOffset);
+            Optional<String> qualifier = Optional.empty();
+            if (strContentLen > 0) {
+                qualifier = Optional.of(doc.get(strContentOffset, strContentLen));
+            } else {
+                strContentOffset--; // since we have an unclosed str, we should just point content offset to `partition.getOffset()` (i.e.: `strContentOffset--`)
+            }
+            Tuple<Optional<String>, Integer> ret = new Tuple<Optional<String>, Integer>(qualifier, strContentOffset);
             return Optional.of(ret);
         }
 
         return Optional.empty();
+    }
+
+    final private static Optional<String> fixDocAndGetParsedQualifier(IDocument doc,
+            Tuple<Optional<String>, Integer> qualifierAndOffset) throws BadLocationException {
+        Optional<String> qualifier = qualifierAndOffset.o1;
+        if (qualifier.isEmpty()) { // since it is an open str, offset should be pointing to the string opener char.
+            int offset = qualifierAndOffset.o2;
+            char strOpenerChar = doc.getChar(offset);
+            doc.replace(offset + 1, 0, strOpenerChar + "]");
+            return Optional.of("");
+        }
+        return qualifier;
     }
 
     final private static Optional<String> getActivationTokenForDictKey(CompletionRequest request, int keyOffset)
