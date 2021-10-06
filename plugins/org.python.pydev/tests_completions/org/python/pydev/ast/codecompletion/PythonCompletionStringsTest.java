@@ -279,4 +279,50 @@ public class PythonCompletionStringsTest extends CodeCompletionTestsBase {
         requestCompl(s, s.length() - 2, -1, new String[] { "value" });
     }
 
+    public void testTypedDict3() throws Exception {
+        String s = ""
+                + "class EnvEntry(TypedDict):\n"
+                + "    key: str\n"
+                + "    value: str\n"
+                + "def method(env_entry: EnvEntry):\n"
+                + "    env_entry['\n" // cursor should be right after the `'`
+                + "    foo = 10\n"
+                + "    bar = 20\n"
+                + "    result = foo + bar";
+        requestCompl(s, 103, -1, new String[] { "key", "value" });
+    }
+
+    public void testTypedDict4() throws Exception {
+        String s = ""
+                + "class EnvEntry(TypedDict):\n"
+                + "    key: str\n"
+                + "    value: str\n"
+                + "def method(env_entry: EnvEntry):\n"
+                + "    env_entry[\"";
+        requestCompl(s, s.length(), -1, new String[] { "key", "value" });
+    }
+
+    public void testTypedDict5() throws Exception {
+        String s = ""
+                + "class EnvEntry(TypedDict):\n"
+                + "    key: str\n"
+                + "    value: str\n"
+                + "def method(env_entry: EnvEntry):\n"
+                + "    env_entry[\"va\"]";
+        requestCompl(s, s.length() - 2, -1, new String[] { "value" });
+    }
+
+    public void testTypedDict6() throws Exception {
+        String s = ""
+                + "class EnvEntry(TypedDict):\n"
+                + "    key: str\n"
+                + "    value: str\n"
+                + "def method(env_entry: EnvEntry):\n"
+                + "    env_entry[\"\n" // cursor should be right after the `'`
+                + "    foo = 10\n"
+                + "    bar = 20\n"
+                + "    result = foo + bar";
+        requestCompl(s, 103, -1, new String[] { "key", "value" });
+    }
+
 }
