@@ -87,10 +87,11 @@ public class PyCodeCompletionsForTypedDict {
             CompletionRequest request, final ITypedRegion partition) throws BadLocationException {
         final IDocument doc = request.doc;
         int qualifierOffset = partition.getOffset();
-        int strContentLen = partition.getLength() - 2; // we have to ignore both of str identifiers (i.e.: `'` or `"`).
+        int strContentLen = partition.getLength() - 2; // we have to ignore both of string identifiers (i.e.: `'` or `"`).
         Optional<String> qualifier = Optional.empty();
         if (strContentLen > 0) {
-            qualifier = Optional.of(doc.get(qualifierOffset + 1, strContentLen)); // extract only qualifier content (without str opener and closer).
+            // here we have a proper content for qualifier (open and closed string).
+            qualifier = Optional.of(doc.get(qualifierOffset + 1, strContentLen)); // extract only qualifier content (without string opener and closer).
         }
         Tuple<Optional<String>, Integer> ret = new Tuple<Optional<String>, Integer>(qualifier, qualifierOffset);
         return Optional.of(ret);
