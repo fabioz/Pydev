@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
@@ -29,7 +28,6 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.TokensOrProposalsList;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.log.Log;
 import org.python.pydev.core.partition.PyPartitionScanner;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.parser.fastparser.grammar_fstrings_common.FStringsAST;
@@ -230,7 +228,7 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
                             request.activationToken, request.nature, new CompletionCache()));
             ret.addAll(stringGlobalsFromParticipants);
 
-            TokensOrProposalsList completionsForTypedDict = getCompletionsForTypedDict(request);
+            TokensOrProposalsList completionsForTypedDict = PyCodeCompletionsForTypedDict.getStringCompletions(request);
             ret.addAll(completionsForTypedDict);
 
             //the code-below does not work well because the module may not have an actual import for the activation token,
@@ -244,116 +242,6 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
         fillWithParams(request, completionProposals);
         ret.addAll(new TokensOrProposalsList(completionProposals));
         return ret;
-    }
-
-    private static TokensOrProposalsList getCompletionsForTypedDict(CompletionRequest request)
-            throws CoreException, IOException, MisconfigurationException, PythonNatureWithoutProjectException {
-        try {
-            Optional<Tuple<String, String>> maybeActivationTokenAndQualifier = getActivationTokenAndQualifierForDictKey(
-                    request);
-            if (maybeActivationTokenAndQualifier.isPresent()) {
-                Tuple<String, String> activationTokenAndQualifier = maybeActivationTokenAndQualifier.get();
-                String activationToken = activationTokenAndQualifier.o1;
-                String qualifier = activationTokenAndQualifier.o2;
-
-                CompletionRequest artificialRequest = new CompletionRequest(
-                        request.editorFile, request.nature, request.doc, activationToken,
-                        request.documentOffset, request.qlen, request.codeCompletion, qualifier,
-                        request.useSubstringMatchInCodeCompletion);
-
-                return new PyCodeCompletion().getCodeCompletionProposals(artificialRequest);
-            }
-        } catch (BadLocationException e) {
-            Log.log(e);
-        }
-        return null;
-    }
-
-    final private static Optional<Tuple<String, String>> getActivationTokenAndQualifierForDictKey(
-            CompletionRequest request)
-            throws BadLocationException {
-        Optional<Tuple<Optional<String>, Integer>> maybeQualifierAndOffset = getQualifierAndOffsetForDictKey(request);
-        if (maybeQualifierAndOffset.isPresent()) {
-            Tuple<Optional<String>, Integer> qualifierAndOffset = maybeQualifierAndOffset.get();
-            Optional<String> qualifier = fixDocAndGetParsedQualifier(request.doc, qualifierAndOffset);
-            Optional<String> activationToken = getActivationTokenForDictKey(request, qualifierAndOffset.o2);
-            if (activationToken.isPresent()) {
-                return Optional.of(new Tuple<String, String>(activationToken.get(), qualifier.get()));
-            }
-        }
-        return Optional.empty();
-    }
-
-    final private static Optional<Tuple<Optional<String>, Integer>> getQualifierAndOffsetForDictKey(
-            CompletionRequest request)
-            throws BadLocationException {
-        final IDocument doc = request.doc;
-        final FastPartitioner fastPartitioner = ((FastPartitioner) PyPartitionScanner.checkPartitionScanner(doc));
-
-        ITypedRegion partition = fastPartitioner.getPartition(request.documentOffset);
-        if (IPythonPartitions.PY_DEFAULT.equals(partition.getType())) { // string probably is open
-            for (int docOffset = request.documentOffset - 1; docOffset > 0; docOffset--) {
-                char c = doc.getChar(docOffset);
-                if (Character.isWhitespace(c)) {
-                    continue;
-                }
-                if (c == '\'' || c == '"') {
-                    ITypedRegion p = fastPartitioner.getPartition(docOffset);
-                    if (docOffset == p.getOffset()) { // the string start and end is at the same offset, meaning that we have an open string declaration.
-                        return Optional.of(new Tuple<Optional<String>, Integer>(Optional.empty(), docOffset));
-                    }
-                }
-                break;
-            }
-        } else if (IPythonPartitions.PY_SINGLELINE_BYTES_OR_UNICODE1.equals(partition.getType())
-                || IPythonPartitions.PY_SINGLELINE_BYTES_OR_UNICODE2.equals(partition.getType())) {
-            int strContentOffset = partition.getOffset() + 1;
-            int strContentLen = partition.getLength() - 2; // we have to ignore both of str identifiers (i.e.: `'` or `"`).
-            Optional<String> qualifier = Optional.empty();
-            if (strContentLen > 0) {
-                qualifier = Optional.of(doc.get(strContentOffset, strContentLen));
-            } else {
-                strContentOffset--; // since we have an unclosed str, we should just point content offset to `partition.getOffset()` (i.e.: `strContentOffset--`)
-            }
-            Tuple<Optional<String>, Integer> ret = new Tuple<Optional<String>, Integer>(qualifier, strContentOffset);
-            return Optional.of(ret);
-        }
-
-        return Optional.empty();
-    }
-
-    final private static Optional<String> fixDocAndGetParsedQualifier(IDocument doc,
-            Tuple<Optional<String>, Integer> qualifierAndOffset) throws BadLocationException {
-        Optional<String> qualifier = qualifierAndOffset.o1;
-        if (qualifier.isEmpty()) { // since it is an open str, offset should be pointing to the string opener char.
-            int offset = qualifierAndOffset.o2;
-            char strOpenerChar = doc.getChar(offset);
-            doc.replace(offset + 1, 0, strOpenerChar + "]");
-            return Optional.of("");
-        }
-        return qualifier;
-    }
-
-    final private static Optional<String> getActivationTokenForDictKey(CompletionRequest request, int keyOffset)
-            throws BadLocationException {
-        final IDocument doc = request.doc;
-        for (keyOffset--; keyOffset > 0; keyOffset--) {
-            char c = doc.getChar(keyOffset);
-            if (c == '[') {
-                int line = doc.getLineOfOffset(keyOffset);
-                int lineOffset = doc.getLineOffset(line);
-                int activationTokenOffset = keyOffset - 1;
-                for (; activationTokenOffset > lineOffset; activationTokenOffset--) {
-                    c = doc.getChar(activationTokenOffset);
-                    if (!Character.isJavaIdentifierPart(c) && !Character.isWhitespace(c) && c != '.') {
-                        break;
-                    }
-                }
-                String rawActivationToken = doc.get(activationTokenOffset, keyOffset - activationTokenOffset);
-                return Optional.of(rawActivationToken.trim());
-            }
-        }
-        return Optional.empty();
     }
 
     /**
