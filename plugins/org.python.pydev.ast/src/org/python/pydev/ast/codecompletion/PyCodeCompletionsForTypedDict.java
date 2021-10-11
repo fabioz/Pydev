@@ -48,42 +48,51 @@ public class PyCodeCompletionsForTypedDict {
         return Optional.empty();
     }
 
-    private static Optional<Tuple<Optional<String>, Integer>> getDictKeyQualifierAndOffset(
-            CompletionRequest request)
+    private static Optional<Tuple<Optional<String>, Integer>> getDictKeyQualifierAndOffset(CompletionRequest request)
             throws BadLocationException {
         final IDocument doc = request.doc;
         final FastPartitioner fastPartitioner = ((FastPartitioner) PyPartitionScanner.checkPartitionScanner(doc));
-
-        ITypedRegion partition = fastPartitioner.getPartition(request.documentOffset);
-        if (IPythonPartitions.PY_DEFAULT.equals(partition.getType())) { // string probably is open
-            for (int docOffset = request.documentOffset - 1; docOffset > 0; docOffset--) {
-                char c = doc.getChar(docOffset);
-                if (Character.isWhitespace(c)) {
-                    continue;
-                }
-                if (c == '\'' || c == '"') {
-                    ITypedRegion p = fastPartitioner.getPartition(docOffset);
-                    if (docOffset == p.getOffset()) { // the string start and end is at the same offset, meaning that we have an open string declaration.
-                        return Optional.of(new Tuple<Optional<String>, Integer>(Optional.empty(), docOffset));
-                    }
-                }
-                break;
-            }
+        final ITypedRegion partition = fastPartitioner.getPartition(request.documentOffset);
+        if (IPythonPartitions.PY_DEFAULT.equals(partition.getType())) {
+            return getDictKeyQualifierAndOffsetForOpenContents(request, doc, fastPartitioner);
         } else if (IPythonPartitions.PY_SINGLELINE_BYTES_OR_UNICODE1.equals(partition.getType())
                 || IPythonPartitions.PY_SINGLELINE_BYTES_OR_UNICODE2.equals(partition.getType())) {
-            int strContentOffset = partition.getOffset() + 1;
-            int strContentLen = partition.getLength() - 2; // we have to ignore both of str identifiers (i.e.: `'` or `"`).
-            Optional<String> qualifier = Optional.empty();
-            if (strContentLen > 0) {
-                qualifier = Optional.of(doc.get(strContentOffset, strContentLen));
-            } else {
-                strContentOffset--; // since we have an unclosed str, we should just point content offset to `partition.getOffset()` (i.e.: `strContentOffset--`)
-            }
-            Tuple<Optional<String>, Integer> ret = new Tuple<Optional<String>, Integer>(qualifier, strContentOffset);
-            return Optional.of(ret);
+            return getDictKeyQualifierAndOffsetForProbablyCorrectContent(doc, partition);
         }
-
         return Optional.empty();
+    }
+
+    private static Optional<Tuple<Optional<String>, Integer>> getDictKeyQualifierAndOffsetForOpenContents(
+            CompletionRequest request, final IDocument doc,
+            final FastPartitioner fastPartitioner) throws BadLocationException {
+        for (int docOffset = request.documentOffset - 1; docOffset > 0; docOffset--) {
+            char c = doc.getChar(docOffset);
+            if (Character.isWhitespace(c)) {
+                continue;
+            }
+            if (c == '\'' || c == '"') {
+                ITypedRegion p = fastPartitioner.getPartition(docOffset);
+                if (docOffset == p.getOffset()) { // the string start and end is at the same offset, meaning that we have an open string declaration.
+                    return Optional.of(new Tuple<Optional<String>, Integer>(Optional.empty(), docOffset));
+                }
+            }
+            break;
+        }
+        return Optional.empty();
+    }
+
+    private static Optional<Tuple<Optional<String>, Integer>> getDictKeyQualifierAndOffsetForProbablyCorrectContent(
+            final IDocument doc, ITypedRegion partition) throws BadLocationException {
+        int strContentOffset = partition.getOffset() + 1;
+        int strContentLen = partition.getLength() - 2; // we have to ignore both of str identifiers (i.e.: `'` or `"`).
+        Optional<String> qualifier = Optional.empty();
+        if (strContentLen > 0) {
+            qualifier = Optional.of(doc.get(strContentOffset, strContentLen));
+        } else {
+            strContentOffset--; // since we have an unclosed str, we should just point content offset to `partition.getOffset()` (i.e.: `strContentOffset--`)
+        }
+        Tuple<Optional<String>, Integer> ret = new Tuple<Optional<String>, Integer>(qualifier, strContentOffset);
+        return Optional.of(ret);
     }
 
     private static Tuple<String, IDocument> createParsedQualifierAndDoc(
