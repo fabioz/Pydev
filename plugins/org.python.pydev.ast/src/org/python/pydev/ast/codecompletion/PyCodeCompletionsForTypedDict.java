@@ -7,6 +7,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.ITypedRegion;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.MisconfigurationException;
@@ -50,21 +51,22 @@ public class PyCodeCompletionsForTypedDict {
 
     private static Optional<Tuple<Optional<String>, Integer>> getDictKeyQualifierAndOffset(CompletionRequest request)
             throws BadLocationException {
-        final IDocument doc = request.doc;
-        final FastPartitioner fastPartitioner = ((FastPartitioner) PyPartitionScanner.checkPartitionScanner(doc));
+        IDocumentPartitioner partitioner = PyPartitionScanner.checkPartitionScanner(request.doc);
+        FastPartitioner fastPartitioner = (FastPartitioner) partitioner;
         final ITypedRegion partition = fastPartitioner.getPartition(request.documentOffset);
         if (IPythonPartitions.PY_DEFAULT.equals(partition.getType())) {
-            return getDictKeyQualifierAndOffsetForOpenContents(request, doc, fastPartitioner);
+            return getDictKeyQualifierAndOffsetForOpenContents(request);
         } else if (IPythonPartitions.PY_SINGLELINE_BYTES_OR_UNICODE1.equals(partition.getType())
                 || IPythonPartitions.PY_SINGLELINE_BYTES_OR_UNICODE2.equals(partition.getType())) {
-            return getDictKeyQualifierAndOffsetForProbablyCorrectContent(doc, partition);
+            return getDictKeyQualifierAndOffsetForProbablyCorrectContents(request, partition);
         }
         return Optional.empty();
     }
 
     private static Optional<Tuple<Optional<String>, Integer>> getDictKeyQualifierAndOffsetForOpenContents(
-            CompletionRequest request, final IDocument doc,
-            final FastPartitioner fastPartitioner) throws BadLocationException {
+            CompletionRequest request) throws BadLocationException {
+        final IDocument doc = request.doc;
+        final FastPartitioner fastPartitioner = ((FastPartitioner) PyPartitionScanner.checkPartitionScanner(doc));
         for (int docOffset = request.documentOffset - 1; docOffset > 0; docOffset--) {
             char c = doc.getChar(docOffset);
             if (Character.isWhitespace(c)) {
@@ -81,17 +83,16 @@ public class PyCodeCompletionsForTypedDict {
         return Optional.empty();
     }
 
-    private static Optional<Tuple<Optional<String>, Integer>> getDictKeyQualifierAndOffsetForProbablyCorrectContent(
-            final IDocument doc, ITypedRegion partition) throws BadLocationException {
-        int strContentOffset = partition.getOffset() + 1;
+    private static Optional<Tuple<Optional<String>, Integer>> getDictKeyQualifierAndOffsetForProbablyCorrectContents(
+            CompletionRequest request, final ITypedRegion partition) throws BadLocationException {
+        final IDocument doc = request.doc;
+        int qualifierOffset = partition.getOffset();
         int strContentLen = partition.getLength() - 2; // we have to ignore both of str identifiers (i.e.: `'` or `"`).
         Optional<String> qualifier = Optional.empty();
         if (strContentLen > 0) {
-            qualifier = Optional.of(doc.get(strContentOffset, strContentLen));
-        } else {
-            strContentOffset--; // since we have an unclosed str, we should just point content offset to `partition.getOffset()` (i.e.: `strContentOffset--`)
+            qualifier = Optional.of(doc.get(qualifierOffset + 1, strContentLen)); // extract only qualifier content (without str opener and closer).
         }
-        Tuple<Optional<String>, Integer> ret = new Tuple<Optional<String>, Integer>(qualifier, strContentOffset);
+        Tuple<Optional<String>, Integer> ret = new Tuple<Optional<String>, Integer>(qualifier, qualifierOffset);
         return Optional.of(ret);
     }
 
@@ -115,26 +116,36 @@ public class PyCodeCompletionsForTypedDict {
         return new Document(buf.toString());
     }
 
-    private static Optional<String> getActivationTokenForDictKey(CompletionRequest request, int keyOffset)
+    private static Optional<String> getActivationTokenForDictKey(CompletionRequest request, int qualifierOffset)
             throws BadLocationException {
         final IDocument doc = request.doc;
-        for (keyOffset--; keyOffset > 0; keyOffset--) {
-            char c = doc.getChar(keyOffset);
-            if (c == '[') {
-                int line = doc.getLineOfOffset(keyOffset);
-                int lineOffset = doc.getLineOffset(line);
-                int activationTokenOffset = keyOffset - 1;
-                for (; activationTokenOffset > lineOffset; activationTokenOffset--) {
-                    c = doc.getChar(activationTokenOffset);
-                    if (!Character.isJavaIdentifierPart(c) && !Character.isWhitespace(c) && c != '.') {
-                        break;
-                    }
-                }
-                String rawActivationToken = doc.get(activationTokenOffset, keyOffset - activationTokenOffset);
-                return Optional.of(rawActivationToken.trim());
+        for (int i = qualifierOffset - 1; i > 0; i--) {
+            char c = doc.getChar(i);
+            if (Character.isWhitespace(c)) {
+                continue;
             }
+            if (c == '[') {
+                String activationToken = extractBeforeBracketActivationToken(i, doc);
+                return Optional.of(activationToken);
+            }
+            break;
         }
         return Optional.empty();
     }
 
+    private static String extractBeforeBracketActivationToken(int keyOffset, final IDocument doc)
+            throws BadLocationException {
+        int line = doc.getLineOfOffset(keyOffset);
+        int lineOffset = doc.getLineOffset(line);
+        int activationTokenOffset = keyOffset - 1;
+        while (activationTokenOffset > lineOffset) {
+            char c = doc.getChar(activationTokenOffset);
+            if (!Character.isJavaIdentifierPart(c) && !Character.isWhitespace(c) && c != '.') {
+                break;
+            }
+            activationTokenOffset--;
+        }
+        String rawActivationToken = doc.get(activationTokenOffset, keyOffset - activationTokenOffset);
+        return rawActivationToken.trim();
+    }
 }
