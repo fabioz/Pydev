@@ -871,4 +871,49 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
                 + "        pass");
         checkNoError();
     }
+
+    public void testNoSelfInZopeInterface3() throws Exception {
+        doc = new Document(""
+                + "from zope.interface import Interface\n"
+                + "class Impl(Interface):\n"
+                + "    def method_a():\n"
+                + "        pass");
+        checkNoError();
+    }
+
+    public void testNoSelfInZopeInterface4() throws Exception {
+        doc = new Document(""
+                + "import zope.interface.Interface\n"
+                + "class Impl(zope.interface.Interface):\n"
+                + "    def method_a():\n"
+                + "        pass");
+        checkNoError();
+    }
+
+    public void testNoSelfInZopeInterface5() throws Exception {
+        doc = new Document(""
+                + "import zope.interface\n"
+                + "class Impl(zope.interface.Interface):\n"
+                + "    def method_a():\n"
+                + "        pass");
+        checkNoError();
+    }
+
+    public void testNoSelfInZopeInterface6() throws Exception {
+        doc = new Document(""
+                + "import zope.interface as z\n"
+                + "class Impl(z.Interface):\n"
+                + "    def method_a():\n"
+                + "        pass");
+        checkNoError();
+    }
+
+    public void testNoSelfInZopeInterface7() throws Exception {
+        doc = new Document(""
+                + "import zope.interface.Interface as zo\n"
+                + "class Impl(zo):\n"
+                + "    def method_a():\n"
+                + "        pass");
+        checkNoError();
+    }
 }

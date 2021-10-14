@@ -10,6 +10,7 @@
 package com.python.pydev.analysis.visitors;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.python.pydev.ast.analysis.IAnalysisPreferences;
@@ -18,16 +19,21 @@ import org.python.pydev.ast.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IterTokenEntry;
 import org.python.pydev.core.TokensList;
+import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.FullRepIterable;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.FastStack;
 import org.python.pydev.shared_core.structure.Tuple;
 
@@ -69,14 +75,17 @@ public final class NoSelfChecker {
 
         FastStringBuffer buf = new FastStringBuffer();
         for (exprType base : node.bases) {
+            if (base == null) {
+                continue;
+            }
             if (buf.length() > 0) {
                 buf.append(",");
             }
+            if (isSelfNeededInFunctions && isBaseZopeInterface(base)) {
+                isSelfNeededInFunctions = false;
+            }
             String rep = NodeUtils.getRepresentationString(base);
             if (rep != null) {
-                if (isSelfNeededInFunctions && isRepresentationZopeInterface(rep)) {
-                    isSelfNeededInFunctions = false;
-                }
                 buf.append(FullRepIterable.getLastPart(rep));
             }
         }
@@ -84,15 +93,52 @@ public final class NoSelfChecker {
         maybeNoSelfDefinedItems.push(new HashMap<String, Tuple<Expected, FunctionDef>>());
     }
 
-    private final boolean isRepresentationZopeInterface(String rep) {
+    private final boolean isBaseZopeInterface(exprType base) {
+        String baseRep = NodeUtils.getFullRepresentationString(base);
+        if (baseRep == null) {
+            return false;
+        }
+        String[] baseParts = extractBaseParts(baseRep);
         TokensList tokenImportedModules = module.getTokenImportedModules();
         for (IterTokenEntry entry : tokenImportedModules) {
             if (entry.object instanceof SourceToken) {
                 SourceToken token = (SourceToken) entry.object;
-                return "zope.interface.Interface".equals(token.getOriginalRep());
+                SimpleNode tokenAst = token.getAst();
+                if (tokenAst instanceof Import) {
+                    Import importNode = (Import) token.getAst();
+                    for (aliasType alias : importNode.names) {
+                        if (alias.name instanceof NameTok) {
+                            NameTok nameTok = (NameTok) alias.name;
+                            if (nameTok.id == null) {
+                                continue;
+                            }
+                            FastStringBuffer compareBuf = new FastStringBuffer(nameTok.id, baseRep.length());
+                            if (alias.asname instanceof NameTok) {
+                                String asname = NodeUtils.getNameFromNameTok(alias.asname);
+                                if (baseParts[0].equals(asname)) {
+                                    for (int i = 1; i < baseParts.length; i++) {
+                                        compareBuf.append('.').append(baseParts[i]);
+                                    }
+                                }
+                                if ("zope.interface.Interface".equals(compareBuf.toString())) {
+                                    return true;
+                                }
+                            } else if ("zope.interface.Interface".equals(baseRep)) {
+                                return true;
+                            }
+                        }
+                    }
+                } else if ("zope.interface.Interface".equals(token.getOriginalRep())) {
+                    return baseRep.equals(token.getRepresentation());
+                }
             }
         }
         return false;
+    }
+
+    private String[] extractBaseParts(String baseRep) {
+        List<String> dotSplit = StringUtils.dotSplit(baseRep);
+        return dotSplit.toArray(new String[dotSplit.size()]);
     }
 
     public void afterClassDef(ClassDef node) {
