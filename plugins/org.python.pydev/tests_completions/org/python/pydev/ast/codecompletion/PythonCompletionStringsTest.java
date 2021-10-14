@@ -8,6 +8,7 @@ package org.python.pydev.ast.codecompletion;
 
 import org.python.pydev.ast.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.ast.codecompletion.revisited.modules.CompiledModule;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.StringUtils;
 
@@ -30,11 +31,15 @@ public class PythonCompletionStringsTest extends CodeCompletionTestsBase {
         }
     }
 
+    private int initialGrammar;
+
     /*
      * @see TestCase#setUp()
      */
     @Override
     public void setUp() throws Exception {
+        this.initialGrammar = CodeCompletionTestsBase.GRAMMAR_TO_USE_FOR_PARSING;
+        CodeCompletionTestsBase.GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.LATEST_GRAMMAR_PY3_VERSION;
         super.setUp();
         CompiledModule.COMPILED_MODULES_ENABLED = false;
         this.restorePythonPath(false);
@@ -46,6 +51,7 @@ public class PythonCompletionStringsTest extends CodeCompletionTestsBase {
      */
     @Override
     public void tearDown() throws Exception {
+        CodeCompletionTestsBase.GRAMMAR_TO_USE_FOR_PARSING = this.initialGrammar;
         CompiledModule.COMPILED_MODULES_ENABLED = true;
         super.tearDown();
     }
