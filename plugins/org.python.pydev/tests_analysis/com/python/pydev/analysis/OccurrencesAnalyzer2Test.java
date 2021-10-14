@@ -916,4 +916,16 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
                 + "        pass");
         checkNoError();
     }
+
+    public void testNoSelfInZopeInterface8() throws Exception {
+        doc = new Document(""
+                + "from zope.interface import Interface\n"
+                + "class Ia(Interface):\n"
+                + "    def method_a():  # Shouldn't complain about the lack of self\n"
+                + "        pass\n"
+                + "class Ib(Ia):\n"
+                + "    def method_b():  # Shouldn't complain about the lack of self\n"
+                + "        pass");
+        checkNoError();
+    }
 }

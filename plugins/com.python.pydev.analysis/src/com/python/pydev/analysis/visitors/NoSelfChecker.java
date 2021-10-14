@@ -10,8 +10,10 @@
 package com.python.pydev.analysis.visitors;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.python.pydev.ast.analysis.IAnalysisPreferences;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
@@ -60,12 +62,13 @@ public final class NoSelfChecker {
     private final String moduleName;
     private final MessagesManager messagesManager;
     private final IModule module;
-    private boolean isSelfNeededInFunctions = true;
+    private final Set<ClassDef> noSelfNeededClasses;
 
     public NoSelfChecker(OccurrencesVisitor visitor) {
         this.messagesManager = visitor.messagesManager;
         this.moduleName = visitor.moduleName;
         this.module = visitor.current;
+        this.noSelfNeededClasses = new HashSet<ClassDef>();
         scope.push(Scope.SCOPE_TYPE_GLOBAL); //we start in the global scope
     }
 
@@ -80,8 +83,8 @@ public final class NoSelfChecker {
             if (buf.length() > 0) {
                 buf.append(",");
             }
-            if (isSelfNeededInFunctions && isBaseZopeInterface(base)) {
-                isSelfNeededInFunctions = false;
+            if (isBaseZopeInterface(base)) {
+                noSelfNeededClasses.add(node);
             }
             String rep = NodeUtils.getRepresentationString(base);
             if (rep != null) {
@@ -96,6 +99,12 @@ public final class NoSelfChecker {
         String baseRep = NodeUtils.getFullRepresentationString(base);
         if (baseRep == null) {
             return false;
+        }
+        for (ClassDef classDef : noSelfNeededClasses) {
+            String classRep = NodeUtils.getFullRepresentationString(classDef);
+            if (baseRep.equals(classRep)) {
+                return true;
+            }
         }
         final String zopeInterface = "zope.interface.Interface";
         String[] baseParts = extractBaseParts(baseRep);
@@ -194,7 +203,7 @@ public final class NoSelfChecker {
                 }
             }
 
-            boolean isStaticMethod = !this.isSelfNeededInFunctions;
+            boolean isStaticMethod = noSelfNeededClasses.contains(node.parent);
             boolean isClassMethod = false;
             if (node.decs != null) {
                 for (decoratorsType dec : node.decs) {
