@@ -1091,13 +1091,6 @@ public final class PySelection extends TextSelectionUtils {
                 isInMethodKeywordParam, offsetForKeywordParam, foundCalltipOffset);
     }
 
-    private static String getOffsetLineContent(IDocument doc, int documentOffset) throws BadLocationException {
-        int line = doc.getLineOfOffset(documentOffset);
-        int lineOffset = doc.getLineOffset(line);
-        int lineLen = doc.getLineLength(line);
-        return doc.get(lineOffset, lineLen);
-    }
-
     private static int calculateProperCalltipOffset(IDocument doc, int calltipOffset) {
         try {
             char c = doc.getChar(calltipOffset);
