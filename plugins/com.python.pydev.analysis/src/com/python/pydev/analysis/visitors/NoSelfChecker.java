@@ -19,7 +19,6 @@ import org.python.pydev.ast.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IterTokenEntry;
 import org.python.pydev.core.TokensList;
-import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -98,13 +97,13 @@ public final class NoSelfChecker {
         if (baseRep == null) {
             return false;
         }
+        final String zopeInterface = "zope.interface.Interface";
         String[] baseParts = extractBaseParts(baseRep);
         TokensList tokenImportedModules = module.getTokenImportedModules();
         for (IterTokenEntry entry : tokenImportedModules) {
             if (entry.object instanceof SourceToken) {
                 SourceToken token = (SourceToken) entry.object;
-                SimpleNode tokenAst = token.getAst();
-                if (tokenAst instanceof Import) {
+                if (token.getAst() instanceof Import) {
                     Import importNode = (Import) token.getAst();
                     for (aliasType alias : importNode.names) {
                         if (alias.name instanceof NameTok) {
@@ -120,15 +119,15 @@ public final class NoSelfChecker {
                                         compareBuf.append('.').append(baseParts[i]);
                                     }
                                 }
-                                if ("zope.interface.Interface".equals(compareBuf.toString())) {
+                                if (zopeInterface.equals(compareBuf.toString())) {
                                     return true;
                                 }
-                            } else if ("zope.interface.Interface".equals(baseRep)) {
+                            } else if (zopeInterface.equals(baseRep)) {
                                 return true;
                             }
                         }
                     }
-                } else if ("zope.interface.Interface".equals(token.getOriginalRep())) {
+                } else if (zopeInterface.equals(token.getOriginalRep())) {
                     return baseRep.equals(token.getRepresentation());
                 }
             }
