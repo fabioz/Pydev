@@ -15,12 +15,14 @@ import java.util.Map;
 import org.python.pydev.ast.analysis.IAnalysisPreferences;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.ast.codecompletion.revisited.visitors.AbstractVisitor;
+import org.python.pydev.core.IModule;
+import org.python.pydev.core.IterTokenEntry;
+import org.python.pydev.core.TokensList;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
-import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -52,10 +54,13 @@ public final class NoSelfChecker {
 
     private final String moduleName;
     private final MessagesManager messagesManager;
+    private final IModule module;
+    private boolean isSelfNeededInFunctions = true;
 
     public NoSelfChecker(OccurrencesVisitor visitor) {
         this.messagesManager = visitor.messagesManager;
         this.moduleName = visitor.moduleName;
+        this.module = visitor.current;
         scope.push(Scope.SCOPE_TYPE_GLOBAL); //we start in the global scope
     }
 
@@ -69,11 +74,25 @@ public final class NoSelfChecker {
             }
             String rep = NodeUtils.getRepresentationString(base);
             if (rep != null) {
+                if (isSelfNeededInFunctions && isRepresentationZopeInterface(rep)) {
+                    isSelfNeededInFunctions = false;
+                }
                 buf.append(FullRepIterable.getLastPart(rep));
             }
         }
         classBases.push(buf.toString());
         maybeNoSelfDefinedItems.push(new HashMap<String, Tuple<Expected, FunctionDef>>());
+    }
+
+    private final boolean isRepresentationZopeInterface(String rep) {
+        TokensList tokenImportedModules = module.getTokenImportedModules();
+        for (IterTokenEntry entry : tokenImportedModules) {
+            if (entry.object instanceof SourceToken) {
+                SourceToken token = (SourceToken) entry.object;
+                return "zope.interface.Interface".equals(token.getOriginalRep());
+            }
+        }
+        return false;
     }
 
     public void afterClassDef(ClassDef node) {
@@ -130,7 +149,7 @@ public final class NoSelfChecker {
                 }
             }
 
-            boolean isStaticMethod = false;
+            boolean isStaticMethod = !this.isSelfNeededInFunctions;
             boolean isClassMethod = false;
             if (node.decs != null) {
                 for (decoratorsType dec : node.decs) {
@@ -160,8 +179,7 @@ public final class NoSelfChecker {
                             new Tuple<Expected, FunctionDef>(new Expected("self or cls", received), node));
                 }
 
-            } else if (!startsWithSelf && !startsWithCls && !isStaticMethod && !isClassMethod
-                    && !hasInterfaceInBase(node)) {
+            } else if (!startsWithSelf && !startsWithCls && !isStaticMethod && !isClassMethod) {
                 maybeNoSelfDefinedItems.peek().put(rep,
                         new Tuple<Expected, FunctionDef>(new Expected("self", received), node));
 
@@ -176,28 +194,6 @@ public final class NoSelfChecker {
             }
         }
         scope.push(Scope.SCOPE_TYPE_METHOD);
-    }
-
-    private static boolean hasInterfaceInBase(FunctionDef node) {
-        try {
-            ClassDef parent = (ClassDef) node.parent;
-            for (exprType base : parent.bases) {
-                String rep = null;
-                if (base instanceof Str) {
-                    Str str = (Str) base;
-                    rep = str.s;
-                } else {
-                    rep = NodeUtils.getFullRepresentationString(base);
-                }
-                String upperCaseRep = rep.toUpperCase();
-                if (upperCaseRep.endsWith("INTERFACE")) {
-                    return true;
-                }
-            }
-        } catch (Exception e) {
-            // we should not have any exceptions in the try section, so just skip error handling and then return false in these unexpected cases.
-        }
-        return false;
     }
 
     public void afterFunctionDef(FunctionDef node) {
