@@ -76,6 +76,7 @@ public final class NoSelfChecker {
         scope.push(Scope.SCOPE_TYPE_CLASS);
 
         FastStringBuffer buf = new FastStringBuffer();
+        boolean isNoSelfNeededClass = false;
         for (exprType base : node.bases) {
             if (base == null) {
                 continue;
@@ -83,8 +84,9 @@ public final class NoSelfChecker {
             if (buf.length() > 0) {
                 buf.append(",");
             }
-            if (isBaseZopeInterface(base)) {
+            if (!isNoSelfNeededClass && isBaseZopeInterface(base)) {
                 noSelfNeededClasses.add(node);
+                isNoSelfNeededClass = true;
             }
             String rep = NodeUtils.getRepresentationString(base);
             if (rep != null) {
