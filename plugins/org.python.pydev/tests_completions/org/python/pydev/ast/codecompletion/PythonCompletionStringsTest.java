@@ -331,4 +331,24 @@ public class PythonCompletionStringsTest extends CodeCompletionTestsBase {
         requestCompl(s, 103, -1, new String[] { "key", "value" });
     }
 
+    public void testTypedDict7() throws Exception {
+        String s = ""
+                + "class EnvEntry(TypedDict):\n"
+                + "    key: str\n"
+                + "    value: str\n"
+                + "def method(env_entry: EnvEntry):\n"
+                + "    env_entry[\"\"]";
+        requestCompl(s, s.length() - 2, -1, new String[] { "key", "value" });
+    }
+
+    public void testTypedDict8() throws Exception {
+        String s = ""
+                + "class EnvEntry(TypedDict):\n"
+                + "    key: str\n"
+                + "    value: str\n"
+                + "def method(env_entry: EnvEntry):\n"
+                + "    env_entry['']";
+        requestCompl(s, s.length() - 2, -1, new String[] { "key", "value" });
+    }
+
 }
