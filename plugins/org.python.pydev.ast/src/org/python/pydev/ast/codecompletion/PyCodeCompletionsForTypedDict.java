@@ -123,6 +123,16 @@ public class PyCodeCompletionsForTypedDict {
         return new Document(buf.toString());
     }
 
+    private static int getQualifierEndOffset(String docContent, int qualifierOffset) {
+        ParsingUtils parser = ParsingUtils.create(docContent);
+        try {
+            return parser.eatLiterals(null, qualifierOffset);
+        } catch (SyntaxErrorException e) {
+            Log.log(e);
+        }
+        return qualifierOffset;
+    }
+
     private static boolean isClosingBracketAfterOffset(FastStringBuffer buf, int offset) {
         for (int i = offset; i < buf.length(); i++) {
             char c = buf.charAt(i);
@@ -132,16 +142,6 @@ public class PyCodeCompletionsForTypedDict {
             return c == ']';
         }
         return false;
-    }
-
-    private static int getQualifierEndOffset(String docContent, int qualifierOffset) {
-        ParsingUtils parser = ParsingUtils.create(docContent);
-        try {
-            return parser.eatLiterals(null, qualifierOffset);
-        } catch (SyntaxErrorException e) {
-            Log.log(e);
-        }
-        return qualifierOffset;
     }
 
     private static Optional<String> getActivationTokenForDictKey(CompletionRequest request, int qualifierOffset)
