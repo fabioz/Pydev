@@ -122,8 +122,8 @@ public final class NoSelfChecker {
                             if (nameTok.id == null) {
                                 continue;
                             }
-                            FastStringBuffer compareBuf = new FastStringBuffer(nameTok.id, baseRep.length());
                             if (alias.asname instanceof NameTok) {
+                                FastStringBuffer compareBuf = new FastStringBuffer(nameTok.id, baseRep.length());
                                 String asname = NodeUtils.getNameFromNameTok(alias.asname);
                                 if (baseParts[0].equals(asname)) {
                                     for (int i = 1; i < baseParts.length; i++) {
