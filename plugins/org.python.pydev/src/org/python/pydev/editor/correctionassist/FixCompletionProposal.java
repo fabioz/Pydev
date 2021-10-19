@@ -151,7 +151,7 @@ public class FixCompletionProposal implements ICompletionProposal, ICompletionPr
 
     @Override
     public Object getElement() {
-        throw new UnsupportedOperationException();
+        return null;
     }
 
 }

@@ -224,6 +224,6 @@ public class PyMoveImportsToLocalCompletionProposal
 
     @Override
     public Object getElement() {
-        throw new UnsupportedOperationException();
+        return null;
     }
 }

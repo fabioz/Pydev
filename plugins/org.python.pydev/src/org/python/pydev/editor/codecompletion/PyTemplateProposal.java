@@ -15,6 +15,6 @@ public class PyTemplateProposal extends TemplateProposal implements ICompletionP
 
     @Override
     public Object getElement() {
-        throw new UnsupportedOperationException();
+        return null;
     }
 }
