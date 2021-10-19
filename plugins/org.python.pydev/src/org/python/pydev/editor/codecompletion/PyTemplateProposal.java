@@ -13,4 +13,8 @@ public class PyTemplateProposal extends TemplateProposal implements ICompletionP
         super(template, context, region, image, relevance);
     }
 
+    @Override
+    public Object getElement() {
+        throw new UnsupportedOperationException();
+    }
 }

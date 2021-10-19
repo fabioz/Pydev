@@ -16,7 +16,6 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
-import org.python.pydev.shared_core.code_completion.IPyCompletionProposal.ICompareContext;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_ui.ImageCache;
@@ -281,5 +280,10 @@ public class PyCompletionProposal implements ICompletionProposal, IPyCompletionP
     @Override
     public int getOverrideBehavior(ICompletionProposalHandle curr) {
         return IPyCompletionProposal.BEHAVIOR_OVERRIDES;
+    }
+
+    @Override
+    public Object getElement() {
+        throw new UnsupportedOperationException();
     }
 }

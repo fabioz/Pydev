@@ -24,4 +24,9 @@ public class PyTemplateProposalForTests extends TemplateProposal implements ICom
         }
     }
 
+    @Override
+    public Object getElement() {
+        throw new UnsupportedOperationException();
+    }
+
 }

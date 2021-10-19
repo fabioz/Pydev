@@ -5,7 +5,6 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
-import org.python.pydev.ast.codecompletion.ProposalsComparator;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 
 import junit.framework.TestCase;
@@ -46,6 +45,11 @@ public class ProposalsComparatorTest extends TestCase {
 
         @Override
         public IContextInformation getContextInformation() {
+            return null;
+        }
+
+        @Override
+        public Object getElement() {
             return null;
         }
     }

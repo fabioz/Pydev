@@ -149,4 +149,9 @@ public class FixCompletionProposal implements ICompletionProposal, ICompletionPr
         return fAdditionalProposalInfo;
     }
 
+    @Override
+    public Object getElement() {
+        throw new UnsupportedOperationException();
+    }
+
 }
