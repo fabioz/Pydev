@@ -9,7 +9,9 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.ITypedRegion;
+import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.core.IPythonPartitions;
+import org.python.pydev.core.IterEntry;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.TokensOrProposalsList;
@@ -17,6 +19,7 @@ import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.partition.PyPartitionScanner;
+import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.partitioner.FastPartitioner;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -27,7 +30,7 @@ public class PyCodeCompletionsForTypedDict {
             BadLocationException, IOException, MisconfigurationException, PythonNatureWithoutProjectException {
         Optional<CompletionRequest> artificialRequest = createArtificialRequest(request);
         if (artificialRequest.isPresent()) {
-            return new PyCodeCompletion().getCodeCompletionProposals(artificialRequest.get());
+            return getAttributeCompletions(artificialRequest.get());
         }
         return null;
     }
@@ -175,5 +178,27 @@ public class PyCodeCompletionsForTypedDict {
         }
         String rawActivationToken = doc.get(activationTokenOffset, keyOffset - activationTokenOffset);
         return rawActivationToken.trim();
+    }
+
+    private static TokensOrProposalsList getAttributeCompletions(CompletionRequest request) throws CoreException,
+            BadLocationException, IOException, MisconfigurationException, PythonNatureWithoutProjectException {
+        TokensOrProposalsList parsedCompletions = new TokensOrProposalsList();
+        TokensOrProposalsList completions = new PyCodeCompletion().getCodeCompletionProposals(request);
+        for (IterEntry entry : completions) {
+            Object obj = entry.object;
+            if (obj instanceof ICompletionProposalHandle) {
+                ICompletionProposalHandle proposalHandle = (ICompletionProposalHandle) obj;
+                Object element = proposalHandle.getElement();
+                if (element instanceof SourceToken) {
+                    SourceToken token = (SourceToken) element;
+                    if (token.getType() == SourceToken.TYPE_ATTR) {
+                        TokensOrProposalsList toInclude = new TokensOrProposalsList(
+                                new ICompletionProposalHandle[] { proposalHandle });
+                        parsedCompletions.addAll(toInclude);
+                    }
+                }
+            }
+        }
+        return parsedCompletions;
     }
 }
