@@ -19,6 +19,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.ast.codecompletion.revisited.AbstractASTManager;
 import org.python.pydev.core.ICompletionRequest;
+import org.python.pydev.core.IFilterToken;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ITokenCompletionRequest;
@@ -33,6 +34,8 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
  * @author Fabio Zadrozny
  */
 public final class CompletionRequest implements ICompletionRequest, ITokenCompletionRequest {
+
+    public IFilterToken filterToken;
 
     /**
      * This is used on the AssistOverride: the activationToken is pre-specified

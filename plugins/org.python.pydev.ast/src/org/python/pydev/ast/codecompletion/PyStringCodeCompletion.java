@@ -223,13 +223,15 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
                 }
             }
 
+            TokensOrProposalsList completionsForTypedDict = PyCodeCompletionsForTypedDict.getStringCompletions(request);
+            if (completionsForTypedDict != null && completionsForTypedDict.size() > 0) {
+                return completionsForTypedDict;
+            }
+
             TokensOrProposalsList stringGlobalsFromParticipants = getStringGlobalsFromParticipants(request,
                     CompletionStateFactory.getEmptyCompletionState(
                             request.activationToken, request.nature, new CompletionCache()));
             ret.addAll(stringGlobalsFromParticipants);
-
-            TokensOrProposalsList completionsForTypedDict = PyCodeCompletionsForTypedDict.getStringCompletions(request);
-            ret.addAll(completionsForTypedDict);
 
             //the code-below does not work well because the module may not have an actual import for the activation token,
             //so, it is useless too many times

@@ -10,6 +10,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.ITypedRegion;
 import org.python.pydev.core.IPythonPartitions;
+import org.python.pydev.core.IToken;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.TokensOrProposalsList;
@@ -46,6 +47,7 @@ public class PyCodeCompletionsForTypedDict {
                         request.editorFile, request.nature, parsedDoc, activationToken.get(),
                         request.documentOffset, request.qlen, request.codeCompletion, parsedQualifier,
                         request.useSubstringMatchInCodeCompletion);
+                artificialRequest.filterToken = tokenType -> tokenType == IToken.TYPE_ATTR;
                 return Optional.of(artificialRequest);
             }
         }
