@@ -221,9 +221,4 @@ public class PyMoveImportsToLocalCompletionProposal
     public boolean validate(IDocument document, int offset, DocumentEvent event) {
         return false;
     }
-
-    @Override
-    public Object getElement() {
-        return null;
-    }
 }

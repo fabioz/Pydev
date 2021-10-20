@@ -89,7 +89,6 @@ public final class PyLinkedModeCompletionProposal extends AbstractPyCompletionPr
     /**
      * @return the element
      */
-    @Override
     public IToken getElement() {
         return element;
     }

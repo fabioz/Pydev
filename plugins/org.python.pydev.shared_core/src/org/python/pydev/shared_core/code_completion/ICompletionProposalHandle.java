@@ -12,5 +12,4 @@ public interface ICompletionProposalHandle {
 
     Object getContextInformation();
 
-    Object getElement();
 }
