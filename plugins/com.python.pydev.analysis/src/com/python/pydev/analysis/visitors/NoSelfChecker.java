@@ -16,16 +16,20 @@ import java.util.Map;
 import java.util.Set;
 
 import org.python.pydev.ast.analysis.IAnalysisPreferences;
+import org.python.pydev.ast.codecompletion.revisited.CompletionState;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.ast.codecompletion.revisited.visitors.AbstractVisitor;
+import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
+import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
-import org.python.pydev.core.IterTokenEntry;
-import org.python.pydev.core.TokensList;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Import;
+import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.aliasType;
@@ -62,13 +66,12 @@ public final class NoSelfChecker {
     private final String moduleName;
     private final MessagesManager messagesManager;
     private final IModule module;
-    private final Set<ClassDef> noSelfNeededClasses;
+    private final Set<ClassDef> noSelfNeededClasses = new HashSet<ClassDef>();
 
     public NoSelfChecker(OccurrencesVisitor visitor) {
         this.messagesManager = visitor.messagesManager;
         this.moduleName = visitor.moduleName;
         this.module = visitor.current;
-        this.noSelfNeededClasses = new HashSet<ClassDef>();
         scope.push(Scope.SCOPE_TYPE_GLOBAL); //we start in the global scope
     }
 
@@ -98,50 +101,95 @@ public final class NoSelfChecker {
     }
 
     private final boolean isBaseZopeInterface(exprType base) {
+        if (!isBaseValidForZopeInterfaceCheck(base)) {
+            return false;
+        }
+        if (isZopeInterfaceIndirectlyInherited(base)) {
+            return true;
+        }
+        IDefinition[] definitions = findDefinitionsForBase(base);
+        for (IDefinition value : definitions) {
+            if (value instanceof Definition) {
+                if (isDefinitionZopeInterface((Definition) value, base)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean isBaseValidForZopeInterfaceCheck(exprType base) {
         String baseRep = NodeUtils.getFullRepresentationString(base);
         if (baseRep == null) {
             return false;
         }
+        return true;
+    }
+
+    private boolean isZopeInterfaceIndirectlyInherited(exprType base) {
+        String baseRep = NodeUtils.getFullRepresentationString(base);
         for (ClassDef classDef : noSelfNeededClasses) {
             String classRep = NodeUtils.getFullRepresentationString(classDef);
             if (baseRep.equals(classRep)) {
                 return true;
             }
         }
+        return false;
+    }
+
+    private IDefinition[] findDefinitionsForBase(exprType base) {
+        ICompletionState state = new CompletionState(base.beginLine, base.beginColumn,
+                NodeUtils.getFullRepresentationString(base), module.getNature(), "");
+        try {
+            return module.findDefinition(state, state.getLine(), state.getCol(), module.getNature());
+        } catch (Exception e) {
+            Log.log(e);
+        }
+        return new IDefinition[0];
+    }
+
+    private boolean isDefinitionZopeInterface(Definition definition, exprType base) {
+        if (definition.ast instanceof Import) {
+            return isBaseZopeInterfaceAtImport(base, (Import) definition.ast);
+        } else if (definition.ast instanceof ImportFrom) {
+            return isBaseZopeInterfaceAtImportFrom(base, (ImportFrom) definition.ast);
+        }
+        return false;
+    }
+
+    private boolean isBaseZopeInterfaceAtImport(exprType base, Import importNode) {
+        final String baseRep = NodeUtils.getFullRepresentationString(base);
+        final String[] baseParts = extractBaseParts(baseRep);
         final String zopeInterface = "zope.interface.Interface";
-        String[] baseParts = extractBaseParts(baseRep);
-        TokensList tokenImportedModules = module.getTokenImportedModules();
-        for (IterTokenEntry entry : tokenImportedModules) {
-            if (entry.object instanceof SourceToken) {
-                SourceToken token = (SourceToken) entry.object;
-                if (token.getAst() instanceof Import) {
-                    Import importNode = (Import) token.getAst();
-                    for (aliasType alias : importNode.names) {
-                        if (alias.name instanceof NameTok) {
-                            NameTok nameTok = (NameTok) alias.name;
-                            if (nameTok.id == null) {
-                                continue;
-                            }
-                            if (alias.asname instanceof NameTok) {
-                                FastStringBuffer compareBuf = new FastStringBuffer(nameTok.id, baseRep.length());
-                                String asname = NodeUtils.getNameFromNameTok(alias.asname);
-                                if (baseParts[0].equals(asname)) {
-                                    for (int i = 1; i < baseParts.length; i++) {
-                                        compareBuf.append('.').append(baseParts[i]);
-                                    }
-                                }
-                                if (zopeInterface.equals(compareBuf.toString())) {
-                                    return true;
-                                }
-                            } else if (zopeInterface.equals(baseRep)) {
-                                return true;
-                            }
+        for (aliasType alias : importNode.names) {
+            if (alias.name instanceof NameTok) {
+                NameTok nameTok = (NameTok) alias.name;
+                if (nameTok.id == null) {
+                    continue;
+                }
+                if (alias.asname instanceof NameTok) {
+                    FastStringBuffer compareBuf = new FastStringBuffer(nameTok.id, baseRep.length());
+                    String asname = NodeUtils.getNameFromNameTok(alias.asname);
+                    if (baseParts[0].equals(asname)) {
+                        for (int i = 1; i < baseParts.length; i++) {
+                            compareBuf.append('.').append(baseParts[i]);
                         }
                     }
-                } else if (zopeInterface.equals(token.getOriginalRep())) {
-                    return baseRep.equals(token.getRepresentation());
+                    if (zopeInterface.equals(compareBuf.toString())) {
+                        return true;
+                    }
+                } else if (zopeInterface.equals(baseRep)) {
+                    return true;
                 }
             }
+        }
+        return false;
+    }
+
+    private boolean isBaseZopeInterfaceAtImportFrom(exprType base, ImportFrom importNode) {
+        if (importNode.module instanceof NameTok) {
+            NameTok moduleNameTok = (NameTok) importNode.module;
+            return "zope.interface.interface".equals(moduleNameTok.id);
         }
         return false;
     }
