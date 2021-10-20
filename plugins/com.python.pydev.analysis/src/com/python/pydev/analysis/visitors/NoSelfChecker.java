@@ -100,7 +100,7 @@ public final class NoSelfChecker {
         maybeNoSelfDefinedItems.push(new HashMap<String, Tuple<Expected, FunctionDef>>());
     }
 
-    private final boolean isBaseZopeInterface(exprType base) {
+    private boolean isBaseZopeInterface(exprType base) {
         if (!isBaseValidForZopeInterfaceCheck(base)) {
             return false;
         }
