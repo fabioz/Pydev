@@ -928,4 +928,12 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
                 + "        pass");
         checkNoError();
     }
+
+    public void testZopeInterfaceCheckWithCircularInheritance() throws Exception {
+        doc = new Document(""
+                + "class Impl(Impl):\n"
+                + "    def method_a():\n"
+                + "        pass");
+        checkError("Method 'method_a' should have self as first parameter", "Undefined variable: Impl");
+    }
 }

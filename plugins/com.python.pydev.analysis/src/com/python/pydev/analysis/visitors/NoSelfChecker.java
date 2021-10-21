@@ -16,7 +16,6 @@ import org.python.pydev.ast.analysis.IAnalysisPreferences;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.ast.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.core.IModule;
-import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -138,7 +137,8 @@ public final class NoSelfChecker {
                 }
             }
 
-            boolean isStaticMethod = isZopeInterface(node);
+            ZopeInterfaceComputer zopeInterfaceComputer = zopeInterfaceComputers.peek();
+            boolean isStaticMethod = zopeInterfaceComputer.isZopeInterface();
             boolean isClassMethod = false;
             if (node.decs != null) {
                 for (decoratorsType dec : node.decs) {
@@ -183,25 +183,6 @@ public final class NoSelfChecker {
             }
         }
         scope.push(Scope.SCOPE_TYPE_METHOD);
-    }
-
-    private boolean isZopeInterface(FunctionDef node) {
-        SimpleNode parent = node.parent;
-        if (parent instanceof ClassDef) {
-            ClassDef classDef = (ClassDef) parent;
-            return isClassDefZopeInterface(classDef);
-        }
-        return false;
-    }
-
-    private boolean isClassDefZopeInterface(ClassDef node) {
-        for (ZopeInterfaceComputer zopeInterfaceComputer : zopeInterfaceComputers) {
-            ClassDef classDef = zopeInterfaceComputer.classDef;
-            if (classDef.equals(node)) {
-                return zopeInterfaceComputer.isZopeInterface();
-            }
-        }
-        return false;
     }
 
     public void afterFunctionDef(FunctionDef node) {

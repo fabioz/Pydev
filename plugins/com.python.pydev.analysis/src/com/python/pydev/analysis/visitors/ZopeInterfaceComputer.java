@@ -42,7 +42,7 @@ public class ZopeInterfaceComputer {
         }
         for (exprType base : classDef.bases) {
             if (!isBaseValidForZopeInterfaceCheck(base)) {
-                return cacheIsZopeInterface(false);
+                continue;
             }
             if (isZopeInterfaceIndirectlyInherited(base)) {
                 return cacheIsZopeInterface(true);
@@ -60,8 +60,9 @@ public class ZopeInterfaceComputer {
     }
 
     private boolean isBaseValidForZopeInterfaceCheck(exprType base) {
+        String classRep = NodeUtils.getFullRepresentationString(classDef);
         String baseRep = NodeUtils.getFullRepresentationString(base);
-        if (baseRep == null) {
+        if (baseRep == null || baseRep.equals(classRep)) {
             return false;
         }
         return true;
