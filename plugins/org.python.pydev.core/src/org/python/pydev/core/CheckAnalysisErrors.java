@@ -93,8 +93,7 @@ public class CheckAnalysisErrors {
     }
 
     public static boolean isCodeAnalysisErrorHandled(String line, String messageToIgnore) {
-        String pyLintMessageId = codeAnalysisErrorToPyLintMessageId.get(messageToIgnore);
-        return isErrorHandledAtLine(line, pyLintMessageId, messageToIgnore);
+        return isErrorHandledAtLine(line, null, messageToIgnore);
     }
 
     public static String getPyLintMessageIdForPyDevAnalysisType(int analysisType) {

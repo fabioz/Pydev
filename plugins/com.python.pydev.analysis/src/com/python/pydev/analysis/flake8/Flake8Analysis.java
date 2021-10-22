@@ -242,7 +242,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                         }
                         String lineContents = document.get(region.getOffset(), region.getLength());
 
-                        if (CheckAnalysisErrors.isCodeAnalysisErrorHandled(lineContents, null)) {
+                        if (CheckAnalysisErrors.isCodeAnalysisErrorHandled(lineContents, code)) {
                             continue;
                         }
 
