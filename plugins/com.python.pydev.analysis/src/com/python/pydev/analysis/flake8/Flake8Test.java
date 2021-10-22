@@ -146,7 +146,6 @@ public class Flake8Test extends TestCase {
         setUpTestForAssertions(document, output);
         assertMarkersValidity(3);
         assertMarkerEquals(0, 0, "E902", "IndentationError: unindent does not match any outer level");
-        assertMarkerEquals(1, 4, "E113", "unexpected indentation");
         assertMarkerEquals(2, 0, "E302", "expected 2 blank lines, found 0");
         assertMarkerEquals(3, 8, "E117", "over-indented");
     }
