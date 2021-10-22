@@ -19,7 +19,7 @@ import org.python.pydev.shared_core.resource_stubs.ProjectStub;
 
 import junit.framework.TestCase;
 
-public class Flake8Test extends TestCase {
+public class Flake8AnalysisTest extends TestCase {
 
     private File tempDir;
     private FileStub file;
