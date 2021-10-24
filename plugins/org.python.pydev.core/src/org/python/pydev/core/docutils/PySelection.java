@@ -820,8 +820,8 @@ public final class PySelection extends TextSelectionUtils {
         return null;
     }
 
-    public static class ActivationTokenAndQual {
-        public ActivationTokenAndQual(String activationToken, String qualifier, boolean changedForCalltip,
+    public static class ActivationTokenAndQualifier {
+        public ActivationTokenAndQualifier(String activationToken, String qualifier, boolean changedForCalltip,
                 boolean alreadyHasParams, boolean isInMethodKeywordParam, int offsetForKeywordParam,
                 int calltipOffset) {
             this.activationToken = activationToken;
@@ -866,22 +866,25 @@ public final class PySelection extends TextSelectionUtils {
     /**
      * Shortcut
      */
-    public String[] getActivationTokenAndQual(boolean getFullQualifier) {
-        return getActivationTokenAndQual(doc, getAbsoluteCursorOffset(), getFullQualifier);
+    public String[] getActivationTokenAndQualifier(boolean getFullQualifier) {
+        return getActivationTokenAndQualifier(doc, getAbsoluteCursorOffset(), getFullQualifier);
     }
 
     /**
      * Shortcut
      */
-    public ActivationTokenAndQual getActivationTokenAndQual(boolean getFullQualifier, boolean handleForCalltips) {
-        return getActivationTokenAndQual(doc, getAbsoluteCursorOffset(), getFullQualifier, handleForCalltips);
+    public ActivationTokenAndQualifier getActivationTokenAndQualifier(boolean getFullQualifier,
+            boolean handleForCalltips) {
+        return getActivationTokenAndQualifier(doc, getAbsoluteCursorOffset(), getFullQualifier, handleForCalltips);
     }
 
     /**
      * Shortcut
      */
-    public static String[] getActivationTokenAndQual(IDocument theDoc, int documentOffset, boolean getFullQualifier) {
-        ActivationTokenAndQual ret = getActivationTokenAndQual(theDoc, documentOffset, getFullQualifier, false);
+    public static String[] getActivationTokenAndQualifier(IDocument theDoc, int documentOffset,
+            boolean getFullQualifier) {
+        ActivationTokenAndQualifier ret = getActivationTokenAndQualifier(theDoc, documentOffset, getFullQualifier,
+                false);
         return new String[] { ret.activationToken, ret.qualifier }; //will never be changed for the calltip, as we didn't request it
     }
 
@@ -936,18 +939,16 @@ public final class PySelection extends TextSelectionUtils {
      *
      * @return the activation token and the qualifier.
      */
-    public static ActivationTokenAndQual getActivationTokenAndQual(IDocument doc, int documentOffset,
+    public static ActivationTokenAndQualifier getActivationTokenAndQualifier(IDocument doc, int documentOffset,
             boolean getFullQualifier, boolean handleForCalltips) {
         boolean changedForCalltip = false;
         boolean alreadyHasParams = false; //only useful if we're in a calltip
         int parOffset = -1;
         boolean isInMethodKeywordParam = false;
         int offsetForKeywordParam = -1;
-
         int foundCalltipOffset = -1;
         if (handleForCalltips) {
             int calltipOffset = documentOffset - 1;
-            //ok, in this case, we have to check if we're just after a ( or ,
             if (calltipOffset > 0 && calltipOffset < doc.getLength()) {
                 try {
                     char c = doc.getChar(calltipOffset);
@@ -961,7 +962,6 @@ public final class PySelection extends TextSelectionUtils {
                         //(that is, if we're in a function call and not inside a list, string or dict declaration)
                         parOffset = calltipOffset;
                         calltipOffset = getBeforeParentesisCall(doc, calltipOffset);
-
                         if (calltipOffset != -1) {
                             documentOffset = calltipOffset;
                             changedForCalltip = true;
@@ -1084,10 +1084,10 @@ public final class PySelection extends TextSelectionUtils {
             Log.log("documentOffset " + documentOffset + "\n" + "theDoc.getLength() " + doc.getLength(), e);
         }
 
-        String[] splitActAndQualifier = ActivationTokenAndQual.splitActAndQualifier(activationToken);
+        String[] splitActAndQualifier = ActivationTokenAndQualifier.splitActAndQualifier(activationToken);
         activationToken = splitActAndQualifier[0];
         String qualifier = splitActAndQualifier[1];
-        return new ActivationTokenAndQual(activationToken, qualifier, changedForCalltip, alreadyHasParams,
+        return new ActivationTokenAndQualifier(activationToken, qualifier, changedForCalltip, alreadyHasParams,
                 isInMethodKeywordParam, offsetForKeywordParam, foundCalltipOffset);
     }
 

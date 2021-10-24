@@ -30,7 +30,7 @@ import org.python.pydev.ast.refactoring.RefactoringRequest;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
+import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQualifier;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -274,7 +274,7 @@ public abstract class AbstractRenameRefactorProcess implements IRefactorRenamePr
                         new NullProgressMonitor(),
                         request.qualifier,
                         -1,
-                        ActivationTokenAndQual.splitActAndQualifier(request.qualifier));
+                        ActivationTokenAndQualifier.splitActAndQualifier(request.qualifier));
             } else {
 
                 visitor = new ScopeAnalyzerVisitor(request.nature, module.getName(), module,

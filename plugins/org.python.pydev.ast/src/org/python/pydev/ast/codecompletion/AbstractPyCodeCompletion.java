@@ -15,6 +15,7 @@ import org.python.pydev.ast.codecompletion.revisited.AbstractToken;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.ICompletionState.LookingFor;
+import org.python.pydev.core.IFilterToken;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.IterEntry;
 import org.python.pydev.core.TokensOrProposalsList;
@@ -69,6 +70,7 @@ public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
             }
         }
 
+        IFilterToken filterToken = request.filterToken;
         int i = 0;
         for (Iterator<IterEntry> iter = iTokenList.iterator(); iter.hasNext();) {
             i++;
@@ -81,6 +83,10 @@ public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
 
             if (obj instanceof IToken) {
                 IToken element = (IToken) obj;
+
+                if (filterToken != null && !filterToken.accept(element.getType())) {
+                    continue;
+                }
 
                 String name = element.getRepresentation();
 
@@ -155,6 +161,10 @@ public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
                     type = ((Integer) element[2]).intValue();
                 }
 
+                if (filterToken != null && !filterToken.accept(type)) {
+                    continue;
+                }
+
                 int priority = IPyCompletionProposal.PRIORITY_DEFAULT;
                 if (type == IToken.TYPE_PARAM) {
                     priority = IPyCompletionProposal.PRIORITY_LOCALS;
@@ -167,7 +177,7 @@ public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
 
                 convertedProposals.add(proposal);
 
-            } else if (obj instanceof ICompletionProposalHandle) {
+            } else if (obj instanceof ICompletionProposalHandle && filterToken == null) {
                 //no need to convert
                 convertedProposals.add((ICompletionProposalHandle) obj);
             }

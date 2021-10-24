@@ -178,7 +178,7 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
 
                 }
 
-                String[] strs = PySelection.getActivationTokenAndQual(doc, documentOffset, false);
+                String[] strs = PySelection.getActivationTokenAndQualifier(doc, documentOffset, false);
 
                 String activationToken = strs[0];
                 String qualifier = strs[1];

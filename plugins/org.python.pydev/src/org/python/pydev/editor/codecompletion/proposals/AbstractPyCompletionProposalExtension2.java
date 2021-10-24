@@ -47,7 +47,7 @@ public abstract class AbstractPyCompletionProposalExtension2 extends AbstractCom
     @Override
     public StyledString getStyledDisplayString(IDocument document, int offset, BoldStylerProvider boldStylerProvider) {
         //Extension enabled with enableColoredLabels(true); on PyContentAssistant.
-        String[] strs = PySelection.getActivationTokenAndQual(document, offset, false);
+        String[] strs = PySelection.getActivationTokenAndQualifier(document, offset, false);
         if (strs[1].length() == 0 && (strs[0].length() == 0 || strs[0].endsWith("."))) {
             StyledString styledString = new StyledString(getDisplayString());
             return styledString;
@@ -89,7 +89,7 @@ public abstract class AbstractPyCompletionProposalExtension2 extends AbstractCom
 
     @Override
     public boolean validate(IDocument document, int offset, DocumentEvent event) {
-        String[] strs = PySelection.getActivationTokenAndQual(document, offset, false);
+        String[] strs = PySelection.getActivationTokenAndQualifier(document, offset, false);
         //System.out.println("validating:"+strs[0]+" - "+strs[1]);
         //when we end with a '.', we should start a new completion (and not stay in the old one).
         if (strs[1].length() == 0 && (strs[0].length() == 0 || strs[0].endsWith("."))) {

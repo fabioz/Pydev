@@ -174,11 +174,12 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
         TokensOrProposalsList ret = new TokensOrProposalsList();
         if (completionProposals.size() == 0) {
             //if the size is not 0, it means that this is a place for the '@' stuff, and not for the 'default' context for a string.
-            IDocument doc = request.doc;
-            ITypedRegion partition = ((FastPartitioner) PyPartitionScanner.checkPartitionScanner(doc))
-                    .getPartition(request.documentOffset);
-            String partitionType = partition.getType();
 
+            IDocument doc = request.doc;
+            FastPartitioner fastPartitioner = ((FastPartitioner) PyPartitionScanner.checkPartitionScanner(doc));
+            ITypedRegion partition = fastPartitioner.getPartition(request.documentOffset);
+
+            String partitionType = partition.getType();
             if (IPythonPartitions.F_STRING_PARTITIONS.contains(partitionType)) {
                 // Now we are going to check whether where we are in the given completion offset
                 int requestOffset = request.documentOffset;
@@ -220,6 +221,11 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
                         }
                     }
                 }
+            }
+
+            TokensOrProposalsList completionsForTypedDict = PyCodeCompletionsForTypedDict.getStringCompletions(request);
+            if (completionsForTypedDict != null && completionsForTypedDict.size() > 0) {
+                return completionsForTypedDict;
             }
 
             TokensOrProposalsList stringGlobalsFromParticipants = getStringGlobalsFromParticipants(request,

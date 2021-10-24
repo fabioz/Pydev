@@ -122,7 +122,7 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant {
                 //in which case 'Bar' is undefined
                 //in this situation, the activationTokenAndQual would be "sys." and "Bar"
                 //and we want to get the definition for "sys"
-                String[] activationTokenAndQual = ps.getActivationTokenAndQual(true);
+                String[] activationTokenAndQual = ps.getActivationTokenAndQualifier(true);
 
                 if (activationTokenAndQual[0].endsWith(".")) {
                     ArrayList<IDefinition> selected = findDefinitions(nature, edit, start - 2, doc);
