@@ -45,7 +45,7 @@ public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
      * tokens to actual completions as requested by the Eclipse infrastructure.
      * @param lookingForInstance if looking for instance, we should not add the 'self' as parameter.
      */
-    protected void changeItokenToCompletionPropostal(CompletionRequest request,
+    public static void changeItokenToCompletionPropostal(CompletionRequest request,
             List<ICompletionProposalHandle> convertedProposals, TokensOrProposalsList iTokenList, boolean importsTip,
             ICompletionState state) {
 
@@ -84,11 +84,10 @@ public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
             if (obj instanceof IToken) {
                 IToken element = (IToken) obj;
 
-                if (filterToken != null && !filterToken.accept(element.getType())) {
+                String name = element.getRepresentation();
+                if (filterToken != null && !filterToken.accept(name, element.getType())) {
                     continue;
                 }
-
-                String name = element.getRepresentation();
 
                 //GET the ARGS
                 int l = name.length();
@@ -161,7 +160,7 @@ public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
                     type = ((Integer) element[2]).intValue();
                 }
 
-                if (filterToken != null && !filterToken.accept(type)) {
+                if (filterToken != null && !filterToken.accept(name, type)) {
                     continue;
                 }
 

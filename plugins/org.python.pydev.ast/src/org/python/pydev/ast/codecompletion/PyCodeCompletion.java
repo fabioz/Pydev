@@ -726,7 +726,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
      * @return completions added from contributors
      * @throws MisconfigurationException
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({ "rawtypes" })
     private TokensOrProposalsList getGlobalsFromParticipants(CompletionRequest request, ICompletionState state)
             throws MisconfigurationException {
         TokensOrProposalsList ret = new TokensOrProposalsList();

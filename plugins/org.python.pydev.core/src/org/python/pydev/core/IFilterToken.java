@@ -1,5 +1,5 @@
 package org.python.pydev.core;
 
 public interface IFilterToken {
-    boolean accept(int tokenType);
+    boolean accept(String representation, int tokenType);
 }
