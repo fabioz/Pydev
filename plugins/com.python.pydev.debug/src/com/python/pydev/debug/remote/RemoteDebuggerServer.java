@@ -177,7 +177,11 @@ public class RemoteDebuggerServer extends AbstractRemoteDebugger implements Runn
                 terminated = true;
                 try {
                     if (launch != null && launch.canTerminate()) {
-                        launch.terminate();
+                        try {
+                            launch.terminate();
+                        } catch (Exception e) {
+                            Log.log(e);
+                        }
                     }
 
                     remoteServer.dispose();
