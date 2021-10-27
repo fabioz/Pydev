@@ -48,7 +48,7 @@ def _IsGrammar3(context):
     if context is None:
         return False  #Default is Python 2
     from org.python.pydev.core import IGrammarVersionProvider
-    if context.getGrammarVersion() >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_0:
+    if context.getGrammarVersion() > IGrammarVersionProvider.LATEST_GRAMMAR_PY2_VERSION:
         return True
     return False
 
@@ -146,6 +146,26 @@ def GetCurrentClass(context):
 
 
 template_helper.AddTemplateVariable(py_context_type, 'current_class', 'Current class', GetCurrentClass)
+
+
+#===================================================================================================
+# GetSelfOrCls
+#===================================================================================================
+def GetSelfOrCls(context):
+    FunctionDef = context.getFunctionDefClass()  # from org.python.pydev.parser.jython.ast import ClassDef
+    
+    FastParser = context.getFastParserClass()  # from org.python.pydev.parser.fastparser import FastParser
+    selection = _CreateSelection(context)
+    
+    node = FastParser.firstClassOrFunction(context.getDocument(), selection.getStartLineIndex(), False, False)
+    if isinstance(node, FunctionDef):
+        firstToken = selection.getFirstInsideParentesisTok(node.beginLine-1)
+        if firstToken == 'cls':
+            return 'cls'
+    
+    return 'self'
+    
+template_helper.AddTemplateVariable(py_context_type, 'self_or_cls', 'Get `self` or `cls`', GetSelfOrCls)
 
 
 #===================================================================================================
