@@ -456,6 +456,14 @@ public final class PySelection extends TextSelectionUtils {
         return getInsideParentesisToks(addSelf, i, false);
     }
 
+    public String getFirstInsideParentesisTok(int line) {
+        List<String> insideParentesisToks = getInsideParentesisToks(true, line).o1;
+        if (insideParentesisToks != null && insideParentesisToks.size() > 0) {
+            return insideParentesisToks.get(0);
+        }
+        return null;
+    }
+
     public Tuple<List<String>, Integer> getInsideParentesisToks(boolean addSelf, int iLine) {
         String line = getLine(iLine);
         int openParIndex = line.indexOf('(');

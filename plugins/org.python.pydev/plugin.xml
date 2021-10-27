@@ -1916,7 +1916,7 @@
             contextTypeId="org.python.pydev.editor.templates.python"
             id="org.python.pydev.editor.templates.python.super">
 <pattern>
-super(${current_class}, self).${current_method}(${cursor})
+super(${current_class}, ${self_or_cls}).${current_method}(${cursor})
 </pattern>
       </template>
 
