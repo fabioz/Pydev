@@ -22,13 +22,13 @@ import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 
-public class ClassTokensExtractor {
+public class ClassDefTokensExtractor {
     private ClassDef classDef;
     private String classRep;
     private SourceModule module;
     private ICompletionState initialState;
 
-    public ClassTokensExtractor(ClassDef classDef, SourceModule module, ICompletionState initialState) {
+    public ClassDefTokensExtractor(ClassDef classDef, SourceModule module, ICompletionState initialState) {
         this.classDef = classDef;
         this.classRep = NodeUtils.getFullRepresentationString(classDef);
         this.module = module;

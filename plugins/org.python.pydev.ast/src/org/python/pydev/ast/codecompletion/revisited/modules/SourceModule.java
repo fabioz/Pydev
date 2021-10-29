@@ -627,7 +627,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     public TokensList getClassToks(ICompletionState initialState, ICodeCompletionASTManager manager, SimpleNode ast) {
         if (ast instanceof ClassDef) {
             ClassDef classDef = (ClassDef) ast;
-            ClassTokensExtractor classTokensExtractor = new ClassTokensExtractor(classDef, this, initialState);
+            ClassDefTokensExtractor classTokensExtractor = new ClassDefTokensExtractor(classDef, this, initialState);
             return classTokensExtractor.getTokens(manager);
         }
         return new TokensList();
@@ -1598,7 +1598,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
 
     public TokensList getCompletionsForBase(ICompletionState state, ICodeCompletionASTManager astManager,
             ClassDef classDef, int j) throws CompletionRecursionException {
-        ClassTokensExtractor classTokensExtractor = new ClassTokensExtractor(classDef, this, state);
+        ClassDefTokensExtractor classTokensExtractor = new ClassDefTokensExtractor(classDef, this, state);
         return classTokensExtractor.getCompletionsForBase(astManager, j);
     }
 
