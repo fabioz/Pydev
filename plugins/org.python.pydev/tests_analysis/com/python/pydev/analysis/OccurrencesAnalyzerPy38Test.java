@@ -118,4 +118,27 @@ public class OccurrencesAnalyzerPy38Test extends AnalysisTestsBase {
         checkError("Undefined variable: A");
     }
 
+    public void testStaticClassVariable() throws Exception {
+        doc = new Document(""
+                + "class A:\n"
+                + "    pass\n"
+                + "A.some_var = 10\n"
+                + "print(A.some_var)");
+        checkNoError();
+    }
+
+    public void testStaticClassVariable2() throws Exception {
+        doc = new Document(""
+                + "class Foo:\n"
+                + "    def __init__(self):\n"
+                + "        pass\n"
+                + "    def foo(self):\n"
+                + "        pass\n"
+                + "class Bar:\n"
+                + "    pass\n"
+                + "Bar.some_var = Foo()\n"
+                + "Bar.some_var.foo()");
+        checkNoError();
+    }
+
 }

@@ -625,8 +625,8 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
                 + "        pass\n"
                 + "class Bar:\n"
                 + "    pass\n"
-                + "A.some_var = Foo()\n"
-                + "A.some_var.";
+                + "Bar.some_var = Foo()\n"
+                + "Bar.some_var.";
         requestCompl(s, s.length(), -1, new String[] { "foo()" });
     }
 }
