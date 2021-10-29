@@ -664,7 +664,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                 TokensList assignmentClassTokens = getAssignmentClassTokens(c);
                 modToks.addAll(assignmentClassTokens);
             }
-        } catch (Exception e) {
+        } catch (CompletionRecursionException e) {
             // let's return what we have so far...
         }
         modToks.setLookingFor(initialState.getLookingFor());
