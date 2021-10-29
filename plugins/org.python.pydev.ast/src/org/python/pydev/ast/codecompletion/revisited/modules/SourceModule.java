@@ -18,9 +18,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -59,19 +57,15 @@ import org.python.pydev.core.preferences.FileTypesPreferences;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
-import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.ImportFrom;
-import org.python.pydev.parser.jython.ast.Index;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Str;
-import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.exprType;
-import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.TypeInfo;
 import org.python.pydev.shared_core.cache.Cache;
@@ -521,8 +515,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                             d.col,
                                             manager.getNature());
                                 } else if (d.ast instanceof ClassDef) {
-                                    TokensList toks = ((SourceModule) d.module).getClassToks(initialState,
-                                            manager, d.ast);
+                                    TokensList toks = ((SourceModule) d.module).getClassToks(initialState, manager,
+                                            d.ast);
                                     if (lookingFor != null) {
                                         toks.setLookingFor(lookingFor);
                                     }
@@ -627,6 +621,21 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     /**
      * @param initialState
      * @param manager
+     * @param ast
+     * @return TokensList
+     */
+    public TokensList getClassToks(ICompletionState initialState, ICodeCompletionASTManager manager, SimpleNode ast) {
+        if (ast instanceof ClassDef) {
+            ClassDef classDef = (ClassDef) ast;
+            ClassTokensExtractor classTokensExtractor = new ClassTokensExtractor(classDef, this, initialState);
+            return classTokensExtractor.getTokens(manager);
+        }
+        return new TokensList();
+    }
+
+    /**
+     * @param initialState
+     * @param manager
      * @param value
      * @return
      * @throws CompletionRecursionException
@@ -638,168 +647,6 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         copy.setActivationToken(value);
         TokensList completionsForModule = manager.getCompletionsForModule(module, copy);
         return completionsForModule;
-    }
-
-    /**
-     * @param initialState
-     * @param manager
-     * @param ast
-     * @return
-     */
-    public TokensList getClassToks(ICompletionState initialState, ICodeCompletionASTManager manager, SimpleNode ast) {
-        TokensList modToks = new TokensList(
-                GlobalModelVisitor.getTokens(ast, GlobalModelVisitor.INNER_DEFS, name, initialState,
-                        false, this.nature));//name = moduleName
-
-        try {
-            if (ast instanceof ClassDef) {
-                ClassDef c = (ClassDef) ast;
-
-                for (int j = 0; j < c.bases.length; j++) {
-                    //COMPLETION: get the completions for the whole hierarchy if this is a class!!
-                    TokensList completions = getCompletionsForBase(initialState, manager, c, j);
-                    modToks.addAll(completions);
-                }
-
-                TokensList assignmentClassTokens = getAssignmentClassTokens(c);
-                modToks.addAll(assignmentClassTokens);
-            }
-        } catch (CompletionRecursionException e) {
-            // let's return what we have so far...
-        }
-        modToks.setLookingFor(initialState.getLookingFor());
-        return modToks;
-    }
-
-    private TokensList getAssignmentClassTokens(ClassDef c) {
-        String classRep = NodeUtils.getRepresentationString(c);
-        if (classRep == null) {
-            return null;
-        }
-
-        TokensList ret = new TokensList();
-        List<IToken> tokensList = new ArrayList<IToken>();
-
-        Module module = (Module) this.ast;
-        for (stmtType node : module.body) {
-            if (node instanceof Assign) {
-                Assign assign = (Assign) node;
-                Optional<IToken> optionalToken = extractStaticClassTokenFromAssign(classRep, assign);
-                if (optionalToken.isPresent()) {
-                    IToken token = optionalToken.get();
-                    tokensList.add(token);
-                }
-            }
-        }
-
-        ret.addAll(new TokensList(tokensList));
-        return ret;
-    }
-
-    private Optional<IToken> extractStaticClassTokenFromAssign(String classRep, Assign assign) {
-        for (exprType target : assign.targets) {
-            if (target instanceof Attribute) {
-                Attribute attribute = (Attribute) target;
-                Optional<SimpleNode> optionalNode = extractNodeForStaticClassTokenFromAttribute(classRep, attribute);
-                if (optionalNode.isPresent()) {
-                    SimpleNode node = optionalNode.get();
-                    String nodeRep = NodeUtils.getFullRepresentationString(node);
-                    if (nodeRep != null) {
-                        SourceToken token = new SourceToken(node, nodeRep, null, null, this.name, this.nature);
-
-                        Assign createdAssign = createAssignForStaticClassToken(nodeRep, assign);
-                        token.setFoundInAssign(createdAssign);
-
-                        return Optional.of(token);
-                    }
-                }
-            }
-        }
-        return Optional.empty();
-    }
-
-    private Optional<SimpleNode> extractNodeForStaticClassTokenFromAttribute(String classRep, Attribute attribute) {
-        List<SimpleNode> attributeParts = NodeUtils.getAttributeParts(attribute);
-        Iterator<SimpleNode> iterator = attributeParts.iterator();
-        while (iterator.hasNext()) {
-            String partRep = NodeUtils.getFullRepresentationString(iterator.next());
-            if (partRep != null) {
-                if (partRep.equals(classRep)) {
-                    if (iterator.hasNext()) {
-                        return Optional.of(iterator.next());
-                    }
-                }
-            }
-        }
-        return Optional.empty();
-    }
-
-    private Assign createAssignForStaticClassToken(String nodeRep, Assign originalAssign) {
-        Name name = new Name(nodeRep, Name.Store, false);
-        return new Assign(new exprType[] { name }, originalAssign.value, originalAssign.type);
-    }
-
-    public TokensList getCompletionsForBase(ICompletionState initialState, ICodeCompletionASTManager manager,
-            ClassDef classDef, int baseIndex) throws CompletionRecursionException {
-        ICompletionState state;
-        if (classDef.bases[baseIndex] instanceof Name) {
-            Name n = (Name) classDef.bases[baseIndex];
-            String base = n.id;
-            //An error in the programming might result in an error.
-            //
-            //e.g. The case below results in a loop.
-            //
-            //class A(B):
-            //
-            //    def a(self):
-            //        pass
-            //
-            //class B(A):
-            //
-            //    def b(self):
-            //        pass
-            state = initialState.getCopy();
-            state.setActivationToken(base);
-
-            state.checkMemory(this, base);
-
-            return manager.getCompletionsForModule(this, state);
-        } else if (classDef.bases[baseIndex] instanceof Attribute) {
-            Attribute attr = (Attribute) classDef.bases[baseIndex];
-            String s = NodeUtils.getFullRepresentationString(attr);
-
-            state = initialState.getCopy();
-            state.setActivationToken(s);
-            return manager.getCompletionsForModule(this, state);
-        } else if (classDef.bases[baseIndex] instanceof Subscript) {
-            TokensList tokens = new TokensList();
-            Subscript subscript = (Subscript) classDef.bases[baseIndex];
-            String subscriptValue = NodeUtils.getFullRepresentationString(subscript.value);
-            tokens.addAll(getCompletionsForValue(manager, initialState, subscriptValue));
-            if (subscript.slice instanceof Index) {
-                Index index = (Index) subscript.slice;
-                String subscriptSlice = NodeUtils.getFullRepresentationString(index.value);
-                tokens.addAll(getCompletionsForValue(manager, initialState, subscriptSlice));
-            }
-            if (tokens.size() > 0) {
-                return tokens;
-            }
-        }
-        return null;
-    }
-
-    private TokensList getCompletionsForValue(ICodeCompletionASTManager manager, ICompletionState state,
-            String value) throws CompletionRecursionException {
-        if (value != null && !value.isEmpty()) {
-            ICompletionState copiedState = state.getCopy();
-            state.checkMemory(this, value);
-            copiedState.setActivationToken(value);
-            TokensList tokens = manager.getCompletionsForModule(this, copiedState);
-            if (tokens != null) {
-                return tokens;
-            }
-        }
-        return new TokensList();
     }
 
     /**
@@ -1747,6 +1594,12 @@ public class SourceModule extends AbstractModule implements ISourceModule {
             return new ModulesKeyForZip(name, file, zipFilePath, true);
         }
         return new ModulesKey(name, file);
+    }
+
+    public TokensList getCompletionsForBase(ICompletionState state, ICodeCompletionASTManager astManager,
+            ClassDef classDef, int j) throws CompletionRecursionException {
+        ClassTokensExtractor classTokensExtractor = new ClassTokensExtractor(classDef, this, state);
+        return classTokensExtractor.getCompletionsForBase(astManager, j);
     }
 
 }
