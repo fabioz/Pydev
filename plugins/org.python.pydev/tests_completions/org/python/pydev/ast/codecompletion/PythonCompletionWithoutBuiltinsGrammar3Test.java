@@ -604,4 +604,29 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
                 + "    param.";
         requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()", "method_c()", "method_c()" });
     }
+
+    public void testStaticClassVariable() throws Exception {
+        String s;
+        s = ""
+                + "class A:\n"
+                + "    pass\n"
+                + "A.some_var = 10\n"
+                + "A.";
+        requestCompl(s, s.length(), -1, new String[] { "some_var" });
+    }
+
+    public void testStaticClassVariable2() throws Exception {
+        String s;
+        s = ""
+                + "class Foo:\n"
+                + "    def __init__(self):\n"
+                + "        pass\n"
+                + "    def foo(self):\n"
+                + "        pass\n"
+                + "class Bar:\n"
+                + "    pass\n"
+                + "A.some_var = Foo()\n"
+                + "A.some_var.";
+        requestCompl(s, s.length(), -1, new String[] { "foo()" });
+    }
 }

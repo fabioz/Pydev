@@ -18,7 +18,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -69,6 +71,7 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.exprType;
+import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.TypeInfo;
 import org.python.pydev.shared_core.cache.Cache;
@@ -649,19 +652,91 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                         false, this.nature));//name = moduleName
 
         try {
-            //COMPLETION: get the completions for the whole hierarchy if this is a class!!
             if (ast instanceof ClassDef) {
                 ClassDef c = (ClassDef) ast;
+
                 for (int j = 0; j < c.bases.length; j++) {
+                    //COMPLETION: get the completions for the whole hierarchy if this is a class!!
                     TokensList completions = getCompletionsForBase(initialState, manager, c, j);
                     modToks.addAll(completions);
                 }
+
+                TokensList assignmentClassTokens = getAssignmentClassTokens(c);
+                modToks.addAll(assignmentClassTokens);
             }
-        } catch (CompletionRecursionException e) {
+        } catch (Exception e) {
             // let's return what we have so far...
         }
         modToks.setLookingFor(initialState.getLookingFor());
         return modToks;
+    }
+
+    private TokensList getAssignmentClassTokens(ClassDef c) {
+        String classRep = NodeUtils.getRepresentationString(c);
+        if (classRep == null) {
+            return null;
+        }
+
+        TokensList ret = new TokensList();
+        List<IToken> tokensList = new ArrayList<IToken>();
+
+        Module module = (Module) this.ast;
+        for (stmtType node : module.body) {
+            if (node instanceof Assign) {
+                Assign assign = (Assign) node;
+                Optional<IToken> optionalToken = extractStaticClassTokenFromAssign(classRep, assign);
+                if (optionalToken.isPresent()) {
+                    IToken token = optionalToken.get();
+                    tokensList.add(token);
+                }
+            }
+        }
+
+        ret.addAll(new TokensList(tokensList));
+        return ret;
+    }
+
+    private Optional<IToken> extractStaticClassTokenFromAssign(String classRep, Assign assign) {
+        for (exprType target : assign.targets) {
+            if (target instanceof Attribute) {
+                Attribute attribute = (Attribute) target;
+                Optional<SimpleNode> optionalNode = extractNodeForStaticClassTokenFromAttribute(classRep, attribute);
+                if (optionalNode.isPresent()) {
+                    SimpleNode node = optionalNode.get();
+                    String nodeRep = NodeUtils.getFullRepresentationString(node);
+                    if (nodeRep != null) {
+                        SourceToken token = new SourceToken(node, nodeRep, null, null, this.name, this.nature);
+
+                        Assign createdAssign = createAssignForStaticClassToken(nodeRep, assign);
+                        token.setFoundInAssign(createdAssign);
+
+                        return Optional.of(token);
+                    }
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
+    private Optional<SimpleNode> extractNodeForStaticClassTokenFromAttribute(String classRep, Attribute attribute) {
+        List<SimpleNode> attributeParts = NodeUtils.getAttributeParts(attribute);
+        Iterator<SimpleNode> iterator = attributeParts.iterator();
+        while (iterator.hasNext()) {
+            String partRep = NodeUtils.getFullRepresentationString(iterator.next());
+            if (partRep != null) {
+                if (partRep.equals(classRep)) {
+                    if (iterator.hasNext()) {
+                        return Optional.of(iterator.next());
+                    }
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
+    private Assign createAssignForStaticClassToken(String nodeRep, Assign originalAssign) {
+        Name name = new Name(nodeRep, Name.Store, false);
+        return new Assign(new exprType[] { name }, originalAssign.value, originalAssign.type);
     }
 
     public TokensList getCompletionsForBase(ICompletionState initialState, ICodeCompletionASTManager manager,

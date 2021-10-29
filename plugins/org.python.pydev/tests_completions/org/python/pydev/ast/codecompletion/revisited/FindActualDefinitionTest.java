@@ -152,6 +152,17 @@ public class FindActualDefinitionTest extends CodeCompletionTestsBase {
         assertEquals(1, selected.size());
     }
 
+    public void testFindActualDefinitionForAssignedStaticClassVariable() throws Exception {
+        File file = new File(TestDependent.TEST_PYSRC_TESTING_LOC + "static_class_variables/mod2.py");
+        IModule mod = SourceModule.createModule("static_class_variables.mod2", file, nature, false);
+        ICompletionCache completionCache = new CompletionCache();
+        ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
+        PyRefactoringFindDefinition.findActualDefinition(null, false, mod, "A.some_var", selected, 3, 1,
+                nature,
+                completionCache);
+        assertEquals(1, selected.size());
+    }
+
     public void testOccurrencesForDefinition() throws Exception {
         int usedGrammar = GRAMMAR_TO_USE_FOR_PARSING;
         GRAMMAR_TO_USE_FOR_PARSING = PythonNature.LATEST_GRAMMAR_PY3_VERSION;
