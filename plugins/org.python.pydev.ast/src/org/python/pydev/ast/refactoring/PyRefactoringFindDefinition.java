@@ -267,26 +267,15 @@ public class PyRefactoringFindDefinition {
         }
 
         while (d.ast instanceof ImportFrom) {
-            Tuple3<String, Integer, Integer> t1 = getTupFromDefinition(d);
-            if (t1 == null) {
-                break;
-            }
-            whereWePassed.add(t1);
+            IDefinition[] found = followDefinition(d, whereWePassed, tok, nature, completionCache);
 
-            Definition[] found = (Definition[]) d.module
-                    .findDefinition(CompletionStateFactory.getEmptyCompletionState(tok, nature, completionCache),
-                            d.line, d.col, nature);
             if (found != null && found.length == 1) {
-                Tuple3<String, Integer, Integer> tupFromDefinition = getTupFromDefinition(found[0]);
+                Tuple3<String, Integer, Integer> tupFromDefinition = getTupFromDefinition((Definition) found[0]);
                 if (tupFromDefinition == null) {
                     break;
                 }
-                if (!whereWePassed.contains(tupFromDefinition)) { //avoid recursions
-                    didFindNewDef = true;
-                    d = found[0];
-                } else {
-                    break;
-                }
+                didFindNewDef = true;
+                d = (Definition) found[0];
             } else {
                 break;
             }
@@ -299,10 +288,29 @@ public class PyRefactoringFindDefinition {
         return didFindNewDef;
     }
 
+    public static IDefinition[] followDefinition(Definition d, Set<Tuple3<String, Integer, Integer>> whereWePassed,
+            String tok, IPythonNature nature, ICompletionCache completionCache) throws Exception {
+        Tuple3<String, Integer, Integer> t1 = getTupFromDefinition(d);
+        if (t1 == null) {
+            return null;
+        }
+        if (whereWePassed.contains(t1)) {
+            // We've already seen this (don't recurse).
+            return null;
+        }
+        whereWePassed.add(t1);
+
+        IDefinition[] found = d.module
+                .findDefinition(CompletionStateFactory.getEmptyCompletionState(tok, nature, completionCache),
+                        d.line, d.col, nature);
+        return found;
+
+    }
+
     /**
      * @return a tuple with the absolute path to the definition, its line and col.
      */
-    private static Tuple3<String, Integer, Integer> getTupFromDefinition(Definition d) {
+    public static Tuple3<String, Integer, Integer> getTupFromDefinition(Definition d) {
         if (d == null) {
             return null;
         }

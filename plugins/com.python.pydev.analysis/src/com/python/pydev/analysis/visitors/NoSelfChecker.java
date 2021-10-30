@@ -15,6 +15,8 @@ import java.util.Map;
 import org.python.pydev.ast.analysis.IAnalysisPreferences;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.ast.codecompletion.revisited.visitors.AbstractVisitor;
+import org.python.pydev.core.ICompletionCache;
+import org.python.pydev.core.IModule;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -51,18 +53,27 @@ public final class NoSelfChecker {
 
     private final String moduleName;
     private final MessagesManager messagesManager;
+    private final IModule module;
+    private final FastStack<ZopeInterfaceComputer> zopeInterfaceComputers = new FastStack<ZopeInterfaceComputer>(3);
+    private final ICompletionCache completionCache;
 
     public NoSelfChecker(OccurrencesVisitor visitor) {
         this.messagesManager = visitor.messagesManager;
         this.moduleName = visitor.moduleName;
+        this.module = visitor.current;
+        this.completionCache = visitor.completionCache;
         scope.push(Scope.SCOPE_TYPE_GLOBAL); //we start in the global scope
     }
 
     public void beforeClassDef(ClassDef node) {
         scope.push(Scope.SCOPE_TYPE_CLASS);
+        zopeInterfaceComputers.push(new ZopeInterfaceComputer(node, module, completionCache));
 
         FastStringBuffer buf = new FastStringBuffer();
         for (exprType base : node.bases) {
+            if (base == null) {
+                continue;
+            }
             if (buf.length() > 0) {
                 buf.append(",");
             }
@@ -77,6 +88,7 @@ public final class NoSelfChecker {
 
     public void afterClassDef(ClassDef node) {
         scope.pop();
+        zopeInterfaceComputers.pop();
         classBases.pop();
         creteMessagesForStack(maybeNoSelfDefinedItems);
     }
@@ -101,7 +113,7 @@ public final class NoSelfChecker {
      * when a class is declared inside a function scope, it must start with self if it does
      * not start with the self parameter, unless it has a staticmethod decoration or is
      * later assigned to a staticmethod.
-     * 
+     *
      * @param node
      */
     public void beforeFunctionDef(FunctionDef node) {
@@ -149,27 +161,34 @@ public final class NoSelfChecker {
                 }
             }
 
+            ZopeInterfaceComputer zopeInterfaceComputer = zopeInterfaceComputers.peek();
+
             //didn't have staticmethod decorator either
             String rep = NodeUtils.getRepresentationString(node);
             if (rep.equals("__new__")) {
-
                 //__new__ could start wit cls or self
                 if (!startsWithCls && !startsWithSelf) {
-                    maybeNoSelfDefinedItems.peek().put(rep,
-                            new Tuple<Expected, FunctionDef>(new Expected("self or cls", received), node));
+                    if (!zopeInterfaceComputer.isZopeInterface()) { // zope check is more expensive, so, do as the last thing.
+                        maybeNoSelfDefinedItems.peek().put(rep,
+                                new Tuple<Expected, FunctionDef>(new Expected("self or cls", received), node));
+                    }
                 }
 
             } else if (!startsWithSelf && !startsWithCls && !isStaticMethod && !isClassMethod) {
-                maybeNoSelfDefinedItems.peek().put(rep,
-                        new Tuple<Expected, FunctionDef>(new Expected("self", received), node));
+                if (!zopeInterfaceComputer.isZopeInterface()) { // zope check is more expensive, so, do as the last thing.
+                    maybeNoSelfDefinedItems.peek().put(rep,
+                            new Tuple<Expected, FunctionDef>(new Expected("self", received), node));
+                }
 
             } else if (startsWithCls && !isClassMethod && !isStaticMethod) {
                 String classBase = classBases.peek();
                 if (rep.equals("__init__") && "type".equals(classBase)) {
                     //ok, in this case, cls is expected
                 } else {
-                    maybeNoSelfDefinedItems.peek().put(rep,
-                            new Tuple<Expected, FunctionDef>(new Expected("self", received), node));
+                    if (!zopeInterfaceComputer.isZopeInterface()) { // zope check is more expensive, so, do as the last thing.
+                        maybeNoSelfDefinedItems.peek().put(rep,
+                                new Tuple<Expected, FunctionDef>(new Expected("self", received), node));
+                    }
                 }
             }
         }

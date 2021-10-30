@@ -789,7 +789,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     public Definition[] findDefinition(ICompletionState state, int line, int col, final IPythonNature nature)
             throws Exception {
         Object key = new TupleN(state.getActivationToken(), line, col, this);
-        Definition[] found = (Definition[]) state.getObj(key);
+        ICompletionCache completionCache = state;
+        Definition[] found = (Definition[]) completionCache.getObj(key);
         if (found != null) {
             return found;
         }

@@ -846,4 +846,94 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
     //        );
     //        checkError(1);
     //    }
+
+    public void testNoSelfInZopeInterface() throws Exception {
+        doc = new Document(""
+                + "from zope.interface import Interface\n"
+                + "class I(Interface):\n"
+                + "    def F():\n"
+                + "        \"\"\"Doc\"\"\"\n"
+                + "@implementer(I)\n"
+                + "class Ic:\n"
+                + "    def F(self):\n"
+                + "        print \"->\", self, \"Object\"\n"
+                + "c = Ic()\n"
+                + "print type(I), type(Ic), type(c), type(Ic.F), type(c.F)\n"
+                + "c.F()");
+        checkError("Undefined variable: implementer");
+    }
+
+    public void testNoSelfInZopeInterface2() throws Exception {
+        doc = new Document(""
+                + "from zope.interface import Interface as I\n"
+                + "class Impl(I):\n"
+                + "    def method_a():\n"
+                + "        pass");
+        checkNoError();
+    }
+
+    public void testNoSelfInZopeInterface3() throws Exception {
+        doc = new Document(""
+                + "from zope.interface import Interface\n"
+                + "class Impl(Interface):\n"
+                + "    def method_a():\n"
+                + "        pass");
+        checkNoError();
+    }
+
+    public void testNoSelfInZopeInterface4() throws Exception {
+        doc = new Document(""
+                + "import zope.interface.Interface\n"
+                + "class Impl(zope.interface.Interface):\n"
+                + "    def method_a():\n"
+                + "        pass");
+        checkNoError();
+    }
+
+    public void testNoSelfInZopeInterface5() throws Exception {
+        doc = new Document(""
+                + "import zope.interface\n"
+                + "class Impl(zope.interface.Interface):\n"
+                + "    def method_a():\n"
+                + "        pass");
+        checkNoError();
+    }
+
+    public void testNoSelfInZopeInterface6() throws Exception {
+        doc = new Document(""
+                + "import zope.interface as z\n"
+                + "class Impl(z.Interface):\n"
+                + "    def method_a():\n"
+                + "        pass");
+        checkNoError();
+    }
+
+    public void testNoSelfInZopeInterface7() throws Exception {
+        doc = new Document(""
+                + "import zope.interface.Interface as zo\n"
+                + "class Impl(zo):\n"
+                + "    def method_a():\n"
+                + "        pass");
+        checkNoError();
+    }
+
+    public void testNoSelfInZopeInterface8() throws Exception {
+        doc = new Document(""
+                + "from zope.interface import Interface\n"
+                + "class Ia(Interface):\n"
+                + "    def method_a():  # Shouldn't complain about the lack of self\n"
+                + "        pass\n"
+                + "class Ib(Ia):\n"
+                + "    def method_b():  # Shouldn't complain about the lack of self\n"
+                + "        pass");
+        checkNoError();
+    }
+
+    public void testZopeInterfaceCheckWithCircularInheritance() throws Exception {
+        doc = new Document(""
+                + "class Impl(Impl):\n"
+                + "    def method_a():\n"
+                + "        pass");
+        checkError("Method 'method_a' should have self as first parameter", "Undefined variable: Impl");
+    }
 }
