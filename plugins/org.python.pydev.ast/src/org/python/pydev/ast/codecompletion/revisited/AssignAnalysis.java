@@ -305,7 +305,7 @@ public class AssignAnalysis {
         TokensList ret = new TokensList();
         if (definition.ast instanceof ClassDef) {
             try (NoExceptionCloseable x = state.pushLookingFor(LookingFor.LOOKING_FOR_UNBOUND_VARIABLE)) {
-                ret.addAll(((SourceModule) definition.module).getClassToks(state, manager, definition.ast));
+                ret.addAll(((SourceModule) definition.module).getClassToks(state, manager, (ClassDef) definition.ast));
             }
 
         } else {
@@ -549,8 +549,7 @@ public class AssignAnalysis {
                     SourceToken srcToken = (SourceToken) token;
                     SimpleNode ast = srcToken.getAst();
                     if (ast instanceof ClassDef && module instanceof SourceModule) {
-                        TokensList classToks = ((SourceModule) module).getClassToks(
-                                state, manager, ast);
+                        TokensList classToks = ((SourceModule) module).getClassToks(state, manager, (ClassDef) ast);
                         if (classToks.notEmpty()) {
                             return classToks;
                         }

@@ -90,10 +90,7 @@ public class SourceToken extends AbstractToken {
         } else if (ast instanceof Import || ast instanceof ImportFrom) {
             return IToken.TYPE_IMPORT;
 
-        } else if (ast instanceof keywordType) {
-            return IToken.TYPE_ATTR;
-
-        } else if (ast instanceof Attribute) {
+        } else if (ast instanceof keywordType || ast instanceof Attribute || ast instanceof NameTok) {
             return IToken.TYPE_ATTR;
         }
 

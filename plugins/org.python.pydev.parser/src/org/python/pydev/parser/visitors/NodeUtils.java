@@ -94,7 +94,6 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
-import org.python.pydev.shared_core.utils.Reflection;
 
 public class NodeUtils {
 
@@ -356,6 +355,16 @@ public class NodeUtils {
         return s;
     }
 
+    public static String getFullRepresentationString(ClassDef node) {
+        ClassDef def = node;
+        return ((NameTok) def.name).id;
+    }
+
+    public static String getFullRepresentationString(FunctionDef node) {
+        FunctionDef def = node;
+        return ((NameTok) def.name).id;
+    }
+
     public static String getFullRepresentationString(SimpleNode node) {
         return getFullRepresentationString(node, false);
     }
@@ -380,9 +389,9 @@ public class NodeUtils {
         if (node instanceof Call) {
             Call c = (Call) node;
             node = c.func;
-            if (Reflection.hasAttr(node, "value") && Reflection.hasAttr(node, "attr")) {
-                return getFullRepresentationString((SimpleNode) Reflection.getAttrObj(node, "value")) + "."
-                        + discoverRep(Reflection.getAttrObj(node, "attr"));
+            if (node instanceof Attribute) {
+                Attribute attribute = (Attribute) node;
+                return getFullRepresentationString(attribute.value) + "." + discoverRep(attribute.attr);
             }
         }
 

@@ -28,6 +28,7 @@ import org.python.pydev.ast.codecompletion.PyCodeCompletionUtils.IFilter;
 import org.python.pydev.ast.codecompletion.revisited.AbstractASTManager;
 import org.python.pydev.ast.codecompletion.revisited.AssignAnalysis;
 import org.python.pydev.ast.codecompletion.revisited.CompletionState;
+import org.python.pydev.ast.codecompletion.revisited.modules.ClassDefTokensExtractor;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
@@ -317,9 +318,8 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                                                             LookingFor lookingFor = state.getLookingFor();
                                                             TokensList completions;
                                                             try {
-                                                                completions = sourceModule.getCompletionsForBase(
-                                                                        state,
-                                                                        astManager, classDef, j);
+                                                                ClassDefTokensExtractor classTokensExtractor = new ClassDefTokensExtractor(classDef, sourceModule, state);
+                                                                completions = classTokensExtractor.getCompletionsForBase(astManager, classDef.bases[j]);
                                                             } finally {
                                                                 // Completions at this point shouldn't change the state of what we were looking for.
                                                                 state.setLookingFor(lookingFor, true);

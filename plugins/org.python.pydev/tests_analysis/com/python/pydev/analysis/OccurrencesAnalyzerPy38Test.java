@@ -1,8 +1,16 @@
 package com.python.pydev.analysis;
 
+import java.io.File;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.Document;
+import org.python.pydev.ast.codecompletion.revisited.modules.AbstractModule;
+import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.TestDependent;
+import org.python.pydev.core.autoedit.TestIndentPrefs;
 import org.python.pydev.parser.jython.ParseException;
+import org.python.pydev.shared_core.io.FileUtils;
 
 public class OccurrencesAnalyzerPy38Test extends AnalysisTestsBase {
 
@@ -116,6 +124,18 @@ public class OccurrencesAnalyzerPy38Test extends AnalysisTestsBase {
                 "    def b(self) -> A:\n" +
                 "        return self");
         checkError("Undefined variable: A");
+    }
+
+    public void testStaticClassVariable2() throws Exception {
+        analyzer = new OccurrencesAnalyzer();
+        File file = new File(TestDependent.TEST_PYSRC_TESTING_LOC + "static_class_variables/mod2.py");
+        Document doc = new Document(FileUtils.getFileContents(file));
+        msgs = analyzer.analyzeDocument(nature,
+                (SourceModule) AbstractModule.createModule("static_class_variables.mod2", file, nature, true), prefs,
+                doc,
+                new NullProgressMonitor(), new TestIndentPrefs(true, 4));
+
+        printMessages(msgs, 0);
     }
 
 }
