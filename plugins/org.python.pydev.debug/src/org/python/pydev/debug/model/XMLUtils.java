@@ -848,7 +848,7 @@ public class XMLUtils {
         return element;
     }
 
-    public static String decodeFromEncoding(String captured, String encoding) {
+    public static String decodeFromEncoding(String captured, String encoding) throws Exception {
         if (captured == null) {
             return "";
         }
