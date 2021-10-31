@@ -327,7 +327,7 @@ public class PyFormatter {
             tempBuf.append(endLine);
         }
 
-        formatComment(std, tempBuf);
+        formatComment(std, tempBuf, false);
 
         buf.append(tempBuf);
         return i;
@@ -352,7 +352,7 @@ public class PyFormatter {
      * Adds spaces after the '#' according to the configured settings. The first char of the
      * buffer passed (which is also the output) should always start with a '#'.
      */
-    public static void formatComment(FormatStd std, FastStringBuffer bufWithComment) {
+    public static void formatComment(FormatStd std, FastStringBuffer bufWithComment, boolean addEvenIfEmpty) {
         if (std.spacesInStartComment > 0) {
             Assert.isTrue(bufWithComment.charAt(0) == '#');
             int len = bufWithComment.length();
@@ -373,7 +373,7 @@ public class PyFormatter {
                 }
                 spacesFound += 1;
             }
-            if (firstCharFound != '\r' && firstCharFound != '\n') { //Only add spaces if it wasn't an empty line.
+            if (addEvenIfEmpty || (firstCharFound != '\r' && firstCharFound != '\n')) { //Only add spaces if it wasn't an empty line.
 
                 //handle cases where the code-formatting should not take place
                 for (String s : BLOCK_COMMENT_SKIPS) {

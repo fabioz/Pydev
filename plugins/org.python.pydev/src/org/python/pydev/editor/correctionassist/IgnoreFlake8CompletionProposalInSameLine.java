@@ -15,14 +15,14 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
-public class IgnorePyLintCompletionProposalInSameLine extends IgnoreCompletionProposal {
+public class IgnoreFlake8CompletionProposalInSameLine extends IgnoreCompletionProposal {
 
     private String line;
     private PySelection ps;
     private FormatStd format;
     private IMarker marker;
 
-    public IgnorePyLintCompletionProposalInSameLine(String replacementString, int replacementOffset,
+    public IgnoreFlake8CompletionProposalInSameLine(String replacementString, int replacementOffset,
             int replacementLength,
             int cursorPosition, IImageHandle image, String displayString, IContextInformation contextInformation,
             String additionalProposalInfo, int priority, IPyEdit edit, String line, PySelection ps, FormatStd format,
@@ -63,16 +63,16 @@ public class IgnorePyLintCompletionProposalInSameLine extends IgnoreCompletionPr
         if (isComment) {
             strToAdd = new FastStringBuffer("", 40);
 
-            if (line.contains("pylint:") && line.contains("disable=")) {
+            if (line.contains("noqa:")) {
                 // We can add it to an existing declaration
                 strToAdd.append(", ");
                 strToAdd.append(messageId);
             } else {
-                // There is already a comment, but no indication of a PyLint ignore, so, just add it.
+                // There is already a comment, but no indication of a noqa ignore, so, just add it.
                 if (whitespacesAtEnd == 0) {
                     strToAdd.append(' '); //it's a comment already, but as it has no spaces in the end, let's add one.
                 }
-                strToAdd.append("pylint: disable=");
+                strToAdd.append("noqa:");
                 strToAdd.append(messageId);
             }
 
@@ -103,7 +103,7 @@ public class IgnorePyLintCompletionProposalInSameLine extends IgnoreCompletionPr
                     strToAdd.insertN(0, ' ', spacesBeforeComment);
                 }
             }
-            strToAdd.append("pylint: disable=");
+            strToAdd.append("noqa:");
             strToAdd.append(messageId);
         }
 

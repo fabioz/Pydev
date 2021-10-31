@@ -242,12 +242,12 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                         }
                         String lineContents = document.get(region.getOffset(), region.getLength());
 
-                        if (CheckAnalysisErrors.isCodeAnalysisErrorHandled(lineContents, null)) {
+                        if (CheckAnalysisErrors.isFlake8ErrorHandledAtLine(lineContents, code)) {
                             continue;
                         }
 
-                        addToMarkers(message, priority, code, line - 1, column, lineContents, moduleFile,
-                                document);
+                        addToMarkers(message + " (" + code + ")", priority, code, line - 1, column, lineContents,
+                                moduleFile, document);
                     }
                 }
             } catch (Exception e) {

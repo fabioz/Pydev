@@ -3098,6 +3098,10 @@ The related image showing the error is at: http://i.stack.imgur.com/IfNFY.png
    </extension>
 
    <extension point="org.python.pydev.pydev_ctrl_1">
+		<ctrl_1_participant class="com.python.pydev.analysis.ctrl_1.flake8.Flake8AnalysisMarkersParticipants"/>
+   </extension>
+
+   <extension point="org.python.pydev.pydev_ctrl_1">
 		<ctrl_1_participant class="com.python.pydev.analysis.ctrl_1.DontAnalyzeFileMarkerParticipant"/>
    </extension>
 

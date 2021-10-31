@@ -25,6 +25,7 @@ import org.python.pydev.editor.codefolding.PyCalltipsContextInformationFromIToke
 import org.python.pydev.editor.correctionassist.FixCompletionProposal;
 import org.python.pydev.editor.correctionassist.IgnoreCompletionProposal;
 import org.python.pydev.editor.correctionassist.IgnoreCompletionProposalInSameLine;
+import org.python.pydev.editor.correctionassist.IgnoreFlake8CompletionProposalInSameLine;
 import org.python.pydev.editor.correctionassist.IgnorePyLintCompletionProposalInSameLine;
 import org.python.pydev.editor.correctionassist.docstrings.AssistDocstringCompletionProposal;
 import org.python.pydev.editor.correctionassist.heuristics.AssistAssignCompletionProposal;
@@ -58,6 +59,18 @@ public class DefaultCompletionProposalFactory implements ICompletionProposalFact
             String additionalProposalInfo, int priority, IPyEdit edit, String line, PySelection ps, FormatStd format,
             IMarker marker) {
         return new IgnorePyLintCompletionProposalInSameLine(replacementString, replacementOffset, replacementLength,
+                cursorPosition, image, displayString, (IContextInformation) contextInformation, additionalProposalInfo,
+                priority, edit, line,
+                ps, format, marker);
+    }
+
+    @Override
+    public ICompletionProposalHandle createIgnoreFlake8CompletionProposalInSameLine(
+            String replacementString, int replacementOffset, int replacementLength, int cursorPosition,
+            IImageHandle image, String displayString, Object contextInformation,
+            String additionalProposalInfo, int priority, IPyEdit edit, String line, PySelection ps, FormatStd format,
+            IMarker marker) {
+        return new IgnoreFlake8CompletionProposalInSameLine(replacementString, replacementOffset, replacementLength,
                 cursorPosition, image, displayString, (IContextInformation) contextInformation, additionalProposalInfo,
                 priority, edit, line,
                 ps, format, marker);
