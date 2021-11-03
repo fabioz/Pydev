@@ -140,6 +140,10 @@ public class PydevConsoleDebugCommsTest extends TestCase {
 
     private class DummyDebugTarget extends AbstractDebugTarget {
 
+        public DummyDebugTarget() {
+            super(null);
+        }
+
         @Override
         public void processCommand(String sCmdCode, String sSeqCode, String payload) {
             System.out.println(sCmdCode + ":" + sSeqCode + ":" + payload);

@@ -59,6 +59,7 @@ import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.core.interpreters.IInterpreterNewCustomEntries;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
@@ -2134,6 +2135,7 @@ public class InterpreterInfo implements IInterpreterInfo {
         this.activateCondaEnv = b;
     }
 
+    @Override
     public File getCondaPrefix() {
         String executableOrJar = getExecutableOrJar();
         File parentFile = new File(executableOrJar).getParentFile();
@@ -2155,4 +2157,34 @@ public class InterpreterInfo implements IInterpreterInfo {
     public String getPipenvTargetDir() {
         return this.pipenvTargetDir;
     }
+
+    private String userSitePackages;
+
+    @Override
+    public String obtainUserSitePackages(IInterpreterManager interpreterManager) {
+        if (userSitePackages == null) {
+            SimpleRunner simpleRunner = new SimpleRunner();
+            Tuple<String, String> output = simpleRunner.runAndGetOutput(
+                    new String[] { executableOrJar, "-m", "site",
+                            PlatformUtils.isWindowsPlatform() ? "--user-site" : "--user-base" },
+                    new File(executableOrJar).getParentFile(),
+                    new SystemPythonNature(interpreterManager, this), null, "utf-8");
+            userSitePackages = output.o1.trim();
+        }
+        return userSitePackages;
+    }
+
+    private String computedPipEnvLocation;
+
+    @Override
+    public String getComputedPipEnvLocation() {
+        return computedPipEnvLocation;
+    }
+
+    @Override
+    public void setComputedPipEnvLocation(String location) {
+        computedPipEnvLocation = location;
+
+    }
+
 }

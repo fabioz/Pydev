@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.resources.IResource;
@@ -92,7 +93,7 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
     /**
      * Path pointing to the file that started the debug (e.g.: file with __name__ == '__main__')
      */
-    protected IPath[] file;
+    protected final IPath[] file;
 
     /**
      * The threads found in the debugger.
@@ -116,7 +117,8 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
 
     private PyRunToLineTarget runToLineTarget;
 
-    public AbstractDebugTarget() {
+    public AbstractDebugTarget(IPath[] file) {
+        this.file = file;
     }
 
     private Set<Integer> currentBreakpointsAdded = new HashSet<>();
@@ -821,6 +823,8 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
         }
     };
 
+    private IFile resourceAdapter;
+
     /**
      * Called after debugger has been connected.
      *
@@ -1039,8 +1043,13 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
 
         } else if (adapter.equals(IResource.class)) {
             // used by Variable ContextManager, and Project:Properties menu item
+            if (this.resourceAdapter != null) {
+                return (T) this.resourceAdapter;
+            }
+
             if (file != null && file.length > 0) {
-                return (T) FindWorkspaceFiles.getFileForLocation(file[0], null);
+                this.resourceAdapter = FindWorkspaceFiles.getFileForLocation(file[0], null);
+                return (T) this.resourceAdapter;
             } else {
                 return null;
             }
