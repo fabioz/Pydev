@@ -291,7 +291,7 @@ class JsonFacade(object):
         if wait_for_response:
             self.wait_for_response(request)
 
-    def get_stack_as_json_hit(self, thread_id):
+    def get_stack_as_json_hit(self, thread_id, no_stack_frame=False):
         stack_trace_request = self.write_request(
             pydevd_schema.StackTraceRequest(pydevd_schema.StackTraceArguments(threadId=thread_id)))
 
@@ -300,15 +300,19 @@ class JsonFacade(object):
         # : :type stack_frame: StackFrame
         stack_trace_response = self.wait_for_response(stack_trace_request)
         stack_trace_response_body = stack_trace_response.body
-        assert len(stack_trace_response_body.stackFrames) > 0
+        if no_stack_frame:
+            assert len(stack_trace_response_body.stackFrames) == 0
+            frame_id = None
+        else:
+            assert len(stack_trace_response_body.stackFrames) > 0
+            for stack_frame in stack_trace_response_body.stackFrames:
+                assert stack_frame['id'] < MAX_EXPECTED_ID
 
-        for stack_frame in stack_trace_response_body.stackFrames:
-            assert stack_frame['id'] < MAX_EXPECTED_ID
-
-        stack_frame = next(iter(stack_trace_response_body.stackFrames))
+            stack_frame = next(iter(stack_trace_response_body.stackFrames))
+            frame_id = stack_frame['id']
 
         return _JsonHit(
-            thread_id=thread_id, frame_id=stack_frame['id'], stack_trace_response=stack_trace_response)
+            thread_id=thread_id, frame_id=frame_id, stack_trace_response=stack_trace_response)
 
     def get_variables_response(self, variables_reference, fmt=None, success=True):
         assert variables_reference < MAX_EXPECTED_ID
@@ -3912,6 +3916,53 @@ def test_wait_for_attach_gevent(case_setup_remote_attach_to):
         writer.finished_ok = True
 
 
+@pytest.mark.skipif(not TEST_GEVENT, reason='Gevent not installed.')
+@pytest.mark.parametrize('show', [True, False])
+def test_gevent_show_paused_greenlets(case_setup, show):
+
+    def get_environ(writer):
+        env = os.environ.copy()
+        env['GEVENT_SUPPORT'] = 'True'
+        if show:
+            env['GEVENT_SHOW_PAUSED_GREENLETS'] = 'True'
+        else:
+            env['GEVENT_SHOW_PAUSED_GREENLETS'] = 'False'
+        return env
+
+    with case_setup.test_file('_debugger_case_gevent_simple.py', get_environ=get_environ) as writer:
+        json_facade = JsonFacade(writer)
+
+        break1_line = writer.get_line_index_with_content('break here')
+        json_facade.write_set_breakpoints(break1_line)
+        json_facade.write_make_initial_run()
+        json_facade.wait_for_thread_stopped(line=break1_line)
+
+        response = json_facade.write_list_threads()
+        if show:
+            assert len(response.body.threads) > 1
+
+            thread_name_to_id = dict((t['name'], t['id']) for t in response.body.threads)
+            assert set(thread_name_to_id.keys()) == set((
+                'MainThread',
+                'greenlet: <module> - _debugger_case_gevent_simple.py',
+                'Greenlet: foo - _debugger_case_gevent_simple.py',
+                'Hub: run - hub.py'
+            ))
+
+            for tname, tid in thread_name_to_id.items():
+                stack = json_facade.get_stack_as_json_hit(
+                    tid,
+                    no_stack_frame=tname == 'Hub: run - hub.py'
+                )
+                assert stack
+
+        else:
+            assert len(response.body.threads) == 1
+
+        json_facade.write_continue(wait_for_response=False)
+        writer.finished_ok = True
+
+
 @pytest.mark.skipif(
     not TEST_GEVENT or IS_WINDOWS,
     reason='Gevent not installed / Sometimes the debugger crashes on Windows as the compiled extensions conflict with gevent.'
@@ -5153,6 +5204,14 @@ def test_stop_on_entry2(case_setup):
 def test_debug_options(case_setup, val):
     with case_setup.test_file('_debugger_case_debug_options.py') as writer:
         json_facade = JsonFacade(writer)
+        gui_event_loop = 'matplotlib'
+        if val:
+            try:
+                import PySide2.QtCore
+            except ImportError:
+                pass
+            else:
+                gui_event_loop = 'qt5'
         args = dict(
             justMyCode=val,
             redirectOutput=True,  # Always redirect the output regardless of other values.
@@ -5162,6 +5221,7 @@ def test_debug_options(case_setup, val):
             flask=val,
             stopOnEntry=val,
             maxExceptionStackFrames=4 if val else 5,
+            guiEventLoop=gui_event_loop,
         )
         json_facade.write_launch(**args)
 
@@ -5184,9 +5244,54 @@ def test_debug_options(case_setup, val):
             'breakOnSystemExitZero': 'break_system_exit_zero',
             'stopOnEntry': 'stop_on_entry',
             'maxExceptionStackFrames': 'max_exception_stack_frames',
+            'guiEventLoop': 'gui_event_loop',
         }
 
         assert json.loads(output.body.output) == dict((translation[key], val) for key, val in args.items())
+        json_facade.wait_for_terminated()
+        writer.finished_ok = True
+
+
+def test_gui_event_loop_custom(case_setup):
+    with case_setup.test_file('_debugger_case_gui_event_loop.py') as writer:
+        json_facade = JsonFacade(writer)
+        json_facade.write_launch(guiEventLoop='__main__.LoopHolder.gui_loop', redirectOutput=True)
+        break_line = writer.get_line_index_with_content('break here')
+        json_facade.write_set_breakpoints(break_line)
+
+        json_facade.write_make_initial_run()
+        json_facade.wait_for_thread_stopped()
+
+        json_facade.wait_for_json_message(
+            OutputEvent, lambda msg: msg.body.category == 'stdout' and 'gui_loop() called' in msg.body.output)
+
+        json_facade.write_continue()
+        json_facade.wait_for_terminated()
+        writer.finished_ok = True
+
+
+def test_gui_event_loop_qt5(case_setup):
+    try:
+        from PySide2 import QtCore
+    except ImportError:
+        pytest.skip('PySide2 not available')
+
+    with case_setup.test_file('_debugger_case_gui_event_loop_qt5.py') as writer:
+        json_facade = JsonFacade(writer)
+        json_facade.write_launch(guiEventLoop='qt5', redirectOutput=True)
+        break_line = writer.get_line_index_with_content('break here')
+        json_facade.write_set_breakpoints(break_line)
+
+        json_facade.write_make_initial_run()
+        json_facade.wait_for_thread_stopped()
+
+        # i.e.: if we don't have the event loop running in this test, this
+        # output is not shown (as the QTimer timeout wouldn't be executed).
+        for _i in range(3):
+            json_facade.wait_for_json_message(
+                OutputEvent, lambda msg: msg.body.category == 'stdout' and 'on_timeout() called' in msg.body.output)
+
+        json_facade.write_continue()
         json_facade.wait_for_terminated()
         writer.finished_ok = True
 
@@ -5797,6 +5902,86 @@ def test_function_breakpoints_async(case_setup):
             'function breakpoint', line=bp, preserve_focus_hint=False)
         json_facade.write_continue()
 
+        writer.finished_ok = True
+
+
+try:
+    import pandas
+except:
+    pandas = None
+
+
+@pytest.mark.skipif(pandas is None, reason='Pandas not installed.')
+def test_pandas(case_setup, pyfile):
+
+    @pyfile
+    def pandas_mod():
+        import pandas as pd
+        import numpy as np
+
+        rows = 5000
+        cols = 50
+
+        # i.e.: even with these setting our repr will print at most 300 lines/cols by default.
+        pd.set_option('display.max_columns', None)
+        pd.set_option('display.max_rows', None)
+
+        items = rows * cols
+        df = pd.DataFrame(np.arange(items).reshape(rows, cols)).applymap(lambda x: 'Test String')
+        series = df._series[0]
+        styler = df.style
+
+        print('TEST SUCEEDED')  # Break here
+
+    with case_setup.test_file(pandas_mod) as writer:
+        json_facade = JsonFacade(writer)
+        json_facade.write_launch(justMyCode=False)
+
+        bp = writer.get_line_index_with_content('Break here')
+        json_facade.write_set_breakpoints([bp])
+
+        json_facade.write_make_initial_run()
+
+        json_hit = json_facade.wait_for_thread_stopped()
+        # json_hit = json_facade.get_stack_as_json_hit(json_hit.thread_id)
+        name_to_var = json_facade.get_locals_name_to_var(json_hit.frame_id)
+
+        # Check the custom repr(DataFrame)
+        assert name_to_var['df'].value.count('\n') == 303
+        assert '...' in name_to_var['df'].value
+
+        # Check the custom repr(Series)
+        assert name_to_var['series'].value.count('\n') == 300
+        assert '...' in name_to_var['series'].value
+
+        # Check custom listing (DataFrame)
+        df_variables_response = json_facade.get_variables_response(name_to_var['df'].variablesReference)
+        for v in df_variables_response.body.variables:
+            if v['name'] == 'T':
+                assert v['value'] == "'<transposed dataframe -- debugger:skipped eval>'"
+                break
+        else:
+            raise AssertionError('Did not find variable "T".')
+
+        # Check custom listing (Series)
+        df_variables_response = json_facade.get_variables_response(name_to_var['series'].variablesReference)
+        for v in df_variables_response.body.variables:
+            if v['name'] == 'T':
+                assert v['value'] == "'<transposed dataframe -- debugger:skipped eval>'"
+                break
+        else:
+            raise AssertionError('Did not find variable "T".')
+
+        # Check custom listing (Styler)
+        df_variables_response = json_facade.get_variables_response(name_to_var['styler'].variablesReference)
+        for v in df_variables_response.body.variables:
+            if v['name'] == 'data':
+                assert v['value'] == "'<Styler data -- debugger:skipped eval>'"
+                break
+        else:
+            raise AssertionError('Did not find variable "data".')
+
+        json_facade.write_continue()
         writer.finished_ok = True
 
 
