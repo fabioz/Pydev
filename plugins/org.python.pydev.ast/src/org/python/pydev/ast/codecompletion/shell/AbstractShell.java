@@ -227,7 +227,7 @@ public abstract class AbstractShell {
      * @throws MisconfigurationException
      * @throws PythonNatureWithoutProjectException
      */
-    /*package*/void startIt(IPythonNature nature) throws IOException, JDTNotAvailableException,
+    public void startIt(IPythonNature nature) throws IOException, JDTNotAvailableException,
             CoreException, MisconfigurationException, PythonNatureWithoutProjectException {
         this.startIt(nature.getProjectInterpreter());
     }
@@ -243,7 +243,7 @@ public abstract class AbstractShell {
      * @throws CoreException
      * @throws MisconfigurationException
      */
-    /*package*/void startIt(IInterpreterInfo interpreter) throws IOException,
+    public void startIt(IInterpreterInfo interpreter) throws IOException,
             JDTNotAvailableException, CoreException, MisconfigurationException {
 
         int milisSleep = AbstractShell.DEFAULT_SLEEP_BETWEEN_ATTEMPTS;

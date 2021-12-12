@@ -1,4 +1,4 @@
-from _pydevd_bundle.pydevd_constants import DebugInfoHolder, SHOW_COMPILE_CYTHON_COMMAND_LINE, NULL, LOG_TIME
+from _pydevd_bundle.pydevd_constants import DebugInfoHolder, SHOW_COMPILE_CYTHON_COMMAND_LINE, NULL
 from contextlib import contextmanager
 import traceback
 import os
@@ -90,10 +90,6 @@ def log_context(trace_level, stream):
         _LoggingGlobals._debug_stream_initialized = original_initialized
 
 
-import time
-_last_log_time = time.time()
-
-
 def _pydevd_log(level, msg, *args):
     '''
     Levels are:
@@ -111,15 +107,7 @@ def _pydevd_log(level, msg, *args):
                     msg = msg % args
             except:
                 msg = '%s - %s' % (msg, args)
-
-            if LOG_TIME:
-                global _last_log_time
-                new_log_time = time.time()
-                time_diff = new_log_time - _last_log_time
-                _last_log_time = new_log_time
-                msg = '%.2fs - %s\n' % (time_diff, msg,)
-            else:
-                msg = '%s\n' % (msg,)
+            msg = '%s\n' % (msg,)
             try:
                 try:
                     initialize_debug_stream()  # Do it as late as possible

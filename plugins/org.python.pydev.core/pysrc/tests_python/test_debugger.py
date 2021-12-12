@@ -3209,36 +3209,6 @@ def test_gevent(case_setup):
 
 
 @pytest.mark.skipif(not TEST_GEVENT, reason='Gevent not installed.')
-@pytest.mark.parametrize('show', [True, False])
-def test_gevent_show_paused_greenlets(case_setup, show):
-
-    def get_environ(writer):
-        env = os.environ.copy()
-        env['GEVENT_SUPPORT'] = 'True'
-        if show:
-            env['GEVENT_SHOW_PAUSED_GREENLETS'] = 'True'
-        else:
-            env['GEVENT_SHOW_PAUSED_GREENLETS'] = 'False'
-        return env
-
-    with case_setup.test_file('_debugger_case_gevent_simple.py', get_environ=get_environ) as writer:
-        writer.write_add_breakpoint(writer.get_line_index_with_content('break here'))
-        writer.write_make_initial_run()
-        hit = writer.wait_for_breakpoint_hit(name='bar')
-        writer.write_run_thread(hit.thread_id)
-
-        seq = writer.write_list_threads()
-        msg = writer.wait_for_list_threads(seq)
-
-        if show:
-            assert len(msg) > 1
-        else:
-            assert len(msg) == 1
-
-        writer.finished_ok = True
-
-
-@pytest.mark.skipif(not TEST_GEVENT, reason='Gevent not installed.')
 def test_gevent_remote(case_setup_remote):
 
     def get_environ(writer):
@@ -4293,17 +4263,11 @@ def test_frame_eval_mode_corner_case_04(case_setup):
         'break finally 1',
         'break except 2',
         'break finally 2',
-        'break finally 3',
-        'break finally 4',
         'break in dict',
         'break else',
     ]
 )
 def test_frame_eval_mode_corner_case_many(case_setup, break_name):
-    if break_name == 'break finally 4' and sys.version_info[:2] == (3, 9):
-        # This case is currently failing in Python 3.9
-        return
-
     # Check the constructs where we stop only once and proceed.
     with case_setup.test_file(
             '_bytecode_constructs.py',
@@ -4314,14 +4278,6 @@ def test_frame_eval_mode_corner_case_many(case_setup, break_name):
 
             hit = writer.wait_for_breakpoint_hit(line=line)
             writer.write_run_thread(hit.thread_id)
-
-            if break_name == 'break with':
-                if sys.version_info[:2] >= (3, 10):
-                    # On Python 3.10 it'll actually backtrack for the
-                    # with and thus will execute the line where the
-                    # 'with' statement was started again.
-                    hit = writer.wait_for_breakpoint_hit(line=line)
-                    writer.write_run_thread(hit.thread_id)
 
             writer.finished_ok = True
 
@@ -4401,33 +4357,6 @@ def test_debugger_shadowed_imports(case_setup, tmpdir, module_name_and_content):
         pass  # This is expected as pydevd didn't start-up.
 
     assert ('the module "%s" could not be imported because it is shadowed by:' % (module_name.split('.')[0])) in writer.get_stderr()
-
-
-def test_debugger_hide_pydevd_threads(case_setup, pyfile):
-
-    @pyfile
-    def target_file():
-        import threading
-        from _pydevd_bundle import pydevd_constants
-        found_pydevd_thread = False
-        for t in threading.enumerate():
-            if getattr(t, 'is_pydev_daemon_thread', False):
-                found_pydevd_thread = True
-
-        if pydevd_constants.IS_CPYTHON:
-            assert not found_pydevd_thread
-        else:
-            assert found_pydevd_thread
-        print('TEST SUCEEDED')
-
-    with case_setup.test_file(target_file) as writer:
-        line = writer.get_line_index_with_content('TEST SUCEEDED')
-        writer.write_add_breakpoint(line)
-        writer.write_make_initial_run()
-
-        hit = writer.wait_for_breakpoint_hit(line=line)
-        writer.write_run_thread(hit.thread_id)
-        writer.finished_ok = True
 
 # Jython needs some vars to be set locally.
 # set JAVA_HOME=c:\bin\jdk1.8.0_172

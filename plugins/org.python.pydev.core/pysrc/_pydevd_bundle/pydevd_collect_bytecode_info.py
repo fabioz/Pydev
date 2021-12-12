@@ -1,3 +1,5 @@
+from opcode import HAVE_ARGUMENT, EXTENDED_ARG, hasconst, opname, hasname, hasjrel, haslocal, \
+    hascompare, hasfree, cmp_op
 import dis
 import inspect
 import sys
@@ -28,12 +30,10 @@ class TryExceptInfo(object):
         self.try_line = try_line
         self.ignore = ignore
         self.except_line = -1
-        self.except_end_line = -1
-        self.raise_lines_in_except = []
-
-        # Note: these may not be available if generated from source instead of bytecode.
         self.except_bytecode_offset = -1
+        self.except_end_line = -1
         self.except_end_bytecode_offset = -1
+        self.raise_lines_in_except = []
 
     def is_line_in_try_block(self, line):
         return self.try_line <= line < self.except_line
@@ -141,7 +141,7 @@ def _iter_as_bytecode_as_instructions_py2(co):
                 yield _Instruction(curr_op_name, op, _get_line(op_offset_to_line, initial_bytecode_offset, 0), oparg, is_jump_target, initial_bytecode_offset, str(oparg))
 
 
-def iter_instructions(co):
+def _iter_instructions(co):
     if sys.version_info[0] < 3:
         iter_in = _iter_as_bytecode_as_instructions_py2(co)
     else:
@@ -168,7 +168,7 @@ def collect_return_info(co, use_func_first_line=False):
 
     lst = []
     op_offset_to_line = dict(dis.findlinestarts(co))
-    for instruction in iter_instructions(co):
+    for instruction in _iter_instructions(co):
         curr_op_name = instruction.opname
         if curr_op_name == 'RETURN_VALUE':
             lst.append(ReturnInfo(_get_line(op_offset_to_line, instruction.offset, firstlineno, search=True)))
@@ -192,7 +192,7 @@ if sys.version_info[:2] < (3, 5):
 
         op_offset_to_line = dict(dis.findlinestarts(co))
 
-        for instruction in iter_instructions(co):
+        for instruction in _iter_instructions(co):
             curr_op_name = instruction.opname
 
             if curr_op_name in ('SETUP_EXCEPT', 'SETUP_FINALLY'):
@@ -351,7 +351,7 @@ if (3, 5) <= sys.version_info[:2] <= (3, 9):
 
         offset_to_instruction_idx = {}
 
-        instructions = list(iter_instructions(co))
+        instructions = list(_iter_instructions(co))
 
         for i, instruction in enumerate(instructions):
             offset_to_instruction_idx[instruction.offset] = i
@@ -471,7 +471,7 @@ if sys.version_info[:2] >= (3, 10):
 
         offset_to_instruction_idx = {}
 
-        instructions = list(iter_instructions(co))
+        instructions = list(_iter_instructions(co))
 
         for i, instruction in enumerate(instructions):
             offset_to_instruction_idx[instruction.offset] = i
@@ -541,77 +541,6 @@ if sys.version_info[:2] >= (3, 10):
 
         return try_except_info_lst
 
-import ast as ast_module
-
-
-class _Visitor(ast_module.NodeVisitor):
-
-    def __init__(self):
-        self.try_except_infos = []
-        self._stack = []
-        self._in_except_stack = []
-        self.max_line = -1
-
-    def generic_visit(self, node):
-        if hasattr(node, 'lineno'):
-            if node.lineno > self.max_line:
-                self.max_line = node.lineno
-        return ast_module.NodeVisitor.generic_visit(self, node)
-
-    def visit_Try(self, node):
-        info = TryExceptInfo(node.lineno, ignore=True)
-        self._stack.append(info)
-        self.generic_visit(node)
-        assert info is self._stack.pop()
-        if not info.ignore:
-            self.try_except_infos.insert(0, info)
-
-    if sys.version_info[0] < 3:
-        visit_TryExcept = visit_Try
-
-    def visit_ExceptHandler(self, node):
-        info = self._stack[-1]
-        info.ignore = False
-        if info.except_line == -1:
-            info.except_line = node.lineno
-        self._in_except_stack.append(info)
-        self.generic_visit(node)
-        if hasattr(node, 'end_lineno'):
-            info.except_end_line = node.end_lineno
-        else:
-            info.except_end_line = self.max_line
-        self._in_except_stack.pop()
-
-    if sys.version_info[0] >= 3:
-
-        def visit_Raise(self, node):
-            for info in self._in_except_stack:
-                    if node.exc is None:
-                        info.raise_lines_in_except.append(node.lineno)
-            self.generic_visit(node)
-
-    else:
-
-        def visit_Raise(self, node):
-            for info in self._in_except_stack:
-                    if node.type is None and node.tback is None:
-                        info.raise_lines_in_except.append(node.lineno)
-            self.generic_visit(node)
-
-
-def collect_try_except_info_from_source(filename):
-    with open(filename, 'rb') as stream:
-        contents = stream.read()
-    return collect_try_except_info_from_contents(contents, filename)
-
-
-def collect_try_except_info_from_contents(contents, filename='<unknown>'):
-    ast = ast_module.parse(contents, filename)
-    visitor = _Visitor()
-    visitor.visit(ast)
-    return visitor.try_except_infos
-
-
 RESTART_FROM_LOOKAHEAD = object()
 SEPARATOR = object()
 
@@ -656,7 +585,7 @@ class _Disassembler(object):
         self.co = co
         self.firstlineno = firstlineno
         self.level = level
-        self.instructions = list(iter_instructions(co))
+        self.instructions = list(_iter_instructions(co))
         op_offset_to_line = self.op_offset_to_line = dict(dis.findlinestarts(co))
 
         # Update offsets so that all offsets have the line index (and update it based on

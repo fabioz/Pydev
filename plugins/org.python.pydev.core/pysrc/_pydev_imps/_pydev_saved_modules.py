@@ -94,7 +94,7 @@ with VerifyShadowedImport('code') as verify_shadowed:
 
 if IS_PY2:
     with VerifyShadowedImport('thread') as verify_shadowed:
-        import thread;    verify_shadowed.check(thread, ['start_new_thread', 'allocate_lock'])
+        import thread;    verify_shadowed.check(thread, ['start_new_thread', 'start_new', 'allocate_lock'])
 
     with VerifyShadowedImport('Queue') as verify_shadowed:
         import Queue as _queue;    verify_shadowed.check(_queue, ['Queue', 'LifoQueue', 'Empty', 'Full', 'deque'])
@@ -123,6 +123,3 @@ else:
     with VerifyShadowedImport('http.server') as verify_shadowed:
         import http.server as BaseHTTPServer;    verify_shadowed.check(BaseHTTPServer, ['BaseHTTPRequestHandler'])
 
-# If set, this is a version of the threading.enumerate that doesn't have the patching to remove the pydevd threads.
-# Note: as it can't be set during execution, don't import the name (import the module and access it through its name).
-pydevd_saved_threading_enumerate = None

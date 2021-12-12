@@ -108,7 +108,7 @@ from _pydevd_bundle import pydevd_vm_type
 import sys
 import traceback
 from _pydevd_bundle.pydevd_utils import quote_smart as quote, compare_object_attrs_key, \
-    notify_about_gevent_if_needed, isinstance_checked, ScopeRequest, getattr_checked, Timer
+    notify_about_gevent_if_needed, isinstance_checked, ScopeRequest, getattr_checked
 from _pydev_bundle import pydev_log, fsnotify
 from _pydev_bundle.pydev_log import exception as pydev_log_exception
 from _pydev_bundle import _pydev_completer
@@ -782,7 +782,6 @@ def internal_get_variable_json(py_db, request):
                 'name': '<error>',
                 'value': err,
                 'type': '<error>',
-                'variablesReference': 0
             }]
         except:
             err = '<Internal error - unable to get traceback when getting variables>'
@@ -821,12 +820,10 @@ class InternalGetVariable(InternalThreadCommand):
             if not (_typeName == "OrderedDict" or val_dict.__class__.__name__ == "OrderedDict" or IS_PY36_OR_GREATER):
                 keys.sort(key=compare_object_attrs_key)
 
-            timer = Timer()
             for k in keys:
                 val = val_dict[k]
                 evaluate_full_value = pydevd_xml.should_evaluate_full_value(val)
                 xml.write(pydevd_xml.var_to_xml(val, k, evaluate_full_value=evaluate_full_value))
-                timer.report_if_compute_repr_attr_slow(self.attributes, k, type(val))
 
             xml.write("</xml>")
             cmd = dbg.cmd_factory.make_get_variable_message(self.sequence, xml.getvalue())
@@ -1189,7 +1186,6 @@ def internal_evaluate_expression_json(py_db, request, thread_id):
             eval_result = None
         else:
             frame = py_db.find_frame(thread_id, frame_id)
-
             eval_result = pydevd_vars.evaluate_expression(py_db, frame, expression, is_exec=False)
             is_error = isinstance_checked(eval_result, ExceptionOnEvaluate)
             if is_error:
@@ -1204,24 +1200,41 @@ def internal_evaluate_expression_json(py_db, request, thread_id):
                     _evaluate_response(py_db, request, result=msg, error_message=msg)
                     return
                 else:
-                    # We only try the exec if the failure we had was due to not being able
-                    # to evaluate the expression.
-                    try:
-                        pydevd_vars.compile_as_eval(expression)
-                    except Exception:
-                        try_exec = context == 'repl'
-                    else:
-                        try_exec = False
-                        if context == 'repl':
-                            # In the repl we should show the exception to the user.
-                            _evaluate_response_return_exception(py_db, request, eval_result.etype, eval_result.result, eval_result.tb)
-                            return
+                    try_exec = context == 'repl'
 
         if try_exec:
             try:
                 pydevd_vars.evaluate_expression(py_db, frame, expression, is_exec=True)
             except (Exception, KeyboardInterrupt):
-                _evaluate_response_return_exception(py_db, request, *sys.exc_info())
+                try:
+                    exc, exc_type, initial_tb = sys.exc_info()
+                    tb = initial_tb
+
+                    # Show the traceback without pydevd frames.
+                    temp_tb = tb
+                    while temp_tb:
+                        if py_db.get_file_type(temp_tb.tb_frame) == PYDEV_FILE:
+                            tb = temp_tb.tb_next
+                        temp_tb = temp_tb.tb_next
+
+                    if tb is None:
+                        tb = initial_tb
+                    err = ''.join(traceback.format_exception(exc, exc_type, tb))
+
+                    # Make sure we don't keep references to them.
+                    exc = None
+                    exc_type = None
+                    tb = None
+                    temp_tb = None
+                    initial_tb = None
+                except:
+                    err = '<Internal error - unable to get traceback when evaluating expression>'
+                    pydev_log.exception(err)
+
+                # Currently there is an issue in VSC where returning success=false for an
+                # eval request, in repl context, VSC does not show the error response in
+                # the debug console. So return the error message in result as well.
+                _evaluate_response(py_db, request, result=err, error_message=err)
                 return
             # No result on exec.
             _evaluate_response(py_db, request, result='')
@@ -1257,37 +1270,6 @@ def internal_evaluate_expression_json(py_db, request, thread_id):
     )
     variables_response = pydevd_base_schema.build_response(request, kwargs={'body':body})
     py_db.writer.add_command(NetCommand(CMD_RETURN, 0, variables_response, is_json=True))
-
-
-def _evaluate_response_return_exception(py_db, request, exc_type, exc, initial_tb):
-    try:
-        tb = initial_tb
-
-        # Show the traceback without pydevd frames.
-        temp_tb = tb
-        while temp_tb:
-            if py_db.get_file_type(temp_tb.tb_frame) == PYDEV_FILE:
-                tb = temp_tb.tb_next
-            temp_tb = temp_tb.tb_next
-
-        if tb is None:
-            tb = initial_tb
-        err = ''.join(traceback.format_exception(exc_type, exc, tb))
-
-        # Make sure we don't keep references to them.
-        exc = None
-        exc_type = None
-        tb = None
-        temp_tb = None
-        initial_tb = None
-    except:
-        err = '<Internal error - unable to get traceback when evaluating expression>'
-        pydev_log.exception(err)
-
-    # Currently there is an issue in VSC where returning success=false for an
-    # eval request, in repl context, VSC does not show the error response in
-    # the debug console. So return the error message in result as well.
-    _evaluate_response(py_db, request, result=err, error_message=err)
 
 
 @silence_warnings_decorator

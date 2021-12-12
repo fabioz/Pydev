@@ -164,7 +164,7 @@ IS_PYTHON_STACKLESS = "stackless" in sys.version.lower()
 CYTHON_SUPPORTED = False
 
 python_implementation = platform.python_implementation()
-if python_implementation == 'CPython':
+if python_implementation == 'CPython' and not IS_PYTHON_STACKLESS:
     # Only available for CPython!
     if (
         (sys.version_info[0] == 2 and sys.version_info[1] >= 6)
@@ -249,25 +249,8 @@ def as_float_in_env(env_key, default):
                 env_key, value))
 
 
-def as_int_in_env(env_key, default):
-    value = os.getenv(env_key)
-    if value is None:
-        return default
-    try:
-        return int(value)
-    except Exception:
-        raise RuntimeError(
-            'Error: expected the env variable: %s to be set to a int value. Found: %s' % (
-                env_key, value))
-
-
 # If true in env, use gevent mode.
 SUPPORT_GEVENT = is_true_in_env('GEVENT_SUPPORT')
-
-# Opt-in support to show gevent paused greenlets. False by default because if too many greenlets are
-# paused the UI can slow-down (i.e.: if 1000 greenlets are paused, each one would be shown separate
-# as a different thread, but if the UI isn't optimized for that the experience is lacking...).
-GEVENT_SHOW_PAUSED_GREENLETS = is_true_in_env('GEVENT_SHOW_PAUSED_GREENLETS')
 
 GEVENT_SUPPORT_NOT_SET_MSG = os.getenv(
     'GEVENT_SUPPORT_NOT_SET_MSG',
@@ -289,8 +272,6 @@ USE_CYTHON_FLAG = os.getenv('PYDEVD_USE_CYTHON')
 # Use to disable loading the lib to set tracing to all threads (default is using heuristics based on where we're running).
 LOAD_NATIVE_LIB_FLAG = os.getenv('PYDEVD_LOAD_NATIVE_LIB', '').lower()
 
-LOG_TIME = os.getenv('PYDEVD_LOG_TIME', 'true').lower() in ENV_TRUE_LOWER_VALUES
-
 if USE_CYTHON_FLAG is not None:
     USE_CYTHON_FLAG = USE_CYTHON_FLAG.lower()
     if USE_CYTHON_FLAG not in ENV_TRUE_LOWER_VALUES and USE_CYTHON_FLAG not in ENV_FALSE_LOWER_VALUES:
@@ -309,14 +290,6 @@ ASYNC_EVAL_TIMEOUT_SEC = 60
 NEXT_VALUE_SEPARATOR = "__pydev_val__"
 BUILTINS_MODULE_NAME = '__builtin__' if IS_PY2 else 'builtins'
 SHOW_DEBUG_INFO_ENV = is_true_in_env(('PYCHARM_DEBUG', 'PYDEV_DEBUG', 'PYDEVD_DEBUG'))
-
-# Pandas customization.
-PANDAS_MAX_ROWS = as_int_in_env('PYDEVD_PANDAS_MAX_ROWS', 300)
-PANDAS_MAX_COLS = as_int_in_env('PYDEVD_PANDAS_MAX_COLS', 300)
-PANDAS_MAX_COLWIDTH = as_int_in_env('PYDEVD_PANDAS_MAX_COLWIDTH', 80)
-
-# If getting an attribute or computing some value is too slow, let the user know if the given timeout elapses.
-PYDEVD_WARN_SLOW_RESOLVE_TIMEOUT = as_float_in_env('PYDEVD_WARN_SLOW_RESOLVE_TIMEOUT', 0.15)
 
 # This timeout is used to track the time to send a message saying that the evaluation
 # is taking too long and possible mitigations.
@@ -343,9 +316,6 @@ PYDEVD_UNBLOCK_THREADS_TIMEOUT = as_float_in_env('PYDEVD_UNBLOCK_THREADS_TIMEOUT
 # See: _pydevd_bundle.pydevd_timeout.create_interrupt_this_thread_callback for details
 # on how the thread interruption works (there are some caveats related to it).
 PYDEVD_INTERRUPT_THREAD_TIMEOUT = as_float_in_env('PYDEVD_INTERRUPT_THREAD_TIMEOUT', -1)
-
-# If PYDEVD_APPLY_PATCHING_TO_HIDE_PYDEVD_THREADS is set to False, the patching to hide pydevd threads won't be applied.
-PYDEVD_APPLY_PATCHING_TO_HIDE_PYDEVD_THREADS = os.getenv('PYDEVD_APPLY_PATCHING_TO_HIDE_PYDEVD_THREADS', 'true').lower() in ENV_TRUE_LOWER_VALUES
 
 EXCEPTION_TYPE_UNHANDLED = 'UNHANDLED'
 EXCEPTION_TYPE_USER_UNHANDLED = 'USER_UNHANDLED'

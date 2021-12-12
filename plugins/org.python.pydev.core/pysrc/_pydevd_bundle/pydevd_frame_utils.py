@@ -29,7 +29,6 @@ class FCode(object):
         self.co_name = name
         self.co_filename = filename
         self.co_firstlineno = 1
-        self.co_flags = 0
 
 
 def add_exception_to_frame(frame, exception_info):

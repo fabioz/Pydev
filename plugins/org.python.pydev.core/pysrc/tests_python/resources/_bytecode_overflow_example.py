@@ -1,9 +1,3 @@
-def check_backtrack(x):  # line 1
-    if not (x == 'a'  # line 2
-        or x == 'c'):  # line 3
-        pass  # line 4
-
-
 import re
 import sys
 
