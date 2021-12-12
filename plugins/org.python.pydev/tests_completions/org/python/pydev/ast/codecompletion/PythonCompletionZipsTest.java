@@ -6,11 +6,9 @@
  */
 package org.python.pydev.ast.codecompletion;
 
-import org.python.pydev.ast.codecompletion.PyCodeCompletion;
 import org.python.pydev.ast.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.ast.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.core.log.Log;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.shared_core.callbacks.ICallback;
 
@@ -40,14 +38,17 @@ public class PythonCompletionZipsTest extends CodeCompletionTestsBase {
         CompiledModule.COMPILED_MODULES_ENABLED = false;
 
         //add the zip and the egg files here...
-        this.restorePythonPath(TestDependent.GetCompletePythonLib(true) + "|" + TestDependent.TEST_PYSRC_TESTING_LOC
-                + "myzipmodule.zip" + "|" + TestDependent.TEST_PYSRC_TESTING_LOC + "myeggmodule.egg", false);
+        this.restorePythonPath(
+                TestDependent.getCompletePythonLib(true, isPython3Test()) + "|" + TestDependent.TEST_PYSRC_TESTING_LOC
+                        + "myzipmodule.zip" + "|" + TestDependent.TEST_PYSRC_TESTING_LOC + "myeggmodule.egg",
+                false);
         codeCompletion = new PyCodeCompletion();
         PyCodeCompletion.onCompletionRecursionException = new ICallback<Object, CompletionRecursionException>() {
 
             @Override
             public Object call(CompletionRecursionException e) {
-                throw new RuntimeException("Recursion error:" + org.python.pydev.shared_core.log.Log.getExceptionStr(e));
+                throw new RuntimeException(
+                        "Recursion error:" + org.python.pydev.shared_core.log.Log.getExceptionStr(e));
             }
 
         };

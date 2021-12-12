@@ -158,8 +158,8 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         super.setUp();
         InterpreterGeneralPreferences.FORCE_USE_TYPESHED = true;
         CompiledModule.COMPILED_MODULES_ENABLED = false;
-        this.restorePythonPath(TestDependent.GetCompletePythonLib(true) +
-                "|" + TestDependent.PYTHON_PIL_PACKAGES +
+        this.restorePythonPath(TestDependent.getCompletePythonLib(true, isPython3Test()) +
+                "|" + TestDependent.PYTHON2_PIL_PACKAGES +
                 "|"
                 + TestDependent.TEST_PYSRC_TESTING_LOC +
                 "configobj-4.6.0-py2.6.egg", false);
@@ -395,7 +395,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
             return;
         }
 
-        if (TestDependent.PYTHON_PIL_PACKAGES != null) {
+        if (TestDependent.PYTHON2_PIL_PACKAGES != null) {
             String s;
             s = "" +
                     "import Image\n" +
@@ -1427,6 +1427,9 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     }
 
     public void testShadeClassDeclaration() throws Exception {
+        if (SharedCorePlugin.skipKnownFailures()) {
+            return;
+        }
         String s = "class Foo:\n" +
                 "    def m1(self):\n" +
                 "        pass\n" +

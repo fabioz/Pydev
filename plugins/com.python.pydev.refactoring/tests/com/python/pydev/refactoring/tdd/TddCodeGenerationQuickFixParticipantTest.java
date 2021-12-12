@@ -53,8 +53,8 @@ public class TddCodeGenerationQuickFixParticipantTest extends CodeCompletionTest
         super.setUp();
         AbstractPyRefactoring.setPyRefactoring(new Refactorer());
         CompiledModule.COMPILED_MODULES_ENABLED = false;
-        this.restorePythonPath(TestDependent.GetCompletePythonLib(true) +
-                "|" + TestDependent.PYTHON_PIL_PACKAGES +
+        this.restorePythonPath(TestDependent.getCompletePythonLib(true, isPython3Test()) +
+                "|" + TestDependent.PYTHON2_PIL_PACKAGES +
                 "|"
                 + TestDependent.TEST_PYSRC_TESTING_LOC +
                 "configobj-4.6.0-py2.6.egg", false);

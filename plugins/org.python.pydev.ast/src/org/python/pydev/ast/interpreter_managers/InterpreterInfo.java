@@ -161,7 +161,7 @@ public class InterpreterInfo implements IInterpreterInfo {
      * within Eclipse, for test the stringVariableManagerForTests can be set to
      * an appropriate mock object
      */
-    /*default*/IStringVariableManager stringVariableManagerForTests;
+    public IStringVariableManager stringVariableManagerForTests;
 
     private IStringVariableManager getStringVariableManager() {
         if (SharedCorePlugin.inTestMode()) {
@@ -188,11 +188,11 @@ public class InterpreterInfo implements IInterpreterInfo {
         libs.addAll(libs0);
     }
 
-    /*default*/ InterpreterInfo(String version, String exe, Collection<String> libs0, Collection<String> dlls) {
+    public InterpreterInfo(String version, String exe, Collection<String> libs0, Collection<String> dlls) {
         this(version, exe, libs0);
     }
 
-    /*default*/ InterpreterInfo(String version, String exe, List<String> libs0, List<String> dlls,
+    public InterpreterInfo(String version, String exe, List<String> libs0, List<String> dlls,
             List<String> forced) {
         this(version, exe, libs0, dlls, forced, null, null);
     }
@@ -200,7 +200,7 @@ public class InterpreterInfo implements IInterpreterInfo {
     /**
      * Note: dlls is no longer used!
      */
-    /*default*/ InterpreterInfo(String version, String exe, List<String> libs0, List<String> dlls, List<String> forced,
+    public InterpreterInfo(String version, String exe, List<String> libs0, List<String> dlls, List<String> forced,
             List<String> envVars, Properties stringSubstitution) {
         this(version, exe, libs0, dlls);
         for (String s : forced) {

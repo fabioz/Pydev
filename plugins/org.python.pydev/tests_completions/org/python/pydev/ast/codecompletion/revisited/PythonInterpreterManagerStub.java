@@ -32,7 +32,7 @@ public class PythonInterpreterManagerStub extends AbstractInterpreterManager imp
     }
 
     public String getDefaultInterpreter() {
-        return TestDependent.PYTHON_EXE;
+        return TestDependent.PYTHON2_EXE;
     }
 
     @Override
@@ -42,7 +42,7 @@ public class PythonInterpreterManagerStub extends AbstractInterpreterManager imp
                 new NullProgressMonitor(), false);
         if (!InterpreterInfo.isJythonExecutable(defaultInterpreter)
                 && !InterpreterInfo.isIronpythonExecutable(defaultInterpreter)) {
-            TestDependent.PYTHON_EXE = info.executableOrJar;
+            TestDependent.PYTHON2_EXE = info.executableOrJar;
         }
         return new IInterpreterInfo[] { info };
     }
@@ -56,7 +56,7 @@ public class PythonInterpreterManagerStub extends AbstractInterpreterManager imp
             throws MisconfigurationException {
         InterpreterInfo info = super.getInterpreterInfo(executable, monitor);
         if (!InterpreterInfo.isJythonExecutable(executable) && !InterpreterInfo.isIronpythonExecutable(executable)) {
-            TestDependent.PYTHON_EXE = info.executableOrJar;
+            TestDependent.PYTHON2_EXE = info.executableOrJar;
         }
         return info;
     }

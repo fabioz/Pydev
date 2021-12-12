@@ -30,6 +30,16 @@ public class OccurrencesAnalyzerPy38Test extends AnalysisTestsBase {
         System.exit(0);
     }
 
+    @Override
+    protected String getSystemPythonpathPaths() {
+        String paths;
+        paths = TestDependent.getCompletePythonLib(true, isPython3Test());
+        if (TestDependent.PYTHON38_QT5_PACKAGES != null) {
+            paths += "|" + TestDependent.PYTHON38_QT5_PACKAGES;
+        }
+        return paths;
+    }
+
     private int initialGrammar;
 
     @Override
@@ -45,6 +55,11 @@ public class OccurrencesAnalyzerPy38Test extends AnalysisTestsBase {
         GRAMMAR_TO_USE_FOR_PARSING = initialGrammar;
         ParseException.verboseExceptions = true;
         super.tearDown();
+    }
+
+    @Override
+    protected boolean isPython3Test() {
+        return true;
     }
 
     public void testWalrusOperatorInIf() throws Exception {
@@ -138,4 +153,23 @@ public class OccurrencesAnalyzerPy38Test extends AnalysisTestsBase {
         printMessages(msgs, 0);
     }
 
+    public void testQt() throws Exception {
+        if (TestDependent.PYTHON38_QT5_PACKAGES != null) {
+            doc = new Document("import PyQt5.QtGui\n"
+                    + "print(PyQt5.QtGui.QColor.red)\n" +
+                    "\n");
+            analyzer = new OccurrencesAnalyzer();
+            checkNoError();
+        }
+    }
+
+    public void testQt2() throws Exception {
+        if (TestDependent.PYTHON38_QT5_PACKAGES != null) {
+            doc = new Document("import PyQt5.QtWidgets\n"
+                    + "print(PyQt5.QtWidgets.QWidget.__init__)\n" +
+                    "\n");
+            analyzer = new OccurrencesAnalyzer();
+            checkNoError();
+        }
+    }
 }

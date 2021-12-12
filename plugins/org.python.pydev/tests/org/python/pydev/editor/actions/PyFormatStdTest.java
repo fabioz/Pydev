@@ -16,7 +16,6 @@ import org.python.pydev.ast.formatter.PyFormatter;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.formatter.FormatStd;
-import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.string.StringUtils;
 
 import junit.framework.TestCase;
@@ -932,11 +931,7 @@ public class PyFormatStdTest extends TestCase {
         checkFormatResults("  \t  ", "");
     }
 
-    public void testTrimAndNewLineEOL3_failing_case() {
-        if (SharedCorePlugin.skipKnownFailures()) {
-            return;
-        }
-
+    public void testTrimAndNewLineEOL3a() {
         std.spaceAfterComma = true;
         std.parametersWithSpace = false;
         std.operatorsWithSpace = true;

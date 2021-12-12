@@ -25,7 +25,7 @@ public class PythonTest extends AbstractBasicRunTestCase {
     protected Throwable exec(File f) {
         System.out.println(StringUtils.format("Running: %s", f));
         Tuple<String, String> output = new SimplePythonRunner().runAndGetOutput(new String[] {
-                TestDependent.PYTHON_EXE, "-u", FileUtils.getFileAbsolutePath(f) }, f.getParentFile(), null, null,
+                TestDependent.PYTHON2_EXE, "-u", FileUtils.getFileAbsolutePath(f) }, f.getParentFile(), null, null,
                 "utf-8");
 
         System.out.println(StringUtils.format("stdout:%s\nstderr:%s", output.o1,

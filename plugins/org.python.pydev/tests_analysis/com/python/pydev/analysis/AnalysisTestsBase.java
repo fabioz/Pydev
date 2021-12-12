@@ -102,12 +102,20 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
 
     protected String getSystemPythonpathPaths() {
         String paths;
-        paths = TestDependent.GetCompletePythonLib(true);
-        if (TestDependent.PYTHON_WXPYTHON_PACKAGES != null) {
-            paths += "|" + TestDependent.PYTHON_WXPYTHON_PACKAGES;
-        }
-        if (TestDependent.PYTHON_OPENGL_PACKAGES != null) {
-            paths += "|" + TestDependent.PYTHON_OPENGL_PACKAGES;
+        paths = TestDependent.getCompletePythonLib(true, isPython3Test());
+        if (isPython3Test()) {
+            if (TestDependent.PYTHON38_QT5_PACKAGES != null) {
+                paths += "|" + TestDependent.PYTHON38_QT5_PACKAGES;
+            }
+
+        } else {
+            if (TestDependent.PYTHON2_WXPYTHON_PACKAGES != null) {
+                paths += "|" + TestDependent.PYTHON2_WXPYTHON_PACKAGES;
+            }
+            if (TestDependent.PYTHON2_OPENGL_PACKAGES != null) {
+                paths += "|" + TestDependent.PYTHON2_OPENGL_PACKAGES;
+            }
+
         }
         return paths;
     }

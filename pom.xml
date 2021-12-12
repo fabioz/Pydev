@@ -124,11 +124,11 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <properties>
-    <tycho-version>1.4.0</tycho-version>
-    <tycho-extras-version>1.4.0</tycho-extras-version>
+    <tycho-version>2.5.0</tycho-version>
+    <tycho-extras-version>2.5.0</tycho-extras-version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <repository.id>eclipse-2019-09</repository.id>
-    <repository.url>http://download.eclipse.org/releases/2019-09/</repository.url>
+    <repository.id>eclipse-2021-09</repository.id>
+    <repository.url>http://download.eclipse.org/releases/2021-09/</repository.url>
   </properties>
   <prerequisites>
     <maven>3.0</maven>
@@ -185,7 +185,7 @@
           </explodedBundles>
           <failIfNoTests>false</failIfNoTests>
           <useUIHarness>false</useUIHarness>
-          <testFailureIgnore>true</testFailureIgnore>
+          <testFailureIgnore>false</testFailureIgnore>
           <argLine>-enableassertions</argLine>
           <systemProperties>
             <!-- We are in test mode when running JUnit (non-workbench) tests.

@@ -391,9 +391,9 @@ public class PyParserTest extends PyParserTestBase {
         if (SharedCorePlugin.skipKnownFailures()) {
             return;
         }
-        if (TestDependent.PYTHON_WXPYTHON_PACKAGES != null) {
+        if (TestDependent.PYTHON2_WXPYTHON_PACKAGES != null) {
             boolean recursive = STRESS_TEST;
-            File file = new File(TestDependent.PYTHON_WXPYTHON_PACKAGES, "wxPython");
+            File file = new File(TestDependent.PYTHON2_WXPYTHON_PACKAGES, "wxPython");
             Timer timer = new Timer();
 
             parseFilesInDir(file, recursive, false); //Don't generate ast
@@ -402,7 +402,7 @@ public class PyParserTest extends PyParserTestBase {
             parseFilesInDir(file, recursive, true);
             timer.printDiff("Time to generate with AST");
 
-            file = new File(TestDependent.PYTHON_WXPYTHON_PACKAGES, "wx");
+            file = new File(TestDependent.PYTHON2_WXPYTHON_PACKAGES, "wx");
             parseFilesInDir(file, recursive, false); //Don't generate ast
             timer.printDiff("Time to generate without AST");
 
@@ -412,7 +412,7 @@ public class PyParserTest extends PyParserTestBase {
     }
 
     public void testOnCompleteLib() throws Throwable {
-        File file = new File(TestDependent.PYTHON_LIB);
+        File file = new File(TestDependent.PYTHON2_LIB);
         boolean recursive = STRESS_TEST;
         Timer timer = new Timer();
         parseFilesInDir(file, recursive);
@@ -429,12 +429,12 @@ public class PyParserTest extends PyParserTestBase {
     //    not removed completely because we may still want to debug it later...
     //    public void testOnCsv() throws Throwable {
     //        PyParser.USE_FAST_STREAM = false;
-    //        String loc = TestDependent.PYTHON_LIB+"csv.py";
+    //        String loc = TestDependent.PYTHON2_LIB+"csv.py";
     //        String s = FileUtils.getFileContents(new File(loc));
     //        parseLegalDocStr(s);
     //
     //        PyParser.USE_FAST_STREAM = true;
-    //        loc = TestDependent.PYTHON_LIB+"csv.py";
+    //        loc = TestDependent.PYTHON2_LIB+"csv.py";
     //        s = FileUtils.getFileContents(new File(loc));
     //        parseLegalDocStr(s);
     //    }
@@ -452,7 +452,7 @@ public class PyParserTest extends PyParserTestBase {
     }
 
     public void testOnCgiMod2() throws Throwable {
-        String loc = TestDependent.PYTHON_LIB +
+        String loc = TestDependent.PYTHON2_LIB +
                 "cgi.py";
         String s = FileUtils.getFileContents(new File(loc));
         parseLegalDocStr(s);
@@ -468,20 +468,6 @@ public class PyParserTest extends PyParserTestBase {
     //        parseILegalDoc(new Document(s1));
     //
     //    }
-
-    public void testOnTestGrammar() throws Throwable {
-        // Fails because the "standard" test files are not where the tests expect.
-        // TODO might be solvable by installing python source package?
-        // TODO the loc here should use TestDependent.PYTHON_TEST_PACKAGES
-        if (SharedCorePlugin.skipKnownFailures()) {
-            return;
-        }
-
-        String loc = TestDependent.PYTHON_LIB +
-                "test/test_grammar.py";
-        String s = FileUtils.getFileContents(new File(loc));
-        parseLegalDocStr(s, "(file: test_grammar.py)");
-    }
 
     public void testSimple() throws Throwable {
         final String s = "" +
@@ -502,56 +488,29 @@ public class PyParserTest extends PyParserTestBase {
         });
     }
 
-    public void testOnTestContextLib() throws Throwable {
-        // Fails because the "standard" test files are not where the tests expect.
-        // TODO might be solvable by installing python source package?
-        if (SharedCorePlugin.skipKnownFailures()) {
-            return;
-        }
-
-        if (TestDependent.PYTHON_TEST_PACKAGES != null) {
-            String loc = TestDependent.PYTHON_TEST_PACKAGES +
-                    "test_contextlib.py";
-            String s = FileUtils.getFileContents(new File(loc));
-            parseLegalDocStr(s, "(file: test_contextlib.py)");
-        }
-    }
-
     public void testOnCalendar() throws Throwable {
-        String loc = TestDependent.PYTHON_LIB +
+        String loc = TestDependent.PYTHON2_LIB +
                 "hmac.py";
         String s = FileUtils.getFileContents(new File(loc));
         parseLegalDocStr(s);
     }
 
-    public void testOnUnittestMod() throws Throwable {
-        // fails on Python >= 2.7 because unittest became a dir instead of one file.
-        if (SharedCorePlugin.skipKnownFailures()) {
-            return;
-        }
-
-        String loc = TestDependent.PYTHON_LIB +
-                "unittest.py";
-        String s = FileUtils.getFileContents(new File(loc));
-        parseLegalDocStr(s);
-    }
-
     public void testOnCodecsMod() throws Throwable {
-        String loc = TestDependent.PYTHON_LIB +
+        String loc = TestDependent.PYTHON2_LIB +
                 "codecs.py";
         String s = FileUtils.getFileContents(new File(loc));
         parseLegalDocStr(s);
     }
 
     public void testOnDocBaseHTTPServer() throws Throwable {
-        String loc = TestDependent.PYTHON_LIB +
+        String loc = TestDependent.PYTHON2_LIB +
                 "BaseHTTPServer.py";
         String s = FileUtils.getFileContents(new File(loc));
         parseLegalDocStr(s);
     }
 
     public void testOnDocXMLRPCServerMod() throws Throwable {
-        String loc = TestDependent.PYTHON_LIB +
+        String loc = TestDependent.PYTHON2_LIB +
                 "DocXMLRPCServer.py";
         String s = FileUtils.getFileContents(new File(loc));
         parseLegalDocStr(s);
@@ -924,7 +883,7 @@ public class PyParserTest extends PyParserTestBase {
             return;
         }
 
-        String loc = TestDependent.PYTHON_LIB +
+        String loc = TestDependent.PYTHON2_LIB +
                 "unittest.py";
         String s = FileUtils.getFileContents(new File(loc));
 

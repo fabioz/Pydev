@@ -557,7 +557,7 @@ public class AbstractWorkbenchTestCase extends TestCase {
      */
     protected static void createPythonInterpreterManager(NullProgressMonitor monitor) {
         IInterpreterManager iMan = InterpreterManagersAPI.getPythonInterpreterManager(true);
-        IInterpreterInfo interpreterInfo = iMan.createInterpreterInfo(TestDependent.PYTHON_EXE, monitor, false);
+        IInterpreterInfo interpreterInfo = iMan.createInterpreterInfo(TestDependent.PYTHON2_EXE, monitor, false);
         iMan.setInfos(new IInterpreterInfo[] { interpreterInfo }, null, null);
     }
 

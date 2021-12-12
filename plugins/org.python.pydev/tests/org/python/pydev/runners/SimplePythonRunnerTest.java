@@ -63,7 +63,7 @@ public class SimplePythonRunnerTest extends TestCase {
 
         File relativePath = CorePlugin.getBundleInfo().getRelativePath(new Path("pysrc/interpreterInfo.py"));
         String string = new SimplePythonRunner().runAndGetOutput(
-                new String[] { TestDependent.PYTHON_EXE, FileUtils.getFileAbsolutePath(relativePath) }, null, null,
+                new String[] { TestDependent.PYTHON2_EXE, FileUtils.getFileAbsolutePath(relativePath) }, null, null,
                 null,
                 "utf-8").o1;
         assertNotNull(string);

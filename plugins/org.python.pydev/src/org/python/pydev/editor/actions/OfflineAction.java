@@ -17,7 +17,7 @@ import org.python.pydev.editor.PyEdit;
 
 /**
  * Reference: IncrementalFindAction extends ResourceAction implements IUpdate
- * 
+ *
  * @author Fabio
  */
 public class OfflineAction extends ResourceAction implements IUpdate {
@@ -36,8 +36,9 @@ public class OfflineAction extends ResourceAction implements IUpdate {
      */
     @Override
     public void run() {
-        if (fTarget == null)
+        if (fTarget == null) {
             return;
+        }
 
         fTarget.beginSession();
     }

@@ -354,9 +354,9 @@ public class CodeCompletionTestsBase extends TestCase {
                     new NullProgressMonitor(), false);
             TestDependent.PYTHON_30_EXE = info.executableOrJar;
         } else {
-            info = (InterpreterInfo) interpreterManager.createInterpreterInfo(TestDependent.PYTHON_EXE,
+            info = (InterpreterInfo) interpreterManager.createInterpreterInfo(TestDependent.PYTHON2_EXE,
                     new NullProgressMonitor(), false);
-            TestDependent.PYTHON_EXE = info.executableOrJar;
+            TestDependent.PYTHON2_EXE = info.executableOrJar;
         }
         if (path != null) {
             info = new InterpreterInfo(info.getVersion(), info.executableOrJar,
@@ -422,7 +422,7 @@ public class CodeCompletionTestsBase extends TestCase {
      * same as the restorePythonPath function but also includes the site packages in the distribution
      */
     public void restorePythonPathWithSitePackages(boolean force) {
-        restoreSystemPythonPath(force, TestDependent.GetCompletePythonLib(true));
+        restoreSystemPythonPath(force, TestDependent.getCompletePythonLib(true, isPython3Test()));
         restoreProjectPythonPath(force, getProjectPythonpath());
         restoreProjectPythonPath2(force, getProjectPythonpathNature2());
         checkSize();
@@ -437,7 +437,7 @@ public class CodeCompletionTestsBase extends TestCase {
         if (DEBUG_TESTS_BASE) {
             System.out.println("-------------- Restoring system pythonpath");
         }
-        restoreSystemPythonPath(force, TestDependent.GetCompletePythonLib(false));
+        restoreSystemPythonPath(force, TestDependent.getCompletePythonLib(false, isPython3Test()));
         if (DEBUG_TESTS_BASE) {
             System.out.println("-------------- Restoring project pythonpath");
         }

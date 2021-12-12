@@ -92,7 +92,7 @@ public class CompletionParticipantBuiltinsTest extends AdditionalInfoTestsBase {
         if (SharedCorePlugin.skipKnownFailures()) {
             return;
         }
-        if (TestDependent.PYTHON_WXPYTHON_PACKAGES != null) {
+        if (TestDependent.PYTHON2_WXPYTHON_PACKAGES != null) {
             CompiledModule module = new CompiledModule("wx", this.getManager().getModulesManager(),
                     this.getManager().getNature());
 

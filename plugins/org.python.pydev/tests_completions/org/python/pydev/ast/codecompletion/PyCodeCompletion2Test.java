@@ -39,8 +39,8 @@ public class PyCodeCompletion2Test extends CodeCompletionTestsBase {
     public void setUp() throws Exception {
         super.setUp();
         CompiledModule.COMPILED_MODULES_ENABLED = false;
-        this.restorePythonPath(TestDependent.GetCompletePythonLib(true) +
-                "|" + TestDependent.PYTHON_PIL_PACKAGES,
+        this.restorePythonPath(TestDependent.getCompletePythonLib(true, isPython3Test()) +
+                "|" + TestDependent.PYTHON2_PIL_PACKAGES,
                 false);
         this.restorePythonPath(false);
         codeCompletion = new PyCodeCompletion();

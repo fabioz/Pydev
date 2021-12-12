@@ -72,7 +72,7 @@ public class XmlRpcTest extends TestCase {
 
         String[] cmdLine;
         if (python) {
-            cmdLine = new String[] { TestDependent.PYTHON_EXE, "-u", FileUtils.getFileAbsolutePath(f), "" + port,
+            cmdLine = new String[] { TestDependent.PYTHON2_EXE, "-u", FileUtils.getFileAbsolutePath(f), "" + port,
                     "" + client_port };
         } else {
             cmdLine = new String[] { TestDependent.JAVA_LOCATION, "-classpath", TestDependent.JYTHON_JAR_LOCATION,

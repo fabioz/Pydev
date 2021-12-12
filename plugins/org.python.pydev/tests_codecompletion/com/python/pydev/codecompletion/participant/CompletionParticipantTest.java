@@ -67,7 +67,8 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
 
     @Override
     protected String getSystemPythonpathPaths() {
-        return TestDependent.GetCompletePythonLib(true) + "|" + TestDependent.TEST_PYSRC_TESTING_LOC + "myzipmodule.zip"
+        return TestDependent.getCompletePythonLib(true, isPython3Test()) + "|" + TestDependent.TEST_PYSRC_TESTING_LOC
+                + "myzipmodule.zip"
                 + "|"
                 + TestDependent.TEST_PYSRC_TESTING_LOC + "myeggmodule.egg";
     }

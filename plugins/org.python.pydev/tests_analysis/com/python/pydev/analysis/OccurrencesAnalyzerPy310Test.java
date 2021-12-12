@@ -38,6 +38,11 @@ public class OccurrencesAnalyzerPy310Test extends AnalysisTestsBase {
         super.tearDown();
     }
 
+    @Override
+    protected boolean isPython3Test() {
+        return true;
+    }
+
     public void testMatchStmtSimple() {
         doc = new Document(""
                 + "command = 'foo'\n"

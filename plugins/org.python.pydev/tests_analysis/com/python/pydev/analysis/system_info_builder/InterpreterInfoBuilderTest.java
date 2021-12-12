@@ -77,7 +77,7 @@ public class InterpreterInfoBuilderTest extends TestCase {
         Collection<String> pythonpath = new ArrayList<String>();
         pythonpath.add(libDir.toString());
 
-        final InterpreterInfo info = new InterpreterInfo("2.6", TestDependent.PYTHON_EXE, pythonpath);
+        final InterpreterInfo info = new InterpreterInfo("2.6", TestDependent.PYTHON2_EXE, pythonpath);
 
         IEclipsePreferences preferences = new InMemoryEclipsePreferences();
         final PythonInterpreterManager manager = new PythonInterpreterManager(preferences);

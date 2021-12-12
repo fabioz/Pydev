@@ -50,7 +50,9 @@ public class PythonModuleResolverExtensionPointTest extends TestCase {
      */
     public void testResolvePathWithResolver() {
         PythonPathHelper helper = new PythonPathHelper();
-        String path = TestDependent.GetCompletePythonLib(true) + "|" + TestDependent.TEST_PYSRC_TESTING_LOC;
+        boolean isPython3Test = false;
+        String path = TestDependent.getCompletePythonLib(true, isPython3Test) + "|"
+                + TestDependent.TEST_PYSRC_TESTING_LOC;
         helper.setPythonPath(path);
         final IPath stubbedModulePath1 = Path
                 .fromOSString(FileUtils.getFileAbsolutePath("/this/is/a/path/to/a/file1.py"));
@@ -90,7 +92,7 @@ public class PythonModuleResolverExtensionPointTest extends TestCase {
                 helper.resolveModule(stubbedModulePath2.toOSString(), project));
 
         // Check to see that delegation also works:
-        assertEquals("unittest", helper.resolveModule(TestDependent.PYTHON_LIB + "unittest.py", project));
+        assertEquals("unittest", helper.resolveModule(TestDependent.PYTHON2_LIB + "unittest.py", project));
 
         // Check the negative case:
         assertNull(helper.resolveModule(stubbedNegativeCase.toOSString(), project));
@@ -102,7 +104,9 @@ public class PythonModuleResolverExtensionPointTest extends TestCase {
      */
     public void testGetModulesFoundStructureWithResolver() {
         PythonPathHelper helper = new PythonPathHelper();
-        String path = TestDependent.GetCompletePythonLib(true) + "|" + TestDependent.TEST_PYSRC_TESTING_LOC;
+        boolean isPython3Test = false;
+        String path = TestDependent.getCompletePythonLib(true, isPython3Test) + "|"
+                + TestDependent.TEST_PYSRC_TESTING_LOC;
         helper.setPythonPath(path);
         setTestingModuleResolver(new IPythonModuleResolver() {
             @Override

@@ -135,8 +135,7 @@ public class CtxInsensitiveImportComplProposalTest extends TestCase {
         //yeap, lot's of spaces there (more than 80 to test it)
         Document doc = new Document(
                 "from XXX import WWW,                                                                     RRR # comment\n"
-                        +
-                        "from XXX import YYY,                                                                     ZZZ\n");
+                        + "from XXX import YYY,                                                                     ZZZ\n");
 
         CtxInsensitiveImportComplProposal prop = (CtxInsensitiveImportComplProposal) CompletionProposalFactory.get()
                 .createCtxInsensitiveImportComplProposal("BBB", doc.getLength(), 0, doc.getLength(),
@@ -147,9 +146,9 @@ public class CtxInsensitiveImportComplProposalTest extends TestCase {
         prop.apply(doc, '\n', 0, doc.getLength());
         //        System.out.println(">>"+doc.get()+"<<");
         assertEquals(
-                "from XXX import WWW,                                                                     RRR # comment\n"
-                        +
-                        "from XXX import YYY,                                                                     ZZZ,\\\n\tBBB\nBBB",
+                "from XXX import WWW,                                                                     RRR,\\\n"
+                        + "\tBBB # comment\n"
+                        + "from XXX import YYY,                                                                     ZZZ\nBBB",
                 doc.get());
     }
 

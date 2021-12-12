@@ -512,7 +512,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     public void testCompiledUnusedImports5() {
 
-        if (TestDependent.PYTHON_WXPYTHON_PACKAGES != null) {
+        if (TestDependent.PYTHON2_WXPYTHON_PACKAGES != null) {
             doc = new Document("from wxPython.wx import wxButton\n" +
                     "");
             analyzer = new OccurrencesAnalyzer();
@@ -525,7 +525,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     public void testCompiledWx() {
 
-        if (TestDependent.PYTHON_WXPYTHON_PACKAGES != null) {
+        if (TestDependent.PYTHON2_WXPYTHON_PACKAGES != null) {
             //            CompiledModule.TRACE_COMPILED_MODULES = true;
             doc = new Document("from wx import glcanvas\n" +
                     "print glcanvas.GLCanvas\n" +

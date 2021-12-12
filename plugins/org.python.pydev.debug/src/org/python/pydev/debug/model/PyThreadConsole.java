@@ -16,12 +16,12 @@ import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IProcess;
 
 /**
- * A specialisation of PyThread that can't be "controlled" by the user.
+ * A specialization of PyThread that can't be "controlled" by the user.
  * <p>
- * We use this thread to represent the virtual thread/frame that is the 
+ * We use this thread to represent the virtual thread/frame that is the
  * one of the interactive console. See {@link PyStackFrameConsole}.
  * <p>
- * This thread is prepended to the list of real frames returned from 
+ * This thread is prepended to the list of real frames returned from
  * pydevd in {@link PyDebugTargetConsole#getThreads()}
  */
 public class PyThreadConsole extends PyThread {

@@ -40,6 +40,11 @@ public class OccurrencesAnalyzerPy36Test extends AnalysisTestsBase {
         super.tearDown();
     }
 
+    @Override
+    protected boolean isPython3Test() {
+        return true;
+    }
+
     public void testUsedVariable1() throws Exception {
         doc = new Document(""
                 + "def bar(a):\n" +

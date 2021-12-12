@@ -134,7 +134,7 @@ public class SyncSystemModulesManagerTest extends TestCase {
         Collection<String> pythonpath = new ArrayList<String>();
         pythonpath.add(libDir.toString());
 
-        final InterpreterInfo info = new InterpreterInfo("2.6", TestDependent.PYTHON_EXE, pythonpath);
+        final InterpreterInfo info = new InterpreterInfo("2.6", TestDependent.PYTHON2_EXE, pythonpath);
 
         IEclipsePreferences preferences = createPreferenceStore();
         final PythonInterpreterManager manager = new PythonInterpreterManager(preferences);
@@ -198,7 +198,7 @@ public class SyncSystemModulesManagerTest extends TestCase {
                         pythonpath.add(libDir.toString());
                         pythonpath.add(libZipFile.toString());
 
-                        final InterpreterInfo info = new InterpreterInfo("2.6", TestDependent.PYTHON_EXE, pythonpath);
+                        final InterpreterInfo info = new InterpreterInfo("2.6", TestDependent.PYTHON2_EXE, pythonpath);
                         return info;
                     }
                 });
@@ -323,7 +323,7 @@ public class SyncSystemModulesManagerTest extends TestCase {
                         pythonpath.add(libDir.toString());
                         pythonpath.add(libDir2.toString());
 
-                        final InterpreterInfo info = new InterpreterInfo("2.6", TestDependent.PYTHON_EXE, pythonpath);
+                        final InterpreterInfo info = new InterpreterInfo("2.6", TestDependent.PYTHON2_EXE, pythonpath);
                         return info;
                     }
                 });
@@ -350,7 +350,7 @@ public class SyncSystemModulesManagerTest extends TestCase {
                         pythonpath.add(libDir.toString());
 
                         //Still the same!
-                        final InterpreterInfo info = new InterpreterInfo("2.6", TestDependent.PYTHON_EXE, pythonpath);
+                        final InterpreterInfo info = new InterpreterInfo("2.6", TestDependent.PYTHON2_EXE, pythonpath);
                         return info;
                     }
                 });
@@ -396,7 +396,7 @@ public class SyncSystemModulesManagerTest extends TestCase {
                         pythonpath.add(libDir3.toString());
                         pythonpath.add(libZipFile.toString());
 
-                        final InterpreterInfo info = new InterpreterInfo("2.6", TestDependent.PYTHON_EXE, pythonpath);
+                        final InterpreterInfo info = new InterpreterInfo("2.6", TestDependent.PYTHON2_EXE, pythonpath);
                         return info;
                     }
                 });

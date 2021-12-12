@@ -14,7 +14,7 @@
 * Contributors:
 *     Fabio Zadrozny <fabiofz@gmail.com> - initial implementation
 ******************************************************************************/
-/* 
+/*
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
  * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  */
@@ -58,7 +58,8 @@ public class HierarchyTestCase extends CodeCompletionTestsBase {
         super.setUp();
 
         CompiledModule.COMPILED_MODULES_ENABLED = true;
-        this.restorePythonPath(TestDependent.GetCompletePythonLib(true) + "|" + file.getParent(), false);
+        this.restorePythonPath(TestDependent.getCompletePythonLib(true, isPython3Test()) + "|" + file.getParent(),
+                false);
         codeCompletion = new PyCodeCompletion();
 
         //we don't want to start it more than once

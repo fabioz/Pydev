@@ -74,11 +74,11 @@ public class InterpreterManagerTest extends TestCase {
 
     public void testInterpreterManager() throws Exception {
         Collection<String> pythonpath = new ArrayList<String>();
-        pythonpath.add(TestDependent.PYTHON_LIB);
-        pythonpath.add(TestDependent.PYTHON_SITE_PACKAGES);
+        pythonpath.add(TestDependent.PYTHON2_LIB);
+        pythonpath.add(TestDependent.PYTHON2_SITE_PACKAGES);
 
         IEclipsePreferences prefs = new InMemoryEclipsePreferences();
-        String interpreterStr = new InterpreterInfo("2.6", TestDependent.PYTHON_EXE, pythonpath).toString();
+        String interpreterStr = new InterpreterInfo("2.6", TestDependent.PYTHON2_EXE, pythonpath).toString();
         prefs.put(IInterpreterManager.PYTHON_INTERPRETER_PATH, interpreterStr);
         PythonInterpreterManager manager = new PythonInterpreterManager(prefs);
         checkSameInterpreterInfo(manager);
@@ -87,10 +87,10 @@ public class InterpreterManagerTest extends TestCase {
         InterpreterInfo info = checkSameInterpreterInfo(manager);
 
         pythonpath = new ArrayList<String>();
-        pythonpath.add(TestDependent.PYTHON_LIB);
-        pythonpath.add(TestDependent.PYTHON_SITE_PACKAGES);
+        pythonpath.add(TestDependent.PYTHON2_LIB);
+        pythonpath.add(TestDependent.PYTHON2_SITE_PACKAGES);
         pythonpath.add(additionalPythonpathEntry.toString());
-        interpreterStr = new InterpreterInfo("2.6", TestDependent.PYTHON_EXE, pythonpath).toString();
+        interpreterStr = new InterpreterInfo("2.6", TestDependent.PYTHON2_EXE, pythonpath).toString();
         prefs.put(IInterpreterManager.PYTHON_INTERPRETER_PATH, interpreterStr);
 
         info = checkSameInterpreterInfo(manager);
@@ -98,7 +98,7 @@ public class InterpreterManagerTest extends TestCase {
 
     private InterpreterInfo checkSameInterpreterInfo(PythonInterpreterManager manager)
             throws MisconfigurationException {
-        InterpreterInfo infoInManager = manager.getInterpreterInfo(TestDependent.PYTHON_EXE, null);
+        InterpreterInfo infoInManager = manager.getInterpreterInfo(TestDependent.PYTHON2_EXE, null);
         IInterpreterInfo[] interpreterInfos = manager.getInterpreterInfos();
         assertEquals(1, interpreterInfos.length);
         assertSame(interpreterInfos[0], infoInManager);

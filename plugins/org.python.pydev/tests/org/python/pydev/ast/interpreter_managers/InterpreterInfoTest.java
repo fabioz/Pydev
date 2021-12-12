@@ -336,8 +336,8 @@ public class InterpreterInfoTest extends TestCase {
             testFileName = "env_vars.bat";
         }
 
-        String activateFilePath = TestDependent.CONDA_PYTHON_ENV + "etc/conda/activate.d/" + testFileName;
-        String deactivateFilePath = TestDependent.CONDA_PYTHON_ENV + "etc/conda/deactivate.d/" + testFileName;
+        String activateFilePath = TestDependent.CONDA_PYTHON_38_ENV + "etc/conda/activate.d/" + testFileName;
+        String deactivateFilePath = TestDependent.CONDA_PYTHON_38_ENV + "etc/conda/deactivate.d/" + testFileName;
 
         String testVariable = "MY_INTERPRETERINFO_TEST_KEY";
 
@@ -349,9 +349,9 @@ public class InterpreterInfoTest extends TestCase {
         FileUtils.writeStrToFile(contents.o1, activateFilePath);
         FileUtils.writeStrToFile(contents.o2, deactivateFilePath);
 
-        String pythonExe = TestDependent.CONDA_PYTHON_ENV + "bin/python";
+        String pythonExe = TestDependent.CONDA_PYTHON_38_ENV + "bin/python";
         if (TestDependent.isWindows()) {
-            pythonExe = TestDependent.CONDA_PYTHON_ENV + "python.exe";
+            pythonExe = TestDependent.CONDA_PYTHON_38_ENV + "python.exe";
         }
         assertTrue(new File(pythonExe).exists());
         InterpreterInfo interpreterInfo = new InterpreterInfo("3.8", pythonExe, new ArrayList<String>());

@@ -55,7 +55,7 @@ public class FileUtilsTest extends TestCase {
             this.wait(50);
         }
         File f1a = new File(dir1, "f1a.txt");
-        FileUtils.writeStrToFile("test", f1);
+        FileUtils.writeStrToFile("test", f1a);
         synchronized (this) {
             this.wait(50);
         }
@@ -108,7 +108,7 @@ public class FileUtilsTest extends TestCase {
         assertEquals(lastModifiedTimeFromDir, FileUtils.lastModified(f2));
 
         lastModifiedTimeFromDir = FileUtils.getLastModifiedTimeFromDir(baseDir, acceptAll, acceptOnlyDir1, 2);
-        assertEquals(lastModifiedTimeFromDir, FileUtils.lastModified(f1));
+        assertEquals(lastModifiedTimeFromDir, FileUtils.lastModified(f1a));
 
         lastModifiedTimeFromDir = FileUtils.getLastModifiedTimeFromDir(baseDir, acceptOnlyPy, acceptAll, 2);
         assertEquals(lastModifiedTimeFromDir, FileUtils.lastModified(f1));

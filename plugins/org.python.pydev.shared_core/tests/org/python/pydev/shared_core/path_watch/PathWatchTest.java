@@ -283,19 +283,24 @@ public class PathWatchTest extends TestCase {
             fail("Not expecting any addition when a directory is added inside a directory unless that directory "
                     + "changed its time with interesting content.");
         }
-        f = new File(dir, "t.py");
         pathWatch.log.append("Creating :").appendObject(f).append('\n');
+        f = new File(dir, "t.py");
         FileUtils.writeStrToFile("test", f);
-        waitUntilCondition(new ICallback<String, Object>() {
 
-            @Override
-            public String call(Object arg) {
-                if (getChangeHappened()) {
-                    return null;
-                }
-                return "No change detected. \nLog:\n" + pathWatch.log;
-            }
-        });
+        if (getChangeHappened()) {
+            fail("Not expecting any addition (we don't track changes recursively).");
+        }
+
+        // waitUntilCondition(new ICallback<String, Object>() {
+        //
+        //     @Override
+        //     public String call(Object arg) {
+        //         if (getChangeHappened()) {
+        //             return null;
+        //         }
+        //         return "No change detected. \nLog:\n" + pathWatch.log;
+        //     }
+        // });
     }
 
     public void testPathWatch() throws Exception {

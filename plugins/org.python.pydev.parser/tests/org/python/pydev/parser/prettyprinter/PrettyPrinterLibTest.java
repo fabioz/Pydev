@@ -35,7 +35,7 @@ public class PrettyPrinterLibTest extends AbstractPrettyPrinterTestBase {
     }
 
     public void testOnCompleteLib() throws Exception {
-        File file = new File(TestDependent.PYTHON_LIB);
+        File file = new File(TestDependent.PYTHON2_LIB);
         if (MAKE_COMPLETE_PARSE) {
             parseAndReparsePrettyPrintedFilesInDir(file);
         } else {

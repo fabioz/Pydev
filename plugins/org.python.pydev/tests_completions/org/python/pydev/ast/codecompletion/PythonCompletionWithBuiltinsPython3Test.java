@@ -86,7 +86,13 @@ public class PythonCompletionWithBuiltinsPython3Test extends CodeCompletionTests
         ADD_MX_TO_FORCED_BUILTINS = false;
 
         CompiledModule.COMPILED_MODULES_ENABLED = true;
-        this.restorePythonPath(TestDependent.PYTHON_30_LIB, false);
+
+        String paths = TestDependent.PYTHON_30_LIB;
+        if (TestDependent.PYTHON38_QT5_PACKAGES != null) {
+            paths += "|" + TestDependent.PYTHON38_QT5_PACKAGES;
+        }
+
+        this.restorePythonPath(paths, false);
 
         codeCompletion = new PyCodeCompletion();
 
@@ -99,7 +105,6 @@ public class PythonCompletionWithBuiltinsPython3Test extends CodeCompletionTests
         if (builtinMod == null) {
             throw new AssertionError("builtins not found");
         }
-
     }
 
     /*
@@ -376,7 +381,7 @@ public class PythonCompletionWithBuiltinsPython3Test extends CodeCompletionTests
         //     if (ignore.contains(s)) {
         //         continue;
         //     }
-        // 
+        //
         //     if (!typeshedNames.contains(s)) {
         //         error += ("Did not find: " + s + "\n");
         //     }
@@ -503,6 +508,18 @@ public class PythonCompletionWithBuiltinsPython3Test extends CodeCompletionTests
                 + "c = SubClass()\n"
                 + "c.";
         requestCompl(s, s.length(), -1, new String[] { "close()", "some_method()" });
+    }
+
+    public void testPyQt5() throws Exception {
+        if (TestDependent.PYTHON38_QT5_PACKAGES != null) { //we can only test what we have
+            //check for builtins with reference..3
+            String s = "" +
+                    "from PyQt5.QtWidgets import *\n" +
+                    "                \n" +
+                    "q = QLabel()    \n" +
+                    "q.";
+            requestCompl(s, s.length(), -1, new String[] { "acceptDrops()", "clear()" });
+        }
     }
 
 }

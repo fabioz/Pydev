@@ -26,6 +26,9 @@
     <module>com.python.pydev.analysis</module>
     <module>com.python.pydev.debug</module>
     <!-- TODO com.python.pydev.docs -->
+    <!-- Note: the module below should be uncommented for testing -->
+    <!-- See: add_tests_to_plugins.py -->
+    <!-- <module>com.python.pydev.runalltests</module> -->
     <module>com.python.pydev.refactoring</module>
     <module>org.python.pydev</module>
     <module>org.python.pydev.ast</module>
