@@ -183,8 +183,10 @@
             <explodedBundle>org.python.pydev.shared_interactive_console</explodedBundle>
             <explodedBundle>org.python.pydev.shared_ui</explodedBundle>
           </explodedBundles>
+          <!-- See: https://www.eclipse.org/tycho/sitedocs/tycho-surefire-plugin/test-mojo.html -->
           <failIfNoTests>false</failIfNoTests>
           <useUIHarness>true</useUIHarness>
+          <!-- <useUIThread>false</useUIThread> -->
           <testFailureIgnore>false</testFailureIgnore>
           <!-- <skipAfterFailureCount>1</skipAfterFailureCount> -->
           <argLine>-enableassertions</argLine>

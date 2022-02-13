@@ -25,7 +25,7 @@ jobs:
           
       - name: Set up Python 2.7 deps
         run: |
-            python2 -m pip install numpy django cython
+            python2 -m pip install numpy django cython zope.interface
             
       - name: Set up Python 3.8
         uses: actions/setup-python@v2

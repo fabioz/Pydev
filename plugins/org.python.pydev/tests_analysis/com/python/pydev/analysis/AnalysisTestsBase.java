@@ -315,8 +315,9 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
     protected void printMessages(IMessage[] msgs, int i) {
         if (msgs.length != i) {
             printMessages(msgs);
+            throw new AssertionError(StringUtils.format("Expected %s messages. Found: %s.\n%s", i, msgs.length,
+                    StringUtils.join("\n", (Object[]) msgs)));
         }
-        assertEquals(i, msgs.length);
     }
 
 }
