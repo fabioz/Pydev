@@ -31,6 +31,7 @@ import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.ModulesKeyForFolder;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.io.FileUtils;
@@ -140,6 +141,9 @@ public class AdditionalInfoIntegrityChecker implements IPyEditListener {
 
         for (ModulesKey key : inModulesManager) {
             if (!expectedModuleNames.contains(key)) {
+                if (key instanceof ModulesKeyForFolder) {
+                    continue;
+                }
                 info.allOk = false;
                 info.modulesNotInDisk.add(key);
                 buffer.append(StringUtils.format(

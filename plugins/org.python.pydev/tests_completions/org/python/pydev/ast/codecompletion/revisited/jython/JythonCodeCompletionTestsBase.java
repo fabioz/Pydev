@@ -37,6 +37,16 @@ public class JythonCodeCompletionTestsBase extends CodeCompletionTestsBase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
+        if (!new File(TestDependent.JAVA_RT_JAR_LOCATION).exists()) {
+            throw new AssertionError(TestDependent.JAVA_RT_JAR_LOCATION + " does not exist.");
+        }
+        if (!new File(TestDependent.JYTHON_LIB_LOCATION).exists()) {
+            throw new AssertionError(TestDependent.JYTHON_LIB_LOCATION + " does not exist.");
+        }
+        if (!new File(TestDependent.JAVA_LOCATION).exists()) {
+            throw new AssertionError(TestDependent.JAVA_LOCATION + " does not exist.");
+        }
+
         //we also need to set from where the info on the java env
         JavaVmLocationFinder.callbackJavaExecutable = new ICallback0<File>() {
             @Override
