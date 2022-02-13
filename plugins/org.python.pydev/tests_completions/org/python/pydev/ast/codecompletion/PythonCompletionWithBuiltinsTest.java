@@ -108,16 +108,18 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
         }
 
         CompiledModule.COMPILED_MODULES_ENABLED = true;
-        this.restorePythonPath(TestDependent.getCompletePythonLib(true, isPython3Test()) +
-                "|" + TestDependent.PYTHON2_WXPYTHON_PACKAGES
-                +
-                "|" + TestDependent.PYTHON2_MX_PACKAGES +
-                "|" + TestDependent.PYTHON2_NUMPY_PACKAGES +
-                "|"
-                + TestDependent.PYTHON2_OPENGL_PACKAGES +
-                "|" + TestDependent.PYTHON2_DJANGO_PACKAGES
+        String additionalPaths = "";
+        for (String s : new String[] { TestDependent.PYTHON2_WXPYTHON_PACKAGES, TestDependent.PYTHON2_MX_PACKAGES,
+                TestDependent.PYTHON2_NUMPY_PACKAGES, TestDependent.PYTHON2_OPENGL_PACKAGES,
+                TestDependent.PYTHON2_DJANGO_PACKAGES
 
-                , false);
+        }) {
+            if (s != null) {
+                additionalPaths += ("|" + s);
+            }
+        }
+        this.restorePythonPath(TestDependent.getCompletePythonLib(true, isPython3Test()) + "|" + additionalPaths,
+                false);
 
         codeCompletion = new PyCodeCompletion();
 

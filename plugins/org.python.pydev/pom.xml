@@ -22,27 +22,4 @@
   <groupId>org.python.pydev</groupId>
   <artifactId>org.python.pydev</artifactId>
   <packaging>eclipse-test-plugin</packaging>
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.eclipse.tycho</groupId>
-        <artifactId>tycho-surefire-plugin</artifactId>
-        <version>${tycho-version}</version>
-        <configuration>
-          <excludes>
-            <!--  TODO Need to get PythonTests working under Maven/Travis we need to fully
-                  exclude this as one of the tests hangs the build -->
-            <exclude>**/PythonTest.java</exclude>
-            <exclude>**/IronpythonTest.java</exclude>
-            <exclude>**/JythonTest.java</exclude>
-            <!-- These are the default excludes, once PythonTest is removed from exclusions
-                 this whole section should go -->
-            <exclude>**/Abstract*Test.java</exclude>
-            <exclude>**/Abstract*TestCase.java</exclude>
-            <exclude>**/*$*</exclude>
-          </excludes>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>

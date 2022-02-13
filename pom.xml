@@ -184,12 +184,14 @@
             <explodedBundle>org.python.pydev.shared_ui</explodedBundle>
           </explodedBundles>
           <!-- See: https://www.eclipse.org/tycho/sitedocs/tycho-surefire-plugin/test-mojo.html -->
+          <!-- <useUIThread>false</useUIThread> -->
+          <!-- <skipAfterFailureCount>1</skipAfterFailureCount> -->
+          <!-- <testClass>org.python.pydev.ast.codecompletion.PythonCompletionWithBuiltinsTest</testClass> -->
           <failIfNoTests>false</failIfNoTests>
           <useUIHarness>true</useUIHarness>
-          <!-- <useUIThread>false</useUIThread> -->
           <testFailureIgnore>false</testFailureIgnore>
-          <!-- <skipAfterFailureCount>1</skipAfterFailureCount> -->
           <argLine>-enableassertions</argLine>
+          <forkedProcessTimeoutInSeconds>1000</forkedProcessTimeoutInSeconds>
           <systemProperties>
             <!-- We are in test mode when running JUnit (non-workbench) tests.
                  See SharedCorePlugin.inTestMode().  -->
