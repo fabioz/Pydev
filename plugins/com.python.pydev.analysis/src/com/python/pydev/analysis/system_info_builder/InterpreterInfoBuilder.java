@@ -68,9 +68,6 @@ public class InterpreterInfoBuilder implements IInterpreterInfoBuilder {
 
     @Override
     public BuilderResult syncInfoToPythonPath(IProgressMonitor monitor, InterpreterInfo info) {
-        PythonPathHelper pythonPathHelper = new PythonPathHelper();
-        pythonPathHelper.setPythonPath(info.libs);
-
         ISystemModulesManager modulesManager = info.getModulesManager();
         IInterpreterManager manager = modulesManager.getInterpreterManager();
         AbstractAdditionalDependencyInfo additionalInfo;
@@ -81,6 +78,19 @@ public class InterpreterInfoBuilder implements IInterpreterInfoBuilder {
         } catch (MisconfigurationException e) {
             Log.log(e);
             return BuilderResult.OK;
+        }
+
+        return this.syncInfoToPythonPath(monitor, info, additionalInfo);
+    }
+
+    public BuilderResult syncInfoToPythonPath(IProgressMonitor monitor, InterpreterInfo info,
+            AbstractAdditionalDependencyInfo additionalInfo) {
+        ISystemModulesManager modulesManager = info.getModulesManager();
+        PythonPathHelper pythonPathHelper = (PythonPathHelper) modulesManager.getPythonPathHelper();
+        if (pythonPathHelper == null) {
+            // Is this even possible?
+            pythonPathHelper = new PythonPathHelper();
+            pythonPathHelper.setPythonPath(info.libs);
         }
 
         return this.syncInfoToPythonPath(monitor, pythonPathHelper, additionalInfo, modulesManager, info);

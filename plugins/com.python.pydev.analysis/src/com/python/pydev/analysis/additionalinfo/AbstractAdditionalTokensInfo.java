@@ -281,6 +281,7 @@ public abstract class AbstractAdditionalTokensInfo {
 
     public List<IInfo> addAstInfo(ModulesKey key, boolean generateDelta) throws Exception {
         if (key instanceof ModulesKeyForFolder) {
+            addModulesKeyForFolderToIndex(key, generateDelta);
             return new ArrayList<IInfo>(0);
         }
         boolean isZipModule = key instanceof ModulesKeyForZip;
@@ -331,6 +332,8 @@ public abstract class AbstractAdditionalTokensInfo {
 
         return addAstInfo(node, key, generateDelta);
     }
+
+    protected abstract void addModulesKeyForFolderToIndex(ModulesKey key, boolean generateDelta);
 
     /**
      * Adds ast info information for a module.

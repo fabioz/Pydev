@@ -32,6 +32,7 @@ import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.shared_core.callbacks.ICallbackListener;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
 import com.python.pydev.analysis.system_info_builder.InterpreterInfoBuilder;
@@ -382,18 +383,21 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
         };
         AbstractAdditionalDependencyInfo.modulesAddedAndRemoved.registerListener(listener);
         try {
-            new InterpreterInfoBuilder().syncInfoToPythonPath(new NullProgressMonitor(), defaultInterpreterInfo);
+            new InterpreterInfoBuilder().syncInfoToPythonPath(new NullProgressMonitor(), defaultInterpreterInfo,
+                    newAdditionalInfo);
         } finally {
             AbstractAdditionalDependencyInfo.modulesAddedAndRemoved.unregisterListener(listener);
         }
 
         if (added.size() > 0) {
             throw new AssertionError(
-                    "Expected no modules to be added as we just loaded from a clean save. Found: " + added);
+                    "Expected no modules to be added as we just loaded from a clean save. Found:\n"
+                            + StringUtils.join("\n", added));
         }
         if (removed.size() > 0) {
             throw new AssertionError(
-                    "Expected no modules to be removed as we just loaded from a clean save. Found: " + removed);
+                    "Expected no modules to be removed as we just loaded from a clean save. Found:\n"
+                            + StringUtils.join("\n", removed));
         }
 
         checkItertoolsToken(newAdditionalInfo, true);

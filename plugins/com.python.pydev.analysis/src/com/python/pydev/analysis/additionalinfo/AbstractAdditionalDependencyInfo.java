@@ -40,6 +40,7 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.IterTokenEntry;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
+import org.python.pydev.core.ModulesKeyForFolder;
 import org.python.pydev.core.ObjectsInternPool;
 import org.python.pydev.core.ObjectsInternPool.ObjectsPoolMap;
 import org.python.pydev.core.TokensList;
@@ -345,6 +346,17 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
             Log.log(e);
         }
         return addAstInfo;
+    }
+
+    @Override
+    protected void addModulesKeyForFolderToIndex(ModulesKey key, boolean generateDelta) {
+        synchronized (lock) {
+            CompleteIndexKey completeIndexKey = new CompleteIndexKey(key);
+            if (key.file != null) {
+                completeIndexKey.lastModified = FileUtils.lastModified(key.file);
+            }
+            completeIndex.add(completeIndexKey);
+        }
     }
 
     @Override

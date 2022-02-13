@@ -87,13 +87,15 @@ public class ModulesKey implements Comparable<ModulesKey>, Serializable {
 
     @Override
     public String toString() {
+        FastStringBuffer ret = new FastStringBuffer(this.getClass().getSimpleName(), 40 + name.length());
+        ret.append('[');
+        ret.append(name);
         if (file != null) {
-            FastStringBuffer ret = new FastStringBuffer(name, 40);
             ret.append(" - ");
             ret.appendObject(file);
-            return ret.toString();
         }
-        return name;
+        ret.append(']');
+        return ret.toString();
     }
 
     private static final class ProcessCheckIfStartingWithPart implements ICallbackOnSplit {
