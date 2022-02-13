@@ -184,8 +184,9 @@
             <explodedBundle>org.python.pydev.shared_ui</explodedBundle>
           </explodedBundles>
           <failIfNoTests>false</failIfNoTests>
-          <useUIHarness>false</useUIHarness>
+          <useUIHarness>true</useUIHarness>
           <testFailureIgnore>false</testFailureIgnore>
+          <!-- <skipAfterFailureCount>1</skipAfterFailureCount> -->
           <argLine>-enableassertions</argLine>
           <systemProperties>
             <!-- We are in test mode when running JUnit (non-workbench) tests.

@@ -246,8 +246,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
             String s = "" +
                     "from numpy import less\n" +
                     "less.";
-            requestCompl(new File(TestDependent.TEST_PYSRC_TESTING_LOC +
-                    "extendable/not_existent.py"), s, s.length(), -1,
+            requestCompl(s, s.length(), -1,
                     new String[] { "types", "ntypes", "nout", "nargs", "nin" });
         }
     }
