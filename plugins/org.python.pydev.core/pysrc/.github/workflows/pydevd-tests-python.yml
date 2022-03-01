@@ -21,7 +21,7 @@ jobs:
           "macos-py37-cython",
           "ubuntu-py38-cython-checkbin",
           "windows-py39-cython",
-          "windows-py310",
+          "windows-py310-cython",
         ]
         
         include:
@@ -49,10 +49,10 @@ jobs:
             python: "3.9"
             os: windows-latest
             PYDEVD_USE_CYTHON: YES
-          - name: "windows-py310"
-            python: "3.10.0-rc.1"
+          - name: "windows-py310-cython"
+            python: "3.10.0"
             os: windows-latest
-            PYDEVD_USE_CYTHON: NO
+            PYDEVD_USE_CYTHON: YES
 
     steps:
     - uses: actions/checkout@v1
@@ -66,6 +66,7 @@ jobs:
         sudo apt-get install gdb
         sudo sysctl kernel.yama.ptrace_scope=0
         sudo apt-get install xvfb
+        sudo apt-get install libqt5x11extras5
         Xvfb -ac :99 -screen 0 1280x1024x16 > /dev/null 2>&1 &
       if: contains(matrix.name, 'ubuntu')
     - name: Install common Python deps
@@ -92,11 +93,14 @@ jobs:
       run: |
         pip install PySide2 --no-warn-script-location
         pip install django
-        pip install trio
-        pip install gevent==20.9.0 --no-warn-script-location
         pip install cherrypy --no-warn-script-location
+        pip install gevent
+    - name: Install Pandas
+      if: contains(matrix.name, 'py310') && !contains(matrix.name, 'pypy')
+      # The pandas Styler also requires jinja2. 
+      run: pip install pandas jinja2 --no-warn-script-location
     - name: Install Pypy 3 deps
-      if: contains(matrix.name, 'py3') && contains(matrix.name, 'pypy')
+      if: contains(matrix.name, 'py3')
       run: |
         pip install trio
     - name: Check cython unchanged
@@ -117,6 +121,7 @@ jobs:
     - name: Run Python 2.7 tests
       if: contains(matrix.name, '27')
       env:
+        # QT_DEBUG_PLUGINS: 1
         PYTHONPATH: .
         PYDEVD_USE_CYTHON: ${{matrix.PYDEVD_USE_CYTHON }}
       run: |
@@ -124,6 +129,7 @@ jobs:
     - name: Run Python 3.x tests
       if: ${{ !contains(matrix.name, '27') }}
       env:
+        # QT_DEBUG_PLUGINS: 1
         PYTHONPATH: .
         PYDEVD_USE_CYTHON: ${{matrix.PYDEVD_USE_CYTHON }}
       run: |

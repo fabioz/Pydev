@@ -24,6 +24,7 @@ except ImportError:
 from _pydevd_bundle import pydevd_constants
 
 import atexit
+import dis
 from collections import defaultdict
 from contextlib import contextmanager
 from functools import partial
@@ -54,7 +55,7 @@ from _pydevd_bundle.pydevd_constants import (IS_JYTH_LESS25, get_thread_id, get_
     dict_keys, dict_iter_items, DebugInfoHolder, PYTHON_SUSPEND, STATE_SUSPEND, STATE_RUN, get_frame,
     clear_cached_thread_id, INTERACTIVE_MODE_AVAILABLE, SHOW_DEBUG_INFO_ENV, IS_PY34_OR_GREATER, IS_PY2, NULL,
     NO_FTRACE, IS_IRONPYTHON, JSON_PROTOCOL, IS_CPYTHON, HTTP_JSON_PROTOCOL, USE_CUSTOM_SYS_CURRENT_FRAMES_MAP, call_only_once,
-    ForkSafeLock, IGNORE_BASENAMES_STARTING_WITH, EXCEPTION_TYPE_UNHANDLED)
+    ForkSafeLock, IGNORE_BASENAMES_STARTING_WITH, EXCEPTION_TYPE_UNHANDLED, SUPPORT_GEVENT)
 from _pydevd_bundle.pydevd_defaults import PydevdCustomization  # Note: import alias used on pydev_monkey.
 from _pydevd_bundle.pydevd_custom_frames import CustomFramesContainer, custom_frames_container_init
 from _pydevd_bundle.pydevd_dont_trace_files import DONT_TRACE, PYDEV_FILE, LIB_FILE, DONT_TRACE_DIRS
@@ -63,7 +64,8 @@ from _pydevd_bundle.pydevd_frame_utils import add_exception_to_frame, remove_exc
 from _pydevd_bundle.pydevd_net_command_factory_xml import NetCommandFactory
 from _pydevd_bundle.pydevd_trace_dispatch import (
     trace_dispatch as _trace_dispatch, global_cache_skips, global_cache_frame_skips, fix_top_level_trace_and_get_trace_func)
-from _pydevd_bundle.pydevd_utils import save_main_module, is_current_thread_main_thread
+from _pydevd_bundle.pydevd_utils import save_main_module, is_current_thread_main_thread, \
+    import_attr_from_module
 from _pydevd_frame_eval.pydevd_frame_eval_main import (
     frame_eval_func, dummy_trace_dispatch)
 import pydev_ipython  # @UnusedImport
@@ -87,17 +89,29 @@ from _pydevd_bundle.pydevd_process_net_command import process_net_command
 from _pydevd_bundle.pydevd_net_command import NetCommand
 
 from _pydevd_bundle.pydevd_breakpoints import stop_on_unhandled_exception
-from _pydevd_bundle.pydevd_collect_bytecode_info import collect_try_except_info, collect_return_info
+from _pydevd_bundle.pydevd_collect_bytecode_info import collect_try_except_info, collect_return_info, collect_try_except_info_from_source
 from _pydevd_bundle.pydevd_suspended_frames import SuspendedFramesManager
 from socket import SHUT_RDWR
 from _pydevd_bundle.pydevd_api import PyDevdAPI
 from _pydevd_bundle.pydevd_timeout import TimeoutTracker
 from _pydevd_bundle.pydevd_thread_lifecycle import suspend_all_threads, mark_thread_suspended
 
+pydevd_gevent_integration = None
+
+if SUPPORT_GEVENT:
+    try:
+        from _pydevd_bundle import pydevd_gevent_integration
+    except:
+        pydev_log.exception(
+            'pydevd: GEVENT_SUPPORT is set but gevent is not available in the environment.\n'
+            'Please unset GEVENT_SUPPORT from the environment variables or install gevent.')
+    else:
+        pydevd_gevent_integration.log_gevent_debug_info()
+
 if USE_CUSTOM_SYS_CURRENT_FRAMES_MAP:
     from _pydevd_bundle.pydevd_constants import constructed_tid_to_last_frame
 
-__version_info__ = (2, 5, 0)
+__version_info__ = (2, 7, 0)
 __version_info_str__ = []
 for v in __version_info__:
     __version_info_str__.append(str(v))
@@ -168,6 +182,7 @@ file_system_encoding = getfilesystemencoding()
 _CACHE_FILE_TYPE = {}
 
 pydev_log.debug('Using GEVENT_SUPPORT: %s', pydevd_constants.SUPPORT_GEVENT)
+pydev_log.debug('Using GEVENT_SHOW_PAUSED_GREENLETS: %s', pydevd_constants.GEVENT_SHOW_PAUSED_GREENLETS)
 pydev_log.debug('pydevd __file__: %s', os.path.abspath(__file__))
 
 
@@ -600,9 +615,19 @@ class PyDB(object):
         self.thread_analyser = None
         self.asyncio_analyser = None
 
+        # The GUI event loop that's going to run.
+        # Possible values:
+        # matplotlib - Whatever GUI backend matplotlib is using.
+        # 'wx'/'qt'/'none'/... - GUI toolkits that have bulitin support. See pydevd_ipython/inputhook.py:24.
+        # Other - A custom function that'll be imported and run.
+        self._gui_event_loop = 'matplotlib'
+        self._installed_gui_support = False
+        self.gui_in_use = False
+
+        # GUI event loop support in debugger
+        self.activate_gui_function = None
+
         # matplotlib support in debugger and debug console
-        self._installed_mpl_support = False
-        self.mpl_in_use = False
         self.mpl_hooks_in_debug_console = False
         self.mpl_modules_for_patching = {}
 
@@ -614,6 +639,9 @@ class PyDB(object):
         self.show_return_values = False
         self.remove_return_values_flag = False
         self.redirect_output = False
+        # Note that besides the `redirect_output` flag, we also need to consider that someone
+        # else is already redirecting (i.e.: debugpy).
+        self.is_output_redirected = False
 
         # this flag disables frame evaluation even if it's available
         self.use_frame_eval = True
@@ -660,7 +688,6 @@ class PyDB(object):
         self.threading_current_thread = threading.currentThread
         self.set_additional_thread_info = set_additional_thread_info
         self.stop_on_unhandled_exception = stop_on_unhandled_exception
-        self.collect_try_except_info = collect_try_except_info
         self.collect_return_info = collect_return_info
         self.get_exception_breakpoint = get_exception_breakpoint
         self._dont_trace_get_file_type = DONT_TRACE.get
@@ -682,6 +709,33 @@ class PyDB(object):
 
         # Stop the tracing as the last thing before the actual shutdown for a clean exit.
         atexit.register(stoptrace)
+
+    def collect_try_except_info(self, code_obj):
+        filename = code_obj.co_filename
+        try:
+            if os.path.exists(filename):
+                pydev_log.debug('Collecting try..except info from source for %s', filename)
+                try_except_infos = collect_try_except_info_from_source(filename)
+                if try_except_infos:
+                    # Filter for the current function
+                    max_line = -1
+                    min_line = sys.maxsize
+                    for _, line in dis.findlinestarts(code_obj):
+
+                        if line > max_line:
+                            max_line = line
+
+                        if line < min_line:
+                            min_line = line
+
+                    try_except_infos = [x for x in try_except_infos if min_line <= x.try_line <= max_line]
+                return try_except_infos
+
+        except:
+            pydev_log.exception('Error collecting try..except info from source (%s)', filename)
+
+        pydev_log.debug('Collecting try..except info from bytecode for %s', filename)
+        return collect_try_except_info(code_obj)
 
     def setup_auto_reload_watcher(self, enable_auto_reload, watch_dirs, poll_target_time, exclude_patterns, include_patterns):
         try:
@@ -1019,6 +1073,9 @@ class PyDB(object):
             this function is called on a multi-threaded program (either programmatically or attach
             to pid).
         '''
+        if pydevd_gevent_integration is not None:
+            pydevd_gevent_integration.enable_gevent_integration()
+
         if self.frame_eval_func is not None:
             self.frame_eval_func()
             pydevd_tracing.SetTrace(self.dummy_trace_dispatch)
@@ -1479,34 +1536,42 @@ class PyDB(object):
             for module in dict_keys(self.mpl_modules_for_patching):
                 import_hook_manager.add_module_name(module, self.mpl_modules_for_patching.pop(module))
 
-    def init_matplotlib_support(self):
-        if self._installed_mpl_support:
+    def init_gui_support(self):
+        if self._installed_gui_support:
             return
-        self._installed_mpl_support = True
-        # prepare debugger for integration with matplotlib GUI event loop
-        from pydev_ipython.matplotlibtools import activate_matplotlib, activate_pylab, activate_pyplot, do_enable_gui
+        self._installed_gui_support = True
 
-        # enable_gui_function in activate_matplotlib should be called in main thread. Unlike integrated console,
+        # enable_gui and enable_gui_function in activate_matplotlib should be called in main thread. Unlike integrated console,
         # in the debug console we have no interpreter instance with exec_queue, but we run this code in the main
         # thread and can call it directly.
-        class _MatplotlibHelper:
+        class _ReturnGuiLoopControlHelper:
             _return_control_osc = False
 
         def return_control():
             # Some of the input hooks (e.g. Qt4Agg) check return control without doing
             # a single operation, so we don't return True on every
             # call when the debug hook is in place to allow the GUI to run
-            _MatplotlibHelper._return_control_osc = not _MatplotlibHelper._return_control_osc
-            return _MatplotlibHelper._return_control_osc
+            _ReturnGuiLoopControlHelper._return_control_osc = not _ReturnGuiLoopControlHelper._return_control_osc
+            return _ReturnGuiLoopControlHelper._return_control_osc
 
-        from pydev_ipython.inputhook import set_return_control_callback
+        from pydev_ipython.inputhook import set_return_control_callback, enable_gui
+
         set_return_control_callback(return_control)
 
-        self.mpl_modules_for_patching = {"matplotlib": lambda: activate_matplotlib(do_enable_gui),
-                            "matplotlib.pyplot": activate_pyplot,
-                            "pylab": activate_pylab }
+        if self._gui_event_loop == 'matplotlib':
+            # prepare debugger for matplotlib integration with GUI event loop
+            from pydev_ipython.matplotlibtools import activate_matplotlib, activate_pylab, activate_pyplot, do_enable_gui
 
-    def _activate_mpl_if_needed(self):
+            self.mpl_modules_for_patching = {"matplotlib": lambda: activate_matplotlib(do_enable_gui),
+                                "matplotlib.pyplot": activate_pyplot,
+                                "pylab": activate_pylab }
+        else:
+            self.activate_gui_function = enable_gui
+
+    def _activate_gui_if_needed(self):
+        if self.gui_in_use:
+            return
+
         if len(self.mpl_modules_for_patching) > 0:
             if is_current_thread_main_thread():  # Note that we call only in the main thread.
                 for module in dict_keys(self.mpl_modules_for_patching):
@@ -1514,9 +1579,28 @@ class PyDB(object):
                         activate_function = self.mpl_modules_for_patching.pop(module, None)
                         if activate_function is not None:
                             activate_function()
-                        self.mpl_in_use = True
+                        self.gui_in_use = True
 
-    def _call_mpl_hook(self):
+        if self.activate_gui_function:
+            if is_current_thread_main_thread():  # Only call enable_gui in the main thread.
+                try:
+                    # First try to activate builtin GUI event loops.
+                    self.activate_gui_function(self._gui_event_loop)
+                    self.activate_gui_function = None
+                    self.gui_in_use = True
+                except ValueError:
+                    # The user requested a custom GUI event loop, try to import it.
+                    from pydev_ipython.inputhook import set_inputhook
+                    try:
+                        inputhook_function = import_attr_from_module(self._gui_event_loop)
+                        set_inputhook(inputhook_function)
+                        self.gui_in_use = True
+                    except Exception as e:
+                        pydev_log.debug("Cannot activate custom GUI event loop {}: {}".format(self._gui_event_loop, e))
+                    finally:
+                        self.activate_gui_function = None
+
+    def _call_input_hook(self):
         try:
             from pydev_ipython.inputhook import get_inputhook
             inputhook = get_inputhook()
@@ -1657,11 +1741,11 @@ class PyDB(object):
                         while True:
                             int_cmd = queue.get(False)
 
-                            if not self.mpl_hooks_in_debug_console and isinstance(int_cmd, InternalConsoleExec):
+                            if not self.mpl_hooks_in_debug_console and isinstance(int_cmd, InternalConsoleExec) and not self.gui_in_use:
                                 # add import hooks for matplotlib patches if only debug console was started
                                 try:
                                     self.init_matplotlib_in_debug_console()
-                                    self.mpl_in_use = True
+                                    self.gui_in_use = True
                                 except:
                                     pydev_log.debug("Matplotlib support in debug console failed", traceback.format_exc())
                                 self.mpl_hooks_in_debug_console = True
@@ -1689,12 +1773,12 @@ class PyDB(object):
                 except:
                     pydev_log.exception('Error processing internal command.')
 
-    def consolidate_breakpoints(self, canonical_normalized_filename, id_to_breakpoint, breakpoints):
+    def consolidate_breakpoints(self, canonical_normalized_filename, id_to_breakpoint, file_to_line_to_breakpoints):
         break_dict = {}
         for _breakpoint_id, pybreakpoint in dict_iter_items(id_to_breakpoint):
             break_dict[pybreakpoint.line] = pybreakpoint
 
-        breakpoints[canonical_normalized_filename] = break_dict
+        file_to_line_to_breakpoints[canonical_normalized_filename] = break_dict
         self._clear_skip_caches()
 
     def _clear_skip_caches(self):
@@ -1963,12 +2047,13 @@ class PyDB(object):
         keep_suspended = False
 
         with self._main_lock:  # Use lock to check if suspended state changed
-            activate_matplotlib = info.pydev_state == STATE_SUSPEND and not self.pydb_disposed
+            activate_gui = info.pydev_state == STATE_SUSPEND and not self.pydb_disposed
 
         in_main_thread = is_current_thread_main_thread()
-        if activate_matplotlib and in_main_thread:
+        if activate_gui and in_main_thread:
             # before every stop check if matplotlib modules were imported inside script code
-            self._activate_mpl_if_needed()
+            # or some GUI event loop needs to be activated
+            self._activate_gui_if_needed()
 
         while True:
             with self._main_lock:  # Use lock to check if suspended state changed
@@ -1976,9 +2061,9 @@ class PyDB(object):
                     # Note: we can't exit here if terminate was requested while a breakpoint was hit.
                     break
 
-            if in_main_thread and self.mpl_in_use:
-                # call input hooks if only matplotlib is in use
-                self._call_mpl_hook()
+            if in_main_thread and self.gui_in_use:
+                # call input hooks if only GUI is in use
+                self._call_input_hook()
 
             self.process_internal_commands()
             time.sleep(0.01)
@@ -2160,7 +2245,7 @@ class PyDB(object):
                         time.sleep(1 / 10.)
                     else:
                         thread_names = [t.name for t in get_pydb_daemon_threads_to_wait()]
-                        if thread_names: 
+                        if thread_names:
                             pydev_log.debug("The following pydb threads may not have finished correctly: %s",
                                             ', '.join(thread_names))
                 finally:
@@ -2346,14 +2431,14 @@ class PyDB(object):
             wrap_threads()
             self.thread_analyser.set_start_time(cur_time())
             send_concurrency_message("threading_event", 0, t.name, thread_id, "thread", "start", file, 1, None, parent=thread_id)
-                                                            
+
         if self.asyncio_analyser is not None:
             # we don't have main thread in asyncio graph, so we should add a fake event
             send_concurrency_message("asyncio_event", 0, "Task", "Task", "thread", "stop", file, 1, frame=None, parent=None)
 
         try:
             if INTERACTIVE_MODE_AVAILABLE:
-                self.init_matplotlib_support()
+                self.init_gui_support()
         except:
             pydev_log.exception("Matplotlib support in debugger failed")
 
@@ -2398,7 +2483,7 @@ class PyDB(object):
         return globals
 
     def wait_for_commands(self, globals):
-        self._activate_mpl_if_needed()
+        self._activate_gui_if_needed()
 
         thread = threading.current_thread()
         from _pydevd_bundle import pydevd_frame_utils
@@ -2412,9 +2497,9 @@ class PyDB(object):
             self.writer.add_command(cmd)
 
         while True:
-            if self.mpl_in_use:
-                # call input hooks if only matplotlib is in use
-                self._call_mpl_hook()
+            if self.gui_in_use:
+                # call input hooks if only GUI is in use
+                self._call_input_hook()
             self.process_internal_commands()
             time.sleep(0.01)
 
@@ -2806,7 +2891,7 @@ def _locked_settrace(
 
         try:
             if INTERACTIVE_MODE_AVAILABLE:
-                py_db.init_matplotlib_support()
+                py_db.init_gui_support()
         except:
             pydev_log.exception("Matplotlib support in debugger failed")
 

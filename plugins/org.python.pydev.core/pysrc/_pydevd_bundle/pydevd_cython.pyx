@@ -204,7 +204,7 @@ cdef is_unhandled_exception(container_obj, py_db, frame, int last_raise_line, se
 
     else:
         try_except_infos = container_obj.try_except_infos
-        if not try_except_infos:
+        if try_except_infos is None:
             container_obj.try_except_infos = try_except_infos = py_db.collect_try_except_info(frame.f_code)
 
         if not try_except_infos:
@@ -677,7 +677,7 @@ cdef class PyDBFrame:
         cdef str curr_func_name;
         cdef bint exist_result;
         cdef dict frame_skips_cache;
-        cdef tuple frame_cache_key;
+        cdef object frame_cache_key;
         cdef tuple line_cache_key;
         cdef int breakpoints_in_line_cache;
         cdef int breakpoints_in_frame_cache;
@@ -1031,14 +1031,17 @@ cdef class PyDBFrame:
                         elif breakpoint.is_logpoint:
                             stop = False
 
-                    if is_call and frame.f_code.co_name in ('<module>', '<lambda>'):
+                    if is_call and (frame.f_code.co_name in ('<lambda>', '<module>') or (line == 1 and frame.f_code.co_name.startswith('<cell'))):
                         # If we find a call for a module, it means that the module is being imported/executed for the
                         # first time. In this case we have to ignore this hit as it may later duplicated by a
                         # line event at the same place (so, if there's a module with a print() in the first line
                         # the user will hit that line twice, which is not what we want).
                         #
-                        # As for lambda, as it only has a single statement, it's not interesting to trace
+                        # For lambda, as it only has a single statement, it's not interesting to trace
                         # its call and later its line event as they're usually in the same line.
+                        #
+                        # For ipython, <cell xxx> may be executed having each line compiled as a new
+                        # module, so it's the same case as <module>.
 
                         return self.trace_dispatch
 
@@ -1640,7 +1643,7 @@ cdef class ThreadTracer:
         cdef str filename;
         cdef str base;
         cdef int pydev_step_cmd;
-        cdef tuple frame_cache_key;
+        cdef object frame_cache_key;
         cdef dict cache_skips;
         cdef bint is_stepping;
         cdef tuple abs_path_canonical_path_and_base;
@@ -1667,7 +1670,7 @@ cdef class ThreadTracer:
 
             # Note: it's important that the context name is also given because we may hit something once
             # in the global context and another in the local context.
-            frame_cache_key = (frame.f_code.co_firstlineno, frame.f_code.co_name, frame.f_code.co_filename)
+            frame_cache_key = frame.f_code
             if frame_cache_key in cache_skips:
                 if not is_stepping:
                     # if DEBUG: print('skipped: trace_dispatch (cache hit)', frame_cache_key, frame.f_lineno, event, frame.f_code.co_name)
@@ -1681,7 +1684,7 @@ cdef class ThreadTracer:
 
                         back_frame = frame.f_back
                         if back_frame is not None and pydev_step_cmd in (107, 144, 109, 160):
-                            back_frame_cache_key = (back_frame.f_code.co_firstlineno, back_frame.f_code.co_name, back_frame.f_code.co_filename)
+                            back_frame_cache_key = back_frame.f_code
                             if cache_skips.get(back_frame_cache_key) == 1:
                                 # if DEBUG: print('skipped: trace_dispatch (cache hit: 1)', frame_cache_key, frame.f_lineno, event, frame.f_code.co_name)
                                 return None if event == 'call' else NO_FTRACE
@@ -1721,7 +1724,7 @@ cdef class ThreadTracer:
                     back_frame = frame.f_back
                     if back_frame is not None and pydev_step_cmd in (107, 144, 109, 160):
                         if py_db.apply_files_filter(back_frame, back_frame.f_code.co_filename, False):
-                            back_frame_cache_key = (back_frame.f_code.co_firstlineno, back_frame.f_code.co_name, back_frame.f_code.co_filename)
+                            back_frame_cache_key = back_frame.f_code
                             cache_skips[back_frame_cache_key] = 1
                             # if DEBUG: print('skipped: trace_dispatch (filtered out: 1)', frame_cache_key, frame.f_lineno, event, frame.f_code.co_name)
                             return None if event == 'call' else NO_FTRACE
