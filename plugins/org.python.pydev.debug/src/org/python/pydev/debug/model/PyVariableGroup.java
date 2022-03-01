@@ -71,4 +71,9 @@ public class PyVariableGroup extends PyVariable
         return threadId;
     }
 
+    @Override
+    public String getUniqueId() {
+        return "PyVariableGroup - " + threadId + " - " + name;
+    }
+
 }
