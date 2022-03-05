@@ -84,12 +84,12 @@ cd org.python.pydev.p2-repo-9.3.0-SNAPSHOT
 "C:\Program Files\7-Zip\7z" x ..\org.python.pydev.p2-repo-9.3.0-SNAPSHOT.zip
 
 cdd X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-9.3.0-SNAPSHOT
-C:\Users\fabio\AppData\Roaming\npm\surge.cmd --domain pydev-9-2-0.surge.sh
+C:\Users\fabio\AppData\Roaming\npm\surge.cmd --domain pydev-9-3-0.surge.sh
 "C:\Program Files\FileZilla FTP Client\filezilla.exe" sftp://fabioz,pydev@frs.sourceforge.net/home/project-web/pydev/htdocs/pydev_update_site --local="X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-9.3.0-SNAPSHOT"
 
 
     ** Tag repository:
-      git tag pydev_9_2_0 -a -m "PyDev 9.3.0"
+      git tag pydev_9_3_0 -a -m "PyDev 9.3.0"
       git push --tags
 
 SET CONVERT_SOURCE=X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-9.3.0-SNAPSHOT
@@ -97,7 +97,7 @@ SET CONVERT_FINAL_ZIP=X:\pydev_build\build_dir\pydev\features\org.python.pydev.p
 SET CONVERT_TARGET_DIR=X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\github
 python X:\release_tools\convert_to_github.py 9.3.0
 Do GH release in:
-    https://github.com/fabioz/Pydev/releases/new?tag=pydev_9_2_0
+    https://github.com/fabioz/Pydev/releases/new?tag=pydev_9_3_0
     Contents in: X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\github
     Message:
 
