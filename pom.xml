@@ -188,6 +188,7 @@
           <skipAfterFailureCount>1</skipAfterFailureCount>
           <!-- <testClass>org.python.pydev.ast.codecompletion.PythonCompletionWithBuiltinsTest</testClass> -->
           <excludes>
+            <exclude>**/IronpythonTest.java</exclude>
             <exclude>**/Abstract*Test.java</exclude>
             <exclude>**/Abstract*TestCase.java</exclude>
             <exclude>**/*$*</exclude>
