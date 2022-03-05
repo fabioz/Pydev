@@ -105,11 +105,11 @@ Do GH release in:
 
         It's possible to add it as an Eclipse update site using the url:
 
-        https://github.com/fabioz/Pydev/releases/download/pydev_9_2_0/
+        https://github.com/fabioz/Pydev/releases/download/pydev_9_3_0/
 
         Or get a .zip to install manually by unzipping it in the dropins:
 
-        https://github.com/fabioz/Pydev/releases/download/pydev_9_2_0/PyDev.9.3.0.zip
+        https://github.com/fabioz/Pydev/releases/download/pydev_9_3_0/PyDev.9.3.0.zip
 
 
 		** Update homepage:
