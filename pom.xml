@@ -185,8 +185,13 @@
           </explodedBundles>
           <!-- See: https://www.eclipse.org/tycho/sitedocs/tycho-surefire-plugin/test-mojo.html -->
           <!-- <useUIThread>false</useUIThread> -->
-          <!-- <skipAfterFailureCount>1</skipAfterFailureCount> -->
+          <skipAfterFailureCount>1</skipAfterFailureCount>
           <!-- <testClass>org.python.pydev.ast.codecompletion.PythonCompletionWithBuiltinsTest</testClass> -->
+          <excludes>
+            <exclude>**/Abstract*Test.java</exclude>
+            <exclude>**/Abstract*TestCase.java</exclude>
+            <exclude>**/*$*</exclude>
+          </excludes>
           <failIfNoTests>false</failIfNoTests>
           <useUIHarness>true</useUIHarness>
           <testFailureIgnore>false</testFailureIgnore>
