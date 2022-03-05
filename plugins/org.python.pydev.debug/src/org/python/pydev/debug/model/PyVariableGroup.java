@@ -13,12 +13,14 @@ public class PyVariableGroup extends PyVariable
     private static final PyVariable[] EMPTY_VARIABLE_ARRAY = new PyVariable[0];
     private volatile PyVariable[] variables;
     private String threadId;
+    private String parentUniqueId;
 
     public PyVariableGroup(AbstractDebugTarget target, String name, String type, String value, String threadId,
-            String scope) {
+            String scope, String parentUniqueId) {
         super(target, name, type, value, null, scope);
         this.variables = EMPTY_VARIABLE_ARRAY;
         this.threadId = threadId;
+        this.parentUniqueId = parentUniqueId;
     }
 
     @Override
@@ -73,7 +75,7 @@ public class PyVariableGroup extends PyVariable
 
     @Override
     public String getUniqueId() {
-        return "PyVariableGroup - " + threadId + " - " + name;
+        return "PyVariableGroup - " + parentUniqueId + " - " + name;
     }
 
 }

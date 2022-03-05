@@ -207,16 +207,16 @@ public class XMLUtils {
         String value = decodeIgnoreError(attributes.getValue("value"));
         String isContainer = attributes.getValue("isContainer");
         String scope = attributes.getValue("scope");
-        if ("True".equals(isContainer)) {
+        String isRetVal = attributes.getValue("isRetVal");
+        boolean isReturnValue = "True".equals(isRetVal);
+
+        if ("True".equals(isContainer) && !isReturnValue) { // We can't currently expand return values (must fix locator)
             var = new PyVariableCollection(target, name, type, value, locator, scope);
         } else {
             var = new PyVariable(target, name, type, value, locator, scope);
         }
         var.setQualifier(qualifier);
-        String isRetVal = attributes.getValue("isRetVal");
-        if ("True".equals(isRetVal)) {
-            var.setIsReturnValue(true);
-        }
+        var.setIsReturnValue(isReturnValue);
         String isIPythonHidden = attributes.getValue("isIPythonHidden");
         if ("True".equals(isIPythonHidden)) {
             var.setIsIPythonHidden(true);
