@@ -269,7 +269,7 @@ public class IronpythonCompletionWithBuiltinsTest extends IronPythonCodeCompleti
                 "    a.list1.";
 
         //        requestCompl(s, -1, new String[] {"pop(int index)", "remove(object value)"});
-        requestCompl(s, -1, new String[] { "pop(index: int)", "remove(value: object)" });
+        requestCompl(s, -1, new String[] { "reverse()" });
     }
 
     public void test__all__() throws Exception {

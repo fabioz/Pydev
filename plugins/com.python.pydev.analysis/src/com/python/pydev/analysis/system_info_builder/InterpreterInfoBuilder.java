@@ -90,8 +90,9 @@ public class InterpreterInfoBuilder implements IInterpreterInfoBuilder {
         if (pythonPathHelper == null) {
             // Is this even possible?
             pythonPathHelper = new PythonPathHelper();
-            pythonPathHelper.setPythonPath(info.libs);
         }
+        // Just making sure it's consistent at this point.
+        pythonPathHelper.setPythonPath(info.libs);
 
         return this.syncInfoToPythonPath(monitor, pythonPathHelper, additionalInfo, modulesManager, info);
     }
