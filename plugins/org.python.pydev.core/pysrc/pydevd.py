@@ -4,19 +4,17 @@ Entry point module (keep at root):
 This module starts the debugger.
 '''
 import sys  # @NoMove
-if sys.version_info[:2] < (2, 6):
-    raise RuntimeError('The PyDev.Debugger requires Python 2.6 onwards to be run. If you need to use an older Python version, use an older version of the debugger.')
+if sys.version_info[:2] < (3, 6):
+    raise RuntimeError('The PyDev.Debugger requires Python 3.6 onwards to be run. If you need to use an older Python version, use an older version of the debugger.')
 import os
 
 try:
     # Just empty packages to check if they're in the PYTHONPATH.
-    import _pydev_imps
     import _pydev_bundle
 except ImportError:
     # On the first import of a pydevd module, add pydevd itself to the PYTHONPATH
     # if its dependencies cannot be imported.
     sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-    import _pydev_imps
     import _pydev_bundle
 
 # Import this first as it'll check for shadowed modules and will make sure that we import
@@ -25,6 +23,7 @@ from _pydevd_bundle import pydevd_constants
 
 import atexit
 import dis
+import io
 from collections import defaultdict
 from contextlib import contextmanager
 from functools import partial
@@ -39,7 +38,7 @@ from _pydev_bundle import pydev_imports, pydev_log
 from _pydev_bundle._pydev_filesystem_encoding import getfilesystemencoding
 from _pydev_bundle.pydev_is_thread_alive import is_thread_alive
 from _pydev_bundle.pydev_override import overrides
-from _pydev_imps._pydev_saved_modules import threading, time, thread
+from _pydev_bundle._pydev_saved_modules import threading, time, thread
 from _pydevd_bundle import pydevd_extension_utils, pydevd_frame_utils
 from _pydevd_bundle.pydevd_filtering import FilesFiltering, glob_matches_path
 from _pydevd_bundle import pydevd_io, pydevd_vm_type
@@ -70,8 +69,8 @@ from _pydevd_frame_eval.pydevd_frame_eval_main import (
     frame_eval_func, dummy_trace_dispatch)
 import pydev_ipython  # @UnusedImport
 from _pydevd_bundle.pydevd_source_mapping import SourceMapping
-from pydevd_concurrency_analyser.pydevd_concurrency_logger import ThreadingLogger, AsyncioLogger, send_concurrency_message, cur_time
-from pydevd_concurrency_analyser.pydevd_thread_wrappers import wrap_threads
+from _pydevd_bundle.pydevd_concurrency_analyser.pydevd_concurrency_logger import ThreadingLogger, AsyncioLogger, send_concurrency_message, cur_time
+from _pydevd_bundle.pydevd_concurrency_analyser.pydevd_thread_wrappers import wrap_threads
 from pydevd_file_utils import get_abs_path_real_path_and_base_from_frame, NORM_PATHS_AND_BASE_CONTAINER
 from pydevd_file_utils import get_fullname, get_package_dir
 from os.path import abspath as os_path_abspath
@@ -86,7 +85,7 @@ from _pydevd_bundle.pydevd_comm import(InternalConsoleExec,
 from _pydevd_bundle.pydevd_daemon_thread import PyDBDaemonThread, mark_as_pydevd_daemon_thread
 from _pydevd_bundle.pydevd_process_net_command_json import PyDevJsonCommandProcessor
 from _pydevd_bundle.pydevd_process_net_command import process_net_command
-from _pydevd_bundle.pydevd_net_command import NetCommand
+from _pydevd_bundle.pydevd_net_command import NetCommand, NULL_NET_COMMAND
 
 from _pydevd_bundle.pydevd_breakpoints import stop_on_unhandled_exception
 from _pydevd_bundle.pydevd_collect_bytecode_info import collect_try_except_info, collect_return_info, collect_try_except_info_from_source
@@ -883,10 +882,14 @@ class PyDB(object):
             return eval(condition, new_frame.f_globals, new_frame.f_locals)
         except Exception as e:
             if not isinstance(e, self.skip_print_breakpoint_exception):
-                sys.stderr.write('Error while evaluating expression: %s\n' % (condition,))
-
+                stack_trace = io.StringIO()
                 etype, value, tb = sys.exc_info()
-                traceback.print_exception(etype, value, tb.tb_next)
+                traceback.print_exception(etype, value, tb.tb_next, file=stack_trace)
+
+                msg = 'Error while evaluating expression in conditional breakpoint: %s\n%s' % (
+                    condition, stack_trace.getvalue())
+                api = PyDevdAPI()
+                api.send_error_message(self, msg)
 
             if not isinstance(e, self.skip_suspend_on_breakpoint_exception):
                 try:
@@ -1910,6 +1913,32 @@ class PyDB(object):
             return
         cmd = self.cmd_factory.make_process_created_message()
         self.writer.add_command(cmd)
+
+    def send_process_about_to_be_replaced(self):
+        """Sends a message that a new process has been created.
+        """
+        if self.writer is None or self.cmd_factory is None:
+            return
+        cmd = self.cmd_factory.make_process_about_to_be_replaced_message()
+        if cmd is NULL_NET_COMMAND:
+            return
+
+        sent = [False]
+
+        def after_sent(*args, **kwargs):
+            sent[0] = True
+
+        cmd.call_after_send(after_sent)
+        self.writer.add_command(cmd)
+
+        timeout = 5  # Wait up to 5 seconds
+        initial_time = time.time()
+        while not sent[0]:
+            time.sleep(.05)
+
+            if (time.time() - initial_time) > timeout:
+                pydev_log.critical('pydevd: Sending message related to process being replaced timed-out after %s seconds', timeout)
+                break
 
     def set_next_statement(self, frame, event, func_name, next_line):
         stop = False

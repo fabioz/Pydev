@@ -559,7 +559,7 @@ def test_case_json_logpoints(case_setup):
         writer.finished_ok = True
 
 
-def test_case_json_logpoint_and_step(case_setup):
+def test_case_json_logpoint_and_step_failure_ok(case_setup):
     with case_setup.test_file('_debugger_case_hit_count.py') as writer:
         json_facade = JsonFacade(writer)
 
@@ -583,6 +583,42 @@ def test_case_json_logpoint_and_step(case_setup):
         json_hit = json_facade.wait_for_thread_stopped('step', line=print_line)
 
         json_facade.write_continue()
+
+        writer.finished_ok = True
+
+
+def test_case_json_logpoint_and_step_still_prints(case_setup):
+    with case_setup.test_file('_debugger_case_hit_count.py') as writer:
+        json_facade = JsonFacade(writer)
+
+        json_facade.write_launch()
+        before_loop_line = writer.get_line_index_with_content('before loop line')
+        print_line = writer.get_line_index_with_content('print line')
+        json_facade.write_set_breakpoints(
+            [before_loop_line, print_line],
+            line_to_info={
+                print_line: {'log_message': 'var {repr("i")} is {i}'}
+        })
+        json_facade.write_make_initial_run()
+
+        json_hit = json_facade.wait_for_thread_stopped(line=before_loop_line)
+
+        for _i in range(4):
+            # I.e.: even when stepping we should have the messages.
+            json_facade.write_step_next(json_hit.thread_id)
+            json_hit = json_facade.wait_for_thread_stopped('step')
+
+        json_facade.write_continue()
+
+        def accept_last_output_message(output_event):
+            return output_event.body.output.startswith("var 'i' is 9")
+
+        json_facade.wait_for_json_message(OutputEvent, accept_last_output_message)
+
+        def accept_message(output_event):
+            return output_event.body.output.startswith("var 'i' is ")
+
+        assert len(json_facade.mark_messages(OutputEvent, accept_message)) == 10
 
         writer.finished_ok = True
 
@@ -611,6 +647,33 @@ def test_case_json_hit_count_and_step(case_setup):
         json_facade.write_step_in(json_hit.thread_id)
         json_hit = json_facade.wait_for_thread_stopped('step', line=print_line)
 
+        json_facade.write_continue()
+
+        writer.finished_ok = True
+
+
+def test_case_json_hit_condition_error(case_setup):
+    with case_setup.test_file('_debugger_case_hit_count.py') as writer:
+        json_facade = JsonFacade(writer)
+
+        json_facade.write_launch()
+        bp = writer.get_line_index_with_content('before loop line')
+        json_facade.write_set_breakpoints(
+            [bp],
+            line_to_info={
+                bp: {'condition': 'range.range.range'}
+        })
+        json_facade.write_make_initial_run()
+
+        def accept_message(msg):
+            if msg.body.category == 'important':
+                if 'Error while evaluating expression in conditional breakpoint' in msg.body.output:
+                    return True
+            return False
+
+        json_facade.wait_for_json_message(OutputEvent, accept_message=accept_message)
+
+        json_facade.wait_for_thread_stopped(line=bp)
         json_facade.write_continue()
 
         writer.finished_ok = True
@@ -1791,6 +1854,31 @@ def test_getattr_warning(case_setup):
         writer.finished_ok = True
 
 
+def test_warning_on_repl(case_setup):
+
+    def additional_output_checks(writer, stdout, stderr):
+        assert "WarningCalledOnRepl" in stderr
+
+    with case_setup.test_file(
+        '_debugger_case_evaluate.py',
+        additional_output_checks=additional_output_checks
+        ) as writer:
+        json_facade = JsonFacade(writer)
+
+        json_facade.write_set_breakpoints(writer.get_line_index_with_content('Break here'))
+        json_facade.write_make_initial_run()
+
+        json_hit = json_facade.wait_for_thread_stopped()
+
+        # We want warnings from the in evaluate in the repl (but not hover/watch).
+        json_facade.evaluate(
+            'import warnings; warnings.warn("WarningCalledOnRepl")', json_hit.frame_id, context='repl')
+
+        json_facade.write_continue()
+
+        writer.finished_ok = True
+
+
 def test_evaluate_numpy(case_setup, pyfile):
     try:
         import numpy
@@ -2227,7 +2315,7 @@ def test_evaluate_exec_unicode(case_setup):
         )
 
         messages = json_facade.mark_messages(
-            OutputEvent, lambda output_event: u'中' in output_event.body.output)
+            OutputEvent, lambda output_event: (u'中' in output_event.body.output) and ('pydevd warning' not in output_event.body.output))
         assert len(messages) == 1
 
         # Check exec
@@ -2238,7 +2326,7 @@ def test_evaluate_exec_unicode(case_setup):
         )
 
         messages = json_facade.mark_messages(
-            OutputEvent, lambda output_event: u'中' in output_event.body.output)
+            OutputEvent, lambda output_event: (u'中' in output_event.body.output) and ('pydevd warning' not in output_event.body.output))
         assert len(messages) == 1
 
         response = json_facade.evaluate(
@@ -2249,7 +2337,7 @@ def test_evaluate_exec_unicode(case_setup):
         assert response.body.result in ("u'\\u4e2d'", "'\u4e2d'")  # py2 or py3
 
         messages = json_facade.mark_messages(
-            OutputEvent, lambda output_event: u'中' in output_event.body.output)
+            OutputEvent, lambda output_event: (u'中' in output_event.body.output) and ('pydevd warning' not in output_event.body.output))
         assert len(messages) == 0  # i.e.: we don't print in this case.
 
         json_facade.write_continue()
@@ -5862,11 +5950,11 @@ def test_pandas(case_setup, pyfile):
         name_to_var = json_facade.get_locals_name_to_var(json_hit.frame_id)
 
         # Check the custom repr(DataFrame)
-        assert name_to_var['df'].value.count('\n') == 303
+        assert name_to_var['df'].value.count('\n') <= 63
         assert '...' in name_to_var['df'].value
 
         # Check the custom repr(Series)
-        assert name_to_var['series'].value.count('\n') == 300
+        assert name_to_var['series'].value.count('\n') <= 60
         assert '...' in name_to_var['series'].value
 
         # Check custom listing (DataFrame)
@@ -5937,6 +6025,69 @@ def test_same_lineno_and_filename(case_setup, pyfile):
         writer.finished_ok = True
 
 
+@pytest.mark.skipif(sys.platform == 'win32', reason='Windows does not have execvp.')
+def test_replace_process(case_setup_multiprocessing):
+    import threading
+    from tests_python.debugger_unittest import AbstractWriterThread
+    from _pydevd_bundle._debug_adapter.pydevd_schema import ExitedEvent
+
+    with case_setup_multiprocessing.test_file(
+            '_debugger_case_replace_process.py',
+        ) as writer:
+        json_facade = JsonFacade(writer)
+        json_facade.write_launch()
+
+        break1_line = writer.get_line_index_with_content("print('In sub')")
+        json_facade.write_set_breakpoints([break1_line])
+
+        server_socket = writer.server_socket
+        secondary_finished_ok = [False]
+
+        class SecondaryProcessWriterThread(AbstractWriterThread):
+
+            TEST_FILE = writer.get_main_filename()
+            _sequence = -1
+
+        class SecondaryProcessThreadCommunication(threading.Thread):
+
+            def run(self):
+                from tests_python.debugger_unittest import ReaderThread
+                server_socket.listen(1)
+                self.server_socket = server_socket
+                new_sock, addr = server_socket.accept()
+
+                reader_thread = ReaderThread(new_sock)
+                reader_thread.name = '  *** Multiprocess Reader Thread'
+                reader_thread.start()
+
+                writer2 = SecondaryProcessWriterThread()
+                writer2.reader_thread = reader_thread
+                writer2.sock = new_sock
+                json_facade2 = JsonFacade(writer2)
+
+                json_facade2.write_set_breakpoints([break1_line, ])
+                json_facade2.write_make_initial_run()
+
+                json_facade2.wait_for_thread_stopped()
+                json_facade2.write_continue()
+                secondary_finished_ok[0] = True
+
+        secondary_process_thread_communication = SecondaryProcessThreadCommunication()
+        secondary_process_thread_communication.start()
+        time.sleep(.1)
+
+        json_facade.write_make_initial_run()
+        exited_event = json_facade.wait_for_json_message(ExitedEvent)
+        assert exited_event.body.kwargs['pydevdReason'] == "processReplaced"
+
+        secondary_process_thread_communication.join(10)
+        if secondary_process_thread_communication.is_alive():
+            raise AssertionError('The SecondaryProcessThreadCommunication did not finish')
+
+        assert secondary_finished_ok[0]
+        writer.finished_ok = True
+
+
 if __name__ == '__main__':
-    pytest.main(['-k', 'test_case_skipping_filters', '-s'])
+    pytest.main(['-k', 'test_replace_process', '-s'])
 

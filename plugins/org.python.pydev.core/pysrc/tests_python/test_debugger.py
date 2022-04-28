@@ -27,18 +27,13 @@ import pydevd_file_utils
 import subprocess
 import threading
 from _pydev_bundle import pydev_log
-try:
-    from urllib import unquote
-except ImportError:
-    from urllib.parse import unquote
+from urllib.parse import unquote
 
 from tests_python.debug_constants import *  # noqa
 
 pytest_plugins = [
     str('tests_python.debugger_fixtures'),
 ]
-
-xrange = range
 
 builtin_qualifier = "builtins"
 
@@ -124,7 +119,7 @@ def test_case_2(case_setup):
 def test_case_breakpoint_condition_exc(case_setup, skip_suspend_on_breakpoint_exception, skip_print_breakpoint_exception):
 
     msgs_in_stderr = (
-        'Error while evaluating expression: i > 5',
+        'Error while evaluating expression in conditional breakpoint: i > 5',
         'Traceback (most recent call last):',
         'File "<string>", line 1, in <module>',
     )
@@ -145,9 +140,31 @@ def test_case_breakpoint_condition_exc(case_setup, skip_suspend_on_breakpoint_ex
 
         return False
 
-    def additional_output_checks(stdout, stderr):
-        original_additional_output_checks(stdout, stderr)
-        if skip_print_breakpoint_exception in ([], ['ValueError']):
+    with case_setup.test_file('_debugger_case_breakpoint_condition_exc.py') as writer:
+
+        original_ignore_stderr_line = writer._ignore_stderr_line
+        writer._ignore_stderr_line = _ignore_stderr_line
+
+        writer.write_suspend_on_breakpoint_exception(skip_suspend_on_breakpoint_exception, skip_print_breakpoint_exception)
+
+        expect_print = skip_print_breakpoint_exception in ([], ['ValueError'])
+        expect_suspend = skip_suspend_on_breakpoint_exception in ([], ['ValueError'])
+
+        breakpoint_id = writer.write_add_breakpoint(
+            writer.get_line_index_with_content('break here'), 'Call', condition='i > 5')
+
+        if not expect_print:
+            _original = writer.reader_thread.on_message_found
+
+            def on_message_found(found_msg):
+                for msg in msgs_in_stderr + msgs_one_in_stderr:
+                    assert msg not in found_msg
+
+            writer.reader_thread.on_message_found = on_message_found
+
+        writer.write_make_initial_run()
+
+        def check_error_msg(stderr):
             for msg in msgs_in_stderr:
                 assert msg in stderr
 
@@ -157,32 +174,19 @@ def test_case_breakpoint_condition_exc(case_setup, skip_suspend_on_breakpoint_ex
             else:
                 raise AssertionError('Did not find any of: %s in stderr: %s' % (
                     msgs_one_in_stderr, stderr))
-        else:
-            for msg in msgs_in_stderr + msgs_one_in_stderr:
-                assert msg not in stderr
 
-    with case_setup.test_file('_debugger_case_breakpoint_condition_exc.py') as writer:
+        if expect_print:
+            msg, ctx = writer.wait_for_output()
+            check_error_msg(msg.replace('&gt;', '>'))
 
-        original_ignore_stderr_line = writer._ignore_stderr_line
-        writer._ignore_stderr_line = _ignore_stderr_line
-
-        original_additional_output_checks = writer.additional_output_checks
-        writer.additional_output_checks = additional_output_checks
-
-        writer.write_suspend_on_breakpoint_exception(skip_suspend_on_breakpoint_exception, skip_print_breakpoint_exception)
-        breakpoint_id = writer.write_add_breakpoint(
-            writer.get_line_index_with_content('break here'), 'Call', condition='i > 5')
-
-        writer.write_make_initial_run()
-
-        if skip_suspend_on_breakpoint_exception in ([], ['ValueError']):
+        if expect_suspend:
             writer.wait_for_message(CMD_GET_BREAKPOINT_EXCEPTION)
             hit = writer.wait_for_breakpoint_hit()
             writer.write_run_thread(hit.thread_id)
 
         if IS_JYTHON:
             # Jython will break twice.
-            if skip_suspend_on_breakpoint_exception in ([], ['ValueError']):
+            if expect_suspend:
                 writer.wait_for_message(CMD_GET_BREAKPOINT_EXCEPTION)
                 hit = writer.wait_for_breakpoint_hit()
                 writer.write_run_thread(hit.thread_id)
@@ -2986,7 +2990,7 @@ def test_remote_debugger_multi_proc(case_setup_remote, authenticate):
         writer.log.append('run thread')
         writer.write_run_thread(hit.thread_id)
 
-        for _i in xrange(400):
+        for _i in range(400):
             if secondary_multi_proc_process_writer.finished_ok:
                 break
             time.sleep(.1)

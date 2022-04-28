@@ -7,6 +7,7 @@ import weakref
 import struct
 import warnings
 import functools
+from contextlib import contextmanager
 
 STATE_RUN = 1
 STATE_SUSPEND = 2
@@ -15,10 +16,7 @@ PYTHON_SUSPEND = 1
 DJANGO_SUSPEND = 2
 JINJA2_SUSPEND = 3
 
-try:
-    int_types = (int, long)
-except NameError:
-    int_types = (int,)
+int_types = (int,)
 
 # types does not include a MethodWrapperType
 try:
@@ -281,9 +279,9 @@ BUILTINS_MODULE_NAME = 'builtins'
 SHOW_DEBUG_INFO_ENV = is_true_in_env(('PYCHARM_DEBUG', 'PYDEV_DEBUG', 'PYDEVD_DEBUG'))
 
 # Pandas customization.
-PANDAS_MAX_ROWS = as_int_in_env('PYDEVD_PANDAS_MAX_ROWS', 300)
-PANDAS_MAX_COLS = as_int_in_env('PYDEVD_PANDAS_MAX_COLS', 300)
-PANDAS_MAX_COLWIDTH = as_int_in_env('PYDEVD_PANDAS_MAX_COLWIDTH', 80)
+PANDAS_MAX_ROWS = as_int_in_env('PYDEVD_PANDAS_MAX_ROWS', 60)
+PANDAS_MAX_COLS = as_int_in_env('PYDEVD_PANDAS_MAX_COLS', 10)
+PANDAS_MAX_COLWIDTH = as_int_in_env('PYDEVD_PANDAS_MAX_COLWIDTH', 50)
 
 # If getting an attribute or computing some value is too slow, let the user know if the given timeout elapses.
 PYDEVD_WARN_SLOW_RESOLVE_TIMEOUT = as_float_in_env('PYDEVD_WARN_SLOW_RESOLVE_TIMEOUT', 0.15)
@@ -336,7 +334,7 @@ def protect_libraries_from_patching():
       `_pydev_saved_modules` in order to save their original copies there. After that we can use these
       saved modules within the debugger to protect them from patching by external libraries (e.g. gevent).
     """
-    patched = ['threading', 'thread', '_thread', 'time', 'socket', 'Queue', 'queue', 'select',
+    patched = ['threading', 'thread', '_thread', 'time', 'socket', 'queue', 'select',
                'xmlrpclib', 'SimpleXMLRPCServer', 'BaseHTTPServer', 'SocketServer',
                'xmlrpc.client', 'xmlrpc.server', 'http.server', 'socketserver']
 
@@ -353,7 +351,7 @@ def protect_libraries_from_patching():
         del sys.modules[name]
 
     # import for side effects
-    import _pydev_imps._pydev_saved_modules
+    import _pydev_bundle._pydev_saved_modules
 
     for name in patched_modules:
         sys.modules[name] = patched_modules[name]
@@ -362,7 +360,7 @@ def protect_libraries_from_patching():
 if USE_LIB_COPY:
     protect_libraries_from_patching()
 
-from _pydev_imps._pydev_saved_modules import thread, threading
+from _pydev_bundle._pydev_saved_modules import thread, threading
 
 _fork_safe_locks = []
 
@@ -446,12 +444,18 @@ def as_str(s):
     return s
 
 
+@contextmanager
+def filter_all_warnings():
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore")
+        yield
+
+
 def silence_warnings_decorator(func):
 
     @functools.wraps(func)
     def new_func(*args, **kwargs):
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore")
+        with filter_all_warnings():
             return func(*args, **kwargs)
 
     return new_func
@@ -463,17 +467,13 @@ def sorted_dict_repr(d):
 
 
 def iter_chars(b):
-    # In Python 2, we can iterate bytes or unicode with individual characters, but Python 3 onwards
+    # In Python 2, we can iterate bytes or str with individual characters, but Python 3 onwards
     # changed that behavior so that when iterating bytes we actually get ints!
     if isinstance(b, bytes):
         # i.e.: do something as struct.unpack('3c', b)
         return iter(struct.unpack(str(len(b)) + 'c', b))
     return iter(b)
 
-
-# Python 3k does not have it
-xrange = range
-izip = zip
 
 if IS_JYTHON:
 

@@ -2,7 +2,7 @@
 import os
 import re
 import sys
-from _pydev_imps._pydev_saved_modules import threading
+from _pydev_bundle._pydev_saved_modules import threading
 from _pydevd_bundle.pydevd_constants import get_global_debugger, IS_WINDOWS, IS_JYTHON, get_current_thread_id, \
     sorted_dict_repr
 from _pydev_bundle import pydev_log
@@ -10,11 +10,6 @@ from contextlib import contextmanager
 from _pydevd_bundle import pydevd_constants
 from _pydevd_bundle.pydevd_defaults import PydevdCustomization
 import ast
-
-try:
-    xrange
-except:
-    xrange = range
 
 try:
     from pathlib import Path
@@ -584,7 +579,7 @@ def str_to_args_windows(args):
     buf = ''
 
     args_len = len(args)
-    for i in xrange(args_len):
+    for i in range(args_len):
         ch = args[i]
         if (ch == '\\'):
             backslashes += 1
@@ -704,6 +699,7 @@ def create_execl(original_name):
         if _get_apply_arg_patching():
             args = patch_args(args, is_exec=True)
             send_process_created_message()
+            send_process_about_to_be_replaced()
 
         return getattr(os, original_name)(path, *args)
 
@@ -720,6 +716,7 @@ def create_execv(original_name):
         if _get_apply_arg_patching():
             args = patch_args(args, is_exec=True)
             send_process_created_message()
+            send_process_about_to_be_replaced()
 
         return getattr(os, original_name)(path, args)
 
@@ -736,6 +733,7 @@ def create_execve(original_name):
         if _get_apply_arg_patching():
             args = patch_args(args, is_exec=True)
             send_process_created_message()
+            send_process_about_to_be_replaced()
 
         return getattr(os, original_name)(path, args, env)
 
@@ -920,6 +918,12 @@ def send_process_created_message():
         py_db.send_process_created_message()
 
 
+def send_process_about_to_be_replaced():
+    py_db = get_global_debugger()
+    if py_db is not None:
+        py_db.send_process_about_to_be_replaced()
+
+
 def patch_new_process_functions():
     # os.execl(path, arg0, arg1, ...)
     # os.execle(path, arg0, arg1, ..., env)
@@ -1041,7 +1045,7 @@ class _NewThreadStartupWithTrace:
 
             if getattr(py_db, 'thread_analyser', None) is not None:
                 try:
-                    from pydevd_concurrency_analyser.pydevd_concurrency_logger import log_new_thread
+                    from _pydevd_bundle.pydevd_concurrency_analyser.pydevd_concurrency_logger import log_new_thread
                     log_new_thread(py_db, t)
                 except:
                     sys.stderr.write("Failed to detect new thread for visualization")

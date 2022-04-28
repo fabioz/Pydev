@@ -1,10 +1,7 @@
 from collections import namedtuple
 from contextlib import contextmanager
 import json
-try:
-    from urllib import quote, quote_plus, unquote_plus
-except ImportError:
-    from urllib.parse import quote, quote_plus, unquote_plus  # @UnresolvedImport
+from urllib.parse import quote, quote_plus, unquote_plus
 
 import re
 import socket
@@ -127,11 +124,6 @@ try:
 except ImportError:
     from _thread import start_new_thread  # @UnresolvedImport
 
-try:
-    xrange
-except:
-    xrange = range
-
 Hit = namedtuple('Hit', 'thread_id, frame_id, line, suspend_type, name, file')
 
 
@@ -207,6 +199,7 @@ class ReaderThread(threading.Thread):
         self._queue = Queue()
         self._kill = False
         self.accept_xml_messages = True
+        self.on_message_found = lambda msg: None
 
     def set_messages_timeout(self, timeout):
         self.MESSAGES_TIMEOUT = timeout
@@ -216,6 +209,7 @@ class ReaderThread(threading.Thread):
             timeout = self.MESSAGES_TIMEOUT
         try:
             msg = self._queue.get(block=True, timeout=timeout)
+            self.on_message_found(msg)
         except:
             raise TimeoutError('No message was written in %s seconds. Error message:\n%s' % (timeout, context_message,))
         else:
