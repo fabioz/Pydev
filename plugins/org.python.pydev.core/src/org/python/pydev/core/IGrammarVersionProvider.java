@@ -39,7 +39,8 @@ public interface IGrammarVersionProvider {
     public static final int GRAMMAR_PYTHON_VERSION_3_8 = 102;
     public static final int GRAMMAR_PYTHON_VERSION_3_9 = 103;
     public static final int GRAMMAR_PYTHON_VERSION_3_10 = 104;
-    public static final int LATEST_GRAMMAR_PY3_VERSION = GRAMMAR_PYTHON_VERSION_3_10;
+    public static final int GRAMMAR_PYTHON_VERSION_3_11 = 105;
+    public static final int LATEST_GRAMMAR_PY3_VERSION = GRAMMAR_PYTHON_VERSION_3_11;
 
     /**
      * So, no specific reason for the 777 number (just wanted something unique that wouldn't be close to the other grammars).
@@ -93,6 +94,7 @@ class GrammarsIterator {
         grammarVersions.add(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_8);
         grammarVersions.add(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_9);
         grammarVersions.add(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_10);
+        grammarVersions.add(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_11);
         return Collections.unmodifiableList(grammarVersions);
     }
 
@@ -121,6 +123,7 @@ class GrammarsIterator {
         ret.put(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_8, "3.8");
         ret.put(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_9, "3.9");
         ret.put(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_10, "3.10");
+        ret.put(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_11, "3.11");
         return Collections.unmodifiableMap(ret);
     }
 
@@ -135,6 +138,7 @@ class GrammarsIterator {
         ret.put("3.8", IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_8);
         ret.put("3.9", IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_9);
         ret.put("3.10", IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_10);
+        ret.put("3.11", IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_11);
         return Collections.unmodifiableMap(ret);
     }
 }

@@ -61,6 +61,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
             ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_3_8);
             ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_3_9);
             ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_3_10);
+            ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_3_11);
             ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_INTERPRETER);
 
             ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_2_5);
@@ -72,6 +73,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
             ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_3_8);
             ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_3_9);
             ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_3_10);
+            ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_3_11);
             ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_INTERPRETER);
 
             ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_2_5);
@@ -83,6 +85,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
             ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_3_8);
             ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_3_9);
             ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_3_10);
+            ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_3_11);
             ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_INTERPRETER);
 
             ALL_VERSIONS_ANY_FLAVOR.addAll(ALL_JYTHON_VERSIONS);
@@ -98,6 +101,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
             VERSION_NUMBERS.add("3.8");
             VERSION_NUMBERS.add("3.9"); // actually the same as 3.8
             VERSION_NUMBERS.add("3.10");
+            VERSION_NUMBERS.add("3.11");
             VERSION_NUMBERS.add(INTERPRETER_VERSION);
 
             // Anything below 2.5 is marked as 2.5
@@ -129,6 +133,8 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
             mappedVersions.put("3.9", "3.9"); // actually the same as 3.8
 
             mappedVersions.put("3.10", "3.10");
+
+            mappedVersions.put("3.11", "3.10");
         }
 
         /**
@@ -226,6 +232,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
     public static final String PYTHON_VERSION_3_8 = "python 3.8";
     public static final String PYTHON_VERSION_3_9 = "python 3.9";
     public static final String PYTHON_VERSION_3_10 = "python 3.10";
+    public static final String PYTHON_VERSION_3_11 = "python 3.11";
     public static final String PYTHON_VERSION_INTERPRETER = "python interpreter";
 
     public static final String JYTHON_VERSION_2_5 = "jython 2.5";
@@ -237,6 +244,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
     public static final String JYTHON_VERSION_3_8 = "jython 3.8";
     public static final String JYTHON_VERSION_3_9 = "jython 3.9";
     public static final String JYTHON_VERSION_3_10 = "jython 3.10";
+    public static final String JYTHON_VERSION_3_11 = "jython 3.11";
     public static final String JYTHON_VERSION_INTERPRETER = "jython interpreter";
 
     public static final String IRONPYTHON_VERSION_2_5 = "ironpython 2.5";
@@ -248,6 +256,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
     public static final String IRONPYTHON_VERSION_3_8 = "ironpython 3.8";
     public static final String IRONPYTHON_VERSION_3_9 = "ironpython 3.9";
     public static final String IRONPYTHON_VERSION_3_10 = "ironpython 3.10";
+    public static final String IRONPYTHON_VERSION_3_11 = "ironpython 3.11";
     public static final String IRONPYTHON_VERSION_INTERPRETER = "ironpython interpreter";
 
     /**

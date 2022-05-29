@@ -135,6 +135,9 @@ public class PyParser extends BaseParser implements IPyParser {
         } else if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_10) {
             return "grammar: Python 3.10";
 
+        } else if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_11) {
+            return "grammar: Python 3.11";
+
         } else if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_CYTHON) {
             return "grammar: Cython";
 
@@ -529,6 +532,7 @@ public class PyParser extends BaseParser implements IPyParser {
                 grammar = new PythonGrammar38(generateTree, in);
                 break;
             case IPythonNature.GRAMMAR_PYTHON_VERSION_3_10:
+            case IPythonNature.GRAMMAR_PYTHON_VERSION_3_11:
                 grammar = new PythonGrammar310(generateTree, in);
                 break;
             //case CYTHON: not treated here (only in reparseDocument).
