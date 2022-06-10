@@ -7,6 +7,7 @@
 package org.python.pydev.core.docutils;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,14 +23,18 @@ import java.util.Stack;
 import org.eclipse.core.resources.IPathVariableManager;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.variables.VariablesPlugin;
+import org.osgi.framework.Bundle;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.shared_core.string.StringUtils;
+
+import com.sun.tools.javac.util.StringUtils;
 
 /**
  * Implements a part of IStringVariableManager (just the performStringSubstitution methods).
@@ -188,6 +193,8 @@ public class StringSubstitution {
         // parsing states
         private static final int SCAN_FOR_START = 0;
         private static final int SCAN_FOR_END = 1;
+
+        private static final String BUNDLE_TAG = "bundle";
 
         /**
          * Resulting string
@@ -398,7 +405,14 @@ public class StringSubstitution {
                 name = text;
             }
 
-            if ("env_var".equals(name) && arg != null && !arg.isBlank()) {
+            if (BUNDLE_TAG.equals(name) && arg != null && !arg.isBlank()) {
+                String bundlepath = getBundlePath(arg);
+                if (bundlepath != null) {
+                    return bundlepath;
+                }
+                //leave as is
+                return getOriginalVarText(var);
+            } else if ("env_var".equals(name) && arg != null && !arg.isBlank()) {
                 String valueVariable = variableSubstitution.get(name.trim() + ":" + arg.trim());
                 if (valueVariable != null) {
                     return valueVariable;
@@ -429,6 +443,19 @@ public class StringSubstitution {
             res.insert(0, VARIABLE_START);
             res.append(VARIABLE_END);
             return res.toString();
+        }
+    }
+
+    private static String getBundlePath(String symbolicName) {
+        Bundle bundle = Platform.getBundle(symbolicName);
+        if (bundle == null) {
+            return null;
+        }
+        try {
+            return FileLocator.getBundleFile(bundle).getAbsolutePath();
+        } catch (IOException e) {
+            // exotic bundling
+            return null;
         }
     }
 
