@@ -45,6 +45,7 @@ import org.python.pydev.parser.grammar26.PythonGrammar26;
 import org.python.pydev.parser.grammar27.PythonGrammar27;
 import org.python.pydev.parser.grammar30.PythonGrammar30;
 import org.python.pydev.parser.grammar310.PythonGrammar310;
+import org.python.pydev.parser.grammar311.PythonGrammar311;
 import org.python.pydev.parser.grammar36.PythonGrammar36;
 import org.python.pydev.parser.grammar38.PythonGrammar38;
 import org.python.pydev.parser.grammar_cython.PyParserCython;
@@ -532,8 +533,10 @@ public class PyParser extends BaseParser implements IPyParser {
                 grammar = new PythonGrammar38(generateTree, in);
                 break;
             case IPythonNature.GRAMMAR_PYTHON_VERSION_3_10:
-            case IPythonNature.GRAMMAR_PYTHON_VERSION_3_11:
                 grammar = new PythonGrammar310(generateTree, in);
+                break;
+            case IPythonNature.GRAMMAR_PYTHON_VERSION_3_11:
+                grammar = new PythonGrammar311(generateTree, in);
                 break;
             //case CYTHON: not treated here (only in reparseDocument).
             default:
