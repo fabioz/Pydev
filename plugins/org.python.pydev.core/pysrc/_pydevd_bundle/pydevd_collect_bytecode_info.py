@@ -327,7 +327,7 @@ if sys.version_info[:2] <= (3, 9):
 
         return try_except_info_lst
 
-if sys.version_info[:2] >= (3, 10):
+elif sys.version_info[:2] == (3, 10):
 
     class _TargetInfo(object):
 
@@ -459,6 +459,16 @@ if sys.version_info[:2] >= (3, 10):
                                     _get_line(op_offset_to_line, raise_instruction.offset, firstlineno, search=True))
 
         return try_except_info_lst
+
+elif sys.version_info[:2] >= (3, 11):
+
+    def collect_try_except_info(co, use_func_first_line=False):
+        '''
+        Note: if the filename is available and we can get the source,
+        `collect_try_except_info_from_source` is preferred (this is kept as
+        a fallback for cases where sources aren't available).
+        '''
+        return []
 
 import ast as ast_module
 
@@ -659,7 +669,7 @@ class _Disassembler(object):
             )
             return RESTART_FROM_LOOKAHEAD
 
-        if next_instruction.opname == 'CALL_FUNCTION':
+        if next_instruction.opname in ('CALL_FUNCTION', 'PRECALL'):
             if len(found) == next_instruction.argval + 1:
                 force_restart = False
                 delta = 0
@@ -670,7 +680,10 @@ class _Disassembler(object):
                 else:
                     return None  # This is odd
 
-            del self.instructions[delta:delta + next_instruction.argval + 2]  # +2 = NAME / CALL_FUNCTION
+            del_upto = delta + next_instruction.argval + 2  # +2 = NAME / CALL_FUNCTION
+            if next_instruction.opname == 'PRECALL':
+                del_upto += 1  # Also remove the CALL right after the PRECALL.
+            del self.instructions[delta:del_upto]
 
             found = iter(found[delta:])
             call_func = next(found)
@@ -769,8 +782,12 @@ class _Disassembler(object):
         dec = self._decorate_jump_target
         if line is None or line in (self.BIG_LINE_INT, self.SMALL_LINE_INT):
             line = self.op_offset_to_line[instruction.offset]
+
+        argrepr = instruction.argrepr
+        if isinstance(argrepr, str) and argrepr.startswith('NULL + '):
+            argrepr = argrepr[7:]
         return _MsgPart(
-            line, tok if tok is not None else dec(instruction, instruction.argrepr))
+            line, tok if tok is not None else dec(instruction, argrepr))
 
     def _next_instruction_to_str(self, line_to_contents):
         # indent = ''
@@ -786,6 +803,9 @@ class _Disassembler(object):
         msg = self._create_msg_part
 
         instruction = self.instructions.pop(0)
+
+        if instruction.opname in 'RESUME':
+            return None
 
         if instruction.opname in ('LOAD_GLOBAL', 'LOAD_FAST', 'LOAD_CONST', 'LOAD_NAME'):
             next_instruction = self.instructions[0]
@@ -844,6 +864,8 @@ class _Disassembler(object):
         while instructions:
             s = self._next_instruction_to_str(line_to_contents)
             if s is RESTART_FROM_LOOKAHEAD:
+                continue
+            if s is None:
                 continue
 
             _MsgPart.add_to_line_to_contents(s, line_to_contents)

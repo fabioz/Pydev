@@ -1689,6 +1689,8 @@ def test_case_get_next_statement_targets(case_setup):
         # it's also not that bad (that line has no code in the source and
         # executing it will just set the tracing for the method).
         targets.discard(20)
+        # On Python 3.11 there's now a line 1 (which should be harmless).
+        targets.discard(1)
         expected = set((2, 3, 5, 8, 9, 10, 12, 13, 14, 15, 17, 18, 19, 21))
         assert targets == expected, 'Expected targets to be %s, was: %s' % (expected, targets)
 
@@ -2272,9 +2274,9 @@ def test_case_method_single_line(case_setup):
         writer.write_add_breakpoint(writer.get_line_index_with_content('Break here'), 'None')
         writer.write_make_initial_run()
 
-        for _ in range(5):
-            # We'll hit the same breakpoint 5 times (method creation,
-            # (enter method, exit method) * 2.
+        for _ in range(3):
+            # We'll hit the same breakpoint 3 times (method creation,
+            # method line for each call).
             hit = writer.wait_for_breakpoint_hit()
 
             writer.write_run_thread(hit.thread_id)
@@ -2667,10 +2669,13 @@ def test_multiprocessing_with_stopped_breakpoints(case_setup_multiprocessing, co
 
 
 @pytest.mark.skipif(not IS_CPYTHON, reason='CPython only test.')
-def test_subprocess_quoted_args(case_setup_multiprocessing):
-    import threading
+@pytest.mark.parametrize('target', [
+    '_debugger_case_quoting.py',
+    '_debugger_case_subprocess_zip.py'
+])
+def test_subprocess_quoted_args(case_setup_multiprocessing, target):
     from tests_python.debugger_unittest import AbstractWriterThread
-    with case_setup_multiprocessing.test_file('_debugger_case_quoting.py') as writer:
+    with case_setup_multiprocessing.test_file(target) as writer:
         break_subprocess_line = writer.get_line_index_with_content('break here')
 
         writer.write_add_breakpoint(break_subprocess_line)
@@ -3454,7 +3459,7 @@ def test_frame_eval_limitations(case_setup, filename, break_at_lines):
             hit = writer.wait_for_breakpoint_hit()
             thread_id = hit.thread_id
 
-            if IS_PY36_OR_GREATER and TEST_CYTHON:
+            if (IS_PY36_OR_GREATER and TEST_CYTHON) and not TODO_PY311:
                 assert hit.suspend_type == break_mode
             else:
                 # Before 3.6 frame eval is not available.
@@ -3493,6 +3498,7 @@ def test_step_return_my_code(case_setup):
         writer.finished_ok = True
 
 
+@pytest.mark.skipif(TODO_PY311, reason='Needs bytecode support in Python 3.11')
 def test_smart_step_into_case1(case_setup):
     with case_setup.test_file('_debugger_case_smart_step_into.py') as writer:
         line = writer.get_line_index_with_content('break here')
@@ -3515,6 +3521,7 @@ def test_smart_step_into_case1(case_setup):
         writer.finished_ok = True
 
 
+@pytest.mark.skipif(TODO_PY311, reason='Needs bytecode support in Python 3.11')
 def test_smart_step_into_case2(case_setup):
     with case_setup.test_file('_debugger_case_smart_step_into2.py') as writer:
         line = writer.get_line_index_with_content('break here')
@@ -3543,6 +3550,7 @@ def test_smart_step_into_case2(case_setup):
         writer.finished_ok = True
 
 
+@pytest.mark.skipif(TODO_PY311, reason='Needs bytecode support in Python 3.11')
 def test_smart_step_into_case3(case_setup):
     with case_setup.test_file('_debugger_case_smart_step_into3.py') as writer:
         line = writer.get_line_index_with_content('break here')

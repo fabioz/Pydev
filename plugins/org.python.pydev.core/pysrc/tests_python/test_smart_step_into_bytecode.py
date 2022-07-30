@@ -1,11 +1,14 @@
 import sys
+from tests_python.debug_constants import TODO_PY311
 try:
     from _pydevd_bundle import pydevd_bytecode_utils
 except ImportError:
     pass
 import pytest
 
-pytestmark = pytest.mark.skipif(sys.version_info[0] < 3, reason='Only available for Python 3.')
+pytestmark = pytest.mark.skipif(
+    sys.version_info[0] < 3 or
+    TODO_PY311, reason='Only available for Python 3. / Requires bytecode support in Python 3.11')
 
 
 @pytest.fixture(autouse=True, scope='function')
@@ -43,13 +46,15 @@ def collect_smart_step_into_variants(*args, **kwargs):
     try:
         return pydevd_bytecode_utils.calculate_smart_step_into_variants(*args, **kwargs)
     except:
-        # In a failure, rerun with DEBUG!
-        debug = pydevd_bytecode_utils.DEBUG
-        pydevd_bytecode_utils.DEBUG = True
-        try:
-            return pydevd_bytecode_utils.calculate_smart_step_into_variants(*args, **kwargs)
-        finally:
-            pydevd_bytecode_utils.DEBUG = debug
+        pass
+
+    # In a failure, rerun with DEBUG!
+    debug = pydevd_bytecode_utils.DEBUG
+    pydevd_bytecode_utils.DEBUG = True
+    try:
+        return pydevd_bytecode_utils.calculate_smart_step_into_variants(*args, **kwargs)
+    finally:
+        pydevd_bytecode_utils.DEBUG = debug
 
 
 def check_names_from_func_str(func_str, expected):

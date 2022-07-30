@@ -376,8 +376,7 @@ class PyDBFrame:
                         try:
                             linecache.checkcache(absolute_filename)
                         except:
-                            # Jython 2.1
-                            linecache.checkcache()
+                            pydev_log.exception('Error in linecache.checkcache(%r)', absolute_filename)
 
                     from_user_input = main_debugger.filename_to_lines_where_exceptions_are_ignored.get(canonical_normalized_filename)
                     if from_user_input:
@@ -398,8 +397,8 @@ class PyDBFrame:
                         try:
                             line = linecache.getline(absolute_filename, exc_lineno, check_trace_obj.tb_frame.f_globals)
                         except:
-                            # Jython 2.1
-                            line = linecache.getline(absolute_filename, exc_lineno)
+                            pydev_log.exception('Error in linecache.getline(%r, %s, f_globals)', absolute_filename, exc_lineno)
+                            line = ''
 
                         if IGNORE_EXCEPTION_TAG.match(line) is not None:
                             lines_ignored[exc_lineno] = 1
@@ -571,7 +570,11 @@ class PyDBFrame:
         # if DEBUG: print('frame trace_dispatch %s %s %s %s %s %s, stop: %s' % (frame.f_lineno, frame.f_code.co_name, frame.f_code.co_filename, event, constant_to_str(info.pydev_step_cmd), arg, info.pydev_step_stop))
         try:
             info.is_tracing += 1
-            line = frame.f_lineno
+
+            # TODO: This shouldn't be needed. The fact that frame.f_lineno
+            # is None seems like a bug in Python 3.11.
+            # Reported in: https://github.com/python/cpython/issues/94485
+            line = frame.f_lineno or 0  # Workaround or case where frame.f_lineno is None
             line_cache_key = (frame_cache_key, line)
 
             if main_debugger.pydb_disposed:
@@ -866,7 +869,7 @@ class PyDBFrame:
                     new_frame = frame
                     stop_reason = CMD_SET_FUNCTION_BREAK
 
-                elif not is_return and info.pydev_state != STATE_SUSPEND and breakpoints_for_file is not None and line in breakpoints_for_file:
+                elif is_line and info.pydev_state != STATE_SUSPEND and breakpoints_for_file is not None and line in breakpoints_for_file:
                     breakpoint = breakpoints_for_file[line]
                     new_frame = frame
                     stop = True
