@@ -1,1 +1,0 @@
-c:\bin\junction\junction.exe pysrc x:\PyDev.Debugger\

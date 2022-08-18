@@ -1,0 +1,4 @@
+c:\bin\junction\junction.exe pysrc x:\PyDev.Debugger\
+
+cd /home/fabio/Desktop/Pydev/plugins/org.python.pydev.core
+mount -t bind ~/Desktop/PyDev.Debugger/ pysrc
