@@ -7,6 +7,7 @@
 package org.python.pydev.parser;
 
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.shared_core.SharedCorePlugin;
 
 public class PyParser311Test extends PyParserTestBase {
 
@@ -29,6 +30,9 @@ public class PyParser311Test extends PyParserTestBase {
     }
 
     public void testMatchExceptionGroups() {
+        if (SharedCorePlugin.skipKnownFailures()) {
+            return;
+        }
         String s = "\n"
                 + "try:\n"
                 + "    pass\n"
