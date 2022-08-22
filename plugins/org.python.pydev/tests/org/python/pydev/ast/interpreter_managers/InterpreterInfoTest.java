@@ -329,6 +329,9 @@ public class InterpreterInfoTest extends TestCase {
     }
 
     public void testObtainCondaEnv() throws Exception {
+        if (TestDependent.CONDA_PYTHON_38_ENV == null) {
+            return; // We can't test conda because it's not setup.
+        }
         CorePlugin.setBundleInfo(new BundleInfoStub());
 
         String testFileName = "env_vars.sh";
