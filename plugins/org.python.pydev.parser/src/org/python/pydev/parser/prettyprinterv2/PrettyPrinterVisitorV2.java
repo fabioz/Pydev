@@ -983,7 +983,7 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         }
         if ((node.args != null && node.args.length > 0) || (node.keywords != null && node.keywords.length > 0)
                 || node.starargs != null || node.kwargs != null) {
-            handleArguments(reverseNodeArray(node.args), reverseNodeArray(node.keywords), node.starargs, node.kwargs);
+            handleArguments(node.args, node.keywords, node.starargs, node.kwargs);
         }
         if (node.isCall) {
             doc.addRequire(")", lastNode);

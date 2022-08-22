@@ -867,7 +867,7 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
 
         if ((node.args != null && node.args.length > 0) || (node.keywords != null && node.keywords.length > 0)
                 || node.starargs != null || node.kwargs != null) {
-            handleArguments(reverseNodeArray(node.args), reverseNodeArray(node.keywords), node.starargs, node.kwargs);
+            handleArguments(node.args, node.keywords, node.starargs, node.kwargs);
         }
         fixAfterNode(node);
 

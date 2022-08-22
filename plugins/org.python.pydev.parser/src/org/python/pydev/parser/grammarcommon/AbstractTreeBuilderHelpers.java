@@ -7,6 +7,7 @@
 package org.python.pydev.parser.grammarcommon;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 
 import org.python.pydev.parser.jython.ISpecialStr;
@@ -339,6 +340,8 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
                     }
                 } else {
                     d.func = func;
+                    Collections.reverse(argsl);
+                    Collections.reverse(keywordsl);
                     d.args = argsl.toArray(new exprType[0]);
                     d.keywords = keywordsl.toArray(new keywordType[0]);
                     d.starargs = starargs;

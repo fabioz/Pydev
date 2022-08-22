@@ -9,6 +9,8 @@ package org.python.pydev.parser;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Module;
+import org.python.pydev.parser.jython.ast.Num;
+import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.visitors.NodeUtils;
 
 public class PyParser26Test extends PyParserTestBase {
@@ -121,7 +123,7 @@ public class PyParser26Test extends PyParserTestBase {
     public void testClassDecoratorCall() {
         checkWithAllGrammars((grammarVersion) -> {
             String s = "" +
-                    "@classdec(1)\n" +
+                    "@classdec(1, 2)\n" +
                     "class A:\n" +
                     "    pass\n" +
                     "";
@@ -129,8 +131,11 @@ public class PyParser26Test extends PyParserTestBase {
             Module m = (Module) ast;
             ClassDef d = (ClassDef) m.body[0];
             assertEquals(1, d.decs.length);
-            assertEquals("classdec", NodeUtils.getRepresentationString(d.decs[0].func));
-            assertTrue(d.decs[0].isCall);
+            decoratorsType dec = d.decs[0];
+            assertEquals("classdec", NodeUtils.getRepresentationString(dec.func));
+            assertTrue(dec.isCall);
+            assertEquals("1", ((Num) dec.args[0]).num);
+            assertEquals("2", ((Num) dec.args[1]).num);
             return true;
         });
     }
