@@ -363,9 +363,7 @@ public class OccurrencesAnalyzerPy36Test extends AnalysisTestsBase {
                 "        pass\n" +
                 "");
         analyzer = new OccurrencesAnalyzer();
-        // Seems like we aren't getting it from the library (but that's ok, just check that
-        // Duplicated signature: spam does not appear).
-        checkError("Unresolved import: typing");
+        checkNoError();
     }
 
     public void testErrorTypingAssign() throws Exception {

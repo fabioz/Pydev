@@ -291,37 +291,42 @@ public class PyAstFactory {
     public stmtType createOverrideBody(FunctionDef functionDef, String parentClassName, String currentClassName) {
         //create a copy because we do not want to retain the original line/col and we may change the originals here.
         final boolean[] addReturn = new boolean[] { false };
-        VisitorBase visitor = new VisitorBase() {
+        if (functionDef.returns != null) {
+            String rep = NodeUtils.getRepresentationString(functionDef.returns);
+            addReturn[0] = !("None".equals(rep));
+        } else {
+            VisitorBase visitor = new VisitorBase() {
 
-            @Override
-            public Object visitClassDef(ClassDef node) throws Exception {
-                return null;
-            }
-
-            @Override
-            public Object visitFunctionDef(FunctionDef node) throws Exception {
-                return null; //don't visit internal scopes.
-            }
-
-            @Override
-            protected Object unhandled_node(SimpleNode node) throws Exception {
-                if (node instanceof Return) {
-                    addReturn[0] = true;
-                    throw stopVisitingException;
+                @Override
+                public Object visitClassDef(ClassDef node) throws Exception {
+                    return null;
                 }
-                return null;
-            }
 
-            @Override
-            public void traverse(SimpleNode node) throws Exception {
-                node.traverse(this);
-            }
-        };
-        try {
-            visitor.traverse(functionDef);
-        } catch (Exception e) {
-            if (e != stopVisitingException) {
-                Log.log(e);
+                @Override
+                public Object visitFunctionDef(FunctionDef node) throws Exception {
+                    return null; //don't visit internal scopes.
+                }
+
+                @Override
+                protected Object unhandled_node(SimpleNode node) throws Exception {
+                    if (node instanceof Return) {
+                        addReturn[0] = true;
+                        throw stopVisitingException;
+                    }
+                    return null;
+                }
+
+                @Override
+                public void traverse(SimpleNode node) throws Exception {
+                    node.traverse(this);
+                }
+            };
+            try {
+                visitor.traverse(functionDef);
+            } catch (Exception e) {
+                if (e != stopVisitingException) {
+                    Log.log(e);
+                }
             }
         }
 

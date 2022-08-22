@@ -1,1 +1,1 @@
-from sub1 import method1
+from .sub1 import method1

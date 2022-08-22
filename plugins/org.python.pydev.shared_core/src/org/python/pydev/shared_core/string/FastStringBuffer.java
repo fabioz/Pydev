@@ -335,23 +335,6 @@ public final class FastStringBuffer implements CharSequence {
         return this;
     }
 
-    public FastStringBuffer append(String chars, int offset, int len) {
-        int newCount = count + len;
-        if (newCount > value.length) {
-            //was: resizeForMinimum(newCount);
-            int newCapacity = (value.length + 1) * 2;
-            if (newCount > newCapacity) {
-                newCapacity = newCount;
-            }
-            char newValue[] = new char[newCapacity];
-            System.arraycopy(value, 0, newValue, 0, count);
-            value = newValue;
-        }
-        System.arraycopy(chars, offset, value, count, len);
-        count = newCount;
-        return this;
-    }
-
     /**
      * Reverses the contents on this buffer
      */
@@ -419,6 +402,13 @@ public final class FastStringBuffer implements CharSequence {
         this.count -= charsToDelete;
         if (this.count < 0) {
             this.count = 0;
+        }
+        return this;
+    }
+
+    public FastStringBuffer keepCharsUpTo(int i) {
+        if (i < this.count) {
+            this.count = i;
         }
         return this;
     }
@@ -1054,6 +1044,15 @@ public final class FastStringBuffer implements CharSequence {
 
     public FastStringBuffer trim() {
         return leftTrim().rightTrim();
+    }
+
+    public int lastIndexOf(char c) {
+        for (int i = this.length() - 1; i >= 0; i--) {
+            if (c == this.value[i]) {
+                return i;
+            }
+        }
+        return -1;
     }
 
 }

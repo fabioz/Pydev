@@ -6,132 +6,164 @@
  */
 package org.python.pydev.core.docutils;
 
+import java.util.Iterator;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
+import org.python.pydev.core.docutils.ImportHandle.ImportHandleInfo;
 import org.python.pydev.shared_core.string.DocIterator;
+import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.StringUtils;
 
 public class ImportsSelection {
 
+    private static final Pattern FromPattern = Pattern
+            .compile("(\\bfrom\\s*)");
+    private static final Pattern ImportPattern = Pattern
+            .compile("(\\bimport\\b\\s*)");
+
     /**
-     * @param doc
-     * @param documentOffset
      * @return the import info or null if none is available
      */
-    public static ImportInfo getImportsTipperStr(String trimmedLine, boolean returnEvenEmpty) {
-        String importMsg = "";
-
-        if (!trimmedLine.startsWith("from") && !trimmedLine.startsWith("import")) {
-
+    public static ImportInfo getImportsTipperStr(String leftTrimmedLine, final boolean returnEvenEmpty) {
+        if (!leftTrimmedLine.startsWith("from") && !leftTrimmedLine.startsWith("import")) {
             return new ImportInfo("", false, false); // it is not an import
         }
 
-        int fromIndex = trimmedLine.indexOf("from");
-        int importIndex = trimmedLine.indexOf("import");
-        boolean foundImportOnArray = false;
-        boolean foundFromOnArray = false;
+        final FastStringBuffer docContents = new FastStringBuffer(leftTrimmedLine, 0);
 
-        // check if we have a from or an import.
-        if (fromIndex != -1 || importIndex != -1) {
-            trimmedLine = trimmedLine.replaceAll("#.*", ""); // remove comments
-            String[] strings = trimmedLine.split(" ");
+        Matcher matcher = FromPattern.matcher(leftTrimmedLine);
+        int fromIndexEnd = -1;
+        if (matcher.find()) {
+            fromIndexEnd = matcher.end();
+        }
+        matcher = ImportPattern.matcher(leftTrimmedLine);
+        int importIndexEnd = -1;
+        if (matcher.find()) {
+            importIndexEnd = matcher.end();
+        }
+        matcher = null;
+        if (importIndexEnd == -1 && fromIndexEnd == -1) {
+            return new ImportInfo("", false, false); // it is not an import
+        }
 
-            if (fromIndex != -1 && importIndex == -1) {
-                if (strings.length > 2) {
-                    // user has spaces as in 'from xxx uuu'
-                    return new ImportInfo("", foundImportOnArray, foundFromOnArray);
+        fixDocContents(fromIndexEnd, importIndexEnd, docContents);
+
+        IDocument doc = new Document(docContents.toString());
+        PyImportsHandling pyImportsHandling = new PyImportsHandling(doc, false, true);
+        Iterator<ImportHandle> it = pyImportsHandling.iterator();
+        if (!it.hasNext()) {
+            return new ImportInfo("", importIndexEnd != -1, fromIndexEnd != -1);
+        }
+        ImportHandle next = it.next();
+        List<ImportHandleInfo> importInfo = next.getImportInfo();
+        if (importInfo.size() == 0) {
+            return new ImportInfo(" ", importIndexEnd != -1, fromIndexEnd != -1);
+        }
+        ImportHandleInfo importHandleInfo = importInfo.get(importInfo.size() - 1);
+        String fromImportStr = importHandleInfo.getFromImportStr();
+
+        int leadingDots = 0;
+        if (fromImportStr != null) {
+            FastStringBuffer bufLeadingChars = new FastStringBuffer(fromImportStr, 0);
+
+            for (int i = 0; i < bufLeadingChars.length(); i++) {
+                if (bufLeadingChars.charAt(i) == '.') {
+                    leadingDots += 1;
+                } else {
+                    break;
                 }
             }
-
-            for (int i = 0; i < strings.length; i++) {
-                if (strings[i].equals("import")) {
-                    foundImportOnArray = true;
-                }
-                if (strings[i].equals("from")) {
-                    foundFromOnArray = true;
-                }
-
-                if (strings[i].equals("from") == false && strings[i].equals("import") == false) {
-                    if (importMsg.length() != 0) {
-                        importMsg += '.';
-                    }
-                    importMsg += strings[i];
-                }
-                // now, if we have a from xxx import something, we'll always
-                // want to return only the xxx
-                if (fromIndex != -1 && importIndex == -1 && (foundImportOnArray || i == strings.length - 1)) {
-                    if (importMsg.length() == 0) {
-                        return ImportsSelection.doExistingOrEmptyReturn(returnEvenEmpty, importMsg, foundImportOnArray,
-                                foundFromOnArray);
-                    }
-                    if (importMsg.startsWith(".")) {
-                        return new ImportInfo(importMsg, foundImportOnArray, foundFromOnArray);
-                    }
-                    if (importMsg.indexOf(".") == -1) {
-                        return ImportsSelection.doExistingOrEmptyReturn(returnEvenEmpty, importMsg, foundImportOnArray,
-                                foundFromOnArray);
-                    }
-                    return new ImportInfo(importMsg.substring(0, importMsg.lastIndexOf(".") + 1), foundImportOnArray,
-                            foundFromOnArray);
-
-                }
+            if (leadingDots > 0) {
+                bufLeadingChars.deleteFirstChars(leadingDots);
+                fromImportStr = bufLeadingChars.toString();
             }
 
-            if (fromIndex != -1 && importIndex != -1) {
-                if (strings.length == 3) {
-                    importMsg += '.';
-                }
-            }
+        }
+        FastStringBuffer buf;
+
+        List<String> importedStr = importHandleInfo.getImportedStr();
+        Iterator<String> importedStrIterator = importedStr.iterator();
+
+        final boolean hasFrom = importHandleInfo.getFoundFrom();
+        final boolean hasImport = importHandleInfo.getFoundImport();
+        final boolean addedFromPart = fromImportStr != null;
+        final boolean addedImportPart = importedStrIterator.hasNext();
+
+        if (fromImportStr == null) {
+            buf = new FastStringBuffer(40);
         } else {
-            return new ImportInfo("", foundImportOnArray, foundFromOnArray);
-        }
-        if (importMsg.indexOf(".") == -1) {
-            // we have only import fff or from iii (so, we're going for all
-            // imports).
-            return ImportsSelection.doExistingOrEmptyReturn(returnEvenEmpty, importMsg, foundImportOnArray,
-                    foundFromOnArray);
-        }
-
-        if (fromIndex == -1 && importMsg.indexOf(',') != -1) {
-            // we have something like import xxx, yyy, ...
-            importMsg = importMsg.substring(importMsg.lastIndexOf(',') + 1, importMsg.length());
-            if (importMsg.startsWith(".")) {
-                importMsg = importMsg.substring(1);
+            buf = new FastStringBuffer(fromImportStr, 20);
+            if (importedStrIterator.hasNext()) {
+                buf.append('.');
             }
+        }
+        while (importedStrIterator.hasNext()) {
+            buf.append(importedStrIterator.next());
+        }
 
-            int j = importMsg.lastIndexOf('.');
-            if (j != -1) {
-                importMsg = importMsg.substring(0, j);
-                return new ImportInfo(importMsg, foundImportOnArray, foundFromOnArray);
+        buf.trim();
+
+        if (hasFrom && hasImport && addedFromPart && !addedImportPart) {
+            return buildImportInfo(buf, hasFrom, hasImport, leadingDots);
+        }
+
+        if ((hasFrom && !hasImport) || (!hasFrom && hasImport)) {
+            int dots = StringUtils.countChars('.', buf);
+            if (dots == buf.length()) {
+                return buildImportInfo(buf, hasFrom, hasImport, leadingDots);
+            }
+        }
+
+        if (buf.endsWith('.')) {
+            buf.deleteLast();
+            return buildImportInfo(buf, hasFrom, hasImport, leadingDots);
+
+        } else {
+
+            int lastIndexOf = buf.lastIndexOf('.');
+            if (lastIndexOf >= 0) {
+                buf.keepCharsUpTo(lastIndexOf);
+                return buildImportInfo(buf, hasFrom, hasImport, leadingDots);
             } else {
-                return ImportsSelection.doExistingOrEmptyReturn(returnEvenEmpty, importMsg, foundImportOnArray,
-                        foundFromOnArray);
+                if (leadingDots > 0) {
+                    return new ImportInfo(new FastStringBuffer("", leadingDots).appendN('.', leadingDots).toString(),
+                            hasImport, hasFrom);
+                }
+                return new ImportInfo(" ", hasImport, hasFrom);
             }
+        }
+    }
+
+    private static ImportInfo buildImportInfo(FastStringBuffer buf, final boolean hasFrom, final boolean hasImport,
+            int leadingDots) {
+        if (leadingDots > 0) {
+            buf.insertN(0, '.', leadingDots);
+        } else {
+            if (buf.length() == 0) {
+                buf.append(' '); // Leave a space just to note something was found.
+            }
+        }
+        return new ImportInfo(buf.toString(), hasImport, hasFrom);
+    }
+
+    private static void fixDocContents(int fromIndexEnd, int importIndexEnd, FastStringBuffer docContents) {
+        int commaIndex = docContents.lastIndexOf(',');
+        if (commaIndex == -1) {
+            return;
+        }
+
+        if (importIndexEnd != -1) {
+            // we have something like import xxx, yyy, ...
+            docContents.delete(importIndexEnd, commaIndex + 1);
 
         } else {
-            // now, we may still have something like 'unittest.test,' or
-            // 'unittest.test.,'
-            // so, we have to remove this comma (s).
-            int i;
-            boolean removed = false;
-            while ((i = importMsg.indexOf(',')) != -1) {
-                if (importMsg.charAt(i - 1) == '.') {
-                    int j = importMsg.lastIndexOf('.');
-                    importMsg = importMsg.substring(0, j);
-                }
+            docContents.delete(fromIndexEnd, commaIndex + 1);
 
-                int j = importMsg.lastIndexOf('.');
-                importMsg = importMsg.substring(0, j);
-                removed = true;
-            }
-
-            // if it is something like aaa.sss.bb : removes the bb because it is
-            // the qualifier
-            // if it is something like aaa.sss. : removes only the last point
-            if (!removed && importMsg.length() > 0 && importMsg.indexOf('.') != -1) {
-                importMsg = importMsg.substring(0, importMsg.lastIndexOf('.'));
-            }
-
-            return new ImportInfo(importMsg, foundImportOnArray, foundFromOnArray);
         }
     }
 
@@ -148,7 +180,8 @@ public class ImportsSelection {
 
         while (iterator.hasNext()) {
             String line = ParsingUtils.removeComments(iterator.next());
-            String trimmedLine = line.trim();
+            String leftTrimmedLine = line.stripLeading();
+            String trimmedLine = line.strip();
 
             if (PySelection.isImportLine(trimmedLine)) {
                 if (expectContinue) {
@@ -157,7 +190,7 @@ public class ImportsSelection {
                     if (trimmedLine.indexOf('(') != -1) {
                         correct = true;
                     }
-                    if (trimmedLine.endsWith("\\")) {
+                    if (leftTrimmedLine.endsWith("\\")) {
                         if (allEndingWithSlash) {
                             correct = true;
                         }
@@ -169,7 +202,7 @@ public class ImportsSelection {
                 }
                 //that's it, we found it!
                 found = true;
-                buffer.insert(0, trimmedLine);
+                buffer.insert(0, leftTrimmedLine);
                 break;
 
             } else {
@@ -200,15 +233,6 @@ public class ImportsSelection {
         }
 
         return getImportsTipperStr(buffer.toString(), true);
-    }
-
-    private static ImportInfo doExistingOrEmptyReturn(final boolean returnEvenEmpty, final String importMsg,
-            final boolean foundImportOnArray, final boolean foundFromOnArray) {
-        if (returnEvenEmpty || importMsg.trim().length() > 0) {
-            return new ImportInfo(" ", foundImportOnArray, foundFromOnArray);
-        } else {
-            return new ImportInfo("", foundImportOnArray, foundFromOnArray);
-        }
     }
 
 }

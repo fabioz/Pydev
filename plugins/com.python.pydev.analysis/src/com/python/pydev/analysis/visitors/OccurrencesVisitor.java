@@ -14,7 +14,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
@@ -97,7 +96,7 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
      * Determines whether we should check if function call arguments actually match the signature of the object being
      * called.
      */
-    private final boolean analyzeArgumentsMismatch;
+    private final boolean analyzeArgumentsMismatch = false;
 
     private IAnalysisPreferences prefs;
 
@@ -107,14 +106,17 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
         this.messagesManager = new MessagesManager(prefs, moduleName, document);
         this.prefs = prefs;
 
-        this.analyzeArgumentsMismatch = prefs
-                .getSeverityForType(IAnalysisPreferences.TYPE_ARGUMENTS_MISATCH) > IMarker.SEVERITY_INFO; //Don't even run checks if we don't raise at least a warning.
-        if (this.analyzeArgumentsMismatch) {
-            this.argumentsChecker = new ArgumentsChecker(this);
-        } else {
-            //Don't even create it if we're not going to use it.
-            this.argumentsChecker = null;
-        }
+        // Right now this is dead code, it's not in the UI and in general
+        // users now have other type-checkers they can use if they want this
+        // feature (such as mypy or pylint).
+        //        this.analyzeArgumentsMismatch = prefs
+        //                .getSeverityForType(IAnalysisPreferences.TYPE_ARGUMENTS_MISATCH) > IMarker.SEVERITY_INFO; //Don't even run checks if we don't raise at least a warning.
+        //        if (this.analyzeArgumentsMismatch) {
+        //            this.argumentsChecker = new ArgumentsChecker(this);
+        //        } else {
+        //Don't even create it if we're not going to use it.
+        this.argumentsChecker = null;
+        //        }
 
         this.duplicationChecker = new DuplicationChecker(this);
         this.noSelfChecker = new NoSelfChecker(this);

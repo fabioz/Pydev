@@ -77,7 +77,7 @@ public class JythonTest extends TestCase {
     }
 
     public void testJythonTests() throws Exception {
-        if (TestDependent.JYTHON_ANT_JAR_LOCATION == null) {
+        if (TestDependent.JYTHON_ANT_JAR_LOCATION == null || TestDependent.JYTHON_JAR_LOCATION == null) {
             System.out.println("Skipped running: JythonTest");
             return;
         }

@@ -50,13 +50,13 @@ public class PyParser27Test extends PyParserTestBase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_7);
+        setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_3_5);
     }
 
     public void testWith() {
         String str = "def m1():\n" +
                 "    with a, b, c:\n" +
-                "        print a, b, c\n" +
+                "        print(a, b, c)\n" +
                 "\n" +
                 "";
         parseLegalDocStr(str);
@@ -67,7 +67,7 @@ public class PyParser27Test extends PyParserTestBase {
                 "try:\n" +
                 "    a = 10\n" +
                 "except RuntimeError as x:\n" +
-                "    print x\n" +
+                "    print(x)\n" +
                 "";
         parseLegalDocStr(str);
     }
@@ -82,10 +82,9 @@ public class PyParser27Test extends PyParserTestBase {
     public void testOctal() {
         String str = "" +
                 "0o700\n" +
-                "0700\n" +
                 "";
         assertEquals(
-                "Module[body=[Expr[value=Num[n=448, type=Int, num=0o700]], Expr[value=Num[n=448, type=Int, num=0700]]]]",
+                "Module[body=[Expr[value=Num[n=448, type=Int, num=0o700]]]]",
                 parseLegalDocStr(str).toString());
     }
 

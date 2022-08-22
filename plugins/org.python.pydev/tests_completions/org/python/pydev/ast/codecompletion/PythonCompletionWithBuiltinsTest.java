@@ -45,7 +45,7 @@ import org.python.pydev.shared_core.io.FileUtils;
 
 public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
 
-    protected boolean isInTestFindDefinition = false;
+    protected static boolean isInTestFindDefinition = false;
 
     public static void main(String[] args) {
         try {
@@ -72,7 +72,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
 
             @Override
             public int getGrammarVersion() {
-                return IPythonNature.LATEST_GRAMMAR_PY2_VERSION;
+                return IPythonNature.LATEST_GRAMMAR_PY3_VERSION;
             }
 
             @Override
@@ -155,8 +155,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
         } catch (CompletionRecursionException e) {
             //that's ok... we're asking for it here...
         }
-        requestCompl(f, strDoc, strDoc.length(), -1, new String[] { "__doc__", "__getitem__()", "__init__()",
-                "__str__()" });
+        requestCompl(f, strDoc, strDoc.length(), -1, new String[] { "args", "with_traceback(tb)" });
     }
 
     public void testCompleteImportBuiltin() throws BadLocationException, IOException, Exception {
@@ -221,14 +220,24 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
 
     }
 
-    public void testBuiltinsInNamespace() throws BadLocationException, IOException, Exception {
+    public void testBuiltinsInNamespace0() throws BadLocationException, IOException, Exception {
+        String s = "_";
+        requestCompl(s, s.length(), -1, new String[] { "__builtins__" });
+    }
+
+    public void testBuiltinsInNamespace1() throws BadLocationException, IOException, Exception {
         String s = "__builtins__.";
         requestCompl(s, s.length(), -1, new String[] { "RuntimeError" });
     }
 
     public void testBuiltinsInNamespace2() throws BadLocationException, IOException, Exception {
         String s = "__builtins__.RuntimeError.";
-        requestCompl(s, s.length(), -1, new String[] { "__doc__", "__getitem__()", "__init__()", "__str__()" });
+        requestCompl(s, s.length(), 2, new String[] { "args", "with_traceback(tb)" });
+    }
+
+    public void testBuiltinsInNamespace2Underline() throws BadLocationException, IOException, Exception {
+        String s = "__builtins__.RuntimeError._";
+        requestCompl(s, s.length(), -1, new String[] { "__doc__", "__init__()", "__str__()" });
     }
 
     public void testPreferForcedBuiltin() throws BadLocationException, IOException, Exception {
@@ -447,7 +456,12 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
         s = "" +
                 "from testlib.unittest import anothertest\n" +
                 "anothertest.";
-        requestCompl(s, s.length(), 5, new String[] { "__file__", "__dict__", "__name__", "AnotherTest", "t" });
+        requestCompl(s, s.length(), 2, new String[] { "AnotherTest", "t" });
+
+        s = "" +
+                "from testlib.unittest import anothertest\n" +
+                "anothertest._";
+        requestCompl(s, s.length(), 3, new String[] { "__file__", "__dict__", "__name__" });
 
     }
 
@@ -460,7 +474,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
                 "    a = A()\n" +
                 "    a.list1.";
 
-        requestCompl(s, -1, new String[] { "pop()", "remove(value)" });
+        requestCompl(s, -1, new String[] { "pop(index)", "remove(value)" });
     }
 
     public void test__all__() throws Exception {
@@ -485,11 +499,8 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
     }
 
     public void testSortParamsCorrect() throws Exception {
-        String s = "[].sort" +
-                "";
-
         //should keep the variables from the __builtins__ in this module
-        requestCompl(s, -1, new String[] { "sort(cmp=None, key=None, reverse=False)" });
+        requestCompl("[].sort", 1, new String[] { "sort()" });
     }
 
     public void testFindDefinition() throws Exception {
@@ -568,9 +579,31 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
         comp.applyOnDocument(null, doc, ' ', 0, s.length());
         assertEquals("" +
                 "class Bar(object):\n" +
-                "    def __hash__(self, *args, **kwargs):\n"
-                +
-                "        return object.__hash__(self, *args, **kwargs)", doc.get());
+                "    def __hash__(self)->int:\n" +
+                "        return object.__hash__(self)", doc.get());
+    }
+
+    public void testOverrideCompletionsNoReturn() throws Exception {
+        String s;
+        s = "" +
+                "class Foo:\n" +
+                "    def method(self)->None:\n" +
+                "        ...\n" +
+                "class Bar(Foo):\n" +
+                "    def method";//bring override completions!
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "method (Override method in Foo)" });
+        assertEquals(1, comps.length);
+        Document doc = new Document(s);
+        OverrideMethodCompletionProposal comp = (OverrideMethodCompletionProposal) comps[0];
+        comp.applyOnDocument(null, doc, ' ', 0, s.length());
+        assertEquals("" +
+                "class Foo:\n" +
+                "    def method(self)->None:\n" +
+                "        ...\n" +
+                "class Bar(Foo):\n" +
+                "    def method(self)->None:\n" +
+                "        Foo.method(self)", doc.get());
     }
 
     public void testBuiltinKnownReturns() throws Exception {
@@ -578,7 +611,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
                 "a.";
 
         //open returns a file object.
-        requestCompl(s, -1, new String[] { "close()", "flush()", "readlines()" });
+        requestCompl(s, -1, new String[] { "close()", "flush()", "write(s)" });
     }
 
     public void testBuiltinKnownReturns1() throws Exception {
@@ -589,13 +622,22 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
     }
 
     public void testBuiltinCached() throws Exception {
-        IModule module = nature.getAstManager().getModule("__builtin__", nature, true, new BaseModuleRequest(false));
-        assertTrue(module instanceof CompiledModule);
+        IModule module = nature.getAstManager().getModule("_bisect", nature, true, new BaseModuleRequest(false));
+        assertTrue("Expected CompiledModule. Found: " + module, module instanceof CompiledModule);
         ISystemModulesManager systemModulesManager = nature.getAstManager().getModulesManager()
                 .getSystemModulesManager();
         RunnableAsJobsPoolThread.getSingleton().waitToFinishCurrent();
         File file = systemModulesManager.getCompiledModuleCacheFile(module.getName());
         assertTrue(file.exists());
+
+        module = nature.getAstManager().getModule("_bisect.foo", nature, true, new BaseModuleRequest(false));
+        assertNull(module);
+
+        module = nature.getAstManager().getModule("os", nature, true, new BaseModuleRequest(false));
+        assertTrue("Expected CompiledModule. Found: " + module, module instanceof CompiledModule);
+
+        module = nature.getAstManager().getModule("os.path", nature, true, new BaseModuleRequest(false));
+        assertTrue("Expected CompiledModule. Found: " + module, module instanceof CompiledModule);
     }
 
     public void testAssignToFuncCompletion() throws Exception {

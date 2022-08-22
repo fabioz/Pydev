@@ -13,11 +13,8 @@ package org.python.pydev.ast.interpreter_managers;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.io.IOException;
 import java.io.StringReader;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -48,7 +45,6 @@ import org.python.pydev.ast.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.ast.runners.SimpleRunner;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModuleRequestState;
@@ -111,7 +107,9 @@ public class InterpreterInfo implements IInterpreterInfo {
      * This is the cache for the builtins (that's the same thing as the forcedLibs, but in a different format,
      * so, whenever the forcedLibs change, this should be changed too).
      */
+    private final Object builtinsCacheLock = new Object();
     private String[] builtinsCache;
+    private Set<String> builtinsCacheAsSetWithDotsToo;
     private Map<String, File> predefinedBuiltinsCache;
     private Map<String, File> typeshedCache;
 
@@ -1464,8 +1462,11 @@ public class InterpreterInfo implements IInterpreterInfo {
     //	}
 
     private void clearBuiltinsCache() {
-        this.builtinsCache = null; //force cache recreation
-        this.predefinedBuiltinsCache = null;
+        synchronized (builtinsCacheLock) {
+            this.builtinsCacheAsSetWithDotsToo = null;
+            this.builtinsCache = null; //force cache recreation
+            this.predefinedBuiltinsCache = null;
+        }
     }
 
     /**
@@ -1544,11 +1545,35 @@ public class InterpreterInfo implements IInterpreterInfo {
 
     //START: Things related to the builtins (forcedLibs) ---------------------------------------------------------------
     public String[] getBuiltins() {
-        if (this.builtinsCache == null) {
-            Set<String> set = new HashSet<String>(forcedLibs);
-            this.builtinsCache = set.toArray(new String[0]);
+        String[] ret = this.builtinsCache;
+        if (ret == null) {
+            synchronized (builtinsCacheLock) {
+                computeBuiltinsCache();
+                ret = this.builtinsCache;
+            }
         }
-        return this.builtinsCache;
+
+        return ret;
+    }
+
+    public Set<String> getBuiltinsAsSet() {
+        Set<String> ret = this.builtinsCacheAsSetWithDotsToo;
+        if (ret == null) {
+            synchronized (builtinsCacheLock) {
+                computeBuiltinsCache();
+                ret = this.builtinsCacheAsSetWithDotsToo;
+            }
+        }
+
+        return ret;
+    }
+
+    private void computeBuiltinsCache() {
+        Set<String> set = new HashSet<String>(forcedLibs);
+        String[] asArray = set.toArray(new String[0]);
+        Arrays.sort(asArray);
+        this.builtinsCache = asArray;
+        this.builtinsCacheAsSetWithDotsToo = set;
     }
 
     public void addForcedLib(String forcedLib) {
@@ -1952,7 +1977,7 @@ public class InterpreterInfo implements IInterpreterInfo {
      * @param moduleRequest
      * @return the file that matches the passed module name with the predefined builtins.
      */
-    public File getPredefinedModule(String moduleName, IModuleRequestState moduleRequest) {
+    public File getPredefinedModuleFile(String moduleName, IModuleRequestState moduleRequest) {
         if (this.predefinedBuiltinsCache == null) {
             this.predefinedBuiltinsCache = new HashMap<String, File>();
             for (String s : this.getPredefinedCompletionsPath()) {
@@ -1983,11 +2008,8 @@ public class InterpreterInfo implements IInterpreterInfo {
             try {
                 File typeshedPath = CorePlugin.getTypeshedPath();
                 File f = new File(typeshedPath, "stdlib");
-                if (this.getGrammarVersion() <= IGrammarVersionProvider.LATEST_GRAMMAR_PY2_VERSION) {
-                    f = new File(f, "@python2");
-                }
                 if (f.isDirectory()) {
-                    fillTypeshedFromDirInfo(f, "");
+                    TypeshedLoader.fillTypeshedFromDirInfo(this.typeshedCache, f, "");
                 }
             } catch (CoreException e) {
                 Log.log(e);
@@ -1999,35 +2021,6 @@ public class InterpreterInfo implements IInterpreterInfo {
             ret = this.typeshedCache.get(moduleName);
         }
         return ret;
-    }
-
-    private void fillTypeshedFromDirInfo(File f, String basename) {
-        java.nio.file.Path path = Paths.get(f.toURI());
-        try (DirectoryStream<java.nio.file.Path> newDirectoryStream = Files.newDirectoryStream(path)) {
-            Iterator<java.nio.file.Path> it = newDirectoryStream.iterator();
-            while (it.hasNext()) {
-                java.nio.file.Path path2 = it.next();
-                File file2 = path2.toFile();
-                String fName = file2.getName();
-                if (file2.isDirectory()) {
-                    String dirname = fName;
-                    if (!dirname.contains("@")) {
-                        fillTypeshedFromDirInfo(file2,
-                                basename.isEmpty() ? dirname + "." : basename + dirname + ".");
-                    }
-                } else {
-                    if (fName.endsWith(".pyi")) {
-                        String modName = fName.substring(0, fName.length() - (".pyi".length()));
-                        if (modName.equals("typing") || modName.equals("builtins") || modName.equals("__builtin__")) {
-                            continue;
-                        }
-                        this.typeshedCache.put(basename + modName, file2);
-                    }
-                }
-            }
-        } catch (IOException e) {
-            Log.log(e);
-        }
     }
 
     public void removePredefinedCompletionPath(String item) {

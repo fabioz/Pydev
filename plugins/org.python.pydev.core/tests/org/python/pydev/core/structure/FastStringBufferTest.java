@@ -42,6 +42,21 @@ public class FastStringBufferTest extends TestCase {
         assertEquals("aabb", buf.toString());
     }
 
+    public void testLastIndexOf() throws Exception {
+        FastStringBuffer buf = new FastStringBuffer(5);
+        buf.append("abcd");
+        assertEquals(buf.toString().lastIndexOf('a'), buf.lastIndexOf('a'));
+        assertEquals(buf.toString().lastIndexOf('d'), buf.lastIndexOf('d'));
+        assertEquals(buf.toString().lastIndexOf('c'), buf.lastIndexOf('c'));
+        assertEquals(buf.toString().lastIndexOf('f'), buf.lastIndexOf('f'));
+    }
+
+    public void testKeepCharsUpTo() throws Exception {
+        FastStringBuffer buf = new FastStringBuffer("abcd", 0);
+        assertEquals("abcd", buf.keepCharsUpTo(6).toString());
+        assertEquals("abc", buf.keepCharsUpTo(3).toString());
+    }
+
     public void testFastString1() throws Exception {
 
         FastStringBuffer fastString = new FastStringBuffer(2);

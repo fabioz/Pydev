@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.shared_core.callbacks.ICallback0;
+import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.structure.ImmutableTuple;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
@@ -334,7 +335,7 @@ public interface ICodeCompletionASTManager {
      * should return as being a generator of the given type.
      */
     public abstract TokensList getCompletionFromFuncDefReturn(ICompletionState state, IModule s,
-            IDefinition definition, boolean considerYieldTheReturnType) throws CompletionRecursionException;
+            ISimpleNode functionDef, boolean considerYieldTheReturnType) throws CompletionRecursionException;
 
     public abstract IModule /* SourceModule */ getPyiStubModule(IModule module, ICompletionState completionState);
 

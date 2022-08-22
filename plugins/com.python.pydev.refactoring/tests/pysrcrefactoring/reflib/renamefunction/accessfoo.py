@@ -1,7 +1,7 @@
-from renfoo import RenFoo
+from .renfoo import RenFoo
 
 
-print RenFoo
+print(RenFoo)
 #comment access RenFoo
 '''
     RenFoo access

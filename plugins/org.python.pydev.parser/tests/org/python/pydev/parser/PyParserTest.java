@@ -504,14 +504,7 @@ public class PyParserTest extends PyParserTestBase {
 
     public void testOnDocBaseHTTPServer() throws Throwable {
         String loc = TestDependent.PYTHON2_LIB +
-                "BaseHTTPServer.py";
-        String s = FileUtils.getFileContents(new File(loc));
-        parseLegalDocStr(s);
-    }
-
-    public void testOnDocXMLRPCServerMod() throws Throwable {
-        String loc = TestDependent.PYTHON2_LIB +
-                "DocXMLRPCServer.py";
+                "http/server.py";
         String s = FileUtils.getFileContents(new File(loc));
         parseLegalDocStr(s);
     }
@@ -631,15 +624,6 @@ public class PyParserTest extends PyParserTestBase {
         });
     }
 
-    public void testParser7() throws Throwable {
-        String s = "" +
-                "if a < (2, 2):\n" +
-                "    False, True = 0, 1\n" +
-                "\n" +
-                "\n";
-        parseLegalDocStr(s);
-    }
-
     public void testParser8() throws Throwable {
         String s = "" +
                 "if type(clsinfo) in (types.TupleType, types.ListType):\n" +
@@ -658,7 +642,7 @@ public class PyParserTest extends PyParserTestBase {
                 +
                 "for foo in sorted(val for val in td.itervalues() if val[0] == 's'):    \n"
                 +
-                "    print foo                                                          \n";
+                "    print(foo)                                                         \n";
 
         parseLegalDocStr(s);
     }
@@ -683,13 +667,13 @@ public class PyParserTest extends PyParserTestBase {
     }
 
     public void testParser4() throws Throwable {
-        String s = "print sum(x for x in y)";
+        String s = "print(sum(x for x in y))";
 
         parseLegalDocStr(s);
     }
 
     public void testParser5() throws Throwable {
-        String s = "print sum(x.b for x in y)";
+        String s = "print(sum(x.b for x in y))";
 
         parseLegalDocStr(s);
     }
@@ -839,42 +823,14 @@ public class PyParserTest extends PyParserTestBase {
     public void testParserAs1() throws Throwable {
         final String s = "" +
                 "as = 1\n" +
-                "print as\n" +
+                "print(as)\n" +
                 "" +
                 "with = 1\n" +
-                "print with\n" +
+                "print(with)\n" +
                 "";
 
-        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5);
-        parseLegalDocStr(s);
-        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6);
-        parseILegalDocStr(s);
-        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7);
-        parseILegalDocStr(s);
         setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5);
         parseILegalDocStr(s);
-    }
-
-    public void testParserPrint() throws Throwable {
-        String s = "" +
-                "import os.print.os\n" +
-                "print os.print.os\n" +
-                "";
-
-        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5);
-        parseLegalDocStr(s);
-
-        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6);
-        parseILegalDocStr(s);
-        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7);
-        parseILegalDocStr(s);
-        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5);
-        parseILegalDocStr(s);
-
-        s = "" +
-                "import os.print.os\n" +
-                "";
-        parseLegalDocStr(s);
     }
 
     public void testThreadingInParser() throws Exception {

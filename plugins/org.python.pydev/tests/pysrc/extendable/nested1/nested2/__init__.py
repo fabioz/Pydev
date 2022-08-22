@@ -1,1 +1,1 @@
-from nestedclass import NestedClass
+from .nestedclass import NestedClass

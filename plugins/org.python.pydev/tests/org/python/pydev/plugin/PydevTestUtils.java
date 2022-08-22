@@ -7,11 +7,9 @@
 package org.python.pydev.plugin;
 
 import java.io.File;
-import java.io.IOException;
 
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.shared_core.io.FileUtils;
 
 /**
  * @author fabioz
@@ -24,11 +22,12 @@ public class PydevTestUtils {
             return CorePlugin.pydevStatelocation;
         }
         File baseDir = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC, "data_temporary_for_testing");
-        try {
-            FileUtils.deleteDirectoryTree(baseDir);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        baseDir.mkdirs();
+        //        try {
+        //            FileUtils.deleteDirectoryTree(baseDir);
+        //        } catch (IOException e) {
+        //            e.printStackTrace();
+        //        }
         CorePlugin.pydevStatelocation = baseDir;
         return baseDir;
     }

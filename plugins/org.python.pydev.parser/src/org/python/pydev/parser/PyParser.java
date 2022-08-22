@@ -40,9 +40,6 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.parser.IPyParser;
 import org.python.pydev.parser.fastparser.FastParser;
-import org.python.pydev.parser.grammar25.PythonGrammar25;
-import org.python.pydev.parser.grammar26.PythonGrammar26;
-import org.python.pydev.parser.grammar27.PythonGrammar27;
 import org.python.pydev.parser.grammar30.PythonGrammar30;
 import org.python.pydev.parser.grammar310.PythonGrammar310;
 import org.python.pydev.parser.grammar311.PythonGrammar311;
@@ -109,16 +106,7 @@ public class PyParser extends BaseParser implements IPyParser {
     public static boolean USE_NEW_CYTHON_PARSER = true;
 
     public static String getGrammarVersionStr(int grammarVersion) {
-        if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5) {
-            return "grammar: Python 2.5";
-
-        } else if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6) {
-            return "grammar: Python 2.6";
-
-        } else if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7) {
-            return "grammar: Python 2.7";
-
-        } else if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5) {
+        if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5) {
             return "grammar: Python 3.5";
 
         } else if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_6) {
@@ -512,15 +500,6 @@ public class PyParser extends BaseParser implements IPyParser {
         IGrammar grammar;
         FastCharStream in = new FastCharStream(charArray);
         switch (grammarVersion) {
-            case IPythonNature.GRAMMAR_PYTHON_VERSION_2_5:
-                grammar = new PythonGrammar25(generateTree, in);
-                break;
-            case IPythonNature.GRAMMAR_PYTHON_VERSION_2_6:
-                grammar = new PythonGrammar26(generateTree, in);
-                break;
-            case IPythonNature.GRAMMAR_PYTHON_VERSION_2_7:
-                grammar = new PythonGrammar27(generateTree, in);
-                break;
             case IPythonNature.GRAMMAR_PYTHON_VERSION_3_5:
                 grammar = new PythonGrammar30(generateTree, in);
                 break;

@@ -47,6 +47,7 @@ import org.python.pydev.core.interactive_console.IScriptConsoleViewer;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.core.structure.CompletionRecursionException;
+import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.decoratorsType;
@@ -440,14 +441,18 @@ public class CtxParticipant
         try (NoExceptionCloseable x = state.pushLookingFor(
                 ICompletionState.LookingFor.LOOKING_FOR_INSTANCED_VARIABLE)) {
             LookingFor currLookingFor = state.getLookingFor();
-            TokensList completionFromFuncDefReturn = astManager
-                    .getCompletionFromFuncDefReturn(state,
-                            itemPointer.definition.module,
-                            itemPointer.definition, true);
-            if (completionFromFuncDefReturn != null
-                    && completionFromFuncDefReturn.notEmpty()) {
-                completionFromFuncDefReturn.setLookingFor(currLookingFor);
-                return completionFromFuncDefReturn;
+            SimpleNode ast = itemPointer.definition.ast;
+            if (ast instanceof FunctionDef) {
+                FunctionDef functionDef = (FunctionDef) ast;
+                TokensList completionFromFuncDefReturn = astManager
+                        .getCompletionFromFuncDefReturn(state,
+                                itemPointer.definition.module,
+                                functionDef, true);
+                if (completionFromFuncDefReturn != null
+                        && completionFromFuncDefReturn.notEmpty()) {
+                    completionFromFuncDefReturn.setLookingFor(currLookingFor);
+                    return completionFromFuncDefReturn;
+                }
             }
         }
         return null;

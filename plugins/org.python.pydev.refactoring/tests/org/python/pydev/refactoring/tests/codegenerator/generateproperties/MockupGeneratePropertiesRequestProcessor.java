@@ -12,8 +12,8 @@
 * Contributors:
 *     Fabio Zadrozny <fabiofz@gmail.com> - initial implementation
 ******************************************************************************/
-/* 
- * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler 
+/*
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
  */
 
 package org.python.pydev.refactoring.tests.codegenerator.generateproperties;
@@ -86,7 +86,7 @@ public class MockupGeneratePropertiesRequestProcessor implements IRequestProcess
 
                         @Override
                         public int getGrammarVersion() throws MisconfigurationException {
-                            return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
+                            return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5;
                         }
 
                         @Override

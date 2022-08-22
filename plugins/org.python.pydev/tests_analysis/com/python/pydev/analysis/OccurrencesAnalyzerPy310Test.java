@@ -500,7 +500,7 @@ public class OccurrencesAnalyzerPy310Test extends AnalysisTestsBase {
         doc = new Document("from contextlib import nullcontext as f\n"
                 + "with (f() as example):\n"
                 + "    print(example)");
-        checkError("Unresolved import: f");
+        checkNoError();
     }
 
     public void testWithStmt2() {
@@ -509,7 +509,7 @@ public class OccurrencesAnalyzerPy310Test extends AnalysisTestsBase {
                 + "     f('a') as b):\n"
                 + "    print(a)\n"
                 + "    print(b)");
-        checkError("Unresolved import: f");
+        checkNoError();
     }
 
     public void testWithStmt3() {
@@ -517,6 +517,6 @@ public class OccurrencesAnalyzerPy310Test extends AnalysisTestsBase {
                 + "with f('c') as a, f('a') as b:\n"
                 + "    print(a)\n"
                 + "    print(b)");
-        checkError("Unresolved import: f");
+        checkNoError();
     }
 }

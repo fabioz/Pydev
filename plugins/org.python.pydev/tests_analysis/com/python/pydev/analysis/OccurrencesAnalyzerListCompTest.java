@@ -14,7 +14,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.Document;
 import org.python.pydev.ast.analysis.messages.IMessage;
 import org.python.pydev.ast.codecompletion.revisited.modules.AbstractModule;
-import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.autoedit.TestIndentPrefs;
 
@@ -38,19 +37,19 @@ public class OccurrencesAnalyzerListCompTest extends AnalysisTestsBase {
 
     public void testListComprehension() {
         doc = new Document("def m1():\n" +
-                "    print [i for i in range(10)]");
+                "    print([i for i in range(10)])");
         checkNoError();
     }
 
     public void testListComprehension2() {
         doc = new Document("enumeratedDays = ((0, ('monday', 'mon')), (1, ('tuesday', 'tue')))\n" +
-                "print dict((day, index) for index, daysRep in enumeratedDays for day in daysRep)\n");
+                "print(dict((day, index) for index, daysRep in enumeratedDays for day in daysRep))\n");
         checkNoError();
     }
 
     public void testListComprehension3() {
         doc = new Document("enumeratedDays = ((0, ('monday', 'mon')), (1, ('tuesday', 'tue')))\n" +
-                "print dict((index) for index, daysRep in (enumeratedDays for day in daysRep))\n");
+                "print(dict((index) for index, daysRep in (enumeratedDays for day in daysRep)))\n");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -61,7 +60,7 @@ public class OccurrencesAnalyzerListCompTest extends AnalysisTestsBase {
     private IMessage[] analyzeDoc() {
         try {
             return analyzer.analyzeDocument(nature,
-                    (SourceModule) AbstractModule.createModuleFromDoc(null, null, doc, nature, true), prefs, doc,
+                    AbstractModule.createModuleFromDoc(null, null, doc, nature, true), prefs, doc,
                     new NullProgressMonitor(), new TestIndentPrefs(true, 4));
         } catch (MisconfigurationException e) {
             throw new RuntimeException(e);
@@ -70,7 +69,7 @@ public class OccurrencesAnalyzerListCompTest extends AnalysisTestsBase {
 
     public void testListComprehension3a() {
         doc = new Document("enumeratedDays = ((0, ('monday', 'mon')), (1, ('tuesday', 'tue')))\n" +
-                "print dict((day, index) for index, daysRep in (foo for day in enumeratedDays))\n");
+                "print(dict((day, index) for index, daysRep in (foo for day in enumeratedDays)))\n");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -81,7 +80,7 @@ public class OccurrencesAnalyzerListCompTest extends AnalysisTestsBase {
 
     public void testListComprehension3b() {
         doc = new Document("enumeratedDays = ((0, ('monday', 'mon')), (1, ('tuesday', 'tue')))\n" +
-                "print dict((day, index) for index, daysRep in (day for day in enumeratedDays))\n");//the day from the "(day for day in enumeratedDays)" should not be kept in the scope
+                "print(dict((day, index) for index, daysRep in (day for day in enumeratedDays)))\n");//the day from the "(day for day in enumeratedDays)" should not be kept in the scope
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -91,7 +90,7 @@ public class OccurrencesAnalyzerListCompTest extends AnalysisTestsBase {
 
     public void testListComprehension4() {
         doc = new Document("enumeratedDays = ((0, ('monday', 'mon')), (1, ('tuesday', 'tue')))\n" +
-                "print dict((day, index) for index, daysRep in enumeratedDays for day in bla)\n");
+                "print(dict((day, index) for index, daysRep in enumeratedDays for day in bla))\n");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -107,7 +106,7 @@ public class OccurrencesAnalyzerListCompTest extends AnalysisTestsBase {
 
     public void testListComprehension6() {
         doc = new Document("def double_cycle():\n" +
-                "    print [[i ** j for i in range(10)] for j in range(5)]\n"
+                "    print([[i ** j for i in range(10)] for j in range(5)])\n"
                 +
                 "\n");
         checkNoError();

@@ -40,7 +40,7 @@ import com.python.pydev.analysis.refactoring.wizards.RefactorProcessFactory;
 /**
  * Searches references to identifiers for operations such as {@code MarkOccurrences} and
  * {@link PyRenameEntryPoint}.
- * 
+ *
  * <p>Clients are expected to call {@link #prepareSearch} to collect the processes used to search
  * for a given request.  Once this succeeds, clients call {@link search} to search for references.
  * Finally, clients use {@link getLocalReferences} and {@link getWorkspaceReferences} to query for
@@ -71,7 +71,7 @@ public class PyReferenceSearcher {
 
     /**
      * Constructs a searcher for the given requests.
-     * 
+     *
      * @param requests the search requests.
      */
     public PyReferenceSearcher(RefactoringRequest... requests) {
@@ -87,8 +87,8 @@ public class PyReferenceSearcher {
      * @param request the search request.
      * @throws SearchException if the AST can not be found or the definition for the
      *     identifier isn't valid or can't otherwise be searched.
-     * @throws BadLocationException 
-     * @throws TooManyMatchesException 
+     * @throws BadLocationException
+     * @throws TooManyMatchesException
      */
     public void prepareSearch(RefactoringRequest request)
             throws SearchException, TooManyMatchesException, BadLocationException {
@@ -118,6 +118,14 @@ public class PyReferenceSearcher {
                 if (pointer.definition == null) {
                     throw new SearchException(INVALID_DEFINITION + pointer);
                 }
+                if (pointer.definition.module != null && "builtins".equals(pointer.definition.module.getName())) {
+                    // If we find a builtin, just rename based on the name.
+                    processes.clear();
+                    IRefactorRenameProcess p = RefactorProcessFactory.getRenameAnyProcess();
+                    processes.add(p);
+                    break;
+                }
+
                 IRefactorRenameProcess p = RefactorProcessFactory.getProcess(pointer.definition, request);
                 if (p == null) {
                     throw new SearchException(INVALID_DEFINITION + pointer.definition);

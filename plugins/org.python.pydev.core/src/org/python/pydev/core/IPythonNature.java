@@ -39,10 +39,9 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
         public static final HashSet<String> ALL_VERSIONS_ANY_FLAVOR = new HashSet<String>();
         public static final List<String> VERSION_NUMBERS = new ArrayList<String>();
 
-        //NOTE: It's the latest in the 2 series (3 is as if it's a totally new thing)
-        public static final String JYTHON_VERSION_LATEST = JYTHON_VERSION_2_7;
-        public static final String PYTHON_VERSION_LATEST = PYTHON_VERSION_2_7;
-        public static final String IRONPYTHON_VERSION_LATEST = IRONPYTHON_VERSION_2_7;
+        public static final String JYTHON_VERSION_LATEST = JYTHON_VERSION_3_0;
+        public static final String PYTHON_VERSION_LATEST = PYTHON_VERSION_3_11;
+        public static final String IRONPYTHON_VERSION_LATEST = IRONPYTHON_VERSION_3_0;
 
         public static final String INTERPRETER_VERSION = "interpreter";
         private static final Map<String, String> mappedVersions = new HashMap<>();
@@ -52,9 +51,6 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
         public static final String IRONYTHON_PREFIX = "ironpython";
 
         static {
-            ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_2_5);
-            ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_2_6);
-            ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_2_7);
             ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_3_0);
             ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_3_6);
             ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_3_7);
@@ -64,9 +60,6 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
             ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_3_11);
             ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_INTERPRETER);
 
-            ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_2_5);
-            ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_2_6);
-            ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_2_7);
             ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_3_0);
             ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_3_6);
             ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_3_7);
@@ -76,9 +69,6 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
             ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_3_11);
             ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_INTERPRETER);
 
-            ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_2_5);
-            ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_2_6);
-            ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_2_7);
             ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_3_0);
             ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_3_6);
             ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_3_7);
@@ -92,9 +82,6 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
             ALL_VERSIONS_ANY_FLAVOR.addAll(ALL_PYTHON_VERSIONS);
             ALL_VERSIONS_ANY_FLAVOR.addAll(ALL_IRONPYTHON_VERSIONS);
 
-            VERSION_NUMBERS.add("2.5");
-            VERSION_NUMBERS.add("2.6");
-            VERSION_NUMBERS.add("2.7");
             VERSION_NUMBERS.add("3.5");
             VERSION_NUMBERS.add("3.6");
             VERSION_NUMBERS.add("3.7"); // actually the same as 3.6
@@ -103,18 +90,6 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
             VERSION_NUMBERS.add("3.10");
             VERSION_NUMBERS.add("3.11");
             VERSION_NUMBERS.add(INTERPRETER_VERSION);
-
-            // Anything below 2.5 is marked as 2.5
-            mappedVersions.put("2.0", "2.5");
-            mappedVersions.put("2.1", "2.5");
-            mappedVersions.put("2.2", "2.5");
-            mappedVersions.put("2.3", "2.5");
-            mappedVersions.put("2.4", "2.5");
-            mappedVersions.put("2.5", "2.5");
-
-            mappedVersions.put("2.6", "2.6");
-
-            mappedVersions.put("2.7", "2.7");
 
             // Anything below 3.5 is marked as 3.5
             mappedVersions.put("3.0", "3.5");
@@ -223,9 +198,6 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
      * Constants persisted. Probably a better way would be disassociating whether it's python/jython and the
      * grammar version to be used (to avoid the explosion of constants below).
      */
-    public static final String PYTHON_VERSION_2_5 = "python 2.5";
-    public static final String PYTHON_VERSION_2_6 = "python 2.6";
-    public static final String PYTHON_VERSION_2_7 = "python 2.7";
     public static final String PYTHON_VERSION_3_0 = "python 3.5";
     public static final String PYTHON_VERSION_3_6 = "python 3.6";
     public static final String PYTHON_VERSION_3_7 = "python 3.7";
@@ -235,9 +207,6 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
     public static final String PYTHON_VERSION_3_11 = "python 3.11";
     public static final String PYTHON_VERSION_INTERPRETER = "python interpreter";
 
-    public static final String JYTHON_VERSION_2_5 = "jython 2.5";
-    public static final String JYTHON_VERSION_2_6 = "jython 2.6";
-    public static final String JYTHON_VERSION_2_7 = "jython 2.7";
     public static final String JYTHON_VERSION_3_0 = "jython 3.5";
     public static final String JYTHON_VERSION_3_6 = "jython 3.6";
     public static final String JYTHON_VERSION_3_7 = "jython 3.7";
@@ -247,9 +216,6 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
     public static final String JYTHON_VERSION_3_11 = "jython 3.11";
     public static final String JYTHON_VERSION_INTERPRETER = "jython interpreter";
 
-    public static final String IRONPYTHON_VERSION_2_5 = "ironpython 2.5";
-    public static final String IRONPYTHON_VERSION_2_6 = "ironpython 2.6";
-    public static final String IRONPYTHON_VERSION_2_7 = "ironpython 2.7";
     public static final String IRONPYTHON_VERSION_3_0 = "ironpython 3.5";
     public static final String IRONPYTHON_VERSION_3_6 = "ironpython 3.6";
     public static final String IRONPYTHON_VERSION_3_7 = "ironpython 3.7";

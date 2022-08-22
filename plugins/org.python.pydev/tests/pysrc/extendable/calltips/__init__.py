@@ -1,1 +1,1 @@
-from mod1 import method1
+from .mod1 import method1

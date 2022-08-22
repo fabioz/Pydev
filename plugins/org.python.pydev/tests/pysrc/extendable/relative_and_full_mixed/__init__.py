@@ -1,2 +1,2 @@
-from pluginstestcase import PluginsTestCase
-from pluginstestcaseext import PluginsTestCaseExt 
+from .pluginstestcase import PluginsTestCase
+from .pluginstestcaseext import PluginsTestCaseExt

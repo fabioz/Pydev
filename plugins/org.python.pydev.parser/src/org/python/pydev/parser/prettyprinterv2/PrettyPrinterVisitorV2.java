@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assert;
 import org.python.pydev.parser.jython.ast.Assign;
@@ -100,14 +99,14 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
  * global
  * exec
  * assert
- * 
- * 
+ *
+ *
  * flow:
  * return
  * yield
  * raise
- * 
- * 
+ *
+ *
  * compound:
  * if
  * while
@@ -115,7 +114,7 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
  * try
  * func
  * class
- * 
+ *
  * @author Fabio
  */
 public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
@@ -719,16 +718,7 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
 
                 if (h.type != null) {
                     int grammarVersion = this.prefs.getGrammarVersion();
-                    if (grammarVersion < IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6) {
-                        doc.addRequire(",", lastNode);
-
-                    } else if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6
-                            || grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7) {
-                        doc.addRequireOneOf(lastNode, "as", ",");
-
-                    } else { // Python 3.0 or greater
-                        doc.addRequire("as", lastNode);
-                    }
+                    doc.addRequire("as", lastNode);
                 }
                 h.name.accept(this);
             }

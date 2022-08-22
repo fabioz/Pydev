@@ -554,7 +554,7 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
         @Override
         public int getGrammarVersion() throws MisconfigurationException {
             // Note: this is used in reparseDocument but not when generating the cython ast as we call the internal implementation.
-            return IPythonNature.GRAMMAR_PYTHON_VERSION_2_7;
+            return IPythonNature.GRAMMAR_PYTHON_VERSION_3_5;
         }
 
         @Override
@@ -567,7 +567,7 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
     public void testGenCythonAstExec() throws Exception {
         grammarVersionProvider = PY27_GRAMMAR_VERSION_PROVIDER;
 
-        String s = "exec 'foo' in g, f";
+        String s = "exec('foo' in g, f)";
         compareCase(s, s, true);
     }
 

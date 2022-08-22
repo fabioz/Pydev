@@ -32,7 +32,7 @@ public class ParsedItemTest extends PyParserTestBase {
     }
 
     public void testParsedItemCreation() throws Exception {
-        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5);
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5);
         String str = "" +
                 "class Foo(object):\n" +
                 "    def m1(self):\n" +
@@ -64,7 +64,7 @@ public class ParsedItemTest extends PyParserTestBase {
     }
 
     public void testParsedItemCreation4() throws Exception {
-        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5);
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5);
         String str = "" +
                 "if 0:\n" +
                 "    #--- foo ---\n" +
@@ -87,7 +87,7 @@ public class ParsedItemTest extends PyParserTestBase {
     }
 
     public void testParsedItemCreation3() throws Exception {
-        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5);
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5);
         String str = "" +
                 "class Test:\n" +
                 "    def __init__(self):\n" +
@@ -113,7 +113,7 @@ public class ParsedItemTest extends PyParserTestBase {
     }
 
     public void testParsedItemCreation2() throws Exception {
-        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5);
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5);
         String str = "" +
                 "class Foo(object):\n" +
                 "    pass\n" +
@@ -135,11 +135,11 @@ public class ParsedItemTest extends PyParserTestBase {
 
     /**
      * Check if the creation of a new structure will maintain the old items intact (as much as possible).
-     * 
+     *
      * @throws Exception
      */
     public void testNewChildrenStructure() throws Exception {
-        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5);
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5);
         String str = "" +
                 "class Foo(object):\n" +
                 "    def m1(self):\n" +
@@ -169,7 +169,7 @@ public class ParsedItemTest extends PyParserTestBase {
     }
 
     public void testCommentsSkippedOnTryExcept() throws Exception {
-        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7);
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5);
         String str = "" +
                 "if ( False ):\n" +
                 "    pass\n" +

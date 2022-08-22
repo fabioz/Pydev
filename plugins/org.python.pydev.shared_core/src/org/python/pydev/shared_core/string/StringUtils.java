@@ -844,6 +844,19 @@ public final class StringUtils {
         throw new NoPeerAvailableException("Unable to find peer for :" + c);
     }
 
+    public static int countLeadingChars(char c, String line) {
+        int ret = 0;
+        int len = line.length();
+        for (int i = 0; i < len; i++) {
+            if (line.charAt(i) == c) {
+                ret += 1;
+            } else {
+                break;
+            }
+        }
+        return ret;
+    }
+
     /**
      * Counts the number of occurences of a certain character in a string.
      *

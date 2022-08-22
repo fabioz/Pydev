@@ -43,7 +43,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
 
             @Override
             public Boolean call(Integer version) {
-                if (version > IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7) {
+                if (version > IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5) {
                     checkPrettyPrintEqual(s, s);
                 }
                 return true;
@@ -60,7 +60,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
 
             @Override
             public Boolean call(Integer version) {
-                if (version > IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7) {
+                if (version > IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5) {
                     checkPrettyPrintEqual(s, s);
                 }
                 return true;
@@ -78,7 +78,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
 
             @Override
             public Boolean call(Integer version) {
-                if (version > IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7) {
+                if (version > IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5) {
                     checkPrettyPrintEqual(s, s);
                 }
                 return true;
@@ -96,7 +96,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
 
             @Override
             public int getGrammarVersion() throws MisconfigurationException {
-                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
+                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5;
             }
 
             @Override
@@ -197,7 +197,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
                 "lst[...]\n" +
                 "";
 
-        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7);
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5);
         checkPrettyPrintEqual(s, s);
     }
 
@@ -228,9 +228,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
 
             @Override
             public Boolean call(Integer version) {
-                if (version != IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5) {
-                    checkPrettyPrintEqual(s, s, v2);
-                }
+                checkPrettyPrintEqual(s, s, v2);
                 return true;
             }
         });
@@ -329,7 +327,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
 
             @Override
             public Boolean call(Integer version) {
-                if (version >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7) {
+                if (version >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5) {
                     checkPrettyPrintEqual(s, s);
 
                 }
@@ -445,10 +443,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
 
             @Override
             public Boolean call(Integer version) {
-                if (version == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6
-                        || version == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7) {
-                    checkPrettyPrintEqual(s);
-                }
+                checkPrettyPrintEqual(s);
                 return true;
             }
         });
@@ -458,7 +453,6 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
         final String s = "" +
                 "0o700\n" +
                 "0O700\n" +
-                "0700\n" +
                 "0x700\n" +
                 "0X700\n" +
                 "0b100\n" +
@@ -468,10 +462,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
 
             @Override
             public Boolean call(Integer version) {
-                if (version == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6
-                        || version == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7) {
-                    checkPrettyPrintEqual(s);
-                }
+                checkPrettyPrintEqual(s);
                 return true;
 
             }
@@ -505,9 +496,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
 
             @Override
             public Boolean call(Integer version) {
-                if (version != IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5) {
-                    checkPrettyPrintEqual(s);
-                }
+                checkPrettyPrintEqual(s);
                 return true;
             }
         });
@@ -538,7 +527,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
 
             @Override
             public Boolean call(Integer version) {
-                if (version >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7) {
+                if (version >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5) {
                     checkPrettyPrintEqual(s);
                 }
                 return true;
@@ -568,7 +557,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
     }
 
     public void testTryFinallyBeginNode() throws Exception {
-        doTryFinallyBeginNode(IPythonNature.GRAMMAR_PYTHON_VERSION_2_5);
+        doTryFinallyBeginNode(IPythonNature.GRAMMAR_PYTHON_VERSION_3_5);
     }
 
     public void doTryFinallyBeginNode(int version) throws Exception {
@@ -593,13 +582,13 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
                 "class MyClass:\n"
                 +
                 "    __metaclass__ = MyMeta\n" +
-                "print type(foox)\n" +
+                "print(type(foox))\n" +
                 "# after print type\n"
                 +
                 "class A(object):# on-line\n" +
                 "    # foo test\n" +
                 "    def met(self):\n" +
-                "        print 'A'\n"
+                "        print('A')\n"
                 +
                 "";
 
@@ -611,12 +600,12 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
                 "class MyClass:\n"
                 +
                 "    __metaclass__ = MyMeta\n" +
-                "print type(foox)# after print type\n"
+                "print(type(foox))# after print type\n"
                 +
                 "class A(object):# on-line\n" +
                 "# foo test\n" +
                 "    def met(self):\n" +
-                "        print 'A'\n" +
+                "        print('A')\n" +
                 "";
         checkPrettyPrintEqual(s, s, s, v3);
 
@@ -645,7 +634,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
                 "class Foo:\n" +
                 "    @foodeco(('arg_3',),2,a=2,b=3)\n"
                 +
-                "    def __init__(self,arg_1,(arg_2,arg_3),arg_4,arg_5):\n" +
+                "    def __init__(self,arg_1,arg_2,arg_3,arg_4,arg_5):\n" +
                 "        pass\n" +
                 "";
         checkPrettyPrintEqual(str);
@@ -655,7 +644,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
         String s = "" +
                 "class FooApproach(CoolApproach):\n"
                 +
-                "    def __init__(self,arg_1,(arg_2,arg_3),*arg_4,**arg_5):\n"
+                "    def __init__(self,arg_1,arg_2,arg_3,*arg_4,**arg_5):\n"
                 +
                 "        # .. at this point all parameters except for 'arg_3' have been\n"
                 +
@@ -667,7 +656,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
                 +
                 "class FooApproach(CoolApproach):\n"
                 +
-                "    def __init__(self,arg_1,(arg_2,arg_3),*arg_4,**arg_5):# .. at this point all parameters except for 'arg_3' have been\n"
+                "    def __init__(self,arg_1,arg_2,arg_3,*arg_4,**arg_5):# .. at this point all parameters except for 'arg_3' have been\n"
                 +
                 "    # copied to object attributes\n" +
                 "        pass\n" +
@@ -705,7 +694,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
         String str = "" +
                 "from __future__ import with_statement\n" +
                 "with a:\n" +
-                "    print a\n" +
+                "    print(a)\n" +
                 "";
         checkPrettyPrintEqual(str);
     }
@@ -714,7 +703,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
         String str = "" +
                 "from __future__ import with_statement\n" +
                 "with a as b:\n" +
-                "    print b\n" +
+                "    print(b)\n" +
                 "";
         checkPrettyPrintEqual(str);
     }
@@ -725,7 +714,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
                 "def m1():\n" +
                 "    with a as b:\n"
                 +
-                "        print b\n" +
+                "        print(b)\n" +
                 "";
         checkPrettyPrintEqual(str);
     }
@@ -908,7 +897,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
 
     public void testSubscript4() throws Exception {
         String s = "" +
-                "print a[b:c()]\n" +
+                "print(a[b:c()])\n" +
                 "";
         checkPrettyPrintEqual(s);
     }
@@ -945,7 +934,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
 
     public void testListComp4() throws Exception {
         String s = "" +
-                "print [e for e in group if e[0] in a]\n" +
+                "print([e for e in group if e[0] in a])\n" +
                 "";
         checkPrettyPrintEqual(s);
     }
@@ -1013,28 +1002,28 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
                 "try:\n" +
                 "    pass\n" +
                 "except:\n" +
-                "    raise SystemError,'err'\n" +
+                "    raise SystemError('err')\n" +
                 "";
         checkPrettyPrintEqual(s);
     }
 
     public void testLambda() throws Exception {
         String s = "" +
-                "print lambda n:n\n" +
+                "print(lambda n:n)\n" +
                 "";
         checkPrettyPrintEqual(s);
     }
 
     public void testListComp3() throws Exception {
         String s = "" +
-                "print [s2 for s1 in b for s2 in a]\n" +
+                "print([s2 for s1 in b for s2 in a])\n" +
                 "";
         checkPrettyPrintEqual(s);
     }
 
     public void testList2() throws Exception {
         String s = "" +
-                "print [(a,b)]\n" +
+                "print([(a,b)])\n" +
                 "";
         checkPrettyPrintEqual(s);
     }
@@ -1075,7 +1064,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
         String s = "" +
                 "def run():\n" +
                 "    try:\n" +
-                "        exec cmd\n" +
+                "        exec(cmd)\n" +
                 "    except BdbQuit:\n"
                 +
                 "        pass\n" +
@@ -1104,7 +1093,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
     }
 
     public void testExec() throws Exception {
-        String s = "exec cmd in globals,locals\n" +
+        String s = "exec(cmd,globals,locals)\n" +
                 "";
         checkPrettyPrintEqual(s);
     }
@@ -1184,14 +1173,14 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
 
     public void testListComp() throws Exception {
         String s = "" +
-                "print [x for x in tbinfo]\n" +
+                "print([x for x in tbinfo])\n" +
                 "";
         checkPrettyPrintEqual(s);
     }
 
     public void testSub() throws Exception {
         String s = "" +
-                "print tbinfo[-1]\n" +
+                "print(tbinfo[-1])\n" +
                 "";
         checkPrettyPrintEqual(s);
     }
@@ -1216,9 +1205,9 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
                 "print (not connected)\n" +
                 "";
         String v2 = "" +
-                "print not connected\n" +
+                "print(not connected)\n" +
                 "";
-        checkPrettyPrintEqual(s, s, v2);
+        checkPrettyPrintEqual(s, v2, v2);
     }
 
     public void testSimpleFunc() throws Exception {
@@ -1243,7 +1232,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
 
     public void testSubs() throws Exception {
         String s = "" +
-                "print num_sent[:512]\n" +
+                "print(num_sent[:512])\n" +
                 "";
         checkPrettyPrintEqual(s);
     }
@@ -1284,7 +1273,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
         String s = "" +
                 "try:\n" +
                 "    pass\n" +
-                "except select.error,err:\n" +
+                "except select.error as err:\n" +
                 "    if False:\n" +
                 "        raise\n"
                 +
@@ -1457,7 +1446,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
     public void testFor() throws Exception {
         String s = "" +
                 "for a in b:\n" +
-                "    print a\n" +
+                "    print(a)\n" +
                 "";
         checkPrettyPrintEqual(s);
     }
@@ -1465,7 +1454,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
     public void testForElse() throws Exception {
         String s = "" +
                 "for a in b:\n" +
-                "    print a\n" +
+                "    print(a)\n" +
                 "else:\n" +
                 "    pass\n" +
                 "";
@@ -1505,7 +1494,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
     public void testTryExceptRaise() throws Exception {
         String s = "" +
                 "try:\n" +
-                "    print 'foo'\n" +
+                "    print('foo')\n" +
                 "except:\n" +
                 "    raise\n" +
                 "";
@@ -1515,7 +1504,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
     public void testTryExcept() throws Exception {
         String s = "" +
                 "try:\n" +
-                "    print 'foo'\n" +
+                "    print('foo')\n" +
                 "except:\n" +
                 "    pass\n" +
                 "";
@@ -1535,9 +1524,9 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
     public void testTryExcept3() throws Exception {
         String s = "" +
                 "try:\n" +
-                "    print 'foo'\n" +
+                "    print('foo')\n" +
                 "except (NameError,e):\n" +
-                "    print 'err'\n" +
+                "    print('err')\n" +
                 "";
         checkPrettyPrintEqual(s);
     }
@@ -1545,12 +1534,12 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
     public void testTryExcept4() throws Exception {
         String s = "" +
                 "try:\n" +
-                "    print 'foo'\n" +
+                "    print('foo')\n" +
                 "except (NameError,e):\n" +
-                "    print 'err'\n" +
+                "    print('err')\n" +
                 "else:\n"
                 +
-                "    print 'else'\n" +
+                "    print('else')\n" +
                 "";
         checkPrettyPrintEqual(s);
     }
@@ -1558,14 +1547,14 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
     public void testTryExcept5() throws Exception {
         String s = "" +
                 "try:\n" +
-                "    print 'foo'\n" +
+                "    print('foo')\n" +
                 "except (NameError,e):\n" +
-                "    print 'name'\n"
+                "    print('name')\n"
                 +
                 "except (TypeError,e2):\n" +
-                "    print 'type'\n" +
+                "    print('type')\n" +
                 "else:\n" +
-                "    print 'else'\n" +
+                "    print('else')\n" +
                 "";
         checkPrettyPrintEqual(s);
     }
@@ -1594,10 +1583,9 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
                 "callIt(1#param1\n" +
                 ")\n" +
                 "";
-        String v2 = "" +
-                "callIt(1)#param1\n" +
-                "";
-        checkPrettyPrintEqual(s, s, v2);
+
+        checkPrettyPrintEqual(s, s, "callIt(1)#param1\n", "callIt(#param1\n" +
+                "    1)\n");
     }
 
     public void testCall3() throws Exception {
@@ -1688,7 +1676,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
         String s = "" +
                 "class Foo:\n" +
                 "    def __init__(self,a,b):\n" +
-                "        print self#comment0\n"
+                "        print(self)#comment0\n"
                 +
                 "        a,\n" +
                 "        b\n" +
@@ -1700,7 +1688,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
                 "            pass\n" +
                 "        self.met1(a)\n"
                 +
-                "print 'ok'\n" +
+                "print('ok')\n" +
                 "";
         checkPrettyPrintEqual(s);
     }
@@ -1709,7 +1697,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
         String s = "" +
                 "def foo():\n" +
                 "    yield 10\n" +
-                "print 'foo'\n" +
+                "print('foo')\n" +
                 "a = 3\n" +
                 "";
         checkPrettyPrintEqual(s);
@@ -1719,13 +1707,13 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
         String s = "" +
                 "def foo():\n" +
                 "    yield (10)#comment1\n" +
-                "    print 'foo'\n" +
+                "    print('foo')\n" +
                 "";
 
         String v2 = "" +
                 "def foo():\n" +
                 "    yield 10#comment1\n" +
-                "    print 'foo'\n" +
+                "    print('foo')\n" +
                 "";
         checkPrettyPrintEqual(s, s, v2);
     }
@@ -1734,13 +1722,13 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
         String s = "" +
                 "def foo():\n" +
                 "    yield ((a + b) / 2)#comment1\n" +
-                "    print 'foo'\n" +
+                "    print('foo')\n" +
                 "";
 
         String v2 = "" +
                 "def foo():\n" +
                 "    yield (a + b) / 2#comment1\n" +
-                "    print 'foo'\n" +
+                "    print('foo')\n" +
                 "";
         checkPrettyPrintEqual(s, s, v2);
     }
@@ -1754,49 +1742,40 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
         String s = "" +
                 "def foo():\n" +
                 "    #comment0\n" +
-                "    print 'foo'\n" +
+                "    print('foo')\n" +
                 "";
 
         String v3 = "" +
                 "def foo():#comment0\n" +
-                "    print 'foo'\n" +
+                "    print('foo')\n" +
                 "";
         checkPrettyPrintEqual(s, s, s, v3);
     }
 
     public void testPrint() throws Exception {
         String s = "" +
-                "print >> a,'foo'\n" +
-                "";
-        checkPrettyPrintEqual(s);
-    }
-
-    public void testPrintComment() throws Exception {
-        String s = "" +
-                "def test():#comm1\n" +
-                "    print >> (a,#comm2\n" +
-                "        'foo')#comm3\n" +
+                "print('foo',file=foo)\n" +
                 "";
         checkPrettyPrintEqual(s);
     }
 
     public void testAttr() throws Exception {
         String s = "" +
-                "print a.b\n" +
+                "print(a.b)\n" +
                 "";
         checkPrettyPrintEqual(s);
     }
 
     public void testAttr2() throws Exception {
         String s = "" +
-                "print a.b.c.d\n" +
+                "print(a.b.c.d)\n" +
                 "";
         checkPrettyPrintEqual(s);
     }
 
     public void testAttr3() throws Exception {
         String s = "" +
-                "print a.d()\n" +
+                "print(a.d())\n" +
                 "";
         checkPrettyPrintEqual(s);
     }
@@ -1810,14 +1789,14 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
 
     public void testAttrCall() throws Exception {
         String s = "" +
-                "print a.d().e(1 + 2)\n" +
+                "print(a.d().e(1 + 2))\n" +
                 "";
         checkPrettyPrintEqual(s);
     }
 
     public void testSubscript() throws Exception {
         String s = "" +
-                "print a[0]\n" +
+                "print(a[0])\n" +
                 "";
         checkPrettyPrintEqual(s);
     }
@@ -2192,14 +2171,14 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
                 "i = 0\n" +
                 "while (i < 2):# while test comment on-line\n"
                 +
-                "    print 'under 5'\n" +
+                "    print('under 5')\n" +
                 "    i += 1# augmented assignment on-line\n"
                 +
                 "    # this comment disappears\n" +
                 "else:# else on-line\n" +
                 "    # comment inside else\n"
                 +
-                "    print 'bigger'# print on-line\n" +
+                "    print('bigger')# print on-line\n" +
                 "    # comment on else end\n"
                 +
                 "# after the second body (but actually in the module node)!\n" +
@@ -2210,14 +2189,14 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
                 "i = 0\n" +
                 "while i < 2:# while test comment on-line\n"
                 +
-                "    print 'under 5'\n" +
+                "    print('under 5')\n" +
                 "    i += 1# augmented assignment on-line\n"
                 +
                 "    # this comment disappears\n" +
                 "else:# else on-line\n" +
                 "    # comment inside else\n"
                 +
-                "    print 'bigger'# print on-line\n" +
+                "    print('bigger')# print on-line\n" +
                 "    # comment on else end\n"
                 +
                 "# after the second body (but actually in the module node)!\n" +
@@ -2228,12 +2207,12 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
                 "i = 0\n" +
                 "while i < 2:# while test comment on-line\n"
                 +
-                "    print 'under 5'\n" +
+                "    print('under 5')\n" +
                 "    i += 1# augmented assignment on-line\n"
                 +
                 "# this comment disappears\n" +
                 "else:\n" +
-                "    print 'bigger'# print on-line\n"
+                "    print('bigger')# print on-line\n"
                 +
                 "# else on-line\n" +
                 "# comment inside else\n" +
@@ -3180,14 +3159,14 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
 
     public void testPrintOnlyArgs2() throws Throwable {
         final String s = "" +
-                "def Method((a, b), c):\n" +
+                "def Method(a, b, c):\n" +
                 "    pass\n" +
                 "";
 
         Module node = (Module) parseLegalDocStr(s);
         FunctionDef funcDef = (FunctionDef) node.body[0];
         //yes, just making sure it's not supported.
-        assertEquals("(a, b), c", PrettyPrinterV2.printArguments(versionProvider, funcDef.args));
+        assertEquals("a, b, c", PrettyPrinterV2.printArguments(versionProvider, funcDef.args));
 
     }
 
@@ -3228,7 +3207,7 @@ public class PrettyPrinterTest extends AbstractPrettyPrinterTestBase {
                 "    return Parent.test(arg,attribute,a=a,b=b,*args,**kwargs)\n" +
                 "";
 
-        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7);
+        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5);
         checkPrettyPrintEqual(expected, expected);
 
     }

@@ -14,8 +14,10 @@ package org.python.pydev.ast.codecompletion.revisited;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 
 import org.eclipse.core.resources.IProject;
@@ -29,6 +31,7 @@ import org.python.pydev.ast.codecompletion.revisited.modules.PredefinedSourceMod
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
 import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
+import org.python.pydev.ast.interpreter_managers.TypeshedLoader;
 import org.python.pydev.core.DeltaSaver;
 import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.IGrammarVersionProvider;
@@ -47,18 +50,14 @@ import org.python.pydev.core.TokensList;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.jython.ast.Module;
-import org.python.pydev.parser.jython.ast.stmtType;
-import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
-import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.shared_core.cache.LRUCache;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.shared_core.utils.ArrayUtils;
 
 /**
  * @author Fabio Zadrozny
@@ -106,6 +105,10 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
     @Override
     public String[] getBuiltins() {
         return this.info.getBuiltins();
+    }
+
+    public Set<String> getBuiltinsAsSet() {
+        return this.info.getBuiltinsAsSet();
     }
 
     @Override
@@ -215,7 +218,8 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
     private transient Map<File, Long> predefinedFilesNotParsedToTimestamp;
 
     @Override
-    public AbstractModule getBuiltinModule(String name, boolean dontSearchInit, IModuleRequestState moduleRequest) {
+    public AbstractModule getBuiltinModule(String name, boolean dontSearchInit,
+            IModuleRequestState moduleRequest) {
         AbstractModule n = null;
 
         //check for supported builtins these don't have files associated.
@@ -233,19 +237,20 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
         ModulesKey keyForCacheAccess = new ModulesKey(null, null);
 
         //A different choice for users that want more complete information on the libraries they're dealing
-        //with is using predefined modules. Those will
-        File predefinedModule = this.info.getPredefinedModule(name, moduleRequest);
+        //with is using predefined modules.
+        File predefinedModule = this.info.getPredefinedModuleFile(name, moduleRequest);
         boolean found = predefinedModule != null && predefinedModule.exists();
         if (!found && !name.endsWith(".__init__")) {
-            final String nameWithInit = name + ".__init__";
-            predefinedModule = this.info.getPredefinedModule(nameWithInit, moduleRequest);
+            final String nameWithInit = new FastStringBuffer(name, 10).append(".__init__").toString();
+            predefinedModule = this.info.getPredefinedModuleFile(nameWithInit, moduleRequest);
             found = predefinedModule != null && predefinedModule.exists();
             if (found) {
                 name = nameWithInit;
             }
         }
+        final String finalName = name;
         if (found) {
-            keyForCacheAccess.name = name;
+            keyForCacheAccess.name = finalName;
             keyForCacheAccess.file = predefinedModule;
             n = cachePredefined.getObj(keyForCacheAccess, this);
             if ((n instanceof PredefinedSourceModule)) {
@@ -291,7 +296,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
                         }
                     };
                     ParseOutput obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, provider,
-                            name, predefinedModule));
+                            finalName, predefinedModule));
                     if (obj.error != null) {
                         if (lastModified == null) {
                             lastModified = FileUtils.lastModified(predefinedModule);
@@ -301,26 +306,15 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
 
                     } else if (obj.ast != null) {
                         SimpleNode ast = (SimpleNode) obj.ast;
-                        if ("builtins".equals(name) || "__builtin__".equals(name)) {
-                            // None/False/True must be added as they're not there by default.
-                            if (ast instanceof Module) {
-                                Module module = (Module) ast;
-                                PyAstFactory astFactory = new PyAstFactory(
-                                        new AdapterPrefs("\n", info.getModulesManager().getNature()));
-                                module.body = ArrayUtils.concatArrays(module.body, new stmtType[] {
-                                        astFactory.createAssign(astFactory.createStoreName("None"),
-                                                astFactory.createNone()),
-                                        astFactory.createAssign(astFactory.createStoreName("False"),
-                                                astFactory.createFalse()),
-                                        astFactory.createAssign(astFactory.createStoreName("True"),
-                                                astFactory.createTrue()),
-                                        astFactory.createAssign(astFactory.createStoreName("__builtins__"),
-                                                astFactory.createName("Any"))
-                                });
+                        if ("builtins".equals(finalName)) {
+                            TypeshedLoader.fixBuiltinsAST(ast, this, info);
+                        } else if ("typing".equals(finalName)) {
+                            TypeshedLoader.fixTypingAST(ast, this, info);
+                        } else {
+                            TypeshedLoader.fixAST(ast, this, info);
 
-                            }
                         }
-                        n = new PredefinedSourceModule(name, predefinedModule, ast, obj.error);
+                        n = new PredefinedSourceModule(finalName, predefinedModule, ast, obj.error);
                         cachePredefined.add(keyForCacheAccess, n, this);
                         // Note: use a separate cache (because we don't want to mess the regular modules
                         // and in general we just want to find the predefined modules through this API
@@ -336,74 +330,59 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
             }
         }
 
-        boolean foundStartingWithBuiltin = false;
-        FastStringBuffer buffer = null;
+        Set<String> builtinsAsSet = getBuiltinsAsSet();
+        Iterator<String> it = new FullRepIterable(finalName, true).iterator();
+        if (it.hasNext()) {
+            // First match (exact)
+            String check = it.next();
+            if (builtinsAsSet.contains(check)) {
+                keyForCacheAccess.name = check;
+                n = cache.getObj(keyForCacheAccess, this);
 
-        for (int i = 0; i < builtins.length; i++) {
-            String forcedBuiltin = builtins[i];
-            if (name.startsWith(forcedBuiltin)) {
-                if (name.length() > forcedBuiltin.length() && name.charAt(forcedBuiltin.length()) == '.') {
-                    foundStartingWithBuiltin = true;
-
-                    keyForCacheAccess.name = name;
+                if (n == null && dontSearchInit == false) {
+                    keyForCacheAccess.name = new FastStringBuffer(check, 10).append(".__init__").toString();
                     n = cache.getObj(keyForCacheAccess, this);
-
-                    if (n == null && dontSearchInit == false) {
-                        if (buffer == null) {
-                            buffer = new FastStringBuffer();
-                        } else {
-                            buffer.clear();
-                        }
-                        keyForCacheAccess.name = buffer.append(name).append(".__init__").toString();
-                        n = cache.getObj(keyForCacheAccess, this);
-                    }
-
-                    if (n instanceof EmptyModule || n instanceof SourceModule) {
-                        //it is actually found as a source module, so, we have to 'coerce' it to a compiled module
-                        n = new CompiledModule(name, this, this.getNature());
-                        doAddSingleModule(new ModulesKey(n.getName(), null), n);
-                        return n;
-                    }
                 }
 
-                if (name.equals(forcedBuiltin)) {
-
-                    keyForCacheAccess.name = name;
-                    n = cache.getObj(keyForCacheAccess, this);
-
-                    if (n == null || n instanceof EmptyModule || n instanceof SourceModule) {
-                        //still not created or not defined as compiled module (as it should be)
-                        n = new CompiledModule(name, this, this.getNature());
-                        doAddSingleModule(new ModulesKey(n.getName(), null), n);
-                        return n;
-                    }
-                }
-                if (n instanceof CompiledModule) {
+                if (n == null || n instanceof EmptyModule || n instanceof SourceModule) {
+                    //still not created or not defined as compiled module (as it should be)
+                    n = new CompiledModule(check, this, this.getNature());
+                    doAddSingleModule(new ModulesKey(n.getName(), null), n);
                     return n;
                 }
             }
-        }
-        if (foundStartingWithBuiltin) {
-            if (builtinsNotConsidered.getObj(name) != null) {
-                return null;
-            }
-
-            //ok, just add it if it is some module that actually exists
-            n = new CompiledModule(name, this, this.getNature());
-            TokensList globalTokens = n.getGlobalTokens();
-            //if it does not contain the __file__, this means that it's not actually a module
-            //(but may be a token from a compiled module, so, clients wanting it must get the module
-            //first and only then go on to this token).
-            //done: a cache with those tokens should be kept, so that we don't actually have to create
-            //the module to see its return values (because that's slow)
-            if (globalTokens.size() > 0 && contains(globalTokens, "__file__")) {
-                doAddSingleModule(new ModulesKey(name, null), n);
+            if (n instanceof CompiledModule) {
                 return n;
-            } else {
-                builtinsNotConsidered.add(name, name);
-                return null;
             }
         }
+
+        if (builtinsNotConsidered.getObj(finalName) != null) {
+            return null;
+        }
+
+        while (it.hasNext()) {
+            String check = it.next();
+            if (builtinsAsSet.contains(check)) {
+                // i.e.: Found starting with builtin.
+
+                //ok, just add it if it is some module that actually exists
+                n = new CompiledModule(finalName, this, this.getNature());
+                TokensList globalTokens = n.getGlobalTokens();
+                //if it does not contain the __file__, this means that it's not actually a module
+                //(but may be a token from a compiled module, so, clients wanting it must get the module
+                //first and only then go on to this token).
+                //done: a cache with those tokens should be kept, so that we don't actually have to create
+                //the module to see its return values (because that's slow)
+                if (globalTokens.size() > 0 && contains(globalTokens, "__file__")) {
+                    doAddSingleModule(new ModulesKey(finalName, null), n);
+                    return n;
+                } else {
+                    builtinsNotConsidered.add(finalName, finalName);
+                    return null;
+                }
+            }
+        }
+
         return null;
     }
 

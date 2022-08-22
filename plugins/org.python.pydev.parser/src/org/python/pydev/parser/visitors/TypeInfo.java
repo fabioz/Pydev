@@ -2,6 +2,7 @@ package org.python.pydev.parser.visitors;
 
 import org.python.pydev.core.ITypeInfo;
 import org.python.pydev.core.UnpackInfo;
+import org.python.pydev.parser.jython.ast.BinOp;
 import org.python.pydev.parser.jython.ast.ExtSlice;
 import org.python.pydev.parser.jython.ast.Index;
 import org.python.pydev.parser.jython.ast.Subscript;
@@ -71,7 +72,10 @@ public class TypeInfo implements ITypeInfo {
                                 Index index = (Index) sliceType;
                                 exprType valExpr = index.value;
                                 if (valExpr != null) {
-                                    return new TypeInfo(valExpr);
+                                    TypeInfo ret = new TypeInfo(valExpr);
+                                    if (!ret.getActTok().isEmpty()) {
+                                        return ret;
+                                    }
                                 }
                             }
                         }
@@ -83,12 +87,19 @@ public class TypeInfo implements ITypeInfo {
                     Index index = (Index) subscript.slice;
                     exprType valExpr = index.value;
                     if (valExpr != null) {
-                        return new TypeInfo(valExpr);
+                        TypeInfo ret = new TypeInfo(valExpr);
+                        if (!ret.getActTok().isEmpty() || valExpr instanceof BinOp) {
+                            return ret;
+                        }
                     }
                 }
             }
         }
-        return new TypeInfo(NodeUtils.getUnpackedTypeFromTypeDocstring(rep, unpackInfo));
+        String unpackedTypeFromTypeDocstring = NodeUtils.getUnpackedTypeFromTypeDocstring(rep, unpackInfo);
+        if (unpackedTypeFromTypeDocstring.isEmpty()) {
+            return null;
+        }
+        return new TypeInfo(unpackedTypeFromTypeDocstring);
     }
 
     @Override

@@ -29,7 +29,7 @@ public class PyParserWithoutTree extends TestCase {
 
             @Override
             public int getGrammarVersion() throws MisconfigurationException {
-                return IPythonNature.GRAMMAR_PYTHON_VERSION_2_7;
+                return IPythonNature.GRAMMAR_PYTHON_VERSION_3_5;
             }
 
             @Override

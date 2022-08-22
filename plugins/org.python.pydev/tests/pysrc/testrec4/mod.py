@@ -1,4 +1,4 @@
 def request_config():
     pass
 
-from util import url_for
+from .util import url_for

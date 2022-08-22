@@ -33,9 +33,13 @@ public class ImportHandle {
 
         //spaces* 'from' space+ module space+ import (mod as y)
         private static final Pattern FromImportPattern = Pattern
-                .compile("(from\\s+)(\\.|\\w|\\s|\\\\)+((\\\\|\\s)+import(\\\\|\\s)+)");
+                .compile("(from\\s+)(\\.|\\w|\\\\)+((\\\\|\\s)+import(\\\\|\\s|$)+)");
         private static final Pattern BadFromPattern = Pattern
-                .compile("from\\s+(\\.|\\w|\\s|\\\\)+(\\\\|\\s)+import");
+                .compile("(from\\s+)(\\.|\\w|\\\\)+(\\\\|\\s?)+import");
+        private static final Pattern BadFromPatternOnlyFrom = Pattern
+                .compile("(from\\s+)");
+        private static final Pattern BadFromPatternNoImport = Pattern
+                .compile("(from\\s+)(\\.|\\w|\\\\)+");
         private static final Pattern ImportPattern = Pattern.compile("(import\\s+)");
 
         /**
@@ -71,6 +75,17 @@ public class ImportHandle {
          */
         private boolean startedInMiddleOfLine;
 
+        private boolean foundFrom = false;
+        private boolean foundImport = false;
+
+        public boolean getFoundFrom() {
+            return foundFrom;
+        }
+
+        public boolean getFoundImport() {
+            return foundImport;
+        }
+
         /**
          * Constructor that does not set the line for the import.
          */
@@ -80,20 +95,67 @@ public class ImportHandle {
 
         /**
          * Constructor.
-         * 
+         *
          * Creates the information to be returned later
-         * 
+         *
          * @param importFound
-         * @throws ImportNotRecognizedException 
+         * @throws ImportNotRecognizedException
          */
         public ImportHandleInfo(String importFound, int lineStart, int lineEnd, boolean startedInMiddleOfLine,
                 boolean allowBadInput)
                 throws ImportNotRecognizedException {
+
+            // Remove \\\n, \\\r\n and \\\r
+            int slashIndex = importFound.indexOf('\\');
+            if (slashIndex >= 0) {
+                FastStringBuffer buf = new FastStringBuffer(importFound, 0);
+                boolean changed = false;
+                while (slashIndex >= 0) {
+                    try {
+                        char c = buf.charAt(slashIndex + 1);
+                        int deleteTo = -1;
+                        if (c == '\n') {
+                            deleteTo = slashIndex + 2;
+                        } else if (c == '\r') {
+                            if (buf.charAt(slashIndex + 2) == '\n') {
+                                deleteTo = slashIndex + 3;
+
+                            } else {
+                                deleteTo = slashIndex + 2;
+                            }
+                        } else {
+                            break;
+                        }
+
+                        if (deleteTo != -1) {
+                            try {
+                                c = buf.charAt(deleteTo);
+                                while (c == ' ' || c == '\t') {
+                                    deleteTo += 1;
+                                    c = buf.charAt(deleteTo);
+                                }
+                            } catch (ArrayIndexOutOfBoundsException e) {
+
+                            }
+
+                            buf.delete(slashIndex, deleteTo);
+                            changed = true;
+                            slashIndex = buf.indexOf('\\');
+                        }
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        break; // If we went out of bounds when checking the new line, that's ok.
+                    }
+                }
+                if (changed) {
+                    importFound = buf.toString();
+                }
+            }
+
             this.startLine = lineStart;
             this.endLine = lineEnd;
             this.startedInMiddleOfLine = startedInMiddleOfLine;
 
-            importFound = importFound.trim();
+            importFound = importFound.stripLeading();
             if (importFound.length() == 0) {
                 throw new ImportNotRecognizedException("Could not recognize empty string as import");
             }
@@ -104,6 +166,8 @@ public class ImportHandle {
                 Matcher matcher = FromImportPattern.matcher(importFound);
                 if (matcher.find()) {
                     this.fromStr = importFound.substring(matcher.end(1), matcher.end(2)).trim();
+                    this.foundFrom = true;
+                    this.foundImport = true;
 
                     //we have to do that because the last group will only have the last match in the string
                     String importedStr = importFound.substring(matcher.end(3), importFound.length()).trim();
@@ -111,26 +175,53 @@ public class ImportHandle {
                     buildImportedList(importedStr);
 
                 } else {
-                    if (allowBadInput &&
-                            ("from".equals(importFound)
-                                    || BadFromPattern.matcher(importFound).matches())) {
-                        dummyImportList();
-                        return;
+                    if (allowBadInput) {
+                        matcher = BadFromPatternOnlyFrom.matcher(importFound);
+                        if (matcher.matches()) { // needs exact match
+                            this.foundFrom = true;
+                            this.foundImport = false;
+                            dummyImportList();
+                            return;
+                        }
+
+                        matcher = BadFromPattern.matcher(importFound);
+                        if (matcher.find()) {
+                            this.foundFrom = true;
+                            this.foundImport = true;
+                            this.fromStr = importFound.substring(matcher.end(1), matcher.end(2)).trim();
+                            dummyImportList();
+                            return;
+                        }
+
+                        matcher = BadFromPatternNoImport.matcher(importFound);
+                        if (matcher.matches()) { // needs exact match
+                            this.foundFrom = true;
+                            this.foundImport = false;
+                            this.fromStr = importFound.substring(matcher.end(1), matcher.end(2)).trim();
+                            dummyImportList();
+                            return;
+                        }
+
                     }
                     throw new ImportNotRecognizedException("Could not recognize import: " + importFound);
                 }
 
             } else if (firstChar == 'i') {
+
                 //regular import
                 Matcher matcher = ImportPattern.matcher(importFound);
                 if (matcher.find()) {
                     //we have to do that because the last group will only have the last match in the string
                     String importedStr = importFound.substring(matcher.end(1), importFound.length()).trim();
 
+                    this.foundFrom = false;
+                    this.foundImport = true;
                     buildImportedList(importedStr);
 
                 } else {
                     if (allowBadInput && "import".equals(importFound)) {
+                        this.foundFrom = false;
+                        this.foundImport = true;
                         dummyImportList();
                         return;
                     }
@@ -147,8 +238,8 @@ public class ImportHandle {
         }
 
         /**
-         * Fills the importedStrComments and importedStr given the importedStr passed 
-         * 
+         * Fills the importedStrComments and importedStr given the importedStr passed
+         *
          * @param importedStr string with the tokens imported in an import
          */
         private void buildImportedList(String importedStr) {
@@ -174,7 +265,7 @@ public class ImportHandle {
 
                     // commented out: we'll get the xxx as yyy all in the alias. Clients may treat it separately if needed.
                     //                }else if(c == ' ' || c == '\t'){
-                    //                    
+                    //
                     //                    String curr = alias.toString();
                     //                    if(curr.endsWith(" as") | curr.endsWith("\tas")){
                     //                        alias = new StringBuffer();
@@ -198,7 +289,7 @@ public class ImportHandle {
         /**
          * Adds an import and its related comment to the given lists (if there's actually something available to be
          * added)
-         * 
+         *
          * @param lst list where the alias will be added
          * @param importComments list where the comment will be added
          * @param alias the name of the import to be added
@@ -313,10 +404,10 @@ public class ImportHandle {
 
     /**
      * Constructor.
-     * 
+     *
      * Assigns parameters to fields.
-     * @param allowBadInput 
-     * @throws ImportNotRecognizedException 
+     * @param allowBadInput
+     * @throws ImportNotRecognizedException
      */
     public ImportHandle(IDocument doc, String importFound, int startFoundLine, int endFoundLine, boolean allowBadInput)
             throws ImportNotRecognizedException {
@@ -333,25 +424,33 @@ public class ImportHandle {
 
         FastStringBuffer imp = new FastStringBuffer();
         ImportHandleInfo found = null;
-        for (int i = 0; i < importFound.length(); i++) {
+        int length = importFound.length();
+        for (int i = 0; i < length; i++) {
             char c = importFound.charAt(i);
 
-            if (c == '#') {
-                i = ParsingUtils.create(importFound).eatComments(imp, i);
-
-            } else if (c == ';') {
-                String impStr = imp.toString();
-                int endLine = line + StringUtils.countLineBreaks(impStr);
-                found = new ImportHandleInfo(impStr, line, endLine, startedInMiddle, allowBadInput);
-                this.importInfo.add(found);
-                line = endLine;
-                imp = imp.clear();
-                startedInMiddle = true;
-            } else {
-                if (c == '\r' || c == '\n') {
-                    startedInMiddle = false;
-                }
-                imp.append(c);
+            switch (c) {
+                case '#':
+                    i = ParsingUtils.create(importFound).eatComments(imp, i);
+                    break;
+                case ';':
+                    String impStr = imp.toString();
+                    int endLine = line + StringUtils.countLineBreaks(impStr);
+                    found = new ImportHandleInfo(impStr, line, endLine, startedInMiddle, allowBadInput);
+                    this.importInfo.add(found);
+                    line = endLine;
+                    imp = imp.clear();
+                    startedInMiddle = true;
+                    break;
+                case '\r':
+                case '\n':
+                    if (imp.length() > 0 && imp.lastChar() == '\\') {
+                        // Keep same logical line.
+                    } else {
+                        startedInMiddle = false;
+                    }
+                default:
+                    imp.append(c);
+                    break;
             }
 
         }
@@ -372,7 +471,7 @@ public class ImportHandle {
 
     /**
      * @param realImportHandleInfo the import to match. Note that only a single import statement may be passed as a parameter.
-     * 
+     *
      * @return true if the passed import matches the import in this handle (note: as this class can actually wrap more
      * than 1 import, it'll return true if any of the internal imports match the passed import)
      * @throws ImportNotRecognizedException if the passed import could not be recognized

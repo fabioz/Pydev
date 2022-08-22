@@ -8,10 +8,7 @@ import signal
 import os
 import ctypes
 from importlib import import_module
-try:
-    from urllib.parse import quote  # @UnresolvedImport
-except:
-    from urllib import quote
+from urllib.parse import quote  # @UnresolvedImport
 import time
 import inspect
 import sys

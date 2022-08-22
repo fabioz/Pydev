@@ -1,4 +1,4 @@
-import foobar
+from . import foobar
 
 class RenameModule5:
     pass

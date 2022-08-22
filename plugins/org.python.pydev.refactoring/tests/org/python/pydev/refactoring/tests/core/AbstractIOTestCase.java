@@ -15,7 +15,7 @@
 *     Fabio Zadrozny <fabiofz@gmail.com>       - initial implementation
 *     Alexander Kurtakov <akurtako@redhat.com> - ongoing maintenance
 ******************************************************************************/
-/* 
+/*
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
  * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  */
@@ -77,7 +77,7 @@ public abstract class AbstractIOTestCase extends TestCase implements IInputOutpu
                 } else if (data.file.toString().contains("_grammar3")) {
                     return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5;
                 }
-                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
+                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5;
             }
 
             @Override

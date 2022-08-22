@@ -394,25 +394,31 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
 
                 buf.append(entry.getKey().o1).append("\n");
                 for (ASTEntry e : lst2) {
+                    List<TextEdit> edits = (List<TextEdit>) e.getAdditionalInfo(
+                            AstEntryScopeAnalysisConstants.AST_ENTRY_REPLACE_EDIT, null);
+                    if (e instanceof ASTEntryWithSourceModule) {
+                        buf.append("  ");
+                        buf.append(e.toString()).append("\n");
+                        continue;
+                    }
+
+                    if (edits == null) {
+                        // null edits are expected for ASTEntryWithSourceModule as well
+                        // as edits which are duplicated.
+                        continue;
+                    }
+
                     buf.append("  ");
                     buf.append(e.toString()).append("\n");
 
-                    List<TextEdit> edits = (List<TextEdit>) e.getAdditionalInfo(
-                            AstEntryScopeAnalysisConstants.AST_ENTRY_REPLACE_EDIT, null);
-                    if (edits == null) {
-                        if (!(e instanceof ASTEntryWithSourceModule)) {
-                            throw new AssertionError("Only ASTEntryWithSourceModule can have null edits. Found: " + e);
-                        }
-                    } else {
-                        Document changedDoc = new Document(fileContents);
-                        for (TextEdit textEdit : edits) {
-                            textEdit.apply(changedDoc);
-                        }
-                        List<String> changedLines = getChangedLines(initialDoc, changedDoc);
-                        for (String i : changedLines) {
-                            buf.append("    ");
-                            buf.append(StringUtils.rightTrim(i)).append("\n");
-                        }
+                    Document changedDoc = new Document(fileContents);
+                    for (TextEdit textEdit : edits) {
+                        textEdit.apply(changedDoc);
+                    }
+                    List<String> changedLines = getChangedLines(initialDoc, changedDoc);
+                    for (String i : changedLines) {
+                        buf.append("    ");
+                        buf.append(StringUtils.rightTrim(i)).append("\n");
                     }
                 }
                 buf.append("\n");

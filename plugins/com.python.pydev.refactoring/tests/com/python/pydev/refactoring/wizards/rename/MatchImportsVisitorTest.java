@@ -65,7 +65,7 @@ public class MatchImportsVisitorTest extends TestCase {
         IPythonNature nature = new PythonNatureStub() {
             @Override
             public int getGrammarVersion() {
-                return IPythonNature.GRAMMAR_PYTHON_VERSION_2_7;
+                return IPythonNature.GRAMMAR_PYTHON_VERSION_3_5;
             }
         };
         ParseOutput obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, nature));

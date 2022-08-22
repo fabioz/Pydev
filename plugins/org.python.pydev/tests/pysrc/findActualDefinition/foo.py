@@ -1,4 +1,4 @@
-from bar import Bar
+from .bar import Bar
 
 class Foo(Bar):
     def foo(self):

@@ -1,7 +1,8 @@
 <project name="jython-parser" default="parser">
 
-    <property name="javaccHome" value="c:\bin\javacc-5.0" />
-    <property name="python" value="c:\bin\Python27\python.exe" />
+	<property environment="env"/>
+	<property name="javaccHome" value="${env.GRAMMAR_JAVACC_DIR}"/>
+	<property name="python" value="${env.GRAMMAR_PYTHON_EXE}" />
     <property name="basedir" value="." />
     <property name="parser.dir" value="${basedir}" />
 

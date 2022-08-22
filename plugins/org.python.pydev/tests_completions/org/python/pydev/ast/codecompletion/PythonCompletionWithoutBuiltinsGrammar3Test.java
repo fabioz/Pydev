@@ -117,10 +117,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
                 "    for key, val in stats.items():\n" +
                 "        key.";
 
-        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
-        assertEquals(1, proposals.length);
-        ICompletionProposalHandle prop = proposals[0];
-        assertEquals("method()", prop.getDisplayString());
+        requestCompl(s, s.length(), -1, new String[] { "method()" });
     }
 
     public void testListAccess() throws Exception {
@@ -132,10 +129,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
                 + "for p in primes:\n"
                 + "    p.";
 
-        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
-        assertEquals(1, proposals.length);
-        ICompletionProposalHandle prop = proposals[0];
-        assertEquals("method()", prop.getDisplayString());
+        requestCompl(s, s.length(), -1, new String[] { "method()" });
     }
 
     public void testListAccess2() throws Exception {
@@ -146,15 +140,12 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
                 + "primes: List[A] = []\n"
                 + "primes[0].";
 
-        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
-        assertEquals(1, proposals.length);
-        ICompletionProposalHandle prop = proposals[0];
-        assertEquals("method()", prop.getDisplayString());
+        requestCompl(s, s.length(), -1, new String[] { "method()" });
     }
 
     public void testAssignCompletionWithTypeAsString() throws Exception {
         String s = ""
-                + "class Bar(object):\n" +
+                + "class Bar:\n" +
                 "    def bar(self):\n" +
                 "        pass\n" +
                 "\n" +
@@ -162,10 +153,20 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
                 "    foo: 'Bar'\n" +
                 "    foo.";
 
-        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
-        assertEquals(1, proposals.length);
-        ICompletionProposalHandle prop = proposals[0];
-        assertEquals("bar()", prop.getDisplayString());
+        requestCompl(s, s.length(), 1, new String[] { "bar()" });
+    }
+
+    public void testAssignCompletionWithTypeAsStringObject() throws Exception {
+        String s = ""
+                + "class Bar:\n" +
+                "    def bar(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "def method():\n" +
+                "    foo: 'Bar'\n" +
+                "    foo._";
+
+        requestCompl(s, s.length(), -1, new String[] { "__str__()" });
     }
 
     public void testParamTypeInfoAsString() throws Exception {
@@ -177,10 +178,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
                 "def method(a: 'Bar'):\n" +
                 "    a.";
 
-        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
-        assertEquals(1, proposals.length);
-        ICompletionProposalHandle prop = proposals[0];
-        assertEquals("bar()", prop.getDisplayString());
+        requestCompl(s, s.length(), -1, new String[] { "bar()" });
     }
 
     public void testParamTypeInfoAsString2() throws Exception {
@@ -193,10 +191,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
                 "    for b in a:\n" +
                 "        b.";
 
-        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
-        assertEquals(1, proposals.length);
-        ICompletionProposalHandle prop = proposals[0];
-        assertEquals("bar()", prop.getDisplayString());
+        requestCompl(s, s.length(), -1, new String[] { "bar()" });
     }
 
     public void testParamTypeInfoAsString3() throws Exception {
@@ -210,10 +205,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
                 "        self.bar = a\n" +
                 "        self.bar.";
 
-        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
-        assertEquals(1, proposals.length);
-        ICompletionProposalHandle prop = proposals[0];
-        assertEquals("bar()", prop.getDisplayString());
+        requestCompl(s, s.length(), -1, new String[] { "bar()" });
     }
 
     public void testCompletionForOptional() throws Exception {
@@ -230,10 +222,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
                 "a = method()\n" +
                 "a.";
 
-        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
-        assertEquals(1, proposals.length);
-        ICompletionProposalHandle prop = proposals[0];
-        assertEquals("some_method()", prop.getDisplayString());
+        requestCompl(s, s.length(), -11, new String[] { "some_method()" });
     }
 
     public void testCompletionForOptional2() throws Exception {
@@ -249,10 +238,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
                 "a: Optional[IFoo] = method()\n" +
                 "a.";
 
-        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
-        assertEquals(1, proposals.length);
-        ICompletionProposalHandle prop = proposals[0];
-        assertEquals("some_method()", prop.getDisplayString());
+        requestCompl(s, s.length(), -1, new String[] { "some_method()" });
     }
 
     public void testCompletionWithWalrus() throws Exception {
@@ -267,9 +253,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
                 "    if a := Foo():\n" +
                 "        a.";
         s = StringUtils.format(original, "");
-        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
-        assertEquals(1, proposals.length);
-        assertEquals("foo()", proposals[0].getDisplayString());
+        requestCompl(s, s.length(), -1, new String[] { "foo()" });
     }
 
     public void testTypingCast() throws Exception {

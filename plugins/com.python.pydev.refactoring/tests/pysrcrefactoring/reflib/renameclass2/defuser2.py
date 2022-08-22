@@ -1,3 +1,3 @@
-from defuser import Definition
+from .defuser import Definition
 
-print Definition
+print(Definition)

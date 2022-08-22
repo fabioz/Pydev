@@ -49,7 +49,7 @@ public class PyAstFactoryTest extends PyParserTestBase {
 
             @Override
             public int getGrammarVersion() throws MisconfigurationException {
-                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
+                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5;
             }
 
             @Override
@@ -196,7 +196,7 @@ public class PyAstFactoryTest extends PyParserTestBase {
 
                     @Override
                     public int getGrammarVersion() throws MisconfigurationException {
-                        return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
+                        return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5;
                     }
 
                     @Override

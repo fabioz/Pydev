@@ -1,1 +1,1 @@
-from unexistent_import import *
+from .unexistent_import import *

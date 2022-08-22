@@ -11,7 +11,6 @@
  */
 package org.python.pydev.ast.codecompletion.revisited;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -104,7 +103,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
                 "        pass         \n";
         doc = new Document(sDoc);
         state = new CompletionState(line, col, token, nature, "");
-        comps = getComps();
+        comps = getComps(true);
         checkExpected(1);
         assertEquals("makeit", comps.getFirst().getRepresentation());
 
@@ -128,13 +127,13 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         state = new CompletionState(line, col, token, nature, "");
         comps = getComps();
 
-        checkExpected(6);
         assertIsIn("__name__", comps);
         assertIsIn("__file__", comps);
         assertIsIn("__dict__", comps);
         assertIsIn("unittest", comps);
         assertIsIn("Classe1", comps);
         assertIsIn("Test", comps);
+        assertIsIn("AssertionError", comps);
 
         sDoc = "" +
                 "import unittest       \n" +
@@ -159,7 +158,6 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         doc = new Document(sDoc);
         state = new CompletionState(line, col, token, nature, "");
         comps = getComps();
-        checkExpected(7);
         assertIsIn("__name__", comps);
         assertIsIn("__file__", comps);
         assertIsIn("__dict__", comps);
@@ -167,6 +165,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         assertIsIn("Classe1", comps);
         assertIsIn("Test", comps);
         assertIsIn("meth1", comps);
+        assertIsIn("AssertionError", comps);
 
         sDoc = "" +
                 "import unittest       \n" +
@@ -191,13 +190,13 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         doc = new Document(sDoc);
         state = new CompletionState(line, col, token, nature, "");
         comps = getComps();
-        checkExpected(6);
         assertIsIn("__name__", comps);
         assertIsIn("__file__", comps);
         assertIsIn("__dict__", comps);
         assertIsIn("unittest", comps);
         assertIsIn("Classe1", comps);
         assertIsIn("Test", comps);
+        assertIsIn("AssertionError", comps);
 
         sDoc = "" +
                 "class Classe1:       \n" +
@@ -215,7 +214,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         token = "Classe1";
         doc = new Document(sDoc);
         state = new CompletionState(line, col, token, nature, "");
-        comps = getComps();
+        comps = getComps(true);
         checkExpected(2);
         assertIsIn("a", comps);
         assertIsIn("foo", comps);
@@ -237,7 +236,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         token = "Classe1";
         doc = new Document(sDoc);
         state = new CompletionState(line, col, token, nature, "");
-        comps = getComps();
+        comps = getComps(true);
         checkExpected(3);
         assertIsIn("foo", comps);
         assertIsIn("a", comps);
@@ -264,7 +263,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         token = "LinkedList";
         doc = new Document(sDoc);
         state = new CompletionState(line, col, token, nature, "");
-        comps = getComps();
+        comps = getComps(true);
         assertIsIn("first", comps);
         assertIsIn("last", comps);
         assertIsIn("content", comps);
@@ -275,13 +274,6 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         for (String s : expected) {
             assertIsIn(s, comps);
         }
-        List<String> asList = Arrays.asList(expected);
-        for (IterTokenEntry entry : comps) {
-            IToken t = entry.getToken();
-            assertContains(asList, t.getRepresentation());
-        }
-        checkExpected(expected.length);
-
     }
 
     private void checkExpected(int expected) {
@@ -289,7 +281,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         for (IterTokenEntry entry : comps) {
             IToken t = entry.getToken();
             buf.append(t.getRepresentation());
-            buf.append(", ");
+            buf.append("\n");
         }
         String msg = "Expected " + expected +
                 ". Found: " + buf.toString();
@@ -297,11 +289,18 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
     }
 
     private TokensList getComps() {
+        return getComps(false);
+    }
+
+    private TokensList getComps(boolean excludeStartingWithUnder) {
         try {
             TokensList completionsForToken = getManager().getCompletionsForToken(doc, state);
             HashMap<String, IToken> map = new HashMap<String, IToken>();
             for (IterTokenEntry entry : completionsForToken) {
                 IToken iToken = entry.getToken();
+                if (excludeStartingWithUnder && iToken.getRepresentation().startsWith("_")) {
+                    continue;
+                }
                 map.put(iToken.getRepresentation(), iToken);
             }
 
@@ -320,7 +319,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
                 "class B(A):pass          \n";
         doc = new Document(sDoc);
         state = new CompletionState(line, col, token, nature, "");
-        comps = getComps();
+        comps = getComps(true);
         checkExpected(0); //no tokens returned
 
     }
@@ -335,7 +334,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
                 "\n";
         doc = new Document(sDoc);
         state = new CompletionState(line, col, token, nature, "");
-        comps = getComps();
+        comps = getComps(true);
         checkExpected(1);
         assertIsIn("test1", comps);
 
@@ -344,19 +343,17 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
     public void testLocals() {
         token = "";
         line = 2;
-        sDoc = "" +
-                "contentsCopy = applicationDb.getContentsCopy()\n"
-                +
+        sDoc = "contentsCopy = applicationDb.getContentsCopy()\n" +
                 "database.Database.fromContentsCopy(self, cont)";
         col = sDoc.length() - 3;
         doc = new Document(sDoc);
         state = new CompletionState(line, col, token, nature, "");
         comps = getComps();
-        checkExpected(4);
         assertIsIn("contentsCopy", comps);
         assertIsIn("__file__", comps);
         assertIsIn("__dict__", comps);
         assertIsIn("__name__", comps);
+        assertIsIn("AttributeError", comps);
     }
 
     public void testLocals2() {
@@ -369,13 +366,13 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         doc = new Document(sDoc);
         state = new CompletionState(line, col, token, nature, "");
         comps = getComps();
-        checkExpected(6);
         assertIsIn("__file__", comps);
         assertIsIn("__name__", comps);
         assertIsIn("__dict__", comps);
         assertIsIn("par1", comps);
         assertIsIn("par2", comps);
         assertIsIn("met", comps);
+        assertIsIn("AssertionError", comps);
 
         token = "";
         line = 3;
@@ -388,7 +385,6 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         doc = new Document(sDoc);
         state = new CompletionState(line, col, token, nature, "");
         comps = getComps();
-        checkExpected(7);
         assertIsIn("__name__", comps);
         assertIsIn("__dict__", comps);
         assertIsIn("__file__", comps);
@@ -396,6 +392,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         assertIsIn("par2", comps);
         assertIsIn("self", comps);
         assertIsIn("C", comps);
+        assertIsIn("AssertionError", comps);
 
         token = "";
         line = 4;
@@ -409,7 +406,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         doc = new Document(sDoc);
         state = new CompletionState(line, col, token, nature, "");
         comps = getComps();
-        checkExpected("__name__", "__file__", "__dict__", "par1", "loc1", "par2", "self", "C");
+        checkExpected("__name__", "__file__", "__dict__", "par1", "loc1", "par2", "self", "C", "AssertionError");
 
         token = "";
         line = 4;
@@ -425,7 +422,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         doc = new Document(sDoc);
         state = new CompletionState(line, col, token, nature, "");
         comps = getComps();
-        checkExpected("__name__", "__file__", "__dict__", "par1", "loc1", "par2", "self", "C");
+        checkExpected("__name__", "__file__", "__dict__", "par1", "loc1", "par2", "self", "C", "AssertionError");
     }
 
     private static class ManagerObserver implements IASTManagerObserver {
@@ -477,7 +474,7 @@ public class ASTManagerTest extends CodeCompletionTestsBase {
         }
 
         assertTrue("The searched token (" + string +
-                ")was not found in the completions. " + buffer, found);
+                ") was not found in the completions. " + buffer, found);
     }
 
 }

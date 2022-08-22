@@ -54,9 +54,10 @@ public class RenameParamRefactoringTest extends RefactoringRenameTestBase {
                         + "  ASTEntry<param1 (Name L=2 C=13)>\n"
                         + "    Line: 1  def Method1(param1=param1, param2=None): --> def Method1(new_name=param1, param2=None):\n"
                         + "  ASTEntry<param1 (Name L=3 C=11)>\n"
-                        + "    Line: 2      print param1, param2 -->     print new_name, param2\n"
+                        + "    Line: 2      print(param1, param2) -->     print(new_name, param2)\n"
                         + "\n"
-                        + "", asStr(references));
+                        + "",
+                asStr(references));
     }
 
     public void testRenameParameter2() throws Exception {
@@ -77,7 +78,8 @@ public class RenameParamRefactoringTest extends RefactoringRenameTestBase {
                         + "  ASTEntry<barparam (NameTok L=7 C=6)>\n"
                         + "    Line: 6  f.mm(barparam=10) --> f.mm(new_name=10)\n"
                         + "\n"
-                        + "", asStr(references));
+                        + "",
+                asStr(references));
     }
 
 }
