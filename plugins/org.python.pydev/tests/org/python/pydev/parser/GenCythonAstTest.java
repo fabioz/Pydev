@@ -83,24 +83,25 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
 
     public void testGenCythonFromCythonTests() throws Exception {
         if (SharedCorePlugin.skipKnownFailures()) {
-            // i.e.: This test is local-only...
-            File cythonTestCompileDir = new File("X:\\cython\\");
-            assertTrue(cythonTestCompileDir.isDirectory());
-            FileUtils.visitDirectory(cythonTestCompileDir, true, (Path path) -> {
-                String p = path.toString();
-                if (p.endsWith(".py") || p.endsWith(".pyx") || p.endsWith(".pxd")) {
-                    System.out.println("Visiting: " + p);
-                    String s = FileUtils.getFileContents(path.toFile());
-                    try {
-                        ParserInfo parserInfoCython = new ParserInfo(new Document(s), grammarVersionProvider);
-                        ParseOutput cythonParseOutput = new GenCythonAstImpl(parserInfoCython).genCythonAst();
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-                return true;
-            });
+            return;
         }
+        // i.e.: This test is local-only...
+        File cythonTestCompileDir = new File("X:\\cython\\");
+        assertTrue(cythonTestCompileDir.isDirectory());
+        FileUtils.visitDirectory(cythonTestCompileDir, true, (Path path) -> {
+            String p = path.toString();
+            if (p.endsWith(".py") || p.endsWith(".pyx") || p.endsWith(".pxd")) {
+                System.out.println("Visiting: " + p);
+                String s = FileUtils.getFileContents(path.toFile());
+                try {
+                    ParserInfo parserInfoCython = new ParserInfo(new Document(s), grammarVersionProvider);
+                    ParseOutput cythonParseOutput = new GenCythonAstImpl(parserInfoCython).genCythonAst();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            return true;
+        });
     }
 
     public void testGenCythonAstCases() throws Exception {
