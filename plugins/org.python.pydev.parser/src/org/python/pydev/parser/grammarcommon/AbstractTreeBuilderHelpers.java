@@ -13,6 +13,7 @@ import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.SpecialStr;
+import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Comprehension;
 import org.python.pydev.parser.jython.ast.Dict;
@@ -34,7 +35,7 @@ import org.python.pydev.parser.jython.ast.stmtType;
 
 /**
  * Provides a bunch of helpers useful when creating a tree builder.
- * 
+ *
  * @author Fabio
  */
 public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeConstants {
@@ -313,18 +314,36 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
                         ListComp.EmptyCtx));
 
             } else if (node instanceof ComprehensionCollection) {
-                //list comp (2 nodes: comp type and the elt -- what does elt mean by the way?) 
+                //list comp (2 nodes: comp type and the elt -- what does elt mean by the way?)
                 argsl.add(new ListComp((exprType) iter.next(), ((ComprehensionCollection) node).getGenerators(),
                         ListComp.EmptyCtx));
 
             } else if (node instanceof decoratorsType) {
-                func = (exprType) stack.popNode();//the func is the last thing in the stack
                 decoratorsType d = (decoratorsType) node;
-                d.func = func;
-                d.args = argsl.toArray(new exprType[0]);
-                d.keywords = keywordsl.toArray(new keywordType[0]);
-                d.starargs = starargs;
-                d.kwargs = kwargs;
+
+                func = (exprType) stack.popNode();//the func is the last thing in the stack
+                if (func instanceof Call) {
+                    // On 3.8 onwards the parser changed and we get the decorator func separately.
+                    Call call = (Call) func;
+                    d.func = call.func;
+                    d.args = call.args;
+                    d.starargs = call.starargs;
+                    d.keywords = call.keywords;
+                    d.kwargs = call.kwargs;
+                    d.isCall = true;
+                    if (call.specialsBefore != null && call.specialsBefore.size() > 0) {
+                        d.getSpecialsBefore().addAll(call.specialsBefore);
+                    }
+                    if (call.specialsAfter != null && call.specialsAfter.size() > 0) {
+                        d.getSpecialsAfter().addAll(call.specialsAfter);
+                    }
+                } else {
+                    d.func = func;
+                    d.args = argsl.toArray(new exprType[0]);
+                    d.keywords = keywordsl.toArray(new keywordType[0]);
+                    d.starargs = starargs;
+                    d.kwargs = kwargs;
+                }
                 return d;
 
             } else {

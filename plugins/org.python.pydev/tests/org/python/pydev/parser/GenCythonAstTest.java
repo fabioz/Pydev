@@ -22,6 +22,7 @@ import org.python.pydev.parser.visitors.comparator.DifferException;
 import org.python.pydev.parser.visitors.comparator.SimpleNodeComparator;
 import org.python.pydev.parser.visitors.comparator.SimpleNodeComparator.LineColComparator;
 import org.python.pydev.parser.visitors.comparator.SimpleNodeComparator.RegularLineComparator;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
@@ -81,22 +82,25 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
     }
 
     public void testGenCythonFromCythonTests() throws Exception {
-        File cythonTestCompileDir = new File("X:\\cython\\");
-        assertTrue(cythonTestCompileDir.isDirectory());
-        FileUtils.visitDirectory(cythonTestCompileDir, true, (Path path) -> {
-            String p = path.toString();
-            if (p.endsWith(".py") || p.endsWith(".pyx") || p.endsWith(".pxd")) {
-                System.out.println("Visiting: " + p);
-                String s = FileUtils.getFileContents(path.toFile());
-                try {
-                    ParserInfo parserInfoCython = new ParserInfo(new Document(s), grammarVersionProvider);
-                    ParseOutput cythonParseOutput = new GenCythonAstImpl(parserInfoCython).genCythonAst();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
+        if (SharedCorePlugin.skipKnownFailures()) {
+            // i.e.: This test is local-only...
+            File cythonTestCompileDir = new File("X:\\cython\\");
+            assertTrue(cythonTestCompileDir.isDirectory());
+            FileUtils.visitDirectory(cythonTestCompileDir, true, (Path path) -> {
+                String p = path.toString();
+                if (p.endsWith(".py") || p.endsWith(".pyx") || p.endsWith(".pxd")) {
+                    System.out.println("Visiting: " + p);
+                    String s = FileUtils.getFileContents(path.toFile());
+                    try {
+                        ParserInfo parserInfoCython = new ParserInfo(new Document(s), grammarVersionProvider);
+                        ParseOutput cythonParseOutput = new GenCythonAstImpl(parserInfoCython).genCythonAst();
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
                 }
-            }
-            return true;
-        });
+                return true;
+            });
+        }
     }
 
     public void testGenCythonAstCases() throws Exception {
@@ -540,35 +544,6 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
                 + "    def b(): pass\n"
                 + "";
         compareCase(s, cython, false);
-    }
-
-    public void testGenCythonBackquote() throws Exception {
-        grammarVersionProvider = PY27_GRAMMAR_VERSION_PROVIDER;
-
-        String s = "`'Hello'`";
-        compareCase(s, s, true);
-    }
-
-    IGrammarVersionProvider PY27_GRAMMAR_VERSION_PROVIDER = new IGrammarVersionProvider() {
-
-        @Override
-        public int getGrammarVersion() throws MisconfigurationException {
-            // Note: this is used in reparseDocument but not when generating the cython ast as we call the internal implementation.
-            return IPythonNature.GRAMMAR_PYTHON_VERSION_3_5;
-        }
-
-        @Override
-        public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions() throws MisconfigurationException {
-            return null;
-        }
-
-    };
-
-    public void testGenCythonAstExec() throws Exception {
-        grammarVersionProvider = PY27_GRAMMAR_VERSION_PROVIDER;
-
-        String s = "exec('foo' in g, f)";
-        compareCase(s, s, true);
     }
 
     public void testGenCythonAstClassCDef2() throws Exception {
