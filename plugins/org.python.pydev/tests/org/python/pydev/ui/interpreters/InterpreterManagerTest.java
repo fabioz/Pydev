@@ -55,9 +55,6 @@ public class InterpreterManagerTest extends TestCase {
     protected void setUp() throws Exception {
         ProjectModulesManager.IN_TESTS = true;
         baseDir = PydevTestUtils.setTestPlatformStateLocation();
-        baseDir = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC, "data_temporary_for_testing");
-        FileUtils.deleteDirectoryTree(baseDir);
-
         baseDir.mkdirs();
         stateLocation = new File(baseDir, "pydev_plugin_state_location");
         stateLocation.mkdir();

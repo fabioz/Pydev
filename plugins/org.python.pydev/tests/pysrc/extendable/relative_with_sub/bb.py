@@ -1,4 +1,4 @@
-from aa import AA
+from .aa import AA
 
 class BB(AA):
     def __init__(self):

@@ -1,3 +1,3 @@
-print 'stdout'
+print('stdout')
 import sys
-print >> sys.stderr, 'stderr'
+print('stderr', file=sys.stderr)

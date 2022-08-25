@@ -1,1 +1,1 @@
-from check import Foo
+from .check import Foo

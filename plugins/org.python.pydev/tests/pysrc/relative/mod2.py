@@ -1,2 +1,2 @@
-import mod1
+from . import mod1
 

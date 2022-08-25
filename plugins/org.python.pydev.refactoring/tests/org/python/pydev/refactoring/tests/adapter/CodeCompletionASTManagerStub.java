@@ -28,7 +28,6 @@ import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionRequest;
 import org.python.pydev.core.ICompletionState;
-import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModuleRequestState;
@@ -41,6 +40,7 @@ import org.python.pydev.core.UnpackInfo;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.shared_core.callbacks.ICallback0;
+import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.structure.ImmutableTuple;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
@@ -198,7 +198,7 @@ public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
     }
 
     @Override
-    public TokensList getCompletionFromFuncDefReturn(ICompletionState state, IModule s, IDefinition definition,
+    public TokensList getCompletionFromFuncDefReturn(ICompletionState state, IModule s, ISimpleNode functionDef,
             boolean considerYieldTheReturnType) {
         throw new RuntimeException("Not implemented");
     }

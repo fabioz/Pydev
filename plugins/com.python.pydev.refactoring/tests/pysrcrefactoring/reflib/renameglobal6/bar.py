@@ -1,4 +1,4 @@
-import foo
+from . import foo
 
 class A:
     def method(self):

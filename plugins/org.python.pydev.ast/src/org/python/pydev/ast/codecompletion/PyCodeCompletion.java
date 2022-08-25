@@ -18,7 +18,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
+import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -57,6 +57,7 @@ import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.TokensList;
 import org.python.pydev.core.TokensListMixedLookingFor;
 import org.python.pydev.core.TokensOrProposalsList;
+import org.python.pydev.core.autoedit.DefaultIndentPrefs;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
@@ -70,6 +71,7 @@ import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.Return;
+import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
@@ -81,6 +83,7 @@ import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_core.model.ISimpleNode;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.structure.FastStack;
 import org.python.pydev.shared_core.structure.ImmutableTuple;
@@ -318,8 +321,11 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                                                             LookingFor lookingFor = state.getLookingFor();
                                                             TokensList completions;
                                                             try {
-                                                                ClassDefTokensExtractor classTokensExtractor = new ClassDefTokensExtractor(classDef, sourceModule, state);
-                                                                completions = classTokensExtractor.getCompletionsForBase(astManager, classDef.bases[j]);
+                                                                ClassDefTokensExtractor classTokensExtractor = new ClassDefTokensExtractor(
+                                                                        classDef, sourceModule, state);
+                                                                completions = classTokensExtractor
+                                                                        .getCompletionsForBase(astManager,
+                                                                                classDef.bases[j]);
                                                             } finally {
                                                                 // Completions at this point shouldn't change the state of what we were looking for.
                                                                 state.setLookingFor(lookingFor, true);
@@ -598,25 +604,82 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                 if (iDefinition instanceof Definition) {
                     Definition definition = (Definition) iDefinition;
                     if (definition.ast != null) {
-                        String args = NodeUtils.getNodeArgs(definition.ast);
-                        String fullArgs = NodeUtils.getFullArgs(definition.ast);
-                        StringTokenizer tokenizer = new StringTokenizer(args, "(, )");
-                        while (tokenizer.hasMoreTokens()) {
-                            String nextToken = tokenizer.nextToken();
-                            if (ignore.contains(nextToken)) {
-                                continue;
+                        SimpleNode node = definition.ast;
+                        if (node instanceof ClassDef) {
+                            node = NodeUtils.getClassDefInit((ClassDef) node);
+                        }
+
+                        if (node instanceof FunctionDef) {
+                            FunctionDef f = (FunctionDef) node;
+
+                            String nodeDocString = NodeUtils.getNodeDocString(definition.ast);
+
+                            if (f.args.args != null) {
+                                for (int i = 0; i < f.args.args.length; i++) {
+                                    addArg(request, ignore, definition, alreadyChecked, f.args.args, f.args.annotation,
+                                            f.args.defaults, i, nodeDocString);
+                                }
                             }
-                            String kwParam = nextToken + "=";
-                            SimpleNode node = new NameTok(kwParam, NameTok.KwArg);
-                            SourceToken sourceToken = new SourceToken(node, kwParam, "", "", "", IToken.TYPE_LOCAL,
-                                    definition.module != null ? definition.module.getNature() : null);
-                            sourceToken.setDocStr(fullArgs);
-                            alreadyChecked.put(kwParam, new IterTokenEntry(sourceToken));
+                            if (f.args.kwonlyargs != null) {
+                                for (int i = 0; i < f.args.kwonlyargs.length; i++) {
+                                    addArg(request, ignore, definition, alreadyChecked, f.args.kwonlyargs,
+                                            f.args.kwonlyargannotation, f.args.kw_defaults, i, nodeDocString);
+                                }
+                            }
                         }
                     }
                 }
             }
         }
+    }
+
+    private void addArg(final CompletionRequest request, final Set<String> ignore, final Definition definition,
+            final Map<String, IterTokenEntry> alreadyChecked, final exprType[] argName, final exprType[] annotation,
+            final exprType[] defaults, final int i, final String nodeDocString) {
+        final String rep = NodeUtils.getRepresentationString(argName[i]);
+        if (ignore.contains(rep)) {
+            return;
+        }
+        String kwParam = rep + "=";
+        SimpleNode paramNode = new NameTok(kwParam, NameTok.KwArg);
+        SourceToken sourceToken = new SourceToken(paramNode, kwParam, "", "", "",
+                IToken.TYPE_LOCAL,
+                definition.module != null ? definition.module.getNature() : null);
+        alreadyChecked.put(kwParam, new IterTokenEntry(sourceToken));
+
+        sourceToken.setDocStrCallback(() -> {
+            FastStringBuffer buf = new FastStringBuffer();
+            buf.clear();
+            buf.append("param: ");
+            buf.append(rep);
+
+            if (annotation != null && annotation[i] != null) {
+                String val = NodeUtils.printAst(DefaultIndentPrefs.get(null), request.nature, annotation[i], "\n");
+                if (val != null) {
+                    val = val.strip();
+                    if (val.length() > 0) {
+                        buf.append(val);
+                    }
+                }
+
+            }
+            if (defaults != null && defaults[i] != null) {
+                String val = NodeUtils.printAst(DefaultIndentPrefs.get(null), request.nature, defaults[i], "\n");
+                if (val != null) {
+                    val = val.strip();
+                    if (val.length() > 0) {
+                        buf.append(val);
+                    }
+                }
+
+            }
+
+            if (nodeDocString != null && nodeDocString.length() > 0) {
+                buf.append("\n\n");
+                buf.append(nodeDocString);
+            }
+            return buf.toString();
+        });
     }
 
     /**

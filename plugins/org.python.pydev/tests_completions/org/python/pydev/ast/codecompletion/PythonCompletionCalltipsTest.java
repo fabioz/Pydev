@@ -148,8 +148,8 @@ public class PythonCompletionCalltipsTest extends CodeCompletionTestsBase {
     public void testCalltips3a() throws Exception {
         String s;
         s = "" +
-                "def m1((a, b), c):\n" + //yes, this is no longer supported (and this construct is rarely used).
-                "    print a, b, c\n" +
+                "def m1(a, b, c):\n" + //yes, this is no longer supported (and this construct is rarely used).
+                "    print(a, b, c)\n" +
                 "m1()";
         PyContextInformationValidator validator = new PyContextInformationValidator();
         int requestOffset = s.length() - 1;
@@ -162,7 +162,7 @@ public class PythonCompletionCalltipsTest extends CodeCompletionTestsBase {
         assertFalse(validator.isContextInformationValid(0));
         assertTrue(validator.isContextInformationValid(requestOffset));
         assertFalse(validator.isContextInformationValid(requestOffset + 1));
-        assertEquals("(a, b), c", contextInformation.getContextDisplayString());
+        assertEquals("a, b, c", contextInformation.getContextDisplayString());
     }
 
     public void testCalltips4() throws Exception {
@@ -208,8 +208,16 @@ public class PythonCompletionCalltipsTest extends CodeCompletionTestsBase {
         String s = "from extendable import calltips\n" +
                 "calltips.";
 
-        requestCompl(s, s.length(), 5,
-                new String[] { "__file__", "__dict__", "__name__", "method1(a, b)", "__path__" });
+        requestCompl(s, s.length(), 1,
+                new String[] { "method1(a, b)" });
+    }
+
+    public void testCalltips6a() throws Exception {
+        String s = "from extendable import calltips\n" +
+                "calltips._";
+
+        requestCompl(s, s.length(), 4,
+                new String[] { "__file__", "__dict__", "__name__", "__path__" });
     }
 
     public void testCalltips7() throws Exception {
@@ -229,6 +237,44 @@ public class PythonCompletionCalltipsTest extends CodeCompletionTestsBase {
         Document document = new Document(s);
         param1Proposal.apply(document);
         assertEquals(StringUtils.format(s0, "m1="), document.get());
+    }
+
+    public void testCalltips7a() throws Exception {
+        String s0 = "class TestCase(object):\n" +
+                "    def __init__(self, *, param1: int, param2: int=2):\n" +
+                "        pass\n"
+                +
+                "    \n" +
+                "TestCase(para%s)";
+
+        String s = StringUtils.format(s0, "");
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length() - 1, -1, new String[] {});
+        assertEquals(2, proposals.length);
+
+        PyCompletionProposal param1Proposal = (PyCompletionProposal) assertContains("param1=", proposals);
+        assertTrue("Found: " + param1Proposal.getAdditionalProposalInfo(),
+                param1Proposal.getAdditionalProposalInfo().indexOf("param: param1:int") == 0);
+
+        PyCompletionProposal param2Proposal = (PyCompletionProposal) assertContains("param2=", proposals);
+        assertTrue("Found: " + param2Proposal.getAdditionalProposalInfo(),
+                param2Proposal.getAdditionalProposalInfo().indexOf("param: param2:int=2") == 0);
+
+        Document document = new Document(s);
+        param1Proposal.apply(document);
+        assertEquals(StringUtils.format(s0, "m1="), document.get());
+    }
+
+    public void testSortCalltips1() throws Exception {
+        //should keep the variables from the __builtins__ in this module
+        String s = "[].sort(r)";
+        requestCompl(s, s.length() - 1, -1, new String[] { "reverse=" });
+    }
+
+    public void testSortCalltips2() throws Exception {
+        String s = "[].sort()";
+        ICompletionProposalHandle[] completions = requestCompl(s, s.length() - 1, 1, new String[] { "sort()" });
+        PyLinkedModeCompletionProposal comp = (PyLinkedModeCompletionProposal) completions[0];
+        assertEquals(comp.getOnApplyAction(), IPyCompletionProposal.ON_APPLY_SHOW_CTX_INFO_AND_ADD_PARAMETETRS);
     }
 
     public void testCalltips8() throws Exception {
@@ -323,9 +369,8 @@ public class PythonCompletionCalltipsTest extends CodeCompletionTestsBase {
                 "        self.M1(k%s)";
 
         String s = StringUtils.format(s0, "");
-        ICompletionProposalHandle[] proposals = requestCompl(s, s.length() - 1, -1, new String[] {});
-        assertEquals(1, proposals.length);
-
+        ICompletionProposalHandle[] proposals = requestCompl(s, s.length() - 1, 3,
+                new String[] { "kkk=", "KeyboardInterrupt", "KeyError" });
         Document document = new Document(s);
         proposals[0].apply(document);
         assertEquals(StringUtils.format(s0, "kk="), document.get());

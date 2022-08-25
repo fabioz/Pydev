@@ -8,7 +8,6 @@ package org.python.pydev.ast.codecompletion;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.swt.graphics.Point;
-import org.python.pydev.ast.codecompletion.PyCodeCompletion;
 import org.python.pydev.ast.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.ast.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.core.structure.CompletionRecursionException;
@@ -74,13 +73,19 @@ public class PythonApplyCompletionsTest extends CodeCompletionTestsBase {
         String s = StringUtils.format(s0, "2");
 
         int offset = s.length() - 1;
-        ICompletionProposalHandle[] proposals = requestCompl(s, offset, -1, new String[] {});
-        assertEquals(1, proposals.length);
-        PyLinkedModeCompletionProposal p = (PyLinkedModeCompletionProposal) proposals[0];
-        Document d = new Document(s);
-        p.fLen = 1;
-        p.applyOnDoc(offset, true, d, 3, '\n');
-        assertEquals(StringUtils.format(s0, "3"), d.get());
+        ICompletionProposalHandle[] proposals = requestCompl(s, offset, 2,
+                new String[] { "mod3", "ModuleNotFoundError" });
+        for (ICompletionProposalHandle prop : proposals) {
+            if (prop.getDisplayString().equals("mod3")) {
+                PyLinkedModeCompletionProposal p = (PyLinkedModeCompletionProposal) proposals[0];
+                Document d = new Document(s);
+                p.fLen = 1;
+                p.applyOnDoc(offset, true, d, 3, '\n');
+                assertEquals(StringUtils.format(s0, "3"), d.get());
+                return;
+            }
+        }
+        fail("Expected mod3 to be found.");
     }
 
     public void testApply2() throws Exception {

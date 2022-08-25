@@ -746,9 +746,6 @@ void slice() #void: {}
 
 
     files = [
-        (os.path.join(parent_dir, 'grammar25', 'python.jjt_template'), 25),
-        (os.path.join(parent_dir, 'grammar26', 'python.jjt_template'), 26),
-        (os.path.join(parent_dir, 'grammar27', 'python.jjt_template'), 27),
         (os.path.join(parent_dir, 'grammar30', 'python.jjt_template'), 30),
         (os.path.join(parent_dir, 'grammar36', 'python.jjt_template'), 36),
         (os.path.join(parent_dir, 'grammar38', 'python.jjt_template'), 38),
@@ -757,20 +754,10 @@ void slice() #void: {}
     ]
 
     for file, version in files:
-        if version == 24:
-            definitions['NAME_DEFINITION'] = CreateNameDefinition(True, False, True)
-        elif version == 25:
-            definitions['NAME_DEFINITION'] = CreateNameDefinition(True, True, True)
-        else:
-            definitions['NAME_DEFINITION'] = CreateNameDefinition(False, False, False)
+        definitions['NAME_DEFINITION'] = CreateNameDefinition(False, False, False)
+        definitions['STMT'] = CreateStmt()
 
-        if version == 25:
-            definitions['STMT'] = CreateStmt25()
-
-        else:
-            definitions['STMT'] = CreateStmt()
-
-        if version == 38:
+        if version >= 38:
             definitions['IF'] = CreateIfWithDeps38(definitions)
             definitions['WHILE'] = CreateWhileWithDeps38(definitions)
 

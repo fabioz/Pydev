@@ -52,6 +52,23 @@ public abstract class AbstractPythonGrammar extends AbstractGrammarErrorHandlers
         }
     }
 
+    private int lastLevelCol = -1;
+    private int lastLevelLine = -1;
+
+    protected void markLastImportLevelPos() {
+        Token token = getToken(0);
+        lastLevelCol = token.beginColumn + 1;
+        lastLevelLine = token.beginLine;
+    }
+
+    protected int getLastLevelImportCol() {
+        return lastLevelCol;
+    }
+
+    protected int getLastLevelImportLine() {
+        return lastLevelLine;
+    }
+
     protected static WithNameInvalidException withNameInvalidException = new WithNameInvalidException(
             "With cannot be used as identifier when future with_statement is available.");
 

@@ -83,6 +83,10 @@ public class AssignAnalysis {
                         for (int i = 0; i < defs.length; i++) {
                             //go through all definitions found and make a merge of it...
                             Definition definition = defs[i];
+                            if ("TypeVar".equals(definition.value)) {
+                                ret.setMapsToTypeVar(true);
+                                continue;
+                            }
                             TokensList completionsFromDefinition = getCompletionsFromDefinition(definition, state,
                                     sourceModule, manager);
                             if (completionsFromDefinition != null && completionsFromDefinition.notEmpty()) {
@@ -209,7 +213,7 @@ public class AssignAnalysis {
         if (!foundAsParamWithTypingInfo) {
             if (definition.ast instanceof FunctionDef) {
                 TokensList found = manager.getCompletionFromFuncDefReturn(
-                        state, sourceModule, definition, false);
+                        state, definition.module, definition.ast, false);
                 ret.addAll(found);
             } else {
                 TokensList found = getNonFunctionDefCompletionsFromAssign(manager, state, sourceModule,
@@ -399,7 +403,7 @@ public class AssignAnalysis {
                     }
                 }
 
-                if (lookForAssign) {
+                if (lookForAssign && assignDefinition.unpackPos == 0) {
                     TokensList tokens = null;
                     if (assign.type != null) {
                         tokens = searchInLocalTokens(manager, state, lookForAssign,

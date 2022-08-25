@@ -11,13 +11,11 @@
  */
 package org.python.pydev.ast.codecompletion;
 
-import junit.framework.TestCase;
-
 import org.eclipse.jface.text.Document;
-import org.python.pydev.ast.codecompletion.IPyCodeCompletion;
-import org.python.pydev.ast.codecompletion.PyCodeCompletion;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.docutils.ImportsSelection;
+
+import junit.framework.TestCase;
 
 /**
  * @author Fabio Zadrozny
@@ -30,7 +28,7 @@ public class PyCodeCompletionTest extends TestCase {
 
     IPyCodeCompletion completion;
 
-    public void doTest(String s, String expected) {
+    public ImportInfo doTest(String s, String expected) {
         Document doc = new Document(s);
         int length = s.length();
         ImportInfo importsTipperStr = ImportsSelection.getImportsTipperStr(doc, length);
@@ -40,10 +38,17 @@ public class PyCodeCompletionTest extends TestCase {
             assertEquals(s.indexOf("from") != -1, importsTipperStr.hasFromSubstring);
             assertEquals(s.indexOf("import") != -1, importsTipperStr.hasImportSubstring);
         }
+        return importsTipperStr;
     }
 
     public void testIt() {
         completion = new PyCodeCompletion();
+        doTest("from word another word", "");
+        doTest("from .. import _", "..");
+        doTest("from ._", ".");
+
+        doTest("from testlib import u", "testlib");
+        doTest("from testlib import (u", "testlib");
 
         doTest("from datetime import foo,\\\nbar\n", ""); //no \ in the prev line
         doTest("from datetime import (foo\nbar)\n", ""); //not actually an import (we're already after it)

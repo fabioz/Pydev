@@ -1,1 +1,1 @@
-from toimport import Test1 #relative import
+from .toimport import Test1 #relative import

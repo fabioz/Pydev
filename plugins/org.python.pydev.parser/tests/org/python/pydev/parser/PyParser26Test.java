@@ -6,10 +6,11 @@
  */
 package org.python.pydev.parser;
 
-import org.python.pydev.core.IPythonNature;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Module;
+import org.python.pydev.parser.jython.ast.Num;
+import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.visitors.NodeUtils;
 
 public class PyParser26Test extends PyParserTestBase {
@@ -30,111 +31,167 @@ public class PyParser26Test extends PyParserTestBase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_2_6);
     }
 
     public void testWith() {
-        String str = "def m1():\n" +
-                "    with a:\n" +
-                "        print a\n" +
-                "\n" +
-                "";
-        parseLegalDocStr(str);
+        checkWithAllGrammars((grammarVersion) -> {
+            String str = "def m1():\n" +
+                    "    with a:\n" +
+                    "        print(a)\n" +
+                    "\n" +
+                    "";
+            parseLegalDocStr(str);
+            return true;
+        });
     }
 
     public void testExceptAs() {
-        String str = "" +
-                "try:\n" +
-                "    a = 10\n" +
-                "except RuntimeError as x:\n" +
-                "    print x\n" +
-                "";
-        parseLegalDocStr(str);
+        checkWithAllGrammars((grammarVersion) -> {
+            String str = "" +
+                    "try:\n" +
+                    "    a = 10\n" +
+                    "except RuntimeError as x:\n" +
+                    "    print(x)\n" +
+                    "";
+            parseLegalDocStr(str);
+            return true;
+        });
     }
 
     public void testBinaryObj() {
-        String str = "" +
-                "b'foo'\n" +
-                "";
-        parseLegalDocStr(str);
+        checkWithAllGrammars((grammarVersion) -> {
+            String str = "" +
+                    "b'foo'\n" +
+                    "";
+            parseLegalDocStr(str);
+            return true;
+        });
     }
 
     public void testOctal() {
-        String str = "" +
-                "0o700\n" +
-                "0700\n" +
-                "";
-        assertEquals(
-                "Module[body=[Expr[value=Num[n=448, type=Int, num=0o700]], Expr[value=Num[n=448, type=Int, num=0700]]]]",
-                parseLegalDocStr(str).toString());
+        checkWithAllGrammars((grammarVersion) -> {
+            String str = "" +
+                    "0o700\n" +
+                    "";
+            assertEquals(
+                    "Module[body=[Expr[value=Num[n=448, type=Int, num=0o700]]]]",
+                    parseLegalDocStr(str).toString());
+            return true;
+        });
     }
 
     public void testFunctionCall() {
-        String str = "" +
-                "Call(1,2,3, *(4,5,6), keyword=13, **kwargs)\n" +
-                "";
-        parseLegalDocStr(str);
+        checkWithAllGrammars((grammarVersion) -> {
+            String str = "" +
+                    "Call(1,2,3, *(4,5,6), keyword=13, **kwargs)\n" +
+                    "";
+            parseLegalDocStr(str);
+            return true;
+        });
     }
 
     public void testFunctionCallWithListComp() {
-        String str = "" +
-                "any(cls.__subclasscheck__(c) for c in [subclass, subtype])\n" +
-                "";
-        parseLegalDocStr(str);
+        checkWithAllGrammars((grammarVersion) -> {
+            String str = "" +
+                    "any(cls.__subclasscheck__(c) for c in [subclass, subtype])\n" +
+                    "";
+            parseLegalDocStr(str);
+            return true;
+        });
     }
 
     public void testClassDecorator() {
-        String s = "" +
-                "@classdec\n" +
-                "@classdec2\n" +
-                "class A:\n" +
-                "    pass\n" +
-                "";
-        SimpleNode ast = parseLegalDocStr(s);
-        Module m = (Module) ast;
-        ClassDef d = (ClassDef) m.body[0];
-        assertEquals(2, d.decs.length);
-        assertEquals("classdec", NodeUtils.getRepresentationString(d.decs[0].func));
-        assertEquals("classdec2", NodeUtils.getRepresentationString(d.decs[1].func));
+        checkWithAllGrammars((grammarVersion) -> {
+            String s = "" +
+                    "@classdec\n" +
+                    "@classdec2\n" +
+                    "class A:\n" +
+                    "    pass\n" +
+                    "";
+            SimpleNode ast = parseLegalDocStr(s);
+            Module m = (Module) ast;
+            ClassDef d = (ClassDef) m.body[0];
+            assertEquals(2, d.decs.length);
+            assertEquals("classdec", NodeUtils.getRepresentationString(d.decs[0].func));
+            assertEquals("classdec2", NodeUtils.getRepresentationString(d.decs[1].func));
+            assertFalse(d.decs[0].isCall);
+            assertFalse(d.decs[1].isCall);
+            return true;
+        });
+    }
+
+    public void testClassDecoratorCall() {
+        checkWithAllGrammars((grammarVersion) -> {
+            String s = "" +
+                    "@classdec(1, 2)\n" +
+                    "class A:\n" +
+                    "    pass\n" +
+                    "";
+            SimpleNode ast = parseLegalDocStr(s);
+            Module m = (Module) ast;
+            ClassDef d = (ClassDef) m.body[0];
+            assertEquals(1, d.decs.length);
+            decoratorsType dec = d.decs[0];
+            assertEquals("classdec", NodeUtils.getRepresentationString(dec.func));
+            assertTrue(dec.isCall);
+            assertEquals("1", ((Num) dec.args[0]).num);
+            assertEquals("2", ((Num) dec.args[1]).num);
+            return true;
+        });
     }
 
     public void testCall() {
-        String s = "fubar(*list, x=4)";
+        checkWithAllGrammars((grammarVersion) -> {
+            String s = "fubar(*list, x=4)";
 
-        parseLegalDocStr(s);
+            parseLegalDocStr(s);
+            return true;
+        });
     }
 
     public void testCall2() {
-        String s = "fubar(1, *list, x=4)";
+        checkWithAllGrammars((grammarVersion) -> {
+            String s = "fubar(1, *list, x=4)";
 
-        parseLegalDocStr(s);
+            parseLegalDocStr(s);
+            return true;
+        });
     }
 
     public void testFuturePrintFunction() {
-        String s = "" +
-                "from __future__ import print_function\n" +
-                "print('test', 'print function', sep=' - ')\n" +
-                "";
+        checkWithAllGrammars((grammarVersion) -> {
+            String s = "" +
+                    "from __future__ import print_function\n" +
+                    "print('test', 'print function', sep=' - ')\n" +
+                    "";
 
-        parseLegalDocStr(s);
+            parseLegalDocStr(s);
+            return true;
+        });
     }
 
     public void testBinNumber() {
-        String s = "" +
-                "0b00010\n" +
-                "0B00010\n" +
-                "0b00010L\n" +
-                "0B00010l\n" +
-                "";
+        checkWithAllGrammars((grammarVersion) -> {
+            String s = "" +
+                    "0b00010\n" +
+                    "0B00010\n" +
+                    "0b00010L\n" +
+                    "0B00010l\n" +
+                    "";
 
-        parseLegalDocStr(s);
+            parseLegalDocStr(s);
+            return true;
+        });
     }
 
     @Override
     public void testEmpty() throws Throwable {
-        String s = "";
+        checkWithAllGrammars((grammarVersion) -> {
+            String s = "";
 
-        parseLegalDocStr(s);
+            parseLegalDocStr(s);
+            return true;
+        });
     }
 
 }

@@ -8,12 +8,23 @@ package org.python.pydev.ast.codecompletion.revisited.modules;
 
 import java.io.File;
 
+import org.python.pydev.ast.codecompletion.revisited.visitors.GlobalModelVisitor;
 import org.python.pydev.parser.jython.SimpleNode;
 
 public class PredefinedSourceModule extends SourceModule {
 
     public PredefinedSourceModule(String name, File f, SimpleNode n, Throwable parseError) {
         super(name, f, n, parseError, null);
+        if ("builtins".equals(this.name)) {
+            filter = (choice, token) -> {
+                if (choice == GlobalModelVisitor.GLOBAL_TOKENS) {
+                    String rep = token.getOriginalRep();
+                    if (rep.startsWith("_") && !(rep.startsWith("__") && rep.endsWith("__"))) {
+                        return false;
+                    }
+                }
+                return true;
+            };
+        }
     }
-
 }

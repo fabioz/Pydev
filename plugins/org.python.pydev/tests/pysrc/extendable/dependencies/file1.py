@@ -1,1 +1,1 @@
-from file2 import Test
+from .file2 import Test

@@ -182,7 +182,7 @@ public class PythonNatureStub implements IPythonNature, IAdaptable {
 
     @Override
     public int getGrammarVersion() {
-        return IPythonNature.GRAMMAR_PYTHON_VERSION_2_5;
+        return IPythonNature.GRAMMAR_PYTHON_VERSION_3_5;
     }
 
     @Override

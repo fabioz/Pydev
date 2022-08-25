@@ -11,6 +11,7 @@ package org.python.pydev.core;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.core.structure.CompletionRecursionException;
+import org.python.pydev.shared_core.model.ISimpleNode;
 
 public interface ICompletionState extends ICompletionCache, IModuleRequestState {
 
@@ -67,6 +68,8 @@ public interface ICompletionState extends ICompletionCache, IModuleRequestState 
 
     void checkDefinitionMemory(IModule module, IDefinition definition) throws CompletionRecursionException;
 
+    void checkLookForFunctionDefReturn(IModule module, ISimpleNode node) throws CompletionRecursionException;
+
     void checkWildImportInMemory(IModule current, IModule mod) throws CompletionRecursionException;
 
     public void checkResolveImportMemory(IModule module, String value) throws CompletionRecursionException;
@@ -84,6 +87,9 @@ public interface ICompletionState extends ICompletionCache, IModuleRequestState 
     void checkFindModuleCompletionsMemory(IModule mod, String tok) throws CompletionRecursionException;
 
     void checkFindResolveImportMemory(IToken tok) throws CompletionRecursionException;
+
+    void checkUnpackMemory(IModule module, String string, int beginLine, int beginColumn)
+            throws CompletionRecursionException;
 
     void checkMaxTimeForCompletion() throws CompletionRecursionException;
 
@@ -192,5 +198,17 @@ public interface ICompletionState extends ICompletionCache, IModuleRequestState 
     boolean getAcceptTypeshed();
 
     void setAcceptTypeshed(boolean acceptTypeshed);
+
+    boolean isResolvingBuiltins();
+
+    void pushResolvingBuiltins();
+
+    void popResolvingBuiltins();
+
+    boolean getSkipObjectBaseCompletions();
+
+    void pushSkipObjectBaseCompletions();
+
+    void popSkipObjectBaseCompletions();
 
 }

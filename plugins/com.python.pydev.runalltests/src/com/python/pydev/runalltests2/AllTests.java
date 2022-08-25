@@ -10,6 +10,8 @@ package com.python.pydev.runalltests2;
 import java.lang.reflect.Modifier;
 import java.util.Enumeration;
 
+import org.python.pydev.core.TestDependent;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -30,7 +32,7 @@ public class AllTests {
     private static void addTestsToSuite(TestCollector collector, TestSuite suite) {
         Enumeration<String> e = collector.collectTests();
         while (e.hasMoreElements()) {
-            String name = (String) e.nextElement();
+            String name = e.nextElement();
             try {
                 suite.addTestSuite((Class<? extends TestCase>) Class.forName(name));
             } catch (ClassNotFoundException e1) {
@@ -41,7 +43,14 @@ public class AllTests {
 
     private static boolean isValidTest(String name) {
         try {
-            return name.endsWith(SUFFIX) && ((Class.forName(name).getModifiers() & Modifier.ABSTRACT) == 0);
+            boolean isValid = name.endsWith(SUFFIX) && ((Class.forName(name).getModifiers() & Modifier.ABSTRACT) == 0);
+            if (TestDependent.IRONPYTHON_EXE == null && name.toLowerCase().contains("ironpython")) {
+                return false;
+            }
+            if (TestDependent.JYTHON_JAR_LOCATION == null && name.toLowerCase().contains("jython")) {
+                return false;
+            }
+            return true;
         } catch (ClassNotFoundException e) {
             System.err.println(e.toString());
             return false;

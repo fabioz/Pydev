@@ -108,8 +108,7 @@ public class ProjectStub extends AbstractIProjectStub implements IProject {
     @Override
     public String getPersistentProperty(QualifiedName key) throws CoreException {
         if (key.getLocalName().equals("PYTHON_PROJECT_VERSION")) {
-            // TODO the comment below says "always the latests", but it isn't!
-            return IPythonNature.PYTHON_VERSION_2_5;//for tests, always the latest version
+            return IPythonNature.PYTHON_VERSION_3_8;
         }
         if (key.getLocalName().equals("PROJECT_SOURCE_PATH")) {
             return this.path;

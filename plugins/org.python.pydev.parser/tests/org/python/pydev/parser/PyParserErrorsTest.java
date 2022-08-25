@@ -6,7 +6,6 @@
  */
 package org.python.pydev.parser;
 
-import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -504,14 +503,7 @@ public class PyParserErrorsTest extends PyParserTestBase {
                         "print(('btt'), file=f)\n" +
                         "";
 
-                if (arg >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5) {
-                    parseLegalDocStr(s);
-
-                } else {
-                    Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
-                    Module m = (Module) tup.o1;
-                    assertNotNull(m);
-                }
+                parseLegalDocStr(s);
                 return true;
             }
         });
@@ -532,17 +524,10 @@ public class PyParserErrorsTest extends PyParserTestBase {
                         "\n" +
                         "";
 
-                if (arg == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5
-                        || arg == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6
-                        || arg == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7) {
-                    parseLegalDocStr(s);
-
-                } else {
-                    Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
-                    Module m = (Module) tup.o1;
-                    assertNotNull(m);
-                    assertTrue(tup.o2.getMessage().indexOf("Internal error:java.lang.ClassCastException") == -1);
-                }
+                Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
+                Module m = (Module) tup.o1;
+                assertNotNull(m);
+                assertTrue(tup.o2.getMessage().indexOf("Internal error:java.lang.ClassCastException") == -1);
                 return true;
             }
         });

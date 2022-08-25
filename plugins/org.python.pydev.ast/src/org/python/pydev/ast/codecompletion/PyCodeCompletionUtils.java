@@ -39,71 +39,95 @@ public class PyCodeCompletionUtils {
         //qualifier) and sorting them correctly.
         final Map<String, List<ICompletionProposalHandle>> returnProposals = new HashMap<String, List<ICompletionProposalHandle>>();
 
-        int len = pythonAndTemplateProposals.size();
         IFilter nameFilter = getNameFilter(useSubstringMatchInCodeCompletion, qualifier);
-        for (IterEntry entry : pythonAndTemplateProposals) {
-            Object o = entry.object;
-            if (o instanceof ICompletionProposalHandle) {
-                ICompletionProposalHandle proposal = (ICompletionProposalHandle) o;
+        if (onlyForCalltips) {
+            for (IterEntry entry : pythonAndTemplateProposals) {
+                Object o = entry.object;
+                if (o instanceof ICompletionProposalHandle) {
+                    ICompletionProposalHandle proposal = (ICompletionProposalHandle) o;
 
-                String displayString;
-                if (proposal instanceof IPyCompletionProposal2) {
-                    IPyCompletionProposal2 pyCompletionProposal = (IPyCompletionProposal2) proposal;
-                    displayString = pyCompletionProposal.getInternalDisplayStringRepresentation();
+                    String displayString;
+                    if (proposal instanceof IPyCompletionProposal2) {
+                        IPyCompletionProposal2 pyCompletionProposal = (IPyCompletionProposal2) proposal;
+                        displayString = pyCompletionProposal.getInternalDisplayStringRepresentation();
 
-                } else {
-                    displayString = proposal.getDisplayString();
-                }
+                    } else {
+                        displayString = proposal.getDisplayString();
+                    }
 
-                if (onlyForCalltips) {
                     if (displayString.equals(qualifier)) {
                         addProposal(returnProposals, proposal, displayString);
 
-                    } else if (displayString.length() > qualifier.length() && displayString.startsWith(qualifier)) {
-                        if (displayString.charAt(qualifier.length()) == '(') {
-                            addProposal(returnProposals, proposal, displayString);
-                        }
+                    } else if (displayString.length() > qualifier.length() && displayString.startsWith(qualifier)
+                            && displayString.charAt(qualifier.length()) == '(') {
+                        addProposal(returnProposals, proposal, displayString);
                     }
-                } else if (nameFilter.acceptName(displayString)) {
-                    List<ICompletionProposalHandle> existing = returnProposals.get(displayString);
-                    if (existing != null) {
-                        //a proposal with the same string is already there...
-                        boolean addIt = true;
-                        if (proposal instanceof IPyCompletionProposal) {
-                            IPyCompletionProposal propP = (IPyCompletionProposal) proposal;
+                } else {
+                    throw new RuntimeException("Error: expected instanceof ICompletionProposalHandle and received: "
+                            + o.getClass().getName());
+                }
+            }
 
-                            OUT: for (Iterator<ICompletionProposalHandle> it = existing.iterator(); it.hasNext();) {
-                                ICompletionProposalHandle curr = it.next();
-                                int overrideBehavior = propP.getOverrideBehavior(curr);
+        } else {
+            for (IterEntry entry : pythonAndTemplateProposals) {
+                Object o = entry.object;
+                if (o instanceof ICompletionProposalHandle) {
+                    ICompletionProposalHandle proposal = (ICompletionProposalHandle) o;
 
-                                switch (overrideBehavior) {
-                                    case IPyCompletionProposal.BEHAVIOR_COEXISTS:
-                                        //just go on (it will be added later)
-                                        break;
-                                    case IPyCompletionProposal.BEHAVIOR_OVERRIDES:
-                                        it.remove();
-                                        break;
+                    String displayString;
+                    if (proposal instanceof IPyCompletionProposal2) {
+                        IPyCompletionProposal2 pyCompletionProposal = (IPyCompletionProposal2) proposal;
+                        displayString = pyCompletionProposal.getInternalDisplayStringRepresentation();
 
-                                    case IPyCompletionProposal.BEHAVIOR_IS_OVERRIDEN:
-                                        addIt = false;
-                                        break OUT;
+                    } else {
+                        displayString = proposal.getDisplayString();
+                    }
+                    if (displayString.startsWith("__") && qualifier.length() == 0) {
+                        // i.e.: Things as __str__ should not appear until the first _ is added.
+                        continue;
+                    }
 
+                    if (nameFilter.acceptName(displayString)) {
+                        List<ICompletionProposalHandle> existing = returnProposals.get(displayString);
+                        if (existing != null) {
+                            //a proposal with the same string is already there...
+                            boolean addIt = true;
+                            if (proposal instanceof IPyCompletionProposal) {
+                                IPyCompletionProposal propP = (IPyCompletionProposal) proposal;
+
+                                OUT: for (Iterator<ICompletionProposalHandle> it = existing.iterator(); it.hasNext();) {
+                                    ICompletionProposalHandle curr = it.next();
+                                    int overrideBehavior = propP.getOverrideBehavior(curr);
+
+                                    switch (overrideBehavior) {
+                                        case IPyCompletionProposal.BEHAVIOR_COEXISTS:
+                                            //just go on (it will be added later)
+                                            break;
+                                        case IPyCompletionProposal.BEHAVIOR_OVERRIDES:
+                                            it.remove();
+                                            break;
+
+                                        case IPyCompletionProposal.BEHAVIOR_IS_OVERRIDEN:
+                                            addIt = false;
+                                            break OUT;
+
+                                    }
                                 }
                             }
+                            if (addIt) {
+                                existing.add(proposal);
+                            }
+                        } else {
+                            //it's null, so, 1st insertion...
+                            List<ICompletionProposalHandle> lst = new ArrayList<ICompletionProposalHandle>();
+                            lst.add(proposal);
+                            returnProposals.put(displayString, lst);
                         }
-                        if (addIt) {
-                            existing.add(proposal);
-                        }
-                    } else {
-                        //it's null, so, 1st insertion...
-                        List<ICompletionProposalHandle> lst = new ArrayList<ICompletionProposalHandle>();
-                        lst.add(proposal);
-                        returnProposals.put(displayString, lst);
                     }
+                } else {
+                    throw new RuntimeException("Error: expected instanceof ICompletionProposalHandle and received: "
+                            + o.getClass().getName());
                 }
-            } else {
-                throw new RuntimeException("Error: expected instanceof ICompletionProposalHandle and received: "
-                        + o.getClass().getName());
             }
         }
 

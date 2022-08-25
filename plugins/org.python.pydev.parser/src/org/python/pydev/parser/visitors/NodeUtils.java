@@ -95,7 +95,7 @@ import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 
-public class NodeUtils {
+public final class NodeUtils {
 
     /**
      * @param node a function definition (if other will return an empty string)
@@ -116,7 +116,14 @@ public class NodeUtils {
                 if (buffer.length() > startPar.length()) {
                     buffer.append(", ");
                 }
-                buffer.append(getRepresentationString(f.args.args[i]));
+
+                // TODO: Do this only for .pyi files?
+                String rep = getRepresentationString(f.args.args[i]);
+                int leadingUnderscores = StringUtils.countLeadingChars('_', rep);
+                if (leadingUnderscores > 0) {
+                    rep = rep.substring(leadingUnderscores);
+                }
+                buffer.append(rep);
             }
             buffer.append(" )");
             return buffer.toString();
@@ -1293,8 +1300,10 @@ public class NodeUtils {
             With module = (With) node;
             return module.body.body;
         }
-        return new stmtType[0];
+        return EMPTY_STMT;
     }
+
+    private final static stmtType[] EMPTY_STMT = new stmtType[0];
 
     /**
      * Sets the body of some node.
@@ -1669,7 +1678,7 @@ public class NodeUtils {
             FunctionDef functionDef = (FunctionDef) node;
             exprType returns = functionDef.returns;
             if (returns != null) {
-                return new TypeInfo(NodeUtils.extractOptionalValueSubscript(returns));
+                return new TypeInfo(returns);
             }
         }
         return null;
@@ -1736,6 +1745,7 @@ public class NodeUtils {
     }
 
     public static String getUnpackedTypeFromTypeDocstring(String compoundType, UnpackInfo checkPosForDict) {
+        final String initial = compoundType;
         ParsingUtils parsingUtils = ParsingUtils.create(compoundType);
         int len = parsingUtils.len();
         if (checkPosForDict.getUnpackFor()) {
@@ -1757,7 +1767,15 @@ public class NodeUtils {
             //NOTE: the getUnpackTuple(10) isn't really good, but we have to change the strategy
             //to first parse to get what's available to then know the length (so, right now
             //we won't work very well with negative numbers in this use-case).
-            return getValueForContainer(compoundType, 0, checkPosForDict.getUnpackTuple(10), -1);
+            String ret = getValueForContainer(compoundType, 0, checkPosForDict.getUnpackTuple(10), -1);
+            if (ret != null && ret.equals(initial)) {
+                if (checkPosForDict.isUnpackRequired()) {
+                    return "";
+                } else {
+                    return ret;
+                }
+            }
+            return ret;
         } catch (SyntaxErrorException e) {
             return "";
         }

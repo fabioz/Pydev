@@ -22,6 +22,7 @@ import org.python.pydev.parser.visitors.comparator.DifferException;
 import org.python.pydev.parser.visitors.comparator.SimpleNodeComparator;
 import org.python.pydev.parser.visitors.comparator.SimpleNodeComparator.LineColComparator;
 import org.python.pydev.parser.visitors.comparator.SimpleNodeComparator.RegularLineComparator;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
@@ -81,6 +82,10 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
     }
 
     public void testGenCythonFromCythonTests() throws Exception {
+        if (SharedCorePlugin.skipKnownFailures()) {
+            return;
+        }
+        // i.e.: This test is local-only...
         File cythonTestCompileDir = new File("X:\\cython\\");
         assertTrue(cythonTestCompileDir.isDirectory());
         FileUtils.visitDirectory(cythonTestCompileDir, true, (Path path) -> {
@@ -540,35 +545,6 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
                 + "    def b(): pass\n"
                 + "";
         compareCase(s, cython, false);
-    }
-
-    public void testGenCythonBackquote() throws Exception {
-        grammarVersionProvider = PY27_GRAMMAR_VERSION_PROVIDER;
-
-        String s = "`'Hello'`";
-        compareCase(s, s, true);
-    }
-
-    IGrammarVersionProvider PY27_GRAMMAR_VERSION_PROVIDER = new IGrammarVersionProvider() {
-
-        @Override
-        public int getGrammarVersion() throws MisconfigurationException {
-            // Note: this is used in reparseDocument but not when generating the cython ast as we call the internal implementation.
-            return IPythonNature.GRAMMAR_PYTHON_VERSION_2_7;
-        }
-
-        @Override
-        public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions() throws MisconfigurationException {
-            return null;
-        }
-
-    };
-
-    public void testGenCythonAstExec() throws Exception {
-        grammarVersionProvider = PY27_GRAMMAR_VERSION_PROVIDER;
-
-        String s = "exec 'foo' in g, f";
-        compareCase(s, s, true);
     }
 
     public void testGenCythonAstClassCDef2() throws Exception {

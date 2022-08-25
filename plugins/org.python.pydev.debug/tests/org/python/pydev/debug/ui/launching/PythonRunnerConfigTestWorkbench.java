@@ -127,7 +127,7 @@ public class PythonRunnerConfigTestWorkbench extends AbstractWorkbenchTestCase {
 
             IInterpreterManager interpreterManager = nature.getRelatedInterpreterManager();
 
-            InterpreterInfo info2 = new InterpreterInfo(IPythonNature.PYTHON_VERSION_2_6, "c:\\interpreter\\py25.exe",
+            InterpreterInfo info2 = new InterpreterInfo(IPythonNature.PYTHON_VERSION_3_8, "c:\\interpreter\\py25.exe",
                     new ArrayList<String>());
             interpreterManager.setInfos(new IInterpreterInfo[] { info, info2 }, null, null);
 

@@ -3,5 +3,5 @@
 
 
 def whateveryoulike():
-    print "whateveryoulike"
+    print("whateveryoulike")
     pass

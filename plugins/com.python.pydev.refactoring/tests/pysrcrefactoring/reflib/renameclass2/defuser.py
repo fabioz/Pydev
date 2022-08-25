@@ -1,3 +1,3 @@
-from sub1 import Definition
+from .sub1 import Definition
 
-print Definition
+print(Definition)

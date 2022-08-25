@@ -76,7 +76,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         assertEquals(TYPE_UNUSED_IMPORT, msgs[0].getType());
 
         //-----------------
-        doc = new Document("import testlib\nprint testlib");
+        doc = new Document("import testlib\nprint(testlib)");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -99,7 +99,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         //-----------------
         prefs.severityForUnusedImport = IMarker.SEVERITY_WARNING;
         prefs.severityForUnusedWildImport = IMarker.SEVERITY_WARNING;
-        sDoc = "from testlib.unittest import *\nprint TestCase";
+        sDoc = "from testlib.unittest import *\nprint(TestCase)";
         doc = new Document(sDoc);
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
@@ -115,7 +115,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         prefs.severityForUnusedImport = IMarker.SEVERITY_INFO;
         prefs.severityForUnusedWildImport = IMarker.SEVERITY_INFO;
 
-        sDoc = "from testlib.unittest import *\nprint TestCase\nprint testcase";
+        sDoc = "from testlib.unittest import *\nprint(TestCase)\nprint(testcase)";
         doc = new Document(sDoc);
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
@@ -145,24 +145,24 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     public void testSpacesAndTabsMix() throws Exception {
         doc = new Document("def a():\n" +
-                "        print 'a'\n" +
-                "\tprint 'b'\n"); //this is valid in python, but not usually wanted...
+                "        print('a')\n" +
+                "\tprint('b')\n"); //this is valid in python, but not usually wanted...
         checkError(1);
     }
 
     public void testIconsistendIndent() throws Exception {
         doc = new Document("def a():\n" +
-                "     print 'a'\n" + //5 spaces (user config == 4)
+                "     print('a')\n" + //5 spaces (user config == 4)
                 "\n" +
                 "def b():\n" +
-                "    print 'b'\n" + //ok
-                "    print 'c'\n" + //ok
+                "    print('b')\n" + //ok
+                "    print('c')\n" + //ok
                 "");
         checkError(1);
     }
 
     public void testListComp() throws Exception {
-        doc = new Document("print [a for a in range(3)][0].split()");
+        doc = new Document("print([a for a in range(3)][0].split())");
         checkNoError();
     }
 
@@ -178,7 +178,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testBuiltinsWithoutImport() {
         //to use __builtin__, it has to be imported, but
         //__builtins__ is always directly there
-        doc = new Document("print __builtins__\n" +
+        doc = new Document("print(__builtins__)\n" +
                 "\n");
         checkNoError();
     }
@@ -188,14 +188,14 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
                 "b = [1, 3]\n" +
                 "for found in [found for found in a if found not in b]:\n"
                 +
-                "    print found\n");
+                "    print(found)\n");
         checkNoError();
 
     }
 
     public void testOsPath() {
         doc = new Document("from os.path import *#@UnusedWildImport\n" +
-                "print exists\n");
+                "print(exists)\n");
         checkNoError();
 
     }
@@ -210,7 +210,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testNoUnusedWithLocals() {
         doc = new Document("def m1():\n" +
                 "    name = ''\n" +
-                "    print locals()\n");
+                "    print(locals())\n");
         checkNoError();
     }
 
@@ -239,7 +239,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         checkAug(1);
 
         doc = new Document("def m1():\n" +
-                "    print foo|1\n");
+                "    print(foo|1)\n");
         checkAug(1);
 
         doc = new Document("def m1():\n" +
@@ -306,9 +306,9 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         doc = new Document("class Foo:\n" +
                 "    x = 1\n" +
                 "    def m1(self):\n" +
-                "        print x\n" + //should access with self.x or Foo.x
-                "        print Foo.x\n" +
-                "        print self.x\n");
+                "        print(x)\n" + //should access with self.x or Foo.x
+                "        print(Foo.x)\n" +
+                "        print(self.x)\n");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -339,7 +339,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testClsInNew() {
         doc = new Document("class C2:\n" +
                 "    def __new__(cls):\n" +
-                "        print cls\n" +
+                "        print(cls)\n" +
                 "");
         checkNoError();
     }
@@ -347,7 +347,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testMsgInNew() {
         doc = new Document("class C2:\n" +
                 "    def __new__(foo):\n" +
-                "        print foo\n" +
+                "        print(foo)\n" +
                 "");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
@@ -360,7 +360,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         doc = new Document("class C2:\n" +
                 "    @str\n" +
                 "    def foo(cls):\n" +
-                "        print cls\n" +
+                "        print(cls)\n" +
                 "");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
@@ -373,13 +373,13 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
 
     public void testConsiderAsGlobals() {
-        doc = new Document("print considerGlobal");
+        doc = new Document("print(considerGlobal)");
         checkNoError();
 
     }
 
     public void testConsiderAsGlobalsWithAttributeAccess() {
-        doc = new Document("print considerGlobal.anything");
+        doc = new Document("print(considerGlobal.anything)");
         checkNoError();
 
     }
@@ -391,7 +391,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
                 "except ImportError:\n"
                 +
                 "    import StringIO as foo\n" +
-                "print foo\n" +
+                "print(foo)\n" +
                 "");
         checkNoError();
 
@@ -400,7 +400,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testUnusedImports2() {
 
         doc = new Document("from simpleimport import *\n" +
-                "print xml");
+                "print(xml)");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -528,7 +528,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         if (TestDependent.PYTHON2_WXPYTHON_PACKAGES != null) {
             //            CompiledModule.TRACE_COMPILED_MODULES = true;
             doc = new Document("from wx import glcanvas\n" +
-                    "print glcanvas.GLCanvas\n" +
+                    "print(glcanvas.GLCanvas)\n" +
                     "");
             checkNoError();
         }
@@ -636,7 +636,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testImportNotFound7() {
 
         doc = new Document("import encodings.latin_1\n" +
-                "print encodings.latin_1\n" +
+                "print(encodings.latin_1)\n" +
                 "");
         checkNoError();
     }
@@ -778,7 +778,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 
         doc = new Document("import os \n" +
                 "import os \n" +
-                "print os  \n" +
+                "print(os)  \n" +
                 "");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
@@ -814,7 +814,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testReimport5() {
 
         doc = new Document("import os \n" +
-                "print os  \n" +
+                "print(os)  \n" +
                 "import os \n" +
                 "");
         analyzer = new OccurrencesAnalyzer();
@@ -831,7 +831,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         doc = new Document("import os      \n" +
                 "def m1():      \n" +
                 "    import os  \n" +
-                "    print os   \n" +
+                "    print(os   )\n" +
                 "\n"
                 +
                 "");
@@ -849,7 +849,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         //ignore the self
         doc = new Document("class Class1:         \n" +
                 "    def met1(self, a):\n" +
-                "        print 'foo'");
+                "        print('foo')");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -880,7 +880,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         assertEquals(TYPE_UNUSED_VARIABLE, msgs[0].getType());
         assertEquals("Unused variable: a", msgs[0].getMessage());
 
-        doc = new Document("a = 1;print a");
+        doc = new Document("a = 1;print(a)");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -942,7 +942,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
                 +
                 "        result = 20\n" +
                 "    \n" +
-                "    print result   \n");
+                "    print(result   )\n");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -975,7 +975,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
                 +
                 "    except:      \n" +
                 "        c = 'b'  \n" +
-                "    print c      \n" +
+                "    print(c      )\n" +
                 "");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
@@ -992,7 +992,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
                 +
                 "    finally:     \n" +
                 "        c = 'b'  \n" +
-                "    print c      \n" +
+                "    print(c      )\n" +
                 "");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
@@ -1026,7 +1026,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         doc = new Document("def outer(show=True):     \n" +
                 "    def inner(show):      \n"
                 +
-                "        print show        \n" +
+                "        print(show        )\n" +
                 "");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
@@ -1040,7 +1040,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         doc = new Document("def outer(show=True):        \n" +
                 "    def inner(show=show):    \n"
                 +
-                "        print 'foo'          \n" +
+                "        print('foo')          \n" +
                 "");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
@@ -1053,7 +1053,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testUnusedVariable10() {
         doc = new Document("def outer(show):        \n" +
                 "    def inner(show):    \n" +
-                "        print 'foo'     \n"
+                "        print('foo')     \n"
                 +
                 "");
         analyzer = new OccurrencesAnalyzer();
@@ -1097,10 +1097,10 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testUnusedVariable7() throws Exception {
         doc = new Document("def m( a, b ):       \n" +
                 "    def m1( a, b ):  \n" +
-                "        print a, b   \n"
+                "        print(a, b)   \n"
                 +
                 "    if a:            \n" +
-                "        print 'ok'   \n" +
+                "        print('ok')   \n" +
                 "");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
@@ -1126,7 +1126,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testNotUnusedVariable3() {
         doc = new Document("def val(i):    \n" +
                 "    i = i + 1  \n" +
-                "    print i    \n" +
+                "    print(i    )\n" +
                 "");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
@@ -1151,7 +1151,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         //2 messages with token with same name
         doc = new Document("def m1():       \n" +
                 "    def m2():   \n" +
-                "        print a \n" +
+                "        print(a )\n" +
                 "    a = 10        ");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
@@ -1175,7 +1175,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         doc = new Document("class Class1:              \n" +
                 "    def __init__( self ):  \n"
                 +
-                "        print Class1       \n" +
+                "        print(Class1       )\n" +
                 "");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
@@ -1199,7 +1199,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testScopes5() {
         doc = new Document("class C:       \n" +
                 "    class I:   \n" +
-                "        print I\n" +
+                "        print(I)\n" +
                 "");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
@@ -1210,7 +1210,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     public void testScopes5a() {
         doc = new Document("class Internal:\n" +
-                "    print Internal\n" +
+                "    print(Internal)\n" +
                 "");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
@@ -1221,7 +1221,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     public void testScopes6() {
         doc = new Document("def ok():          \n" +
-                "    print col      \n" +
+                "    print(col      )\n" +
                 "def rowNotEmpty(): \n"
                 +
                 "    col = 1        \n" +
@@ -1248,7 +1248,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     public void testScopes8() {
         doc = new Document("def m1():                      \n" +
-                "    print (str(undef)).lower() \n" +
+                "    print((str(undef)).lower()) \n" +
                 "    \n" +
                 "");
         analyzer = new OccurrencesAnalyzer();
@@ -1263,7 +1263,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         doc = new Document("def m1():                      \n" +
                 "    undef = 10                 \n"
                 +
-                "    print (str(undef)).lower() \n" +
+                "    print((str(undef)).lower()) \n" +
                 "    \n" +
                 "");
         checkNoError();
@@ -1273,9 +1273,9 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testScopes10() {
         doc = new Document("class C:\n" +
                 "    def m1(self):\n" +
-                "        print m2\n" + //should give error, as we are inside the method (and not in the class scope)
+                "        print(m2)\n" + //should give error, as we are inside the method (and not in the class scope)
                 "    def m2(self):\n" +
-                "        print m1\n" + //should give error, as we are inside the method (and not in the class scope)
+                "        print(m1)\n" + //should give error, as we are inside the method (and not in the class scope)
                 "\n" +
                 "\n" +
                 "\n" +
@@ -1301,7 +1301,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     public void testVarArgs() {
         doc = new Document("def m1(*args): \n" +
-                "    print args   ");
+                "    print(args   )");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -1311,7 +1311,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testVarArgsNotUsed() {
         doc = new Document("\n" +
                 "def m1(*args): \n" +
-                "    print 'foo'  ");
+                "    print('foo')  ");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -1323,7 +1323,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     public void testKwArgs() {
         doc = new Document("def m1(**kwargs): \n" +
-                "    print kwargs    ");
+                "    print(kwargs    )");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -1334,7 +1334,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testKwArgs2() {
         doc = new Document("def m3():             \n" +
                 "    def m1(**kwargs): \n" +
-                "        print 'foo'     ");
+                "        print('foo')     ");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -1348,10 +1348,10 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testOtherScopes() {
         //2 messages with token with same name
         doc = new Document("def m1(  aeee  ): \n" +
-                "    print 'foo'   \n" +
+                "    print('foo')   \n" +
                 "def m2(  afff  ): \n"
                 +
-                "    print 'foo'     ");
+                "    print('foo')     ");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -1360,7 +1360,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     public void testUndefinedVariable() {
         //2 messages with token with same name
-        doc = new Document("print a");
+        doc = new Document("print(a)");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -1373,7 +1373,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         doc = new Document("a = 10      \n" + //global scope - does not give msg
                 "def m1():   \n" +
                 "    a = 20  \n" +
-                "    print a \n" +
+                "    print(a )\n" +
                 "\n");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
@@ -1430,10 +1430,10 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         doc = new Document("import os   \n" +
                 "            \n" +
                 "def m1():   \n" +
-                "    print os\n" +
+                "    print(os)\n" +
                 "            \n"
                 +
-                "print m1    \n");
+                "print(m1    )\n");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -1443,7 +1443,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     public void testImportAfter() {
         doc = new Document("def met():          \n" +
-                "    print os.path   \n" +
+                "    print(os.path)   \n" +
                 "import os.path      \n" +
                 "");
         analyzer = new OccurrencesAnalyzer();
@@ -1455,7 +1455,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     public void testImportAfter2() {
         doc = new Document("def met():          \n" +
-                "    print os.path   \n" +
+                "    print(os.path)   \n" +
                 "import os           \n" +
                 "");
         analyzer = new OccurrencesAnalyzer();
@@ -1467,7 +1467,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     public void testImportPartial() {
         doc = new Document("import os.path   \n" +
-                "print os         \n" +
+                "print(os         )\n" +
                 "");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
@@ -1478,7 +1478,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     public void testImportAs() {
         doc = new Document("import os.path as bla   \n" +
-                "print bla               \n" +
+                "print(bla               )\n" +
                 "");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
@@ -1489,7 +1489,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     public void testImportAs2() {
         doc = new Document("import os.path as bla   \n" +
-                "print os.path           \n" +
+                "print(os.path)           \n" +
                 "");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
@@ -1502,7 +1502,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     public void testImportAs3() {
         doc = new Document("import os.path as bla   \n" +
-                "print os                \n" +
+                "print(os                )\n" +
                 "");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
@@ -1515,7 +1515,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testAttributeImport() {
         //all ok...
         doc = new Document("import os.path      \n" +
-                "print os.path       \n" +
+                "print(os.path)       \n" +
                 "");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
@@ -1561,7 +1561,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testAttributeImportAccess() {
         //all ok...
         doc = new Document("import os           \n" +
-                "print os.path       \n" +
+                "print(os.path)       \n" +
                 "");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
@@ -1624,7 +1624,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     public void testAttributeErrorPos() {
         //all ok...
-        doc = new Document("print message().bla\n" +
+        doc = new Document("print(message().bla)\n" +
                 "");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
@@ -1680,7 +1680,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         //all ok...
         doc = new Document("class C:            \n" +
                 "    def m1(self):   \n" +
-                "        print self  \n" +
+                "        print(self  )\n" +
                 "");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
@@ -1691,7 +1691,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     public void testDefinitionLater() {
         doc = new Document("def m1():     \n" +
-                "    print m2()\n" +
+                "    print(m2())\n" +
                 "    \n" +
                 "def m2():     \n" +
                 "    pass      \n");
@@ -1720,7 +1720,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     public void testNotDefinedLater() {
         doc = new Document("def m1():     \n" +
-                "    print m2()\n" +
+                "    print(m2())\n" +
                 "    \n");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
@@ -1730,7 +1730,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     public void testNotDefinedLater2() {
         doc = new Document("def m1():     \n" +
-                "    print c   \n" +
+                "    print(c   )\n" +
                 "    c = 10    \n" +
                 "    \n");
         analyzer = new OccurrencesAnalyzer();
@@ -1740,7 +1740,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
 
     public void testUndefinedVariableBuiltin() {
-        doc = new Document("print False");
+        doc = new Document("print(False)");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -1748,7 +1748,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
 
     public void testUndefinedVariableBuiltin2() {
-        doc = new Document("print __file__" //source folder always has the builtin __file__
+        doc = new Document("print(__file__)" //source folder always has the builtin __file__
         );
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
@@ -1759,8 +1759,8 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     public void testUndefinedVariableFromBuiltinModule() {
         doc = new Document("import os\n" +
-                "print os.__file__\n" +
-                "print os.__name__\n");
+                "print(os.__file__)\n" +
+                "print(os.__name__)\n");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -1770,8 +1770,8 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     public void testUndefinedVariableFromSourceModule() {
         doc = new Document("import testlib\n" +
-                "print testlib.__file__\n" +
-                "print testlib.__name__");
+                "print(testlib.__file__)\n" +
+                "print(testlib.__name__)");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -1780,7 +1780,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
 
     public void testUndefinedVariableBuiltin3() {
-        doc = new Document("print [].__str__" //[] is a builtin
+        doc = new Document("print([].__str__)" //[] is a builtin
         );
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
@@ -1794,7 +1794,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
                 "    def m2(self):                 \n"
                 +
                 "        self.m1 = ''              \n" +
-                "        print self.m1.join('a').join('b')   \n");
+                "        print(self.m1.join('a').join('b'))   \n");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -1803,7 +1803,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
 
     public void testBuiltinAcess() {
-        doc = new Document("print file.read");
+        doc = new Document("print(open().read)");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -1813,7 +1813,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testDictAcess() {
         doc = new Document("def m1():\n" +
                 "    k = {}                   \n" +
-                "    print k[0].append(10)   ");
+                "    print(k[0].append(10))   ");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -1823,7 +1823,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     public void testAttribute1() {
         doc = new Document("def m1():\n" +
-                "    file( 10, 'r' ).read()");
+                "    open( 10, 'r' ).read()");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -1833,7 +1833,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testAttributeFloat() {
         doc = new Document("def m1():\n" +
                 "    v = 1.0.__class__\n" +
-                "    print v            ");
+                "    print(v            )");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -1844,7 +1844,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testAttributeString() {
         doc = new Document("def m1():\n" +
                 "    v = 'r'.join('a')\n" +
-                "    print v            ");
+                "    print(v            )");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -1855,7 +1855,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testAttributeString2() {
         doc = new Document("def m1():\n" +
                 "    v = 'r.a.s.b'.join('a')\n" +
-                "    print v            ");
+                "    print(v            )");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -1885,7 +1885,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     public void testTupleVar() {
         doc = new Document("def m1():\n" +
-                "    print (0,0).__class__");
+                "    print((0,0).__class__)");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -1909,7 +1909,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         doc = new Document("class C:\n" +
                 "    @classmethod\n" +
                 "    def m(cls):\n" +
-                "        print cls\n" +
+                "        print(cls)\n" +
                 "\n"
                 +
                 "\n" +
@@ -1920,7 +1920,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testClassMethodCls2() {
         doc = new Document("class C:\n" +
                 "    def m(cls):\n" +
-                "        print cls\n" +
+                "        print(cls)\n" +
                 "    m = classmethod(m)" +
                 "\n"
                 +
@@ -1971,7 +1971,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     public void testTupleVar2() {
         doc = new Document("def m1():\n" +
-                "    print (10 / 10).__class__");
+                "    print((10 / 10).__class__)");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -2022,7 +2022,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     public void testUndefinedWithTab() {
         doc = new Document("def m():\n" +
-                "\tprint a\n" +
+                "\tprint(a)\n" +
                 "\n" +
                 "");
         analyzer = new OccurrencesAnalyzer();
@@ -2058,7 +2058,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
 
     public void testUnusedParameter() {
-        doc = new Document("def a(x):print 'foo'");
+        doc = new Document("def a(x):print('foo')");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -2067,7 +2067,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
 
     public void testUnusedParameter2() {
-        doc = new Document("def a(*x):print 'foo'");
+        doc = new Document("def a(*x):print('foo')");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -2076,7 +2076,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
 
     public void testUnusedParameter3() {
-        doc = new Document("def a(**x):print 'foo'");
+        doc = new Document("def a(**x):print('foo')");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -2085,7 +2085,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
 
     public void testEmptyDict() {
-        doc = new Document("for k,v in {}.iteritmes(): print k,v");
+        doc = new Document("for k,v in {}.iteritmes(): print(k,v)");
         checkNoError();
     }
 
@@ -2093,8 +2093,8 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
         doc = new Document("def Load(self):\n" +
                 "    #Is giving Unused variable: i\n"
                 +
-                "    for i in xrange(10):    \n" +
-                "        coerce(dict[i].text.strip())\n");
+                "    for i in range(10):    \n" +
+                "        type(dict[i].text.strip())\n");
         checkNoError();
     }
 
@@ -2105,7 +2105,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
                 "    def mystery(self):\n"
                 +
                 "        for foo in range(12):\n" +
-                "            print foo\n" +
+                "            print(foo)\n" +
                 "\n");
         checkNoError();
     }
@@ -2118,13 +2118,13 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
                 "    def mystery(self):\n" +
                 "        for i in range(12):\n"
                 +
-                "            print i #should not be undefined!\n" +
+                "            print(i )#should not be undefined!\n" +
                 "\n");
         checkNoError();
     }
 
     public void testColError() {
-        doc = new Document("print function()[0].strip()");
+        doc = new Document("print(function()[0].strip())");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
 
@@ -2251,7 +2251,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     public void testNoEffectOk4() {
         doc = new Document("" +
-                "print 10 == 5\n" +
+                "print(10 == 5)\n" +
                 "");
         analyzer = new OccurrencesAnalyzer();
         msgs = analyzeDoc();
@@ -2362,10 +2362,10 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
 
     public void testNotDefinedInAlll() {
         String s = "from extendable.all_check import *\n" +
-                "print ThisDoesnt\n" +
-                "print ThisGoes\n"
+                "print(ThisDoesnt)\n" +
+                "print(ThisGoes)\n"
                 +
-                "print ThisGoesToo\n" +
+                "print(ThisGoesToo)\n" +
                 "";
 
         doc = new Document(s);
@@ -2411,9 +2411,9 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     public void testNoImportRedefinition() throws Exception {
         String s = "import extendable.all_check\n" +
                 "import extendable.all_check2\n" +
-                "print extendable.all_check\n"
+                "print(extendable.all_check)\n"
                 +
-                "print extendable.all_check2\n" +
+                "print(extendable.all_check2)\n" +
                 "";
 
         doc = new Document(s);
@@ -2807,24 +2807,6 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
 
     public void testRelativeOnPy3() throws IOException, MisconfigurationException {
-        int initial = GRAMMAR_TO_USE_FOR_PARSING;
-        try {
-            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_5;
-            analyzer = new OccurrencesAnalyzer();
-            File file = new File(TestDependent.TEST_PYSRC_TESTING_LOC +
-                    "extendable/grammar3/sub1.py");
-            Document doc = new Document(FileUtils.getFileContents(file));
-            msgs = analyzer.analyzeDocument(nature,
-                    (SourceModule) AbstractModule.createModule("extendable.grammar3.sub1", file, nature, true), prefs,
-                    doc, new NullProgressMonitor(), new TestIndentPrefs(true, 4));
-
-            printMessages(msgs, 1); //Errors in Python 3.x
-        } finally {
-            GRAMMAR_TO_USE_FOR_PARSING = initial;
-        }
-    }
-
-    public void testRelativeOnPy2() throws IOException, MisconfigurationException {
         analyzer = new OccurrencesAnalyzer();
         File file = new File(TestDependent.TEST_PYSRC_TESTING_LOC +
                 "extendable/grammar3/sub1.py");
@@ -2833,7 +2815,7 @@ public class OccurrencesAnalyzerTest extends AnalysisTestsBase {
                 (SourceModule) AbstractModule.createModule("extendable.grammar3.sub1", file, nature, true), prefs, doc,
                 new NullProgressMonitor(), new TestIndentPrefs(true, 4));
 
-        printMessages(msgs, 0); //No errors in Python 2.x
+        printMessages(msgs, 0);
     }
 
     public void testImportSelf() throws IOException, MisconfigurationException {

@@ -126,7 +126,7 @@ public class PyImportsHandlingTest extends TestCase {
 
     }
 
-    public void testPyImportHandling5a() throws Exception {
+    public void testPyImportHandling5a1() throws Exception {
         Document doc = new Document("from a\\\n.b import foo");
         PyImportsHandling importsHandling = new PyImportsHandling(doc, false);
         Iterator<ImportHandle> it = importsHandling.iterator();
@@ -138,7 +138,34 @@ public class PyImportsHandlingTest extends TestCase {
         assertEquals(1, next.endFoundLine);
 
         assertTrue(!it.hasNext());
+    }
 
+    public void testPyImportHandling5a2() throws Exception {
+        Document doc = new Document("from a\\\r\n.b import foo");
+        PyImportsHandling importsHandling = new PyImportsHandling(doc, false);
+        Iterator<ImportHandle> it = importsHandling.iterator();
+        assertTrue(it.hasNext());
+        ImportHandle next = it.next();
+
+        assertEquals("from a\\\r\n.b import foo", next.importFound);
+        assertEquals(0, next.startFoundLine);
+        assertEquals(1, next.endFoundLine);
+
+        assertTrue(!it.hasNext());
+    }
+
+    public void testPyImportHandling5a3() throws Exception {
+        Document doc = new Document("from a\\\r.b import foo");
+        PyImportsHandling importsHandling = new PyImportsHandling(doc, false);
+        Iterator<ImportHandle> it = importsHandling.iterator();
+        assertTrue(it.hasNext());
+        ImportHandle next = it.next();
+
+        assertEquals("from a\\\r.b import foo", next.importFound);
+        assertEquals(0, next.startFoundLine);
+        assertEquals(1, next.endFoundLine);
+
+        assertTrue(!it.hasNext());
     }
 
     public void testPyImportHandling6() throws Exception {

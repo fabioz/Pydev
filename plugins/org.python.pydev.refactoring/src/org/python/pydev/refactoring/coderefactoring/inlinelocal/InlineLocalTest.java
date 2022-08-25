@@ -20,7 +20,7 @@ public class InlineLocalTest extends TestCase {
         RefactoringInfo info = new RefactoringInfo(document, selection, new IGrammarVersionProvider() {
             @Override
             public int getGrammarVersion() throws MisconfigurationException {
-                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
+                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5;
             }
 
             @Override
@@ -33,7 +33,7 @@ public class InlineLocalTest extends TestCase {
 
     private void check(String contents, String expected) throws CoreException {
         IDocument document = new Document(contents);
-        ICoreTextSelection selection = new CoreTextSelection(document, document.getLength(),
+        ICoreTextSelection selection = new CoreTextSelection(document, document.getLength() - 1,
                 0);
         RefactoringInfo info = getInfo(document, selection);
         InlineLocalRefactoring refactoring = new InlineLocalRefactoring(info);
@@ -48,8 +48,8 @@ public class InlineLocalTest extends TestCase {
 
     public void testSemicolonOnString() throws OperationCanceledException, CoreException {
         String contents = "s = \"A;B\"\n" +
-                "print s";
-        String expected = "print \"A;B\"";
+                "print(s)";
+        String expected = "print(\"A;B\")";
         check(contents, expected);
     }
 
@@ -57,10 +57,10 @@ public class InlineLocalTest extends TestCase {
         String contents = "new_elem = styling(\n"
                 + "x\n"
                 + ")\n" +
-                "print new_elem";
-        String expected = "print styling(\n"
+                "print(new_elem)";
+        String expected = "print(styling(\n"
                 + "    x\n"
-                + ")";
+                + "))";
         check(contents, expected);
     }
 
@@ -68,9 +68,9 @@ public class InlineLocalTest extends TestCase {
         String contents = "new_elem = styling(\n" +
                 "    *self.convert_children(styling_in, dataset)\n" +
                 ")\n"
-                + "print new_elem";
-        String expected = "print styling(\n" +
-                "    *self.convert_children(styling_in, dataset))";
+                + "print(new_elem)";
+        String expected = "print(styling(\n" +
+                "    *self.convert_children(styling_in, dataset)\n))";
         check(contents, expected);
     }
 
@@ -78,10 +78,10 @@ public class InlineLocalTest extends TestCase {
         String contents = "new_elem = styling[\n"
                 + "x\n"
                 + "]\n" +
-                "print new_elem";
-        String expected = "print styling[\n"
+                "print(new_elem)";
+        String expected = "print(styling[\n"
                 + "    x\n"
-                + "]";
+                + "])";
         check(contents, expected);
     }
 
@@ -89,10 +89,10 @@ public class InlineLocalTest extends TestCase {
         String contents = "new_elem = {\n"
                 + "x\n"
                 + "}\n" +
-                "print new_elem";
-        String expected = "print {\n"
+                "print(new_elem)";
+        String expected = "print({\n"
                 + "    x\n"
-                + "}";
+                + "})";
         check(contents, expected);
     }
 }

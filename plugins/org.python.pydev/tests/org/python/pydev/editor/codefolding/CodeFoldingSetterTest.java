@@ -362,7 +362,7 @@ public class CodeFoldingSetterTest extends TestCase {
     }
 
     private List<FoldingEntry> getMarks(Document doc) {
-        return getMarks(doc, IPythonNature.LATEST_GRAMMAR_PY2_VERSION);
+        return getMarks(doc, IPythonNature.LATEST_GRAMMAR_PY3_VERSION);
     }
 
     private List<FoldingEntry> getMarks(Document doc, int grammarVersion) {

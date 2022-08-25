@@ -15,6 +15,7 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.NoExceptionCloseable;
 import org.python.pydev.core.TokensList;
 import org.python.pydev.core.structure.CompletionRecursionException;
+import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
 public final class CompletionStateWrapper implements ICompletionState {
@@ -135,6 +136,12 @@ public final class CompletionStateWrapper implements ICompletionState {
     }
 
     @Override
+    public void checkUnpackMemory(IModule module, String string, int beginLine, int beginColumn)
+            throws CompletionRecursionException {
+        wrapped.checkUnpackMemory(module, string, beginLine, beginColumn);
+    }
+
+    @Override
     public void checkMemory(IModule module, String base) throws CompletionRecursionException {
         wrapped.checkMemory(module, base);
     }
@@ -147,6 +154,11 @@ public final class CompletionStateWrapper implements ICompletionState {
     @Override
     public void checkWildImportInMemory(IModule current, IModule mod) throws CompletionRecursionException {
         wrapped.checkWildImportInMemory(current, mod);
+    }
+
+    @Override
+    public void checkLookForFunctionDefReturn(IModule module, ISimpleNode node) throws CompletionRecursionException {
+        wrapped.checkLookForFunctionDefReturn(module, node);
     }
 
     @Override
@@ -326,4 +338,36 @@ public final class CompletionStateWrapper implements ICompletionState {
     public NoExceptionCloseable pushLookingFor(LookingFor lookingForInstancedVariable) {
         return this.wrapped.pushLookingFor(lookingForInstancedVariable);
     }
+
+    @Override
+    public boolean isResolvingBuiltins() {
+        return this.wrapped.isResolvingBuiltins();
+    }
+
+    @Override
+    public void pushResolvingBuiltins() {
+        this.wrapped.pushResolvingBuiltins();
+    }
+
+    @Override
+    public void popResolvingBuiltins() {
+        this.wrapped.popResolvingBuiltins();
+    }
+
+    @Override
+    public void pushSkipObjectBaseCompletions() {
+        this.wrapped.pushSkipObjectBaseCompletions();
+    }
+
+    @Override
+    public void popSkipObjectBaseCompletions() {
+        this.wrapped.popSkipObjectBaseCompletions();
+    }
+
+    @Override
+    public boolean getSkipObjectBaseCompletions() {
+        return this.wrapped.getSkipObjectBaseCompletions();
+
+    }
+
 }

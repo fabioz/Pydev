@@ -1026,7 +1026,7 @@ void ImportFrom(): { int level=0; int state=0;String fromName=null;String import
 {
     //we need to set the  {grammarActions.findTokenAndAdd("import");}<IMPORT> in both otherwise the lookahead will not work as we want it to work
     //because it confuses the import with the dotted name
-     (("." {level++;} )* (fromName=dotted_name())? )  {if(fromName==null && level==0){throw new ParseException("Expecting to find '.' or name in import.");}}
+     (("." {level++;markLastImportLevelPos();} )* (fromName=dotted_name())? )  {if(fromName==null && level==0){throw new ParseException("Expecting to find '.' or name in import.");}}
      {grammarActions.findTokenAndAdd("import");}<IMPORT>
 
     (
@@ -1351,7 +1351,7 @@ void begin_except_clause(): {}
 
 //with_stmt: 'with' [(]with_item (',' with_item)*)[)]  ':' suite
 void with_stmt(): {}
-{ 
+{
 	<WITH>
     {grammarActions.addSpecialToken("with ", STRATEGY_BEFORE_NEXT); }
     (
@@ -1361,15 +1361,16 @@ void with_stmt(): {}
     	// with (some_expr as x):
     	// and in one case the parens should match the with and in the other the parens
     	// is for the expression.
+
     	// So, it's unfortunate that a lookahead for a full expression is needed, but
-    	// it's pretty much undecidable otherwise in this case as Python no longer tries 
+    	// it's pretty much undecidable otherwise in this case as Python no longer tries
     	// to keep to an LL(1) language.
 	  	LOOKAHEAD(with_item())
 	  	(
 	  		with_item()
 			({grammarActions.findTokenAndAdd(",");}<COMMA> with_item())*
 		)
-	  	| 
+	  	|
 		(
 			<LPAREN>
 			with_item()

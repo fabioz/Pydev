@@ -21,6 +21,7 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.FullRepIterable;
@@ -39,6 +40,7 @@ public abstract class AbstractToken implements IToken {
     private boolean originalHasRep;
     private ITypeInfo generatorType;
     public final IPythonNature nature;
+    private ICallback0<String> computeDocstring;
 
     public AbstractToken(String rep, String doc, String args, String parentPackage, int type, String originalRep,
             boolean originalHasRep, IPythonNature nature) {
@@ -126,11 +128,21 @@ public abstract class AbstractToken implements IToken {
         this.doc = docStr;
     }
 
+    public void setDocStrCallback(ICallback0<String> computeDocstring) {
+        this.computeDocstring = computeDocstring;
+    }
+
     /**
      * @see org.python.pydev.editor.javacodecompletion.IToken#getDocStr()
      */
     @Override
     public String getDocStr() {
+        if (doc == null || doc.length() == 0 && computeDocstring != null) {
+            if (doc == null || doc.length() == 0 && computeDocstring != null) {
+                doc = this.computeDocstring.call();
+                this.computeDocstring = null;
+            }
+        }
         return doc;
     }
 

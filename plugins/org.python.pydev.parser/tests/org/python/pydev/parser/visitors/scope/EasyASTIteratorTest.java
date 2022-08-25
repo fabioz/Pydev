@@ -80,7 +80,7 @@ public class EasyASTIteratorTest extends TestCase {
                 "";
 
         ParseOutput objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
-                IPythonNature.GRAMMAR_PYTHON_VERSION_2_5, null));
+                IPythonNature.GRAMMAR_PYTHON_VERSION_3_5, null));
         SimpleNode root = (SimpleNode) objects.ast;
         root.accept(visitor);
         Iterator<ASTEntry> iterator = visitor.getIterator();
@@ -109,7 +109,7 @@ public class EasyASTIteratorTest extends TestCase {
                 "'''             \n";
 
         ParseOutput objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
-                IPythonNature.GRAMMAR_PYTHON_VERSION_2_5, null));
+                IPythonNature.GRAMMAR_PYTHON_VERSION_3_5, null));
         SimpleNode root = (SimpleNode) objects.ast;
         root.accept(visitor);
         Iterator<ASTEntry> iterator = visitor.getIterator();
@@ -140,7 +140,7 @@ public class EasyASTIteratorTest extends TestCase {
                 "    '''           \n";
 
         ParseOutput objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
-                IPythonNature.GRAMMAR_PYTHON_VERSION_2_5, null));
+                IPythonNature.GRAMMAR_PYTHON_VERSION_3_5, null));
         SimpleNode root = (SimpleNode) objects.ast;
         root.accept(visitor);
         Iterator<ASTEntry> iterator = visitor.getIterator();
@@ -165,7 +165,7 @@ public class EasyASTIteratorTest extends TestCase {
                 "";
 
         ParseOutput objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
-                IPythonNature.GRAMMAR_PYTHON_VERSION_2_5, null));
+                IPythonNature.GRAMMAR_PYTHON_VERSION_3_5, null));
         SimpleNode root = (SimpleNode) objects.ast;
         root.accept(visitor);
         Iterator<ASTEntry> iterator = visitor.getIterator();
@@ -187,7 +187,7 @@ public class EasyASTIteratorTest extends TestCase {
                 "\n";
 
         ParseOutput objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
-                IPythonNature.GRAMMAR_PYTHON_VERSION_2_5, null));
+                IPythonNature.GRAMMAR_PYTHON_VERSION_3_5, null));
         if (objects.error != null) {
             throw new RuntimeException(objects.error);
         }
@@ -195,7 +195,7 @@ public class EasyASTIteratorTest extends TestCase {
         root.accept(visitor);
         Iterator<ASTEntry> iterator = visitor.getIterator();
         check(iterator.next(), "D", 1, 1, 4);
-        check(iterator.next(), "mmm", 5, 2, 4);
+        check(iterator.next(), "mmm", 5, 3, 4);
         assertFalse(iterator.hasNext());
 
     }
@@ -217,7 +217,7 @@ public class EasyASTIteratorTest extends TestCase {
                 "pass";
 
         ParseOutput objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
-                IPythonNature.GRAMMAR_PYTHON_VERSION_2_5, null));
+                IPythonNature.GRAMMAR_PYTHON_VERSION_3_5, null));
         SimpleNode root = (SimpleNode) objects.ast;
         root.accept(visitor);
         Iterator<ASTEntry> iterator = visitor.getIterator();

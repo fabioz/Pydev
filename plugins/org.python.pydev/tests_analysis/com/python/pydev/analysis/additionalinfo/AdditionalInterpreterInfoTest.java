@@ -406,7 +406,7 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
 
     private void checkItertoolsToken(AbstractAdditionalDependencyInfo additionalSystemInfo, boolean expect) {
         Collection<IInfo> tokensStartingWith;
-        tokensStartingWith = additionalSystemInfo.getTokensStartingWith("izip_longest",
+        tokensStartingWith = additionalSystemInfo.getTokensStartingWith("zip_longest",
                 AbstractAdditionalTokensInfo.TOP_LEVEL);
         if (expect) {
             assertEquals(1, tokensStartingWith.size());

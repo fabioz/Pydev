@@ -12,6 +12,7 @@ import java.util.List;
 import org.python.pydev.parser.PyParserTestBase;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
+import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
@@ -48,13 +49,20 @@ public class NodeUtilsTest extends PyParserTestBase {
         exprType callAttr = NodeUtils.makeAttribute("a.b.c.d()");
         assertEquals(((Expr) node.body[0]).value.toString(), callAttr.toString());
 
+        SimpleNode ast = parseLegalDocStr("print(a.b.c().d.__class__)");
         SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor
-                .create(parseLegalDocStr("print a.b.c().d.__class__"));
+                .create(ast);
 
         Iterator<ASTEntry> iterator = visitor.getIterator();
-        iterator.next(); //Module
-        iterator.next(); //Print
-        ASTEntry entry = iterator.next(); //Attribute
+        ASTEntry entry = null;
+        int i = 0;
+        while (entry == null || !(entry.node instanceof Attribute)) {
+            i += 1;
+            entry = iterator.next();
+            if (i > 30) {
+                throw new AssertionError("Didn't find Attribute iterating in: " + ast);
+            }
+        }
         assertEquals("a.b.c", NodeUtils.getFullRepresentationString(entry.node));
 
         visitor = SequencialASTIteratorVisitor.create(parseLegalDocStr("'r.a.s.b'.join('a')"));
@@ -64,11 +72,12 @@ public class NodeUtilsTest extends PyParserTestBase {
         entry = iterator.next(); //Attribute
         assertEquals("str.join", NodeUtils.getFullRepresentationString(entry.node));
 
-        visitor = SequencialASTIteratorVisitor.create(parseLegalDocStr("print aa.bbb.cccc[comp.id].hasSimulate"));
+        visitor = SequencialASTIteratorVisitor.create(parseLegalDocStr("print(aa.bbb.cccc[comp.id].hasSimulate)"));
         iterator = visitor.getIterator();
-        iterator.next(); //Module
-        iterator.next(); //Expr
-        entry = iterator.next(); //Attribute
+        entry = null;
+        while (entry == null || !(entry.node instanceof Attribute)) {
+            entry = iterator.next();
+        }
         assertEquals("aa.bbb.cccc", NodeUtils.getFullRepresentationString(entry.node));
     }
 
@@ -99,7 +108,7 @@ public class NodeUtilsTest extends PyParserTestBase {
                 "\n" +
                 "if __name__ == '__main__':\n"
                 +
-                "    print 'step 1'\n" +
+                "    print('step 1')\n" +
                 "\n");
 
         SimpleNode ast2 = parseLegalDocStr("" +
@@ -108,7 +117,7 @@ public class NodeUtilsTest extends PyParserTestBase {
                 "\n" +
                 "if __name__ == '__main__':\n"
                 +
-                "    print 'step 1'\n" +
+                "    print('step 1')\n" +
                 "\n" +
                 "#comment");
 
@@ -126,7 +135,7 @@ public class NodeUtilsTest extends PyParserTestBase {
                 "    a = 10\n"
                 +
                 "    i = 20\n" +
-                "    print 'here'\n" +
+                "    print('here')\n" +
                 "  \n" +
                 "if __name__ == '__main__':\n" +
                 "  Simple().m1()\n"
@@ -144,34 +153,34 @@ public class NodeUtilsTest extends PyParserTestBase {
                 +
                 "		i = 20 \n" +
                 "		for i in range(3):  \n" +
-                "			print 'here in for'  \n"
+                "			print('here in for')  \n"
                 +
                 "			for j in range(3):  \n" +
-                "				print 'here in nested for'  \n" +
+                "				print('here in nested for')  \n" +
                 "		x = 1  \n"
                 +
-                "		print 'm1 Ends Here' \n" +
+                "		print('m1 Ends Here') \n" +
                 " \n" +
                 "	def m2(self): \n" +
-                "	 	print 'method m2 started' \n"
+                "	 	print('method m2 started') \n"
                 +
                 "		i = 0  \n" +
                 "		try:  \n" +
-                "			print 'inside try'  \n" +
+                "			print('inside try')  \n" +
                 "			while i < 5:  \n" +
                 "				i += 1  \n"
                 +
                 "		except:  \n" +
-                "			print 'inside exception'  \n" +
+                "			print('inside exception')  \n" +
                 "		a = 30 \n" +
                 "		i = 40 \n"
                 +
-                "		print 'here' \n" +
+                "		print('here') \n" +
                 " \n" +
                 "firstName = 'Hussain'  \n" +
                 "lastName = 'Bohra'  \n"
                 +
-                "print '%s, %s in Global Context'%(lastName, firstName)  \n" +
+                "print('%s, %s in Global Context'%(lastName, firstName))  \n" +
                 "if __name__ == '__main__': \n"
                 +
                 "	Simple().m1() \n");

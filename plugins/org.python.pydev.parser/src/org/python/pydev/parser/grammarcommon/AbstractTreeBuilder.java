@@ -8,11 +8,8 @@ package org.python.pydev.parser.grammarcommon;
 
 import java.util.ArrayList;
 
-import org.python.pydev.core.log.Log;
-import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.jython.Token;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.AugAssign;
@@ -704,20 +701,12 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
             nT = makeNameTok(NameTok.ImportModule);
         } else {
             nT = new NameTok("", NameTok.ImportModule);
-            Object temporaryTok = this.stack.getGrammar().temporaryToken;
-            ISpecialStr temporaryToken;
-            if (temporaryTok instanceof ISpecialStr) {
-                temporaryToken = (ISpecialStr) temporaryTok;
-            } else {
-                //must be a Token
-                temporaryToken = ((Token) temporaryTok).asSpecialStr();
-            }
-            if (temporaryToken.toString().equals("from")) {
-                nT.beginColumn = temporaryToken.getBeginCol();
-                nT.beginLine = temporaryToken.getBeginLine();
-            } else {
-                Log.log("Expected to find 'from' token as the current temporary token (begin col/line can be wrong)!");
-            }
+            // If it's an empty token it must be something as: from . import XXX
+            AbstractPythonGrammar grammar = stack.getGrammar();
+            int lastLevelImportCol = grammar.getLastLevelImportCol();
+            int lastLevelImportLine = grammar.getLastLevelImportLine();
+            nT.beginColumn = lastLevelImportCol;
+            nT.beginLine = lastLevelImportLine;
         }
         return new ImportFrom(nT, aliastL.toArray(new aliasType[0]), 0);
     }

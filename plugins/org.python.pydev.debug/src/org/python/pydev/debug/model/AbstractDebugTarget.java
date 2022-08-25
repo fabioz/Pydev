@@ -825,13 +825,17 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
 
     private IFile resourceAdapter;
 
+    public void initialize() {
+        this.initialize(true);
+    }
+
     /**
      * Called after debugger has been connected.
      *
      * Here we send all the initialization commands
      * and exceptions on which pydev debugger needs to break
      */
-    public void initialize() {
+    public void initialize(boolean fullInitialize) {
         // we post version command just for fun
         // it establishes the connection
         this.postCommand(new VersionCommand(this));
@@ -839,20 +843,21 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
 
         this.sendPathMappingsCommand(false);
 
-        // now, register all the breakpoints in all projects
-        addBreakpointsFor(ResourcesPlugin.getWorkspace().getRoot());
+        if (fullInitialize) {
+            // now, register all the breakpoints in all projects
+            addBreakpointsFor(ResourcesPlugin.getWorkspace().getRoot());
 
-        // Sending python exceptions and property trace state before sending run command
-        this.onSetConfiguredExceptions();
-        this.onSetPropertyTraceConfiguration();
-        this.onUpdateIgnoreThrownExceptions();
-        this.sendSetDjangoExceptionBreakpointCommand();
-        this.sendSetJinja2ExceptionBreakpointCommand();
-        this.sendDontTraceEnabledCommand();
-        this.sendShowReturnValuesEnabledCommand();
-
-        IPreferenceStore pyPrefsStore = PydevPlugin.getDefault().getPreferenceStore();
-        pyPrefsStore.addPropertyChangeListener(listener);
+            // Sending python exceptions and property trace state before sending run command
+            this.onSetConfiguredExceptions();
+            this.onSetPropertyTraceConfiguration();
+            this.onUpdateIgnoreThrownExceptions();
+            this.sendSetDjangoExceptionBreakpointCommand();
+            this.sendSetJinja2ExceptionBreakpointCommand();
+            this.sendDontTraceEnabledCommand();
+            this.sendShowReturnValuesEnabledCommand();
+            IPreferenceStore pyPrefsStore = PydevPlugin.getDefault().getPreferenceStore();
+            pyPrefsStore.addPropertyChangeListener(listener);
+        }
 
         // Send the run command, and we are off
         RunCommand run = new RunCommand(this);

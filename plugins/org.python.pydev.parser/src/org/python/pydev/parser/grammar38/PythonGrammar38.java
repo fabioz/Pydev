@@ -3451,7 +3451,7 @@ public final class PythonGrammar38 extends AbstractPythonGrammar implements/*@bg
           break label_14;
         }
         jj_consume_token(DOT);
-            level++;
+            level++;markLastImportLevelPos();
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case ASYNC:
@@ -3463,7 +3463,7 @@ public final class PythonGrammar38 extends AbstractPythonGrammar implements/*@bg
         jj_la1[70] = jj_gen;
         ;
       }
-                                                       if(fromName==null && level==0){{if (true) throw new ParseException("Expecting to find '.' or name in import.");}}
+                                                                                if(fromName==null && level==0){{if (true) throw new ParseException("Expecting to find '.' or name in import.");}}
       grammarActions.findTokenAndAdd("import");
       jj_consume_token(IMPORT);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {

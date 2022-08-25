@@ -1,1 +1,1 @@
-from importer2 import submod1
+from .importer2 import submod1

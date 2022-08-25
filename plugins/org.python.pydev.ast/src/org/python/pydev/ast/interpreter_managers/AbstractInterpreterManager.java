@@ -138,11 +138,8 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
             InterpreterInfo interpreterInfo = this.getInterpreterInfo(projectInterpreterName, null);
             ISystemModulesManager modulesManager = interpreterInfo.getModulesManager();
 
-            mod = modulesManager.getBuiltinModule("__builtin__", false, moduleRequest);
-            if (mod == null) {
-                //Python 3.0 has builtins and not __builtin__
-                mod = modulesManager.getBuiltinModule("builtins", false, moduleRequest);
-            }
+            //Python 3.0 has builtins and not __builtin__
+            mod = modulesManager.getBuiltinModule("builtins", false, moduleRequest);
             if (mod != null) {
                 builtinMod.put(cacheName, mod);
             }

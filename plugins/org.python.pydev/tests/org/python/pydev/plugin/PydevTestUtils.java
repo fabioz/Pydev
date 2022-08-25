@@ -13,22 +13,23 @@ import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.shared_core.io.FileUtils;
 
-/**
- * @author fabioz
- *
- */
 public class PydevTestUtils {
+
+    private final static boolean ERASE_TEST_DATA_CACHES = false;
 
     public static File setTestPlatformStateLocation() {
         if (CorePlugin.pydevStatelocation != null) {
             return CorePlugin.pydevStatelocation;
         }
         File baseDir = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC, "data_temporary_for_testing");
-        try {
-            FileUtils.deleteDirectoryTree(baseDir);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (ERASE_TEST_DATA_CACHES) {
+            try {
+                FileUtils.deleteDirectoryTree(baseDir);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
+        baseDir.mkdirs();
         CorePlugin.pydevStatelocation = baseDir;
         return baseDir;
     }

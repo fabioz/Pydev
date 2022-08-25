@@ -274,9 +274,9 @@ public class CompletionParticipantBuiltinsTest extends AdditionalInfoTestsBase {
         s = "" +
                 "def test_it(my_fixture_b)\n" +
                 "    my_fixture_b.";
-        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "method1()", "method2()" });
-        // Only B completions (method1, method2, __repr__, __str__, etc.)
-        assertTrue(comps.length <= 21);
+
+        // Only B completions
+        requestCompl(s, s.length(), 2, new String[] { "method1()", "method2()" });
     }
 
     public void testUsePyTestYieldFixture() throws Exception {
@@ -285,9 +285,8 @@ public class CompletionParticipantBuiltinsTest extends AdditionalInfoTestsBase {
         s = "" +
                 "def test_it(my_fixture_c)\n" +
                 "    my_fixture_c.";
-        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "method3()", "method4()" });
-        // Only C completions (method3, method4, __repr__, __str__, etc.)
-        assertTrue(comps.length <= 21);
+        // Only C completions
+        requestCompl(s, s.length(), 2, new String[] { "method3()", "method4()" });
     }
 
 }

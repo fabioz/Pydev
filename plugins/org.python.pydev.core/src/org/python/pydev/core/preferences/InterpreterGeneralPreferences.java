@@ -25,7 +25,7 @@ public class InterpreterGeneralPreferences {
     public final static boolean DEFAULT_UPDATE_INTERPRETER_INFO_ON_FILESYSTEM_CHANGES = true;
 
     public static final String USE_TYPESHED = "USE_TYPESHED";
-    public final static boolean DEFAULT_USE_TYPESHED = false;
+    public final static boolean DEFAULT_USE_TYPESHED = true;
 
     public static boolean getCheckConsistentOnStartup() {
         return PydevPrefs.getEclipsePreferences().getBoolean(CHECK_CONSISTENT_ON_STARTUP,

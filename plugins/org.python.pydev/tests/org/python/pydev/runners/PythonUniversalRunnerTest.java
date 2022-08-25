@@ -39,7 +39,7 @@ public class PythonUniversalRunnerTest extends CodeCompletionTestsBase {
         AbstractRunner runner = UniversalRunner.getRunner(nature);
         assertEquals(nature.getInterpreterType(), IPythonNature.INTERPRETER_TYPE_PYTHON);
         Tuple<String, String> output = runner.runCodeAndGetOutput(
-                "import sys\nprint 'test'\nprint >> sys.stderr, 'err'", null, null, new NullProgressMonitor());
+                "import sys\nprint('test')\nprint('err', file=sys.stderr)", null, null, new NullProgressMonitor());
         assertEquals("test", output.o1.trim());
         assertEquals("err", output.o2.trim());
 

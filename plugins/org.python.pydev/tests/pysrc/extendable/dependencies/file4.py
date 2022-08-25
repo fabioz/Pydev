@@ -1,1 +1,1 @@
-from file2 import * #generates dependency only if the module itself is removed, because we use no other tokens
+from .file2 import * #generates dependency only if the module itself is removed, because we use no other tokens

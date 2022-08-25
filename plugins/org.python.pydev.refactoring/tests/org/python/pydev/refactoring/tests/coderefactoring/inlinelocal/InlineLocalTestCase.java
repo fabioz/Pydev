@@ -12,11 +12,11 @@
 * Contributors:
 *     Fabio Zadrozny <fabiofz@gmail.com> - initial implementation
 ******************************************************************************/
-/* 
+/*
  * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  *
  * IFS Institute for Software, HSR Rapperswil, Switzerland
- * 
+ *
  */
 
 package org.python.pydev.refactoring.tests.coderefactoring.inlinelocal;
@@ -52,7 +52,7 @@ public class InlineLocalTestCase extends AbstractIOTestCase {
 
             @Override
             public int getGrammarVersion() throws MisconfigurationException {
-                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
+                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5;
             }
 
             @Override

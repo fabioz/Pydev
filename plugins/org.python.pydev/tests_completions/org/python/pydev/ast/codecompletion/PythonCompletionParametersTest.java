@@ -10,7 +10,6 @@
  */
 package org.python.pydev.ast.codecompletion;
 
-import org.python.pydev.ast.codecompletion.PyCodeCompletion;
 import org.python.pydev.ast.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.ast.codecompletion.revisited.modules.CompiledModule;
 

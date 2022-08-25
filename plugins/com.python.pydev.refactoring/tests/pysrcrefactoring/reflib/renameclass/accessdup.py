@@ -1,3 +1,3 @@
-from duprenfoo import RenFoo
+from .duprenfoo import RenFoo
 
-print RenFoo
+print(RenFoo)

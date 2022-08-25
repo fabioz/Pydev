@@ -18,16 +18,17 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Index;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
 
-public class ClassDefTokensExtractor {
-    private ClassDef classDef;
-    private String classRep;
-    private SourceModule module;
-    private ICompletionState initialState;
+public final class ClassDefTokensExtractor {
+    private final ClassDef classDef;
+    private final String classRep;
+    private final SourceModule module;
+    private final ICompletionState initialState;
 
     public ClassDefTokensExtractor(ClassDef classDef, SourceModule module, ICompletionState initialState) {
         this.classDef = classDef;
@@ -43,15 +44,22 @@ public class ClassDefTokensExtractor {
     public TokensList getTokens(ICodeCompletionASTManager manager) {
         List<IToken> globalModelVisitorTokens = GlobalModelVisitor.getTokens(classDef, GlobalModelVisitor.INNER_DEFS,
                 this.module.getName(), initialState, false, this.module.getNature());
-
         TokensList classTokens = new TokensList(globalModelVisitorTokens);
         try {
-            for (int j = 0; j < classDef.bases.length; j++) {
-                TokensList completions = getCompletionsForBase(manager, classDef.bases[j]);
-                classTokens.addAll(completions);
+
+            initialState.pushSkipObjectBaseCompletions();
+            try {
+                for (int j = 0; j < classDef.bases.length; j++) {
+                    classTokens.addAll(getCompletionsForBase(manager, classDef.bases[j]));
+                }
+            } finally {
+                initialState.popSkipObjectBaseCompletions();
             }
-            TokensList assignmentClassTokens = getAssignmentTokens();
-            classTokens.addAll(assignmentClassTokens);
+
+            // i.e.: Always derived from object by default...
+            classTokens.addAll(getCompletionsForBase(manager, new Name("object", NameTok.ClassName, false)));
+
+            classTokens.addAll(getAssignmentTokens());
         } catch (CompletionRecursionException e) {
             // let's return what we have so far...
         }
@@ -65,6 +73,14 @@ public class ClassDefTokensExtractor {
         if (baseNode instanceof Name) {
             Name n = (Name) baseNode;
             String base = n.id;
+            if (classRep != null && classRep.equals(base)) {
+                return null;
+            }
+            if (initialState.getSkipObjectBaseCompletions()) {
+                if ("object".equals(base)) {
+                    return null;
+                }
+            }
             //An error in the programming might result in an error.
             //
             //e.g. The case below results in a loop.
@@ -87,6 +103,9 @@ public class ClassDefTokensExtractor {
         } else if (baseNode instanceof Attribute) {
             Attribute attr = (Attribute) baseNode;
             String s = NodeUtils.getFullRepresentationString(attr);
+            if (classRep != null && classRep.equals(s)) {
+                return null;
+            }
 
             state = initialState.getCopy();
             state.setActivationToken(s);
@@ -95,11 +114,15 @@ public class ClassDefTokensExtractor {
             TokensList tokens = new TokensList();
             Subscript subscript = (Subscript) baseNode;
             String subscriptValue = NodeUtils.getFullRepresentationString(subscript.value);
-            tokens.addAll(getCompletionsForValue(manager, initialState, subscriptValue));
+            if (classRep == null || !classRep.equals(subscriptValue)) {
+                tokens.addAll(getCompletionsForValue(manager, initialState, subscriptValue));
+            }
             if (subscript.slice instanceof Index) {
                 Index index = (Index) subscript.slice;
                 String subscriptSlice = NodeUtils.getFullRepresentationString(index.value);
-                tokens.addAll(getCompletionsForValue(manager, initialState, subscriptSlice));
+                if (classRep == null || !classRep.equals(subscriptSlice)) {
+                    tokens.addAll(getCompletionsForValue(manager, initialState, subscriptSlice));
+                }
             }
             if (tokens.size() > 0) {
                 return tokens;
@@ -114,17 +137,14 @@ public class ClassDefTokensExtractor {
             ICompletionState copiedState = state.getCopy();
             state.checkMemory(this.module, value);
             copiedState.setActivationToken(value);
-            TokensList tokens = manager.getCompletionsForModule(this.module, copiedState);
-            if (tokens != null) {
-                return tokens;
-            }
+            return manager.getCompletionsForModule(this.module, copiedState);
         }
-        return new TokensList();
+        return null;
     }
 
     private TokensList getAssignmentTokens() {
         if (classRep == null) {
-            return new TokensList();
+            return null;
         }
 
         stmtType[] body;
@@ -181,7 +201,7 @@ public class ClassDefTokensExtractor {
         if (attributeParts.size() > 1) {
             SimpleNode first = attributeParts.get(0);
             String firstRep = NodeUtils.getFullRepresentationString(first);
-            if (classRep.equals(firstRep)) {
+            if (classRep != null && classRep.equals(firstRep)) {
                 return Optional.of(attributeParts.get(1));
             }
         }

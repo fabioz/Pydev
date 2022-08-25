@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -370,7 +371,9 @@ public abstract class TextEditCreation {
         //occurrences = sortOccurrences(occurrences);
 
         FastStringBuffer entryBuf = new FastStringBuffer();
-        for (ASTEntry entry : occurrences) {
+
+        for (Iterator<ASTEntry> it = occurrences.iterator(); it.hasNext();) {
+            ASTEntry entry = it.next();
             entryBuf.clear();
 
             Integer loc = (Integer) entry.getAdditionalInfo(AstEntryScopeAnalysisConstants.AST_ENTRY_FOUND_LOCATION, 0);
