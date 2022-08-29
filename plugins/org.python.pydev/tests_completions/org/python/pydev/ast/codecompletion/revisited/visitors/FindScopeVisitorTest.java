@@ -18,6 +18,7 @@ import org.python.pydev.core.ITypeInfo;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.PyParserTestBase;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.shared_core.model.ISimpleNode;
 
@@ -99,17 +100,17 @@ public class FindScopeVisitorTest extends PyParserTestBase {
         assertTrue(!iterator.hasNext());
     }
 
-    // public void testFindLocalScope5() throws Exception {
-    //     String s = "class A:\n" +
-    //             "    def method1(self, *args, **kwargs):\n" +
-    //             "        pass";
-    //     ILocalScope localScope = findLocalScope(s, 3, 8);
-    //     Iterator<ISimpleNode> iterator = localScope.iterator();
-    //     assertTrue("Found: " + localScope, iterator.next() instanceof FunctionDef);
-    //     assertTrue(iterator.next() instanceof ClassDef);
-    //     assertTrue(iterator.next() instanceof org.python.pydev.parser.jython.ast.Module);
-    //     assertTrue(!iterator.hasNext());
-    // }
+    public void testFindLocalScope5() throws Exception {
+        String s = "class A:\n" +
+                "    def method1(self, *args, **kwargs):\n" +
+                "        pass";
+        ILocalScope localScope = findLocalScope(s, 3, 8);
+        Iterator<ISimpleNode> iterator = localScope.iterator();
+        assertTrue("Found: " + localScope, iterator.next() instanceof FunctionDef);
+        assertTrue(iterator.next() instanceof ClassDef);
+        assertTrue(iterator.next() instanceof org.python.pydev.parser.jython.ast.Module);
+        assertTrue(!iterator.hasNext());
+    }
 
     public void testFindLocalScope4() throws Exception {
         String s;

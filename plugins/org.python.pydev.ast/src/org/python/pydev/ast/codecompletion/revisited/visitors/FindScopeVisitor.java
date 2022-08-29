@@ -11,6 +11,10 @@
  */
 package org.python.pydev.ast.codecompletion.revisited.visitors;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -20,6 +24,7 @@ import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.structure.FastStack;
 
 /**
@@ -52,6 +57,8 @@ public class FindScopeVisitor extends AbstractVisitor {
      */
     private int col;
 
+    private ISimpleNode lastDef;
+
     /**
      * Only for subclasses
      */
@@ -81,11 +88,7 @@ public class FindScopeVisitor extends AbstractVisitor {
         if (!found && !(node instanceof Module || node instanceof Pass)) {
             if (line <= node.beginLine) {
                 //scope is locked at this time.
-                found = true;
-                int original = scope.getIfMainLine();
-                scope = new LocalScope(nature, this.stackScope.createCopy());
-                scope.setIfMainLine(original);
-                scope.setFoundAtASTNode(node);
+                onScopeFound(node);
             }
         } else {
             if (scope.getScopeEndLine() == -1 && line < node.beginLine && col >= node.beginColumn) {
@@ -93,6 +96,17 @@ public class FindScopeVisitor extends AbstractVisitor {
             }
         }
         return node;
+    }
+
+    /**
+     * @param node
+     */
+    private void onScopeFound(SimpleNode node) {
+        found = true;
+        int original = scope.getIfMainLine();
+        scope = new LocalScope(nature, this.stackScope.createCopy());
+        scope.setIfMainLine(original);
+        scope.setFoundAtASTNode(node);
     }
 
     /**
@@ -128,6 +142,7 @@ public class FindScopeVisitor extends AbstractVisitor {
     @Override
     public Object visitClassDef(ClassDef node) throws Exception {
         if (!found) {
+            this.lastDef = node;
             stackScope.push(node);
             node.traverse(this);
             stackScope.pop();
@@ -141,6 +156,7 @@ public class FindScopeVisitor extends AbstractVisitor {
     @Override
     public Object visitFunctionDef(FunctionDef node) throws Exception {
         if (!found) {
+            this.lastDef = node;
             stackScope.push(node);
             node.traverse(this);
             stackScope.pop();
@@ -151,6 +167,24 @@ public class FindScopeVisitor extends AbstractVisitor {
     @Override
     public Object visitModule(Module node) throws Exception {
         stackScope.push(node);
-        return super.visitModule(node);
+        super.visitModule(node);
+        if (!found && col > 1) {
+            // If it wasn't found, keep the last opened scope.
+            if (this.lastDef != null) {
+                SimpleNode n = (SimpleNode) this.lastDef;
+                List<SimpleNode> lst = new ArrayList<>(3);
+                while (n != null && !(n instanceof Module)) {
+                    lst.add(n);
+                    n = n.parent;
+                }
+                Collections.reverse(lst);
+                for (SimpleNode n1 : lst) {
+                    stackScope.push(n1);
+                }
+                onScopeFound(null);
+            }
+        }
+
+        return null;
     }
 }
