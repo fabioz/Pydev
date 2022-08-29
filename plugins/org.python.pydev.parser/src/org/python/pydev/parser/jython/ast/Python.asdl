@@ -25,7 +25,7 @@ module Python
 	--with item because the With() construct may have multiple items in the same construct in python 3.1
 	WithItem = WithItem(expr context_expr, expr? optional_vars)
 
-	stmt = FunctionDef(NameTok name, arguments args, stmt* body, decorators* decs, expr? returns, bool? async)
+	stmt = FunctionDef(decorators* decs, NameTok name, arguments args, expr? returns, stmt* body, bool? async)
 	      | ClassDef(NameTok name, expr* bases, stmt* body, decorators* decs, keyword* keywords, expr? starargs, expr? kwargs)
 	      | Return(expr? value)
 
@@ -60,7 +60,7 @@ module Python
 	      | NonLocal(NameTok* names, expr? value)
 	      | Expr(expr value)
 	      | Pass | Break | Continue
-	      
+
 	      | Match(expr subject, match_case* cases)
 
 	      -- XXX Jython will be different
@@ -154,7 +154,7 @@ module Python
 
     -- keyword arguments supplied to call
     keyword = (NameTok arg, expr value, bool afterstarargs)
-    
+
     -- import name with optional 'as' alias.
     alias = (NameTok name, NameTok? asname)
 
@@ -164,11 +164,11 @@ module Python
 	decorators = (expr func, expr* args, keyword* keywords, expr? starargs, expr? kwargs, bool? isCall)
 
 	comment = (identifier id)
-	
+
 	match_case = (pattern pattern, expr? guard, stmt* body)
-	
+
 	enclosing = LIST | TUPLE
-	
+
 	pattern = MatchValue(expr value)
             | MatchSequence(pattern* patterns, enclosing enclosing)
             | MatchMapping(expr* keys, pattern* values)

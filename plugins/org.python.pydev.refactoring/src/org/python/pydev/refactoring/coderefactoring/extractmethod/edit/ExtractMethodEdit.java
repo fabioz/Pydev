@@ -14,12 +14,12 @@
 * Contributors:
 *     Fabio Zadrozny <fabiofz@gmail.com> - initial implementation
 ******************************************************************************/
-/* 
+/*
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
  * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  *
  * IFS Institute for Software, HSR Rapperswil, Switzerland
- * 
+ *
  */
 
 package org.python.pydev.refactoring.coderefactoring.extractmethod.edit;
@@ -38,6 +38,7 @@ import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
 import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
@@ -96,8 +97,8 @@ public class ExtractMethodEdit extends AbstractInsertEdit {
         argumentsType args = new argumentsType(argsList.toArray(new exprType[0]), null, null, null, null, null, null,
                 null, null, null);
 
-        FunctionDef extractedMethod = new FunctionDef(new NameTok(methodName, NameTok.FunctionName), args,
-                body.toArray(new stmtType[0]), null, null, false);
+        FunctionDef extractedMethod = PyAstFactory.createFunctionDefFull(new NameTok(methodName, NameTok.FunctionName),
+                args, body.toArray(new stmtType[0]), null, null, false);
         return extractedMethod;
     }
 

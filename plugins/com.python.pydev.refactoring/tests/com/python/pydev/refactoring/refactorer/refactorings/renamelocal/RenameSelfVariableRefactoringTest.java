@@ -29,14 +29,14 @@ public class RenameSelfVariableRefactoringTest extends RefactoringLocalTestBase 
                 "    def m1(self):\n" +
                 "        self.%s = 1\n"
                 +
-                "        print self.%s\n" +
+                "        print(self.%s)\n" +
                 "    def m2(self):\n" +
-                "        print self.%s\n" +
+                "        print(self.%s)\n" +
                 "class Bar:\n"
                 +
                 "    def m3(self):\n" +
                 "        self.%s = 1\n" +
-                "        print self.%s\n" +
+                "        print(self.%s)\n" +
                 "\n" +
                 "";
         int line = 3;
@@ -50,10 +50,10 @@ public class RenameSelfVariableRefactoringTest extends RefactoringLocalTestBase 
                 "class Foo:\n" +
                 "    def m1(self):\n" +
                 "        self.%s = 1\n" +
-                "        print self.%s\n"
+                "        print(self.%s)\n"
                 +
                 "    def m2(self):\n" +
-                "        print self.%s\n" +
+                "        print(self.%s)\n" +
                 "";
         int line = 3;
         int col = 20;
@@ -64,7 +64,7 @@ public class RenameSelfVariableRefactoringTest extends RefactoringLocalTestBase 
         String str = "" +
                 "class Foo:\n" +
                 "    def %s(self):\n" +
-                "        print self.%s()\n" +
+                "        print(self.%s())\n" +
                 "";
         int line = 2;
         int col = 19;
@@ -75,7 +75,7 @@ public class RenameSelfVariableRefactoringTest extends RefactoringLocalTestBase 
         String str = "" +
                 "class Foo:\n" +
                 "    def %s(self):\n" +
-                "        print self.%s()\n" +
+                "        print(self.%s())\n" +
                 "";
         int line = 1;
         int col = 9;
@@ -86,7 +86,7 @@ public class RenameSelfVariableRefactoringTest extends RefactoringLocalTestBase 
         String str = "" +
                 "class Foo:\n" +
                 "    def %s(self):\n" +
-                "        print self.%s()\n"
+                "        print(self.%s())\n"
                 +
                 "    %s = staticmethod(%s)" +
                 "";
@@ -129,9 +129,9 @@ public class RenameSelfVariableRefactoringTest extends RefactoringLocalTestBase 
                 "class Foo:\n" +
                 "    def %s(self):\n" +
                 "        m1 = 10\n" +
-                "        print m1\n"
+                "        print(m1)\n"
                 +
-                "        print self.%s\n" +
+                "        print(self.%s)\n" +
                 "";
         int line = 1;
         int col = 9;
@@ -143,9 +143,9 @@ public class RenameSelfVariableRefactoringTest extends RefactoringLocalTestBase 
                 "class Foo:\n" +
                 "    def m1(self):\n" +
                 "        %s = 10\n" +
-                "        print %s\n"
+                "        print(%s)\n"
                 +
-                "        print self.m1\n" +
+                "        print(self.m1)\n" +
                 "";
         int line = 2;
         int col = 9;

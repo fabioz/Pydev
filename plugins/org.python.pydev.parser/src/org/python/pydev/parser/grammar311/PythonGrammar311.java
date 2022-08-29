@@ -28,6 +28,7 @@ import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.modType;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.parser.jython.ISpecialStr;
 
 import org.python.pydev.parser.jython.ast.Await;
 import org.python.pydev.parser.jython.ast.Expr;
@@ -391,7 +392,7 @@ public final class PythonGrammar311 extends AbstractPythonGrammar implements/*@b
         jj_la1[3] = jj_gen;
         ;
       }
-                                                                                                                                                                               grammarActions.findTokenAndAdd(":");
+                                                                                                                                                                               ISpecialStr s = grammarActions.findTokenAndAdd(":"); if(s != null){grammarActions.markEndDefColon(s, jjtn000);}
       jj_consume_token(COLON);
       suite();
     } catch (Throwable jjte000) {
@@ -9698,7 +9699,7 @@ else
         jj_la1[197] = jj_gen;
         ;
       }
-                                                                                                                                                                                                                                                                                                                               grammarActions.findTokenAndAdd(":");
+                                                                                                                                                                                                                                                                                                                               ISpecialStr s = grammarActions.findTokenAndAdd(":"); if(s != null){grammarActions.markEndDefColon(s, jjtn000);}
       jj_consume_token(COLON);
       suite();
     } catch (Throwable jjte000) {

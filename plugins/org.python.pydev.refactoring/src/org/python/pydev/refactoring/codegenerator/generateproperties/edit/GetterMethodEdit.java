@@ -15,19 +15,18 @@
 *     Fabio Zadrozny <fabiofz@gmail.com>  - initial implementation
 *     Camilo Bernal <cabernal@redhat.com> - ongoing maintenance
 ******************************************************************************/
-/* 
+/*
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
  * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  *
  * IFS Institute for Software, HSR Rapperswil, Switzerland
- * 
+ *
  */
 
 package org.python.pydev.refactoring.codegenerator.generateproperties.edit;
 
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
-import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.Return;
@@ -35,12 +34,13 @@ import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.factory.NodeHelper;
+import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 import org.python.pydev.refactoring.codegenerator.generateproperties.request.GeneratePropertiesRequest;
 import org.python.pydev.refactoring.core.edit.AbstractInsertEdit;
 
 /**
  * Creates the getter function:
- * 
+ *
  * <pre>
  *    def get_attribute(self):
  *        return self._attribute
@@ -67,7 +67,7 @@ public class GetterMethodEdit extends AbstractInsertEdit {
         argumentsType args = createArguments();
         stmtType[] body = createBody();
 
-        return new FunctionDef(functionName, args, body, null, null, false);
+        return PyAstFactory.createFunctionDefFull(functionName, args, body, null, null, false);
     }
 
     private argumentsType createArguments() {

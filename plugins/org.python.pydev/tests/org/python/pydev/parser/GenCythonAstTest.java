@@ -429,7 +429,7 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
                 + "def f():\n" +
                 "    cdef char **a_2d_char_ptr_ptr_array[10][20]\n" +
                 "",
-                "Module[body=[FunctionDef[name=NameTok[id=f, ctx=FunctionName], args=arguments[args=[], vararg=null, kwarg=null, defaults=[], kwonlyargs=[], kw_defaults=[], annotation=[], varargannotation=null, kwargannotation=null, kwonlyargannotation=[]], body=[], decs=null, returns=null, async=false]]]");
+                "Module[body=[FunctionDef[decs=null, name=NameTok[id=f, ctx=FunctionName], args=arguments[args=[], vararg=null, kwarg=null, defaults=[], kwonlyargs=[], kw_defaults=[], annotation=[], varargannotation=null, kwargannotation=null, kwonlyargannotation=[]], returns=null, body=[], async=false]]]");
     }
 
     public void testGenCythonAstCornerCase11() throws Exception {
@@ -442,13 +442,13 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
     public void testGenCythonAstCornerCase12() throws Exception {
         compareWithAst("cdef extern from \"Python.h\":\n"
                 + "  int method(FILE *, const char *)",
-                "Module[body=[FunctionDef[name=NameTok[id=method, ctx=FunctionName], args=arguments[args=[Name[id=FILE, ctx=Param, reserved=false], Name[id=char, ctx=Param, reserved=false]], vararg=null, kwarg=null, defaults=[null, null], kwonlyargs=[], kw_defaults=[], annotation=[null, null], varargannotation=null, kwargannotation=null, kwonlyargannotation=[]], body=null, decs=null, returns=null, async=false]]]");
+                "Module[body=[FunctionDef[decs=null, name=NameTok[id=method, ctx=FunctionName], args=arguments[args=[Name[id=FILE, ctx=Param, reserved=false], Name[id=char, ctx=Param, reserved=false]], vararg=null, kwarg=null, defaults=[null, null], kwonlyargs=[], kw_defaults=[], annotation=[null, null], varargannotation=null, kwargannotation=null, kwonlyargannotation=[]], returns=null, body=null, async=false]]]");
     }
 
     public void testGenCythonAstCornerCase13() throws Exception {
         compareWithAst("cdef extern from \"Python.h\":\n"
                 + "  void remove(const T&)",
-                "Module[body=[FunctionDef[name=NameTok[id=remove, ctx=FunctionName], args=arguments[args=[Name[id=T, ctx=Param, reserved=false]], vararg=null, kwarg=null, defaults=[null], kwonlyargs=[], kw_defaults=[], annotation=[null], varargannotation=null, kwargannotation=null, kwonlyargannotation=[]], body=null, decs=null, returns=null, async=false]]]");
+                "Module[body=[FunctionDef[decs=null, name=NameTok[id=remove, ctx=FunctionName], args=arguments[args=[Name[id=T, ctx=Param, reserved=false]], vararg=null, kwarg=null, defaults=[null], kwonlyargs=[], kw_defaults=[], annotation=[null], varargannotation=null, kwargannotation=null, kwonlyargannotation=[]], returns=null, body=null, async=false]]]");
     }
 
     public void testGenCythonAstCornerCase14() throws Exception {
@@ -459,7 +459,7 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
     public void testGenCythonAstCornerCase15() throws Exception {
         compareWithAst("def wrapper(*args, **kwargs):\n" +
                 "    return f(*args, more=2, **{**kwargs, 'test': 1})\n",
-                "Module[body=[FunctionDef[name=NameTok[id=wrapper, ctx=FunctionName], args=arguments[args=[], vararg=NameTok[id=args, ctx=VarArg], kwarg=NameTok[id=kwargs, ctx=KwArg], defaults=[], kwonlyargs=[], kw_defaults=[], annotation=[], varargannotation=null, kwargannotation=null, kwonlyargannotation=[]], body=[Return[value=Call[func=Name[id=f, ctx=Load, reserved=false], args=[], keywords=[keyword[arg=NameTok[id=more, ctx=KeywordName], value=Num[n=2, type=Int, num=2], afterstarargs=false]], starargs=Name[id=args, ctx=Load, reserved=false], kwargs=Dict[keys=[Name[id=kwargs, ctx=Load, reserved=false], Str[s=test, type=SingleSingle, unicode=false, raw=false, binary=false, fstring=false, fstring_nodes=null], Num[n=1, type=Int, num=1]], values=[]]]]], decs=null, returns=null, async=false]]]");
+                "Module[body=[FunctionDef[decs=null, name=NameTok[id=wrapper, ctx=FunctionName], args=arguments[args=[], vararg=NameTok[id=args, ctx=VarArg], kwarg=NameTok[id=kwargs, ctx=KwArg], defaults=[], kwonlyargs=[], kw_defaults=[], annotation=[], varargannotation=null, kwargannotation=null, kwonlyargannotation=[]], returns=null, body=[Return[value=Call[func=Name[id=f, ctx=Load, reserved=false], args=[], keywords=[keyword[arg=NameTok[id=more, ctx=KeywordName], value=Num[n=2, type=Int, num=2], afterstarargs=false]], starargs=Name[id=args, ctx=Load, reserved=false], kwargs=Dict[keys=[Name[id=kwargs, ctx=Load, reserved=false], Str[s=test, type=SingleSingle, unicode=false, raw=false, binary=false, fstring=false, fstring_nodes=null], Num[n=1, type=Int, num=1]], values=[]]]]], async=false]]]");
     }
 
     public void testGenCythonAstCornerCase16() throws Exception {

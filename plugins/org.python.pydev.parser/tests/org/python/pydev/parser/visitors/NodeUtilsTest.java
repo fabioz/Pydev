@@ -14,6 +14,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.Expr;
+import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.exprType;
@@ -220,6 +221,20 @@ public class NodeUtilsTest extends PyParserTestBase {
         assign = (Assign) ast.body[1];
         b = (Name) assign.targets[0];
         assertSame(assign, NodeUtils.findStmtForNode(ast, b));
+    }
 
+    public void testIsAfterDeclarationStart() throws Exception {
+        checkWithAllGrammars((grammarVersion) -> {
+            Module ast = (Module) parseLegalDocStr(""
+                    + "def method():\n"
+                    + "    #comment\n"
+                    + "    a = 1");
+            FunctionDef funcDef = (FunctionDef) ast.body[0];
+            assertEquals(false, NodeUtils.isAfterDeclarationStart(funcDef, 0, 1));
+            assertEquals(false, NodeUtils.isAfterDeclarationStart(funcDef, 1, 1));
+            assertEquals(true, NodeUtils.isAfterDeclarationStart(funcDef, 3, 1));
+            assertEquals(true, NodeUtils.isAfterDeclarationStart(funcDef, 2, 1)); // in comment line
+            return true;
+        });
     }
 }

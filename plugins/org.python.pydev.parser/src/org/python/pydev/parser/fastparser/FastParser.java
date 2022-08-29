@@ -22,9 +22,9 @@ import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.argumentsType;
-import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.string.DocIterator;
 import org.python.pydev.shared_core.structure.FastStack;
@@ -36,12 +36,6 @@ import org.python.pydev.shared_core.structure.FastStack;
  * @author Fabio
  */
 public final class FastParser {
-
-    private static final exprType[] EMTPY_EXPR_TYPE = new exprType[0];
-
-    private static final decoratorsType[] EMTPY_DECORATORS_TYPE = new decoratorsType[0];
-
-    private static final stmtType[] EMTPY_STMT_TYPE = new stmtType[0];
 
     //spaces* 'def' space+ identifier
     private static final Pattern FUNCTION_PATTERN = Pattern.compile("(\\s+|^)(def\\s+)(\\w*)");
@@ -328,20 +322,23 @@ public final class FastParser {
             name.beginLine = lastReturnedLine + 1;
             name.beginColumn = matchedCol + 1 + 4 + 1 + nameTok.id.length(); // 4 for 'def ' and 1 for '('
 
-            args = new argumentsType(selfExprType, null, null, EMTPY_EXPR_TYPE, null, null, null, null,
+            args = new argumentsType(selfExprType, null, null, PyAstFactory.EMPTY_EXPR_TYPE, null, null, null, null,
                     null, null);
         } else {
-            args = new argumentsType(EMTPY_EXPR_TYPE, null, null, EMTPY_EXPR_TYPE, null, null, null, null,
+            args = new argumentsType(PyAstFactory.EMPTY_EXPR_TYPE, null, null, PyAstFactory.EMPTY_EXPR_TYPE, null, null,
+                    null, null,
                     null, null);
         }
-        FunctionDef functionDef = new FunctionDef(nameTok, args, EMTPY_STMT_TYPE, EMTPY_DECORATORS_TYPE, null, false);
+        FunctionDef functionDef = PyAstFactory.createFunctionDefEmptyArrays(nameTok, args);
         functionDef.beginLine = lastReturnedLine + 1;
         functionDef.beginColumn = matchedCol + 1;
         return functionDef;
     }
 
     private ClassDef createClassDef(int lastReturnedLine, NameTok nameTok, int matchedCol) {
-        ClassDef classDef = new ClassDef(nameTok, EMTPY_EXPR_TYPE, EMTPY_STMT_TYPE, null, null, null, null);
+        ClassDef classDef = new ClassDef(nameTok, PyAstFactory.EMPTY_EXPR_TYPE, PyAstFactory.EMPTY_STMT_TYPE, null,
+                null, null,
+                null);
         classDef.beginLine = lastReturnedLine + 1;
         classDef.beginColumn = matchedCol + 1;
         return classDef;

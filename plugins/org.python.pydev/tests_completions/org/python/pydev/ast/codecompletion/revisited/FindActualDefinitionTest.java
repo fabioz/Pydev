@@ -141,6 +141,24 @@ public class FindActualDefinitionTest extends CodeCompletionTestsBase {
         assertEquals(1, selected.size());
     }
 
+    public void testFindActualDefinition5() throws Exception {
+        String str = ""
+                + "class SomeClass:\n"
+                + "    SOME_CONSTANT = 1\n"
+                + "\n"
+                + "\n"
+                + "SomeClass.SOME_CONSTANT = 22"
+                + "";
+        IModule mod = SourceModule.createModuleFromDoc(null, new Document(str), nature);
+        ICompletionCache completionCache = new CompletionCache();
+        ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
+        PyRefactoringFindDefinition.findActualDefinition(null, true, mod, "SomeClass.SOME_CONSTANT", selected, 5, 15,
+                nature,
+                completionCache);
+        assertEquals(1, selected.size());
+        assertEquals(2, selected.get(0).getLine());
+    }
+
     public void testFindActualDefinitionImported() throws Exception {
         File file = new File(TestDependent.TEST_PYSRC_TESTING_LOC + "findActualDefinition/foo.py");
         IModule mod = SourceModule.createModule("findActualDefinition.foo", file, nature, false);

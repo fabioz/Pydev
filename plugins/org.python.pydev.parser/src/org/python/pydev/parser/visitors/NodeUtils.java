@@ -193,7 +193,7 @@ public final class NodeUtils {
         throw new RuntimeException("Expecting a String or a SimpleNode");
     }
 
-    public static String getRepresentationString(SimpleNode node) {
+    public static String getRepresentationString(ISimpleNode node) {
         return getRepresentationString(node, false);
     }
 
@@ -201,7 +201,7 @@ public final class NodeUtils {
      * @param node this is the node from whom we want to get the representation
      * @return A suitable String representation for some node.
      */
-    public static String getRepresentationString(SimpleNode node, boolean useTypeRepr) {
+    public static String getRepresentationString(ISimpleNode node, boolean useTypeRepr) {
         if (node instanceof NameTok) {
             NameTok tok = (NameTok) node;
             return tok.id;
@@ -2282,5 +2282,100 @@ public final class NodeUtils {
             }
         }
         return values;
+    }
+
+    public static boolean isAfterNameEnd(ClassDef classDef, int line, int col) {
+        return isAfterNameEnd(classDef.name, line, col);
+    }
+
+    public static boolean isAfterNameEnd(FunctionDef functionDef, int line, int col) {
+        return isAfterNameEnd(functionDef.name, line, col);
+    }
+
+    private static boolean isAfterNameEnd(NameTokType name, int line, int col) {
+        if (name != null) {
+            int astLine = name.beginLine;
+            if (astLine < line) {
+                return true;
+            }
+            if (astLine > line) {
+                return false;
+            }
+
+            // Same line, differentiate by the column
+            String rep = NodeUtils.getRepresentationString(name);
+            int astCol = name.beginColumn;
+            if (rep != null) {
+                astCol += rep.length();
+            }
+            if (astCol < col) {
+                return true;
+            }
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean isAfterDeclarationStart(ClassDef classDef, int line, int col) {
+        // i.e.: Basically we want to check if it's after the classdef declaration
+        return isAfterDeclarationStart(classDef.colonDefEnd, classDef.name, classDef.body, line, col);
+    }
+
+    public static boolean isAfterDeclarationStart(FunctionDef functionDef, int line, int col) {
+        // i.e.: Basically we want to check if it's after the function declaration
+        return isAfterDeclarationStart(functionDef.colonDefEnd, functionDef.name, functionDef.body, line, col);
+    }
+
+    private static boolean isAfterDeclarationStart(ISpecialStr colonDefEnd, NameTokType name, stmtType[] body, int line,
+            int col) {
+        // Ideal situation: we have the colon marker.
+        if (colonDefEnd != null) {
+            int colonLine = colonDefEnd.getBeginLine();
+            if (colonLine < line) {
+                return true;
+            }
+            if (colonLine > line) {
+                return false;
+            }
+
+            // Same line, differentiate by the column
+            int colonCol = colonDefEnd.getBeginCol();
+            if (colonCol < col) {
+                return true;
+            }
+            return false;
+        }
+
+        // Clear cut!
+        if (name != null) {
+            if (line < name.beginLine) {
+                return false;
+            }
+        }
+        // Clear cut!
+        if (body != null && body.length > 0) {
+            if (line > body[0].beginLine) {
+                return true;
+            }
+        }
+
+        // These are corner cases for which we provide a fallback (which may not be perfect).
+
+        // def func_name(): return 1
+        // In which case this isn't really correct
+        if (name != null) {
+            if (line == name.beginLine) {
+                return false;
+            }
+        }
+        if (body != null && body.length > 0) {
+            if (line == body[0].beginLine) {
+                return true;
+            }
+        }
+
+        // It seems it's in a limbo between the function name and the body,
+        // so, just say that it's inside.
+        return true;
     }
 }

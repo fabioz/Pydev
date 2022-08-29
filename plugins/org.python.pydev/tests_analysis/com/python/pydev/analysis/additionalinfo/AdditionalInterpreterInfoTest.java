@@ -30,6 +30,7 @@ import org.python.pydev.core.ModulesKey;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 import org.python.pydev.shared_core.callbacks.ICallbackListener;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -432,7 +433,7 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
     }
 
     private FunctionDef createFuncDef(String metName) {
-        return new FunctionDef(new NameTok(metName, NameTok.FunctionName), null, null, null, null, false);
+        return PyAstFactory.createFunctionDef(metName);
     }
 
 }

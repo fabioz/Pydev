@@ -116,6 +116,28 @@ public class LocalScope implements ILocalScope {
     }
 
     @Override
+    public String toString() {
+        FastStringBuffer buf = new FastStringBuffer("LocalScope(", 40);
+        boolean added = false;
+        for (ISimpleNode n : scope) {
+            if (!added) {
+                added = true;
+            } else {
+                buf.append(", ");
+            }
+            buf.append(FullRepIterable.getLastPart(n.getClass().getName()));
+            String rep = NodeUtils.getRepresentationString(n);
+            if (rep != null) {
+                buf.append('(');
+                buf.append(rep);
+                buf.append(')');
+            }
+        }
+        buf.append(')');
+        return buf.toString();
+    }
+
+    @Override
     public int hashCode() {
         assert false : "hashCode not designed";
         return 42; // any arbitrary constant will do

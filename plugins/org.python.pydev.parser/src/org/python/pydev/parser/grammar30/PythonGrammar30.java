@@ -28,6 +28,7 @@ import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.modType;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.parser.jython.ISpecialStr;
 
 import org.python.pydev.parser.jython.ast.Await;
 
@@ -328,7 +329,7 @@ public final class PythonGrammar30 extends AbstractPythonGrammar implements/*@bg
         jj_la1[2] = jj_gen;
         ;
       }
-                                                                                                                                                                               grammarActions.findTokenAndAdd(":");
+                                                                                                                                                                               ISpecialStr s = grammarActions.findTokenAndAdd(":"); if(s != null){grammarActions.markEndDefColon(s, jjtn000);}
       jj_consume_token(COLON);
       suite();
     } catch (Throwable jjte000) {
@@ -7732,7 +7733,7 @@ else
         jj_la1[150] = jj_gen;
         ;
       }
-                                                                                                                                                                                                                                                                                                                               grammarActions.findTokenAndAdd(":");
+                                                                                                                                                                                                                                                                                                                               ISpecialStr s = grammarActions.findTokenAndAdd(":"); if(s != null){grammarActions.markEndDefColon(s, jjtn000);}
       jj_consume_token(COLON);
       suite();
     } catch (Throwable jjte000) {
@@ -8552,16 +8553,6 @@ else
     try { return !jj_3_35(); }
     catch(LookaheadSuccess ls) { return true; }
     finally { jj_save(34, xla); }
-  }
-
-  private boolean jj_3_32() {
-    Token xsp;
-    if (jj_3R_82()) return true;
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3R_82()) { jj_scanpos = xsp; break; }
-    }
-    return false;
   }
 
   private boolean jj_3R_192() {
@@ -10174,6 +10165,16 @@ else
 
   private boolean jj_3R_193() {
     if (jj_scan_token(OCTNUMBER)) return true;
+    return false;
+  }
+
+  private boolean jj_3_32() {
+    Token xsp;
+    if (jj_3R_82()) return true;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3R_82()) { jj_scanpos = xsp; break; }
+    }
     return false;
   }
 

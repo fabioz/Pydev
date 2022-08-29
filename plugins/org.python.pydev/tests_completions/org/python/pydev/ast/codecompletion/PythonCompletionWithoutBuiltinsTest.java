@@ -272,8 +272,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     public void testAssertDeterminesClass2() throws Exception {
         String s = "def m1(a):\n" +
                 "    import zipfile\n" +
-                "    assert isinstance(a.bar, zipfile.ZipFile)\n"
-                +
+                "    assert isinstance(a.bar, zipfile.ZipFile)\n" +
                 "    a.bar.";
 
         requestCompl(s, s.length(), -1, new String[] { "getinfo(name)" });
@@ -286,8 +285,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "        pass\n" +
                 "\n" +
                 "" +
-                "def m1(a):\n"
-                +
+                "def m1(a):\n" +
                 "    assert isinstance(a, InterfM1)\n" +
                 "    a.";
 
@@ -300,14 +298,12 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "    def m1(self):\n" +
                 "        pass\n" +
                 "\n" +
-                "class InterfM2:\n"
-                +
+                "class InterfM2:\n" +
                 "    def m2(self):\n" +
                 "        pass\n" +
                 "\n" +
                 "" +
-                "def m1(a):\n"
-                +
+                "def m1(a):\n" +
                 "    assert isinstance(a, (InterfM1, InterfM2))\n" +
                 "    a.";
 
@@ -321,8 +317,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "        pass\n" +
                 "\n" +
                 "" +
-                "def m1(a):\n"
-                +
+                "def m1(a):\n" +
                 "    assert InterfM1.implementedBy(a)\n" +
                 "    a.";
 
@@ -1330,18 +1325,15 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         String s = "class Foo(object):\n" +
                 "    def foo(self):\n" +
                 "        pass\n" +
-                "class Bar(object):\n"
-                +
+                "class Bar(object):\n" +
                 "    def bar(self):\n" +
                 "        pass\n" +
                 "    \n" +
                 "class KKK:\n" +
-                "    def m1(self):\n"
-                +
+                "    def m1(self):\n" +
                 "        self.c = Foo()\n" +
                 "    def m2(self):\n" +
-                "        self.c = Bar()\n"
-                +
+                "        self.c = Bar()\n" +
                 "    def m3(self):\n" +
                 "        self.c.";
         requestCompl(s, s.length(), -1, new String[] { "foo()", "bar()" });
@@ -1511,7 +1503,8 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     }
 
     public void testInnerDefinition2() throws Exception {
-        String s = "class Bar:\n" +
+        String s = "" +
+                "class Bar:\n" +
                 "    \n" +
                 "    class Foo:\n" +
                 "        pass\n" +
@@ -1648,9 +1641,11 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "lst = Fooo()\n" +
                 "lst[0].";
         requestCompl(s, -1, new String[] { "existingMethod()" });
+    }
 
+    public void testUndefinedListItemAccess() throws Exception {
         // if the type of the list item can't be inferred, expect an empty proposal list
-        s = "" +
+        String s = "" +
                 "lst = list()\n" +
                 "lst.append(1)\n" +
                 "lst[0].";
@@ -2352,8 +2347,8 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "\n"
                 + "def check(x):\n"
                 + "    ':type x:dict(G, str)'\n"
-                + "    for a, b in x.items():\n"
-                + "        a."
+                + "    for a, b in x.items():\n" // line 8
+                + "        a." // line 9
                 + "";
         ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
         assertEquals(1, comps.length);
@@ -2516,14 +2511,14 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     public void testCodeCompletionUnpackTupleInFor2a() throws Exception {
         String s;
         s = ""
-                + "class G:\n"
+                + "class G:\n" // line 1
                 + "    def mG(self):\n"
                 + "        pass\n"
                 + "\n"
                 + "def check(x):\n"
                 + "    ':type x:list((G(), 1))'\n"
-                + "    for a, b in x:\n"
-                + "        a."
+                + "    for      a, b in x:\n" // "a" at line 7, col 14
+                + "        a." // "a" at line 8 col 9
                 + "";
         ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "mG()" });
         assertEquals(1, comps.length);

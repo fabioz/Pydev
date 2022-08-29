@@ -88,8 +88,8 @@ public final class NullPythonGrammarActions implements IPythonGrammarActions {
     }
 
     @Override
-    public void findTokenAndAdd(String token) throws ParseException {
-
+    public ISpecialStr findTokenAndAdd(String token) throws ParseException {
+        return null;
     }
 
     @Override
@@ -107,6 +107,11 @@ public final class NullPythonGrammarActions implements IPythonGrammarActions {
     public ISpecialStr createSpecialStr(String token, boolean searchOnLast) throws ParseException {
 
         return null;
+    }
+
+    @Override
+    public void markEndDefColon(ISpecialStr s, SimpleNode node) {
+
     }
 
     @Override

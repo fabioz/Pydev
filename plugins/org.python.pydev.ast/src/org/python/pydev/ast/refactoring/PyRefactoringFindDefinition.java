@@ -157,6 +157,10 @@ public class PyRefactoringFindDefinition {
         return mod;
     }
 
+    /**
+     * @param beginLine starts at 1
+     * @param beginCol starts at 1
+     */
     public static void findActualDefinition(IProgressMonitor monitor, boolean acceptTypeshed, IModule mod, String tok,
             List<IDefinition> selected, int beginLine, int beginCol, IPythonNature pythonNature,
             ICompletionCache completionCache) throws CompletionRecursionException, Exception {

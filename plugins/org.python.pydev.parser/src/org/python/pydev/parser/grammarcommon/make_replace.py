@@ -332,6 +332,7 @@ import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.modType;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.parser.jython.ISpecialStr;
 '''
 
 
@@ -632,6 +633,8 @@ def CreateGrammarFiles():
         RPAREN='''try{{grammarActions.findTokenAndAdd(")");}<RPAREN> }catch(ParseException e){handleRParensNearButNotCurrent(e);}''',
 
         COLON='''{grammarActions.findTokenAndAdd(":");}<COLON>''',
+
+        COLON_END_DEF='''{ISpecialStr s = grammarActions.findTokenAndAdd(":"); if(s != null){grammarActions.markEndDefColon(s, jjtThis);}}<COLON>''',
 
         AT='''temporaryToken=<AT>  {grammarActions.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}''',
 

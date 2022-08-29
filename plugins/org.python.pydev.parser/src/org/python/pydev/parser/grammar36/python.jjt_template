@@ -498,7 +498,7 @@ Expr eval_input(): {}
 //funcdef: 'def' NAME parameters ['->' test] ':' suite
 void funcdef(): {}
 {
-    $DEF_START parameters() [{grammarActions.addSpecialToken("->", STRATEGY_BEFORE_NEXT);}<MINUS_GREATER> test()#funcdef_return_annottation] $COLON
+    $DEF_START parameters() [{grammarActions.addSpecialToken("->", STRATEGY_BEFORE_NEXT);}<MINUS_GREATER> test()#funcdef_return_annottation] $COLON_END_DEF
         suite()
 }
 
@@ -1310,7 +1310,7 @@ void async_funcdef() #void : {}
 //classdef: 'class' NAME ['(' [arglist] ')'] ':' suite
 void classdef(): {Token spStr;Token spStr2;}
 {
-    $START_CLASS [$LPAREN3   [arglist()] $RPAREN ] $COLON
+    $START_CLASS [$LPAREN3   [arglist()] $RPAREN ] $COLON_END_DEF
         suite()
 }
 

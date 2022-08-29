@@ -24,6 +24,7 @@ import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
 import org.python.pydev.shared_core.structure.Tuple;
 
+import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
 public class PyParserTestBase extends TestCase {
@@ -263,12 +264,16 @@ public class PyParserTestBase extends TestCase {
             //            PyParser.DEBUG_SHOW_PARSE_ERRORS = true;
 
             // Uncomment the following lines to test only the specific grammar
-            //            if(i != IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_4){
-            //                continue;
-            //            }
+            // if (grammarVersion != IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_6) {
+            //     continue;
+            // }
             setDefaultVersion(grammarVersion);
             try {
                 iCallback.call(grammarVersion);
+            } catch (AssertionFailedError e) {
+                System.out.println("\nFound error while parsing with version: "
+                        + IGrammarVersionProvider.grammarVersionToRep.get(grammarVersion));
+                throw e;
             } catch (RuntimeException e) {
                 System.out.println("\nFound error while parsing with version: "
                         + IGrammarVersionProvider.grammarVersionToRep.get(grammarVersion));

@@ -3,6 +3,7 @@ package org.python.pydev.parser.jython.ast;
 
 import org.python.pydev.parser.jython.SimpleNode;
 import java.util.Arrays;
+import org.python.pydev.parser.jython.ISpecialStr;
 
 public final class ClassDef extends stmtType {
     public NameTokType name;
@@ -12,6 +13,10 @@ public final class ClassDef extends stmtType {
     public keywordType[] keywords;
     public exprType starargs;
     public exprType kwargs;
+    // Hack: added directly in asdl_java.py because it's not really 
+    // Hack: a part of the model (so, it's not used to compare or visit 
+    // Hack: nor anything else besides being a marker token). 
+    public ISpecialStr colonDefEnd;
 
     public ClassDef(NameTokType name, exprType[] bases, stmtType[] body, decoratorsType[] decs,
     keywordType[] keywords, exprType starargs, exprType kwargs) {

@@ -17,8 +17,6 @@ import org.python.pydev.ast.codecompletion.revisited.CompletionCache;
 import org.python.pydev.ast.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.ast.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
-import org.python.pydev.ast.codecompletion.revisited.visitors.AssignDefinition;
-import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
@@ -60,7 +58,7 @@ public class FindDefinitionModelVisitorTest extends CodeCompletionTestsBase {
 
     /**
      * @throws Exception
-     * 
+     *
      */
     public void testFind() throws Exception {
         String d = "" +
@@ -90,7 +88,7 @@ public class FindDefinitionModelVisitorTest extends CodeCompletionTestsBase {
 
     /**
      * @throws Exception
-     * 
+     *
      */
     public void testFind4() throws Exception {
         String d = "" +
@@ -110,17 +108,16 @@ public class FindDefinitionModelVisitorTest extends CodeCompletionTestsBase {
 
     /**
      * @throws Exception
-     * 
+     *
      */
     public void testFind3() throws Exception {
         String d = "" +
-                "class Foo:\n" +
-                "    def m1(self, bar):\n" +
+                "class Foo:\n" + // line 1
+                "    def m1(self, bar):\n" + // line 2
                 "        pass\n" +
-                "    def m2(self):\n"
-                +
+                "    def m2(self):\n" +
                 "        bar = 10\n" +
-                "        self.m1(bar = bar)\n" + //the definition for first bar is in m1(self, bar) 
+                "        self.m1(bar = bar)\n" + //line 6, the definition for first bar is in m1(self, bar)
                 "";
 
         Document doc = new Document(d);
@@ -137,7 +134,7 @@ public class FindDefinitionModelVisitorTest extends CodeCompletionTestsBase {
 
     /**
      * @throws Exception
-     * 
+     *
      */
     public void testFind5() throws Exception {
         String d = "" +
@@ -175,7 +172,7 @@ public class FindDefinitionModelVisitorTest extends CodeCompletionTestsBase {
 
     /**
      * @throws Exception
-     * 
+     *
      */
     public void testFind2() throws Exception {
         String d;
@@ -212,7 +209,7 @@ public class FindDefinitionModelVisitorTest extends CodeCompletionTestsBase {
 
     /**
      * @throws Exception
-     * 
+     *
      */
     public void testFind6() throws Exception {
         String d;
@@ -241,7 +238,7 @@ public class FindDefinitionModelVisitorTest extends CodeCompletionTestsBase {
 
     /**
      * @throws Exception
-     * 
+     *
      */
     public void testFind7() throws Exception {
         String d;

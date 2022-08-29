@@ -14,12 +14,12 @@
 * Contributors:
 *     Fabio Zadrozny <fabiofz@gmail.com> - initial implementation
 ******************************************************************************/
-/* 
+/*
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
  * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  *
  * IFS Institute for Software, HSR Rapperswil, Switzerland
- * 
+ *
  */
 
 package org.python.pydev.refactoring.ast.adapters;
@@ -38,6 +38,7 @@ import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
+import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 
 public class ClassDefAdapterFromTokens implements IClassDefAdapter {
 
@@ -120,7 +121,7 @@ public class ClassDefAdapterFromTokens implements IClassDefAdapter {
                         functionArguments.kwarg = new NameTok("kwargs", NameTok.KwArg);
                     }
                     //                System.out.println(tok.getRepresentation()+tok.getArgs());
-                    FunctionDef functionDef = new FunctionDef(
+                    FunctionDef functionDef = PyAstFactory.createFunctionDefFull(
                             new NameTok(tok.getRepresentation(), NameTok.FunctionName), functionArguments, null, null,
                             null, false);
                     cache.add(new FunctionDefAdapter(this.getModule(), null, functionDef, adapterPrefs));

@@ -496,8 +496,13 @@ public class SearchTest extends AdditionalInfoTestsBase {
     }
 
     public void testOnSameName() throws Exception {
-        String str = "" + "class Foo:\n" + "    def m1(self):\n" + //this line, col 9
-                "        m1 = 10\n" + "        print m1\n" + "        print self.m1\n" + "";
+        String str = "" +
+                "class Foo:\n" +
+                "    def m1(self):\n" + //this line, col 9
+                "        m1 = 10\n" +
+                "        print(m1)\n" +
+                "        print(self.m1)\n" +
+                "";
 
         RefactoringRequest refactoringRequest = createRefactoringRequest(new Document(str), "foo", 1, 9);
 
@@ -524,8 +529,11 @@ public class SearchTest extends AdditionalInfoTestsBase {
     }
 
     public void testOnSameName2() throws Exception {
-        String str = "" + "class Foo:\n" + "    def m1():\n" + //this line, col 9
-                "        pass\n" + "    m1 = staticmethod(m1)\n" + //we will find this definition too
+        String str = "" +
+                "class Foo:\n" +
+                "    def m1():\n" + //this line, col 9
+                "        pass\n" +
+                "    m1 = staticmethod(m1)\n" + //we will find this definition too
                 "";
 
         RefactoringRequest refactoringRequest = createRefactoringRequest(new Document(str), "foo", 1, 9);

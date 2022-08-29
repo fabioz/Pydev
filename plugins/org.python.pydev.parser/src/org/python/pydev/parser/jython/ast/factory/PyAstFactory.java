@@ -41,19 +41,27 @@ public class PyAstFactory {
         nodeHelper = new NodeHelper(adapterPrefs);
     }
 
-    public FunctionDef createFunctionDef(String name) {
+    public static FunctionDef createFunctionDef(String name) {
         return createFunctionDef(new NameTok(name, NameTok.FunctionName));
     }
 
-    public FunctionDef createFunctionDef(NameTokType name) {
-        FunctionDef functionDef = new FunctionDef(name, null, null, null, null,
-                false);
-        return functionDef;
+    public static FunctionDef createFunctionDef(NameTokType name) {
+        return createFunctionDefFull(name, null, null, null, null, false);
     }
 
-    private static final exprType[] EMPTY_EXPR_TYPE = new exprType[0];
-    private static final keywordType[] EMPTY_KEYWORD_TYPE = new keywordType[0];
-    private static final stmtType[] EMPTY_STMT_TYPE = new stmtType[0];
+    public static FunctionDef createFunctionDefEmptyArrays(NameTokType nameTok, argumentsType args) {
+        return createFunctionDefFull(nameTok, args, EMPTY_STMT_TYPE, EMPTY_DECORATORS_TYPE, null, false);
+    }
+
+    public static FunctionDef createFunctionDefFull(NameTokType name, argumentsType args, stmtType[] body,
+            decoratorsType[] decs, exprType returns, boolean async) {
+        return new FunctionDef(decs, name, args, returns, body, async);
+    }
+
+    public static final exprType[] EMPTY_EXPR_TYPE = new exprType[0];
+    public static final keywordType[] EMPTY_KEYWORD_TYPE = new keywordType[0];
+    public static final stmtType[] EMPTY_STMT_TYPE = new stmtType[0];
+    public static final decoratorsType[] EMPTY_DECORATORS_TYPE = new decoratorsType[0];
 
     public argumentsType createEmptyArgumentsType() {
         exprType[] args = EMPTY_EXPR_TYPE;
@@ -117,7 +125,7 @@ public class PyAstFactory {
         argumentsType args = createArguments(true, "value");
         stmtType[] body = createSetterBody(attributeName);
 
-        return new FunctionDef(functionName, args, body, null, null, false);
+        return createFunctionDefFull(functionName, args, body, null, null, false);
     }
 
     public argumentsType createArguments(boolean addSelf, String... simpleParams) {
