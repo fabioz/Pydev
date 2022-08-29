@@ -102,6 +102,10 @@ public class SourceModule extends AbstractModule implements ISourceModule {
 
     private static final boolean DEBUG_GET_TOKENS_REQUESTS = false;
 
+    private static final boolean DEBUG_LOCAL_SCOPE = false;
+
+    public static final boolean DEBUG_FIND_DEFINITION = false;
+
     public static boolean TESTING = false;
 
     /**
@@ -518,7 +522,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
 
                 int iActTok = 0;
                 if (actToks.get(iActTok).equals(rep)) {
-                    //System.out.println("Now we have to find act..."+activationToken+"(which is a definition of:"+rep+")");
+                    // System.out.println("Now we have to find act: " + activationToken + " (which is a definition of:" + rep + ")");
                     try {
                         Definition[] definitions;
                         String value = activationToken;
@@ -546,7 +550,10 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                     lookForClass.add(info);
                                     TokensList completionsForClassInLocalScope = manager
                                             .getCompletionsForClassInLocalScope(
-                                                    d.module, initialState.getCopyWithActTok(info.getActTok()), true,
+                                                    d.module,
+                                                    initialState.getCopyWithActTok(info.getActTok(), d.line - 1,
+                                                            d.col - 1),
+                                                    true,
                                                     false, lookForClass);
                                     completionsForClassInLocalScope
                                             .setLookingFor(LookingFor.LOOKING_FOR_INSTANCED_VARIABLE);
@@ -750,6 +757,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
      * @return a scope visitor that has already passed through the visiting step for the given line/col.
      *
      * @note we don't have to worry about the ast, as it won't change after we create the source module with it.
+     * @param line: starts at 1
+     * @param col: starts at 1
      */
     private FindScopeVisitor getScopeVisitor(int line, int col) throws Exception {
         Tuple<Integer, Integer> key = new Tuple<Integer, Integer>(line, col);
@@ -758,6 +767,11 @@ public class SourceModule extends AbstractModule implements ISourceModule {
             scopeVisitor = new FindScopeVisitor(line, col, nature);
             if (ast != null) {
                 ast.accept(scopeVisitor);
+            }
+            if (DEBUG_LOCAL_SCOPE) {
+                System.out.println("\nSearching: " + line + " - " + col);
+                System.out.println("Found scope: " + scopeVisitor.scope);
+                System.out.println("At node: " + scopeVisitor.scope.getFoundAtASTNode());
             }
             this.scopeVisitorCache.add(key, scopeVisitor);
         }
@@ -1071,9 +1085,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                 String classRep = NodeUtils.getRepresentationString(classDef);
                 if (classRep != null) {
                     TokensList globalTokens = getGlobalTokens(
-                            new CompletionState(line - 1, col - 1, classRep, nature,
-                                    "",
-                                    state), //use the old state as the cache
+                            state.getCopyWithActTok(classRep, line - 1, col - 1),
                             astManager);
 
                     String withoutSelf = actTok.substring(5);

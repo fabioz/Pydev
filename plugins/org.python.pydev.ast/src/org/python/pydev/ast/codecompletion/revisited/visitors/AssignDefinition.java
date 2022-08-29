@@ -59,14 +59,7 @@ public class AssignDefinition extends Definition {
     public final int unpackPos;
 
     /**
-     * Constructor.
-     *
-     * @param assign
-     * @param ast
-     * @param line
-     * @param col
-     * @param nodeValue
-     * @param unpackPos
+     * The line and col are defined starting at 1 (and not 0)
      */
     public AssignDefinition(String value, String type, String target, int targetPos, Assign ast, int line, int col,
             ILocalScope scope, IModule module, exprType nodeValue, exprType nodeType, int unpackPos) {

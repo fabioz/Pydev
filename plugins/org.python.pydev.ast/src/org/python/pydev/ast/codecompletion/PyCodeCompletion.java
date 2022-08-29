@@ -872,10 +872,9 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
      * Get self completions when you already have a scope
      * @throws MisconfigurationException
      */
-    @SuppressWarnings({ "unchecked" })
     public static void getSelfOrClsCompletions(ILocalScope scope, ITokenCompletionRequest request, TokensList theList,
             ICompletionState state, boolean getOnlySupers) throws BadLocationException, MisconfigurationException {
-        for (Iterator<SimpleNode> it = scope.iterator(); it.hasNext();) {
+        for (Iterator<ISimpleNode> it = scope.iterator(); it.hasNext();) {
 
             List<ITypeInfo> possibleClassesForActivationToken = scope
                     .getPossibleClassesForActivationToken(request.getActivationToken());
@@ -894,7 +893,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                 }
             }
 
-            SimpleNode node = it.next();
+            ISimpleNode node = it.next();
             if (node instanceof ClassDef) {
                 ClassDef d = (ClassDef) node;
 
@@ -951,7 +950,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                         IModule module = request.getModule();
 
                         AbstractASTManager astMan = ((AbstractASTManager) request.getNature().getAstManager());
-                        TokensList assignCompletions = new AssignAnalysis().getAssignCompletions(astMan, module,
+                        TokensList assignCompletions = new AssignAnalysis().getCompletionsFollowingDefinition(astMan, module,
                                 new CompletionState(
                                         line, col, request.getActivationToken(), request.getNature(),
                                         request.getQualifier()),

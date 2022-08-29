@@ -101,10 +101,16 @@ public class Definition implements IDefinition {
         this(line, col, value, ast, scope, module, false);
     }
 
+    /**
+     * The line and col are defined starting at 1
+     */
     public Definition(int line, int col, String value, String type, SimpleNode ast, ILocalScope scope, IModule module) {
         this(line, col, value, type, ast, scope, module, false);
     }
 
+    /**
+     * The line and col are defined starting at 1
+     */
     public Definition(int line, int col, String value, String type, exprType nodeType, SimpleNode ast,
             ILocalScope scope, IModule module) {
         this(line, col, value, type, nodeType, ast, scope, module, false);

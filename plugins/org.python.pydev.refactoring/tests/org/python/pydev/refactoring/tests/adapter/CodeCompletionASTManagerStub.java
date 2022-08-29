@@ -77,6 +77,12 @@ public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
+    public TokensList getCompletionsUnpackingInLocalScope(ICompletionState state, IModule module, ILocalScope scope)
+            throws CompletionRecursionException {
+        throw new RuntimeException("Not implemented");
+    }
+
     public TokensList getCompletionsForImport(ImportInfo original, ICompletionRequest request)
             throws CompletionRecursionException {
         throw new RuntimeException("Not implemented");

@@ -31,6 +31,7 @@ public interface ILocalScope {
 
     /**
      * @param endLine tokens will only be recognized if its beginLine is higher than this parameter.
+     * line and col 1 based
      */
     public TokensList getLocalTokens(int endLine, int col, boolean onlyArgs);
 
@@ -66,7 +67,7 @@ public interface ILocalScope {
     /**
      * @return Iterator for the nodes in the scope (starting with the last to the first -- or from the inner to the outer)
      */
-    public Iterator /*<SimpleNode>*/ iterator();
+    public Iterator<ISimpleNode> iterator();
 
     /**
      * @return the class definition found previously in the scope

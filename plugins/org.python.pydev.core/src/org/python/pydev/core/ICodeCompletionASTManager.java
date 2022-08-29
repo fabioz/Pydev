@@ -341,4 +341,7 @@ public interface ICodeCompletionASTManager {
 
     public boolean isNodeTypingUnionSubscript(IModule module, Object node);
 
+    public abstract TokensList getCompletionsUnpackingInLocalScope(ICompletionState state, IModule module,
+            ILocalScope scope) throws CompletionRecursionException;
+
 }

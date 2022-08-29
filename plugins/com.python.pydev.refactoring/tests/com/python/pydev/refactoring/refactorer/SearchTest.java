@@ -7,7 +7,10 @@
 package com.python.pydev.refactoring.refactorer;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
@@ -543,7 +546,8 @@ public class SearchTest extends AdditionalInfoTestsBase {
         ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
 
         assertEquals(2, pointers.length);
-        assertEquals(1, pointers[0].start.line);
-        assertEquals(3, pointers[1].start.line);
+        Set<Integer> obtained = new HashSet<>(Arrays.asList(pointers[0].start.line, pointers[1].start.line));
+        Set<Integer> expected = new HashSet<>(Arrays.asList(1, 3));
+        assertEquals(expected, obtained);
     }
 }

@@ -538,6 +538,9 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
         }
     }
 
+    /**
+     * The line and col are defined starting at 1
+     */
     public static AssignDefinition getAssignDefinition(Assign node, String target, int targetPos, int line, int col,
             ILocalScope scope, IModule module, int unpackPos) {
         exprType nodeValue = node.value;
@@ -552,5 +555,32 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
         }
         return new AssignDefinition(value, type, target, targetPos, node, line, col, scope, module, nodeValue, nodeType,
                 unpackPos);
+    }
+
+    public static int findUnpackPos(Assign foundInAssign, String representation) {
+        if (foundInAssign.targets != null) {
+            if (foundInAssign.targets.length > 0) {
+                if (foundInAssign.targets.length == 1) {
+                    if (foundInAssign.targets[0] instanceof Tuple) {
+                        Tuple tuple = (Tuple) foundInAssign.targets[0];
+                        if (tuple != null && tuple.elts != null && tuple.elts.length > 0) {
+                            for (int i = 0; i < tuple.elts.length; i++) {
+                                if (representation.equals(NodeUtils.getRepresentationString(tuple.elts[i]))) {
+                                    return i;
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    // len > 1
+                    for (int i = 0; i < foundInAssign.targets.length; i++) {
+                        if (representation.equals(NodeUtils.getRepresentationString(foundInAssign.targets[i]))) {
+                            return i;
+                        }
+                    }
+                }
+            }
+        }
+        return -1; // Nothing to unpack.
     }
 }

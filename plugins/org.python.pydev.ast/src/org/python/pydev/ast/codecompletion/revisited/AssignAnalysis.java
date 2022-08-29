@@ -67,7 +67,7 @@ public class AssignAnalysis {
      * that we can search in other scopes as well).
      * @param localScope
      */
-    public DefinitionAndCompletions getAssignCompletions(ICodeCompletionASTManager manager, IModule module,
+    public DefinitionAndCompletions getCompletionsFollowingDefinition(ICodeCompletionASTManager manager, IModule module,
             ICompletionState state, ILocalScope localScope) {
         state.pushAssign();
         try {
@@ -77,8 +77,8 @@ public class AssignAnalysis {
                 SourceModule sourceModule = (SourceModule) module;
 
                 try {
-                    defs = sourceModule.findDefinition(state, state.getLine() + 1, state.getCol() + 1,
-                            state.getNature());
+                    defs = sourceModule.findDefinition(
+                            state, state.getLine() + 1, state.getCol() + 1, state.getNature());
                     if (defs.length > 0) {
                         for (int i = 0; i < defs.length; i++) {
                             //go through all definitions found and make a merge of it...
@@ -87,14 +87,14 @@ public class AssignAnalysis {
                                 ret.setMapsToTypeVar(true);
                                 continue;
                             }
-                            TokensList completionsFromDefinition = getCompletionsFromDefinition(definition, state,
-                                    sourceModule, manager);
+                            TokensList completionsFromDefinition = getCompletionsFromDefinition(
+                                    definition, state, sourceModule, manager);
                             if (completionsFromDefinition != null && completionsFromDefinition.notEmpty()) {
                                 if (definition instanceof AssignDefinition) {
                                     AssignDefinition assignDefinition = (AssignDefinition) definition;
                                     if (assignDefinition.nodeValue instanceof Call) {
-                                        completionsFromDefinition
-                                                .setLookingFor(LookingFor.LOOKING_FOR_INSTANCED_VARIABLE);
+                                        completionsFromDefinition.setLookingFor(
+                                                LookingFor.LOOKING_FOR_INSTANCED_VARIABLE);
                                     }
                                 }
                                 ret.addAll(completionsFromDefinition);
@@ -103,8 +103,7 @@ public class AssignAnalysis {
                     } else {
                         if (localScope != null) {
                             TokensList tokens = searchInLocalTokens(manager, state, true, state.getLine() + 1,
-                                    state.getCol() + 1,
-                                    module, localScope, state.getActivationToken());
+                                    state.getCol() + 1, module, localScope, state.getActivationToken());
                             if (tokens != null) {
                                 ret.addAll(tokens);
                             }
@@ -137,6 +136,12 @@ public class AssignAnalysis {
     public TokensList getCompletionsFromDefinition(Definition definition, ICompletionState state,
             SourceModule sourceModule, ICodeCompletionASTManager manager) throws CompletionRecursionException {
         TokensList ret = new TokensList();
+        if (SourceModule.DEBUG_FIND_DEFINITION) {
+            System.out.println("\n\n------------\nSearch: " + state.getActivationToken() + " " + definition.line + " "
+                    + definition.col + " "
+                    + definition.module.getName() + " " + definition.scope);
+        }
+
         if (state.getAlreadySearchedInAssign(definition.line, definition.col, definition.module,
                 definition.value, state.getActivationToken())) {
             // It's possible that we have many assigns where it may be normal to have loops
