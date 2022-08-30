@@ -215,6 +215,11 @@ public class AssignAnalysis {
             }
         }
 
+        ret.addAll(manager.getCompletionsUnpackingInLocalScope(state, definition.module, definition.scope));
+        if (ret != null && ret.size() > 0) {
+            return ret;
+        }
+
         if (!foundAsParamWithTypingInfo) {
             if (definition.ast instanceof FunctionDef) {
                 TokensList found = manager.getCompletionFromFuncDefReturn(
@@ -408,7 +413,7 @@ public class AssignAnalysis {
                     }
                 }
 
-                if (lookForAssign && assignDefinition.unpackPos == 0) {
+                if (lookForAssign && assignDefinition.unpackPos == -1) {
                     TokensList tokens = null;
                     if (assign.type != null) {
                         tokens = searchInLocalTokens(manager, state, lookForAssign,

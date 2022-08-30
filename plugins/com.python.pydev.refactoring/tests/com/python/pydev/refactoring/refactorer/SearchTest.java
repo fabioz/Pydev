@@ -374,11 +374,11 @@ public class SearchTest extends AdditionalInfoTestsBase {
 
     public void testSearchParameter() throws Exception {
         //        class Param(object): - this is line 0
-        //            
+        //
         //            def hasParams(self, aa, bb):
         //                #TestStatic has static1 and static2
         //                print aa.static1() - line 4
-        //                print aa.static2()        
+        //                print aa.static2()
 
         List<IInfo> tokens = AdditionalProjectInterpreterInfo.getTokensEqualTo("static1", nature,
                 AbstractAdditionalTokensInfo.TOP_LEVEL | AbstractAdditionalTokensInfo.INNER);
@@ -446,13 +446,13 @@ public class SearchTest extends AdditionalInfoTestsBase {
     }
 
     public void testOnMethodFind() throws Exception {
-        //class TestStatic(object):    --line 0  
-        //          
-        //    @staticmethod      
+        //class TestStatic(object):    --line 0
+        //
+        //    @staticmethod
         //    def static1(self):      --line 3
-        //        pass      
-        //          
-        //    @staticmethod      
+        //        pass
+        //
+        //    @staticmethod
         //    def static2(self):
         //        pass
         String line = "    def static1(self):";
@@ -472,13 +472,13 @@ public class SearchTest extends AdditionalInfoTestsBase {
     }
 
     public void testOnClassFind() throws Exception {
-        //class TestStatic(object):    --line 0  
-        //          
-        //    @staticmethod      
+        //class TestStatic(object):    --line 0
+        //
+        //    @staticmethod
         //    def static1(self):      --line 3
-        //        pass      
-        //          
-        //    @staticmethod      
+        //        pass
+        //
+        //    @staticmethod
         //    def static2(self):
         //        pass
         String line = "class TestStatic(object):";
@@ -518,8 +518,11 @@ public class SearchTest extends AdditionalInfoTestsBase {
     }
 
     public void testOnParam() throws Exception {
-        String str = "" + "tok = 10\n" + "def m1(tok=tok):\n" + //parameter tok (left side)
-                "    '@param tok: this is tok'\n" + "    #checking tok right?\n" + "";
+        String str = "" +
+                "tok = 10\n" +
+                "def m1(tok=tok):\n" + //parameter tok (left side)
+                "    '@param tok: this is tok'\n" +
+                "    #checking tok right?\n" + "";
 
         RefactoringRequest refactoringRequest = createRefactoringRequest(new Document(str), "foo", 1, 9);
 

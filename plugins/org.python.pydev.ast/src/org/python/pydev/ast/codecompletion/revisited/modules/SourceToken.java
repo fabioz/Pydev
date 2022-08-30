@@ -264,6 +264,8 @@ public class SourceToken extends AbstractToken {
 
     private Assign foundInAssign;
 
+    private Assign dummyAssignFromParam;
+
     private Call foundInCall;
 
     public void setDefinition(Definition d) {
@@ -288,6 +290,14 @@ public class SourceToken extends AbstractToken {
 
     public Call getFoundInCall() {
         return foundInCall;
+    }
+
+    public void setDummyAssignFromParam(Assign dummyAssignFromParam) {
+        this.dummyAssignFromParam = dummyAssignFromParam;
+    }
+
+    public Assign getDummyAssignFromParam() {
+        return dummyAssignFromParam;
     }
 
 }

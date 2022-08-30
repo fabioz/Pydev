@@ -871,8 +871,7 @@ public class RenameLocalVariableRefactoringTest extends RefactoringLocalTestBase
         String str = "" +
                 "class Foo:\n" +
                 "    def ListFiles(self, %s):\n" +
-                "        pass\n"
-                +
+                "        pass\n" +
                 "    def testCases(self):\n" +
                 "        bar = 10\n" +
                 "        self.ListFiles(%s=bar)\n" +

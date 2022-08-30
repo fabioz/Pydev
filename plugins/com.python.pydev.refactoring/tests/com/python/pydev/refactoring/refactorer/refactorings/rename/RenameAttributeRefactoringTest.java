@@ -13,7 +13,6 @@ import java.util.Map;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.shared_core.structure.Tuple;
 
-import com.python.pydev.analysis.refactoring.wizards.rename.PyRenameAnyLocalProcess;
 import com.python.pydev.analysis.refactoring.wizards.rename.PyRenameAttributeProcess;
 
 @SuppressWarnings("rawtypes")
@@ -63,7 +62,7 @@ public class RenameAttributeRefactoringTest extends RefactoringRenameTestBase {
     }
 
     public void testRenameAttribute2() throws Exception {
-        expectedProcessClass = PyRenameAnyLocalProcess.class;
+        expectedProcessClass = PyRenameAttributeProcess.class;
         Map<Tuple<String, File>, HashSet<ASTEntry>> references = getReferencesForRenameSimple(
                 "reflib.renameattribute2.mod1", 3, 18);
         assertEquals(""
@@ -94,6 +93,7 @@ public class RenameAttributeRefactoringTest extends RefactoringRenameTestBase {
                         + "  ASTEntry<class_attribute_to_be_found (NameTok L=6 C=23)>\n"
                         + "    Line: 5          ClassWithAttr.class_attribute_to_be_found = True -->         ClassWithAttr.new_name = True\n"
                         + "\n"
-                        + "", asStr(references));
+                        + "",
+                asStr(references));
     }
 }

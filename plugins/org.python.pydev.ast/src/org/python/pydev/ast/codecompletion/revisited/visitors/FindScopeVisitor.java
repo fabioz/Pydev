@@ -22,7 +22,6 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.Module;
-import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.structure.FastStack;
@@ -85,7 +84,7 @@ public class FindScopeVisitor extends AbstractVisitor {
     @Override
     protected Object unhandled_node(SimpleNode node) throws Exception {
         //the line passed in starts at 1 and the lines for the visitor nodes start at 0
-        if (!found && !(node instanceof Module || node instanceof Pass)) {
+        if (!found && !(node instanceof Module)) {
             if (line <= node.beginLine) {
                 //scope is locked at this time.
                 onScopeFound(node);
@@ -143,9 +142,13 @@ public class FindScopeVisitor extends AbstractVisitor {
     public Object visitClassDef(ClassDef node) throws Exception {
         if (!found) {
             this.lastDef = node;
-            stackScope.push(node);
-            node.traverse(this);
-            stackScope.pop();
+            if (NodeUtils.isAfterNameEnd(node, line, col)) {
+                stackScope.push(node);
+                node.traverse(this);
+                stackScope.pop();
+            } else {
+                unhandled_node(node); // Just handle it directly without adding to the stack.
+            }
         }
         return null;
     }
@@ -157,9 +160,13 @@ public class FindScopeVisitor extends AbstractVisitor {
     public Object visitFunctionDef(FunctionDef node) throws Exception {
         if (!found) {
             this.lastDef = node;
-            stackScope.push(node);
-            node.traverse(this);
-            stackScope.pop();
+            if (NodeUtils.isAfterNameEnd(node, line, col)) {
+                stackScope.push(node);
+                node.traverse(this);
+                stackScope.pop();
+            } else {
+                unhandled_node(node); // Just handle it directly without adding to the stack.
+            }
         }
         return null;
     }

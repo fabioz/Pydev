@@ -51,6 +51,8 @@ public class RefactoringRequest extends DecoratableObject {
 
     public static final String FIND_DEFINITION_IN_ADDITIONAL_INFO = "findDefinitionInAdditionalInfo";
 
+    public static final String FIND_DEFINITION_FOLLOW_PARAM_DECLARATION = "findDefinitionFollowParamDeclaration";
+
     /**
      * Flag used when renaming modules. If set and True, we won't do a refactoring rename and will
      * only really change the resource name.

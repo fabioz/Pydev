@@ -1192,7 +1192,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                                 localScope, new UnpackInfo(true, -1));
                     }
                 }
-                if (ret != null && ret.size() > 0) {
+                if (ret != null && (ret.size() > 0 || ret.getMapsToTypeVar())) {
                     return ret;
                 }
                 // Check if we're doing some keys/values/items in a dict...
@@ -1553,7 +1553,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                 ITypeInfo unpackedTypeFromDocstring = type.getUnpacked(unpackPos);
                 if (unpackedTypeFromDocstring != null) {
                     TokensList completionsUnpackingType = getCompletionsUnpackingType(module, state, unpackPos, type);
-                    if (completionsUnpackingType != null && completionsUnpackingType.size() > 0) {
+                    if (completionsUnpackingType != null
+                            && (completionsUnpackingType.size() > 0 || completionsUnpackingType.getMapsToTypeVar())) {
                         return completionsUnpackingType;
                     }
                 } else {
@@ -1577,7 +1578,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                                 if (definition.ast instanceof ClassDef) {
                                     TokensList lst = getCompletionsUnpackingAST(definition.ast, definition.module,
                                             state, unpackPos);
-                                    if (lst != null && lst.size() > 0) {
+                                    if (lst != null && (lst.size() > 0 || lst.getMapsToTypeVar())) {
                                         return lst;
                                     }
                                 }
@@ -1608,10 +1609,9 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                     if (rep != null) {
                         ICompletionState copyWithActTok = state.getCopyWithActTok(rep);
                         copyWithActTok.setLookingFor(ICompletionState.LookingFor.LOOKING_FOR_INSTANCED_VARIABLE);
-                        TokensList completionsForModule = getCompletionsForModule(module,
-                                copyWithActTok);
-                        if (completionsForModule.size() > 0) {
-                            return completionsForModule;
+                        TokensList ret = getCompletionsForModule(module, copyWithActTok);
+                        if (ret.size() > 0) {
+                            return ret;
                         }
                     }
                 }
@@ -1624,28 +1624,26 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                     exprType[] elts = NodeUtils.getEltsFromCompoundObject(return1.value);
                     if (elts != null) {
                         TokensList ret = getCompletionsFromUnpackedCompoundObject(module, state, elts, unpackPos);
-                        if (ret != null && ret.size() > 0) {
+                        if (ret != null && (ret.size() > 0 || ret.getMapsToTypeVar())) {
                             return ret;
                         }
 
                     } else {
                         String rep = NodeUtils.getFullRepresentationString(return1.value);
                         if (rep != null) {
-                            TokensList completionsUnpackingObject = getCompletionsUnpackingObject(module,
+                            TokensList ret = getCompletionsUnpackingObject(module,
                                     state.getCopyWithActTok(rep), null, unpackPos);
-                            if (completionsUnpackingObject != null && completionsUnpackingObject.size() > 0) {
-                                return completionsUnpackingObject;
+                            if (ret != null && (ret.size() > 0 || ret.getMapsToTypeVar())) {
+                                return ret;
                             }
                         }
                     }
                 }
             }
         } else if (ast instanceof ClassDef) {
-            String rep = NodeUtils
-                    .getFullRepresentationString(ast);
+            String rep = NodeUtils.getFullRepresentationString(ast);
             if (rep != null) {
-                TokensList completionsForModule = this.getCompletionsForModule(module,
-                        state.getCopyWithActTok(rep));
+                TokensList completionsForModule = this.getCompletionsForModule(module, state.getCopyWithActTok(rep));
                 IToken getItemToken = null;
                 for (IterTokenEntry entry : completionsForModule) {
                     IToken iToken = entry.getToken();
@@ -1727,11 +1725,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         if (unpackedTypeFromDocstring != null) {
             ICompletionState copyWithActTok = state.getCopyWithActTok(unpackedTypeFromDocstring.getActTok());
             copyWithActTok.setLookingFor(ICompletionState.LookingFor.LOOKING_FOR_INSTANCED_VARIABLE);
-            TokensList completionsForModule = getCompletionsForModule(module,
-                    copyWithActTok);
-            if (completionsForModule.size() > 0) {
-                return completionsForModule;
-            }
+            TokensList completionsForModule = getCompletionsForModule(module, copyWithActTok);
+            return completionsForModule;
         }
         return null;
     }
@@ -1830,9 +1825,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             boolean lookForArgumentCompletion,
             ILocalScope localScope) throws CompletionRecursionException {
         state.checkMaxTimeForCompletion();
-        DefinitionAndCompletions assignCompletions = assignAnalysis.getCompletionsFollowingDefinition(this, module,
-                state,
-                localScope);
+        DefinitionAndCompletions assignCompletions = assignAnalysis.getCompletionsFollowingDefinition(
+                this, module, state, localScope);
 
         boolean useExtensions = assignCompletions.completions.empty();
 
@@ -1858,32 +1852,36 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         return assignCompletions.completions;
     }
 
-    /**
-     * @return
-     * @see ICodeCompletionASTManager#getCompletionsForClassInLocalScope(IModule, ICompletionState, boolean, boolean, List)
-     */
     @Override
     public TokensList getCompletionsForClassInLocalScope(IModule module, ICompletionState state,
-            boolean searchSameLevelMods,
-            boolean lookForArgumentCompletion, List<ITypeInfo> lookForClass)
+            boolean searchSameLevelMods, boolean lookForArgumentCompletion, List<ITypeInfo> lookForClass)
             throws CompletionRecursionException {
-        //if found here, it's an instanced variable (force it and restore if we didn't find it here...)
-        ICompletionState stateCopy = state.getCopy();
-        //force looking for instance
         TokensList ret = new TokensList();
-        stateCopy.setLookingFor(ICompletionState.LookingFor.LOOKING_FOR_INSTANCED_VARIABLE, true);
-        LookingFor lookingFor = stateCopy.getLookingFor();
+
+        //if found here, it's an instanced variable (force it and restore if we didn't find it here...)
 
         for (ITypeInfo classFound : lookForClass) {
-            stateCopy.setLocalImportsGotten(false);
-            stateCopy.setActivationToken(classFound.getActTok());
+            try (NoExceptionCloseable x = state.pushLookingFor(
+                    ICompletionState.LookingFor.LOOKING_FOR_INSTANCED_VARIABLE)) {
 
-            //same thing as the initial request, but with the class we could find...
-            TokensList tokens = getCompletionsForModule(module, stateCopy, searchSameLevelMods,
-                    lookForArgumentCompletion);
-            ret.addAll(tokens);
+                boolean prev = state.getLocalImportsGotten();
+                try {
+                    // Keep line/col to maintain the same scope.
+                    ICompletionState stateCopy = state.getCopyWithActTok(
+                            classFound.getActTok(),
+                            state.getLine(),
+                            state.getCol());
+                    stateCopy.setLocalImportsGotten(false);
+
+                    //same thing as the initial request, but with the class we could find...
+                    TokensList tokens = getCompletionsForModule(module, stateCopy, searchSameLevelMods,
+                            lookForArgumentCompletion);
+                    ret.addAll(tokens);
+                } finally {
+                    state.setLocalImportsGotten(prev);
+                }
+            }
         }
-        ret.setLookingFor(lookingFor);
         return ret;
     }
 

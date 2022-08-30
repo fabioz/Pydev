@@ -25,7 +25,6 @@ import java.util.TreeMap;
 
 import org.python.pydev.ast.codecompletion.revisited.AbstractASTManager;
 import org.python.pydev.ast.codecompletion.revisited.AbstractToken;
-import org.python.pydev.ast.codecompletion.revisited.CompletionState;
 import org.python.pydev.ast.codecompletion.revisited.ConcreteToken;
 import org.python.pydev.ast.codecompletion.revisited.visitors.AssignDefinition;
 import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
@@ -538,7 +537,6 @@ public class SourceModule extends AbstractModule implements ISourceModule {
 
                             //If we have C1.f.x
                             //At this point we'll find the C1 definition...
-
                             definitions = findDefinition(initialState.getCopyWithActTok(value),
                                     token.getLineDefinition(), token.getColDefinition() + 1, manager.getNature());
                             if (definitions.length == 1) {
@@ -779,7 +777,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     }
 
     /**
-     * @param nature
+     * @param line starts at 1
+     * @param col starts at 1
      * @return a find definition scope visitor that has already found some definition
      */
     private FindDefinitionModelVisitor getFindDefinitionsScopeVisitor(String rep, int line, int col,
@@ -904,9 +903,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                 // Just keep going (may get completions globally).
             }
         }
-        //this visitor checks for assigns for the token
-        FindDefinitionModelVisitor visitor = getFindDefinitionsScopeVisitor(actTok, line, col, nature);
 
+        FindDefinitionModelVisitor visitor = getFindDefinitionsScopeVisitor(actTok, line, col, nature);
         List<Definition> defs = visitor.definitions;
         int size = defs.size();
         if (size > 0) {
@@ -934,19 +932,44 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         //now, check for locals
         TokensList localTokens = scopeVisitor.scope.getAllLocalTokens();
 
+        List<Definition> definitionsInLocalTokens = new ArrayList<>();
         for (IterTokenEntry entry : localTokens) {
             IToken tok = entry.getToken();
 
             final String tokenRep = tok.getRepresentation();
             if (tokenRep.equals(actTok)) {
-                if (tok instanceof SourceToken && ((SourceToken) tok).getAst() instanceof Assign) {
-                    Assign node = (Assign) ((SourceToken) tok).getAst();
-                    String target = tok.getRepresentation();
-                    return new Definition[] {
-                            FindDefinitionModelVisitor.getAssignDefinition(node, target, 0, line, col,
-                                    scopeVisitor.scope, this, -1) };
+                if (tok instanceof SourceToken) {
+                    SourceToken sourceToken = (SourceToken) tok;
+                    SimpleNode sourceTokenAst = sourceToken.getAst();
+                    if (sourceToken.type == IToken.TYPE_PARAM) {
+                        definitionsInLocalTokens.add(new Definition(tok, scopeVisitor.scope, this, true));
+                        continue;
+                    }
+                    if (sourceTokenAst instanceof Assign) {
+                        Assign node = (Assign) sourceTokenAst;
+                        String target = tok.getRepresentation();
+                        definitionsInLocalTokens.add(
+                                FindDefinitionModelVisitor.getAssignDefinition(node, target, 0, line, col,
+                                        scopeVisitor.scope, this,
+                                        FindDefinitionModelVisitor.findUnpackPos(node, target)));
+                        continue;
+                    }
+
+                    Assign foundInAssign = sourceToken.getFoundInAssign();
+                    if (foundInAssign != null) {
+                        definitionsInLocalTokens.add(FindDefinitionModelVisitor.getAssignDefinition(
+                                foundInAssign, actTok, 0, sourceTokenAst.beginLine, sourceTokenAst.beginColumn,
+                                scopeVisitor.scope, this,
+                                FindDefinitionModelVisitor.findUnpackPos(foundInAssign, tok.getRepresentation())));
+                        continue;
+                    }
+                    definitionsInLocalTokens.add(new Definition(tok,
+                            getScopeVisitor(sourceTokenAst.beginLine, sourceTokenAst.beginColumn).scope, this, true));
+                } else {
+                    definitionsInLocalTokens.add(new Definition(tok, scopeVisitor.scope, this, true));
                 }
-                return new Definition[] { new Definition(tok, scopeVisitor.scope, this, true) };
+                continue;
+
             } else if (actTok.startsWith(tokenRep + ".") && !actTok.startsWith("self.")) {
                 final int tokenRepLen = tokenRep.length();
                 //this means we have a declaration in the local scope and we're accessing a part of it
@@ -1054,6 +1077,10 @@ public class SourceModule extends AbstractModule implements ISourceModule {
             }
         }
 
+        if (definitionsInLocalTokens.size() > 0) {
+            return definitionsInLocalTokens.toArray(new Definition[0]);
+        }
+
         //not found... check as local imports
         TokensList localImportedModules = scopeVisitor.scope.getLocalImportedModules(line, col, this.name);
         ICodeCompletionASTManager astManager = nature.getAstManager();
@@ -1089,6 +1116,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                             astManager);
 
                     String withoutSelf = actTok.substring(5);
+                    List<Definition> definitions = new ArrayList<>();
                     for (IterTokenEntry entry : globalTokens) {
                         IToken token = entry.getToken();
                         if (token.getRepresentation().equals(withoutSelf)) {
@@ -1101,22 +1129,34 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                     module = this;
                                 }
 
-                                SimpleNode ast2 = ((SourceToken) token).getAst();
+                                ILocalScope scope;
+                                SourceToken sourceToken = (SourceToken) token;
+                                SimpleNode ast2 = sourceToken.getAst();
                                 Tuple<Integer, Integer> def = getLineColForDefinition(ast2);
-                                FastStack<SimpleNode> stack = new FastStack<SimpleNode>(5);
                                 if (module instanceof SourceModule) {
-                                    stack.push(((SourceModule) module).getAst());
+                                    SourceModule sourceModule = (SourceModule) module;
+                                    scope = sourceModule.getLocalScope(ast2.beginLine, ast2.beginColumn);
+                                } else {
+                                    FastStack<SimpleNode> stack = new FastStack<SimpleNode>(5);
+                                    stack.push(classDef);
+                                    scope = new LocalScope(astManager.getNature(), new FastStack<SimpleNode>(0));
                                 }
-                                stack.push(classDef);
-                                ILocalScope scope = new LocalScope(astManager.getNature(), stack);
-                                return new Definition[] { new Definition(def.o1, def.o2, token.getRepresentation(),
-                                        ast2,
-                                        scope, module) };
 
-                            } else {
-                                return new Definition[0];
+                                Assign foundInAssign = sourceToken.getFoundInAssign();
+                                if (foundInAssign != null) {
+                                    definitions.add(FindDefinitionModelVisitor.getAssignDefinition(
+                                            foundInAssign, actTok, col, ast2.beginLine, ast2.beginColumn, scope, module,
+                                            -1));
+
+                                } else {
+                                    definitions.add(new Definition(def.o1, def.o2, token.getRepresentation(),
+                                            ast2, scope, module));
+                                }
                             }
                         }
+                    }
+                    if (definitions.size() > 0) {
+                        return definitions.toArray(new Definition[0]);
                     }
                 }
             }
@@ -1162,6 +1202,10 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         } catch (CompletionRecursionException e) {
             //ignore (will return what we've got so far)
             //            e.printStackTrace();
+        }
+
+        if (toRet.size() > 0) {
+            return toRet.toArray(new Definition[0]);
         }
 
         return toRet.toArray(new Definition[0]);
@@ -1342,7 +1386,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                     } else {
                         //line, col
                         return new Definition(def.o1, def.o2, rep, a,
-                                new LocalScope(nature, new FastStack<SimpleNode>(5)),
+                                new LocalScope(nature, new FastStack<SimpleNode>(5)), // dummy scope for non source token
                                 module);
                     }
                 } else if (token instanceof ConcreteToken) {
@@ -1479,11 +1523,11 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     public TokensList getLocalTokens(int line, int col, ILocalScope scope) {
         try {
             if (scope == null) {
-                FindScopeVisitor scopeVisitor = getScopeVisitor(line, col);
+                FindScopeVisitor scopeVisitor = getScopeVisitor(line + 1, col + 1);
                 scope = scopeVisitor.scope;
             }
 
-            return scope.getLocalTokens(line, col, false);
+            return scope.getLocalTokens(line + 1, col + 1, false);
         } catch (Exception e) {
             Log.log(e);
             return new TokensList();
@@ -1497,7 +1541,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
     @Override
     public ILocalScope getLocalScope(int line, int col) {
         try {
-            FindScopeVisitor scopeVisitor = getScopeVisitor(line, col);
+            FindScopeVisitor scopeVisitor = getScopeVisitor(line + 1, col + 1);
 
             return scopeVisitor.scope;
         } catch (Exception e) {

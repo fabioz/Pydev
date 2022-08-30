@@ -190,6 +190,28 @@ public class TddCodeGenerationQuickFixParticipantTest extends CodeCompletionTest
         }
     }
 
+    public void testCreateWithTypeAsParam2() throws Exception {
+        int usedGrammar = GRAMMAR_TO_USE_FOR_PARSING;
+        GRAMMAR_TO_USE_FOR_PARSING = PythonNature.LATEST_GRAMMAR_PY3_VERSION;
+        try {
+            String s = "" +
+                    "class Foo(object):\n" +
+                    "    pass\n" +
+                    "\n" +
+                    "def method(foo = Foo()):\n" +
+                    "    foo.bar()";
+            TddCodeGenerationQuickFixParticipant participant = new TddCodeGenerationQuickFixParticipant();
+            Document doc = new Document(s);
+            List<ICompletionProposalHandle> props = participant.getTddProps(new PySelection(doc, s.length() - 1), null,
+                    null,
+                    nature, null, s.length() - 1, null);
+            assertContains("Create bar method at Foo (__module_not_in_the_pythonpath__)",
+                    props.toArray(new ICompletionProposalHandle[0]));
+        } finally {
+            GRAMMAR_TO_USE_FOR_PARSING = usedGrammar;
+        }
+    }
+
     public void testCreateWithTypeAsAnnotation() throws Exception {
         int usedGrammar = GRAMMAR_TO_USE_FOR_PARSING;
         GRAMMAR_TO_USE_FOR_PARSING = PythonNature.LATEST_GRAMMAR_PY3_VERSION;

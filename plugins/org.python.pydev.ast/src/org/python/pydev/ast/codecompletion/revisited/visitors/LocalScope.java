@@ -206,7 +206,7 @@ public class LocalScope implements ILocalScope {
      * @see org.python.pydev.core.ILocalScope#getLocalTokens(int, int, boolean)
      */
     @Override
-    public TokensList getLocalTokens(int endLine, int col, boolean onlyArgs) {
+    public TokensList getLocalTokens(int line, int col, boolean onlyArgs) {
         Set<SourceToken> comps = new HashSet<SourceToken>();
 
         for (Iterator<ISimpleNode> iter = this.scope.iterator(); iter.hasNext();) {
@@ -219,6 +219,7 @@ public class LocalScope implements ILocalScope {
 
                 for (int i = 0; i < args.args.length; i++) {
                     String s = NodeUtils.getRepresentationString(args.args[i]);
+                    SourceToken sourceToken = new SourceToken(args.args[i], s, "", "", "", IToken.TYPE_PARAM, nature);
                     if (args.annotation != null && args.annotation.length > i && args.annotation[i] != null) {
                         exprType[] targets = { args.args[i] };
                         exprType value = null;
@@ -226,16 +227,13 @@ public class LocalScope implements ILocalScope {
                             value = args.defaults[i];
                         }
                         exprType type = args.annotation[i];
-                        comps.add(new SourceToken(new Assign(targets, value, type), s, "", "", "", IToken.TYPE_PARAM,
-                                nature));
+                        sourceToken.setDummyAssignFromParam(new Assign(targets, value, type));
                     } else if (args.defaults != null && args.defaults.length > i && args.defaults[i] != null) {
                         exprType[] targets = { args.args[i] };
                         exprType value = args.defaults[i];
-                        comps.add(new SourceToken(new Assign(targets, value, null), s, "", "", "", IToken.TYPE_PARAM,
-                                nature));
-                    } else {
-                        comps.add(new SourceToken(args.args[i], s, "", "", "", IToken.TYPE_PARAM, nature));
+                        sourceToken.setDummyAssignFromParam(new Assign(targets, value, null));
                     }
+                    comps.add(sourceToken);
                 }
                 if (args.vararg != null) {
                     String s = NodeUtils.getRepresentationString(args.vararg);
@@ -253,15 +251,16 @@ public class LocalScope implements ILocalScope {
                     }
                 }
 
-                if (onlyArgs) {
-                    continue;
-                }
                 body = f.body;
             }
 
             else if (element instanceof ClassDef && !iter.hasNext()) {
                 ClassDef classDef = (ClassDef) element;
                 body = classDef.body;
+            }
+
+            if (onlyArgs) {
+                continue;
             }
 
             if (body != null) {
@@ -280,7 +279,7 @@ public class LocalScope implements ILocalScope {
 
                             //if it is found here, it is a local type
                             tok.type = IToken.TYPE_LOCAL;
-                            if (tok.getAst().beginLine <= endLine) {
+                            if (tok.getAst().beginLine <= line) {
                                 comps.add(tok);
                             }
 
