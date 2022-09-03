@@ -31,6 +31,7 @@ import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.ast.codecompletion.revisited.visitors.FindDefinitionModelVisitor;
 import org.python.pydev.ast.codecompletion.revisited.visitors.FindScopeVisitor;
 import org.python.pydev.ast.codecompletion.revisited.visitors.GlobalModelVisitor;
+import org.python.pydev.ast.codecompletion.revisited.visitors.KeywordParameterDefinition;
 import org.python.pydev.ast.codecompletion.revisited.visitors.LocalScope;
 import org.python.pydev.ast.codecompletion.revisited.visitors.StopVisitingException;
 import org.python.pydev.ast.codecompletion.revisited.visitors.TypeInfoDefinition;
@@ -74,6 +75,7 @@ import org.python.pydev.shared_core.callbacks.CallbackWithListeners;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.FullRepIterable;
+import org.python.pydev.shared_core.string.LineCol;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.FastStack;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -826,6 +828,65 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         }
     }
 
+    private static class DefinitionsContainer {
+        private static final Definition[] EMPTY_DEFINITION = new Definition[0];
+        private List<Definition> list = null;
+        private Set<LineCol> memo = null;
+
+        private List<Definition> optional = null;
+        public boolean optionalIsParam;
+
+        public DefinitionsContainer() {
+        }
+
+        public void add(Definition definition) {
+            LineCol lineCol = new LineCol(definition.line, definition.col);
+
+            if (list == null) {
+                list = new ArrayList<>(4);
+                list.add(definition);
+                memo = new HashSet<>();
+                memo.add(lineCol);
+            } else {
+                if (!memo.contains(lineCol)) {
+                    list.add(definition);
+                    memo.add(lineCol);
+                }
+            }
+        }
+
+        public boolean empty() {
+            return list == null;
+        }
+
+        public void addOptional(Definition definition) {
+            if (definition instanceof KeywordParameterDefinition) {
+                this.optionalIsParam = true;
+
+            } else if (definition.ast instanceof Name) {
+                Name name = (Name) definition.ast;
+                this.optionalIsParam = name.ctx == Name.Param || name.ctx == Name.KwOnlyParam;
+            }
+
+            if (optional == null) {
+                optional = new ArrayList<>();
+            }
+            optional.add(definition);
+        }
+
+        public Definition[] toArray() {
+            if (optional != null) {
+                for (Definition d : optional) {
+                    add(d);
+                }
+            }
+            if (list != null && list.size() > 0) {
+                return list.toArray(EMPTY_DEFINITION);
+            }
+            return EMPTY_DEFINITION;
+        }
+    }
+
     /**
      * @param line: starts at 1
      * @param col: starts at 1
@@ -856,7 +917,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         }
 
         //the line passed in starts at 1 and the lines for the visitor start at 0
-        ArrayList<Definition> toRet = new ArrayList<Definition>();
+        DefinitionsContainer toRet = new DefinitionsContainer();
 
         //first thing is finding its scope
         FindScopeVisitor scopeVisitor = getScopeVisitor(line, col);
@@ -915,24 +976,28 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                     AssignDefinition element = (AssignDefinition) next;
                     if (element.target.startsWith("self") == false) {
                         if (element.scope.isOuterOrSameScope(scopeVisitor.scope) || element.foundAsGlobal) {
-                            toRet.add(element);
+                            toRet.addOptional(element);
                         }
                     } else {
-                        toRet.add(element);
+                        toRet.addOptional(element);
                     }
                 } else {
-                    toRet.add((Definition) next);
+                    toRet.addOptional((Definition) next);
                 }
             }
-            if (toRet.size() > 0) {
-                return toRet.toArray(new Definition[0]);
-            }
+        }
+
+        // If we found a parameter, don't keep searching, but if we found an assign
+        // as MyClass.foo = 2, keep on going because we'd like to get to the definition
+        // of 'foo' inside of MyClass (and later on just append these as definitions found
+        // if they aren't duplicated).
+        if (toRet.optionalIsParam) {
+            return toRet.toArray();
         }
 
         //now, check for locals
         TokensList localTokens = scopeVisitor.scope.getAllLocalTokens();
 
-        List<Definition> definitionsInLocalTokens = new ArrayList<>();
         for (IterTokenEntry entry : localTokens) {
             IToken tok = entry.getToken();
 
@@ -942,13 +1007,13 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                     SourceToken sourceToken = (SourceToken) tok;
                     SimpleNode sourceTokenAst = sourceToken.getAst();
                     if (sourceToken.type == IToken.TYPE_PARAM) {
-                        definitionsInLocalTokens.add(new Definition(tok, scopeVisitor.scope, this, true));
+                        toRet.add(new Definition(tok, scopeVisitor.scope, this, true));
                         continue;
                     }
                     if (sourceTokenAst instanceof Assign) {
                         Assign node = (Assign) sourceTokenAst;
                         String target = tok.getRepresentation();
-                        definitionsInLocalTokens.add(
+                        toRet.add(
                                 FindDefinitionModelVisitor.getAssignDefinition(node, target, 0, line, col,
                                         scopeVisitor.scope, this,
                                         FindDefinitionModelVisitor.findUnpackPos(node, target)));
@@ -957,16 +1022,16 @@ public class SourceModule extends AbstractModule implements ISourceModule {
 
                     Assign foundInAssign = sourceToken.getFoundInAssign();
                     if (foundInAssign != null) {
-                        definitionsInLocalTokens.add(FindDefinitionModelVisitor.getAssignDefinition(
+                        toRet.add(FindDefinitionModelVisitor.getAssignDefinition(
                                 foundInAssign, actTok, 0, sourceTokenAst.beginLine, sourceTokenAst.beginColumn,
                                 scopeVisitor.scope, this,
                                 FindDefinitionModelVisitor.findUnpackPos(foundInAssign, tok.getRepresentation())));
                         continue;
                     }
-                    definitionsInLocalTokens.add(new Definition(tok,
+                    toRet.add(new Definition(tok,
                             getScopeVisitor(sourceTokenAst.beginLine, sourceTokenAst.beginColumn).scope, this, true));
                 } else {
-                    definitionsInLocalTokens.add(new Definition(tok, scopeVisitor.scope, this, true));
+                    toRet.add(new Definition(tok, scopeVisitor.scope, this, true));
                 }
                 continue;
 
@@ -983,7 +1048,6 @@ public class SourceModule extends AbstractModule implements ISourceModule {
 
                 Definition[] definitions = this.findDefinition(copyWithActTok, tok.getLineDefinition(),
                         tok.getColDefinition(), nature, innerFindPaths);
-                ArrayList<Definition> ret = new ArrayList<Definition>();
                 for (Definition definition : definitions) {
                     if (definition.module != null) {
                         if (definition.value.length() == 0) {
@@ -1030,11 +1094,11 @@ public class SourceModule extends AbstractModule implements ISourceModule {
 
                         }
                         for (Definition realDefinition : realDefinitions) {
-                            ret.add(realDefinition);
+                            toRet.add(realDefinition);
                         }
                     }
                 }
-                if (ret.size() == 0) {
+                if (toRet.empty()) {
                     //Well, it seems it's a parameter, so, let's check if we can get the parameter definition to then resolve
                     //the token.
                     ILocalScope scope = scopeVisitor.scope;
@@ -1065,7 +1129,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                             module = astManager.getModule(parentPackage, nature, true, state);
                                         }
                                         if (module != null) {
-                                            ret.add(new Definition(iToken, null, module));
+                                            toRet.add(new Definition(iToken, null, module));
                                         }
                                     }
                                 }
@@ -1073,12 +1137,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                         }
                     }
                 }
-                return ret.toArray(new Definition[ret.size()]);
+                return toRet.toArray();
             }
-        }
-
-        if (definitionsInLocalTokens.size() > 0) {
-            return definitionsInLocalTokens.toArray(new Definition[0]);
         }
 
         //not found... check as local imports
@@ -1096,8 +1156,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
 
                     findDefinitionsFromModAndTok(nature, toRet, null, (SourceModule) o.o1, copy);
                 }
-                if (toRet.size() > 0) {
-                    return toRet.toArray(new Definition[0]);
+                if (!toRet.empty()) {
+                    return toRet.toArray();
                 }
             }
         }
@@ -1204,18 +1264,14 @@ public class SourceModule extends AbstractModule implements ISourceModule {
             //            e.printStackTrace();
         }
 
-        if (toRet.size() > 0) {
-            return toRet.toArray(new Definition[0]);
-        }
-
-        return toRet.toArray(new Definition[0]);
+        return toRet.toArray();
     }
 
     /**
      * Finds the definitions for some module and a token from that module
      * @throws Exception
      */
-    private void findDefinitionsFromModAndTok(IPythonNature nature, ArrayList<Definition> toRet, String moduleImported,
+    private void findDefinitionsFromModAndTok(IPythonNature nature, DefinitionsContainer toRet, String moduleImported,
             SourceModule mod, ICompletionState state) throws Exception {
         String tok = state.getActivationToken();
         if (tok != null) {
@@ -1240,7 +1296,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         }
     }
 
-    private IDefinition getModuleDefinition(IPythonNature nature, ArrayList<Definition> toRet, SourceModule mod,
+    private IDefinition getModuleDefinition(IPythonNature nature, DefinitionsContainer toRet, SourceModule mod,
             String moduleImported, IModuleRequestState moduleRequest) {
         String rel = AbstractToken.makeRelative(mod.getName(), moduleImported);
         IModule modFound = nature.getAstManager().getModule(rel, nature, false, moduleRequest);

@@ -8,7 +8,9 @@ package org.python.pydev.ast.codecompletion.revisited;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Set;
 
 import org.eclipse.jface.text.Document;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
@@ -155,8 +157,12 @@ public class FindActualDefinitionTest extends CodeCompletionTestsBase {
         PyRefactoringFindDefinition.findActualDefinition(null, true, mod, "SomeClass.SOME_CONSTANT", selected, 5, 15,
                 nature,
                 completionCache);
-        assertEquals(1, selected.size());
-        assertEquals(2, selected.get(0).getLine());
+        assertEquals(2, selected.size());
+        Set<Integer> set = new HashSet<>();
+        for (IDefinition d : selected) {
+            set.add(d.getLine());
+        }
+        assertEquals(new HashSet<Integer>(Arrays.asList(2, 5)), set);
     }
 
     public void testFindActualDefinitionImported() throws Exception {

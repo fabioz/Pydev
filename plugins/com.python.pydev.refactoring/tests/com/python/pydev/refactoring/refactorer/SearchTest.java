@@ -534,6 +534,22 @@ public class SearchTest extends AdditionalInfoTestsBase {
         assertEquals(1, pointers[0].start.line);
     }
 
+    public void testOnParam2() throws Exception {
+        String str = "tok = 10\n" +
+                "def m1(*, tok=tok):\n" + //parameter tok (left side)
+                "    '@param tok: this is tok'\n" +
+                "    #checking tok right?\n" + "";
+
+        RefactoringRequest refactoringRequest = createRefactoringRequest(new Document(str), "foo", 1, 11);
+
+        refactoringRequest.setAdditionalInfo(RefactoringRequest.FIND_DEFINITION_IN_ADDITIONAL_INFO,
+                false);
+        ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
+
+        assertEquals(1, pointers.length);
+        assertEquals(1, pointers[0].start.line);
+    }
+
     public void testOnSameName2() throws Exception {
         String str = "" +
                 "class Foo:\n" +

@@ -12,6 +12,7 @@ package com.python.pydev.refactoring.refactorer.refactorings.rename;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -168,14 +169,22 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
     protected void checkProcessors() {
         if (lastProcessorUsed != null) {
             List<IRefactorRenameProcess> processes = lastProcessorUsed.getAllProcesses();
-            assertEquals(1, processes.size());
+            assertEquals(getExpectedProcessesSize(), processes.size());
 
-            Class processUnderTest = getProcessUnderTest();
+            Set<Class<?>> processUnderTest = getProcessesUnderTest();
             if (processUnderTest != null) {
                 for (IRefactorRenameProcess p : processes) {
-                    assertTrue(StringUtils.format("Expected %s. Received:%s",
-                            processUnderTest, p.getClass()),
-                            processUnderTest.isInstance(p)); //we should only activate the rename class process in this test case
+                    boolean found = false;
+                    for (Class<?> c : processUnderTest) {
+                        if (c.isInstance(p)) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        throw new AssertionError(
+                                StringUtils.format("Expected %s. Received:%s", processUnderTest, p.getClass()));
+                    }
                 }
             }
         }
@@ -184,7 +193,19 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
     /**
      * @return the process class that we're testing.
      */
-    protected abstract Class getProcessUnderTest();
+    protected abstract Class<?> getProcessUnderTest();
+
+    protected Set<Class<?>> getProcessesUnderTest() {
+        Class<?> processUnderTest = getProcessUnderTest();
+        if (processUnderTest == null) {
+            return null;
+        }
+        return new HashSet<>(Arrays.asList(processUnderTest));
+    }
+
+    protected int getExpectedProcessesSize() {
+        return 1;
+    };
 
     /**
      * A method that creates a project that references no other project

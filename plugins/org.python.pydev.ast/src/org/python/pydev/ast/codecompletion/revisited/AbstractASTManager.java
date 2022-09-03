@@ -1506,7 +1506,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             if (ast instanceof Name) {
                 Name name = (Name) ast;
                 // Found it as a parameter.
-                if (name.ctx == Name.Param) {
+                if (name.ctx == Name.Param || name.ctx == Name.KwOnlyParam) {
                     if (definition2.scope != null) {
                         FastStack scopeStack = definition2.scope.getScopeStack();
                         if (scopeStack.size() > 0) {

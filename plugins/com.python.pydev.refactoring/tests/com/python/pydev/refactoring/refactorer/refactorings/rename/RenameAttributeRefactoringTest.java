@@ -39,6 +39,13 @@ public class RenameAttributeRefactoringTest extends RefactoringRenameTestBase {
         return expectedProcessClass;
     }
 
+    private int expectedProcessesSize = 1;
+
+    @Override
+    protected int getExpectedProcessesSize() {
+        return expectedProcessesSize;
+    }
+
     public void testRenameAttribute() throws Exception {
         expectedProcessClass = PyRenameAttributeProcess.class;
         //Line 1 = "    a.attrInstance = 10"
@@ -79,6 +86,7 @@ public class RenameAttributeRefactoringTest extends RefactoringRenameTestBase {
 
     public void testRenameClassAttribute() throws Exception {
         expectedProcessClass = PyRenameAttributeProcess.class;
+        expectedProcessesSize = 2;
         Map<Tuple<String, File>, HashSet<ASTEntry>> references = getReferencesForRenameSimple(
                 "reflib.renameclassattribute.mod2", 5, 24);
         assertEquals(

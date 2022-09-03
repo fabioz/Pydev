@@ -303,7 +303,7 @@ public class CtxParticipant
             ICompletionState completionCache) {
         if (d.ast instanceof Name) {
             Name name = (Name) d.ast;
-            if (name.ctx == Name.Param) {
+            if (name.ctx == Name.Param || name.ctx == Name.KwOnlyParam) {
                 if (d.scope != null && !d.scope.getScopeStack().empty()) {
                     Object peek = d.scope.getScopeStack().peek();
                     if (peek instanceof FunctionDef) {

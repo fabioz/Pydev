@@ -2138,7 +2138,7 @@ public final class NodeUtils {
     public static boolean isParamName(SimpleNode ast) {
         if (ast instanceof Name) {
             Name name = (Name) ast;
-            if (name.ctx == Name.Param) {
+            if (name.ctx == Name.Param || name.ctx == Name.Param) {
                 return true;
             }
         }

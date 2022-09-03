@@ -14,7 +14,7 @@ import org.python.pydev.parser.jython.ast.Call;
 /**
  * A definition where we found things as a keyword parameter in a call.
  * 
- * It contains the access to the keyword paramater as its ast and an additional call attribute (and attribute
+ * It contains the access to the keyword parameter as its ast and an additional call attribute (and attribute
  * if the call was inside an attribute)
  * 
  * @author fabioz

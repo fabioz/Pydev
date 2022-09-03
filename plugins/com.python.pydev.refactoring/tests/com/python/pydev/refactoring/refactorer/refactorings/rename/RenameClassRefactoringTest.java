@@ -48,6 +48,13 @@ public class RenameClassRefactoringTest extends RefactoringRenameTestBase {
         return PyRenameClassProcess.class;
     }
 
+    private int expectedProcessesSize = 1;
+
+    @Override
+    protected int getExpectedProcessesSize() {
+        return expectedProcessesSize;
+    }
+
     public void testRename1() throws Exception {
         Map<Tuple<String, File>, HashSet<ASTEntry>> references = getReferencesForRenameSimple(
                 "reflib.renameclass.renfoo", 0, 8);
@@ -192,6 +199,7 @@ public class RenameClassRefactoringTest extends RefactoringRenameTestBase {
     }
 
     public void testRenameLocalClass() throws Exception {
+        expectedProcessesSize = 2;
         Map<Tuple<String, File>, HashSet<ASTEntry>> references = getReferencesForRenameSimple(
                 "reflib.renamelocaltoken.__init__", 1,
                 12);
