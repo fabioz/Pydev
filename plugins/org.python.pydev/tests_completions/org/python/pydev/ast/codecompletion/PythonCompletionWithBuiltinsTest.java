@@ -95,9 +95,9 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
         super.setUp();
 
         ADD_MX_TO_FORCED_BUILTINS = false;
-        if (shell == null && TestDependent.PYTHON2_NUMPY_PACKAGES != null) {
+        if (shell == null && TestDependent.PYTHON_NUMPY_PACKAGES != null) {
             try {
-                FileUtils.copyFile(TestDependent.PYTHON2_NUMPY_PACKAGES +
+                FileUtils.copyFile(TestDependent.PYTHON_NUMPY_PACKAGES +
                         "numpy/core/umath.pyd",
                         TestDependent.TEST_PYSRC_TESTING_LOC
                                 +
@@ -110,8 +110,8 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
         CompiledModule.COMPILED_MODULES_ENABLED = true;
         String additionalPaths = "";
         for (String s : new String[] { TestDependent.PYTHON2_WXPYTHON_PACKAGES, TestDependent.PYTHON2_MX_PACKAGES,
-                TestDependent.PYTHON2_NUMPY_PACKAGES, TestDependent.PYTHON2_OPENGL_PACKAGES,
-                TestDependent.PYTHON2_DJANGO_PACKAGES
+                TestDependent.PYTHON_NUMPY_PACKAGES, TestDependent.PYTHON2_OPENGL_PACKAGES,
+                TestDependent.PYTHON_DJANGO_PACKAGES
 
         }) {
             if (s != null) {
@@ -253,7 +253,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
     }
 
     public void testNumpy() throws BadLocationException, IOException, Exception {
-        if (TestDependent.PYTHON2_NUMPY_PACKAGES != null) {
+        if (TestDependent.PYTHON_NUMPY_PACKAGES != null) {
             String s = "" +
                     "from numpy import less\n" +
                     "less.";
@@ -336,7 +336,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
             return;
         }
 
-        if (TestDependent.PYTHON2_NUMPY_PACKAGES != null) {
+        if (TestDependent.PYTHON_NUMPY_PACKAGES != null) {
             String s = "" +
                     "from extendable.bootstrap_dll import umath\n" +
                     "umath.";
@@ -354,7 +354,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
             return;
         }
 
-        if (TestDependent.PYTHON2_NUMPY_PACKAGES != null) {
+        if (TestDependent.PYTHON_NUMPY_PACKAGES != null) {
             String s = "" +
                     "from extendable.bootstrap_dll.umath import ";
             IModule module = nature.getAstManager().getModule("extendable.bootstrap_dll.umath", nature, true,
@@ -518,7 +518,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
     }
 
     public void testDjango() throws Exception {
-        if (TestDependent.PYTHON2_DJANGO_PACKAGES != null) {
+        if (TestDependent.PYTHON_DJANGO_PACKAGES != null) {
             String s = "from django.db import models\n" +
                     "\n" +
                     "class HelperForPydevCompletion(models.Model):\n"
@@ -532,8 +532,8 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
     }
 
     public void testDjango2() throws Exception {
-        if (TestDependent.PYTHON2_DJANGO_PACKAGES != null) {
-            assertTrue(new File(TestDependent.PYTHON2_DJANGO_PACKAGES).exists());
+        if (TestDependent.PYTHON_DJANGO_PACKAGES != null) {
+            assertTrue(new File(TestDependent.PYTHON_DJANGO_PACKAGES).exists());
             String s = "from django.db import models\n" +
                     "\n" +
                     "class HelperForPydevCompletion(models.Model):\n"
@@ -547,7 +547,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
     }
 
     public void testDjango3() throws Exception {
-        if (TestDependent.PYTHON2_DJANGO_PACKAGES != null) {
+        if (TestDependent.PYTHON_DJANGO_PACKAGES != null) {
             String s = "from django.contrib.auth.models import User\n" +
                     "User.";
 

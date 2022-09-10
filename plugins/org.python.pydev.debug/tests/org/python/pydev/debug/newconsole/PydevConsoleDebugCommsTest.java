@@ -85,7 +85,7 @@ public class PydevConsoleDebugCommsTest extends TestCase {
         }
         homeDir = homeDir.getAbsoluteFile();
         homeDir.mkdir();
-        String[] cmdarray = new String[] { TestDependent.PYTHON2_EXE, consoleFile, String.valueOf(port),
+        String[] cmdarray = new String[] { TestDependent.PYTHON_EXE, consoleFile, String.valueOf(port),
                 String.valueOf(clientPort) };
 
         ProcessBuilder builder = new ProcessBuilder(cmdarray);

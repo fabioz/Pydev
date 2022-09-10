@@ -55,12 +55,11 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
         super.setUp();
         GenCythonAstImpl.IN_TESTS = true;
         CompiledModule.COMPILED_MODULES_ENABLED = false;
-        PyParser.USE_NEW_CYTHON_PARSER = true;
         this.restorePythonPath(false);
 
         //        CorePlugin.setBundleInfo(new BundleInfoStub());
         //
-        //        final InterpreterInfo info = new InterpreterInfo("3.7", TestDependent.PYTHON_30_EXE, new ArrayList<String>());
+        //        final InterpreterInfo info = new InterpreterInfo("3.7", TestDependent.PYTHON_EXE, new ArrayList<String>());
         //
         //        IEclipsePreferences preferences = new InMemoryEclipsePreferences();
         //        final PythonInterpreterManager manager = new PythonInterpreterManager(preferences);

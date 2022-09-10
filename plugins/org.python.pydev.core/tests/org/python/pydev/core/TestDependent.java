@@ -34,26 +34,22 @@ public class TestDependent {
     public static String CONDA_PYTHON_38_ENV = null;
 
     //Python (implicitly resolved based on the Python variables above if not specified).
-    public static String PYTHON2_LIB = null;
-    // PYTHON2_DLLS applies to Windows only
-    public static String PYTHON2_DLLS = null;
-    public static String PYTHON2_EXE = null;
+    public static String PYTHON_LIB = null;
+    // PYTHON_DLLS applies to Windows only
+    public static String PYTHON_DLLS = null;
+    public static String PYTHON_EXE = null;
     public static String PYTHON2_SITE_PACKAGES = null;
-    public static String PYTHON2_LIB_DYNLOAD = null;
+    public static String PYTHON_LIB_DYNLOAD = null;
 
     //Python (optional): related tests won't be run if not available
     public static String PYTHON38_QT5_PACKAGES = null;
 
     public static String PYTHON2_WXPYTHON_PACKAGES = null;
-    public static String PYTHON2_NUMPY_PACKAGES = null;
-    public static String PYTHON2_DJANGO_PACKAGES = null;
+    public static String PYTHON_NUMPY_PACKAGES = null;
+    public static String PYTHON_DJANGO_PACKAGES = null;
     public static String PYTHON2_OPENGL_PACKAGES = null;
     public static String PYTHON2_MX_PACKAGES = null;
     public static String PYTHON2_PIL_PACKAGES = null;
-
-    //python 3.x
-    public static String PYTHON_30_LIB = null;
-    public static String PYTHON_30_EXE = null;
 
     // the following are all derived from TEST_PYDEV_BASE_LOC if unset
     public static String PYSRC_LOC = null;
@@ -94,20 +90,16 @@ public class TestDependent {
 
     public static String getCompletePythonLib(boolean addSitePackages, boolean isPython3) {
         String dlls = "";
-        if (PYTHON2_LIB_DYNLOAD == null) {
-            PYTHON2_LIB_DYNLOAD = "";
+        if (PYTHON_LIB_DYNLOAD == null) {
+            PYTHON_LIB_DYNLOAD = "";
         }
         if (isWindows()) {
-            dlls = "|" + PYTHON2_DLLS;
+            dlls = "|" + PYTHON_DLLS;
         }
         if (!addSitePackages) {
-            if (isPython3) {
-                return PYTHON_30_LIB;
-            } else {
-                return PYTHON2_LIB + "|" + PYTHON2_LIB_DYNLOAD + dlls;
-            }
+            return PYTHON_LIB + "|" + PYTHON_LIB_DYNLOAD + dlls;
         } else {
-            return PYTHON2_LIB + "|" + PYTHON2_LIB_DYNLOAD + "|" + PYTHON2_SITE_PACKAGES + dlls;
+            return PYTHON_LIB + "|" + PYTHON_LIB_DYNLOAD + "|" + PYTHON2_SITE_PACKAGES + dlls;
         }
     }
 
@@ -191,15 +183,15 @@ public class TestDependent {
                         + TEST_PYDEV_BASE_LOC);
             }
 
-            if (PYTHON2_EXE == null) {
+            if (PYTHON_EXE == null) {
                 if (isWindows()) {
-                    PYTHON2_EXE = PYTHON_INSTALL + "python.exe";
+                    PYTHON_EXE = PYTHON_INSTALL + "python.exe";
                 } else {
-                    PYTHON2_EXE = PYTHON_INSTALL + "python";
+                    PYTHON_EXE = PYTHON_INSTALL + "python";
                 }
             }
-            if (!new File(PYTHON2_EXE).exists()) {
-                System.err.println("PYTHON2_EXE variable points to path that does NOT exist: " + PYTHON2_EXE);
+            if (!new File(PYTHON_EXE).exists()) {
+                System.err.println("PYTHON_EXE variable points to path that does NOT exist: " + PYTHON_EXE);
             }
 
             if (CONDA_PYTHON_38_ENV != null) {
@@ -212,14 +204,14 @@ public class TestDependent {
                 }
             }
 
-            if (PYTHON2_LIB == null) {
-                PYTHON2_LIB = PYTHON_INSTALL + "Lib/";
+            if (PYTHON_LIB == null) {
+                PYTHON_LIB = PYTHON_INSTALL + "Lib/";
             }
-            if (PYTHON2_DLLS == null) {
-                PYTHON2_DLLS = PYTHON_INSTALL + "DLLs/";
+            if (PYTHON_DLLS == null) {
+                PYTHON_DLLS = PYTHON_INSTALL + "DLLs/";
             }
             if (PYTHON2_SITE_PACKAGES == null) {
-                PYTHON2_SITE_PACKAGES = PYTHON2_LIB + "site-packages/";
+                PYTHON2_SITE_PACKAGES = PYTHON_LIB + "site-packages/";
             }
 
             if (TEST_PYSRC_TESTING_LOC == null) {

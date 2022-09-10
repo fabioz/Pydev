@@ -237,7 +237,7 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
         if (DEBUG_TESTS_BASE) {
             System.out.println("-------------- Restoring system pythonpath");
         }
-        restoreSystemPythonPath(force, TestDependent.PYTHON2_LIB);
+        restoreSystemPythonPath(force, TestDependent.PYTHON_LIB);
         if (DEBUG_TESTS_BASE) {
             System.out.println("-------------- Restoring project pythonpath for refactoring nature");
         }

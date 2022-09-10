@@ -88,13 +88,13 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
                 helper.resolveModule(TestDependent.TEST_PYSRC_TESTING_LOC + "extendable/dll/my_dll.cp36-win_amd64.pyd",
                         true, project));
 
-        assertEquals("unittest", helper.resolveModule(TestDependent.PYTHON2_LIB + "unittest.py", project));
-        assertEquals("compiler.ast", helper.resolveModule(TestDependent.PYTHON2_LIB + "compiler/ast.py", project));
+        assertEquals("unittest", helper.resolveModule(TestDependent.PYTHON_LIB + "unittest.py", project));
+        assertEquals("compiler.ast", helper.resolveModule(TestDependent.PYTHON_LIB + "compiler/ast.py", project));
 
-        assertEquals("email", helper.resolveModule(TestDependent.PYTHON2_LIB + "email", project));
+        assertEquals("email", helper.resolveModule(TestDependent.PYTHON_LIB + "email", project));
 
-        assertSame(null, helper.resolveModule(TestDependent.PYTHON2_LIB + "curses/invalid", true, project));
-        assertSame(null, helper.resolveModule(TestDependent.PYTHON2_LIB + "invalid", true, project));
+        assertSame(null, helper.resolveModule(TestDependent.PYTHON_LIB + "curses/invalid", true, project));
+        assertSame(null, helper.resolveModule(TestDependent.PYTHON_LIB + "invalid", true, project));
 
         assertEquals("testlib", helper.resolveModule(TestDependent.TEST_PYSRC_TESTING_LOC + "testlib", project));
         assertEquals("testlib.__init__",

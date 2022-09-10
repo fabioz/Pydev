@@ -12,12 +12,9 @@ package org.python.pydev.parser.prettyprinter;
 import java.io.File;
 
 import org.python.pydev.core.IGrammarVersionProvider;
-import org.python.pydev.core.TestDependent;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterPrefsV2;
 
 public class PrettyPrinter30LibTest extends AbstractPrettyPrinterTestBase {
-
-    private static boolean MAKE_COMPLETE_PARSE = true;
 
     public static void main(String[] args) {
         try {
@@ -50,15 +47,6 @@ public class PrettyPrinter30LibTest extends AbstractPrettyPrinterTestBase {
                 + "del threading, local        # Don't contaminate the namespace\n"
                 + "";
         parseAndPrettyPrintFile(new File("temp.py"), contents);
-    }
-
-    public void testOnCompleteLib() throws Exception {
-        File file = new File(TestDependent.PYTHON_30_LIB);
-        if (MAKE_COMPLETE_PARSE) {
-            parseAndReparsePrettyPrintedFilesInDir(file);
-        } else {
-            System.out.println("COMPLETE LIB NOT PARSED!");
-        }
     }
 
 }

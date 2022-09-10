@@ -165,19 +165,19 @@ public class ModulesManagerTest extends CodeCompletionTestsBase {
         intToString.put(0, "W.py");
         ModulesManager.handleFileContents(manager, contents, intToString);
 
-        assertEquals(3, manager.modulesKeys.size());
+        assertEquals(3, manager.getInternalModulesKeys().size());
 
-        ModulesKey key = manager.modulesKeys.get(new ModulesKey("A", null));
+        ModulesKey key = manager.getInternalModulesKeys().get(new ModulesKey("A", null));
         assertEquals(key, new ModulesKey("A", null));
         assertEquals(key.file, new File("A.py"));
         assertTrue(!(key instanceof ModulesKeyForZip));
 
-        key = manager.modulesKeys.get(new ModulesKey("B", null));
+        key = manager.getInternalModulesKeys().get(new ModulesKey("B", null));
         assertEquals(key, new ModulesKey("B", null));
         assertNull(key.file);
         assertTrue(!(key instanceof ModulesKeyForZip));
 
-        key = manager.modulesKeys.get(new ModulesKey("D", null));
+        key = manager.getInternalModulesKeys().get(new ModulesKey("D", null));
         assertEquals(key, new ModulesKey("D", null));
         assertEquals(key.file, new File("W.py"));
         assertTrue(key instanceof ModulesKeyForZip);
@@ -199,19 +199,19 @@ public class ModulesManagerTest extends CodeCompletionTestsBase {
         intToString.put(0, "W.py");
         ModulesManager.handleFileContents(manager, contents, intToString);
 
-        assertEquals(3, manager.modulesKeys.size());
+        assertEquals(3, manager.getInternalModulesKeys().size());
 
-        ModulesKey key = manager.modulesKeys.get(new ModulesKey("A", null));
+        ModulesKey key = manager.getInternalModulesKeys().get(new ModulesKey("A", null));
         assertEquals(key, new ModulesKey("A", null));
         assertEquals(key.file, new File("A.py"));
         assertTrue(!(key instanceof ModulesKeyForZip));
 
-        key = manager.modulesKeys.get(new ModulesKey("B", null));
+        key = manager.getInternalModulesKeys().get(new ModulesKey("B", null));
         assertEquals(key, new ModulesKey("B", null));
         assertNull(key.file);
         assertTrue(!(key instanceof ModulesKeyForZip));
 
-        key = manager.modulesKeys.get(new ModulesKey("D", null));
+        key = manager.getInternalModulesKeys().get(new ModulesKey("D", null));
         assertEquals(key, new ModulesKey("D", null));
         assertEquals(key.file, new File("W.py"));
         assertTrue(key instanceof ModulesKeyForZip);
@@ -315,8 +315,9 @@ public class ModulesManagerTest extends CodeCompletionTestsBase {
         ProjectStub project = new ProjectStub("testProjectStubRefactoring", pythonpath, new IProject[0],
                 new IProject[0]);
         IProgressMonitor monitor = getProgressMonitor();
-        modulesManager.pythonPathHelper.setPythonPath(pythonpath);
-        ModulesFoundStructure modulesFound = modulesManager.pythonPathHelper.getModulesFoundStructure(project, monitor);
+        modulesManager.getInternalPythonPathHelper().setPythonPath(pythonpath);
+        ModulesFoundStructure modulesFound = modulesManager.getInternalPythonPathHelper()
+                .getModulesFoundStructure(project, monitor);
         PyPublicTreeMap<ModulesKey, ModulesKey> keys = ModulesManager.buildKeysFromModulesFound(monitor, modulesFound);
 
         ModulesManager.buildKeysForRegularEntries(monitor, modulesFound, keys, false);

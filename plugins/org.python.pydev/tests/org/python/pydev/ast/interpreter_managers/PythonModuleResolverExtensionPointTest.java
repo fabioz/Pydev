@@ -92,7 +92,7 @@ public class PythonModuleResolverExtensionPointTest extends TestCase {
                 helper.resolveModule(stubbedModulePath2.toOSString(), project));
 
         // Check to see that delegation also works:
-        assertEquals("unittest", helper.resolveModule(TestDependent.PYTHON2_LIB + "unittest.py", project));
+        assertEquals("unittest", helper.resolveModule(TestDependent.PYTHON_LIB + "unittest.py", project));
 
         // Check the negative case:
         assertNull(helper.resolveModule(stubbedNegativeCase.toOSString(), project));

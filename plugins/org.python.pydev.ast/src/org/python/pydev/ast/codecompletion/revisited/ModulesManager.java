@@ -224,6 +224,14 @@ public abstract class ModulesManager implements IModulesManager {
      * It is sorted so that we can get things in a 'subtree' faster
      */
     protected final PyPublicTreeMap<ModulesKey, ModulesKey> modulesKeys = new PyPublicTreeMap<ModulesKey, ModulesKey>();
+
+    /**
+     * Just for testing.
+     */
+    public final PyPublicTreeMap<ModulesKey, ModulesKey> getInternalModulesKeys() {
+        return modulesKeys;
+    }
+
     protected final Object modulesKeysLock = new Object();
 
     protected static final ModulesManagerCache cache = new ModulesManagerCache();
@@ -234,6 +242,10 @@ public abstract class ModulesManager implements IModulesManager {
      * Helper for using the pythonpath. Also persisted.
      */
     protected final PythonPathHelper pythonPathHelper = new PythonPathHelper();
+
+    public final PythonPathHelper getInternalPythonPathHelper() {
+        return pythonPathHelper;
+    }
 
     @Override
     public PythonPathHelper getPythonPathHelper() {
@@ -403,8 +415,8 @@ public abstract class ModulesManager implements IModulesManager {
      *
      *  and was changed to be faster (as this was one of the slow things in startup).
      */
-    /*default*/@SuppressWarnings("rawtypes")
-    static void handleFileContents(ModulesManager modulesManager, String fileContents,
+    @SuppressWarnings("rawtypes")
+    public static void handleFileContents(ModulesManager modulesManager, String fileContents,
             HashMap<Integer, String> intToString) {
         String string = fileContents;
         int len = string.length();

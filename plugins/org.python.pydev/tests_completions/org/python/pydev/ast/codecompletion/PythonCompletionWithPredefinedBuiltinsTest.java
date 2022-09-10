@@ -80,8 +80,8 @@ public class PythonCompletionWithPredefinedBuiltinsTest extends CodeCompletionTe
         CompiledModule.COMPILED_MODULES_ENABLED = true;
         this.restorePythonPath(TestDependent.getCompletePythonLib(true, isPython3Test()) + "|"
                 + TestDependent.PYTHON2_WXPYTHON_PACKAGES
-                + "|" + TestDependent.PYTHON2_MX_PACKAGES + "|" + TestDependent.PYTHON2_NUMPY_PACKAGES + "|"
-                + TestDependent.PYTHON2_DJANGO_PACKAGES
+                + "|" + TestDependent.PYTHON2_MX_PACKAGES + "|" + TestDependent.PYTHON_NUMPY_PACKAGES + "|"
+                + TestDependent.PYTHON_DJANGO_PACKAGES
 
                 , false);
 

@@ -409,7 +409,7 @@ public class SearchTest extends AdditionalInfoTestsBase {
         ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
 
         assertEquals(1, pointers.length);
-        assertEquals(new File(TestDependent.PYTHON2_LIB + "os.py"), pointers[0].file);
+        assertEquals(new File(TestDependent.PYTHON_LIB + "os.py"), pointers[0].file);
         //found the module
         assertEquals(0, pointers[0].start.line);
         assertEquals(0, pointers[0].start.column);
@@ -426,8 +426,8 @@ public class SearchTest extends AdditionalInfoTestsBase {
         ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
 
         assertEquals(1, pointers.length);
-        File linuxFile = new File(TestDependent.PYTHON2_LIB + "posixpath.py");
-        File windowsFile = new File(TestDependent.PYTHON2_LIB + "ntpath.py");
+        File linuxFile = new File(TestDependent.PYTHON_LIB + "posixpath.py");
+        File windowsFile = new File(TestDependent.PYTHON_LIB + "ntpath.py");
 
         File expectedFile;
         if (PlatformUtils.isWindowsPlatform()) {

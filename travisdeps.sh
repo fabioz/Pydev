@@ -13,10 +13,10 @@ INSTALL="sudo apt-get install -qq"
 # wxPython PYTHON2_WXPYTHON_PACKAGES
 $INSTALL python-wxgtk2.8
 
-# numpy PYTHON2_NUMPY_PACKAGES
+# numpy PYTHON_NUMPY_PACKAGES
 $INSTALL python-numpy
 
-# django PYTHON2_DJANGO_PACKAGES
+# django PYTHON_DJANGO_PACKAGES
 $INSTALL python-django
 
 # Qt4 PYTHON38_QT5_PACKAGES
@@ -30,9 +30,6 @@ $INSTALL python-egenix-mxdatetime
 
 # PIL PYTHON2_PIL_PACKAGES
 $INSTALL python-imaging
-
-# Python 3 PYTHON_30_LIB
-$INSTALL python3
 
 # IronPython IRONPYTHON_EXE, IRONPYTHON_LIB
 # IronPython is not part of Ubuntu

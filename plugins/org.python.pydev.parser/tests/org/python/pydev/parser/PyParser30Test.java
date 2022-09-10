@@ -571,8 +571,8 @@ public class PyParser30Test extends PyParserTestBase {
     }
 
     public void testLib() throws Exception {
-        if (TestDependent.PYTHON_30_LIB != null) {
-            parseFilesInDir(new File(TestDependent.PYTHON_30_LIB), false);
+        if (TestDependent.PYTHON_LIB != null) {
+            parseFilesInDir(new File(TestDependent.PYTHON_LIB), false);
         }
     }
 

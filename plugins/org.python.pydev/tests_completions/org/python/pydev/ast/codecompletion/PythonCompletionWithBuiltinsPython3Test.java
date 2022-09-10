@@ -93,7 +93,7 @@ public class PythonCompletionWithBuiltinsPython3Test extends CodeCompletionTests
 
         CompiledModule.COMPILED_MODULES_ENABLED = true;
 
-        String paths = TestDependent.PYTHON_30_LIB;
+        String paths = TestDependent.PYTHON_LIB;
         if (TestDependent.PYTHON38_QT5_PACKAGES != null) {
             paths += "|" + TestDependent.PYTHON38_QT5_PACKAGES;
         }

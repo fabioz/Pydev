@@ -625,7 +625,7 @@ public abstract class AbstractShell {
      * Kill our sub-process.
      * @throws IOException
      */
-    /*default*/void endIt() {
+    public void endIt() {
         synchronized (ioLock) {
             try {
                 closeConn();
