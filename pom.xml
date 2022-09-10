@@ -188,19 +188,20 @@
           <skipAfterFailureCount>1</skipAfterFailureCount>
           <!-- <testClass>org.python.pydev.ast.codecompletion.PythonCompletionWithBuiltinsTest</testClass> -->
           <excludes>
+            <exclude>**/*IronPython*Test.java</exclude>
             <exclude>**/*Ironpython*Test.java</exclude>
+            <exclude>**/*IronPython*TestsBase.java</exclude>
             <exclude>**/*Jython*Test.java</exclude>
+            <exclude>**/*Jython*TestsBase.java</exclude>
             <exclude>**/Abstract*Test.java</exclude>
             <exclude>**/Abstract*TestCase.java</exclude>
-            <exclude>**/*IronPython*TestsBase.java</exclude>
-            <exclude>**/*Jython*TestsBase.java</exclude>
             <exclude>**/*$*</exclude>
           </excludes>
           <failIfNoTests>false</failIfNoTests>
           <useUIHarness>true</useUIHarness>
           <testFailureIgnore>false</testFailureIgnore>
           <argLine>-enableassertions</argLine>
-          <forkedProcessTimeoutInSeconds>1000</forkedProcessTimeoutInSeconds>
+          <forkedProcessTimeoutInSeconds>2000</forkedProcessTimeoutInSeconds>
           <systemProperties>
             <!-- We are in test mode when running JUnit (non-workbench) tests.
                  See SharedCorePlugin.inTestMode().  -->
