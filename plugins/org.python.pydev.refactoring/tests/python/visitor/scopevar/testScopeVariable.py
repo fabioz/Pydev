@@ -1,12 +1,12 @@
 global1 = 123
 global2 = 456
 def myfunc():
-    print "hello"
+    print("hello")
     local = 5
 
 class Foo:
     def myfoo(self, x, y):
-        print "myfoO"
+        print("myfoO")
         mylocalfoo = 123
     
     a = 5

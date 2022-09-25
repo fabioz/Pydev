@@ -4,25 +4,19 @@ class MyClass2(MyClass):
     def m1(self, a, b):
         new_var = self.call(
             ##|
-            [
-            1, 
-            2,
-            self.call(*a)
-            ]
+            [1, 2, self.call(*a)]
             ##|
         )
         pass
 
     def call(self, a):
-        print a
+        print(a)
 
 ##r
 class MyClass2(MyClass):
 
     def extracted_method(self, a):
-        return [1, 
-            2, 
-            self.call(*a)]
+        return [1, 2, self.call(*a)]
 
     
     
@@ -35,4 +29,4 @@ class MyClass2(MyClass):
         pass
 
     def call(self, a):
-        print a
+        print(a)

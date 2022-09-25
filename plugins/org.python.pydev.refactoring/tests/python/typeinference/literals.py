@@ -2,15 +2,15 @@
 
 42 ## type int
 0xef ## type int
-0755 ## type int
-99L ## type long
+0o755 ## type int
+99 ## type long
 1.1 ## type float
 1j ## type complex
 
 # Strings
 
 "string" ## type str
-u"string" ## type unicode
+"string" ## type unicode
 
 # Specials
 

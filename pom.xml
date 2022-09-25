@@ -124,11 +124,11 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <properties>
-    <tycho-version>2.5.0</tycho-version>
-    <tycho-extras-version>2.5.0</tycho-extras-version>
+    <tycho-version>2.7.5</tycho-version>
+    <tycho-extras-version>2.7.5</tycho-extras-version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <repository.id>eclipse-2021-09</repository.id>
-    <repository.url>http://download.eclipse.org/releases/2021-09/</repository.url>
+    <repository.id>eclipse-2022-09</repository.id>
+    <repository.url>http://download.eclipse.org/releases/2022-09/</repository.url>
   </properties>
   <prerequisites>
     <maven>3.0</maven>
@@ -155,6 +155,7 @@
         <groupId>org.eclipse.tycho</groupId>
         <artifactId>tycho-surefire-plugin</artifactId>
         <version>${tycho-version}</version>
+
         <configuration>
           <explodedBundles>
             <!-- pysrc is in org.python.pydev, so explode it -->
@@ -176,13 +177,19 @@
             <explodedBundle>org.python.pydev.django</explodedBundle>
             <explodedBundle>org.python.pydev.help</explodedBundle>
             <explodedBundle>org.python.pydev.jython</explodedBundle>
-            <explodedBundle>org.python.pydev.mylyn</explodedBundle>
+            <!-- <explodedBundle>org.python.pydev.mylyn</explodedBundle> -->
             <explodedBundle>org.python.pydev.parser</explodedBundle>
             <explodedBundle>org.python.pydev.refactoring</explodedBundle>
             <explodedBundle>org.python.pydev.shared_core</explodedBundle>
             <explodedBundle>org.python.pydev.shared_interactive_console</explodedBundle>
             <explodedBundle>org.python.pydev.shared_ui</explodedBundle>
           </explodedBundles>
+	      <providerProperties>
+	          <property>
+	              <name>listener</name>
+	              <value>org.python.pydev.shared_core.PrintOutCurrentTestRunListener</value>
+	          </property>
+	      </providerProperties>
           <!-- See: https://www.eclipse.org/tycho/sitedocs/tycho-surefire-plugin/test-mojo.html -->
           <!-- <useUIThread>false</useUIThread> -->
           <skipAfterFailureCount>1</skipAfterFailureCount>
@@ -201,7 +208,7 @@
           <useUIHarness>true</useUIHarness>
           <testFailureIgnore>false</testFailureIgnore>
           <argLine>-enableassertions</argLine>
-          <forkedProcessTimeoutInSeconds>2000</forkedProcessTimeoutInSeconds>
+          <forkedProcessTimeoutInSeconds>1000</forkedProcessTimeoutInSeconds>
           <systemProperties>
             <!-- We are in test mode when running JUnit (non-workbench) tests.
                  See SharedCorePlugin.inTestMode().  -->

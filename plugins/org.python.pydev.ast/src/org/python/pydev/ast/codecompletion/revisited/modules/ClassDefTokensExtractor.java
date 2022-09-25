@@ -43,7 +43,7 @@ public final class ClassDefTokensExtractor {
      */
     public TokensList getTokens(ICodeCompletionASTManager manager) {
         List<IToken> globalModelVisitorTokens = GlobalModelVisitor.getTokens(classDef, GlobalModelVisitor.INNER_DEFS,
-                this.module.getName(), initialState, false, this.module.getNature());
+                this.module.getName(), initialState, false, this.module.getNature(), this.module);
         TokensList classTokens = new TokensList(globalModelVisitorTokens);
         try {
 
@@ -186,7 +186,7 @@ public final class ClassDefTokensExtractor {
                     if (nodeRep != null) {
 
                         SourceToken token = AbstractVisitor.makeToken(node, nodeRep, this.module.getName(),
-                                this.module.getNature());
+                                this.module.getNature(), this.module);
 
                         return Optional.of(token);
                     }

@@ -1,10 +1,10 @@
 class A:
     def test(self, a):
         ##|var = a * a##|
-        print var
+        print(var)
             
     def my_method(self):
-        print self.attribute
+        print(self.attribute)
         
 b = A()
 b.test(55)
@@ -19,10 +19,10 @@ class A:
 
     def test(self, a):
         var = self.extracted_method(a)
-        print var
+        print(var)
             
     def my_method(self):
-        print self.attribute
+        print(self.attribute)
         
 b = A()
 b.test(55)

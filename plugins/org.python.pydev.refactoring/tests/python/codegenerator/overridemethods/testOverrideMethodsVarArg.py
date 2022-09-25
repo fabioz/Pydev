@@ -1,17 +1,17 @@
 class A:
     def foo(self, *args):
-        print "foo"
+        print("foo")
 
 class B(A):
     try:
-        print "foo"
+        print("foo")
     finally:
-        print "done."
+        print("done.")
     
     attribute = "hello"
     
     def my_method(self):
-        print self.attribute
+        print(self.attribute)
         
 a = A()
 a.my_method()
@@ -31,18 +31,18 @@ a.my_method()
 
 class A:
     def foo(self, *args):
-        print "foo"
+        print("foo")
 
 class B(A):
     try:
-        print "foo"
+        print("foo")
     finally:
-        print "done."
+        print("done.")
     
     attribute = "hello"
     
     def my_method(self):
-        print self.attribute
+        print(self.attribute)
 
     def foo(self, *args):
         return A.foo(self, *args)

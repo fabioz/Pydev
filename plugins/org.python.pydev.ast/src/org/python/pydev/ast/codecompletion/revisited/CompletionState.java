@@ -532,6 +532,11 @@ public final class CompletionState implements ICompletionState, IModuleRequestSt
     }
 
     @Override
+    public void setQualifier(String qualifier) {
+        this.qualifier = qualifier;
+    }
+
+    @Override
     public void setIsInCalltip(boolean isInCalltip) {
         this.isInCalltip = isInCalltip;
     }

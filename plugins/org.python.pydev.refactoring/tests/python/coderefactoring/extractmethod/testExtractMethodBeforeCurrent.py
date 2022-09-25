@@ -1,7 +1,7 @@
 def m1(self):
     pass
 def m2(self):
-    print ##|'here'##|
+    print(##|'here'##|)
     
 
 ##c
@@ -18,4 +18,4 @@ def extracted_method():
     return 'here'
 
 def m2(self):
-    print extracted_method() 
+    print(extracted_method()) 

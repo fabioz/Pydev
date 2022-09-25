@@ -40,7 +40,6 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.IterTokenEntry;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
-import org.python.pydev.core.ModulesKeyForFolder;
 import org.python.pydev.core.ObjectsInternPool;
 import org.python.pydev.core.ObjectsInternPool.ObjectsPoolMap;
 import org.python.pydev.core.TokensList;
@@ -404,6 +403,13 @@ public abstract class AbstractAdditionalDependencyInfo extends AbstractAdditiona
 
             super.restoreSavedInfo(readFromFile.o1);
         }
+    }
+
+    /**
+     * Public just for tests.
+     */
+    public boolean loadInternal() {
+        return load();
     }
 
     /**

@@ -2,4 +2,4 @@
 class Os:
     pass
     
-print Os
+print(Os)

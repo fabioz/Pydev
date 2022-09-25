@@ -20,7 +20,7 @@ x2 ## type bar
 
 x = baz_alias.Baz()
 x ## type Baz
-print x.path()
+print(x.path())
 
 
 q = Qux()

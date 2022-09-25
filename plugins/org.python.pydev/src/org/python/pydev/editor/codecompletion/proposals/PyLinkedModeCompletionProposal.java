@@ -22,14 +22,9 @@ import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
-import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.jython.ast.ClassDef;
-import org.python.pydev.parser.jython.ast.FunctionDef;
-import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_ui.ImageCache;
@@ -135,17 +130,6 @@ public final class PyLinkedModeCompletionProposal extends AbstractPyCompletionPr
         }
 
         if (element != null) {
-            if (element instanceof SourceToken) {
-                SourceToken sourceToken = (SourceToken) element;
-                SimpleNode ast = sourceToken.getAst();
-                if (ast != null && (ast instanceof FunctionDef || ast instanceof ClassDef)) {
-                    computedInfo = addTipForApplyWithModifiers(NodeUtils.printAst(null, ast));
-                }
-                if (computedInfo != null) {
-                    return computedInfo;
-                }
-
-            }
             computedInfo = addTipForApplyWithModifiers(element.getDocStr());
             return computedInfo;
         } else {

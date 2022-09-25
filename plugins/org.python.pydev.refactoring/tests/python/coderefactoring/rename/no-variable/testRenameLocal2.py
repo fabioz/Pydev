@@ -1,6 +1,6 @@
 x = 7
 x = 5
-print x
+print(x)
 ##|print x + 10
 
 if false:
@@ -8,4 +8,4 @@ if false:
 else:
 	x = 5
 
-print x
+print(x)

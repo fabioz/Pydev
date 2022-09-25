@@ -141,7 +141,7 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
 
         Import importTok = new Import(new aliasType[] { new aliasType(new NameTok("unittest", NameTok.ImportModule),
                 null) });
-        this.imports = new TokensList(new IToken[] { new SourceToken(importTok, "unittest", "", "", "", null) });
+        this.imports = new TokensList(new IToken[] { new SourceToken(importTok, "unittest", "", "", "", null, null) });
 
         requestCompl("import unittest\nunittest", new String[] {}); //none because the import for unittest is already there
         requestCompl("import unittest\nunittes", new String[] {}); //the local import for unittest (won't actually show anything because we're only exercising the participant test)

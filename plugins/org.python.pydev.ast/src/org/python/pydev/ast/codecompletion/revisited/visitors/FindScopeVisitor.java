@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.python.pydev.core.ILocalScope;
+import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -58,12 +59,15 @@ public class FindScopeVisitor extends AbstractVisitor {
 
     private ISimpleNode lastDef;
 
+    private IModule module;
+
     /**
      * Only for subclasses
      */
-    protected FindScopeVisitor(IPythonNature nature) {
-        super(nature);
-        scope = new LocalScope(nature, new FastStack<SimpleNode>(20));
+    protected FindScopeVisitor(IPythonNature nature, IModule module) {
+        super(nature, module);
+        scope = new LocalScope(nature, new FastStack<SimpleNode>(20), module);
+        this.module = module;
     }
 
     /**
@@ -72,10 +76,11 @@ public class FindScopeVisitor extends AbstractVisitor {
      * @param line in ast coords (starts at 1)
      * @param col in ast coords (starts at 1)
      */
-    public FindScopeVisitor(int line, int col, IPythonNature nature) {
-        this(nature);
+    public FindScopeVisitor(int line, int col, IPythonNature nature, IModule module) {
+        this(nature, module);
         this.line = line;
         this.col = col;
+        this.module = module;
     }
 
     /**
@@ -103,7 +108,7 @@ public class FindScopeVisitor extends AbstractVisitor {
     private void onScopeFound(SimpleNode node) {
         found = true;
         int original = scope.getIfMainLine();
-        scope = new LocalScope(nature, this.stackScope.createCopy());
+        scope = new LocalScope(nature, this.stackScope.createCopy(), this.module);
         scope.setIfMainLine(original);
         scope.setFoundAtASTNode(node);
     }

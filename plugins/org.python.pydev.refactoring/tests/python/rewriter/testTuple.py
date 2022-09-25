@@ -7,14 +7,14 @@
 a = ()
 ()
 # tuple in call
-print ((1), 2)
-print ((1, 3), 2)
-print 1, (3, 2)
-print 1, 2
-print (1), 2
-print 1, 3, 2
-print 1, (3, 2)
-print (1,2,(3))
+print(((1), 2))
+print(((1, 3), 2))
+print(1, (3, 2))
+print(1, 2)
+print((1), 2)
+print(1, 3, 2)
+print(1, (3, 2))
+print((1,2,(3)))
 
 ##r
 
@@ -27,11 +27,11 @@ print (1,2,(3))
 a = ()
 ()
 # tuple in call
-print ((1), 2)
-print ((1, 3), 2)
-print 1, (3, 2)
-print 1, 2
-print (1), 2
-print 1, 3, 2
-print 1, (3, 2)
-print (1, 2, (3))
+print(((1), 2))
+print(((1, 3), 2))
+print(1, (3, 2))
+print(1, 2)
+print((1), 2)
+print(1, 3, 2)
+print(1, (3, 2))
+print((1, 2, (3)))

@@ -1,8 +1,8 @@
 def foobar(x):
     x = 2
-    print x##|
+    print(x)##|
     if x:
-        print x
+        print(x)
     else:
         z = x + x + x + x
     
@@ -11,15 +11,15 @@ def foobar(x):
     while x:
         x += x
 
-    print x
+    print(x)
 
 ##r
 
 def foobar(x):
     p = 2
-    print p
+    print(p)
     if p:
-        print p
+        print(p)
     else:
         z = p + p + p + p
     
@@ -28,4 +28,4 @@ def foobar(x):
     while p:
         p += p
 
-    print p
+    print(p)

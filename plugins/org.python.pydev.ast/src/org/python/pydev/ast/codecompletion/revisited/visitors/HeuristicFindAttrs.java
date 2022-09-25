@@ -17,6 +17,7 @@ import java.util.Stack;
 
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
@@ -60,8 +61,8 @@ public class HeuristicFindAttrs extends AbstractVisitor {
      * @param state
      */
     public HeuristicFindAttrs(int where, int how, String methodCall, String moduleName, ICompletionState state,
-            Map<String, SourceToken> repToTokenWithArgs, IPythonNature nature) {
-        super(nature);
+            Map<String, SourceToken> repToTokenWithArgs, IPythonNature nature, IModule module) {
+        super(nature, module);
         this.where = where;
         this.how = how;
         this.methodCall = methodCall;

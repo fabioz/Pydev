@@ -351,7 +351,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
 
             //we request all and put it into the cache (partitioned), because that's faster than making multiple runs through it
             GlobalModelVisitor globalModelVisitor = GlobalModelVisitor.getGlobalModuleVisitorWithTokens(ast, all, name,
-                    false, nature);
+                    false, nature, this);
 
             this.globalModelVisitorCache = globalModelVisitor;
 
@@ -725,7 +725,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         String moduleName = name;
         TokensList modToks = new TokensList(
                 GlobalModelVisitor.getTokens(ast, GlobalModelVisitor.INNER_DEFS, moduleName, initialState,
-                        false, this.nature));
+                        false, this.nature, this));
         modToks.setLookingFor(initialState.getLookingFor());
         return modToks;
     }
@@ -764,7 +764,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         Tuple<Integer, Integer> key = new Tuple<Integer, Integer>(line, col);
         FindScopeVisitor scopeVisitor = this.scopeVisitorCache.getObj(key);
         if (scopeVisitor == null) {
-            scopeVisitor = new FindScopeVisitor(line, col, nature);
+            scopeVisitor = new FindScopeVisitor(line, col, nature, this);
             if (ast != null) {
                 ast.accept(scopeVisitor);
             }
@@ -1199,7 +1199,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                 } else {
                                     FastStack<SimpleNode> stack = new FastStack<SimpleNode>(5);
                                     stack.push(classDef);
-                                    scope = new LocalScope(astManager.getNature(), new FastStack<SimpleNode>(0));
+                                    scope = new LocalScope(astManager.getNature(), new FastStack<SimpleNode>(0),
+                                            module);
                                 }
 
                                 Assign foundInAssign = sourceToken.getFoundInAssign();
@@ -1442,7 +1443,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                     } else {
                         //line, col
                         return new Definition(def.o1, def.o2, rep, a,
-                                new LocalScope(nature, new FastStack<SimpleNode>(5)), // dummy scope for non source token
+                                new LocalScope(nature, new FastStack<SimpleNode>(5), module), // dummy scope for non source token
                                 module);
                     }
                 } else if (token instanceof ConcreteToken) {

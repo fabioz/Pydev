@@ -1,8 +1,8 @@
 if ##|operation()##|:
-    print "success!"
+    print("success!")
 
 ##r
 
 extracted_variable = operation()
 if extracted_variable:
-    print "success!"
+    print("success!")

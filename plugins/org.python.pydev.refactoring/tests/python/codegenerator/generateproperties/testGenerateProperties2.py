@@ -3,11 +3,11 @@ class A(object):
     def __init__(self, attribute):
         self.attribute = attribute
 
-    print "Initializing A"
+    print("Initializing A")
     attribute = "hello"
     
     def my_method(self):
-        print self.attribute
+        print(self.attribute)
         
 a = A()
 a.my_method()
@@ -43,11 +43,11 @@ class A(object):
     def __init__(self, attribute):
         self.attribute = attribute
 
-    print "Initializing A"
+    print("Initializing A")
     attribute = "hello"
     
     def my_method(self):
-        print self.attribute
+        print(self.attribute)
     attribute = property(None, set_attribute, del_attribute, None)
         
 a = A()

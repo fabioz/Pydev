@@ -5,11 +5,11 @@ class A:
         ##|
         b = self.my_method(*a, **global_var)
         ##|
-        print b
+        print(b)
 
 
     def my_method(self, a, **kwargs):
-        print a
+        print(a)
         return a + [1] + kwargs
 
 b = A()
@@ -28,11 +28,11 @@ class A:
         
         b = self.extracted_method(a)
         
-        print b
+        print(b)
 
 
     def my_method(self, a, **kwargs):
-        print a
+        print(a)
         return a + [1] + kwargs
 
 b = A()

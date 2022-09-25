@@ -31,6 +31,8 @@ public interface ICompletionState extends ICompletionCache, IModuleRequestState 
      */
     void setActivationToken(String act);
 
+    void setQualifier(String qualifier);
+
     /**
      * This is the full activation token (e.g.: Grinder.grinder.getLogger().getIt())
      * Only actually set if the activation token changes.

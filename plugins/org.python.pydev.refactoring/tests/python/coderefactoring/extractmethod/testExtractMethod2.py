@@ -1,11 +1,11 @@
 class A:
     def test(self):
         a = 10
-        ##|print a##|
+        ##|print(a)##|
         attribute = "hello"
     
     def my_method(self):
-        print self.attribute
+        print(self.attribute)
         
 a = A()
 a.test()
@@ -15,7 +15,7 @@ a.test()
 class A:
 
     def extracted_method(self, a):
-        print a
+        return print(a)
 
     def test(self):
         a = 10
@@ -23,7 +23,7 @@ class A:
         attribute = "hello"
     
     def my_method(self):
-        print self.attribute
+        print(self.attribute)
         
 a = A()
 a.test()

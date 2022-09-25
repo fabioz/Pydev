@@ -10,7 +10,7 @@ pc = PathCheck()
 o = pc.get_rel_os()()
 o ## type Os
 
-print o
+print(o)
 
 foo = pc.get_abs_foo()()
 foo ## type Foo

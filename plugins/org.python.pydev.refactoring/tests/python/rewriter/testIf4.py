@@ -1,7 +1,7 @@
 if random():
     pass
-print "x"
+print("x")
 ##r
 if random():
     pass
-print "x"
+print("x")

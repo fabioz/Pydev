@@ -15,6 +15,7 @@ import java.util.Map;
 import org.python.pydev.ast.analysis.IAnalysisPreferences;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.ast.codecompletion.revisited.visitors.AbstractVisitor;
+import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
@@ -37,6 +38,7 @@ public final class DuplicationChecker {
     private final Scope scope;
     private final MessagesManager messagesManager;
     private final IPythonNature nature;
+    private final IModule current;
 
     /**
      * constructor
@@ -47,6 +49,7 @@ public final class DuplicationChecker {
         this.scope = visitor.scope;
         this.messagesManager = visitor.messagesManager;
         this.nature = visitor.nature;
+        current = visitor.current;
     }
 
     /**
@@ -78,7 +81,8 @@ public final class DuplicationChecker {
                 for (decoratorsType dec : functionDef.decs) {
                     if (dec.func != null) {
                         String fullRepresentationString = NodeUtils.getFullRepresentationString(dec.func);
-                        if (fullRepresentationString.startsWith("typing.overload") || fullRepresentationString.startsWith("overload")) {
+                        if (fullRepresentationString.startsWith("typing.overload")
+                                || fullRepresentationString.startsWith("overload")) {
                             return true;
                         }
                     }
@@ -128,7 +132,7 @@ public final class DuplicationChecker {
                         }
 
                     }
-                    SourceToken token = AbstractVisitor.makeToken(node, "", nature);
+                    SourceToken token = AbstractVisitor.makeToken(node, "", nature, current);
                     messagesManager.addMessage(IAnalysisPreferences.TYPE_DUPLICATED_SIGNATURE, token, name);
                 }
             }

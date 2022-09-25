@@ -642,12 +642,11 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
         }
         String kwParam = rep + "=";
         SimpleNode paramNode = new NameTok(kwParam, NameTok.KwArg);
-        SourceToken sourceToken = new SourceToken(paramNode, kwParam, "", "", "",
-                IToken.TYPE_LOCAL,
-                definition.module != null ? definition.module.getNature() : null);
+        SourceToken sourceToken = new SourceToken(paramNode, kwParam, "", "", "", IToken.TYPE_LOCAL,
+                definition.module != null ? definition.module.getNature() : null, definition.module);
         alreadyChecked.put(kwParam, new IterTokenEntry(sourceToken));
 
-        sourceToken.setDocStrCallback(() -> {
+        sourceToken.setDocStrCallback((token) -> {
             FastStringBuffer buf = new FastStringBuffer();
             buf.clear();
             buf.append("param: ");
@@ -822,7 +821,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             s = sourceModule.getAst();
         }
         if (s != null) {
-            FindScopeVisitor visitor = new FindScopeVisitor(state.getLine() + 1, 1, state.getNature());
+            FindScopeVisitor visitor = new FindScopeVisitor(state.getLine() + 1, 1, state.getNature(), module);
             try {
                 s.accept(visitor);
                 if (checkIfInCorrectScope) {
@@ -948,13 +947,11 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
 
                         //ok, try our best shot at getting the module name of the current buffer used in the request.
                         IModule module = request.getModule();
-
                         AbstractASTManager astMan = ((AbstractASTManager) request.getNature().getAstManager());
-                        TokensList assignCompletions = new AssignAnalysis().getCompletionsFollowingDefinition(astMan, module,
-                                new CompletionState(
-                                        line, col, request.getActivationToken(), request.getNature(),
-                                        request.getQualifier()),
-                                scope).completions;
+                        ICompletionState st = state.getCopyWithActTok(request.getActivationToken(), line, col);
+                        st.setQualifier(request.getQualifier());
+                        TokensList assignCompletions = new AssignAnalysis().getCompletionsFollowingDefinition(astMan,
+                                module, st, scope).completions;
                         theList.addAll(assignCompletions);
                     }
                 }

@@ -1,10 +1,10 @@
 hello = "foo"
-##|print hello##|
+##|print(hello)##|
 
 ##r extract method from module body
 
 def extracted_method(hello):
-    print hello
+    return print(hello)
 
 hello = "foo"
 extracted_method(hello)

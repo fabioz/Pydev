@@ -48,6 +48,7 @@ import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_ui.bindings.BindKeysHelper;
 import org.python.pydev.shared_ui.bindings.BindKeysHelper.IFilter;
 import org.python.pydev.shared_ui.bindings.KeyBindingHelper;
+import org.python.pydev.shared_ui.bindings.NoActiveSchemeOnBindingServiceException;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 /**
@@ -356,7 +357,13 @@ public class InteractiveConsoleCommand {
             }
         }
 
-        BindKeysHelper bindKeysHelper = new BindKeysHelper(PyEdit.PYDEV_EDITOR_KEYBINDINGS_CONTEXT_ID);
+        BindKeysHelper bindKeysHelper;
+        try {
+            bindKeysHelper = new BindKeysHelper(PyEdit.PYDEV_EDITOR_KEYBINDINGS_CONTEXT_ID);
+        } catch (NoActiveSchemeOnBindingServiceException e1) {
+            Log.log("It seems that there are no active bindings (handled on workspace shutdown).", e1);
+            return;
+        }
         bindKeysHelper.removeUserBindingsWithFilter(new IFilter() {
 
             @Override

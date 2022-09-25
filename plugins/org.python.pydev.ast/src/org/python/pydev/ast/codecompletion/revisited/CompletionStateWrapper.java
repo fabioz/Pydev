@@ -26,10 +26,12 @@ public final class CompletionStateWrapper implements ICompletionState {
         this.wrapped = state;
         this.activationToken = state.getActivationToken();
         this.localImportsGotten = state.getLocalImportsGotten();
+        this.qualifier = state.getQualifier();
     }
 
     //things that are not delegated ------------------------------------------------------------------------------------
     private String activationToken;
+    private String qualifier;
     private int col = -1;
     private int line = -1;
     private boolean localImportsGotten;
@@ -42,6 +44,16 @@ public final class CompletionStateWrapper implements ICompletionState {
     @Override
     public String getActivationToken() {
         return activationToken;
+    }
+
+    @Override
+    public String getQualifier() {
+        return qualifier;
+    }
+
+    @Override
+    public void setQualifier(String qualifier) {
+        this.qualifier = qualifier;
     }
 
     @Override
@@ -208,11 +220,6 @@ public final class CompletionStateWrapper implements ICompletionState {
     @Override
     public IPythonNature getNature() {
         return wrapped.getNature();
-    }
-
-    @Override
-    public String getQualifier() {
-        return wrapped.getQualifier();
     }
 
     @Override

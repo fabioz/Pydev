@@ -4,11 +4,11 @@ class A:
         attribute = "hello"  
     
     def my_method(self):
-        print self.attribute
+        print(self.attribute)
         
 a = A()
 a.test()
 
 ##r
 
-print "Initializing A"
+print("Initializing A")

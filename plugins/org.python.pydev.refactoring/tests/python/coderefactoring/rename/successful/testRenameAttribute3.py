@@ -6,7 +6,7 @@ def create(klass, name):
     return klass(name)
 
 robin = create(Knight, "Sir Robin")
-print robin.name##|
+print(robin.name)##|
 
 ##r
 
@@ -18,4 +18,4 @@ def create(klass, name):
     return klass(name)
 
 robin = create(Knight, "Sir Robin")
-print robin.p
+print(robin.p)

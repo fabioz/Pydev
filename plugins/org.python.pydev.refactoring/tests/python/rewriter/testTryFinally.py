@@ -1,4 +1,4 @@
 try:
-    print "try"
+    print("try")
 finally:
-    print "foo"
+    print("foo")

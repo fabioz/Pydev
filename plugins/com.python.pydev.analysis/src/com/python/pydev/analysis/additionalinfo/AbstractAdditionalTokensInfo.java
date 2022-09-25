@@ -190,6 +190,13 @@ public abstract class AbstractAdditionalTokensInfo {
     }
 
     /**
+     * Just for test access.
+     */
+    public void addInternal(IInfo info, int doOn) {
+        add(info, doOn);
+    }
+
+    /**
      * That's the function actually used to add some info
      *
      * @param info information to be added

@@ -158,46 +158,57 @@ public class PythonConsoleLineTrackerTest extends TestCase {
     }
 
     public void testLinesCollected() {
-        PythonConsoleLineTracker.forEachStringToCheck("c:\\temp\\foo.py:14", new String[] { ".py" },
+        final String sep;
+        final String root;
+        if (PlatformUtils.isWindowsPlatform()) {
+            sep = "\\";
+            root = "c:";
+        } else {
+            sep = "/";
+            root = "";
+        }
+        PythonConsoleLineTracker.forEachStringToCheck(root + sep + "temp" + sep + "foo.py:14", new String[] { ".py" },
                 (matchStartCol, matchEndCol, text, lineNumberAtText) -> {
-                    assertEquals("c:\\temp\\foo.py", text);
+                    assertEquals(root + sep + "temp" + sep + "foo.py", text);
                     assertEquals(0, matchStartCol);
                     assertEquals(text.length() + 3, matchEndCol);
                     assertEquals(14, lineNumberAtText);
                 });
-        PythonConsoleLineTracker.forEachStringToCheck("c:\\temp\\foo.py:14:", new String[] { ".py" },
+        PythonConsoleLineTracker.forEachStringToCheck(root + sep + "temp" + sep + "foo.py:14:", new String[] { ".py" },
                 (matchStartCol, matchEndCol, text, lineNumberAtText) -> {
-                    assertEquals("c:\\temp\\foo.py", text);
+                    assertEquals(root + sep + "temp" + sep + "foo.py", text);
                     assertEquals(0, matchStartCol);
                     assertEquals(text.length() + 3, matchEndCol);
                     assertEquals(14, lineNumberAtText);
                 });
-        PythonConsoleLineTracker.forEachStringToCheck("c:\\temp\\foo.py:14\\", new String[] { ".py" },
+        PythonConsoleLineTracker.forEachStringToCheck(root + sep + "temp" + sep + "foo.py:14" + sep + "",
+                new String[] { ".py" },
                 (matchStartCol, matchEndCol, text, lineNumberAtText) -> {
-                    assertEquals("c:\\temp\\foo.py", text);
+                    assertEquals(root + sep + "temp" + sep + "foo.py", text);
                     assertEquals(0, matchStartCol);
                     assertEquals(text.length() + 3, matchEndCol);
                     assertEquals(14, lineNumberAtText);
                 });
-        PythonConsoleLineTracker.forEachStringToCheck("c:\\temp\\foo.py", new String[] { ".py" },
+        PythonConsoleLineTracker.forEachStringToCheck(root + sep + "temp" + sep + "foo.py", new String[] { ".py" },
                 (matchStartCol, matchEndCol, text, lineNumberAtText) -> {
-                    assertEquals("c:\\temp\\foo.py", text);
+                    assertEquals(root + sep + "temp" + sep + "foo.py", text);
                     assertEquals(0, matchStartCol);
                     assertEquals(text.length(), matchEndCol);
                     assertEquals(0, lineNumberAtText);
                 });
 
-        PythonConsoleLineTracker.forEachStringToCheck("c:\\temp\\foo.py:", new String[] { ".py" },
+        PythonConsoleLineTracker.forEachStringToCheck(root + sep + "temp" + sep + "foo.py:", new String[] { ".py" },
                 (matchStartCol, matchEndCol, text, lineNumberAtText) -> {
-                    assertEquals("c:\\temp\\foo.py", text);
+                    assertEquals(root + sep + "temp" + sep + "foo.py", text);
                     assertEquals(text.length(), matchEndCol);
                     assertEquals(0, matchStartCol);
                     assertEquals(0, lineNumberAtText);
                 });
 
-        PythonConsoleLineTracker.forEachStringToCheck("  \"c:\\temp\\foo.py\"  ", new String[] { ".py" },
+        PythonConsoleLineTracker.forEachStringToCheck("  \"" + root + sep + "temp" + sep + "foo.py\"  ",
+                new String[] { ".py" },
                 (matchStartCol, matchEndCol, text, lineNumberAtText) -> {
-                    assertEquals("c:\\temp\\foo.py", text);
+                    assertEquals(root + sep + "temp" + sep + "foo.py", text);
                     assertEquals(3 + text.length(), matchEndCol);
                     assertEquals(3, matchStartCol);
                     assertEquals(0, lineNumberAtText);

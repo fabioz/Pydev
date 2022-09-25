@@ -1,8 +1,8 @@
 if condition():
-	print ##|"hello"##|
+	print(##|"hello"##|)
 
 ##r
 
 if condition():
 	extracted_variable = "hello"
-	print extracted_variable
+	print(extracted_variable)

@@ -1,8 +1,8 @@
-print ##|"import"##|
+print(##|"import"##|)
 
 ##r
 
 def extracted_method():
     return "import"
 
-print extracted_method()
+print(extracted_method())

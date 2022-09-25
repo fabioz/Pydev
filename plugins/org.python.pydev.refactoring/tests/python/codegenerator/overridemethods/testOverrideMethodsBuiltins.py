@@ -7,7 +7,7 @@ class B(object):
 ##c
 '''
 <config>
-  <classSelection>0,__builtin__.object</classSelection>
+  <classSelection>0,object</classSelection>
   <methodSelection>
     <string>__hash__</string>
   </methodSelection>
@@ -21,5 +21,5 @@ class B(object):
     '''
         comment
     '''
-    def __hash__(self, *args, **kwargs):
-        return object.__hash__(self, *args, **kwargs)
+    def __hash__(self):
+        return object.__hash__(self)

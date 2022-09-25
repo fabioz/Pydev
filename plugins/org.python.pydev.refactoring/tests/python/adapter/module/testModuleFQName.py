@@ -8,7 +8,7 @@ class a(bar):
 class b(foo.HTTPConnection):
     pass
 
-print port
+print(port)
        
 ##c
 

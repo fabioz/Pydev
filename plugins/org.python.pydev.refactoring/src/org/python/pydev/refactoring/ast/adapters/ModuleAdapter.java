@@ -705,4 +705,8 @@ public class ModuleAdapter extends AbstractScopeNode<Module> {
         PySelection pySelection = new PySelection(doc);
         return PySelection.getIndentationFromLine(pySelection.getLine(node.beginLine - 1));
     }
+
+    public IModule getIModule() {
+        return this.sourceModule;
+    }
 }

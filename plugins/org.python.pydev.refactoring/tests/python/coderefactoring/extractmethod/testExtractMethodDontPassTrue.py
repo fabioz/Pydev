@@ -1,7 +1,7 @@
 class A:
     def test(self):
         a = True
-        print ##|a == True##|
+        print(##|a == True##|)
     
 a = A()
 a.test()
@@ -15,7 +15,7 @@ class A:
 
     def test(self):
         a = True
-        print self.extracted_method(a)
+        print(self.extracted_method(a))
     
 a = A()
 a.test()

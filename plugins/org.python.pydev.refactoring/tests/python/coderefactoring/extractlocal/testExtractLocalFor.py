@@ -5,7 +5,7 @@ class Test(object):
                 self.a = b['c']
             def GetFoo(self):
                 for a in ##|10##|:
-                    print a
+                    print(a)
 
 ##r
 
@@ -17,4 +17,4 @@ class Test(object):
             def GetFoo(self):
                 extracted_variable = 10
                 for a in extracted_variable:
-                    print a
+                    print(a)

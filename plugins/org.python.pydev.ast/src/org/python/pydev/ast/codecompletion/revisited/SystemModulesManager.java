@@ -314,7 +314,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
                             TypeshedLoader.fixAST(ast, this, info);
 
                         }
-                        n = new PredefinedSourceModule(finalName, predefinedModule, ast, obj.error);
+                        n = new PredefinedSourceModule(finalName, predefinedModule, ast, obj.error, nature);
                         cachePredefined.add(keyForCacheAccess, n, this);
                         // Note: use a separate cache (because we don't want to mess the regular modules
                         // and in general we just want to find the predefined modules through this API

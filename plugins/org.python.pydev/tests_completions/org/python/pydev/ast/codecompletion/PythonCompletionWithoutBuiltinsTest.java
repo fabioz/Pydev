@@ -141,7 +141,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         public TokensList getCompletionsForTokenWithUndefinedType(ICompletionState state,
                 ILocalScope localScope, TokensList interfaceForLocal) {
             return new TokensList(
-                    new IToken[] { new SourceToken(null, "bar", null, null, null, IToken.TYPE_ATTR, null) });
+                    new IToken[] { new SourceToken(null, "bar", null, null, null, IToken.TYPE_ATTR, null, null) });
         }
 
         @Override
@@ -431,7 +431,6 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
     }
 
     public void testFromImport() throws Exception {
-        //TODO: see AbstractASTManager.resolveImport
         String s;
         s = "" +
                 "from testOtherImports.f3 import test\n" +

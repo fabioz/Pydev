@@ -1,6 +1,6 @@
-print ##|"hello"##|
+print(##|"hello"##|)
 
 ##r
 
 extracted_variable = "hello"
-print extracted_variable
+print(extracted_variable)

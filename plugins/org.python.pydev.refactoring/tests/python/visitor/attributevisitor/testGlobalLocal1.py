@@ -7,10 +7,10 @@ class Rectangle(object):
         def foo_meth(self):
             class bla:
                 bla_attribute = "blattr"
-                print "foo"
+                print("foo")
             foolocal = bla()
             self.fooattribute = "fooattribute"
-            print "foo nested class"
+            print("foo nested class")
 
     rect_attribute = Foo() 
     rect_attribute.foo_meth()
@@ -25,22 +25,22 @@ class Rectangle(object):
         
     def get_area(self):
         global attribute_in_class
-        print "getArea ", self.attribute_in_class
+        print("getArea ", self.attribute_in_class)
         no_attribute = 35
         self.first_attr_in_tuple, self.second_attr_in_tuple, Rectangle.third_attr_in_tuple = "foo"
         return self.width * self.height
    
     area = property(get_area, doc='area of the rectangle')
-    print "Class scope attribute", attribute_in_class
+    print("Class scope attribute", attribute_in_class)
     a_global = 4
-    print "Global ", a_global
+    print("Global ", a_global)
     
     
       
 rect = Rectangle(10, 15)
-print rect.width
-print rect.area
-print rect.attribute_in_class
+print(rect.width)
+print(rect.area)
+print(rect.attribute_in_class)
 
 # will ignore a_global -> we want attributes only
 ##r

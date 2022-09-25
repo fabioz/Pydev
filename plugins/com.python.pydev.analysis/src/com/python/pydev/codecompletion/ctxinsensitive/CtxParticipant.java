@@ -415,7 +415,7 @@ public class CtxParticipant
                 for (IInfo info : tokensStartingWith) {
                     if (nameFilter.acceptName(info.getName())) {
                         ret.add(new SourceToken(null, info.getName(), null, null, info.getDeclaringModuleName(),
-                                info.getType(), info.getNature()));
+                                info.getType(), info.getNature(), null));
                     }
                 }
             } else {
@@ -428,7 +428,7 @@ public class CtxParticipant
                 }
                 for (IInfo info : tokensStartingWith) {
                     ret.add(new SourceToken(null, info.getName(), null, null, info.getDeclaringModuleName(),
-                            info.getType(), info.getNature()));
+                            info.getType(), info.getNature(), null));
                 }
             }
 

@@ -128,7 +128,7 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
     public Object visitCompare(Compare node) throws Exception {
         Object ret = super.visitCompare(node);
         if (isInTestScope == 0) {
-            SourceToken token = AbstractVisitor.makeToken(node, moduleName, this.nature);
+            SourceToken token = AbstractVisitor.makeToken(node, moduleName, this.nature, current);
             messagesManager.addMessage(IAnalysisPreferences.TYPE_NO_EFFECT_STMT, token);
         }
         return ret;
@@ -355,7 +355,7 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
         Message message = new Message(IAnalysisPreferences.TYPE_FSTRING_SYNTAX_ERROR,
                 errorDescription.message, startLine, endLine, startCol, endCol, prefs);
         messagesManager.addMessage(
-                AbstractVisitor.makeToken(node, this.moduleName, nature), message);
+                AbstractVisitor.makeToken(node, this.moduleName, nature, current), message);
 
     }
 
@@ -689,7 +689,7 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
                         if (d.ast instanceof FunctionDef || d.ast instanceof ClassDef) {
                             SourceToken tok = AbstractVisitor.makeToken(d.ast, token.getRepresentation(),
                                     d.module != null ? d.module.getName() : "",
-                                    d.module != null ? d.module.getNature() : null);
+                                    d.module != null ? d.module.getNature() : null, d.module);
                             tok.setDefinition(d);
                             onPushToRecordedFounds(tok);
                             reportFound = false;
@@ -713,7 +713,7 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
                 SourceToken sourceToken = (SourceToken) tokenInNamesToIgnore;
                 //Make a new token because we want the ast to be the FunctionDef or ClassDef, not the name which is the reference.
                 onPushToRecordedFounds(AbstractVisitor.makeToken(sourceToken.getAst(), token.getRepresentation(),
-                        sourceToken.getParentPackage(), nature));
+                        sourceToken.getParentPackage(), nature, current));
             }
         }
     }

@@ -46,7 +46,7 @@ public class FindScopeVisitorTest extends PyParserTestBase {
      */
     private ILocalScope findLocalScope(String s, int line, int col) {
         SimpleNode ast = parseLegalDocStr(s);
-        FindScopeVisitor scopeVisitor = new FindScopeVisitor(line, col, null);
+        FindScopeVisitor scopeVisitor = new FindScopeVisitor(line, col, null, null);
         if (ast != null) {
             try {
                 ast.accept(scopeVisitor);

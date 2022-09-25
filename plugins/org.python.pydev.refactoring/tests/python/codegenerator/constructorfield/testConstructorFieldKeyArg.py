@@ -1,17 +1,17 @@
 class A:
     def __init__(self, arg=123):
-        print "foo"
+        print("foo")
 
 class B(A):
     try:
-        print "foo"
+        print("foo")
     finally:
-        print "done."
+        print("done.")
     
     attribute = "hello"
     
     def my_method(self):
-        print self.attribute
+        print(self.attribute)
         
 a = A()
 a.my_method()
@@ -30,7 +30,7 @@ a.my_method()
 ##r
 class A:
     def __init__(self, arg=123):
-        print "foo"
+        print("foo")
 
 class B(A):
 
@@ -39,14 +39,14 @@ class B(A):
         self.attribute = attribute
 
     try:
-        print "foo"
+        print("foo")
     finally:
-        print "done."
+        print("done.")
     
     attribute = "hello"
     
     def my_method(self):
-        print self.attribute
+        print(self.attribute)
         
 a = A()
 a.my_method()

@@ -841,6 +841,24 @@ public final class NodeUtils {
     }
 
     /**
+     * @return classdef.method_name
+     */
+    public static String getFullMethodName(SimpleNode last) {
+        StringBuffer buffer = new StringBuffer();
+        boolean first = true;
+        while (last != null) {
+            String name = NodeUtils.getRepresentationString(last);
+            buffer.insert(0, name);
+            last = last.parent;
+            if (!first) {
+                buffer.insert(name.length(), ".");
+            }
+            first = false;
+        }
+        return buffer.toString();
+    }
+
+    /**
      * @param ASTEntry last
      * @return classdef.method_name
      */

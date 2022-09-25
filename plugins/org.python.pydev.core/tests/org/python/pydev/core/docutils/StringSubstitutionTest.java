@@ -325,6 +325,11 @@ public class StringSubstitutionTest extends TestCase {
                 return new IProject() {
 
                     @Override
+                    public String getDefaultLineSeparator() throws CoreException {
+                        return "\n";
+                    }
+
+                    @Override
                     public boolean exists(IPath path) {
                         throw new RuntimeException("Not implemented");
                     }

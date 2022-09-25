@@ -115,6 +115,7 @@ public class Definition implements IDefinition {
             ILocalScope scope, IModule module) {
         this(line, col, value, type, nodeType, ast, scope, module, false);
     }
+
     /**
      * The ast and scope may be null if the definition points to the module (and not some token defined
      * within it).
@@ -127,7 +128,7 @@ public class Definition implements IDefinition {
         Assert.isNotNull(module, "Invalid Module.");
 
         if (scope == null) {
-            scope = new LocalScope(module.getNature());
+            scope = new LocalScope(module.getNature(), module);
         }
 
         this.line = line;
@@ -151,7 +152,7 @@ public class Definition implements IDefinition {
         Assert.isNotNull(module, "Invalid Module.");
 
         if (scope == null) {
-            scope = new LocalScope(module.getNature());
+            scope = new LocalScope(module.getNature(), module);
         }
 
         this.line = line;
@@ -176,7 +177,7 @@ public class Definition implements IDefinition {
         Assert.isNotNull(module, "Invalid Module.");
 
         if (scope == null) {
-            scope = new LocalScope(module.getNature());
+            scope = new LocalScope(module.getNature(), module);
         }
 
         this.line = line;
@@ -214,7 +215,7 @@ public class Definition implements IDefinition {
             this.nodeType = null;
         }
         if (scope == null) {
-            scope = new LocalScope(module.getNature());
+            scope = new LocalScope(module.getNature(), module);
         }
 
         this.scope = scope;

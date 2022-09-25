@@ -8,21 +8,22 @@ class Echo(DatagramProtocol):
 
 
     def makeConnection(self, transport):
-        print "got a connection"
+        print("got a connection")
 
     
-    def datagramReceived(self, data, (host, port)):
+    def datagramReceived(self, data, xxx_todo_changeme):
+        (host, port) = xxx_todo_changeme
         if (port > 80):
-          ##|  print "bigger than 80"
-            pr##|int "received %r from %s:%d" % (data, host, port)
+          ##|  print("bigger than 80")
+            print("received %r from %s:%d" % (data, host, port))##|
         elif(port == 9999):
-            print "is 9999"
-            print "cool hm"
+            print("is 9999")
+            print("cool hm")
         else:
-            print "wow it works"
+            print("wow it works")
             var = host+":"+port
         self.transport.write(data, (host, port))
-        print var
+        print(var)
 
 reactor.listenUDP(9999, Echo())
 reactor.run()
@@ -35,8 +36,8 @@ from twisted.internet import reactor
 class Echo(DatagramProtocol):
 
     def extracted_method(self, data, host, port):
-        print "bigger than 80"
-        print "received %r from %s:%d" % (data, host, port)
+        print("bigger than 80")
+        print("received %r from %s:%d" % (data, host, port))
 
 
     def connectionRefused(self):
@@ -44,20 +45,21 @@ class Echo(DatagramProtocol):
 
 
     def makeConnection(self, transport):
-        print "got a connection"
+        print("got a connection")
 
     
-    def datagramReceived(self, data, (host, port)):
+    def datagramReceived(self, data, xxx_todo_changeme):
+        (host, port) = xxx_todo_changeme
         if (port > 80):
             self.extracted_method(data, host, port)
         elif(port == 9999):
-            print "is 9999"
-            print "cool hm"
+            print("is 9999")
+            print("cool hm")
         else:
-            print "wow it works"
+            print("wow it works")
             var = host+":"+port
         self.transport.write(data, (host, port))
-        print var
+        print(var)
 
 reactor.listenUDP(9999, Echo())
 reactor.run()

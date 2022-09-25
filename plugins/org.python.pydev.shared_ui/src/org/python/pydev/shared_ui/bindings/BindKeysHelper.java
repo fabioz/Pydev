@@ -55,8 +55,9 @@ public class BindKeysHelper {
      * @param contextId defines the keys context we'll work with...
      *
      * We'll only remove/add bindings to this context.
+     * @throws NoActiveSchemeOnBindingServiceException 
      */
-    public BindKeysHelper(String contextId) {
+    public BindKeysHelper(String contextId) throws NoActiveSchemeOnBindingServiceException {
         Assert.isNotNull(contextId);
         this.contextId = contextId;
 
@@ -67,14 +68,17 @@ public class BindKeysHelper {
 
         // Check that the context we're working with actually exists
         IWorkbench workbench = PlatformUI.getWorkbench();
-        bindingService = (IBindingService) workbench.getService(IBindingService.class);
-        IContextService contextService = (IContextService) workbench.getService(IContextService.class);
+        bindingService = workbench.getService(IBindingService.class);
+        IContextService contextService = workbench.getService(IContextService.class);
         Context context = contextService.getContext(contextId);
         if (context == null || context.isDefined() == false) {
             throw new RuntimeException("The context: " + contextId + " does not exist.");
         }
 
         Scheme activeScheme = bindingService.getActiveScheme();
+        if (activeScheme == null) {
+            throw new NoActiveSchemeOnBindingServiceException();
+        }
         final Scheme[] definedSchemes = bindingService.getDefinedSchemes();
 
         // Make a copy we can work with locally (we'll apply changes later based on this copy).

@@ -205,7 +205,8 @@ public class AnalysisPlugin extends Plugin {
                                             Map<String, SourceToken> repToTokenWithArgs = new HashMap<String, SourceToken>();
                                             HeuristicFindAttrs heuristicFindAttrs = new HeuristicFindAttrs(
                                                     HeuristicFindAttrs.WHITIN_ANY, HeuristicFindAttrs.IN_ASSIGN, "",
-                                                    definition.module.getName(), null, repToTokenWithArgs, nature);
+                                                    definition.module.getName(), null, repToTokenWithArgs, nature,
+                                                    definition.module);
                                             heuristicFindAttrs.visitFunctionDef(functionDef);
 
                                             List<IToken> tokens = heuristicFindAttrs.getTokens();

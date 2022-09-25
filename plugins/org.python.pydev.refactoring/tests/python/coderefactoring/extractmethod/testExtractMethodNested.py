@@ -4,9 +4,9 @@ class A:
         barfoo = 234
         def bar_method(self):
             pass
-  ##|          print barfoo##|          
-        print "foo"
-        print self.bar
+  ##|          print(barfoo)##|          
+        print("foo")
+        print(self.bar)
         bar_method(self)
         
 a = A()
@@ -17,7 +17,7 @@ a.foo()
 class A:
 
     def extracted_method(self):
-        print barfoo
+        return print(barfoo)
 
     bar = 123
     def foo(self):
@@ -25,8 +25,8 @@ class A:
         def bar_method(self):
             pass
             self.extracted_method()          
-        print "foo"
-        print self.bar
+        print("foo")
+        print(self.bar)
         bar_method(self)
         
 a = A()

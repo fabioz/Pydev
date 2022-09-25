@@ -24,7 +24,7 @@
   <packaging>pom</packaging>
   <modules>
     <module>org.python.pydev.feature</module>
-    <module>org.python.pydev.mylyn.feature</module>
+    <!-- <module>org.python.pydev.mylyn.feature</module> -->
     <module>org.python.pydev.p2-repo</module>
   </modules>
   <build>

@@ -6,11 +6,11 @@ class Foo:
         
     def foo_meth():
         self.foo_meth_attr = 3
-    print "bar"
+    print("bar")
     
 class Bar:
     bar_attr = "bar"
-    print "foo"
+    print("foo")
 
 ##r
 

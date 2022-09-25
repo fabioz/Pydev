@@ -36,6 +36,7 @@ import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
 import org.python.pydev.refactoring.ast.visitors.LocalVariablesVisitor;
 import org.python.pydev.refactoring.core.base.AbstractPythonRefactoring;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
+import org.python.pydev.refactoring.core.base.RefactoringInfo.SelectionComputer.SelectionComputerKind;
 import org.python.pydev.refactoring.core.change.IChangeProcessor;
 import org.python.pydev.refactoring.messages.Messages;
 import org.python.pydev.shared_core.string.ICoreTextSelection;
@@ -66,7 +67,8 @@ public class InlineLocalRefactoring extends AbstractPythonRefactoring {
     @Override
     public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException {
         AbstractScopeNode<?> scope = info.getScopeAdapter();
-        ICoreTextSelection selection = info.getUserSelection();
+        ICoreTextSelection selection = info
+                .getSelectionComputer(SelectionComputerKind.inline).selection;
 
         SimpleNode node = scope.getASTNode();
 

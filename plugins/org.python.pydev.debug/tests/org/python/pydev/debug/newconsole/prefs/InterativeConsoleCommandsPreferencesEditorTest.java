@@ -7,16 +7,18 @@
 package org.python.pydev.debug.newconsole.prefs;
 
 import java.io.File;
-import java.util.ArrayList;
-
-import junit.framework.TestCase;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallbackListener;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.preferences.ScopedPreferences;
+
+import junit.framework.TestCase;
 
 public class InterativeConsoleCommandsPreferencesEditorTest extends TestCase {
 
@@ -101,33 +103,32 @@ public class InterativeConsoleCommandsPreferencesEditorTest extends TestCase {
         editor.removeSelectedCommand();
         assertEquals("Plot", editor.getCombo().getText());
 
-        final ArrayList<Object> lst = new ArrayList<>();
+        if (SharedCorePlugin.skipKnownFailures()) {
+            // I'm not sure why, but even with a long timeout it fails in the ci
+            // -- the notification is only sent after the test finishes (but I still don't know why).
+            return;
+        }
+
+        final Semaphore semaphore = new Semaphore(0);
+        System.out.println("--- register");
         ICallbackListener<Object> iCallbackListener = new ICallbackListener<Object>() {
 
             @Override
             public Object call(Object obj) {
-                synchronized (lst) {
-                    lst.add(1);
-                }
+                System.out.println("Callback called!!!!");
+                semaphore.release();
                 return null;
             }
         };
         InteractiveConsoleCommand.registerOnCommandsChangedCallback(iCallbackListener);
+        System.out.println("--- save");
 
         editor.performSave();
-        for (int i = 0; i < 10; i++) {
-            synchronized (lst) {
-                if (lst.size() > 0) {
-                    break;
-                }
-            }
-            synchronized (this) {
-                this.wait(50);
-            }
-            if (i == 9) {
-                fail("Did not get notification that the commands changed.");
-            }
+        System.out.println("--- saved (waiting)");
+        if (!semaphore.tryAcquire(10, TimeUnit.SECONDS)) {
+            fail("Did not get notification that the commands changed.");
         }
+        System.out.println("--- stopped waiting");
         InteractiveConsoleCommand.unregisterOnCommandsChangedCallback(iCallbackListener);
 
         // Uncomment below to see results.

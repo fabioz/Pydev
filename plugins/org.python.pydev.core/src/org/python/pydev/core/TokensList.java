@@ -173,4 +173,18 @@ public class TokensList implements IObjectsList, Iterable<IterTokenEntry> {
         return this.mapsToTypeVar;
     }
 
+    public IToken find(String qualifier) {
+        for (IterTokenEntry entry : this) {
+            Object obj = entry.object;
+            if (obj instanceof IToken) {
+                IToken tok = (IToken) obj;
+                String rep = tok.getRepresentation();
+                if (qualifier.equals(rep)) {
+                    return tok;
+                }
+            }
+        }
+        return null;
+    }
+
 }

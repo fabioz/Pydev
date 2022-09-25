@@ -2,7 +2,7 @@ class A(object):
     def get(self):
         # float from attributes_user
         self.attribute ## type float|int
-        print self.attribute
+        print(self.attribute)
         return self.attribute
 
     def set(self, value):

@@ -31,6 +31,7 @@ import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
@@ -40,6 +41,8 @@ import org.python.pydev.refactoring.coderefactoring.extractmethod.edit.ExtractMe
 import org.python.pydev.refactoring.coderefactoring.extractmethod.edit.ParameterReturnDeduce;
 import org.python.pydev.refactoring.coderefactoring.extractmethod.request.ExtractMethodRequest;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
+import org.python.pydev.refactoring.core.base.RefactoringInfo.SelectionComputer;
+import org.python.pydev.refactoring.core.base.RefactoringInfo.SelectionComputer.SelectionComputerKind;
 import org.python.pydev.refactoring.tests.adapter.PythonNatureStub;
 import org.python.pydev.refactoring.tests.core.AbstractIOTestCase;
 import org.python.pydev.shared_core.io.FileUtils;
@@ -63,7 +66,14 @@ public class ExtractMethodTestCase extends AbstractIOTestCase {
 
         IDocument doc = new Document(data.source);
         IGrammarVersionProvider versionProvider = createVersionProvider();
-        Module astModule = VisitorFactory.getRootNode(doc, versionProvider);
+        Module astModule;
+        try {
+            astModule = VisitorFactory.getRootNode(doc, versionProvider);
+        } catch (ParseException e) {
+            throw new RuntimeException("Error parsing:\n" + data.source + "\n---\nError: " + e.getMessage(), e);
+        } catch (Exception e1) {
+            throw new RuntimeException("Error parsing:\n" + data.source, e1);
+        }
         String name = data.file.getName();
         name = name.substring(0, name.length() - EXTENSION);
         ModuleAdapter module = new ModuleAdapter(null, data.file, doc, astModule, new PythonNatureStub());
@@ -103,10 +113,11 @@ public class ExtractMethodTestCase extends AbstractIOTestCase {
 
     private MockupExtractMethodRequestProcessor setupRequestProcessor(MockupExtractMethodConfig config,
             ModuleAdapter module, RefactoringInfo info) {
-        ModuleAdapter parsedSelection = info.getParsedExtendedSelection();
+        SelectionComputer selectionComputer = info.getSelectionComputer(SelectionComputerKind.extractMethod);
+        ModuleAdapter parsedSelection = selectionComputer.selectionModuleAdapter;
 
-        AbstractScopeNode<?> scope = module.getScopeAdapter(info.getExtendedSelection());
-        ParameterReturnDeduce deducer = new ParameterReturnDeduce(scope, info.getExtendedSelection(), module);
+        AbstractScopeNode<?> scope = module.getScopeAdapter(selectionComputer.selection);
+        ParameterReturnDeduce deducer = new ParameterReturnDeduce(scope, selectionComputer.selection, module);
 
         SortedMap<String, String> renameMap = new TreeMap<String, String>();
         for (String variable : deducer.getParameters()) {
@@ -117,7 +128,7 @@ public class ExtractMethodTestCase extends AbstractIOTestCase {
             renameMap.put(variable, newName);
         }
 
-        return new MockupExtractMethodRequestProcessor(scope, info.getExtendedSelection(), info.getVersionProvider(),
+        return new MockupExtractMethodRequestProcessor(scope, selectionComputer.selection, info.getVersionProvider(),
                 parsedSelection, deducer,
                 renameMap, config.getOffsetStrategy());
     }

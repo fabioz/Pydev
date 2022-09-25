@@ -15,7 +15,6 @@ import org.python.pydev.ast.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.ast.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
-import org.python.pydev.ast.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.IToken;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -56,7 +55,7 @@ public class AbstractVisitorTest extends TestCase {
 
         SimpleNode simpleNode = iterator.next().node;
         List<IToken> toks = AbstractVisitor.makeImportToken(simpleNode, new ArrayList<IToken>(), MODULE_NAME, true,
-                null);
+                null, null);
         assertEquals(2, toks.size());
 
         SourceToken token = (SourceToken) toks.get(0);
@@ -71,7 +70,7 @@ public class AbstractVisitorTest extends TestCase {
 
         SimpleNode simpleNode = iterator.next().node;
         List<IToken> toks = AbstractVisitor.makeImportToken(simpleNode, new ArrayList<IToken>(), MODULE_NAME, true,
-                null);
+                null, null);
         assertEquals(2, toks.size());
 
         SourceToken token = (SourceToken) toks.get(0);
@@ -87,7 +86,7 @@ public class AbstractVisitorTest extends TestCase {
 
         SimpleNode simpleNode = iterator.next().node;
         List<IToken> toks = AbstractVisitor.makeImportToken(simpleNode, new ArrayList<IToken>(), MODULE_NAME, true,
-                null);
+                null, null);
         assertEquals(2, toks.size());
 
         SourceToken token = (SourceToken) toks.get(0);
@@ -102,7 +101,7 @@ public class AbstractVisitorTest extends TestCase {
 
         SimpleNode simpleNode = iterator.next().node;
         List<IToken> toks = AbstractVisitor.makeImportToken(simpleNode, new ArrayList<IToken>(), MODULE_NAME, true,
-                null);
+                null, null);
         assertEquals(1, toks.size());
 
         SourceToken token = (SourceToken) toks.get(0);
@@ -114,7 +113,7 @@ public class AbstractVisitorTest extends TestCase {
         MODULE_NAME = "some.dotted.name";
         SimpleNode simpleNode = iterator.next().node;
         List<IToken> toks = AbstractVisitor.makeImportToken(simpleNode, new ArrayList<IToken>(), "some.dotted.name",
-                true, null);
+                true, null, null);
         assertEquals(1, toks.size());
 
         SourceToken token = (SourceToken) toks.get(0);

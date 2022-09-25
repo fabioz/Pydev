@@ -67,7 +67,9 @@ public class AdditionalInfoIntegrityCheckerTest extends AdditionalInfoTestsBase 
     }
 
     public void testIntegrityInModuleHasNoFile() throws MisconfigurationException {
-        IntegrityInfo info = AdditionalInfoIntegrityChecker.checkIntegrity(nature, monitor, false);
+        IntegrityInfo info = AdditionalInfoIntegrityChecker.checkIntegrity(nature, monitor, true);
+
+        info = AdditionalInfoIntegrityChecker.checkIntegrity(nature, monitor, false);
         assertTrue(info.desc.toString(), info.allOk);
 
         File f = FileUtils.getTempFileAt(baseDir, "integrity_no_file", ".py");
@@ -82,6 +84,7 @@ public class AdditionalInfoIntegrityCheckerTest extends AdditionalInfoTestsBase 
     }
 
     public void testIntegrityFileHasNoMemory() throws IOException, MisconfigurationException {
+        AdditionalInfoIntegrityChecker.checkIntegrity(nature, monitor, true);
         File file = new File(TestDependent.TEST_PYSRC_TESTING_LOC + "extendable/initially_not_existant.py");
         file.createNewFile();
 

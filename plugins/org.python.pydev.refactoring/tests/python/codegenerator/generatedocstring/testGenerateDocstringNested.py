@@ -1,13 +1,13 @@
 def function():
-    print "start"
+    print("start")
 
     if True == True:
-        print "True is true"
+        print("True is true")
 
         if False == False:
-            print "False ##|is false"
+            print("False ##|is false")
 
-    print "end"
+    print("end")
 
 ##r
 
@@ -15,12 +15,12 @@ def function():
     '''
     ##|
     '''
-    print "start"
+    print("start")
 
     if True == True:
-        print "True is true"
+        print("True is true")
 
         if False == False:
-            print "False is false"
+            print("False is false")
 
-    print "end"
+    print("end")

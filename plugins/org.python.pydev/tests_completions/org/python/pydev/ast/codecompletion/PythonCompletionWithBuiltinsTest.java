@@ -12,6 +12,7 @@ package org.python.pydev.ast.codecompletion;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
@@ -42,6 +43,9 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.string.StringUtils;
+
+import junit.framework.AssertionFailedError;
 
 public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
 
@@ -618,7 +622,12 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
         String s = "a = ''.split()\n" + //returns list
                 "a.";
 
-        requestCompl(s, -1, new String[] { "append(object)", "reverse()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, -1, new String[] { "append(object)", "reverse()" });
+        ICompletionProposalHandle appendComp = Arrays.stream(comps).filter((comp) -> {
+            return comp.getDisplayString().startsWith("append(");
+        }).findFirst().get();
+        String additionalProposalInfo = appendComp.getAdditionalProposalInfo();
+        assertTrue(additionalProposalInfo.indexOf("object to the end of the list") != -1);
     }
 
     public void testBuiltinCached() throws Exception {
@@ -677,6 +686,16 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
                 + "";
         ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "append(object)" });
         assertTrue(comps.length > 10); //list completions
+        ICompletionProposalHandle appendCompletion = Arrays.stream(comps).filter((comp) -> {
+            return comp.getDisplayString().startsWith("append(");
+        }).findFirst().get();
+        String info = appendCompletion.getAdditionalProposalInfo();
+        if (!info.contains("def append(self")) {
+            throw new AssertionFailedError("Did not find 'def append(self' in: " + info);
+        }
+        if (!info.contains("Append object to the end of the list.")) {
+            throw new AssertionFailedError("Did not find 'Append object to the end of the list.' in: " + info);
+        }
     }
 
     public void testCodeCompletionForCompoundObjectsBuiltin() throws Exception {
@@ -710,5 +729,20 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
                 "    White = '#ffffff'\n" +
                 "Color.Black.";
         requestCompl(s, s.length(), -1, new String[] { "name", "value" });
+    }
+
+    public void testTypingCloseDocs() throws Exception {
+        String s;
+        s = "" +
+                "from typing import Generator\n" +
+                "\n" +
+                "generator = Generator()\n" +
+                "generator.close";
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), 1, new String[] { "close()" });
+        String info = comps[0].getAdditionalProposalInfo();
+        if (StringUtils.count(info, "def close(self)->None") != 1) {
+            throw new AssertionFailedError("Expected 1 occurrence of: 'def close(self)->None' in " + info);
+        }
+
     }
 }

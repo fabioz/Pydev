@@ -1,13 +1,13 @@
 class A:
     try:
-        print "foo"
+        print("foo")
     finally:
-        print "done."
+        print("done.")
     
     attribute = "hello"  
     
     def my_method(self):
-        print self.attribute
+        print(self.attribute)
         
 a = A()
 a.my_method()
@@ -30,14 +30,14 @@ class A:
         self.attribute = attribute
 
     try:
-        print "foo"
+        print("foo")
     finally:
-        print "done."
+        print("done.")
     
     attribute = "hello"  
     
     def my_method(self):
-        print self.attribute
+        print(self.attribute)
         
 a = A()
 a.my_method()

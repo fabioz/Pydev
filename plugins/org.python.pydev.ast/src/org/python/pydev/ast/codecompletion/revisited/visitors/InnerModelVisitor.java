@@ -19,6 +19,7 @@ import java.util.Map;
 
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
@@ -69,7 +70,7 @@ public final class InnerModelVisitor extends AbstractVisitor {
     }
 
     private SourceToken addTokenCheckingOverride(FunctionDef node) {
-        SourceToken t = makeToken(node, moduleName, nature);
+        SourceToken t = makeToken(node, moduleName, nature, module.get());
         addToTokenWithArgs(t);
         if (node.decs != null) {
             for (decoratorsType dec : node.decs) {
@@ -133,14 +134,14 @@ public final class InnerModelVisitor extends AbstractVisitor {
         return true;
     }
 
-    public InnerModelVisitor(String moduleName, ICompletionState state, IPythonNature nature) {
-        super(nature);
+    public InnerModelVisitor(String moduleName, ICompletionState state, IPythonNature nature, IModule module) {
+        super(nature, module);
         this.moduleName = moduleName;
         attrsHeuristics.add(new HeuristicFindAttrs(HeuristicFindAttrs.WHITIN_METHOD_CALL,
                 HeuristicFindAttrs.IN_KEYWORDS, "properties.create", moduleName, state, this.repToTokenWithArgs,
-                nature));
+                nature, module));
         attrsHeuristics.add(new HeuristicFindAttrs(HeuristicFindAttrs.WHITIN_ANY, HeuristicFindAttrs.IN_ASSIGN, "",
-                moduleName, state, this.repToTokenWithArgs, nature));
+                moduleName, state, this.repToTokenWithArgs, nature, module));
     }
 
     /**

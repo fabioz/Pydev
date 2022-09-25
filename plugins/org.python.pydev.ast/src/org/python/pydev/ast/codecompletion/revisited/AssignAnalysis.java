@@ -355,8 +355,9 @@ public class AssignAnalysis {
                                 for (exprType exprType : elts) {
                                     if (exprType instanceof Str) {
                                         ret.addAll(new TokensList(
-                                                new IToken[] { new SourceToken(exprType, ((Str) exprType).s, "",
-                                                        "", sourceModule.getName(), sourceModule.getNature()) }));
+                                                new IToken[] { new SourceToken(exprType, ((Str) exprType).s, "", "",
+                                                        sourceModule.getName(), sourceModule.getNature(),
+                                                        sourceModule) }));
                                     }
                                 }
                                 return ret;
@@ -371,9 +372,9 @@ public class AssignAnalysis {
                                             if (str.s != null) {
                                                 List<String> split = StringUtils.split(str.s, " ");
                                                 for (String string : split) {
-                                                    ret.addAll(new TokensList(new IToken[] { new SourceToken(str,
-                                                            string, "",
-                                                            "", sourceModule.getName(), sourceModule.getNature()) }));
+                                                    ret.addAll(new TokensList(new IToken[] {
+                                                            new SourceToken(str, string, "", "", sourceModule.getName(),
+                                                                    sourceModule.getNature(), sourceModule) }));
                                                 }
                                                 return ret;
                                             }
@@ -386,9 +387,8 @@ public class AssignAnalysis {
                                 if (str.s != null) {
                                     for (String s : str.s.split("(\\s|,)+")) {
                                         if (!s.isEmpty()) {
-                                            ret.addAll(new TokensList(new IToken[] { new SourceToken(str,
-                                                    s, "",
-                                                    "", sourceModule.getName(), sourceModule.getNature()) }));
+                                            ret.addAll(new TokensList(new IToken[] { new SourceToken(str, s, "", "",
+                                                    sourceModule.getName(), sourceModule.getNature(), sourceModule) }));
                                         }
                                     }
                                     return ret;

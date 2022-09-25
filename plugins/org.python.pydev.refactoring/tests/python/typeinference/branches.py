@@ -73,7 +73,7 @@ g ## type int|str
 try:
     h = 1
     h = 1.1
-except IOError, i:
+except IOError as i:
     h ## type float|int
     h = "str"
     h ## type str

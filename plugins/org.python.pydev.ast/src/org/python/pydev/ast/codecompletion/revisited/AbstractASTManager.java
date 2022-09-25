@@ -2304,7 +2304,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
 
         List<IToken> tokens = new ArrayList<IToken>();
         List<IToken> imp = AbstractVisitor.makeImportToken(impTok, tokens, currentModule, true,
-                current != null ? current.getNature() : state.getNature());
+                current != null ? current.getNature() : state.getNature(), current);
         IToken importedModule = imp.get(imp.size() - 1); //get the last one (it's the one with the 'longest' representation).
         return this.findOnImportedMods(importedModule, "", state, "", currentModule, current);
     }
