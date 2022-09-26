@@ -367,6 +367,9 @@ public class RefactoringInfo {
     }
 
     public String normalizeSourceSelection(ICoreTextSelection selection) {
+        if (selection == null) {
+            return "";
+        }
         String selectedText = "";
 
         if (selection.getText() != null) {

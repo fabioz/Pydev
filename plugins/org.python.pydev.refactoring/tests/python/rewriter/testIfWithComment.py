@@ -40,7 +40,7 @@ elif 3 != 2: # on-line first elif
         print("bla")
     else:
         print("bar")
-    # after second body (elif)
+        # after second body (elif)
 else: # on-line else
     print("abc") # print abc
     print("nextline")

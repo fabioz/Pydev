@@ -23,7 +23,7 @@ print((1,2,(3)))
 # after
 (1, 2, 3) # on-line
 # after
-1, 2, 3
+(1, 2, 3)
 a = ()
 ()
 # tuple in call

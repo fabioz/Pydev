@@ -12,11 +12,13 @@ a.test()
 
 ##r a is used twice!
 
-# test 3
+# test 4
 ## a
+## print
 ## a
 ## attribute
 
-# my_method 0
+# my_method 1
+## print
 
 # A 0

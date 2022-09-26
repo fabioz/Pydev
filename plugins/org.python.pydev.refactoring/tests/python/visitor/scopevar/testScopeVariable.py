@@ -19,12 +19,14 @@ global4.myfoo()
 
 ##r ignore self
 
-# myfunc 1
+# myfunc 2
+## print
 ## local
 
-# myfoo 3
+# myfoo 4
 ## x
 ## y
+## print
 ## mylocalfoo
 
 # Foo 1

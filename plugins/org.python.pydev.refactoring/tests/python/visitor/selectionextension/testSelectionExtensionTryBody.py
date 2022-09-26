@@ -2,7 +2,7 @@ class A:
     def test(self):
         a = 1
         try:
-            ##|print a
+            ##|print(a)
             print("foo")##|
         except:
             print(b)

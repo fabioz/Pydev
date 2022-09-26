@@ -22,7 +22,7 @@ class Echo(protocol.DatagramProtocol):
             print("bigger than 80")
             print("received %r from %s:%d" % (data, host, port))
         elif(port == 9999):
-    ##|        print "is 9999"
+    ##|        print("is 9999")
             print("cool hm")
        ##| else:
             print("wow it works")

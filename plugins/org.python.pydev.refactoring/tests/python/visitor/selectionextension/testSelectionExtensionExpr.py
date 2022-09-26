@@ -1,6 +1,6 @@
 class A:
     def test(self):
-        print() ##|"Initializing A", "test"##|
+        print(##|"Initializing A", "test"##|)
         attribute = "hello"  
     
     def my_method(self):

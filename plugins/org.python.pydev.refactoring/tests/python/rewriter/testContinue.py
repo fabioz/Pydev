@@ -13,6 +13,6 @@ while True:
         # after continue
         print("foo after continue")
         print("foo after continue")
-    # after while body
 
+    # after while body
 print("bar")

@@ -28,6 +28,7 @@ def first_match(s, regexList):
     for match in (regex.search(s) for regex in regexList):
         if match:
             return match
+
         # some comment after first_match
     
 

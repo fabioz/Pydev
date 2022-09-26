@@ -14,15 +14,17 @@ a.test()
 
 ##r
 
-# test 7
+# test 8
 ## a
 ## a
 ## a
 ## var
 ## a
 ## a
+## print
 ## var
 
-# my_method 0
+# my_method 1
+## print
 
 # A 0
