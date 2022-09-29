@@ -15,7 +15,7 @@ from _pydevd_bundle._debug_adapter.pydevd_schema import (ThreadEvent, ModuleEven
     ExceptionOptions, Response, StoppedEvent, ContinuedEvent, ProcessEvent, InitializeRequest,
     InitializeRequestArguments, TerminateArguments, TerminateRequest, TerminatedEvent,
     FunctionBreakpoint, SetFunctionBreakpointsRequest, SetFunctionBreakpointsArguments,
-    BreakpointEvent)
+    BreakpointEvent, InitializedEvent)
 from _pydevd_bundle.pydevd_comm_constants import file_system_encoding
 from _pydevd_bundle.pydevd_constants import (int_types, IS_64BIT_PROCESS,
     PY_VERSION_STR, PY_IMPL_VERSION_STR, PY_IMPL_NAME, IS_PY36_OR_GREATER,
@@ -719,7 +719,6 @@ def test_case_handled_exception_no_break_on_generator(case_setup):
         writer.finished_ok = True
 
 
-@pytest.mark.skipif(not IS_PY36_OR_GREATER, reason='Requires Python 3.')
 def test_case_throw_exc_reason(case_setup):
 
     def check_test_suceeded_msg(self, stdout, stderr):
@@ -752,7 +751,15 @@ def test_case_throw_exc_reason(case_setup):
         stack_frames = json_hit.stack_trace_response.body.stackFrames
         # Note that the additional context doesn't really appear in the stack
         # frames, only in the details.
-        assert [x['name'] for x in stack_frames] == ['foobar', '<module>']
+        assert [x['name'] for x in stack_frames] == [
+            'foobar',
+            '<module>',
+            '[Chained Exc: another while handling] foobar',
+            '[Chained Exc: another while handling] handle',
+            '[Chained Exc: TEST SUCEEDED] foobar',
+            '[Chained Exc: TEST SUCEEDED] method',
+            '[Chained Exc: TEST SUCEEDED] method2',
+        ]
 
         body = exc_info_response.body
         assert body.exceptionId.endswith('RuntimeError')
@@ -761,10 +768,68 @@ def test_case_throw_exc_reason(case_setup):
 
         # Check that we have all the lines (including the cause/context) in the stack trace.
         import re
-        lines_and_names = re.findall(r',\sline\s(\d+),\sin\s([\w|<|>]+)', body.details.stackTrace)
+        lines_and_names = re.findall(r',\sline\s(\d+),\sin\s(\[Chained Exception\]\s)?([\w|<|>]+)', body.details.stackTrace)
         assert lines_and_names == [
-            ('16', 'foobar'), ('6', 'method'), ('2', 'method2'), ('18', 'foobar'), ('10', 'handle'), ('20', 'foobar'), ('23', '<module>')
+            ('16', '', 'foobar'),
+            ('6', '', 'method'),
+            ('2', '', 'method2'),
+            ('18', '', 'foobar'),
+            ('10', '', 'handle'),
+            ('20', '', 'foobar'),
+            ('23', '', '<module>'),
+        ], 'Did not find the expected names in:\n%s' % (body.details.stackTrace,)
+
+        json_facade.write_continue()
+
+        writer.finished_ok = True
+
+
+def test_case_throw_exc_reason_shown(case_setup):
+
+    def check_test_suceeded_msg(self, stdout, stderr):
+        return 'TEST SUCEEDED' in ''.join(stderr)
+
+    def additional_output_checks(writer, stdout, stderr):
+        assert "raise Exception('TEST SUCEEDED') from e" in stderr
+        assert "{}['foo']" in stderr
+        assert "KeyError: 'foo'" in stderr
+
+    with case_setup.test_file(
+            '_debugger_case_raise_with_cause_msg.py',
+            EXPECTED_RETURNCODE=1,
+            check_test_suceeded_msg=check_test_suceeded_msg,
+            additional_output_checks=additional_output_checks
+        ) as writer:
+        json_facade = JsonFacade(writer)
+
+        json_facade.write_launch(justMyCode=False)
+        json_facade.write_set_exception_breakpoints(['uncaught'])
+        json_facade.write_make_initial_run()
+
+        json_hit = json_facade.wait_for_thread_stopped(
+            reason='exception', line=writer.get_line_index_with_content("raise Exception('TEST SUCEEDED') from e"))
+
+        exc_info_request = json_facade.write_request(
+            pydevd_schema.ExceptionInfoRequest(pydevd_schema.ExceptionInfoArguments(json_hit.thread_id)))
+        exc_info_response = json_facade.wait_for_response(exc_info_request)
+
+        stack_frames = json_hit.stack_trace_response.body.stackFrames
+        # Note that the additional context doesn't really appear in the stack
+        # frames, only in the details.
+        assert [x['name'] for x in stack_frames] == [
+            'method',
+            '<module>',
+            "[Chained Exc: 'foo'] method",
+            "[Chained Exc: 'foo'] method2",
         ]
+
+        body = exc_info_response.body
+        assert body.exceptionId == 'Exception'
+        assert body.description == 'TEST SUCEEDED'
+        assert normcase(body.details.kwargs['source']) == normcase(writer.TEST_FILE)
+
+        # Check that we have the exception cause in the stack trace.
+        assert "KeyError: 'foo'" in body.details.stackTrace
 
         json_facade.write_continue()
 
@@ -1873,6 +1938,32 @@ def test_warning_on_repl(case_setup):
         # We want warnings from the in evaluate in the repl (but not hover/watch).
         json_facade.evaluate(
             'import warnings; warnings.warn("WarningCalledOnRepl")', json_hit.frame_id, context='repl')
+
+        json_facade.write_continue()
+
+        writer.finished_ok = True
+
+
+def test_evaluate_none(case_setup, pyfile):
+
+    @pyfile
+    def eval_none():
+        print('TEST SUCEEDED')  # break here
+
+    with case_setup.test_file(eval_none) as writer:
+        json_facade = JsonFacade(writer)
+
+        json_facade.write_launch(justMyCode=False)
+
+        json_facade.write_set_breakpoints(writer.get_line_index_with_content('break here'))
+        json_facade.write_make_initial_run()
+
+        json_hit = json_facade.wait_for_thread_stopped()
+        json_hit = json_facade.get_stack_as_json_hit(json_hit.thread_id)
+
+        evaluate_response = json_facade.evaluate('None', json_hit.frame_id, context='repl')
+        assert evaluate_response.body.result is not None
+        assert evaluate_response.body.result == ''
 
         json_facade.write_continue()
 
@@ -3251,7 +3342,7 @@ def test_exception_details(case_setup, max_frames):
         else:
             json_facade.write_launch(maxExceptionStackFrames=max_frames)
             min_expected_lines = 10
-            max_expected_lines = 21
+            max_expected_lines = 22
 
         json_facade.write_set_exception_breakpoints(['raised'])
 
@@ -3826,6 +3917,30 @@ cherrypy.quickstart(HelloWorld())
         if secondary_thread_errors:
             raise AssertionError('Found errors in secondary thread: %s' % (secondary_thread_errors,))
 
+        writer.finished_ok = True
+
+
+def test_wait_for_attach_debugpy_mode(case_setup_remote_attach_to):
+    host_port = get_socket_name(close=True)
+
+    with case_setup_remote_attach_to.test_file('_debugger_case_wait_for_attach_debugpy_mode.py', host_port[1]) as writer:
+        time.sleep(1)  # Give some time for it to pass the first breakpoint and wait in 'wait_for_attach'.
+        writer.start_socket_client(*host_port)
+
+        # We don't send initial messages because everything should be pre-configured to
+        # the DAP mode already (i.e.: making sure it works).
+        json_facade = JsonFacade(writer, send_json_startup_messages=False)
+        break2_line = writer.get_line_index_with_content('Break 2')
+
+        json_facade.write_attach()
+        # Make sure we also received the initialized in the attach.
+        assert len(json_facade.mark_messages(InitializedEvent)) == 1
+
+        json_facade.write_set_breakpoints([break2_line])
+
+        json_facade.write_make_initial_run()
+        json_facade.wait_for_thread_stopped(line=break2_line)
+        json_facade.write_continue()
         writer.finished_ok = True
 
 
@@ -5320,6 +5435,7 @@ def test_debug_options(case_setup, val):
             stopOnEntry=val,
             maxExceptionStackFrames=4 if val else 5,
             guiEventLoop=gui_event_loop,
+            clientOS='UNIX' if val else 'WINDOWS'
         )
         json_facade.write_launch(**args)
 
@@ -5343,6 +5459,7 @@ def test_debug_options(case_setup, val):
             'stopOnEntry': 'stop_on_entry',
             'maxExceptionStackFrames': 'max_exception_stack_frames',
             'guiEventLoop': 'gui_event_loop',
+            'clientOS': 'client_os',
         }
 
         assert json.loads(output.body.output) == dict((translation[key], val) for key, val in args.items())

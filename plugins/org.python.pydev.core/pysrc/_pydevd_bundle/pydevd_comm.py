@@ -1219,7 +1219,7 @@ def internal_evaluate_expression_json(py_db, request, thread_id):
         if context == 'repl' and eval_result is None:
             # We don't want "None" to appear when typing in the repl.
             body = pydevd_schema.EvaluateResponseBody(
-                result=None,
+                result='',
                 variablesReference=0,
             )
 
@@ -1420,7 +1420,6 @@ def build_exception_info_response(dbg, thread_id, request_seq, set_additional_th
         try:
             try:
                 frames_list = dbg.suspended_frames_manager.get_frames_list(thread_id)
-                memo = set()
                 while frames_list is not None and len(frames_list):
                     frames = []
 
@@ -1467,11 +1466,23 @@ def build_exception_info_response(dbg, thread_id, request_seq, set_additional_th
                         source_path = frames[0][0]
 
                     stack_str = ''.join(traceback.format_list(frames[-max_frames:]))
+
+                    try:
+                        stype = frames_list.exc_type.__qualname__
+                        smod = frames_list.exc_type.__module__
+                        if smod not in ("__main__", "builtins"):
+                            if not isinstance(smod, str):
+                                smod = "<unknown>"
+                            stype = smod + '.' + stype
+                    except Exception:
+                        stype = '<unable to get exception type>'
+                        pydev_log.exception('Error getting exception type.')
+
+                    stack_str += '%s: %s\n' % (stype, frames_list.exc_desc)
                     stack_str += frames_list.exc_context_msg
                     stack_str_lst.append(stack_str)
 
-                    frames_list = create_frames_list_from_exception_cause(
-                        frames_list.trace_obj, None, frames_list.exc_type, frames_list.exc_desc, memo)
+                    frames_list = frames_list.chained_frames_list
                     if frames_list is None or not frames_list:
                         break
 
