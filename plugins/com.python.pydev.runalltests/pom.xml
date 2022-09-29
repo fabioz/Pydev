@@ -19,7 +19,6 @@
         <version>${tycho-version}</version>
         <configuration>
           <useUIHarness>true</useUIHarness>
-          <useUIHarness>true</useUIHarness>
           <testSuite>com.python.pydev.runalltests</testSuite>
           <testClass>com.python.pydev.runalltests2.AllWorkbenchTests</testClass>
           <systemProperties>

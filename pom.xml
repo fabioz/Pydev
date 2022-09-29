@@ -168,7 +168,7 @@
             <explodedBundle>com.python.pydev.debug</explodedBundle>
             <!-- TODO com.python.pydev.docs -->
             <explodedBundle>com.python.pydev.refactoring</explodedBundle>
-            <explodedBundle>com.python.pydev.runalltests</explodedBundle>
+            <!-- <explodedBundle>com.python.pydev.runalltests</explodedBundle> -->
             <explodedBundle>org.python.pydev</explodedBundle>
             <explodedBundle>org.python.pydev.ast</explodedBundle>
             <explodedBundle>org.python.pydev.core</explodedBundle>

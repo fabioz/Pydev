@@ -89,12 +89,13 @@ def main():
                 with build_properties.open('w') as fp:
                     jprops.store_properties(fp, properties, timestamp=False)
 
-    plugins_pom = plugins_dir / 'pom.xml'
-    txt = plugins_pom.read_text('utf-8')
-    assert '<!-- <module>com.python.pydev.runalltests</module> -->' in txt
-    txt = txt.replace('<!-- <module>com.python.pydev.runalltests</module> -->', '<module>com.python.pydev.runalltests</module>')
-    print('Writing ', plugins_pom)
-    plugins_pom.write_text(txt, 'utf-8')
+    # Don't reenable runalltests (I haven't been able to make the JDT work, so, disabling for now).
+    # plugins_pom = plugins_dir / 'pom.xml'
+    # txt = plugins_pom.read_text('utf-8')
+    # assert '<!-- <module>com.python.pydev.runalltests</module> -->' in txt
+    # txt = txt.replace('<!-- <module>com.python.pydev.runalltests</module> -->', '<module>com.python.pydev.runalltests</module>')
+    # print('Writing ', plugins_pom)
+    # plugins_pom.write_text(txt, 'utf-8')
 
 
 
