@@ -706,7 +706,12 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
 
             startStatementPart();
             beforeNode(h);
-            doc.addRequire("except", lastNode);
+            if (h.isExceptionGroup) {
+                doc.addRequire("except*", lastNode);
+
+            } else {
+                doc.addRequire("except", lastNode);
+            }
             this.pushTupleNeedsParens();
             if (h.type != null || h.name != null) {
                 doc.addRequire(" ", lastNode);

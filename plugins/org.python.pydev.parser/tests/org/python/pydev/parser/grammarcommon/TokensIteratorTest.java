@@ -168,6 +168,26 @@ public class TokensIteratorTest extends TestCase {
                 return 39;
             }
 
+            @Override
+            public int getNewline1Id() {
+                return 40;
+            }
+
+            @Override
+            public int getNewlineId() {
+                return 41;
+            }
+
+            @Override
+            public int getNewline2Id() {
+                return 42;
+            }
+
+            @Override
+            public int getCrlf1Id() {
+                return 43;
+            }
+
         };
     }
 

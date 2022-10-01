@@ -31,6 +31,14 @@ public interface ITokenManager {
 
     int getEofId();
 
+    int getNewline1Id();
+
+    int getNewlineId();
+
+    int getNewline2Id();
+
+    int getCrlf1Id();
+
     void indenting(int i);
 
     Token getNextToken();

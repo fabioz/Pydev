@@ -6,8 +6,13 @@
  */
 package org.python.pydev.parser;
 
+import java.util.Iterator;
+
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.TryExcept;
+import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.parser.visitors.scope.SequencialASTIteratorVisitor;
 
 public class PyParser311Test extends PyParserTestBase {
 
@@ -30,16 +35,17 @@ public class PyParser311Test extends PyParserTestBase {
     }
 
     public void testMatchExceptionGroups() {
-        if (SharedCorePlugin.skipKnownFailures()) {
-            return;
-        }
-        String s = "\n"
-                + "try:\n"
+        String s = "try:\n"
                 + "    pass\n"
-                + "except* TypeError as e:\n"
+                + "except* TypeError:\n"
                 + "    pass\n"
-                + "\n"
                 + "";
-        parseLegalDocStr(s);
+
+        SimpleNode ast = parseLegalDocStr(s);
+        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(ast);
+        Iterator<ASTEntry> it = visitor.getIterator(TryExcept.class);
+        ASTEntry entry = it.next();
+        TryExcept t = (TryExcept) entry.node;
+        assertTrue(t.handlers[0].isExceptionGroup);
     }
 }

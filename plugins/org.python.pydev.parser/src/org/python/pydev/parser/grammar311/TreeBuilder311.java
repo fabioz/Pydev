@@ -366,7 +366,9 @@ public final class TreeBuilder311 extends AbstractTreeBuilder implements ITreeBu
                 //we do that just to get the specials
                 return new Suite(null);
             case JJTBEGIN_EXCEPT_CLAUSE:
-                return new excepthandlerType(null, null, null);
+                return new excepthandlerType(null, null, null, false);
+            case JJTBEGIN_EXCEPT_MULTIPLY_CLAUSE:
+                return new excepthandlerType(null, null, null, true);
             case JJTEXCEPT_CLAUSE:
                 suite = (Suite) stack.popNode();
                 body = suite.body;

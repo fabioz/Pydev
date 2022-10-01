@@ -3,7 +3,7 @@ Update the version:
 
 x:
 cd x:\pydev
-python update_version.py 9.3.0
+python update_version.py 10.0.0
 
 X:\pydev\builders\org.python.pydev.build\build_cmd.bat
 C:\bin\Miniconda\envs\tests_py27\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository -d https://api.bintray.com/content/fabioz/pydev/nightly/
@@ -12,9 +12,9 @@ C:\bin\Miniconda\envs\tests_py27\python.exe X:\release_tools\pydev_uploader_bint
 --------- For full build ---------
 		Update the version:
 
-x:
-cd x:\pydev
-python update_version.py 10.0.0
+			x:
+			cd x:\pydev
+			python update_version.py 10.0.0
 
 		Make sure debugger builtins are updated and commited:
 
@@ -58,9 +58,9 @@ copy X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\rep
 
 x:
 cd X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable
-"C:\Program Files\7-Zip\7z" a -tzip -r "PyDev 9.3.0.zip" features plugins
+"C:\Program Files\7-Zip\7z" a -tzip -r "PyDev 10.0.0.zip" features plugins
 cd X:\pydev_build\build_dir\pydev
-git archive -o "X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable\PyDev 9.3.0-sources.zip" origin/master
+git archive -o "X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable\PyDev 10.0.0-sources.zip" origin/master
 
         ** Submit feature and sources .zip in folder X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable to:
 
@@ -69,7 +69,7 @@ git archive -o "X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo
 Note: check pageant if it does not connect.
 
 Check if the main download button points to the proper place (not to the sources) --
-https://sourceforge.net/projects/pydev/files/pydev/PyDev 9.3.0/ -- choose file > file info > set default.
+https://sourceforge.net/projects/pydev/files/pydev/PyDev 10.0.0/ -- choose file > file info > set default.
 
 
 		** Add contents to the update site
@@ -77,39 +77,39 @@ https://sourceforge.net/projects/pydev/files/pydev/PyDev 9.3.0/ -- choose file >
 
 cd /D X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\
 
-mkdir org.python.pydev.p2-repo-9.3.0-SNAPSHOT
+mkdir org.python.pydev.p2-repo-10.0.0-SNAPSHOT
 
-cd org.python.pydev.p2-repo-9.3.0-SNAPSHOT
+cd org.python.pydev.p2-repo-10.0.0-SNAPSHOT
 
-"C:\Program Files\7-Zip\7z" x ..\org.python.pydev.p2-repo-9.3.0-SNAPSHOT.zip
+"C:\Program Files\7-Zip\7z" x ..\org.python.pydev.p2-repo-10.0.0-SNAPSHOT.zip
 
-cdd X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-9.3.0-SNAPSHOT
+cdd X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-10.0.0-SNAPSHOT
 C:\Users\fabio\AppData\Roaming\npm\surge.cmd --domain pydev-9-3-0.surge.sh
-"C:\Program Files\FileZilla FTP Client\filezilla.exe" sftp://fabioz,pydev@frs.sourceforge.net/home/project-web/pydev/htdocs/pydev_update_site --local="X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-9.3.0-SNAPSHOT"
+"C:\Program Files\FileZilla FTP Client\filezilla.exe" sftp://fabioz,pydev@frs.sourceforge.net/home/project-web/pydev/htdocs/pydev_update_site --local="X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-10.0.0-SNAPSHOT"
 
 
     ** Tag repository:
-      git tag pydev_9_3_0 -a -m "PyDev 9.3.0"
+      git tag pydev_10_0_0 -a -m "PyDev 10.0.0"
       git push --tags
 
-SET CONVERT_SOURCE=X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-9.3.0-SNAPSHOT
-SET CONVERT_FINAL_ZIP=X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable\PyDev 9.3.0.zip
+SET CONVERT_SOURCE=X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-10.0.0-SNAPSHOT
+SET CONVERT_FINAL_ZIP=X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable\PyDev 10.0.0.zip
 SET CONVERT_TARGET_DIR=X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\github
-python X:\release_tools\convert_to_github.py 9.3.0
+python X:\release_tools\convert_to_github.py 10.0.0
 Do GH release in:
-    https://github.com/fabioz/Pydev/releases/new?tag=pydev_9_3_0
+    https://github.com/fabioz/Pydev/releases/new?tag=pydev_10_0_0
     Contents in: X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\github
     Message:
 
-        This release contains PyDev 9.3.0
+        This release contains PyDev 10.0.0
 
         It's possible to add it as an Eclipse update site using the url:
 
-        https://github.com/fabioz/Pydev/releases/download/pydev_9_3_0/
+        https://github.com/fabioz/Pydev/releases/download/pydev_10_0_0/
 
         Or get a .zip to install manually by unzipping it in the dropins:
 
-        https://github.com/fabioz/Pydev/releases/download/pydev_9_3_0/PyDev.9.3.0.zip
+        https://github.com/fabioz/Pydev/releases/download/pydev_10_0_0/PyDev.10.0.0.zip
 
 
 		** Update homepage:
@@ -134,5 +134,5 @@ python deploy.py
         ** Update the versions:
 x:
 cd x:\pydev
-python update_version.py 9.3.0
+python update_version.py 10.0.0
 

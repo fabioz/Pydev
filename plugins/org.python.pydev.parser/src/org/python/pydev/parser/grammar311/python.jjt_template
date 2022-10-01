@@ -224,6 +224,7 @@ TOKEN : /* KEYWORDS */
 |   < WHILE: "while" >
 |   < FOR: "for" >
 |   < TRY: "try" >
+|   < EXCEPT_MULTIPLY: "except*" >
 |   < EXCEPT: "except" >
 |   < DEF: "def" >
 |   < ASYNC: "async" >
@@ -1150,10 +1151,21 @@ void begin_finally_stmt(): {}
 
 //except_clause: 'except' [test [as test]]
 void except_clause(SimpleNode tryNode): {}
-{ begin_except_clause() {this.grammarActions.addToPeek("except",false);} [test() [$AS test()]] $COLON suite() }
+{ 
+	(
+	begin_except_clause() {this.grammarActions.addToPeek("except",false);}
+	|
+	begin_except_multiply_clause() {this.grammarActions.addToPeek("except*",false);}
+	)
+
+	[test() [$AS test()]] $COLON suite() 
+}
 
 void begin_except_clause(): {}
 { <EXCEPT> }
+
+void begin_except_multiply_clause(): {}
+{ <EXCEPT_MULTIPLY> }
 
 
 //with_stmt: 'with' [(]with_item (',' with_item)*)[)]  ':' suite

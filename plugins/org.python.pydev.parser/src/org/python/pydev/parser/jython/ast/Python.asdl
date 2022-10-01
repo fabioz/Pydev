@@ -136,7 +136,7 @@ module Python
 
 	-- not sure what to call the first argument for raise and except
 
-	excepthandler = (expr? type, expr? name, stmt* body)
+	excepthandler = (expr? type, expr? name, stmt* body, bool?isExceptionGroup)
 
 	arguments = (expr* args,     --regular arguments
 	         NameTok? vararg,    --varargs (has no defaults)

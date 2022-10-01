@@ -56,6 +56,11 @@ final class TokensIterator implements Iterator<Token> {
         contextsToBreak.add(tokenManager.getClassId());
         contextsToBreak.add(tokenManager.getAtId());
 
+        contextsToBreak.add(tokenManager.getNewline1Id());
+        contextsToBreak.add(tokenManager.getNewlineId());
+        contextsToBreak.add(tokenManager.getNewline2Id());
+        contextsToBreak.add(tokenManager.getCrlf1Id());
+
         reset(tokenManager, firstIterationToken, tokensToIterate, breakOnIndentsDedentsAndNewCompounds);
     }
 
@@ -128,24 +133,10 @@ final class TokensIterator implements Iterator<Token> {
         }
 
         if (currentToken.kind == tokenManager.getEofId()) {
-            //found end of file!
-            currentToken = null;
             return;
         }
-
         if (currentToken.next == null) {
-            currentToken.next = AbstractGrammarWalkHelpers.nextTokenConsideringNewLine(tokenManager);
-            //            if(currentToken.next != null){
-            //                int id = currentToken.next.kind;
-            //                if(id == tokenManager.getIndentId()){
-            //                    
-            //                } else if(id == tokenManager.getRparenId() || id == tokenManager.getRbracketId() || id == tokenManager.getRbraceId()){
-            //                    parensLevel--;
-            //                    
-            //                }else if(id == tokenManager.getLparenId() || id == tokenManager.getLbracketId() || id == tokenManager.getLbraceId()){
-            //                    parensLevel++;
-            //                }
-            //            }
+            currentToken.next = tokenManager.getNextToken();
         }
 
     }
