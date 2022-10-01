@@ -12,9 +12,9 @@ C:\bin\Miniconda\envs\tests_py27\python.exe X:\release_tools\pydev_uploader_bint
 --------- For full build ---------
 		Update the version:
 
-			x:
-			cd x:\pydev
-			python update_version.py 9.3.0
+x:
+cd x:\pydev
+python update_version.py 10.0.0
 
 		Make sure debugger builtins are updated and commited:
 

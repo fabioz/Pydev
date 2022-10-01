@@ -67,22 +67,22 @@ def update_version(version):
 
 
 def fix_contents_version(contents, version):
-    bugfixversion = int(re.sub(r'^\d\.\d\.(\d)', r'\1', version))
-    nextversion = re.sub(r'^(\d\.\d\.)\d', r'\1', version) + str(bugfixversion + 1)
+    bugfixversion = int(re.sub(r'^\d+\.\d+\.(\d+)', r'\1', version))
+    nextversion = re.sub(r'^(\d+\.\d+\.)\d+', r'\1', version) + str(bugfixversion + 1)
     
-    contents = re.sub(r'(bundle-version=")\[\d\.\d\.\d,\d\.\d\.\d\)"', r'\1[%s,%s)"' % (version, nextversion), contents)
-    contents = re.sub(r'(version=)\"\d\.\d\.\d(\.qualifier\")', r'\1"%s\2' % (version,), contents)
-    contents = re.sub(r'(<version)>\d\.\d\.\d(-SNAPSHOT</version>)', r'\1>%s\2' % (version,), contents)
-    contents = re.sub(r'(Bundle-Version:)\s\d\.\d\.\d(\.qualifier)', r'\1 %s\2' % (version,), contents)
+    contents = re.sub(r'(bundle-version=")\[\d+\.\d+\.\d+,\d+\.\d+\.\d+\)"', r'\1[%s,%s)"' % (version, nextversion), contents)
+    contents = re.sub(r'(version=)\"\d+\.\d+\.\d+(\.qualifier\")', r'\1"%s\2' % (version,), contents)
+    contents = re.sub(r'(<version)>\d+\.\d+\.\d+(-SNAPSHOT</version>)', r'\1>%s\2' % (version,), contents)
+    contents = re.sub(r'(Bundle-Version:)\s\d+\.\d+\.\d+(\.qualifier)', r'\1 %s\2' % (version,), contents)
 
     return contents
 
 def fix_liclipse_contents_version(contents, version):
-    bugfixversion = int(re.sub(r'^\d\.\d\.(\d)', r'\1', version))
-    nextversion = re.sub(r'^(\d\.\d\.)\d', r'\1', version) + str(bugfixversion + 1)
+    bugfixversion = int(re.sub(r'^\d+\.\d+\.(\d+)', r'\1', version))
+    nextversion = re.sub(r'^(\d+\.\d+\.)\d+', r'\1', version) + str(bugfixversion + 1)
     
-    contents = re.sub(r'((com|org)\.python\.pydev(\.\w+)?;)(bundle-version=")\[\d\.\d\.\d,\d\.\d\.\d\)"', r'\1\4[%s,%s)"' % (version, nextversion), contents)
-    contents = re.sub(r'(<feature id="org\.python\.pydev\.feature" version=")(\d\.\d\.\d)(\.qualifier"/>)', r'\g<1>%s\3' % (version,), contents)
+    contents = re.sub(r'((com|org)\.python\.pydev(\.\w+)?;)(bundle-version=")\[\d+\.\d+\.\d+,\d+\.\d+\.\d+\)"', r'\1\4[%s,%s)"' % (version, nextversion), contents)
+    contents = re.sub(r'(<feature id="org\.python\.pydev\.feature" version=")(\d+\.\d+\.\d+)(\.qualifier"/>)', r'\g<1>%s\3' % (version,), contents)
     return contents
 
 
