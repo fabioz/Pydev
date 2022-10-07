@@ -21,6 +21,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple;
 
@@ -109,7 +110,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
 
             mappedVersions.put("3.10", "3.10");
 
-            mappedVersions.put("3.11", "3.10");
+            mappedVersions.put("3.11", "3.11");
         }
 
         /**
@@ -129,7 +130,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
                     break;
 
                 case IInterpreterManager.INTERPRETER_TYPE_IRONPYTHON:
-                    buf = new FastStringBuffer("ironpython", 5);
+                    buf = new FastStringBuffer("ironpython ", 5);
                     break;
 
                 default:
@@ -157,13 +158,13 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
             version = initialVersion;
             Assert.isTrue(!INTERPRETER_VERSION.equals(version),
                     "The actual version must be passed, cannot be 'interpreter' at this point.");
-
-            // It seems a version we don't directly support, let's check it...
-            if (version.startsWith("3")) {
-                buf.append("3.10"); // latest 3
-            } else {
-                buf.append("2.7"); // latest 2
+            if (version.startsWith("2.") || version.startsWith("1.")) {
+                throw new RuntimeException("\n\nPython:" + version
+                        + " is no longer supported.\n\nPlease refer to: Need to use older Eclipse/Java/Python\n\nin https://www.pydev.org/download.html\n\n");
             }
+            // It seems a version we don't directly support, let's check it...
+            Log.log("Unsupported version:" + version + " (falling back to 3.11)");
+            buf.append("3.11"); // latest 3
             String fullVersion = buf.toString();
             if (ALL_VERSIONS_ANY_FLAVOR.contains(fullVersion)) {
                 return fullVersion;
