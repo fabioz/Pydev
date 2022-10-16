@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.ISelection;
@@ -189,9 +190,17 @@ public class PyOpenPythonFileAction extends Action {
                         filesSelected.add(file);
 
                     } else {
-                        IContainer container = adaptable.getAdapter(IContainer.class);
-                        if (container != null) {
-                            containersSelected.add(element);
+                        IResource resource = adaptable.getAdapter(IResource.class);
+                        if (resource instanceof IFile) {
+                            filesSelected.add((IFile) resource);
+                        } else if (resource instanceof IContainer) {
+                            containersSelected.add(resource);
+                        } else {
+                            // May be null...
+                            IContainer container = adaptable.getAdapter(IContainer.class);
+                            if (container != null) {
+                                containersSelected.add(element);
+                            }
                         }
                     }
                 }
