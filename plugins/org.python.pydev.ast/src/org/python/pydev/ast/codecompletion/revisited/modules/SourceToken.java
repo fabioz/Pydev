@@ -73,35 +73,36 @@ public class SourceToken extends AbstractToken {
                 if (ast != null) {
                     String signatureDoc = NodeUtils.printAst(null, ast);
                     if (nature != null) {
-
-                        ICodeCompletionASTManager astManager = nature.getAstManager();
-                        IModule realModule = astManager.getModule(sourceToken.parentPackage, nature, false,
-                                request);
-                        if (realModule != null && realModule != sourceToken.module) {
-                            String actTok = "";
-                            if (ast.parent != null) {
-                                actTok = NodeUtils.getFullMethodName(ast.parent);
-                            }
-                            String qualifier = NodeUtils.getRepresentationString(ast);
-
-                            CompletionState state = new CompletionState(ast.beginLine - 1, ast.beginColumn - 1,
-                                    actTok, nature, "");
-                            try {
-                                TokensList completionsForModule = astManager.getCompletionsForModule(realModule, state);
-                                IToken found = completionsForModule.find(qualifier);
-                                if (found != null) {
-                                    if (found.equals(token)) {
-                                        // i.e.: we don't want to recurse...
-                                        return signatureDoc;
-                                    }
-                                    String docStr = found.getDocStr();
-                                    if (docStr == null || docStr.trim().length() == 0) {
-                                        return signatureDoc;
-                                    }
-                                    return docStr + "\n\n" + signatureDoc;
+                        String qualifier = NodeUtils.getRepresentationString(ast);
+                        if (qualifier != null) {
+                            ICodeCompletionASTManager astManager = nature.getAstManager();
+                            IModule realModule = astManager.getModule(sourceToken.parentPackage, nature, false,
+                                    request);
+                            if (realModule != null && realModule != sourceToken.module) {
+                                String actTok = "";
+                                if (ast.parent != null) {
+                                    actTok = NodeUtils.getFullMethodName(ast.parent);
                                 }
-                            } catch (CompletionRecursionException e) {
-                                Log.log(e);
+                                CompletionState state = new CompletionState(ast.beginLine - 1, ast.beginColumn - 1,
+                                        actTok, nature, "");
+                                try {
+                                    TokensList completionsForModule = astManager.getCompletionsForModule(realModule,
+                                            state);
+                                    IToken found = completionsForModule.find(qualifier);
+                                    if (found != null) {
+                                        if (found.equals(token)) {
+                                            // i.e.: we don't want to recurse...
+                                            return signatureDoc;
+                                        }
+                                        String docStr = found.getDocStr();
+                                        if (docStr == null || docStr.trim().length() == 0) {
+                                            return signatureDoc;
+                                        }
+                                        return docStr + "\n\n" + signatureDoc;
+                                    }
+                                } catch (CompletionRecursionException e) {
+                                    Log.log(e);
+                                }
                             }
                         }
                     }
