@@ -79,8 +79,8 @@ conda deactivate
 4. Regenerate the .pyx and .c
 ===============================
 
-cd /D x:\pydev\plugins\org.python.pydev.core\pysrc
 "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+cd /D x:\pydev\plugins\org.python.pydev.core\pysrc
 set PYTHONPATH=x:\pydev\plugins\org.python.pydev.core\pysrc
 C:\bin\Miniconda\envs\py_38_tests\python.exe build_tools\build.py
 
@@ -107,31 +107,6 @@ C:\bin\Python38-32\python build_tools\build_binaries_windows.py
 
 rm dist/pydevd*
 
-activate py36_32
-python setup.py sdist bdist_wheel
-conda deactivate
-dir dist
-
-activate py37_32
-python setup.py sdist bdist_wheel
-conda deactivate
-dir dist
-
-activate py38_32
-python setup.py sdist bdist_wheel
-conda deactivate
-dir dist
-
-activate py39_32
-python setup.py sdist bdist_wheel
-conda deactivate
-dir dist
-
-activate py310_32
-python setup.py sdist bdist_wheel
-conda deactivate
-dir dist
-
 activate py36_64
 python setup.py sdist bdist_wheel
 conda deactivate
@@ -157,9 +132,14 @@ python setup.py sdist bdist_wheel
 conda deactivate
 dir dist
 
+activate py311_64
+python setup.py sdist bdist_wheel
+conda deactivate
+dir dist
+
 # Note: uploading with twine gives an error in the end, but apparently it works (check final result in pypi).
 twine upload dist/pydevd*
 
-git tag pydev_debugger_2_9_1 -a -m "PyDev.Debugger 2.9.1"
+git tag pydev_debugger_2_9_2 -a -m "PyDev.Debugger 2.9.2"
 git push --tags
 
