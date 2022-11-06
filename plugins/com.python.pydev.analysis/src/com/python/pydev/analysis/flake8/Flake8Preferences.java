@@ -12,10 +12,10 @@ import java.net.MalformedURLException;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IAdaptable;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.preferences.PyScopedPreferences;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
 
+import com.python.pydev.analysis.PyAnalysisScopedPreferences;
 import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
 
 public class Flake8Preferences {
@@ -52,23 +52,23 @@ public class Flake8Preferences {
             + "";
 
     public static boolean useFlake8(IAdaptable projectAdaptable) {
-        return PyScopedPreferences.getBoolean(USE_FLAKE8, projectAdaptable);
+        return PyAnalysisScopedPreferences.getBoolean(USE_FLAKE8, projectAdaptable);
     }
 
     public static boolean useFlake8Console(IAdaptable projectAdaptable) {
-        return PyScopedPreferences.getBoolean(FLAKE8_USE_CONSOLE, projectAdaptable);
+        return PyAnalysisScopedPreferences.getBoolean(FLAKE8_USE_CONSOLE, projectAdaptable);
     }
 
     public static String getFlake8Args(IAdaptable projectAdaptable) {
-        return PyScopedPreferences.getString(FLAKE8_ARGS, projectAdaptable);
+        return PyAnalysisScopedPreferences.getString(FLAKE8_ARGS, projectAdaptable);
     }
 
     public static File getFlake8Location(PythonNature pythonNature) {
         IProject project = pythonNature.getProject();
-        String searchlocation = PyScopedPreferences.getString(SEARCH_FLAKE8_LOCATION, project);
+        String searchlocation = PyAnalysisScopedPreferences.getString(SEARCH_FLAKE8_LOCATION, project);
         switch (searchlocation) {
             case LOCATION_SPECIFY:
-                return new File(PyScopedPreferences.getString(FLAKE8_FILE_LOCATION, project));
+                return new File(PyAnalysisScopedPreferences.getString(FLAKE8_FILE_LOCATION, project));
             default:
                 try {
                     return pythonNature.getProjectInterpreter().searchExecutableForInterpreter("flake8", false);
@@ -91,7 +91,7 @@ public class Flake8Preferences {
     }
 
     public static String getCodesConfig(IAdaptable projectAdaptable) {
-        return PyScopedPreferences.getString(FLAKE8_CODES_CONFIG, projectAdaptable);
+        return PyAnalysisScopedPreferences.getString(FLAKE8_CODES_CONFIG, projectAdaptable);
     }
 
 }
