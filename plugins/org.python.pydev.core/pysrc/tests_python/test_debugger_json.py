@@ -52,12 +52,9 @@ class _MessageWithMark(object):
 
 class JsonFacade(object):
 
-    def __init__(self, writer, send_json_startup_messages=True):
+    def __init__(self, writer):
         self.writer = writer
         writer.reader_thread.accept_xml_messages = False
-        if send_json_startup_messages:
-            writer.write_set_protocol('http_json')
-            writer.write_multi_threads_single_notification(True)
         self._all_json_messages_found = []
         self._sent_launch_or_attach = False
 
@@ -524,8 +521,8 @@ class JsonFacade(object):
         return response
 
 
-def test_case_json_logpoints(case_setup):
-    with case_setup.test_file('_debugger_case_change_breaks.py') as writer:
+def test_case_json_logpoints(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_change_breaks.py') as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_launch()
@@ -560,8 +557,8 @@ def test_case_json_logpoints(case_setup):
         writer.finished_ok = True
 
 
-def test_case_json_logpoint_and_step_failure_ok(case_setup):
-    with case_setup.test_file('_debugger_case_hit_count.py') as writer:
+def test_case_json_logpoint_and_step_failure_ok(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_hit_count.py') as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_launch()
@@ -588,8 +585,8 @@ def test_case_json_logpoint_and_step_failure_ok(case_setup):
         writer.finished_ok = True
 
 
-def test_case_json_logpoint_and_step_still_prints(case_setup):
-    with case_setup.test_file('_debugger_case_hit_count.py') as writer:
+def test_case_json_logpoint_and_step_still_prints(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_hit_count.py') as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_launch()
@@ -624,8 +621,8 @@ def test_case_json_logpoint_and_step_still_prints(case_setup):
         writer.finished_ok = True
 
 
-def test_case_json_hit_count_and_step(case_setup):
-    with case_setup.test_file('_debugger_case_hit_count.py') as writer:
+def test_case_json_hit_count_and_step(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_hit_count.py') as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_launch()
@@ -653,8 +650,8 @@ def test_case_json_hit_count_and_step(case_setup):
         writer.finished_ok = True
 
 
-def test_case_json_hit_condition_error(case_setup):
-    with case_setup.test_file('_debugger_case_hit_count.py') as writer:
+def test_case_json_hit_condition_error(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_hit_count.py') as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_launch()
@@ -674,14 +671,15 @@ def test_case_json_hit_condition_error(case_setup):
 
         json_facade.wait_for_json_message(OutputEvent, accept_message=accept_message)
 
-        json_facade.wait_for_thread_stopped(line=bp)
-        json_facade.write_continue()
+        # In the dap mode we skip suspending when an error happens in conditional exceptions.
+        # json_facade.wait_for_thread_stopped(line=bp)
+        # json_facade.write_continue()
 
         writer.finished_ok = True
 
 
-def test_case_process_event(case_setup):
-    with case_setup.test_file('_debugger_case_change_breaks.py') as writer:
+def test_case_process_event(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_change_breaks.py') as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_launch()
@@ -690,8 +688,8 @@ def test_case_process_event(case_setup):
         writer.finished_ok = True
 
 
-def test_case_json_change_breaks(case_setup):
-    with case_setup.test_file('_debugger_case_change_breaks.py') as writer:
+def test_case_json_change_breaks(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_change_breaks.py') as writer:
         json_facade = JsonFacade(writer)
 
         break1_line = writer.get_line_index_with_content('break 1')
@@ -709,8 +707,8 @@ def test_case_json_change_breaks(case_setup):
         writer.finished_ok = True
 
 
-def test_case_handled_exception_no_break_on_generator(case_setup):
-    with case_setup.test_file('_debugger_case_ignore_exceptions.py') as writer:
+def test_case_handled_exception_no_break_on_generator(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_ignore_exceptions.py') as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_launch()
@@ -720,7 +718,7 @@ def test_case_handled_exception_no_break_on_generator(case_setup):
         writer.finished_ok = True
 
 
-def test_case_throw_exc_reason(case_setup):
+def test_case_throw_exc_reason(case_setup_dap):
 
     def check_test_suceeded_msg(self, stdout, stderr):
         return 'TEST SUCEEDED' in ''.join(stderr)
@@ -730,7 +728,7 @@ def test_case_throw_exc_reason(case_setup):
         assert "raise RuntimeError from e" in stderr
         assert "raise Exception('another while handling')" in stderr
 
-    with case_setup.test_file(
+    with case_setup_dap.test_file(
             '_debugger_case_raise_with_cause.py',
             EXPECTED_RETURNCODE=1,
             check_test_suceeded_msg=check_test_suceeded_msg,
@@ -785,7 +783,7 @@ def test_case_throw_exc_reason(case_setup):
         writer.finished_ok = True
 
 
-def test_case_throw_exc_reason_shown(case_setup):
+def test_case_throw_exc_reason_shown(case_setup_dap):
 
     def check_test_suceeded_msg(self, stdout, stderr):
         return 'TEST SUCEEDED' in ''.join(stderr)
@@ -795,7 +793,7 @@ def test_case_throw_exc_reason_shown(case_setup):
         assert "{}['foo']" in stderr
         assert "KeyError: 'foo'" in stderr
 
-    with case_setup.test_file(
+    with case_setup_dap.test_file(
             '_debugger_case_raise_with_cause_msg.py',
             EXPECTED_RETURNCODE=1,
             check_test_suceeded_msg=check_test_suceeded_msg,
@@ -839,8 +837,8 @@ def test_case_throw_exc_reason_shown(case_setup):
         writer.finished_ok = True
 
 
-def test_case_handled_exception_breaks(case_setup):
-    with case_setup.test_file('_debugger_case_exceptions.py') as writer:
+def test_case_handled_exception_breaks(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_exceptions.py') as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_launch()
@@ -882,7 +880,7 @@ def _check_current_line(json_hit, current_line):
 
 
 @pytest.mark.parametrize('stop', [False, True])
-def test_case_user_unhandled_exception(case_setup, stop):
+def test_case_user_unhandled_exception(case_setup_dap, stop):
 
     def get_environ(self):
         env = os.environ.copy()
@@ -896,7 +894,7 @@ def test_case_user_unhandled_exception(case_setup, stop):
         target = '_debugger_case_user_unhandled.py'
     else:
         target = '_debugger_case_user_unhandled2.py'
-    with case_setup.test_file(target, get_environ=get_environ) as writer:
+    with case_setup_dap.test_file(target, get_environ=get_environ) as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_launch()
@@ -915,7 +913,7 @@ def test_case_user_unhandled_exception(case_setup, stop):
 
 @pytest.mark.skipif(not IS_PY36_OR_GREATER, reason='Only CPython 3.6 onwards')
 @pytest.mark.parametrize('stop', [False, True])
-def test_case_user_unhandled_exception_coroutine(case_setup, stop):
+def test_case_user_unhandled_exception_coroutine(case_setup_dap, stop):
     if stop:
         target = 'my_code/my_code_coroutine_user_unhandled.py'
     else:
@@ -928,7 +926,7 @@ def test_case_user_unhandled_exception_coroutine(case_setup, stop):
         else:
             assert 'raise RuntimeError' not in stderr
 
-    with case_setup.test_file(
+    with case_setup_dap.test_file(
             target,
             EXPECTED_RETURNCODE=1 if stop else 0,
             additional_output_checks=additional_output_checks
@@ -975,9 +973,9 @@ def test_case_user_unhandled_exception_coroutine(case_setup, stop):
         writer.finished_ok = True
 
 
-def test_case_user_unhandled_exception_dont_stop(case_setup):
+def test_case_user_unhandled_exception_dont_stop(case_setup_dap):
 
-    with case_setup.test_file(
+    with case_setup_dap.test_file(
             'my_code/my_code_exception_user_unhandled.py',) as writer:
         json_facade = JsonFacade(writer)
 
@@ -995,7 +993,7 @@ def test_case_user_unhandled_exception_dont_stop(case_setup):
         writer.finished_ok = True
 
 
-def test_case_user_unhandled_exception_stop_on_yield(case_setup, pyfile):
+def test_case_user_unhandled_exception_stop_on_yield(case_setup_dap, pyfile):
 
     @pyfile
     def case_error_on_yield():
@@ -1022,7 +1020,7 @@ def test_case_user_unhandled_exception_stop_on_yield(case_setup, pyfile):
     def additional_output_checks(writer, stdout, stderr):
         assert 'raise AssertionError' in stderr
 
-    with case_setup.test_file(
+    with case_setup_dap.test_file(
             case_error_on_yield,
             get_environ=get_environ,
             EXPECTED_RETURNCODE=1,
@@ -1049,7 +1047,7 @@ def test_case_user_unhandled_exception_stop_on_yield(case_setup, pyfile):
     True,
     False,
     ])
-def test_case_unhandled_exception_just_my_code(case_setup, target, just_my_code):
+def test_case_unhandled_exception_just_my_code(case_setup_dap, target, just_my_code):
 
     def check_test_suceeded_msg(writer, stdout, stderr):
         # Don't call super (we have an unhandled exception in the stack trace).
@@ -1084,7 +1082,7 @@ def test_case_unhandled_exception_just_my_code(case_setup, target, just_my_code)
         return args
 
     target_filename = '_debugger_case_unhandled_just_my_code.py'
-    with case_setup.test_file(
+    with case_setup_dap.test_file(
             target_filename,
             check_test_suceeded_msg=check_test_suceeded_msg,
             additional_output_checks=additional_output_checks,
@@ -1113,14 +1111,14 @@ def test_case_unhandled_exception_just_my_code(case_setup, target, just_my_code)
 
 
 @pytest.mark.skipif(not IS_PY36_OR_GREATER, reason='Python 3.6 onwards required for test.')
-def test_case_stop_async_iteration_exception(case_setup):
+def test_case_stop_async_iteration_exception(case_setup_dap):
 
     def get_environ(self):
         env = os.environ.copy()
         env["IDE_PROJECT_ROOTS"] = os.path.dirname(self.TEST_FILE) + os.pathsep + os.path.abspath('.')
         return env
 
-    with case_setup.test_file(
+    with case_setup_dap.test_file(
             '_debugger_case_stop_async_iteration.py',
             get_environ=get_environ,
         ) as writer:
@@ -1141,7 +1139,7 @@ def test_case_stop_async_iteration_exception(case_setup):
     '_debugger_case_unhandled_exceptions.py',
     '_debugger_case_unhandled_exceptions_custom.py',
     ])
-def test_case_unhandled_exception(case_setup, target_file):
+def test_case_unhandled_exception(case_setup_dap, target_file):
 
     def check_test_suceeded_msg(writer, stdout, stderr):
         # Don't call super (we have an unhandled exception in the stack trace).
@@ -1152,7 +1150,7 @@ def test_case_unhandled_exception(case_setup, target_file):
             raise AssertionError('Expected test to have an unhandled exception.\nstdout:\n%s\n\nstderr:\n%s' % (
                 stdout, stderr))
 
-    with case_setup.test_file(
+    with case_setup_dap.test_file(
             target_file,
             check_test_suceeded_msg=check_test_suceeded_msg,
             additional_output_checks=additional_output_checks,
@@ -1186,7 +1184,7 @@ def test_case_unhandled_exception(case_setup, target_file):
     '_debugger_case_unhandled_exceptions_generator.py',
     '_debugger_case_unhandled_exceptions_listcomp.py',
     ])
-def test_case_unhandled_exception_generator(case_setup, target_file):
+def test_case_unhandled_exception_generator(case_setup_dap, target_file):
 
     def check_test_suceeded_msg(writer, stdout, stderr):
         # Don't call super (we have an unhandled exception in the stack trace).
@@ -1197,7 +1195,7 @@ def test_case_unhandled_exception_generator(case_setup, target_file):
             raise AssertionError('Expected test to have an unhandled exception.\nstdout:\n%s\n\nstderr:\n%s' % (
                 stdout, stderr))
 
-    with case_setup.test_file(
+    with case_setup_dap.test_file(
             target_file,
             check_test_suceeded_msg=check_test_suceeded_msg,
             additional_output_checks=additional_output_checks,
@@ -1227,9 +1225,9 @@ def test_case_unhandled_exception_generator(case_setup, target_file):
         writer.finished_ok = True
 
 
-def test_case_sys_exit_unhandled_exception(case_setup):
+def test_case_sys_exit_unhandled_exception(case_setup_dap):
 
-    with case_setup.test_file('_debugger_case_sysexit.py', EXPECTED_RETURNCODE=1) as writer:
+    with case_setup_dap.test_file('_debugger_case_sysexit.py', EXPECTED_RETURNCODE=1) as writer:
         json_facade = JsonFacade(writer)
         json_facade.write_set_exception_breakpoints(['uncaught'])
         json_facade.write_make_initial_run()
@@ -1244,9 +1242,9 @@ def test_case_sys_exit_unhandled_exception(case_setup):
 
 @pytest.mark.parametrize('break_on_system_exit_zero', [True, False])
 @pytest.mark.parametrize('target', ['_debugger_case_sysexit_0.py', '_debugger_case_sysexit_none.py'])
-def test_case_sys_exit_0_unhandled_exception(case_setup, break_on_system_exit_zero, target):
+def test_case_sys_exit_0_unhandled_exception(case_setup_dap, break_on_system_exit_zero, target):
 
-    with case_setup.test_file(target, EXPECTED_RETURNCODE=0) as writer:
+    with case_setup_dap.test_file(target, EXPECTED_RETURNCODE=0) as writer:
         json_facade = JsonFacade(writer)
         kwargs = {}
         if break_on_system_exit_zero:
@@ -1265,9 +1263,9 @@ def test_case_sys_exit_0_unhandled_exception(case_setup, break_on_system_exit_ze
 
 
 @pytest.mark.parametrize('break_on_system_exit_zero', [True, False])
-def test_case_sys_exit_0_handled_exception(case_setup, break_on_system_exit_zero):
+def test_case_sys_exit_0_handled_exception(case_setup_dap, break_on_system_exit_zero):
 
-    with case_setup.test_file('_debugger_case_sysexit_0.py', EXPECTED_RETURNCODE=0) as writer:
+    with case_setup_dap.test_file('_debugger_case_sysexit_0.py', EXPECTED_RETURNCODE=0) as writer:
         json_facade = JsonFacade(writer)
         json_facade.write_launch(
             debugOptions=['BreakOnSystemExitZero'] if break_on_system_exit_zero else [],
@@ -1289,8 +1287,8 @@ def test_case_sys_exit_0_handled_exception(case_setup, break_on_system_exit_zero
         writer.finished_ok = True
 
 
-def test_case_handled_exception_breaks_by_type(case_setup):
-    with case_setup.test_file('_debugger_case_exceptions.py') as writer:
+def test_case_handled_exception_breaks_by_type(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_exceptions.py') as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_launch()
@@ -1318,8 +1316,8 @@ def test_case_handled_exception_breaks_by_type(case_setup):
         writer.finished_ok = True
 
 
-def test_case_json_protocol(case_setup):
-    with case_setup.test_file('_debugger_case_print.py') as writer:
+def test_case_json_protocol(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_print.py') as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_launch()
@@ -1342,8 +1340,8 @@ def test_case_json_protocol(case_setup):
         writer.finished_ok = True
 
 
-def test_case_started_exited_threads_protocol(case_setup):
-    with case_setup.test_file('_debugger_case_thread_started_exited.py') as writer:
+def test_case_started_exited_threads_protocol(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_thread_started_exited.py') as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_launch()
@@ -1362,7 +1360,7 @@ def test_case_started_exited_threads_protocol(case_setup):
         writer.finished_ok = True
 
 
-def test_case_path_translation_not_skipped(case_setup):
+def test_case_path_translation_not_skipped(case_setup_dap):
     import site
     sys_folder = None
     if hasattr(site, 'getusersitepackages'):
@@ -1377,7 +1375,7 @@ def test_case_path_translation_not_skipped(case_setup):
     if isinstance(sys_folder, (list, tuple)):
         sys_folder = next(iter(sys_folder))
 
-    with case_setup.test_file('my_code/my_code.py') as writer:
+    with case_setup_dap.test_file('my_code/my_code.py') as writer:
         json_facade = JsonFacade(writer)
 
         # We need to set up path mapping to enable source references.
@@ -1409,8 +1407,8 @@ def test_case_path_translation_not_skipped(case_setup):
         writer.finished_ok = True
 
 
-def test_case_exclude_double_step(case_setup):
-    with case_setup.test_file('my_code/my_code_double_step.py') as writer:
+def test_case_exclude_double_step(case_setup_dap):
+    with case_setup_dap.test_file('my_code/my_code_double_step.py') as writer:
         json_facade = JsonFacade(writer)
         json_facade.write_launch(
             justMyCode=False,  # i.e.: exclude through rules and not my code
@@ -1431,8 +1429,8 @@ def test_case_exclude_double_step(case_setup):
         writer.finished_ok = True
 
 
-def test_case_update_rules(case_setup):
-    with case_setup.test_file('my_code/my_code.py') as writer:
+def test_case_update_rules(case_setup_dap):
+    with case_setup_dap.test_file('my_code/my_code.py') as writer:
         json_facade = JsonFacade(writer)
         json_facade.write_launch(
             rules=[
@@ -1480,8 +1478,8 @@ def test_case_update_rules(case_setup):
     'set_just_my_code',
     'set_just_my_code_and_include',
 ])
-def test_case_skipping_filters(case_setup, custom_setup):
-    with case_setup.test_file('my_code/my_code.py') as writer:
+def test_case_skipping_filters(case_setup_dap, custom_setup):
+    with case_setup_dap.test_file('my_code/my_code.py') as writer:
         json_facade = JsonFacade(writer)
 
         expect_just_my_code = False
@@ -1607,8 +1605,8 @@ def test_case_skipping_filters(case_setup, custom_setup):
         writer.finished_ok = True
 
 
-def test_case_completions_json(case_setup):
-    with case_setup.test_file('_debugger_case_completions.py') as writer:
+def test_case_completions_json(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_completions.py') as writer:
         json_facade = JsonFacade(writer)
 
         writer.write_add_breakpoint(writer.get_line_index_with_content('Break here'))
@@ -1674,8 +1672,8 @@ def test_case_completions_json(case_setup):
         writer.finished_ok = True
 
 
-def test_modules(case_setup):
-    with case_setup.test_file('_debugger_case_local_variables.py') as writer:
+def test_modules(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_local_variables.py') as writer:
         json_facade = JsonFacade(writer)
 
         writer.write_add_breakpoint(writer.get_line_index_with_content('Break 2 here'))
@@ -1703,8 +1701,8 @@ def test_modules(case_setup):
         writer.finished_ok = True
 
 
-def test_dict_ordered(case_setup):
-    with case_setup.test_file('_debugger_case_odict.py') as writer:
+def test_dict_ordered(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_odict.py') as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_set_breakpoints(writer.get_line_index_with_content('break here'))
@@ -1734,9 +1732,48 @@ def test_dict_ordered(case_setup):
         writer.finished_ok = True
 
 
+def test_dict_contents(case_setup_dap, pyfile):
+
+    @pyfile
+    def check():
+        dct = {'a': 1, '_b_': 2, '__c__': 3}
+        print('TEST SUCEEDED')  # break here
+
+    with case_setup_dap.test_file(check) as writer:
+        json_facade = JsonFacade(writer)
+
+        json_facade.write_launch(justMyCode=False)
+        json_facade.write_set_breakpoints(writer.get_line_index_with_content('break here'))
+        json_facade.write_make_initial_run()
+
+        json_hit = json_facade.wait_for_thread_stopped()
+        json_hit = json_facade.get_stack_as_json_hit(json_hit.thread_id)
+
+        variables_response = json_facade.get_variables_response(json_hit.frame_id)
+
+        variables_references = variables_response.body.variables
+        for dct in variables_references:
+            if dct['name'] == 'dct':
+                break
+        else:
+            raise AssertionError('Expected to find "dct".')
+        ref = dct['variablesReference']
+
+        assert isinstance(ref, int_types)
+        # : :type variables_response: VariablesResponse
+
+        variables_response = json_facade.get_variables_response(ref)
+        variable_names = set(v['name'] for v in variables_response.body.variables)
+        for n in ("'a'", "'_b_'", "'__c__'", 'len()'):
+            assert n in variable_names
+
+        json_facade.write_continue()
+        writer.finished_ok = True
+
+
 @pytest.mark.skipif(IS_JYTHON, reason='Putting unicode on frame vars does not work on Jython.')
-def test_stack_and_variables_dict(case_setup):
-    with case_setup.test_file('_debugger_case_local_variables.py') as writer:
+def test_stack_and_variables_dict(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_local_variables.py') as writer:
         json_facade = JsonFacade(writer)
 
         writer.write_add_breakpoint(writer.get_line_index_with_content('Break 2 here'))
@@ -1778,8 +1815,8 @@ def test_stack_and_variables_dict(case_setup):
         writer.finished_ok = True
 
 
-def test_variables_with_same_name(case_setup):
-    with case_setup.test_file('_debugger_case_variables_with_same_name.py') as writer:
+def test_variables_with_same_name(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_variables_with_same_name.py') as writer:
         json_facade = JsonFacade(writer)
 
         writer.write_add_breakpoint(writer.get_line_index_with_content('Break here'))
@@ -1864,8 +1901,8 @@ def test_variables_with_same_name(case_setup):
         writer.finished_ok = True
 
 
-def test_hasattr_failure(case_setup):
-    with case_setup.test_file('_debugger_case_hasattr_crash.py') as writer:
+def test_hasattr_failure(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_hasattr_crash.py') as writer:
         json_facade = JsonFacade(writer)
 
         writer.write_add_breakpoint(writer.get_line_index_with_content('break here'))
@@ -1894,8 +1931,8 @@ def test_hasattr_failure(case_setup):
         writer.finished_ok = True
 
 
-def test_getattr_warning(case_setup):
-    with case_setup.test_file('_debugger_case_warnings.py') as writer:
+def test_getattr_warning(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_warnings.py') as writer:
         json_facade = JsonFacade(writer)
 
         writer.write_add_breakpoint(writer.get_line_index_with_content('break here'))
@@ -1922,12 +1959,12 @@ def test_getattr_warning(case_setup):
         writer.finished_ok = True
 
 
-def test_warning_on_repl(case_setup):
+def test_warning_on_repl(case_setup_dap):
 
     def additional_output_checks(writer, stdout, stderr):
         assert "WarningCalledOnRepl" in stderr
 
-    with case_setup.test_file(
+    with case_setup_dap.test_file(
         '_debugger_case_evaluate.py',
         additional_output_checks=additional_output_checks
         ) as writer:
@@ -1947,13 +1984,13 @@ def test_warning_on_repl(case_setup):
         writer.finished_ok = True
 
 
-def test_evaluate_none(case_setup, pyfile):
+def test_evaluate_none(case_setup_dap, pyfile):
 
     @pyfile
     def eval_none():
         print('TEST SUCEEDED')  # break here
 
-    with case_setup.test_file(eval_none) as writer:
+    with case_setup_dap.test_file(eval_none) as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_launch(justMyCode=False)
@@ -1973,7 +2010,7 @@ def test_evaluate_none(case_setup, pyfile):
         writer.finished_ok = True
 
 
-def test_evaluate_numpy(case_setup, pyfile):
+def test_evaluate_numpy(case_setup_dap, pyfile):
     try:
         import numpy
     except ImportError:
@@ -1987,7 +2024,7 @@ def test_evaluate_numpy(case_setup, pyfile):
 
         print('TEST SUCEEDED')  # break here
 
-    with case_setup.test_file(numpy_small_array_file) as writer:
+    with case_setup_dap.test_file(numpy_small_array_file) as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_launch(justMyCode=False)
@@ -2035,7 +2072,7 @@ def test_evaluate_numpy(case_setup, pyfile):
         writer.finished_ok = True
 
 
-def test_evaluate_name_mangling(case_setup, pyfile):
+def test_evaluate_name_mangling(case_setup_dap, pyfile):
 
     @pyfile
     def target():
@@ -2050,7 +2087,7 @@ def test_evaluate_name_mangling(case_setup, pyfile):
 
         print('TEST SUCEEDED')
 
-    with case_setup.test_file(target) as writer:
+    with case_setup_dap.test_file(target) as writer:
         json_facade = JsonFacade(writer)
 
         writer.write_add_breakpoint(writer.get_line_index_with_content('Break here'))
@@ -2072,9 +2109,9 @@ def test_evaluate_name_mangling(case_setup, pyfile):
         writer.finished_ok = True
 
 
-def test_evaluate_no_name_mangling(case_setup):
+def test_evaluate_no_name_mangling(case_setup_dap):
 
-    with case_setup.test_file('_debugger_case_local_variables2.py') as writer:
+    with case_setup_dap.test_file('_debugger_case_local_variables2.py') as writer:
         json_facade = JsonFacade(writer)
 
         writer.write_add_breakpoint(writer.get_line_index_with_content('Break here'))
@@ -2108,9 +2145,9 @@ def test_evaluate_no_name_mangling(case_setup):
         writer.finished_ok = True
 
 
-def test_evaluate_block_repl(case_setup):
+def test_evaluate_block_repl(case_setup_dap):
 
-    with case_setup.test_file('_debugger_case_local_variables2.py') as writer:
+    with case_setup_dap.test_file('_debugger_case_local_variables2.py') as writer:
         json_facade = JsonFacade(writer)
 
         writer.write_add_breakpoint(writer.get_line_index_with_content('Break here'))
@@ -2151,7 +2188,7 @@ def test_evaluate_block_repl(case_setup):
         writer.finished_ok = True
 
 
-def test_evaluate_block_clipboard(case_setup, pyfile):
+def test_evaluate_block_clipboard(case_setup_dap, pyfile):
 
     @pyfile
     def target():
@@ -2176,7 +2213,7 @@ def test_evaluate_block_clipboard(case_setup, pyfile):
         assert '...' not in evaluate_response.body.result
         assert set(evaluate_response.body.result).issubset(set(['a', "'"]))
 
-    with case_setup.test_file(target) as writer:
+    with case_setup_dap.test_file(target) as writer:
         json_facade = JsonFacade(writer)
         json_facade.write_launch(justMyCode=False)
         json_facade.write_set_breakpoints(writer.get_line_index_with_content('Break here'))
@@ -2211,8 +2248,8 @@ def test_evaluate_block_clipboard(case_setup, pyfile):
         writer.finished_ok = True
 
 
-def test_exception_on_dir(case_setup):
-    with case_setup.test_file('_debugger_case_dir_exception.py') as writer:
+def test_exception_on_dir(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_dir_exception.py') as writer:
         json_facade = JsonFacade(writer)
 
         writer.write_add_breakpoint(writer.get_line_index_with_content('Break here'))
@@ -2238,8 +2275,8 @@ def test_exception_on_dir(case_setup):
     'step_out',
 ])
 @pytest.mark.parametrize('asyncio', [True, False])
-def test_return_value_regular(case_setup, scenario, asyncio):
-    with case_setup.test_file('_debugger_case_return_value.py' if not asyncio else '_debugger_case_return_value_asyncio.py') as writer:
+def test_return_value_regular(case_setup_dap, scenario, asyncio):
+    with case_setup_dap.test_file('_debugger_case_return_value.py' if not asyncio else '_debugger_case_return_value_asyncio.py') as writer:
         json_facade = JsonFacade(writer)
 
         break_line = writer.get_line_index_with_content('break here')
@@ -2284,8 +2321,8 @@ def test_return_value_regular(case_setup, scenario, asyncio):
         writer.finished_ok = True
 
 
-def test_stack_and_variables_set_and_list(case_setup):
-    with case_setup.test_file('_debugger_case_local_variables2.py') as writer:
+def test_stack_and_variables_set_and_list(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_local_variables2.py') as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_launch()
@@ -2358,8 +2395,8 @@ def _clear_groups(variables):
 
 
 @pytest.mark.skipif(IS_JYTHON, reason='Putting unicode on frame vars does not work on Jython.')
-def test_evaluate_unicode(case_setup):
-    with case_setup.test_file('_debugger_case_local_variables.py') as writer:
+def test_evaluate_unicode(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_local_variables.py') as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_set_breakpoints(writer.get_line_index_with_content('Break 2 here'))
@@ -2383,7 +2420,7 @@ def test_evaluate_unicode(case_setup):
         writer.finished_ok = True
 
 
-def test_evaluate_exec_unicode(case_setup):
+def test_evaluate_exec_unicode(case_setup_dap):
 
     def get_environ(writer):
         env = os.environ.copy()
@@ -2391,7 +2428,7 @@ def test_evaluate_exec_unicode(case_setup):
         env["PYTHONIOENCODING"] = 'utf-8'
         return env
 
-    with case_setup.test_file('_debugger_case_local_variables2.py', get_environ=get_environ) as writer:
+    with case_setup_dap.test_file('_debugger_case_local_variables2.py', get_environ=get_environ) as writer:
         json_facade = JsonFacade(writer)
         writer.write_start_redirect()
 
@@ -2438,9 +2475,9 @@ def test_evaluate_exec_unicode(case_setup):
         writer.finished_ok = True
 
 
-def test_evaluate_repl_redirect(case_setup):
+def test_evaluate_repl_redirect(case_setup_dap):
 
-    with case_setup.test_file('_debugger_case_local_variables2.py') as writer:
+    with case_setup_dap.test_file('_debugger_case_local_variables2.py') as writer:
         json_facade = JsonFacade(writer)
 
         writer.write_add_breakpoint(writer.get_line_index_with_content('Break here'))
@@ -2464,7 +2501,7 @@ def test_evaluate_repl_redirect(case_setup):
         writer.finished_ok = True
 
 
-def test_evaluate_no_double_exec(case_setup, pyfile):
+def test_evaluate_no_double_exec(case_setup_dap, pyfile):
 
     @pyfile
     def exec_code():
@@ -2476,7 +2513,7 @@ def test_evaluate_no_double_exec(case_setup, pyfile):
         print('Break here')
         print('TEST SUCEEDED!')
 
-    with case_setup.test_file(exec_code) as writer:
+    with case_setup_dap.test_file(exec_code) as writer:
         json_facade = JsonFacade(writer)
         json_facade.write_launch(justMyCode=False)
         json_facade.write_set_breakpoints(writer.get_line_index_with_content('Break here'))
@@ -2500,10 +2537,10 @@ def test_evaluate_no_double_exec(case_setup, pyfile):
         writer.finished_ok = True
 
 
-def test_evaluate_variable_references(case_setup):
+def test_evaluate_variable_references(case_setup_dap):
     from _pydevd_bundle._debug_adapter.pydevd_schema import EvaluateRequest
     from _pydevd_bundle._debug_adapter.pydevd_schema import EvaluateArguments
-    with case_setup.test_file('_debugger_case_local_variables2.py') as writer:
+    with case_setup_dap.test_file('_debugger_case_local_variables2.py') as writer:
         json_facade = JsonFacade(writer)
 
         writer.write_add_breakpoint(writer.get_line_index_with_content('Break here'))
@@ -2554,10 +2591,10 @@ def test_evaluate_variable_references(case_setup):
         writer.finished_ok = True
 
 
-def test_set_expression(case_setup):
+def test_set_expression(case_setup_dap):
     from _pydevd_bundle._debug_adapter.pydevd_schema import SetExpressionRequest
     from _pydevd_bundle._debug_adapter.pydevd_schema import SetExpressionArguments
-    with case_setup.test_file('_debugger_case_local_variables2.py') as writer:
+    with case_setup_dap.test_file('_debugger_case_local_variables2.py') as writer:
         json_facade = JsonFacade(writer)
 
         writer.write_add_breakpoint(writer.get_line_index_with_content('Break here'))
@@ -2580,11 +2617,11 @@ def test_set_expression(case_setup):
         writer.finished_ok = True
 
 
-def test_set_expression_failures(case_setup):
+def test_set_expression_failures(case_setup_dap):
     from _pydevd_bundle._debug_adapter.pydevd_schema import SetExpressionRequest
     from _pydevd_bundle._debug_adapter.pydevd_schema import SetExpressionArguments
 
-    with case_setup.test_file('_debugger_case_local_variables2.py') as writer:
+    with case_setup_dap.test_file('_debugger_case_local_variables2.py') as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_set_breakpoints(writer.get_line_index_with_content('Break here'))
@@ -2605,8 +2642,8 @@ def test_set_expression_failures(case_setup):
         writer.finished_ok = True
 
 
-def test_get_variable_errors(case_setup):
-    with case_setup.test_file('_debugger_case_completions.py') as writer:
+def test_get_variable_errors(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_completions.py') as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_set_breakpoints(writer.get_line_index_with_content('Break here'))
@@ -2636,8 +2673,8 @@ def test_get_variable_errors(case_setup):
         writer.finished_ok = True
 
 
-def test_set_variable_failure(case_setup):
-    with case_setup.test_file('_debugger_case_local_variables2.py') as writer:
+def test_set_variable_failure(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_local_variables2.py') as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_set_breakpoints(writer.get_line_index_with_content('Break here'))
@@ -2767,8 +2804,8 @@ def _check_set(json_facade, json_hit):
     _check_list,
     _check_dict_subclass,
 ])
-def test_set_variable_multiple_cases(case_setup, _check_func):
-    with case_setup.test_file('_debugger_case_local_variables3.py') as writer:
+def test_set_variable_multiple_cases(case_setup_dap, _check_func):
+    with case_setup_dap.test_file('_debugger_case_local_variables3.py') as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_set_breakpoints(writer.get_line_index_with_content('Break here'))
@@ -2784,7 +2821,7 @@ def test_set_variable_multiple_cases(case_setup, _check_func):
         writer.finished_ok = True
 
 
-def test_get_variables_corner_case(case_setup, pyfile):
+def test_get_variables_corner_case(case_setup_dap, pyfile):
 
     @pyfile
     def case_with_class_as_object():
@@ -2801,7 +2838,7 @@ def test_get_variables_corner_case(case_setup, pyfile):
         some_class = SomeClass()
         print('TEST SUCEEDED')  # Break here
 
-    with case_setup.test_file(case_with_class_as_object) as writer:
+    with case_setup_dap.test_file(case_with_class_as_object) as writer:
         json_facade = JsonFacade(writer)
         json_facade.write_launch(justMyCode=False)
         json_facade.write_set_breakpoints(writer.get_line_index_with_content('Break here'))
@@ -2819,9 +2856,9 @@ def test_get_variables_corner_case(case_setup, pyfile):
 
 
 @pytest.mark.skipif(IS_JYTHON, reason='Putting unicode on frame vars does not work on Jython.')
-def test_stack_and_variables(case_setup):
+def test_stack_and_variables(case_setup_dap):
 
-    with case_setup.test_file('_debugger_case_local_variables.py') as writer:
+    with case_setup_dap.test_file('_debugger_case_local_variables.py') as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_set_breakpoints(writer.get_line_index_with_content('Break here'))
@@ -2925,8 +2962,8 @@ def test_stack_and_variables(case_setup):
         writer.finished_ok = True
 
 
-def test_hex_variables(case_setup):
-    with case_setup.test_file('_debugger_case_local_variables_hex.py') as writer:
+def test_hex_variables(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_local_variables_hex.py') as writer:
         json_facade = JsonFacade(writer)
 
         writer.write_add_breakpoint(writer.get_line_index_with_content('Break here'))
@@ -2999,8 +3036,8 @@ def test_hex_variables(case_setup):
         writer.finished_ok = True
 
 
-def test_stopped_event(case_setup):
-    with case_setup.test_file('_debugger_case_print.py') as writer:
+def test_stopped_event(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_print.py') as writer:
         json_facade = JsonFacade(writer)
 
         writer.write_add_breakpoint(writer.get_line_index_with_content('Break here'))
@@ -3016,8 +3053,8 @@ def test_stopped_event(case_setup):
 
 
 @pytest.mark.skipif(IS_JYTHON, reason='Not Jython compatible (fails on set variable).')
-def test_pause_and_continue(case_setup):
-    with case_setup.test_file('_debugger_case_pause_continue.py') as writer:
+def test_pause_and_continue(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_pause_continue.py') as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_set_breakpoints(writer.get_line_index_with_content('Break here'))
@@ -3047,8 +3084,8 @@ def test_pause_and_continue(case_setup):
 
 
 @pytest.mark.parametrize('stepping_resumes_all_threads', [False, True])
-def test_step_out_multi_threads(case_setup, stepping_resumes_all_threads):
-    with case_setup.test_file('_debugger_case_multi_threads_stepping.py') as writer:
+def test_step_out_multi_threads(case_setup_dap, stepping_resumes_all_threads):
+    with case_setup_dap.test_file('_debugger_case_multi_threads_stepping.py') as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_launch(steppingResumesAllThreads=stepping_resumes_all_threads)
@@ -3090,8 +3127,8 @@ def test_step_out_multi_threads(case_setup, stepping_resumes_all_threads):
 
 @pytest.mark.parametrize('stepping_resumes_all_threads', [True, False])
 @pytest.mark.parametrize('step_mode', ['step_next', 'step_in'])
-def test_step_next_step_in_multi_threads(case_setup, stepping_resumes_all_threads, step_mode):
-    with case_setup.test_file('_debugger_case_multi_threads_stepping.py') as writer:
+def test_step_next_step_in_multi_threads(case_setup_dap, stepping_resumes_all_threads, step_mode):
+    with case_setup_dap.test_file('_debugger_case_multi_threads_stepping.py') as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_launch(steppingResumesAllThreads=stepping_resumes_all_threads)
@@ -3144,8 +3181,8 @@ def test_step_next_step_in_multi_threads(case_setup, stepping_resumes_all_thread
         writer.finished_ok = True
 
 
-def test_stepping(case_setup):
-    with case_setup.test_file('_debugger_case_stepping.py') as writer:
+def test_stepping(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_stepping.py') as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_launch(justMyCode=False)
@@ -3184,8 +3221,8 @@ def test_stepping(case_setup):
         writer.finished_ok = True
 
 
-def test_evaluate(case_setup):
-    with case_setup.test_file('_debugger_case_evaluate.py') as writer:
+def test_evaluate(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_evaluate.py') as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_set_breakpoints(writer.get_line_index_with_content('Break here'))
@@ -3241,8 +3278,8 @@ def test_evaluate(case_setup):
         writer.finished_ok = True
 
 
-def test_evaluate_failures(case_setup):
-    with case_setup.test_file('_debugger_case_completions.py') as writer:
+def test_evaluate_failures(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_completions.py') as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_set_breakpoints(writer.get_line_index_with_content('Break here'))
@@ -3281,7 +3318,7 @@ def test_evaluate_failures(case_setup):
         writer.finished_ok = True
 
 
-def test_evaluate_exception_trace(case_setup, pyfile):
+def test_evaluate_exception_trace(case_setup_dap, pyfile):
 
     @pyfile
     def exception_trace_file():
@@ -3302,7 +3339,7 @@ def test_evaluate_exception_trace(case_setup, pyfile):
 
         print('TEST SUCEEDED')  # Break here
 
-    with case_setup.test_file(exception_trace_file) as writer:
+    with case_setup_dap.test_file(exception_trace_file) as writer:
         json_facade = JsonFacade(writer)
         json_facade.write_launch(justMyCode=False)
 
@@ -3327,8 +3364,8 @@ def test_evaluate_exception_trace(case_setup, pyfile):
 
 
 @pytest.mark.parametrize('max_frames', ['default', 'all', 10])  # -1 = default, 0 = all, 10 = 10 frames
-def test_exception_details(case_setup, max_frames):
-    with case_setup.test_file('_debugger_case_large_exception_stack.py') as writer:
+def test_exception_details(case_setup_dap, max_frames):
+    with case_setup_dap.test_file('_debugger_case_large_exception_stack.py') as writer:
         json_facade = JsonFacade(writer)
 
         if max_frames == 'all':
@@ -3374,8 +3411,8 @@ def test_exception_details(case_setup, max_frames):
         writer.finished_ok = True
 
 
-def test_stack_levels(case_setup):
-    with case_setup.test_file('_debugger_case_deep_stacks.py') as writer:
+def test_stack_levels(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_deep_stacks.py') as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_set_breakpoints(writer.get_line_index_with_content('Break here'))
@@ -3410,8 +3447,8 @@ def test_stack_levels(case_setup):
         writer.finished_ok = True
 
 
-def test_breakpoint_adjustment(case_setup):
-    with case_setup.test_file('_debugger_case_adjust_breakpoint.py') as writer:
+def test_breakpoint_adjustment(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_adjust_breakpoint.py') as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_launch()
@@ -3444,8 +3481,8 @@ def test_breakpoint_adjustment(case_setup):
 
 
 @pytest.mark.skipif(IS_JYTHON, reason='No goto on Jython.')
-def test_goto(case_setup):
-    with case_setup.test_file('_debugger_case_set_next_statement.py') as writer:
+def test_goto(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_set_next_statement.py') as writer:
         json_facade = JsonFacade(writer)
 
         break_line = writer.get_line_index_with_content('Break here')
@@ -3520,11 +3557,11 @@ def _check_dont_trace_not_filtered_out(json_hit):
     'change_pattern',
     'dont_trace_after_start'
 ])
-def test_set_debugger_property(case_setup, dbg_property):
+def test_set_debugger_property(case_setup_dap, dbg_property):
 
     kwargs = {}
 
-    with case_setup.test_file('_debugger_case_dont_trace_test.py', **kwargs) as writer:
+    with case_setup_dap.test_file('_debugger_case_dont_trace_test.py', **kwargs) as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_set_breakpoints(writer.get_line_index_with_content('Break here'))
@@ -3568,11 +3605,11 @@ def test_set_debugger_property(case_setup, dbg_property):
         writer.finished_ok = True
 
 
-def test_source_mapping_errors(case_setup):
+def test_source_mapping_errors(case_setup_dap):
     from _pydevd_bundle._debug_adapter.pydevd_schema import Source
     from _pydevd_bundle._debug_adapter.pydevd_schema import PydevdSourceMap
 
-    with case_setup.test_file('_debugger_case_source_mapping.py') as writer:
+    with case_setup_dap.test_file('_debugger_case_source_mapping.py') as writer:
         json_facade = JsonFacade(writer)
 
         map_to_cell_1_line2 = writer.get_line_index_with_content('map to cEll1, line 2')
@@ -3608,13 +3645,13 @@ def test_source_mapping_errors(case_setup):
     ['_debugger_case_source_mapping.py', '_debugger_case_source_mapping_and_reference.py']
 )
 @pytest.mark.parametrize('jmc', [True, False])
-def test_source_mapping_base(case_setup, target, jmc):
+def test_source_mapping_base(case_setup_dap, target, jmc):
     from _pydevd_bundle._debug_adapter.pydevd_schema import Source
     from _pydevd_bundle._debug_adapter.pydevd_schema import PydevdSourceMap
 
-    case_setup.check_non_ascii = True
+    case_setup_dap.check_non_ascii = True
 
-    with case_setup.test_file(target) as writer:
+    with case_setup_dap.test_file(target) as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_launch(justMyCode=jmc)
@@ -3662,13 +3699,13 @@ def test_source_mapping_base(case_setup, target, jmc):
         writer.finished_ok = True
 
 
-def test_source_mapping_just_my_code(case_setup):
+def test_source_mapping_just_my_code(case_setup_dap):
     from _pydevd_bundle._debug_adapter.pydevd_schema import Source
     from _pydevd_bundle._debug_adapter.pydevd_schema import PydevdSourceMap
 
-    case_setup.check_non_ascii = True
+    case_setup_dap.check_non_ascii = True
 
-    with case_setup.test_file('_debugger_case_source_mapping_jmc.py') as writer:
+    with case_setup_dap.test_file('_debugger_case_source_mapping_jmc.py') as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_launch(justMyCode=True)
@@ -3711,7 +3748,7 @@ def test_source_mapping_just_my_code(case_setup):
         writer.finished_ok = True
 
 
-def test_source_mapping_goto_target(case_setup):
+def test_source_mapping_goto_target(case_setup_dap):
     from _pydevd_bundle._debug_adapter.pydevd_schema import Source
     from _pydevd_bundle._debug_adapter.pydevd_schema import PydevdSourceMap
 
@@ -3719,7 +3756,7 @@ def test_source_mapping_goto_target(case_setup):
         assert 'Skip this print' not in stdout
         assert 'TEST SUCEEDED' in stdout
 
-    with case_setup.test_file('_debugger_case_source_map_goto_target.py', additional_output_checks=additional_output_checks) as writer:
+    with case_setup_dap.test_file('_debugger_case_source_map_goto_target.py', additional_output_checks=additional_output_checks) as writer:
         test_file = writer.TEST_FILE
         if isinstance(test_file, bytes):
             # file is in the filesystem encoding (needed for launch) but protocol needs it in utf-8
@@ -3770,7 +3807,7 @@ def test_source_mapping_goto_target(case_setup):
 
 
 @pytest.mark.skipif(not TEST_CHERRYPY or IS_WINDOWS, reason='No CherryPy available / not ok in Windows.')
-def test_process_autoreload_cherrypy(case_setup_multiprocessing, tmpdir):
+def test_process_autoreload_cherrypy(case_setup_multiprocessing_dap, tmpdir):
     '''
     CherryPy does an os.execv(...) which will kill the running process and replace
     it with a new process when a reload takes place, so, it mostly works as
@@ -3814,7 +3851,7 @@ cherrypy.quickstart(HelloWorld())
 
     import threading
     from tests_python.debugger_unittest import AbstractWriterThread
-    with case_setup_multiprocessing.test_file(file_to_check, get_environ=get_environ) as writer:
+    with case_setup_multiprocessing_dap.test_file(file_to_check, get_environ=get_environ) as writer:
 
         original_ignore_stderr_line = writer._ignore_stderr_line
 
@@ -3923,16 +3960,16 @@ cherrypy.quickstart(HelloWorld())
         writer.finished_ok = True
 
 
-def test_wait_for_attach_debugpy_mode(case_setup_remote_attach_to):
+def test_wait_for_attach_debugpy_mode(case_setup_remote_attach_to_dap):
     host_port = get_socket_name(close=True)
 
-    with case_setup_remote_attach_to.test_file('_debugger_case_wait_for_attach_debugpy_mode.py', host_port[1]) as writer:
+    with case_setup_remote_attach_to_dap.test_file('_debugger_case_wait_for_attach_debugpy_mode.py', host_port[1]) as writer:
         time.sleep(1)  # Give some time for it to pass the first breakpoint and wait in 'wait_for_attach'.
         writer.start_socket_client(*host_port)
 
         # We don't send initial messages because everything should be pre-configured to
         # the DAP mode already (i.e.: making sure it works).
-        json_facade = JsonFacade(writer, send_json_startup_messages=False)
+        json_facade = JsonFacade(writer)
         break2_line = writer.get_line_index_with_content('Break 2')
 
         json_facade.write_attach()
@@ -3947,7 +3984,7 @@ def test_wait_for_attach_debugpy_mode(case_setup_remote_attach_to):
         writer.finished_ok = True
 
 
-def test_wait_for_attach(case_setup_remote_attach_to):
+def test_wait_for_attach(case_setup_remote_attach_to_dap):
     host_port = get_socket_name(close=True)
 
     def check_thread_events(json_facade):
@@ -3970,7 +4007,7 @@ def test_wait_for_attach(case_setup_remote_attach_to):
         assert len(process_events) == 1
         assert next(iter(process_events)).body.startMethod == start_method
 
-    with case_setup_remote_attach_to.test_file('_debugger_case_wait_for_attach.py', host_port[1]) as writer:
+    with case_setup_remote_attach_to_dap.test_file('_debugger_case_wait_for_attach.py', host_port[1]) as writer:
         writer.TEST_FILE = debugger_unittest._get_debugger_test_file('_debugger_case_wait_for_attach_impl.py')
         time.sleep(1)  # Give some time for it to pass the first breakpoint and wait in 'wait_for_attach'.
         writer.start_socket_client(*host_port)
@@ -4030,7 +4067,7 @@ def test_wait_for_attach(case_setup_remote_attach_to):
 
 
 @pytest.mark.skipif(not TEST_GEVENT, reason='Gevent not installed.')
-def test_wait_for_attach_gevent(case_setup_remote_attach_to):
+def test_wait_for_attach_gevent(case_setup_remote_attach_to_dap):
     host_port = get_socket_name(close=True)
 
     def get_environ(writer):
@@ -4044,7 +4081,7 @@ def test_wait_for_attach_gevent(case_setup_remote_attach_to):
         started_events = json_facade.mark_messages(ThreadEvent, lambda x: x.body.reason == 'started')
         assert len(started_events) == 1
 
-    with case_setup_remote_attach_to.test_file('_debugger_case_gevent.py', host_port[1], additional_args=['remote', 'as-server'], get_environ=get_environ) as writer:
+    with case_setup_remote_attach_to_dap.test_file('_debugger_case_gevent.py', host_port[1], additional_args=['remote', 'as-server'], get_environ=get_environ) as writer:
         writer.TEST_FILE = debugger_unittest._get_debugger_test_file('_debugger_case_gevent.py')
         time.sleep(.5)  # Give some time for it to pass the first breakpoint and wait.
         writer.start_socket_client(*host_port)
@@ -4063,7 +4100,7 @@ def test_wait_for_attach_gevent(case_setup_remote_attach_to):
 
 @pytest.mark.skipif(not TEST_GEVENT, reason='Gevent not installed.')
 @pytest.mark.parametrize('show', [True, False])
-def test_gevent_show_paused_greenlets(case_setup, show):
+def test_gevent_show_paused_greenlets(case_setup_dap, show):
 
     def get_environ(writer):
         env = os.environ.copy()
@@ -4074,7 +4111,7 @@ def test_gevent_show_paused_greenlets(case_setup, show):
             env['GEVENT_SHOW_PAUSED_GREENLETS'] = 'False'
         return env
 
-    with case_setup.test_file('_debugger_case_gevent_simple.py', get_environ=get_environ) as writer:
+    with case_setup_dap.test_file('_debugger_case_gevent_simple.py', get_environ=get_environ) as writer:
         json_facade = JsonFacade(writer)
 
         break1_line = writer.get_line_index_with_content('break here')
@@ -4110,7 +4147,7 @@ def test_gevent_show_paused_greenlets(case_setup, show):
 
 @pytest.mark.skipif(not TEST_GEVENT, reason='Gevent not installed.')
 @pytest.mark.skipif(sys.platform == 'win32', reason='tput requires Linux.')
-def test_gevent_subprocess_not_python(case_setup):
+def test_gevent_subprocess_not_python(case_setup_dap):
 
     def get_environ(writer):
         env = os.environ.copy()
@@ -4118,7 +4155,7 @@ def test_gevent_subprocess_not_python(case_setup):
         env['CALL_PYTHON_SUB'] = '0'
         return env
 
-    with case_setup.test_file('_debugger_case_gevent_subprocess.py', get_environ=get_environ) as writer:
+    with case_setup_dap.test_file('_debugger_case_gevent_subprocess.py', get_environ=get_environ) as writer:
         json_facade = JsonFacade(writer)
 
         break1_line = writer.get_line_index_with_content("print('TEST SUCEEDED')")
@@ -4131,7 +4168,7 @@ def test_gevent_subprocess_not_python(case_setup):
 
 
 @pytest.mark.skipif(not TEST_GEVENT, reason='Gevent not installed.')
-def test_gevent_subprocess_python(case_setup_multiprocessing):
+def test_gevent_subprocess_python(case_setup_multiprocessing_dap):
     import threading
     from tests_python.debugger_unittest import AbstractWriterThread
 
@@ -4141,7 +4178,7 @@ def test_gevent_subprocess_python(case_setup_multiprocessing):
         env['CALL_PYTHON_SUB'] = '1'
         return env
 
-    with case_setup_multiprocessing.test_file(
+    with case_setup_multiprocessing_dap.test_file(
             '_debugger_case_gevent_subprocess.py',
             get_environ=get_environ,
         ) as writer:
@@ -4200,7 +4237,7 @@ def test_gevent_subprocess_python(case_setup_multiprocessing):
     not TEST_GEVENT or IS_WINDOWS,
     reason='Gevent not installed / Sometimes the debugger crashes on Windows as the compiled extensions conflict with gevent.'
 )
-def test_notify_gevent(case_setup, pyfile):
+def test_notify_gevent(case_setup_dap, pyfile):
 
     def get_environ(writer):
         # I.e.: Make sure that gevent support is disabled
@@ -4220,7 +4257,7 @@ def test_notify_gevent(case_setup, pyfile):
         assert 'environment variable' in stderr
         assert 'GEVENT_SUPPORT=True' in stderr
 
-    with case_setup.test_file(
+    with case_setup_dap.test_file(
             case_gevent,
             get_environ=get_environ,
             additional_output_checks=additional_output_checks,
@@ -4239,7 +4276,7 @@ def test_notify_gevent(case_setup, pyfile):
         writer.finished_ok = True
 
 
-def test_ppid(case_setup, pyfile):
+def test_ppid(case_setup_dap, pyfile):
 
     @pyfile
     def case_ppid():
@@ -4253,7 +4290,7 @@ def test_ppid(case_setup, pyfile):
         ret.insert(ret.index('--client'), '22')
         return ret
 
-    with case_setup.test_file(
+    with case_setup_dap.test_file(
             case_ppid,
             update_command_line_args=update_command_line_args,
         ) as writer:
@@ -4265,7 +4302,7 @@ def test_ppid(case_setup, pyfile):
 
 
 @pytest.mark.skipif(IS_JYTHON, reason='Flaky on Jython.')
-def test_path_translation_and_source_reference(case_setup):
+def test_path_translation_and_source_reference(case_setup_dap):
 
     translated_dir_not_ascii = u'áéíóú汉字'
 
@@ -4281,7 +4318,7 @@ def test_path_translation_and_source_reference(case_setup):
         env["PYTHONIOENCODING"] = 'utf-8'
         return env
 
-    with case_setup.test_file('_debugger_case_path_translation.py', get_environ=get_environ) as writer:
+    with case_setup_dap.test_file('_debugger_case_path_translation.py', get_environ=get_environ) as writer:
         file_in_client = get_file_in_client(writer)
         assert 'tests_python' not in file_in_client
         assert translated_dir_not_ascii in file_in_client
@@ -4340,9 +4377,9 @@ def test_path_translation_and_source_reference(case_setup):
 
 
 @pytest.mark.skipif(IS_JYTHON, reason='Flaky on Jython.')
-def test_source_reference_no_file(case_setup, tmpdir):
+def test_source_reference_no_file(case_setup_dap, tmpdir):
 
-    with case_setup.test_file('_debugger_case_source_reference.py') as writer:
+    with case_setup_dap.test_file('_debugger_case_source_reference.py') as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_launch(
@@ -4399,9 +4436,9 @@ def test_source_reference_no_file(case_setup, tmpdir):
 
 
 @pytest.mark.skipif(not IS_CPYTHON, reason='CPython only test.')
-def test_linecache_json_existing_file(case_setup, tmpdir):
+def test_linecache_json_existing_file(case_setup_dap, tmpdir):
 
-    with case_setup.test_file('_debugger_case_linecache_existing_file.py') as writer:
+    with case_setup_dap.test_file('_debugger_case_linecache_existing_file.py') as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_launch(justMyCode=False)
@@ -4422,9 +4459,9 @@ def test_linecache_json_existing_file(case_setup, tmpdir):
 
 
 @pytest.mark.skipif(not IS_CPYTHON, reason='CPython only test.')
-def test_linecache_json(case_setup, tmpdir):
+def test_linecache_json(case_setup_dap, tmpdir):
 
-    with case_setup.test_file('_debugger_case_linecache.py') as writer:
+    with case_setup_dap.test_file('_debugger_case_linecache.py') as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_launch(justMyCode=False)
@@ -4457,9 +4494,9 @@ def test_linecache_json(case_setup, tmpdir):
 
 
 @pytest.mark.skipif(not IS_CPYTHON, reason='CPython only test.')
-def test_show_bytecode_json(case_setup, tmpdir):
+def test_show_bytecode_json(case_setup_dap, tmpdir):
 
-    with case_setup.test_file('_debugger_case_show_bytecode.py') as writer:
+    with case_setup_dap.test_file('_debugger_case_show_bytecode.py') as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_launch(justMyCode=False)
@@ -4491,14 +4528,14 @@ def test_show_bytecode_json(case_setup, tmpdir):
 
 @pytest.mark.skipif(not TEST_DJANGO, reason='No django available')
 @pytest.mark.parametrize("jmc", [False, True])
-def test_case_django_no_attribute_exception_breakpoint(case_setup_django, jmc):
+def test_case_django_no_attribute_exception_breakpoint(case_setup_django_dap, jmc):
     import django  # noqa (may not be there if TEST_DJANGO == False)
     django_version = [int(x) for x in django.get_version().split('.')][:2]
 
     if django_version < [2, 1]:
         pytest.skip('Template exceptions only supporting Django 2.1 onwards.')
 
-    with case_setup_django.test_file(EXPECTED_RETURNCODE='any') as writer:
+    with case_setup_django_dap.test_file(EXPECTED_RETURNCODE='any') as writer:
         json_facade = JsonFacade(writer)
 
         if jmc:
@@ -4555,7 +4592,7 @@ def test_case_django_no_attribute_exception_breakpoint(case_setup_django, jmc):
 
 
 @pytest.mark.skipif(not TEST_DJANGO, reason='No django available')
-def test_case_django_line_validation(case_setup_django):
+def test_case_django_line_validation(case_setup_django_dap):
     import django  # noqa (may not be there if TEST_DJANGO == False)
     django_version = [int(x) for x in django.get_version().split('.')][:2]
 
@@ -4563,7 +4600,7 @@ def test_case_django_line_validation(case_setup_django):
 
     import django  # noqa (may not be there if TEST_DJANGO == False)
 
-    with case_setup_django.test_file(EXPECTED_RETURNCODE='any') as writer:
+    with case_setup_django_dap.test_file(EXPECTED_RETURNCODE='any') as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_launch(debugOptions=['DebugStdLib', 'Django'])
@@ -4631,8 +4668,8 @@ def test_case_django_line_validation(case_setup_django):
 
 
 @pytest.mark.skipif(not TEST_FLASK, reason='No flask available')
-def test_case_flask_line_validation(case_setup_flask):
-    with case_setup_flask.test_file(EXPECTED_RETURNCODE='any') as writer:
+def test_case_flask_line_validation(case_setup_flask_dap):
+    with case_setup_flask_dap.test_file(EXPECTED_RETURNCODE='any') as writer:
         json_facade = JsonFacade(writer)
         writer.write_set_project_roots([debugger_unittest._get_debugger_test_file('flask1')])
         json_facade.write_launch(debugOptions=['Jinja'])
@@ -4679,8 +4716,8 @@ def test_case_flask_line_validation(case_setup_flask):
 
 @pytest.mark.skipif(not TEST_FLASK, reason='No flask available')
 @pytest.mark.parametrize("jmc", [False, True])
-def test_case_flask_exceptions(case_setup_flask, jmc):
-    with case_setup_flask.test_file(EXPECTED_RETURNCODE='any') as writer:
+def test_case_flask_exceptions(case_setup_flask_dap, jmc):
+    with case_setup_flask_dap.test_file(EXPECTED_RETURNCODE='any') as writer:
         json_facade = JsonFacade(writer)
 
         if jmc:
@@ -4724,7 +4761,7 @@ def test_case_flask_exceptions(case_setup_flask, jmc):
 
 
 @pytest.mark.skipif(IS_APPVEYOR or IS_JYTHON, reason='Flaky on appveyor / Jython encoding issues (needs investigation).')
-def test_redirect_output(case_setup):
+def test_redirect_output(case_setup_dap):
 
     def get_environ(writer):
         env = os.environ.copy()
@@ -4732,7 +4769,7 @@ def test_redirect_output(case_setup):
         env["PYTHONIOENCODING"] = 'utf-8'
         return env
 
-    with case_setup.test_file('_debugger_case_redirect.py', get_environ=get_environ) as writer:
+    with case_setup_dap.test_file('_debugger_case_redirect.py', get_environ=get_environ) as writer:
         original_ignore_stderr_line = writer._ignore_stderr_line
 
         json_facade = JsonFacade(writer)
@@ -4810,9 +4847,9 @@ def test_redirect_output(case_setup):
         writer.finished_ok = True
 
 
-def test_listen_dap_messages(case_setup):
+def test_listen_dap_messages(case_setup_dap):
 
-    with case_setup.test_file('_debugger_case_listen_dap_messages.py') as writer:
+    with case_setup_dap.test_file('_debugger_case_listen_dap_messages.py') as writer:
         json_facade = JsonFacade(writer)
         json_facade.write_launch(debugOptions=['RedirectOutput'],)
 
@@ -4834,7 +4871,7 @@ def _attach_to_writer_pid(writer):
 
     def attach():
         attach_pydevd_file = os.path.join(os.path.dirname(pydevd.__file__), 'pydevd_attach_to_process', 'attach_pydevd.py')
-        subprocess.call([sys.executable, attach_pydevd_file, '--pid', str(writer.process.pid), '--port', str(writer.port), '--protocol', 'http_json'])
+        subprocess.call([sys.executable, attach_pydevd_file, '--pid', str(writer.process.pid), '--port', str(writer.port), '--protocol', 'http_json', '--debug-mode', 'debugpy-dap'])
 
     threading.Thread(target=attach).start()
 
@@ -4888,8 +4925,8 @@ def test_attach_to_pid(case_setup_remote, reattach):
         writer.finished_ok = True
 
 
-def test_remote_debugger_basic(case_setup_remote):
-    with case_setup_remote.test_file('_debugger_case_remote.py') as writer:
+def test_remote_debugger_basic(case_setup_remote_dap):
+    with case_setup_remote_dap.test_file('_debugger_case_remote.py') as writer:
         json_facade = JsonFacade(writer)
         json_facade.write_launch()
         json_facade.write_make_initial_run()
@@ -4905,15 +4942,15 @@ if hasattr(os, 'posix_spawn'):
 
 
 @pytest.mark.parametrize('command_line_args', PYDEVD_CUSTOMIZATION_COMMAND_LINE_ARGS)
-def test_subprocess_pydevd_customization(case_setup_remote, command_line_args):
+def test_subprocess_pydevd_customization(case_setup_remote_dap, command_line_args):
     import threading
     from tests_python.debugger_unittest import AbstractWriterThread
 
-    with case_setup_remote.test_file(
+    with case_setup_remote_dap.test_file(
             '_debugger_case_pydevd_customization.py',
             append_command_line_args=command_line_args if command_line_args else [],
         ) as writer:
-        json_facade = JsonFacade(writer, send_json_startup_messages=False)
+        json_facade = JsonFacade(writer)
         json_facade.writer.write_multi_threads_single_notification(True)
         json_facade.write_launch()
 
@@ -4950,7 +4987,7 @@ def test_subprocess_pydevd_customization(case_setup_remote, command_line_args):
                     writer2._WRITE_LOG_PREFIX = '  *** Multiprocess write: '
                     writer2.reader_thread = reader_thread
                     writer2.sock = new_sock
-                    json_facade2 = JsonFacade(writer2, send_json_startup_messages=False)
+                    json_facade2 = JsonFacade(writer2)
                     json_facade2.writer.write_multi_threads_single_notification(True)
 
                     json_facade2.write_set_breakpoints([break1_line, break2_line])
@@ -4976,11 +5013,11 @@ def test_subprocess_pydevd_customization(case_setup_remote, command_line_args):
         writer.finished_ok = True
 
 
-def test_subprocess_then_fork(case_setup_multiprocessing):
+def test_subprocess_then_fork(case_setup_multiprocessing_dap):
     import threading
     from tests_python.debugger_unittest import AbstractWriterThread
 
-    with case_setup_multiprocessing.test_file('_debugger_case_subprocess_and_fork.py') as writer:
+    with case_setup_multiprocessing_dap.test_file('_debugger_case_subprocess_and_fork.py') as writer:
         json_facade = JsonFacade(writer)
         json_facade.write_launch(justMyCode=False)
 
@@ -5017,7 +5054,7 @@ def test_subprocess_then_fork(case_setup_multiprocessing):
                     writer2._WRITE_LOG_PREFIX = '  *** Multiprocess %s write: ' % i
                     writer2.reader_thread = reader_thread
                     writer2.sock = new_sock
-                    json_facade2 = JsonFacade(writer2, send_json_startup_messages=False)
+                    json_facade2 = JsonFacade(writer2)
                     json_facade2.writer.write_multi_threads_single_notification(True)
                     writer.log.append('  *** Multiprocess %s write attachThread' % (i,))
                     json_facade2.write_attach(justMyCode=False)
@@ -5049,19 +5086,23 @@ def test_subprocess_then_fork(case_setup_multiprocessing):
         writer.finished_ok = True
 
 
-@pytest.mark.parametrize('apply_multiprocessing_patch', [True, False])
-def test_no_subprocess_patching(case_setup_multiprocessing, apply_multiprocessing_patch):
+@pytest.mark.parametrize('apply_multiprocessing_patch', [True])
+def test_no_subprocess_patching(case_setup_multiprocessing_dap, apply_multiprocessing_patch):
     import threading
     from tests_python.debugger_unittest import AbstractWriterThread
 
     def update_command_line_args(writer, args):
         ret = debugger_unittest.AbstractWriterThread.update_command_line_args(writer, args)
         ret.insert(ret.index('--client'), '--multiprocess')
+        ret.insert(ret.index('--client'), '--debug-mode')
+        ret.insert(ret.index('--client'), 'debugpy-dap')
+        ret.insert(ret.index('--client'), '--json-dap-http')
+
         if apply_multiprocessing_patch:
             ret.append('apply-multiprocessing-patch')
         return ret
 
-    with case_setup_multiprocessing.test_file(
+    with case_setup_multiprocessing_dap.test_file(
             '_debugger_case_no_subprocess_patching.py',
             update_command_line_args=update_command_line_args
         ) as writer:
@@ -5121,8 +5162,8 @@ def test_no_subprocess_patching(case_setup_multiprocessing, apply_multiprocessin
         writer.finished_ok = True
 
 
-def test_module_crash(case_setup):
-    with case_setup.test_file('_debugger_case_module.py') as writer:
+def test_module_crash(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_module.py') as writer:
         json_facade = JsonFacade(writer)
 
         writer.write_add_breakpoint(writer.get_line_index_with_content('Break here'))
@@ -5145,8 +5186,8 @@ def test_module_crash(case_setup):
         writer.finished_ok = True
 
 
-def test_pydevd_systeminfo(case_setup):
-    with case_setup.test_file('_debugger_case_print.py') as writer:
+def test_pydevd_systeminfo(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_print.py') as writer:
         json_facade = JsonFacade(writer)
 
         writer.write_add_breakpoint(writer.get_line_index_with_content('Break here'))
@@ -5200,7 +5241,7 @@ def test_pydevd_systeminfo(case_setup):
     'kill_subprocesses_ignore_pid',
     'dont_kill_subprocesses',
 ])
-def test_terminate(case_setup, scenario, check_subprocesses):
+def test_terminate(case_setup_dap, scenario, check_subprocesses):
     import psutil
 
     def check_test_suceeded_msg(writer, stdout, stderr):
@@ -5214,7 +5255,7 @@ def test_terminate(case_setup, scenario, check_subprocesses):
             ret.append('check-subprocesses-ignore-pid')
         return ret
 
-    with case_setup.test_file(
+    with case_setup_dap.test_file(
         '_debugger_case_terminate.py',
         check_test_suceeded_msg=check_test_suceeded_msg,
         update_command_line_args=update_command_line_args,
@@ -5314,7 +5355,7 @@ def test_terminate(case_setup, scenario, check_subprocesses):
         writer.finished_ok = True
 
 
-def test_access_token(case_setup):
+def test_access_token(case_setup_dap):
 
     def update_command_line_args(self, args):
         args.insert(1, '--json-dap-http')
@@ -5324,8 +5365,8 @@ def test_access_token(case_setup):
         args.insert(5, 'foo321')
         return args
 
-    with case_setup.test_file('_debugger_case_pause_continue.py', update_command_line_args=update_command_line_args) as writer:
-        json_facade = JsonFacade(writer, send_json_startup_messages=False)
+    with case_setup_dap.test_file('_debugger_case_pause_continue.py', update_command_line_args=update_command_line_args) as writer:
+        json_facade = JsonFacade(writer)
 
         response = json_facade.write_set_debugger_property(multi_threads_single_notification=True, success=False)
         assert response.message == "Client not authenticated."
@@ -5372,8 +5413,8 @@ def test_access_token(case_setup):
         writer.finished_ok = True
 
 
-def test_stop_on_entry(case_setup):
-    with case_setup.test_file('not_my_code/main_on_entry.py') as writer:
+def test_stop_on_entry(case_setup_dap):
+    with case_setup_dap.test_file('not_my_code/main_on_entry.py') as writer:
         json_facade = JsonFacade(writer)
         json_facade.write_launch(
             justMyCode=False,
@@ -5396,8 +5437,8 @@ def test_stop_on_entry(case_setup):
         writer.finished_ok = True
 
 
-def test_stop_on_entry2(case_setup):
-    with case_setup.test_file('not_my_code/main_on_entry2.py') as writer:
+def test_stop_on_entry2(case_setup_dap):
+    with case_setup_dap.test_file('not_my_code/main_on_entry2.py') as writer:
         json_facade = JsonFacade(writer)
         json_facade.write_launch(
             justMyCode=False,
@@ -5418,8 +5459,8 @@ def test_stop_on_entry2(case_setup):
 
 
 @pytest.mark.parametrize('val', [True, False])
-def test_debug_options(case_setup, val):
-    with case_setup.test_file('_debugger_case_debug_options.py') as writer:
+def test_debug_options(case_setup_dap, val):
+    with case_setup_dap.test_file('_debugger_case_debug_options.py') as writer:
         json_facade = JsonFacade(writer)
         gui_event_loop = 'matplotlib'
         if val:
@@ -5471,8 +5512,8 @@ def test_debug_options(case_setup, val):
         writer.finished_ok = True
 
 
-def test_gui_event_loop_custom(case_setup):
-    with case_setup.test_file('_debugger_case_gui_event_loop.py') as writer:
+def test_gui_event_loop_custom(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_gui_event_loop.py') as writer:
         json_facade = JsonFacade(writer)
         json_facade.write_launch(guiEventLoop='__main__.LoopHolder.gui_loop', redirectOutput=True)
         break_line = writer.get_line_index_with_content('break here')
@@ -5489,13 +5530,13 @@ def test_gui_event_loop_custom(case_setup):
         writer.finished_ok = True
 
 
-def test_gui_event_loop_qt5(case_setup):
+def test_gui_event_loop_qt5(case_setup_dap):
     try:
         from PySide2 import QtCore
     except ImportError:
         pytest.skip('PySide2 not available')
 
-    with case_setup.test_file('_debugger_case_gui_event_loop_qt5.py') as writer:
+    with case_setup_dap.test_file('_debugger_case_gui_event_loop_qt5.py') as writer:
         json_facade = JsonFacade(writer)
         json_facade.write_launch(guiEventLoop='qt5', redirectOutput=True)
         break_line = writer.get_line_index_with_content('break here')
@@ -5516,9 +5557,9 @@ def test_gui_event_loop_qt5(case_setup):
 
 
 @pytest.mark.parametrize('debug_stdlib', [True, False])
-def test_just_my_code_debug_option_deprecated(case_setup, debug_stdlib, debugger_runner_simple):
+def test_just_my_code_debug_option_deprecated(case_setup_dap, debug_stdlib, debugger_runner_simple):
     from _pydev_bundle import pydev_log
-    with case_setup.test_file('_debugger_case_debug_options.py') as writer:
+    with case_setup_dap.test_file('_debugger_case_debug_options.py') as writer:
         json_facade = JsonFacade(writer)
         json_facade.write_launch(
             redirectOutput=True,  # Always redirect the output regardless of other values.
@@ -5542,8 +5583,8 @@ def test_just_my_code_debug_option_deprecated(case_setup, debug_stdlib, debugger
         writer.finished_ok = True
 
 
-def test_send_invalid_messages(case_setup):
-    with case_setup.test_file('_debugger_case_local_variables.py') as writer:
+def test_send_invalid_messages(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_local_variables.py') as writer:
         json_facade = JsonFacade(writer)
 
         writer.write_add_breakpoint(writer.get_line_index_with_content('Break 2 here'))
@@ -5586,9 +5627,9 @@ def test_send_invalid_messages(case_setup):
         writer.finished_ok = True
 
 
-def test_send_json_message(case_setup):
+def test_send_json_message(case_setup_dap):
 
-    with case_setup.test_file('_debugger_case_custom_message.py') as writer:
+    with case_setup_dap.test_file('_debugger_case_custom_message.py') as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_launch()
@@ -5604,8 +5645,8 @@ def test_send_json_message(case_setup):
         writer.finished_ok = True
 
 
-def test_global_scope(case_setup):
-    with case_setup.test_file('_debugger_case_globals.py') as writer:
+def test_global_scope(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_globals.py') as writer:
         json_facade = JsonFacade(writer)
         json_facade.write_set_breakpoints(writer.get_line_index_with_content('breakpoint here'))
 
@@ -5643,8 +5684,8 @@ def _check_class_group_special_inline_presentation(json_facade, json_hit, variab
     ({"all": "hide"}, _check_hide_var_presentation),
     ({"class": "group", "special": "inline"}, _check_class_group_special_inline_presentation),
 ])
-def test_variable_presentation(case_setup, var_presentation, check_func):
-    with case_setup.test_file('_debugger_case_globals.py') as writer:
+def test_variable_presentation(case_setup_dap, var_presentation, check_func):
+    with case_setup_dap.test_file('_debugger_case_globals.py') as writer:
         json_facade = JsonFacade(writer)
         json_facade.write_launch(variablePresentation=var_presentation)
         json_facade.write_set_breakpoints(writer.get_line_index_with_content('breakpoint here'))
@@ -5661,14 +5702,14 @@ def test_variable_presentation(case_setup, var_presentation, check_func):
         writer.finished_ok = True
 
 
-def test_debugger_case_deadlock_thread_eval(case_setup):
+def test_debugger_case_deadlock_thread_eval(case_setup_dap):
 
     def get_environ(self):
         env = os.environ.copy()
         env['PYDEVD_UNBLOCK_THREADS_TIMEOUT'] = '0.5'
         return env
 
-    with case_setup.test_file('_debugger_case_deadlock_thread_eval.py', get_environ=get_environ) as writer:
+    with case_setup_dap.test_file('_debugger_case_deadlock_thread_eval.py', get_environ=get_environ) as writer:
         json_facade = JsonFacade(writer)
         json_facade.write_launch()
         json_facade.write_set_breakpoints(writer.get_line_index_with_content('Break here 1'))
@@ -5684,7 +5725,7 @@ def test_debugger_case_deadlock_thread_eval(case_setup):
         writer.finished_ok = True
 
 
-def test_debugger_case_breakpoint_on_unblock_thread_eval(case_setup):
+def test_debugger_case_breakpoint_on_unblock_thread_eval(case_setup_dap):
 
     from _pydevd_bundle._debug_adapter.pydevd_schema import EvaluateResponse
 
@@ -5693,7 +5734,7 @@ def test_debugger_case_breakpoint_on_unblock_thread_eval(case_setup):
         env['PYDEVD_UNBLOCK_THREADS_TIMEOUT'] = '0.5'
         return env
 
-    with case_setup.test_file('_debugger_case_deadlock_thread_eval.py', get_environ=get_environ) as writer:
+    with case_setup_dap.test_file('_debugger_case_deadlock_thread_eval.py', get_environ=get_environ) as writer:
         json_facade = JsonFacade(writer)
         json_facade.write_launch()
         break1 = writer.get_line_index_with_content('Break here 1')
@@ -5723,7 +5764,7 @@ def test_debugger_case_breakpoint_on_unblock_thread_eval(case_setup):
         writer.finished_ok = True
 
 
-def test_debugger_case_unblock_manually(case_setup):
+def test_debugger_case_unblock_manually(case_setup_dap):
 
     from _pydevd_bundle._debug_adapter.pydevd_schema import EvaluateResponse
 
@@ -5732,7 +5773,7 @@ def test_debugger_case_unblock_manually(case_setup):
         env['PYDEVD_WARN_EVALUATION_TIMEOUT'] = '0.5'
         return env
 
-    with case_setup.test_file('_debugger_case_deadlock_thread_eval.py', get_environ=get_environ) as writer:
+    with case_setup_dap.test_file('_debugger_case_deadlock_thread_eval.py', get_environ=get_environ) as writer:
         json_facade = JsonFacade(writer)
         json_facade.write_launch()
         break1 = writer.get_line_index_with_content('Break here 1')
@@ -5758,7 +5799,7 @@ def test_debugger_case_unblock_manually(case_setup):
         writer.finished_ok = True
 
 
-def test_debugger_case_deadlock_notify_evaluate_timeout(case_setup, pyfile):
+def test_debugger_case_deadlock_notify_evaluate_timeout(case_setup_dap, pyfile):
 
     @pyfile
     def case_slow_evaluate():
@@ -5774,7 +5815,7 @@ def test_debugger_case_deadlock_notify_evaluate_timeout(case_setup, pyfile):
         env['PYDEVD_WARN_EVALUATION_TIMEOUT'] = '0.5'
         return env
 
-    with case_setup.test_file(case_slow_evaluate, get_environ=get_environ) as writer:
+    with case_setup_dap.test_file(case_slow_evaluate, get_environ=get_environ) as writer:
         json_facade = JsonFacade(writer)
         json_facade.write_launch(justMyCode=False)
         json_facade.write_set_breakpoints(writer.get_line_index_with_content('Break here'))
@@ -5794,7 +5835,7 @@ def test_debugger_case_deadlock_notify_evaluate_timeout(case_setup, pyfile):
         writer.finished_ok = True
 
 
-def test_debugger_case_deadlock_interrupt_thread(case_setup, pyfile):
+def test_debugger_case_deadlock_interrupt_thread(case_setup_dap, pyfile):
 
     @pyfile
     def case_infinite_evaluate():
@@ -5813,7 +5854,7 @@ def test_debugger_case_deadlock_interrupt_thread(case_setup, pyfile):
 
     # Sometimes we end up with a different return code on Linux when interrupting (even
     # though we go through completion and print the 'TEST SUCEEDED' msg).
-    with case_setup.test_file(
+    with case_setup_dap.test_file(
         case_infinite_evaluate, get_environ=get_environ, EXPECTED_RETURNCODE='any') as writer:
         json_facade = JsonFacade(writer)
         json_facade.write_launch(justMyCode=False)
@@ -5832,7 +5873,7 @@ def test_debugger_case_deadlock_interrupt_thread(case_setup, pyfile):
 
 @pytest.mark.parametrize('launch_through_link', [True, False])
 @pytest.mark.parametrize('breakpoints_through_link', [True, False])
-def test_debugger_case_symlink(case_setup, tmpdir, launch_through_link, breakpoints_through_link):
+def test_debugger_case_symlink(case_setup_dap, tmpdir, launch_through_link, breakpoints_through_link):
     '''
     Test that even if we resolve links internally, externally the contents will be
     related to the version launched.
@@ -5853,7 +5894,7 @@ def test_debugger_case_symlink(case_setup, tmpdir, launch_through_link, breakpoi
     try:
         target_filename_in_link = os.path.join(target_link, '_debugger_case2.py')
 
-        with case_setup.test_file(target_filename_in_link if launch_through_link else original_filename) as writer:
+        with case_setup_dap.test_file(target_filename_in_link if launch_through_link else original_filename) as writer:
             json_facade = JsonFacade(writer)
             json_facade.write_launch(justMyCode=False)
 
@@ -5882,7 +5923,7 @@ def test_debugger_case_symlink(case_setup, tmpdir, launch_through_link, breakpoi
 
 
 @pytest.mark.skipif(not IS_LINUX, reason='Linux only test.')
-def test_debugger_case_sensitive(case_setup, tmpdir):
+def test_debugger_case_sensitive(case_setup_dap, tmpdir):
     path = os.path.abspath(str(tmpdir.join('Path1').join('PaTh2')))
     os.makedirs(path)
     target = os.path.join(path, 'myFile.py')
@@ -5902,7 +5943,7 @@ print('TEST SUCEEDED')
 
     # Sometimes we end up with a different return code on Linux when interrupting (even
     # though we go through completion and print the 'TEST SUCEEDED' msg).
-    with case_setup.test_file(target, get_environ=get_environ) as writer:
+    with case_setup_dap.test_file(target, get_environ=get_environ) as writer:
         json_facade = JsonFacade(writer)
         json_facade.write_launch(justMyCode=False)
         json_facade.write_set_breakpoints(writer.get_line_index_with_content('Break here'))
@@ -5924,7 +5965,7 @@ print('TEST SUCEEDED')
     not TEST_CYTHON or
     TODO_PY311,  # Requires frame-eval mode (still not available for Python 3.11).
     reason='Windows only test and only Python 3.6 onwards.')
-def test_native_threads(case_setup, pyfile):
+def test_native_threads(case_setup_dap, pyfile):
 
     @pyfile
     def case_native_thread():
@@ -5946,7 +5987,7 @@ def test_native_threads(case_setup, pyfile):
 
         print('TEST SUCEEDED')
 
-    with case_setup.test_file(case_native_thread) as writer:
+    with case_setup_dap.test_file(case_native_thread) as writer:
         json_facade = JsonFacade(writer)
 
         line = writer.get_line_index_with_content('Break here')
@@ -5960,7 +6001,7 @@ def test_native_threads(case_setup, pyfile):
         writer.finished_ok = True
 
 
-def test_code_reload(case_setup, pyfile):
+def test_code_reload(case_setup_dap, pyfile):
 
     @pyfile
     def mod1():
@@ -5983,7 +6024,7 @@ def test_code_reload(case_setup, pyfile):
         def do_something():
             return False
 
-    with case_setup.test_file(mod1) as writer:
+    with case_setup_dap.test_file(mod1) as writer:
         json_facade = JsonFacade(writer)
 
         line1 = writer.get_line_index_with_content('Break 1')
@@ -6010,8 +6051,8 @@ def do_something():
 
 
 @pytest.mark.skipif(TODO_PY311, reason='Needs bytecode support in Python 3.11')
-def test_step_into_target_basic(case_setup):
-    with case_setup.test_file('_debugger_case_smart_step_into.py') as writer:
+def test_step_into_target_basic(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_smart_step_into.py') as writer:
         json_facade = JsonFacade(writer)
 
         bp = writer.get_line_index_with_content('break here')
@@ -6035,8 +6076,8 @@ def test_step_into_target_basic(case_setup):
 
 
 @pytest.mark.skipif(TODO_PY311, reason='Needs bytecode support in Python 3.11')
-def test_step_into_target_multiple(case_setup):
-    with case_setup.test_file('_debugger_case_smart_step_into2.py') as writer:
+def test_step_into_target_multiple(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_smart_step_into2.py') as writer:
         json_facade = JsonFacade(writer)
 
         bp = writer.get_line_index_with_content('break here')
@@ -6060,8 +6101,8 @@ def test_step_into_target_multiple(case_setup):
 
 
 @pytest.mark.skipif(TODO_PY311, reason='Needs bytecode support in Python 3.11')
-def test_step_into_target_genexpr(case_setup):
-    with case_setup.test_file('_debugger_case_smart_step_into3.py') as writer:
+def test_step_into_target_genexpr(case_setup_dap):
+    with case_setup_dap.test_file('_debugger_case_smart_step_into3.py') as writer:
         json_facade = JsonFacade(writer)
 
         bp = writer.get_line_index_with_content('break here')
@@ -6083,7 +6124,7 @@ def test_step_into_target_genexpr(case_setup):
         writer.finished_ok = True
 
 
-def test_function_breakpoints_basic(case_setup, pyfile):
+def test_function_breakpoints_basic(case_setup_dap, pyfile):
 
     @pyfile
     def module():
@@ -6094,7 +6135,7 @@ def test_function_breakpoints_basic(case_setup, pyfile):
         if __name__ == '__main__':
             do_something()
 
-    with case_setup.test_file(module) as writer:
+    with case_setup_dap.test_file(module) as writer:
         json_facade = JsonFacade(writer)
         json_facade.write_launch(justMyCode=False)
         bp = writer.get_line_index_with_content('break here')
@@ -6109,9 +6150,9 @@ def test_function_breakpoints_basic(case_setup, pyfile):
 
 
 @pytest.mark.skipif(not IS_PY36_OR_GREATER, reason='Python 3.6 onwards required for test.')
-def test_function_breakpoints_async(case_setup):
+def test_function_breakpoints_async(case_setup_dap):
 
-    with case_setup.test_file('_debugger_case_stop_async_iteration.py') as writer:
+    with case_setup_dap.test_file('_debugger_case_stop_async_iteration.py') as writer:
         json_facade = JsonFacade(writer)
         json_facade.write_launch(justMyCode=False)
         bp = writer.get_line_index_with_content('async def gen():')
@@ -6132,7 +6173,7 @@ except:
 
 
 @pytest.mark.skipif(pandas is None, reason='Pandas not installed.')
-def test_pandas(case_setup, pyfile):
+def test_pandas(case_setup_dap, pyfile):
 
     @pyfile
     def pandas_mod():
@@ -6153,7 +6194,7 @@ def test_pandas(case_setup, pyfile):
 
         print('TEST SUCEEDED')  # Break here
 
-    with case_setup.test_file(pandas_mod) as writer:
+    with case_setup_dap.test_file(pandas_mod) as writer:
         json_facade = JsonFacade(writer)
         json_facade.write_launch(justMyCode=False)
 
@@ -6169,6 +6210,11 @@ def test_pandas(case_setup, pyfile):
         # Check the custom repr(DataFrame)
         assert name_to_var['df'].value.count('\n') <= 63
         assert '...' in name_to_var['df'].value
+
+        evaluate_response = json_facade.evaluate('df', json_hit.frame_id, context='repl')
+        evaluate_response_body = evaluate_response.body.to_dict()
+        assert '...' not in evaluate_response_body['result']
+        assert evaluate_response_body['result'].count('\n') > 4999
 
         # Check the custom repr(Series)
         assert name_to_var['series'].value.count('\n') <= 60
@@ -6206,7 +6252,7 @@ def test_pandas(case_setup, pyfile):
 
 
 @pytest.mark.skipif(not IS_PY38_OR_GREATER, reason='Python 3.8 onwards required for test.')
-def test_same_lineno_and_filename(case_setup, pyfile):
+def test_same_lineno_and_filename(case_setup_dap, pyfile):
 
     @pyfile
     def target():
@@ -6223,7 +6269,7 @@ def test_same_lineno_and_filename(case_setup, pyfile):
 
         print('TEST SUCEEDED')
 
-    with case_setup.test_file(target) as writer:
+    with case_setup_dap.test_file(target) as writer:
         json_facade = JsonFacade(writer)
 
         writer.write_add_breakpoint(writer.get_line_index_with_content('Break here'))
@@ -6243,12 +6289,12 @@ def test_same_lineno_and_filename(case_setup, pyfile):
 
 
 @pytest.mark.skipif(sys.platform == 'win32', reason='Windows does not have execvp.')
-def test_replace_process(case_setup_multiprocessing):
+def test_replace_process(case_setup_multiprocessing_dap):
     import threading
     from tests_python.debugger_unittest import AbstractWriterThread
     from _pydevd_bundle._debug_adapter.pydevd_schema import ExitedEvent
 
-    with case_setup_multiprocessing.test_file(
+    with case_setup_multiprocessing_dap.test_file(
             '_debugger_case_replace_process.py',
         ) as writer:
         json_facade = JsonFacade(writer)
@@ -6306,7 +6352,7 @@ def test_replace_process(case_setup_multiprocessing):
 
 
 @pytest.mark.parametrize('resolve_symlinks', [True, False])
-def test_use_real_path_and_not_links(case_setup, tmpdir, resolve_symlinks):
+def test_use_real_path_and_not_links(case_setup_dap, tmpdir, resolve_symlinks):
     dira = tmpdir.join('dira')
     dira.mkdir()
 
@@ -6325,7 +6371,7 @@ print('TEST SUCEEDED')
 
     # I.e.: we're launching the symlinked file but we're actually
     # working with the original file afterwards.
-    with case_setup.test_file(str(symlinked_file)) as writer:
+    with case_setup_dap.test_file(str(symlinked_file)) as writer:
         json_facade = JsonFacade(writer)
 
         writer.write_add_breakpoint(writer.get_line_index_with_content('Break here'), filename=str(original_file))
@@ -6351,7 +6397,7 @@ except ImportError:
 
 
 @pytest.mark.skipif(not _TOP_LEVEL_AWAIT_AVAILABLE, reason="Top-level await required.")
-def test_ipython_stepping_basic(case_setup):
+def test_ipython_stepping_basic(case_setup_dap):
 
     def get_environ(self):
         env = os.environ.copy()
@@ -6364,7 +6410,7 @@ def test_ipython_stepping_basic(case_setup):
         env["PYDEVD_IPYTHON_CONTEXT"] = '_debugger_case_scoped_stepping.py, run_code, run_ast_nodes'
         return env
 
-    with case_setup.test_file('_debugger_case_scoped_stepping.py', get_environ=get_environ) as writer:
+    with case_setup_dap.test_file('_debugger_case_scoped_stepping.py', get_environ=get_environ) as writer:
         json_facade = JsonFacade(writer)
         json_facade.write_launch(justMyCode=False)
 
@@ -6386,7 +6432,7 @@ def test_ipython_stepping_basic(case_setup):
 
 
 @pytest.mark.skipif(not _TOP_LEVEL_AWAIT_AVAILABLE, reason="Top-level await required.")
-def test_ipython_stepping_step_in(case_setup):
+def test_ipython_stepping_step_in(case_setup_dap):
 
     def get_environ(self):
         env = os.environ.copy()
@@ -6399,7 +6445,7 @@ def test_ipython_stepping_step_in(case_setup):
         env["PYDEVD_IPYTHON_CONTEXT"] = '_debugger_case_scoped_stepping.py, run_code, run_ast_nodes'
         return env
 
-    with case_setup.test_file('_debugger_case_scoped_stepping.py', get_environ=get_environ) as writer:
+    with case_setup_dap.test_file('_debugger_case_scoped_stepping.py', get_environ=get_environ) as writer:
         json_facade = JsonFacade(writer)
         json_facade.write_launch(justMyCode=False)
 
@@ -6425,7 +6471,47 @@ def test_ipython_stepping_step_in(case_setup):
         writer.finished_ok = True
 
 
-def test_logging_api(case_setup_multiprocessing, tmpdir):
+@pytest.mark.skipif(not _TOP_LEVEL_AWAIT_AVAILABLE, reason="Top-level await required.")
+def test_ipython_stepping_step_in_justmycode(case_setup_dap):
+
+    def get_environ(self):
+        env = os.environ.copy()
+
+        # Test setup
+        env["SCOPED_STEPPING_TARGET"] = '_debugger_case_scoped_stepping_print.py'
+
+        # Actually setup the debugging
+        env["PYDEVD_IPYTHON_COMPATIBLE_DEBUGGING"] = "1"
+        env["PYDEVD_IPYTHON_CONTEXT"] = '_debugger_case_scoped_stepping.py, run_code, run_ast_nodes'
+        return env
+
+    with case_setup_dap.test_file('_debugger_case_scoped_stepping.py', get_environ=get_environ) as writer:
+        json_facade = JsonFacade(writer)
+        json_facade.write_launch(justMyCode=True)
+
+        target_file = debugger_unittest._get_debugger_test_file('_debugger_case_scoped_stepping_print.py')
+        break_line = writer.get_line_index_with_content('break here', filename=target_file)
+        json_facade.write_set_breakpoints(break_line, filename=target_file)
+        json_facade.write_make_initial_run()
+        json_hit = json_facade.wait_for_thread_stopped(line=break_line, file='_debugger_case_scoped_stepping_print.py')
+
+        json_facade.write_step_in(json_hit.thread_id)
+        stop_at = writer.get_line_index_with_content('pause 1', filename=target_file)
+        json_hit = json_facade.wait_for_thread_stopped('step', line=stop_at, file='_debugger_case_scoped_stepping_print.py')
+
+        json_facade.write_step_in(json_hit.thread_id)
+        stop_at = writer.get_line_index_with_content('pause 2', filename=target_file)
+        json_hit = json_facade.wait_for_thread_stopped('step', line=stop_at, file='_debugger_case_scoped_stepping_print.py')
+
+        json_facade.write_step_in(json_hit.thread_id)
+        stop_at = writer.get_line_index_with_content('pause 3', filename=target_file)
+        json_hit = json_facade.wait_for_thread_stopped('step', line=stop_at, file='_debugger_case_scoped_stepping_print.py')
+
+        json_facade.write_continue()
+        writer.finished_ok = True
+
+
+def test_logging_api(case_setup_multiprocessing_dap, tmpdir):
     import threading
     from tests_python.debugger_unittest import AbstractWriterThread
 
@@ -6436,7 +6522,7 @@ def test_logging_api(case_setup_multiprocessing, tmpdir):
         env["TARGET_LOG_FILE"] = log_file
         return env
 
-    with case_setup_multiprocessing.test_file(
+    with case_setup_multiprocessing_dap.test_file(
             '_debugger_case_logging.py',
             get_environ=get_environ
         ) as writer:
@@ -6492,7 +6578,7 @@ def test_logging_api(case_setup_multiprocessing, tmpdir):
 
 
 @pytest.mark.parametrize('soft_kill', [False, True])
-def test_soft_terminate(case_setup, pyfile, soft_kill):
+def test_soft_terminate(case_setup_dap, pyfile, soft_kill):
 
     @pyfile
     def target():
@@ -6517,7 +6603,7 @@ def test_soft_terminate(case_setup, pyfile, soft_kill):
         else:
             assert not stderr
 
-    with case_setup.test_file(
+    with case_setup_dap.test_file(
             target,
             EXPECTED_RETURNCODE='any',
             check_test_suceeded_msg=check_test_suceeded_msg,

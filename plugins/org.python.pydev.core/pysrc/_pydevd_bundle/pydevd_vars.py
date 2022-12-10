@@ -325,7 +325,7 @@ def _run_with_unblock_threads(original_func, py_db, curr_thread, frame, expressi
             on_timeout_unblock_threads.called = True
             pydev_log.info('Resuming threads after evaluate timeout.')
             resume_threads('*', except_thread=curr_thread)
-            py_db.threads_suspended_single_notification.on_thread_resume(tid)
+            py_db.threads_suspended_single_notification.on_thread_resume(tid, curr_thread)
 
         on_timeout_unblock_threads.called = False
 
@@ -341,7 +341,7 @@ def _run_with_unblock_threads(original_func, py_db, curr_thread, frame, expressi
             mark_thread_suspended(curr_thread, CMD_SET_BREAK)
             py_db.threads_suspended_single_notification.increment_suspend_time()
             suspend_all_threads(py_db, except_thread=curr_thread)
-            py_db.threads_suspended_single_notification.on_thread_suspend(tid, CMD_SET_BREAK)
+            py_db.threads_suspended_single_notification.on_thread_suspend(tid, curr_thread, CMD_SET_BREAK)
 
 
 def _evaluate_with_timeouts(original_func):
@@ -523,6 +523,10 @@ def evaluate_expression(py_db, frame, expression, is_exec):
     updated_globals = {}
     updated_globals.update(frame.f_globals)
     updated_globals.update(frame.f_locals)
+    if 'globals' not in updated_globals:
+        # If the user explicitly uses 'globals()' then we provide the
+        # frame globals (unless he has shadowed it already).
+        updated_globals['globals'] = lambda: frame.f_globals
 
     initial_globals = updated_globals.copy()
 

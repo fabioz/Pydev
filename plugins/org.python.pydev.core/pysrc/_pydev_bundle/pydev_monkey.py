@@ -191,13 +191,14 @@ def _get_python_c_args(host, port, code, args, setup):
         # imports from the code and add them to the start of our code snippet.
         future_imports, code = _separate_future_imports(code)
 
-    return ("%simport sys; sys.path.insert(0, r'%s'); import pydevd; pydevd.PydevdCustomization.DEFAULT_PROTOCOL=%r; "
+    return ("%simport sys; sys.path.insert(0, r'%s'); import pydevd; pydevd.config(%r, %r); "
             "pydevd.settrace(host=%r, port=%s, suspend=False, trace_only_current_thread=False, patch_multiprocessing=True, access_token=%r, client_access_token=%r, __setup_holder__=%s); "
             "%s"
             ) % (
                future_imports,
                pydev_src_dir,
                pydevd_constants.get_protocol(),
+               PydevdCustomization.DEBUG_MODE,
                host,
                port,
                setup.get('access-token'),
@@ -850,6 +851,38 @@ def create_warn_fork_exec(original_name):
     return new_warn_fork_exec
 
 
+def create_subprocess_fork_exec(original_name):
+    """
+    subprocess._fork_exec(args, executable_list, close_fds, ... (13 more))
+    """
+
+    def new_fork_exec(args, *other_args):
+        import subprocess
+        if _get_apply_arg_patching():
+            args = patch_args(args)
+            send_process_created_message()
+
+        return getattr(subprocess, original_name)(args, *other_args)
+
+    return new_fork_exec
+
+
+def create_subprocess_warn_fork_exec(original_name):
+    """
+    subprocess._fork_exec(args, executable_list, close_fds, ... (13 more))
+    """
+
+    def new_warn_fork_exec(*args):
+        try:
+            import subprocess
+            warn_multiproc()
+            return getattr(subprocess, original_name)(*args)
+        except:
+            pass
+
+    return new_warn_fork_exec
+
+
 def create_CreateProcess(original_name):
     """
     CreateProcess(*args, **kwargs)
@@ -913,11 +946,13 @@ def create_fork(original_name):
         frame = None  # Just make sure we don't hold on to it.
 
         protocol = pydevd_constants.get_protocol()
+        debug_mode = PydevdCustomization.DEBUG_MODE
 
         child_process = getattr(os, original_name)()  # fork
         if not child_process:
             if is_new_python_process:
                 PydevdCustomization.DEFAULT_PROTOCOL = protocol
+                PydevdCustomization.DEBUG_MODE = debug_mode
                 _on_forked_process(setup_tracing=apply_arg_patch and not is_subprocess_fork)
             else:
                 set_global_debugger(None)
@@ -986,6 +1021,12 @@ def patch_new_process_functions():
                 monkey_patch_module(_posixsubprocess, 'fork_exec', create_fork_exec)
             except ImportError:
                 pass
+
+            try:
+                import subprocess
+                monkey_patch_module(subprocess, '_fork_exec', create_subprocess_fork_exec)
+            except AttributeError:
+                pass
         else:
             # Windows
             try:
@@ -1022,6 +1063,13 @@ def patch_new_process_functions_with_warning():
                 monkey_patch_module(_posixsubprocess, 'fork_exec', create_warn_fork_exec)
             except ImportError:
                 pass
+
+            try:
+                import subprocess
+                monkey_patch_module(subprocess, '_fork_exec', create_subprocess_warn_fork_exec)
+            except AttributeError:
+                pass
+
         else:
             # Windows
             try:
