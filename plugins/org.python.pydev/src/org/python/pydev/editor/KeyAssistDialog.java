@@ -11,9 +11,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.PopupDialog;
@@ -79,13 +79,12 @@ public class KeyAssistDialog extends PopupDialog {
      *            The key binding state associated with the workbench; must not
      *            be <code>null</code>.
      */
-    @SuppressWarnings("deprecation")
     public KeyAssistDialog(final PyEdit pyedit) {
         //Note: had to change to HOVER_SHELLSTYLE instead of INFOPOPUP_SHELLSTYLE because
         //otherwise the focus would end up in a null Control in linux (GTK),
         //which made the dialog show and hide quickly and go out of the ctrl+2 mode.
         //See: http://sourceforge.net/tracker/?func=detail&aid=2984743&group_id=85796&atid=577329
-        super((Shell) null, PopupDialog.HOVER_SHELLSTYLE, false, false, false, false, null, null);
+        super((Shell) null, PopupDialog.HOVER_SHELLSTYLE, false, false, false, false, false, null, null);
         this.setInfoText("   Ctrl+2 actions   ");
     }
 
@@ -355,7 +354,7 @@ public class KeyAssistDialog extends PopupDialog {
      */
     private final void registerShellType() {
         final Shell shell = getShell();
-        final IContextService contextService = (IContextService) EditorUtils.getActiveWorkbenchWindow().getService(
+        final IContextService contextService = EditorUtils.getActiveWorkbenchWindow().getService(
                 IContextService.class);
         contextService.registerShell(shell, contextService.getShellType((Shell) shell.getParent()));
     }
