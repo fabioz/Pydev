@@ -2,15 +2,15 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Ast Plug-in
 Bundle-SymbolicName: org.python.pydev.ast; singleton:=true
-Bundle-Version: 10.0.1.qualifier
+Bundle-Version: 10.0.2.qualifier
 Bundle-ClassPath: ast.jar
 Bundle-Activator: org.python.pydev.ast.AstPlugin
 Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.core.resources,
  org.eclipse.core.runtime,
- org.python.pydev.core;bundle-version="[10.0.1,10.0.2)",
+ org.python.pydev.core;bundle-version="[10.0.2,10.0.3)",
  org.eclipse.text,
- org.python.pydev.parser;bundle-version="[10.0.1,10.0.2)",
+ org.python.pydev.parser;bundle-version="[10.0.2,10.0.3)",
  org.eclipse.core.variables,
  org.eclipse.debug.core
 Bundle-ActivationPolicy: lazy
