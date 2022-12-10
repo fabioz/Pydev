@@ -64,8 +64,8 @@ git submodule update --init --recursive
 
 @echo Create builtin modules
 set PYTHONPATH=%BUILD_DIR%/Pydev/plugins/org.python.pydev.core/pysrc
-C:\bin\Python38-32\python %BUILD_DIR%/Pydev/plugins/org.python.pydev.core/pysrc/build_tools/build.py
-C:\bin\Python38-32\python %BUILD_DIR%/Pydev/plugins/org.python.pydev.core/pysrc/build_tools/build_binaries_windows.py
+C:\bin\Miniconda\envs\py_38_tests\python.exe %BUILD_DIR%/Pydev/plugins/org.python.pydev.core/pysrc/build_tools/build.py
+C:\bin\Miniconda\envs\py_38_tests\python.exe %BUILD_DIR%/Pydev/plugins/org.python.pydev.core/pysrc/build_tools/build_binaries_windows.py
 
 @echo to clean after the build: -DcleanAfter.set=true
 mvn install
