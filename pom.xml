@@ -127,8 +127,8 @@
     <tycho-version>2.7.5</tycho-version>
     <tycho-extras-version>2.7.5</tycho-extras-version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <repository.id>eclipse-2022-09</repository.id>
-    <repository.url>http://download.eclipse.org/releases/2022-09/</repository.url>
+    <repository.id>eclipse-2022-12</repository.id>
+    <repository.url>http://download.eclipse.org/releases/2022-12/</repository.url>
   </properties>
   <prerequisites>
     <maven>3.0</maven>
