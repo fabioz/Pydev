@@ -191,7 +191,9 @@ public class ProcessUtils {
                 continue; //ignore nulls (changed from original code)
             }
 
-            buf.append(' ');
+            if (i > 0) {
+                buf.append(' ');
+            }
             char[] characters = commandLine[i].toCharArray();
             command.clear();
             boolean containsSpace = false;
