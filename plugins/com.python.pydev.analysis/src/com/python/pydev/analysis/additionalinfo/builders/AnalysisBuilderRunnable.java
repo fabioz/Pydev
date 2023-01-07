@@ -83,30 +83,10 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
     // ---------------------------------------------------------------------------------------- END ATTRIBUTES
 
     /**
-     * Versions before eclipse 3.4 don't have an isDerived(IResource.CHECK_ANCESTORS)
-     */
-    private static boolean useEclipse32DerivedVersion = false;
-
-    /**
      * Checks if some resource is hierarchically derived (if any parent is derived, it's also derived).
      */
     private static boolean isHierarchicallyDerived(IResource curr) {
-        if (useEclipse32DerivedVersion) {
-            do {
-                if (curr.isDerived()) {
-                    return true;
-                }
-                curr = curr.getParent();
-            } while (curr != null);
-            return false;
-        } else {
-            try {
-                return curr.isDerived(IResource.CHECK_ANCESTORS);
-            } catch (Throwable e) {
-                useEclipse32DerivedVersion = true;
-                return isHierarchicallyDerived(curr);
-            }
-        }
+        return curr.isDerived(IResource.CHECK_ANCESTORS);
     }
 
     /**

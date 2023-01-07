@@ -23,11 +23,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_ui.field_editors.ArgsStringFieldEditor;
 import org.python.pydev.shared_ui.field_editors.LinkFieldEditor;
 import org.python.pydev.shared_ui.field_editors.RadioGroupFieldEditor;
 import org.python.pydev.shared_ui.field_editors.ScopedFieldEditorPreferencePage;
 import org.python.pydev.shared_ui.field_editors.ScopedPreferencesFieldEditor;
-import org.python.pydev.utils.CustomizableFieldEditor;
 
 import com.python.pydev.analysis.PyAnalysisScopedPreferences;
 import com.python.pydev.analysis.pylint.PyLintPreferences;
@@ -108,7 +108,7 @@ public class PyLintPrefPage extends ScopedFieldEditorPreferencePage implements I
         addField(new RadioGroupFieldEditor(PyLintPreferences.SEVERITY_INFO, "INFORMATIONAL Severity", COLS,
                 LABEL_AND_VALUE, parent, true));
 
-        CustomizableFieldEditor stringFieldEditor = new CustomizableFieldEditor(PyLintPreferences.PYLINT_ARGS,
+        ArgsStringFieldEditor stringFieldEditor = new ArgsStringFieldEditor(PyLintPreferences.PYLINT_ARGS,
                 "Arguments to pass to the pylint command (customize its output):\n"
                         + "Add --rcfile=.pylintrc to use an rcfile relative to the project directory.",
                 parent);

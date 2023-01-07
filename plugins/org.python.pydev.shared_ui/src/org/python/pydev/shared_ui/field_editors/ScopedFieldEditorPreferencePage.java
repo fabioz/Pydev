@@ -177,6 +177,15 @@ public abstract class ScopedFieldEditorPreferencePage extends FieldEditorPrefere
                         intFieldEditor.setStringValue(loaded.toString());
                     }
 
+                } else if (pe instanceof ArgsStringFieldEditor) {
+                    ArgsStringFieldEditor argsStringFieldEditor = (ArgsStringFieldEditor) pe;
+                    String preferenceName = argsStringFieldEditor.getPreferenceName();
+                    String value = (String) loadData.get(preferenceName);
+                    if (value == null) {
+                        continue;
+                    }
+                    argsStringFieldEditor.setStringValue(value);
+
                 } else if (pe instanceof StringFieldEditor) { //IntegerFieldEditor is a subclass
                     StringFieldEditor stringFieldEditor = (StringFieldEditor) pe;
                     String preferenceName = stringFieldEditor.getPreferenceName();
@@ -237,6 +246,12 @@ public abstract class ScopedFieldEditorPreferencePage extends FieldEditorPrefere
                     } catch (Exception e1) {
                         saveData.put(preferenceName, 0);
                     }
+
+                } else if (pe instanceof ArgsStringFieldEditor) { //IntegerFieldEditor is a subclass
+                    ArgsStringFieldEditor argsStringFieldEditor = (ArgsStringFieldEditor) pe;
+                    String stringValue = argsStringFieldEditor.getStringValue();
+                    String preferenceName = argsStringFieldEditor.getPreferenceName();
+                    saveData.put(preferenceName, stringValue);
 
                 } else if (pe instanceof StringFieldEditor) { //IntegerFieldEditor is a subclass
                     StringFieldEditor stringFieldEditor = (StringFieldEditor) pe;

@@ -9,7 +9,7 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.utils;
+package org.python.pydev.shared_ui.field_editors;
 
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.resource.JFaceResources;
@@ -30,7 +30,7 @@ import org.eclipse.swt.widgets.Text;
 /**
  * @author Fabio Zadrozny
  */
-public class CustomizableFieldEditor extends FieldEditor {
+public class ArgsStringFieldEditor extends FieldEditor {
 
     /**
      * Validation strategy constant (value <code>0</code>) indicating that the editor should perform validation after every key stroke.
@@ -95,7 +95,7 @@ public class CustomizableFieldEditor extends FieldEditor {
     /**
      * Creates a new string field editor
      */
-    protected CustomizableFieldEditor() {
+    protected ArgsStringFieldEditor() {
     }
 
     /**
@@ -109,7 +109,7 @@ public class CustomizableFieldEditor extends FieldEditor {
      * @param parent the parent of the field editor's control
      * @since 2.0
      */
-    public CustomizableFieldEditor(String name, String labelText, int width, int strategy, Composite parent) {
+    public ArgsStringFieldEditor(String name, String labelText, int width, int strategy, Composite parent) {
         init(name, labelText);
         widthInChars = width;
         setValidateStrategy(strategy);
@@ -126,7 +126,7 @@ public class CustomizableFieldEditor extends FieldEditor {
      * @param width the width of the text input field in characters, or <code>UNLIMITED</code> for no limit
      * @param parent the parent of the field editor's control
      */
-    public CustomizableFieldEditor(String name, String labelText, int width, Composite parent) {
+    public ArgsStringFieldEditor(String name, String labelText, int width, Composite parent) {
         this(name, labelText, width, VALIDATE_ON_KEY_STROKE, parent);
     }
 
@@ -137,7 +137,7 @@ public class CustomizableFieldEditor extends FieldEditor {
      * @param labelText the label text of the field editor
      * @param parent the parent of the field editor's control
      */
-    public CustomizableFieldEditor(String name, String labelText, Composite parent) {
+    public ArgsStringFieldEditor(String name, String labelText, Composite parent) {
         this(name, labelText, UNLIMITED, parent);
     }
 

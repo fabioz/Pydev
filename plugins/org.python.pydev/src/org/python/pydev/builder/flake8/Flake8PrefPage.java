@@ -15,11 +15,11 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.string.WrapAndCaseUtils;
+import org.python.pydev.shared_ui.field_editors.ArgsStringFieldEditor;
 import org.python.pydev.shared_ui.field_editors.JsonFieldEditor;
 import org.python.pydev.shared_ui.field_editors.RadioGroupFieldEditor;
 import org.python.pydev.shared_ui.field_editors.ScopedFieldEditorPreferencePage;
 import org.python.pydev.shared_ui.field_editors.ScopedPreferencesFieldEditor;
-import org.python.pydev.utils.CustomizableFieldEditor;
 
 import com.python.pydev.analysis.PyAnalysisScopedPreferences;
 import com.python.pydev.analysis.flake8.Flake8CodesConfigHandler;
@@ -89,7 +89,7 @@ public class Flake8PrefPage extends ScopedFieldEditorPreferencePage implements I
         jsonFieldEditor.setAdditionalJsonValidation((json) -> Flake8CodesConfigHandler.checkJsonFormat(json));
         addField(jsonFieldEditor);
 
-        CustomizableFieldEditor stringFieldEditor = new CustomizableFieldEditor(Flake8Preferences.FLAKE8_ARGS,
+        ArgsStringFieldEditor stringFieldEditor = new ArgsStringFieldEditor(Flake8Preferences.FLAKE8_ARGS,
                 "Arguments to pass to the flake8 command.",
                 parent);
         addField(stringFieldEditor);
