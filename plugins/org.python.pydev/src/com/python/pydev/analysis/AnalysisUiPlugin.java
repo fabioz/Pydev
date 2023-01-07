@@ -11,11 +11,10 @@ import java.nio.charset.StandardCharsets;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.dialogs.DialogSettings;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.ui.preferences.ScopedPreferenceStore;
+import org.python.pydev.plugin.PydevPlugin;
 
 public class AnalysisUiPlugin {
 
@@ -102,15 +101,9 @@ public class AnalysisUiPlugin {
         }
     }
 
-    private static IPreferenceStore preferenceStore;
-
     public static IPreferenceStore getPreferenceStore() {
         // Create the preference store lazily.
-        if (preferenceStore == null) {
-            preferenceStore = new ScopedPreferenceStore(InstanceScope.INSTANCE, "com.python.pydev.analysis");
-
-        }
-        return preferenceStore;
+        return PydevPlugin.getDefault().getPreferenceStore();
     }
 
 }

@@ -1,13 +1,14 @@
 package com.python.pydev.analysis;
 
 import org.eclipse.core.runtime.IAdaptable;
+import org.python.pydev.core.preferences.PyScopedPreferences;
 import org.python.pydev.core.preferences.PydevPrefs;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.preferences.IScopedPreferences;
-import org.python.pydev.shared_core.preferences.ScopedPreferences;
 
 public class PyAnalysisScopedPreferences {
 
-    public static final String ANALYSIS_SCOPE = "org.python.pydev.analysis";
+    public static final String ANALYSIS_SCOPE = SharedCorePlugin.DEFAULT_PYDEV_PREFERENCES_SCOPE;
 
     public static boolean getBoolean(String setting, IAdaptable projectAdaptable) {
         return get().getBoolean(PydevPrefs.getAnalysisEclipsePreferences(),
@@ -37,9 +38,8 @@ public class PyAnalysisScopedPreferences {
     }
 
     public static IScopedPreferences get() {
-        // Note: our bundle is com.python.pydev.analysis, but for the user it can be presented as
-        // org.python.pydev.analysis as it's like that only because of historical reasons.
-        return ScopedPreferences.get(ANALYSIS_SCOPE);
+        // Note that we save/load all preferences to/from the default org.python.pydev scope now!
+        return PyScopedPreferences.get();
     }
 
 }

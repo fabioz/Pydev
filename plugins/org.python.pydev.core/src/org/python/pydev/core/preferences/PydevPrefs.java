@@ -26,11 +26,11 @@ public class PydevPrefs {
     }
 
     public static IEclipsePreferences getAnalysisEclipsePreferences() {
-        return InstanceScope.INSTANCE.getNode("com.python.pydev.analysis");
+        return getEclipsePreferences();
     }
 
     public static IEclipsePreferences getDefaultAnalysisEclipsePreferences() {
-        return DefaultScope.INSTANCE.getNode("com.python.pydev.analysis");
+        return getDefaultEclipsePreferences();
     }
 
     public static IEclipsePreferences getComRefactoringEclipsePreferences() {

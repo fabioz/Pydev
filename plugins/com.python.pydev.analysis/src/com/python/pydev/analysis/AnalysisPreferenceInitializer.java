@@ -11,12 +11,10 @@ package com.python.pydev.analysis;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
-import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.osgi.service.prefs.Preferences;
+import org.python.pydev.core.preferences.PydevPrefs;
 
 public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer {
-
-    public static final String DEFAULT_SCOPE = "com.python.pydev.analysis";
 
     public static final String SEVERITY_UNUSED_PARAMETER = "SEVERITY_UNUSED_PARAMETER";
     public static final int DEFAULT_SEVERITY_UNUSED_PARAMETER = IMarker.SEVERITY_INFO;
@@ -103,7 +101,7 @@ public class AnalysisPreferenceInitializer extends AbstractPreferenceInitializer
 
     @Override
     public void initializeDefaultPreferences() {
-        Preferences node = DefaultScope.INSTANCE.getNode(DEFAULT_SCOPE);
+        Preferences node = PydevPrefs.getDefaultAnalysisEclipsePreferences();
 
         for (int i = 0; i < AnalysisPreferences.completeSeverityMap.length; i++) {
             Object[] s = AnalysisPreferences.completeSeverityMap[i];
