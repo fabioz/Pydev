@@ -12,10 +12,10 @@ import java.net.MalformedURLException;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IAdaptable;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.preferences.PyScopedPreferences;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
 
-import com.python.pydev.analysis.PyAnalysisScopedPreferences;
 import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
 
 public class MypyPreferences {
@@ -40,27 +40,27 @@ public class MypyPreferences {
     public static final String DEFAULT_MYPY_ARGS = "--follow-imports=silent --show-column-numbers";
 
     public static boolean useMypy(IAdaptable projectAdaptable) {
-        return PyAnalysisScopedPreferences.getBoolean(USE_MYPY, projectAdaptable);
+        return PyScopedPreferences.getBoolean(USE_MYPY, projectAdaptable);
     }
 
     public static boolean useMypyConsole(IAdaptable projectAdaptable) {
-        return PyAnalysisScopedPreferences.getBoolean(MYPY_USE_CONSOLE, projectAdaptable);
+        return PyScopedPreferences.getBoolean(MYPY_USE_CONSOLE, projectAdaptable);
     }
 
     public static boolean getAddProjectFoldersToMyPyPath(IAdaptable projectAdaptable) {
-        return PyAnalysisScopedPreferences.getBoolean(MYPY_ADD_PROJECT_FOLDERS_TO_MYPYPATH, projectAdaptable);
+        return PyScopedPreferences.getBoolean(MYPY_ADD_PROJECT_FOLDERS_TO_MYPYPATH, projectAdaptable);
     }
 
     public static String getMypyArgs(IAdaptable projectAdaptable) {
-        return PyAnalysisScopedPreferences.getString(MYPY_ARGS, projectAdaptable);
+        return PyScopedPreferences.getString(MYPY_ARGS, projectAdaptable);
     }
 
     public static File getMypyLocation(PythonNature pythonNature) {
         IProject project = pythonNature.getProject();
-        String searchlocation = PyAnalysisScopedPreferences.getString(SEARCH_MYPY_LOCATION, project);
+        String searchlocation = PyScopedPreferences.getString(SEARCH_MYPY_LOCATION, project);
         switch (searchlocation) {
             case LOCATION_SPECIFY:
-                return new File(PyAnalysisScopedPreferences.getString(MYPY_FILE_LOCATION, project));
+                return new File(PyScopedPreferences.getString(MYPY_FILE_LOCATION, project));
             default:
                 try {
                     return pythonNature.getProjectInterpreter().searchExecutableForInterpreter("mypy", false);

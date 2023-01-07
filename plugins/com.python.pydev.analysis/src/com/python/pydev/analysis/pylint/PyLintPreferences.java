@@ -7,9 +7,9 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.IAdaptable;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.preferences.PyScopedPreferences;
 import org.python.pydev.shared_core.callbacks.ICallback;
 
-import com.python.pydev.analysis.PyAnalysisScopedPreferences;
 import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
 
 public class PyLintPreferences {
@@ -64,24 +64,24 @@ public class PyLintPreferences {
      * @return
      */
     public static boolean usePyLint(IAdaptable projectAdaptable) {
-        return PyAnalysisScopedPreferences.getBoolean(USE_PYLINT, projectAdaptable);
+        return PyScopedPreferences.getBoolean(USE_PYLINT, projectAdaptable);
     }
 
     public static boolean useConsole(IAdaptable projectAdaptable) {
-        return PyAnalysisScopedPreferences.getBoolean(USE_CONSOLE, projectAdaptable);
+        return PyScopedPreferences.getBoolean(USE_CONSOLE, projectAdaptable);
     }
 
     public static String getPyLintArgs(IAdaptable projectAdaptable) {
-        return PyAnalysisScopedPreferences.getString(PYLINT_ARGS, projectAdaptable);
+        return PyScopedPreferences.getString(PYLINT_ARGS, projectAdaptable);
     }
 
     public static int wSeverity(IAdaptable projectAdaptable) {
-        return PyAnalysisScopedPreferences.getInt(SEVERITY_WARNINGS, projectAdaptable, DEFAULT_SEVERITY_WARNINGS);
+        return PyScopedPreferences.getInt(SEVERITY_WARNINGS, projectAdaptable, DEFAULT_SEVERITY_WARNINGS);
     }
 
     public static File getPyLintLocation(IPythonNature pythonNature, IAdaptable projectAdaptable) {
-        if (LOCATION_SPECIFY.equals(PyAnalysisScopedPreferences.getString(SEARCH_PYLINT_LOCATION, projectAdaptable))) {
-            return new File(PyAnalysisScopedPreferences.getString(PYLINT_FILE_LOCATION, projectAdaptable));
+        if (LOCATION_SPECIFY.equals(PyScopedPreferences.getString(SEARCH_PYLINT_LOCATION, projectAdaptable))) {
+            return new File(PyScopedPreferences.getString(PYLINT_FILE_LOCATION, projectAdaptable));
         }
         try {
             return pythonNature.getProjectInterpreter().searchExecutableForInterpreter("pylint", false);
@@ -92,24 +92,23 @@ public class PyLintPreferences {
     }
 
     public static int eSeverity(IAdaptable projectAdaptable) {
-        return PyAnalysisScopedPreferences.getInt(SEVERITY_ERRORS, projectAdaptable, DEFAULT_SEVERITY_ERRORS);
+        return PyScopedPreferences.getInt(SEVERITY_ERRORS, projectAdaptable, DEFAULT_SEVERITY_ERRORS);
     }
 
     public static int fSeverity(IAdaptable projectAdaptable) {
-        return PyAnalysisScopedPreferences.getInt(SEVERITY_FATAL, projectAdaptable, DEFAULT_SEVERITY_FATAL);
+        return PyScopedPreferences.getInt(SEVERITY_FATAL, projectAdaptable, DEFAULT_SEVERITY_FATAL);
     }
 
     public static int cSeverity(IAdaptable projectAdaptable) {
-        return PyAnalysisScopedPreferences.getInt(SEVERITY_CODING_STANDARD, projectAdaptable,
-                DEFAULT_SEVERITY_CODING_STANDARD);
+        return PyScopedPreferences.getInt(SEVERITY_CODING_STANDARD, projectAdaptable, DEFAULT_SEVERITY_CODING_STANDARD);
     }
 
     public static int rSeverity(IAdaptable projectAdaptable) {
-        return PyAnalysisScopedPreferences.getInt(SEVERITY_REFACTOR, projectAdaptable, DEFAULT_SEVERITY_REFACTOR);
+        return PyScopedPreferences.getInt(SEVERITY_REFACTOR, projectAdaptable, DEFAULT_SEVERITY_REFACTOR);
     }
 
     public static int iSeverity(IAdaptable projectAdaptable) {
-        return PyAnalysisScopedPreferences.getInt(SEVERITY_INFO, projectAdaptable, DEFAULT_SEVERITY_INFO);
+        return PyScopedPreferences.getInt(SEVERITY_INFO, projectAdaptable, DEFAULT_SEVERITY_INFO);
     }
 
     public static ICallback<IExternalCodeAnalysisStream, IAdaptable> createPyLintStream = ((
