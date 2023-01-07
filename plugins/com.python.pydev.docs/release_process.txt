@@ -4,14 +4,14 @@ Update the version:
 cd /d X:\liclipsews\liclipsews\Pydev
 python update_version.py 10.1.0
 
-X:\pydev\builders\org.python.pydev.build\build_cmd.bat
+x:\liclipsews\liclipsews\Pydev\builders\org.python.pydev.build\build_cmd.bat
 
 
 --------- For full build ---------
 		Update the version:
 
 			x:
-			cd x:\pydev
+			cd x:\liclipsews\liclipsews\Pydev
 			python update_version.py 10.1.0
 
 
@@ -50,7 +50,7 @@ X:\pydev\builders\org.python.pydev.build\build_cmd.bat
 
 		Create tab in cmdermini:
 			set FORCE_PYDEVD_VC_VARS=C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat 
-			X:\pydev\builders\org.python.pydev.build\build_cmd.bat
+			X:\liclipsews\liclipsews\Pydev\builders\org.python.pydev.build\build_cmd.bat
 
 		Copy features and plugins folders from X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository to X:\pydev_build\update_site_dir\updates
 
@@ -133,9 +133,4 @@ python deploy.py
 		** Add to reddit: http://www.reddit.com/r/Python/submit
 
 		** Twitter
-
-        ** Update the versions:
-x:
-cd x:\pydev
-python update_version.py 10.1.0
 

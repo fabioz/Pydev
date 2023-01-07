@@ -1,10 +1,10 @@
 @echo Execute:
 
-@echo X:\pydev\builders\org.python.pydev.build\build_cmd.bat
+@echo X:\liclipsews\liclipsews\Pydev\builders\org.python.pydev.build\build_cmd.bat
 
 @echo If needed to update version:
 @echo x:
-@echo cd x:\pydev
+@echo cd X:\liclipsews\liclipsews\Pydev
 @echo python update_version.py 3.6.0
 
 @echo Note: instructions for properly updating the variables are in the end of the file
@@ -14,11 +14,11 @@
 set BRANCH=master
 
 set DRIVE=x:
-set BASE_LOCAL_PYDEV_GIT=x:\pydev
+set BASE_LOCAL_PYDEV_GIT=X:\liclipsews\liclipsews\Pydev
 set BUILD_DIR=X:\pydev_build\build_dir
 set DEPLOY_DIR=X:\pydev_build\deploy_dir
-set JAVA_HOME=C:\bin\jdk-11.0.9
-set MAVEN_BIN=C:\bin\apache-maven-3.5.3\bin
+set JAVA_HOME=D:\bin\jdk-11.0.17+8
+set MAVEN_BIN=X:\liclipsews\maven\apache-maven-3.8.6\bin
 set GIT_EXECUTABLE="C:\Program Files\Git\bin\git.exe"
 @echo Expected in env var: SIGN_KEYPASS
 @echo Expected in env var: SIGN_STOREPASS
@@ -33,13 +33,11 @@ set BASEOS=win32
 set BASEWS=win32
 set BASEARCH=x86
 
-set PATH=
 set PATH=C:\bin\FastCopy211;%PATH%
 set PATH=C:\Windows\system32;%PATH%
 set PATH=%MAVEN_BIN%;%PATH%
 set PATH=%JAVA_HOME%\bin;%PATH%
 set PATH="C:\Program Files\Git\bin\";%PATH%
-set PATH=%ECLIPSE_CLEAN%\plugins\org.apache.ant_1.10.5.v20180808-0324\bin;%PATH%
 
 
 @echo actual build command
