@@ -61,6 +61,7 @@ def update_version(version):
             contents = stream.read()
 
         new_contents = fix_contents_version(contents, version)
+        print('File to update', f)
         if contents != new_contents:
             with open(f, 'w') as stream:
                 stream.write(new_contents)
@@ -153,6 +154,7 @@ def update_version_in_liclipse(version):
             contents = stream.read()
 
         new_contents = fix_liclipse_contents_version(contents, version)
+        print('File to update', f)
         if contents != new_contents:
             with open(f, 'w') as stream:
                 stream.write(new_contents)
