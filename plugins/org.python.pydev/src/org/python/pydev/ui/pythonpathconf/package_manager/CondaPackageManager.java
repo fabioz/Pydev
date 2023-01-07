@@ -3,7 +3,9 @@ package org.python.pydev.ui.pythonpathconf.package_manager;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.ast.codecompletion.shell.AbstractShell;
@@ -32,7 +34,6 @@ public class CondaPackageManager extends AbstractPackageManager {
     }
 
     public static List<File> listCondaEnvironments(File condaExecutable) {
-        List<File> lst = new ArrayList<>();
         String encoding = "utf-8";
         Tuple<String, String> output = new SimpleRunner().runAndGetOutput(
                 new String[] { condaExecutable.toString(), "env", "list", "--json" }, null, null,
@@ -41,10 +42,11 @@ public class CondaPackageManager extends AbstractPackageManager {
         Log.logInfo(output.o1);
         JsonObject jsonOutput = JsonValue.readFrom(output.o1).asObject();
         JsonArray envs = jsonOutput.get("envs").asArray();
+        Set<File> set = new HashSet<>();
         for (JsonValue env : envs.values()) {
-            lst.add(new File(env.asString()));
+            set.add(new File(env.asString()));
         }
-        return lst;
+        return new ArrayList<File>(set);
     }
 
     @Override
