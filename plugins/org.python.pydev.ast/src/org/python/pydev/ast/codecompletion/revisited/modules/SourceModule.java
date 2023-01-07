@@ -911,7 +911,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
 
         }
 
-        if (actTok.length() == 0) {
+        if (actTok == null || actTok.length() == 0) {
             //No activation token means the module itself.
             return new Definition[] { new Definition(1, 1, "", null, null, this) };
         }

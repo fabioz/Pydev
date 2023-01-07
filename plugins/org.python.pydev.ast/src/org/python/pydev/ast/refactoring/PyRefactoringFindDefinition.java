@@ -299,13 +299,14 @@ public class PyRefactoringFindDefinition {
                                                             checkWith.beginLine,
                                                             checkWith.beginColumn);
                                                     tok = NodeUtils.getRepresentationString(checkWith);
-
-                                                    IDefinition[] followed = followDefinition(definitionFileLineCol,
-                                                            d.module, whereWePassed, tok,
-                                                            nature, completionCache);
-                                                    if (followed != null && followed.length > 0) {
-                                                        didFindNewDef = true;
-                                                        d = (Definition) followed[0];
+                                                    if (tok != null && tok.length() > 0) {
+                                                        IDefinition[] followed = followDefinition(definitionFileLineCol,
+                                                                d.module, whereWePassed, tok,
+                                                                nature, completionCache);
+                                                        if (followed != null && followed.length > 0) {
+                                                            didFindNewDef = true;
+                                                            d = (Definition) followed[0];
+                                                        }
                                                     }
                                                 }
                                             }
