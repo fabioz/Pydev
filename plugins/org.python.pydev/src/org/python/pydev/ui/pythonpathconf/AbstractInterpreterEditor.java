@@ -1006,7 +1006,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
                 if (interpreterNameAndExecutable != null && interpreterNameAndExecutable.o2 != null) {
                     operation = InterpreterConfigHelpers.tryInterpreter(
                             interpreterNameAndExecutable, interpreterManager,
-                            false, true, logger, this.getShell());
+                            false, true, logger, this.getShell(), true);
                 }
             } else {
                 //Manual config
