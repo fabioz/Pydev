@@ -1,10 +1,13 @@
-name: Tests - PyDev
+name: Release - PyDev
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - "release-pydev"
       
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
       - uses: actions/checkout@v2
@@ -25,7 +28,7 @@ jobs:
           
       - name: Set up Python 3.8 deps
         run: |
-            python3 -m pip install PyQt5 cython numpy django zope.interface
+            python3 -m pip install cython numpy zope.interface
 
       - name: Print Python/Java info
         run: |
@@ -57,12 +60,4 @@ jobs:
       - name: Build with Maven
         run: mvn install -DskipTests=true
 
-      - name: Add tests to plugin
-        run: python3 builders/org.python.pydev.build/add_tests_to_plugins.py
         
-      - name: Test with Maven
-        env: 
-            # We set the PYDEV_TEST_PLATFORM to control which TestDependent we use (i.e. TestDependent.github.properties)
-            PYDEV_TEST_PLATFORM: github
-            DISPLAY: ":99.0"
-        run: mvn integration-test --batch-mode

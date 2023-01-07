@@ -14,12 +14,15 @@ X:\pydev\builders\org.python.pydev.build\build_cmd.bat
 			cd x:\pydev
 			python update_version.py 10.1.0
 
+
+		# TODO: Get debugger binaries from modules in pypi (either during build or when
+		# the user starts up PyDev) so that the step below is not needed.
+		
 		Make sure debugger builtins are updated and commited:
 
-			cd /D x:\PyDev.Debugger
-			set PYTHONPATH=x:\PyDev.Debugger
-			C:\bin\Python38-32\python build_tools\build.py
-			C:\bin\Python38-32\python build_tools\build_binaries_windows.py
+			cd /D x:\liclipsews\liclipsews\Pydev\plugins\org.python.pydev.core\pysrc\
+			set PYTHONPATH=x:\liclipsews\liclipsews\Pydev\plugins\org.python.pydev.core\pysrc\
+			python build_tools\build.py
 
 		Update homepage
 			- index.rst
@@ -84,12 +87,12 @@ cd org.python.pydev.p2-repo-10.1.0-SNAPSHOT
 "C:\Program Files\7-Zip\7z" x ..\org.python.pydev.p2-repo-10.1.0-SNAPSHOT.zip
 
 cdd X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-10.1.0-SNAPSHOT
-C:\Users\fabio\AppData\Roaming\npm\surge.cmd --domain pydev-10-0-2.surge.sh
+C:\Users\fabio\AppData\Roaming\npm\surge.cmd --domain pydev-10-1-0.surge.sh
 "C:\Program Files\FileZilla FTP Client\filezilla.exe" sftp://fabioz,pydev@frs.sourceforge.net/home/project-web/pydev/htdocs/pydev_update_site --local="X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-10.1.0-SNAPSHOT"
 
 
     ** Tag repository:
-      git tag pydev_10_0_2 -a -m "PyDev 10.1.0"
+      git tag pydev_10_1_0 -a -m "PyDev 10.1.0"
       git push --tags
 
 SET CONVERT_SOURCE=X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-10.1.0-SNAPSHOT
@@ -97,7 +100,7 @@ SET CONVERT_FINAL_ZIP=X:\pydev_build\build_dir\pydev\features\org.python.pydev.p
 SET CONVERT_TARGET_DIR=X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\github
 python X:\release_tools\convert_to_github.py 10.1.0
 Do GH release in:
-    https://github.com/fabioz/Pydev/releases/new?tag=pydev_10_0_2
+    https://github.com/fabioz/Pydev/releases/new?tag=pydev_10_1_0
     Contents in: X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\github
     Message:
 
@@ -105,11 +108,11 @@ Do GH release in:
 
         It's possible to add it as an Eclipse update site using the url:
 
-        https://github.com/fabioz/Pydev/releases/download/pydev_10_0_2/
+        https://github.com/fabioz/Pydev/releases/download/pydev_10_1_0/
 
         Or get a .zip to install manually by unzipping it in the dropins:
 
-        https://github.com/fabioz/Pydev/releases/download/pydev_10_0_2/PyDev.10.1.0.zip
+        https://github.com/fabioz/Pydev/releases/download/pydev_10_1_0/PyDev.10.1.0.zip
 
 
 		** Update homepage:
