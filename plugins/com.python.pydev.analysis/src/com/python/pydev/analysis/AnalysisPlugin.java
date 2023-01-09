@@ -67,6 +67,9 @@ public class AnalysisPlugin extends Plugin {
         PyLintPrefInitializer.initializeDefaultPreferences();
         MypyPrefInitializer.initializeDefaultPreferences();
         Flake8PrefInitializer.initializeDefaultPreferences();
+
+        // We need to manually call it because it initializes things from org.python.pydev.
+        new AnalysisPreferenceInitializer().initializeDefaultPreferences();
         stateLocation = AnalysisPlugin.getDefault().getStateLocation();
 
         // Leaving code around to know when we get to the PyDev perspective in the active window (may be

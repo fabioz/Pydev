@@ -182,7 +182,7 @@ public class AddTokenAndImportStatement {
                 computedInfo.replace(offset - dif, dif + computedInfo.fLen,
                         computedInfo.fReplacementString + appendForTrigger);
             }
-            if (addLocalImport) {
+            if (addLocalImport && computedInfo.realImportRep.length() > 0) {
                 if (addAsLocalImport(previousLineThatStartsScope, ps, delimiter, computedInfo,
                         addLocalImportsOnTopOfMethod)) {
                     return;
