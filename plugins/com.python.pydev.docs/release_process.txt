@@ -34,10 +34,10 @@ x:\liclipsews\liclipsews\Pydev\builders\org.python.pydev.build\build_cmd.bat
 		Update the version of all plugins to the new version.
 
 		Run:
-		    - Update version at X:\pydev.page\build_homepage.py
+		    - Update version at x:\liclipsews\pydev.page\build_homepage.py
 		    - Add version to update sites:
 		    	- pydev.page/homepage/update_sites/index.contents.rst_html
-		    - X:\pydev.page\build_homepage.py
+		    - x:\liclipsews\pydev.page\build_homepage.py
 
 		Commit everything
         Merge with master
@@ -102,6 +102,10 @@ python X:\release_tools\convert_to_github.py 10.1.1
 Do GH release in:
     https://github.com/fabioz/Pydev/releases/new?tag=pydev_10_1_1
     Contents in: X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\github
+    
+	Title:
+		PyDev 10.1.1
+		
     Message:
 
         This release contains PyDev 10.1.1
@@ -118,7 +122,7 @@ Do GH release in:
 		** Update homepage:
 
 Update version in build_homepage.py
-cd /D X:\pydev.page
+cd /D x:\liclipsews\pydev.page
 python deploy.py
 
 
