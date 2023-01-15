@@ -1979,40 +1979,60 @@ public class InterpreterInfo implements IInterpreterInfo {
      */
     public File getPredefinedModuleFile(String moduleName, IModuleRequestState moduleRequest) {
         if (this.predefinedBuiltinsCache == null) {
-            this.predefinedBuiltinsCache = new HashMap<String, File>();
-            for (String s : this.getPredefinedCompletionsPath()) {
-                File f = new File(s);
-                if (f.exists()) {
-                    File[] predefs = f.listFiles(new FilenameFilter() {
+            synchronized (builtinsCacheLock) {
+                if (this.predefinedBuiltinsCache == null) {
+                    Map<String, File> cache = new HashMap<String, File>();
+                    try {
+                        for (String s : this.getPredefinedCompletionsPath()) {
+                            try {
+                                File f = new File(s);
+                                if (f.exists()) {
+                                    File[] predefs = f.listFiles(new FilenameFilter() {
 
-                        //Only accept names ending with .pypredef in the passed dirs
-                        @Override
-                        public boolean accept(File dir, String name) {
-                            return name.endsWith(".pypredef");
-                        }
-                    });
+                                        //Only accept names ending with .pypredef in the passed dirs
+                                        @Override
+                                        public boolean accept(File dir, String name) {
+                                            return name.endsWith(".pypredef");
+                                        }
+                                    });
 
-                    if (predefs != null) {
-                        for (File file : predefs) {
-                            String n = file.getName();
-                            String modName = n.substring(0, n.length() - (".pypredef".length()));
-                            this.predefinedBuiltinsCache.put(modName, file);
+                                    if (predefs != null) {
+                                        for (File file : predefs) {
+                                            String n = file.getName();
+                                            String modName = n.substring(0, n.length() - (".pypredef".length()));
+                                            cache.put(modName, file);
+                                        }
+                                    }
+                                }
+                            } catch (Exception e) {
+                                Log.log(e);
+                            }
                         }
+                    } finally {
+                        this.predefinedBuiltinsCache = cache;
                     }
                 }
             }
         }
 
         if (this.typeshedCache == null && moduleRequest.getAcceptTypeshed()) {
-            this.typeshedCache = new HashMap<String, File>();
-            try {
-                File typeshedPath = CorePlugin.getTypeshedPath();
-                File f = new File(typeshedPath, "stdlib");
-                if (f.isDirectory()) {
-                    TypeshedLoader.fillTypeshedFromDirInfo(this.typeshedCache, f, "");
+            synchronized (builtinsCacheLock) {
+                if (this.typeshedCache == null) {
+                    Map<String, File> cache = new HashMap<String, File>();
+                    try {
+                        try {
+                            File typeshedPath = CorePlugin.getTypeshedPath();
+                            File f = new File(typeshedPath, "stdlib");
+                            if (f.isDirectory()) {
+                                TypeshedLoader.fillTypeshedFromDirInfo(cache, f, "");
+                            }
+                        } catch (Exception e) {
+                            Log.log(e);
+                        }
+                    } finally {
+                        this.typeshedCache = cache;
+                    }
                 }
-            } catch (CoreException e) {
-                Log.log(e);
             }
         }
 
