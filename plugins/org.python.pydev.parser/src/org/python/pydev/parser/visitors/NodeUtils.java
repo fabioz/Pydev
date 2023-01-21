@@ -1627,7 +1627,7 @@ public final class NodeUtils {
     }
 
     private static ArrayList<commentType> collectComments(SimpleNode node) {
-        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(node);
+        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(node, false);
         Iterator<ASTEntry> iterator = visitor.getIterator();
         ArrayList<commentType> lst = new ArrayList<>();
         while (iterator.hasNext()) {

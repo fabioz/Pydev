@@ -144,8 +144,20 @@ public class LocalScope implements ILocalScope {
 
     @Override
     public int hashCode() {
-        assert false : "hashCode not designed";
-        return 42; // any arbitrary constant will do
+        int hash = 43;
+        for (Iterator<ISimpleNode> iter = this.scope.iterator(); iter.hasNext();) {
+            SimpleNode element = (SimpleNode) iter.next();
+
+            hash += Integer.hashCode(element.beginColumn);
+            hash += Integer.hashCode(element.beginLine);
+            hash += element.getClass().hashCode();
+
+            String rep1 = NodeUtils.getFullRepresentationString(element);
+            if (rep1 != null) {
+                hash += rep1.hashCode();
+            }
+        }
+        return hash;
     }
 
     /**
@@ -328,7 +340,7 @@ public class LocalScope implements ILocalScope {
 
         String dottedActTok = activationToken + '.';
         //ok, that's the scope we have to analyze
-        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(element);
+        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(element, false);
 
         ArrayList<Class<? extends SimpleNode>> classes = new ArrayList<>(2);
         if (addAttributeAccess) {
@@ -491,7 +503,7 @@ public class LocalScope implements ILocalScope {
         }
 
         //Search for assert isinstance().
-        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(element);
+        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(element, false);
         Iterator<ASTEntry> iterator = visitor.getIterator();
         ArrayList<Object> lst = new ArrayList<Object>();
 

@@ -42,7 +42,7 @@ public class PyParser311Test extends PyParserTestBase {
                 + "";
 
         SimpleNode ast = parseLegalDocStr(s);
-        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(ast);
+        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(ast, true);
         Iterator<ASTEntry> it = visitor.getIterator(TryExcept.class);
         ASTEntry entry = it.next();
         TryExcept t = (TryExcept) entry.node;

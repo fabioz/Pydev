@@ -135,7 +135,7 @@ public class PyParser36Test extends PyParserTestBase {
     }
 
     private void checkStr(String s, String expected, boolean binary, boolean fstring, boolean unicode, boolean raw) {
-        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(parseLegalDocStr(s));
+        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(parseLegalDocStr(s), true);
         List<ASTEntry> asList = visitor.getAsList(Str.class);
         assertEquals(asList.size(), 1);
         ASTEntry entry = asList.iterator().next();

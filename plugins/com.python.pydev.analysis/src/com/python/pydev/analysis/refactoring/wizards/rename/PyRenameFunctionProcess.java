@@ -93,7 +93,7 @@ public class PyRenameFunctionProcess extends AbstractRenameWorkspaceRefactorProc
                 ret.add(new ASTEntry(functionDefEntry, ((FunctionDef) functionDefEntry.node).name));
 
                 //get the entry for the self.xxx that access that attribute in the class
-                SequencialASTIteratorVisitor classVisitor = SequencialASTIteratorVisitor.create(parentNode);
+                SequencialASTIteratorVisitor classVisitor = SequencialASTIteratorVisitor.create(parentNode, false);
                 Iterator<ASTEntry> it = classVisitor.getIterator(Attribute.class);
                 while (it.hasNext()) {
                     ASTEntry entry = it.next();
@@ -146,7 +146,7 @@ public class PyRenameFunctionProcess extends AbstractRenameWorkspaceRefactorProc
      */
     private ASTEntry getOriginalFunctionInAst(SimpleNode simpleNode) {
         if (functionDefEntryCache == null) {
-            SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(simpleNode);
+            SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(simpleNode, true);
             Iterator<ASTEntry> it = visitor.getIterator(FunctionDef.class);
             ASTEntry functionDefEntry = null;
             while (it.hasNext()) {

@@ -25,6 +25,7 @@ import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IDefinition;
+import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModuleRequestState;
 import org.python.pydev.core.IPythonNature;
@@ -762,6 +763,22 @@ public final class CompletionState implements ICompletionState, IModuleRequestSt
         buf.append(this.activationToken);
         buf.append(" ]");
         return buf.toString();
+    }
+
+    private final Set<Object> tokensFromTokenInLocalScope = new HashSet<>();
+
+    @Override
+    public boolean pushGettingCompletionsFromTokenInLocalScope(IModule module, String activationToken,
+            ILocalScope localScope) {
+        TupleN key = new TupleN(module, activationToken, localScope);
+        return tokensFromTokenInLocalScope.add(key);
+    }
+
+    @Override
+    public void popGettingCompletionsFromTokenInLocalScope(IModule module, String activationToken,
+            ILocalScope localScope) {
+        TupleN key = new TupleN(module, activationToken, localScope);
+        tokensFromTokenInLocalScope.remove(key);
     }
 
 }

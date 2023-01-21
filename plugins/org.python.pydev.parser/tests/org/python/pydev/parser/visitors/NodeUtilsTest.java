@@ -52,7 +52,7 @@ public class NodeUtilsTest extends PyParserTestBase {
 
         SimpleNode ast = parseLegalDocStr("print(a.b.c().d.__class__)");
         SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor
-                .create(ast);
+                .create(ast, false);
 
         Iterator<ASTEntry> iterator = visitor.getIterator();
         ASTEntry entry = null;
@@ -66,14 +66,15 @@ public class NodeUtilsTest extends PyParserTestBase {
         }
         assertEquals("a.b.c", NodeUtils.getFullRepresentationString(entry.node));
 
-        visitor = SequencialASTIteratorVisitor.create(parseLegalDocStr("'r.a.s.b'.join('a')"));
+        visitor = SequencialASTIteratorVisitor.create(parseLegalDocStr("'r.a.s.b'.join('a')"), false);
         iterator = visitor.getIterator();
         iterator.next(); //Module
         iterator.next(); //Expr
         entry = iterator.next(); //Attribute
         assertEquals("str.join", NodeUtils.getFullRepresentationString(entry.node));
 
-        visitor = SequencialASTIteratorVisitor.create(parseLegalDocStr("print(aa.bbb.cccc[comp.id].hasSimulate)"));
+        visitor = SequencialASTIteratorVisitor.create(parseLegalDocStr("print(aa.bbb.cccc[comp.id].hasSimulate)"),
+                false);
         iterator = visitor.getIterator();
         entry = null;
         while (entry == null || !(entry.node instanceof Attribute)) {

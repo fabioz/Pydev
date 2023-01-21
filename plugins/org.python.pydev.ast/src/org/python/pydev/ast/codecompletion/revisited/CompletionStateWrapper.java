@@ -9,6 +9,7 @@ package org.python.pydev.ast.codecompletion.revisited;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IDefinition;
+import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
@@ -375,6 +376,18 @@ public final class CompletionStateWrapper implements ICompletionState {
     public boolean getSkipObjectBaseCompletions() {
         return this.wrapped.getSkipObjectBaseCompletions();
 
+    }
+
+    @Override
+    public boolean pushGettingCompletionsFromTokenInLocalScope(IModule module, String activationToken,
+            ILocalScope localScope) {
+        return this.wrapped.pushGettingCompletionsFromTokenInLocalScope(module, activationToken, localScope);
+    }
+
+    @Override
+    public void popGettingCompletionsFromTokenInLocalScope(IModule module, String activationToken,
+            ILocalScope localScope) {
+        this.wrapped.popGettingCompletionsFromTokenInLocalScope(module, activationToken, localScope);
     }
 
 }

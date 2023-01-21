@@ -213,4 +213,8 @@ public interface ICompletionState extends ICompletionCache, IModuleRequestState 
 
     void popSkipObjectBaseCompletions();
 
+    boolean pushGettingCompletionsFromTokenInLocalScope(IModule module, String activationToken, ILocalScope localScope);
+
+    void popGettingCompletionsFromTokenInLocalScope(IModule module, String activationToken, ILocalScope localScope);
+
 }

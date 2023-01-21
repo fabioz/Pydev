@@ -716,7 +716,8 @@ public class PyParserTest extends PyParserTestBase {
                         "l = [ \"encode\", \"decode\" ] \n" +
                         "\n";
                 SimpleNode node = parseLegalDocStr(s);
-                List<ASTEntry> strs = SequencialASTIteratorVisitor.create(node).getAsList(new Class[] { Str.class });
+                List<ASTEntry> strs = SequencialASTIteratorVisitor.create(node, true)
+                        .getAsList(new Class[] { Str.class });
                 assertEquals(7, strs.get(0).node.beginColumn);
                 assertEquals(17, strs.get(1).node.beginColumn);
                 return true;

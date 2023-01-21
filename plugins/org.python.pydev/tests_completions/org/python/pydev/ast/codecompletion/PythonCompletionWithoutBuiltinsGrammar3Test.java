@@ -272,6 +272,38 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
         requestCompl(s, s.length(), -1, new String[] { "method()" });
     }
 
+    public void testTypingCastUnresolved() throws Exception {
+        String s;
+        s = "" +
+                ""
+                + "import typing"
+                + "\n"
+                + "x = None\n"
+                + "y = typing.cast(NotThere, x)\n"
+                + "y.";
+        requestCompl(s, s.length(), -1, new String[] {});
+    }
+
+    public void testTypingCastInAnotherScope() throws Exception {
+        String s;
+        s = "" +
+                ""
+                + "import typing"
+                + "\n"
+                + "class Foo:\n"
+                + "    def method(self):\n"
+                + "        x = None\n"
+                + "        y = typing.cast(Foo, x)\n"
+                + "\n"
+                + "y.";
+        ICompletionProposalHandle[] completions = requestCompl(s, s.length(), -1, new String[] {});
+        for (ICompletionProposalHandle iCompletionProposalHandle : completions) {
+            if (iCompletionProposalHandle.getDisplayString().contains("method")) {
+                throw new AssertionError("method should not be found because it's in another scope.");
+            }
+        }
+    }
+
     public void testUnion() throws Exception {
         String s;
         s = ""

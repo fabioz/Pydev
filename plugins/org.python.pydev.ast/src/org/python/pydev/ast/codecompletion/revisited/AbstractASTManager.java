@@ -984,6 +984,21 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     public TokensList getCompletionsFromTokenInLocalScope(IModule module, ICompletionState state,
             boolean searchSameLevelMods, boolean lookForArgumentCompletion, ILocalScope localScope)
             throws CompletionRecursionException {
+        if (state.pushGettingCompletionsFromTokenInLocalScope(module, state.getActivationToken(), localScope)) {
+            try {
+
+                return getCompletionsFromTokenInLocalScopeInternal(module, state, searchSameLevelMods,
+                        lookForArgumentCompletion, localScope);
+            } finally {
+                state.popGettingCompletionsFromTokenInLocalScope(module, state.getActivationToken(), localScope);
+            }
+        }
+        return new TokensList();
+    }
+
+    public TokensList getCompletionsFromTokenInLocalScopeInternal(IModule module, ICompletionState state,
+            boolean searchSameLevelMods, boolean lookForArgumentCompletion, ILocalScope localScope)
+            throws CompletionRecursionException {
         TokensList tokens;
         //now, if we have to look for arguments and search things in the local scope, let's also
         //check for assert (isinstance...) in this scope with the given variable.
