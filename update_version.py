@@ -63,6 +63,7 @@ def update_version(version):
         new_contents = fix_contents_version(contents, version)
         print('PyDev file to update', f)
         if contents != new_contents:
+            print('CHANGED', f)
             with open(f, 'w') as stream:
                 stream.write(new_contents)
 
@@ -156,6 +157,7 @@ def update_version_in_liclipse(version):
         new_contents = fix_liclipse_contents_version(contents, version)
         print('LiClipse File to update', f)
         if contents != new_contents:
+            print('CHANGED', f)
             with open(f, 'w') as stream:
                 stream.write(new_contents)
 
