@@ -64,15 +64,19 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
             return;
         }
 
-        File mypyLocation = MypyPreferences.getMypyLocation(pythonNature);
-        if (mypyLocation == null || !FileUtils.enhancedIsFile(mypyLocation)) {
-            if (mypyLocation == null) {
-                Log.log("Unable to find mypy. Project: " + project.getName());
-            } else {
-                Log.log("mypy location does not exist: " + mypyLocation);
+        // null is expected when we should do 'python -m mypy ...'.
+        File mypyLocation = null;
+        if (!MypyPreferences.useMyPyFromPythonNature(pythonNature, project)) {
+            mypyLocation = MypyPreferences.getMypyLocation(pythonNature);
+            if (mypyLocation == null || !FileUtils.enhancedIsFile(mypyLocation)) {
+                if (mypyLocation == null) {
+                    Log.log("Unable to find mypy. Project: " + project.getName());
+                } else {
+                    Log.log("mypy location does not exist: " + mypyLocation);
+                }
+                deleteMarkers();
+                return;
             }
-            deleteMarkers();
-            return;
         }
 
         try {

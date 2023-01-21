@@ -11,7 +11,7 @@ import java.net.MalformedURLException;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IAdaptable;
-import org.python.pydev.core.log.Log;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.preferences.PyScopedPreferences;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
@@ -63,21 +63,21 @@ public class Flake8Preferences {
         return PyScopedPreferences.getString(FLAKE8_ARGS, projectAdaptable);
     }
 
+    public static boolean useFlake8FromPythonNature(IPythonNature pythonNature, IAdaptable projectAdaptable) {
+        String searchlocation = PyScopedPreferences.getString(SEARCH_FLAKE8_LOCATION, projectAdaptable);
+        if (LOCATION_SPECIFY.equals(searchlocation)) {
+            return false;
+        }
+        return true;
+    }
+
     public static File getFlake8Location(PythonNature pythonNature) {
         IProject project = pythonNature.getProject();
         String searchlocation = PyScopedPreferences.getString(SEARCH_FLAKE8_LOCATION, project);
-        switch (searchlocation) {
-            case LOCATION_SPECIFY:
-                return new File(PyScopedPreferences.getString(FLAKE8_FILE_LOCATION, project));
-            default:
-                try {
-                    return pythonNature.getProjectInterpreter().searchExecutableForInterpreter("flake8", false);
-                } catch (Exception e) {
-                    Log.log(e);
-                    return null;
-                }
-
+        if (LOCATION_SPECIFY.equals(searchlocation)) {
+            return new File(PyScopedPreferences.getString(FLAKE8_FILE_LOCATION, project));
         }
+        return null;
     }
 
     public static ICallback<IExternalCodeAnalysisStream, IAdaptable> createFlake8Stream = ((
