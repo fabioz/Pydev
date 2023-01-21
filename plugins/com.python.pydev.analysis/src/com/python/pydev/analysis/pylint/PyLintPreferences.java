@@ -6,7 +6,6 @@ import java.net.MalformedURLException;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.IAdaptable;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.log.Log;
 import org.python.pydev.core.preferences.PyScopedPreferences;
 import org.python.pydev.shared_core.callbacks.ICallback;
 
@@ -79,16 +78,23 @@ public class PyLintPreferences {
         return PyScopedPreferences.getInt(SEVERITY_WARNINGS, projectAdaptable, DEFAULT_SEVERITY_WARNINGS);
     }
 
+    public static boolean usePyLintFromPythonNature(IPythonNature pythonNature, IAdaptable projectAdaptable) {
+        if (LOCATION_SPECIFY.equals(PyScopedPreferences.getString(SEARCH_PYLINT_LOCATION, projectAdaptable))) {
+            // This means that we should use PyLint from the given location.
+            return false;
+        }
+        return true;
+
+    }
+
+    /**
+     * @return the executable specified or null if we should run it with 'python -m pylint ...'
+     */
     public static File getPyLintLocation(IPythonNature pythonNature, IAdaptable projectAdaptable) {
         if (LOCATION_SPECIFY.equals(PyScopedPreferences.getString(SEARCH_PYLINT_LOCATION, projectAdaptable))) {
             return new File(PyScopedPreferences.getString(PYLINT_FILE_LOCATION, projectAdaptable));
         }
-        try {
-            return pythonNature.getProjectInterpreter().searchExecutableForInterpreter("pylint", false);
-        } catch (Exception e) {
-            Log.log(e);
-            return null;
-        }
+        return null;
     }
 
     public static int eSeverity(IAdaptable projectAdaptable) {

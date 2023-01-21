@@ -70,10 +70,14 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
             return;
         }
 
-        File pyLintLocation = PyLintPreferences.getPyLintLocation(pythonNature, resource);
-        if (pyLintLocation == null || !FileUtils.enhancedIsFile(pyLintLocation)) {
-            deleteMarkers();
-            return;
+        File pyLintLocation = null;
+        if (!PyLintPreferences.usePyLintFromPythonNature(pythonNature, project)) {
+            pyLintLocation = PyLintPreferences.getPyLintLocation(pythonNature, resource);
+            if (pyLintLocation == null || !FileUtils.enhancedIsFile(pyLintLocation)) {
+                Log.logInfo("PyLint specified but location is not valid: " + pyLintLocation);
+                deleteMarkers();
+                return;
+            }
         }
 
         try {
