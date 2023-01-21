@@ -46,12 +46,12 @@ def compare_lines(lines_obtained, lines_expected):
 def find_files(top):
     print(top)
     for root, dirs, files in os.walk(top):
-        for d in ('.svn', '.git', '.metadata'):
+        for d in ('.svn', '.git', '.metadata', 'target'):
             if d in dirs:
                   dirs.remove(d)
 
         for file in files:
-            if file.lower() in ('feature.xml', 'pom.xml', 'manifest.mf', 'liclipse.product'):
+            if file.lower() in ('feature.xml', 'pom.xml', 'manifest.mf', 'liclipse.product', 'com.brainwy.liclipse.prod.product'):
                 yield os.path.join(root, file)
 
 def update_version(version):
@@ -61,7 +61,7 @@ def update_version(version):
             contents = stream.read()
 
         new_contents = fix_contents_version(contents, version)
-        print('File to update', f)
+        print('PyDev file to update', f)
         if contents != new_contents:
             with open(f, 'w') as stream:
                 stream.write(new_contents)
@@ -154,7 +154,7 @@ def update_version_in_liclipse(version):
             contents = stream.read()
 
         new_contents = fix_liclipse_contents_version(contents, version)
-        print('File to update', f)
+        print('LiClipse File to update', f)
         if contents != new_contents:
             with open(f, 'w') as stream:
                 stream.write(new_contents)
