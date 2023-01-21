@@ -137,4 +137,3 @@ python deploy.py
 		** Add to reddit: http://www.reddit.com/r/Python/submit
 
 		** Twitter
-
