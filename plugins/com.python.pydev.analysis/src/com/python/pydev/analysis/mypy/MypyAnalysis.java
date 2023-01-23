@@ -226,6 +226,8 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
             }
         }
 
+        final ICallback<String[], String[]> finalUpdateEnv = updateEnv;
+
         ICallback0<Process> launchProcessCallback;
         if (mypyLocation == null) {
             // use python -m mypy
@@ -243,7 +245,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                 SimplePythonRunner runner = new SimplePythonRunner();
                 String[] parameters = SimplePythonRunner.preparePythonCallParameters(interpreter, "-m", args);
 
-                Tuple<Process, String> r = runner.run(parameters, workingDir, nature, monitor);
+                Tuple<Process, String> r = runner.run(parameters, workingDir, nature, monitor, finalUpdateEnv);
                 return r.o1;
             };
 
@@ -251,7 +253,6 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
             String mypyExecutable = FileUtils.getFileAbsolutePath(mypyLocation);
             cmdList.add(0, mypyExecutable);
 
-            final ICallback<String[], String[]> finalUpdateEnv = updateEnv;
             launchProcessCallback = () -> {
                 String[] args = cmdList.toArray(new String[0]);
 
