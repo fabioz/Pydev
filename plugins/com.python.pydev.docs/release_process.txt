@@ -21,6 +21,7 @@ x:\liclipsews\liclipsews\Pydev\builders\org.python.pydev.build\build_cmd.bat
 		Make sure debugger builtins are updated and commited:
 
 			cd /D x:\liclipsews\liclipsews\Pydev\plugins\org.python.pydev.core\pysrc\
+			set FORCE_PYDEVD_VC_VARS=C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat
 			set PYTHONPATH=x:\liclipsews\liclipsews\Pydev\plugins\org.python.pydev.core\pysrc\
 			python build_tools\build.py
 
