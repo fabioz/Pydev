@@ -1796,7 +1796,12 @@ public class InterpreterInfo implements IInterpreterInfo {
         if (PlatformUtils.isWindowsPlatform()) {
             return new File(condaBinDir, "activate.bat");
         } else {
-            return new File(condaBinDir, "activate");
+            File f = new File(condaBinDir, "activate");
+            if (f.exists()) {
+                return f;
+            }
+            File f2 = new File(f.getParentFile().getParentFile(), "bin");
+            return new File(f2, "activate");
         }
     }
 
