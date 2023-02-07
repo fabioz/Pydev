@@ -11,22 +11,22 @@ import org.python.pydev.shared_core.callbacks.ICallback0;
 public class PyCodeCompletionPreferences {
 
     public static final String USE_CODECOMPLETION = "USE_CODECOMPLETION";
-    public static final boolean DEFAULT_USE_CODECOMPLETION = true;
+    public static final boolean DEFAULT_USE_CODECOMPLETION = false;
 
     public static final String ATTEMPTS_CODECOMPLETION = "ATTEMPTS_CODECOMPLETION";
     public static final int DEFAULT_ATTEMPTS_CODECOMPLETION = 5;
 
     public static final String AUTOCOMPLETE_ON_DOT = "AUTOCOMPLETE_ON_DOT";
-    public static final boolean DEFAULT_AUTOCOMPLETE_ON_DOT = true;
+    public static final boolean DEFAULT_AUTOCOMPLETE_ON_DOT = false;
 
     public static final String MAX_MILLIS_FOR_COMPLETION = "MAX_MILLIS_FOR_COMPLETION";
     public static final int DEFAULT_MAX_MILLIS_FOR_COMPLETION = 5 * 1000; //Default is 5 seconds
 
     public static final String AUTOCOMPLETE_ON_ALL_ASCII_CHARS = "AUTOCOMPLETE_ON_ALL_ASCII_CHARS";
-    public static final boolean DEFAULT_AUTOCOMPLETE_ON_ALL_ASCII_CHARS = true;
+    public static final boolean DEFAULT_AUTOCOMPLETE_ON_ALL_ASCII_CHARS = false;
 
     public static final String USE_AUTOCOMPLETE = "USE_AUTOCOMPLETE";
-    public static final boolean DEFAULT_USE_AUTOCOMPLETE = true;
+    public static final boolean DEFAULT_USE_AUTOCOMPLETE = false;
 
     public static final String AUTOCOMPLETE_DELAY = "AUTOCOMPLETE_DELAY";
     public static final int DEFAULT_AUTOCOMPLETE_DELAY = 0;
@@ -47,13 +47,13 @@ public class PyCodeCompletionPreferences {
     public static final int DEFAULT_ARGUMENTS_DEEP_ANALYSIS_N_CHARS = 1;
 
     public static final String USE_CODE_COMPLETION_ON_DEBUG_CONSOLES = "USE_CODE_COMPLETION_ON_DEBUG_CONSOLES";
-    public static final boolean DEFAULT_USE_CODE_COMPLETION_ON_DEBUG_CONSOLES = true;
+    public static final boolean DEFAULT_USE_CODE_COMPLETION_ON_DEBUG_CONSOLES = false;
 
     public static final String MATCH_BY_SUBSTRING_IN_CODE_COMPLETION = "MATCH_BY_SUBSTRING_IN_CODE_COMPLETION";
-    public static final boolean DEFAULT_MATCH_BY_SUBSTRING_IN_CODE_COMPLETION = true;
+    public static final boolean DEFAULT_MATCH_BY_SUBSTRING_IN_CODE_COMPLETION = false;
 
     public static final String PUT_LOCAL_IMPORTS_IN_TOP_OF_METHOD = "PUT_LOCAL_IMPORTS_IN_TOP_OF_METHOD";
-    public static final boolean DEFAULT_PUT_LOCAL_IMPORTS_IN_TOP_OF_METHOD = true;
+    public static final boolean DEFAULT_PUT_LOCAL_IMPORTS_IN_TOP_OF_METHOD = false;
 
     public static ICallback0<IEclipsePreferences> getPreferencesForTests;
 
