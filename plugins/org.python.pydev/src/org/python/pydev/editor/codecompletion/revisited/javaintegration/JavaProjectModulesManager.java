@@ -32,6 +32,7 @@ import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IModuleRequestState;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.core.IPythonNature;
@@ -235,13 +236,15 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
     }
 
     @Override
-    public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit) {
-        return this.getModuleInDirectManager(name, nature, dontSearchInit);
+    public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit,
+            IModuleRequestState moduleRequest) {
+        return this.getModuleInDirectManager(name, nature, dontSearchInit, moduleRequest);
     }
 
     @Override
-    public IModule getModule(String name, IPythonNature nature, boolean checkSystemManager, boolean dontSearchInit) {
-        return this.getModuleInDirectManager(name, nature, dontSearchInit);
+    public IModule getModule(String name, IPythonNature nature, boolean checkSystemManager, boolean dontSearchInit,
+            IModuleRequestState moduleRequest) {
+        return this.getModuleInDirectManager(name, nature, dontSearchInit, moduleRequest);
     }
 
     @Override
@@ -269,8 +272,8 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
     }
 
     @Override
-    public IModule getRelativeModule(String name, IPythonNature nature) {
-        return this.getModuleInDirectManager(name, nature, true);
+    public IModule getRelativeModule(String name, IPythonNature nature, IModuleRequestState moduleRequest) {
+        return this.getModuleInDirectManager(name, nature, true, moduleRequest);
     }
 
     @Override
@@ -285,8 +288,8 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
 
     @Override
     public Tuple<IModule, IModulesManager> getModuleAndRelatedModulesManager(String name, IPythonNature nature,
-            boolean checkSystemManager, boolean dontSearchInit) {
-        IModule module = this.getModule(name, nature, checkSystemManager, dontSearchInit);
+            boolean checkSystemManager, boolean dontSearchInit, IModuleRequestState moduleRequest) {
+        IModule module = this.getModule(name, nature, checkSystemManager, dontSearchInit, moduleRequest);
         if (module != null) {
             return new Tuple<IModule, IModulesManager>(module, this);
         }
@@ -298,7 +301,8 @@ public class JavaProjectModulesManager implements IModulesManager, IProjectModul
      * @return the module that corresponds to the passed name.
      */
     @Override
-    public IModule getModuleInDirectManager(String name, IPythonNature nature, boolean dontSearchInit) {
+    public IModule getModuleInDirectManager(String name, IPythonNature nature, boolean dontSearchInit,
+            IModuleRequestState moduleRequest) {
         if (DEBUG_GET_MODULE) {
             System.out.println("Trying to get module in java project modules manager: " + name);
         }

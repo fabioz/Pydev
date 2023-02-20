@@ -325,11 +325,26 @@ public class PyUnitTestRun {
         public void characters(char[] ch, int start, int length) throws SAXException {
             //System.out.println("chars: " + new String(ch, start, length));
             if (fInStdout) {
-                fCapturedOutput = new String(ch, start, length);
+                try {
+                    fCapturedOutput = decode(new String(ch, start, length), fCapturedOutputEncoding);
+                } catch (Exception e) {
+                    // Ignore (we could be reading just whitespaces...)
+                }
+
             } else if (fInStderr) {
-                fErrorContents = new String(ch, start, length);
+                try {
+                    fErrorContents = decode(new String(ch, start, length), fCapturedErrorEncoding);
+                } catch (Exception e) {
+                    // Ignore (we could be reading just whitespaces...)
+                }
+
             } else if (fInLaunchMemento) {
-                fLaunchMementoContents = new String(ch, start, length);
+                try {
+                    fLaunchMementoContents = decode(new String(ch, start, length), fLaunchMementoEncoding);
+                } catch (Exception e) {
+                    // Ignore (we could be reading just whitespaces...)
+                }
+
             }
         }
 
@@ -341,16 +356,16 @@ public class PyUnitTestRun {
             //    System.out.println("attr: " + attributes.getQName(i) + " - " + attributes.getValue(i));
             //}
             if ("stdout".equals(qName)) {
-                this.fInStdout = true;
                 this.fCapturedOutputEncoding = attributes.getValue("encoding");
+                this.fInStdout = true;
 
             } else if ("stderr".equals(qName)) {
-                this.fInStderr = true;
                 this.fCapturedErrorEncoding = attributes.getValue("encoding");
+                this.fInStderr = true;
 
             } else if ("launch_memento".equals(qName)) {
-                this.fInLaunchMemento = true;
                 this.fLaunchMementoEncoding = attributes.getValue("encoding");
+                this.fInLaunchMemento = true;
 
             } else if ("launch".equals(qName)) {
                 this.fLaunchMode = attributes.getValue("mode");
@@ -389,9 +404,9 @@ public class PyUnitTestRun {
             } else if ("launch_memento".equals(qName)) {
                 this.fInLaunchMemento = false;
             } else if ("launch".equals(qName)) {
-                IPyUnitLaunch fromIO = PyUnitLaunch.fromIO(fLaunchMode,
-                        decode(fLaunchMementoContents, fLaunchMementoEncoding));
+                IPyUnitLaunch fromIO = PyUnitLaunch.fromIO(fLaunchMode, fLaunchMementoContents);
                 testRun.pyUnitLaunch = fromIO;
+                fLaunchMementoContents = null;
             } else if ("test".equals(qName)) {
                 if (fStatus == null) {
                     fStatus = "<no status>";
@@ -405,10 +420,9 @@ public class PyUnitTestRun {
                 if (fTime == null) {
                     fTime = "<no time>";
                 }
-                fCapturedOutput = decode(fCapturedOutput, fCapturedOutputEncoding);
-                fErrorContents = decode(fErrorContents, fCapturedErrorEncoding);
-                PyUnitTestResult result = new PyUnitTestResult(testRun, fStatus, fLocation, fTest, fCapturedOutput,
-                        fErrorContents, fTime);
+                PyUnitTestResult result = new PyUnitTestResult(testRun, fStatus, fLocation, fTest,
+                        fCapturedOutput == null ? "<Unable to load stdout>" : fCapturedOutput,
+                        fErrorContents == null ? "<Unable to load stderr>" : fErrorContents, fTime);
                 testRun.addResult(result);
                 fCapturedOutput = null;
                 fErrorContents = null;
@@ -417,7 +431,7 @@ public class PyUnitTestRun {
             }
         }
 
-        private String decode(String captured, String encoding) {
+        private String decode(String captured, String encoding) throws Exception {
             return XMLUtils.decodeFromEncoding(captured, encoding);
         }
 

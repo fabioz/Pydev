@@ -7,6 +7,7 @@
 package org.python.pydev.parser;
 
 import java.io.File;
+import java.util.List;
 
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.TestDependent;
@@ -27,6 +28,8 @@ import org.python.pydev.parser.jython.ast.Starred;
 import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.parser.visitors.scope.ASTEntry;
+import org.python.pydev.parser.visitors.scope.EasyASTIteratorVisitor;
 import org.python.pydev.shared_core.io.FileUtils;
 
 public class PyParser30Test extends PyParserTestBase {
@@ -568,8 +571,8 @@ public class PyParser30Test extends PyParserTestBase {
     }
 
     public void testLib() throws Exception {
-        if (TestDependent.PYTHON_30_LIB != null) {
-            parseFilesInDir(new File(TestDependent.PYTHON_30_LIB), false);
+        if (TestDependent.PYTHON_LIB != null) {
+            parseFilesInDir(new File(TestDependent.PYTHON_LIB), false);
         }
     }
 
@@ -884,5 +887,22 @@ public class PyParser30Test extends PyParserTestBase {
                 "    await session\n" +
                 "";
         parseLegalDocStr(s);
+    }
+
+    public void testFromImport() throws Throwable {
+        checkWithAllGrammars((grammarVersion) -> {
+            String s = "" +
+                    "from . import bar";
+            EasyASTIteratorVisitor it = EasyASTIteratorVisitor.create(parseLegalDocStr(s));
+            List<ASTEntry> list = it.getAsList(ImportFrom.class);
+            for (ASTEntry entry : list) {
+                ImportFrom node = (ImportFrom) entry.node;
+                NameTok name = (NameTok) node.module;
+                assertEquals("", name.id);
+                assertEquals(7, name.beginColumn);
+            }
+            return true;
+        });
+
     }
 }

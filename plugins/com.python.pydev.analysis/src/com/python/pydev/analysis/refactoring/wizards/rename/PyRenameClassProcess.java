@@ -137,7 +137,7 @@ public class PyRenameClassProcess extends AbstractRenameWorkspaceRefactorProcess
      * @return the function definition that matches the original definition as an ASTEntry
      */
     private ASTEntry getOriginalClassDefInAst(SimpleNode simpleNode) {
-        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(simpleNode);
+        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(simpleNode, true);
         Iterator<ASTEntry> it = visitor.getIterator(ClassDef.class);
         ASTEntry classDefEntry = null;
         while (it.hasNext()) {

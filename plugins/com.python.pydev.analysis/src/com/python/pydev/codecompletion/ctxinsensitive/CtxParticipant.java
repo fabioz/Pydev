@@ -29,7 +29,6 @@ import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.ast.item_pointer.ItemPointer;
 import org.python.pydev.core.ICodeCompletionASTManager;
-import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.ICompletionState.LookingFor;
 import org.python.pydev.core.IDefinition;
@@ -43,11 +42,12 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.NoExceptionCloseable;
 import org.python.pydev.core.TokensList;
 import org.python.pydev.core.TokensOrProposalsList;
-import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
+import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQualifier;
 import org.python.pydev.core.interactive_console.IScriptConsoleViewer;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.core.structure.CompletionRecursionException;
+import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.decoratorsType;
@@ -81,7 +81,7 @@ public class CtxParticipant
      * IPyDevCompletionParticipant2
      */
     @Override
-    public Collection<ICompletionProposalHandle> computeConsoleCompletions(ActivationTokenAndQual tokenAndQual,
+    public Collection<ICompletionProposalHandle> computeConsoleCompletions(ActivationTokenAndQualifier tokenAndQual,
             Set<IPythonNature> naturesUsed, IScriptConsoleViewer viewer, int requestOffset) {
         List<ICompletionProposalHandle> completions = new ArrayList<ICompletionProposalHandle>();
         if (tokenAndQual.activationToken != null && tokenAndQual.activationToken.length() > 0) {
@@ -300,10 +300,10 @@ public class CtxParticipant
 
     @Override
     public IDefinition findDefinitionForMethodParameter(Definition d, IPythonNature nature,
-            ICompletionCache completionCache) {
+            ICompletionState completionCache) {
         if (d.ast instanceof Name) {
             Name name = (Name) d.ast;
-            if (name.ctx == Name.Param) {
+            if (name.ctx == Name.Param || name.ctx == Name.KwOnlyParam) {
                 if (d.scope != null && !d.scope.getScopeStack().empty()) {
                     Object peek = d.scope.getScopeStack().peek();
                     if (peek instanceof FunctionDef) {
@@ -323,7 +323,7 @@ public class CtxParticipant
         return null;
     }
 
-    private ItemPointer findItemPointerFromPyTestFixture(IPythonNature nature, ICompletionCache completionCache,
+    private ItemPointer findItemPointerFromPyTestFixture(IPythonNature nature, ICompletionState completionCache,
             String fixtureName) {
         try {
             ICodeCompletionASTManager astManager = nature.getAstManager();
@@ -415,7 +415,7 @@ public class CtxParticipant
                 for (IInfo info : tokensStartingWith) {
                     if (nameFilter.acceptName(info.getName())) {
                         ret.add(new SourceToken(null, info.getName(), null, null, info.getDeclaringModuleName(),
-                                info.getType(), info.getNature()));
+                                info.getType(), info.getNature(), null));
                     }
                 }
             } else {
@@ -428,7 +428,7 @@ public class CtxParticipant
                 }
                 for (IInfo info : tokensStartingWith) {
                     ret.add(new SourceToken(null, info.getName(), null, null, info.getDeclaringModuleName(),
-                            info.getType(), info.getNature()));
+                            info.getType(), info.getNature(), null));
                 }
             }
 
@@ -441,14 +441,18 @@ public class CtxParticipant
         try (NoExceptionCloseable x = state.pushLookingFor(
                 ICompletionState.LookingFor.LOOKING_FOR_INSTANCED_VARIABLE)) {
             LookingFor currLookingFor = state.getLookingFor();
-            TokensList completionFromFuncDefReturn = astManager
-                    .getCompletionFromFuncDefReturn(state,
-                            itemPointer.definition.module,
-                            itemPointer.definition, true);
-            if (completionFromFuncDefReturn != null
-                    && completionFromFuncDefReturn.notEmpty()) {
-                completionFromFuncDefReturn.setLookingFor(currLookingFor);
-                return completionFromFuncDefReturn;
+            SimpleNode ast = itemPointer.definition.ast;
+            if (ast instanceof FunctionDef) {
+                FunctionDef functionDef = (FunctionDef) ast;
+                TokensList completionFromFuncDefReturn = astManager
+                        .getCompletionFromFuncDefReturn(state,
+                                itemPointer.definition.module,
+                                functionDef, true);
+                if (completionFromFuncDefReturn != null
+                        && completionFromFuncDefReturn.notEmpty()) {
+                    completionFromFuncDefReturn.setLookingFor(currLookingFor);
+                    return completionFromFuncDefReturn;
+                }
             }
         }
         return null;
@@ -556,7 +560,7 @@ public class CtxParticipant
         copy.setActivationToken(act);
 
         ICodeCompletionASTManager manager = nature.getAstManager();
-        IModule mod = manager.getModule(iInfo.getDeclaringModuleName(), nature, true);
+        IModule mod = manager.getModule(iInfo.getDeclaringModuleName(), nature, true, state);
         if (mod != null) {
 
             state.checkFindDefinitionMemory(mod, iInfo.getDeclaringModuleName() + "." + act);

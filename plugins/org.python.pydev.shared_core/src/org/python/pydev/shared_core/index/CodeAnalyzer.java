@@ -15,11 +15,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.core.LowerCaseFilter;
 import org.apache.lucene.analysis.core.StopFilter;
-import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.analysis.util.CharTokenizer;
 
 /**
@@ -49,18 +49,7 @@ public class CodeAnalyzer extends Analyzer {
 
     // Code in general
     public static TokenStreamComponents createDefaultComponents(String... ignoreWords) {
-        Tokenizer src = new CharTokenizer() {
-
-            @Override
-            protected boolean isTokenChar(int c) {
-                return Character.isJavaIdentifierPart(c);
-            }
-
-            @Override
-            protected int normalize(int c) {
-                return Character.toLowerCase(c);
-            }
-        };
+        Tokenizer src = CharTokenizer.fromTokenCharPredicate(Character::isJavaIdentifierPart);
 
         TokenFilter tok = new LowerCaseFilter(src);
         CharArraySet stopWords = StopFilter.makeStopSet(ignoreWords);

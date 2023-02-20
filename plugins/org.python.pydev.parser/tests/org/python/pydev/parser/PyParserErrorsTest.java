@@ -6,7 +6,6 @@
  */
 package org.python.pydev.parser;
 
-import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -75,7 +74,7 @@ public class PyParserErrorsTest extends PyParserTestBase {
                 assertNotNull(assign);
                 Expr expr = (Expr) m.body[1];
                 Attribute attr = (Attribute) expr.value;
-                assertEquals("a.!<MissingName>!", NodeUtils.getFullRepresentationString(attr));
+                assertEquals("a", NodeUtils.getFullRepresentationString(attr));
                 return true;
             }
         });
@@ -345,9 +344,9 @@ public class PyParserErrorsTest extends PyParserTestBase {
                 ClassDef cdef = (ClassDef) m.body[0];
                 assertEquals("drDropTarget", NodeUtils.getRepresentationString(cdef));
                 assertEquals(3, cdef.body.length);
-                assertEquals("__init__", NodeUtils.getRepresentationString((FunctionDef) cdef.body[0]));
-                assertEquals("method2", NodeUtils.getRepresentationString((FunctionDef) cdef.body[1]));
-                assertEquals("method3", NodeUtils.getRepresentationString((FunctionDef) cdef.body[2]));
+                assertEquals("__init__", NodeUtils.getRepresentationString(cdef.body[0]));
+                assertEquals("method2", NodeUtils.getRepresentationString(cdef.body[1]));
+                assertEquals("method3", NodeUtils.getRepresentationString(cdef.body[2]));
                 return true;
             }
         });
@@ -380,7 +379,7 @@ public class PyParserErrorsTest extends PyParserTestBase {
                 ClassDef cdef = (ClassDef) m.body[0];
                 assertEquals("LinkedList", NodeUtils.getRepresentationString(cdef));
                 assertEquals(1, cdef.body.length);
-                assertEquals("__init__", NodeUtils.getRepresentationString((FunctionDef) cdef.body[0]));
+                assertEquals("__init__", NodeUtils.getRepresentationString(cdef.body[0]));
                 return true;
             }
         });
@@ -407,7 +406,7 @@ public class PyParserErrorsTest extends PyParserTestBase {
                 ClassDef cdef = (ClassDef) m.body[0];
                 assertEquals("LinkedList", NodeUtils.getRepresentationString(cdef));
                 assertEquals(1, cdef.body.length);
-                assertEquals("m1", NodeUtils.getRepresentationString((FunctionDef) cdef.body[0]));
+                assertEquals("m1", NodeUtils.getRepresentationString(cdef.body[0]));
                 assertEquals("B", NodeUtils.getRepresentationString(m.body[1]));
                 return true;
             }
@@ -504,14 +503,7 @@ public class PyParserErrorsTest extends PyParserTestBase {
                         "print(('btt'), file=f)\n" +
                         "";
 
-                if (arg >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5) {
-                    parseLegalDocStr(s);
-
-                } else {
-                    Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
-                    Module m = (Module) tup.o1;
-                    assertNotNull(m);
-                }
+                parseLegalDocStr(s);
                 return true;
             }
         });
@@ -532,17 +524,10 @@ public class PyParserErrorsTest extends PyParserTestBase {
                         "\n" +
                         "";
 
-                if (arg == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5
-                        || arg == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6
-                        || arg == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7) {
-                    parseLegalDocStr(s);
-
-                } else {
-                    Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
-                    Module m = (Module) tup.o1;
-                    assertNotNull(m);
-                    assertTrue(tup.o2.getMessage().indexOf("Internal error:java.lang.ClassCastException") == -1);
-                }
+                Tuple<SimpleNode, Throwable> tup = parseILegalDocSuccessfully(s);
+                Module m = (Module) tup.o1;
+                assertNotNull(m);
+                assertTrue(tup.o2.getMessage().indexOf("Internal error:java.lang.ClassCastException") == -1);
                 return true;
             }
         });

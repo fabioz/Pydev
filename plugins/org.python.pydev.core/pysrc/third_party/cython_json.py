@@ -14,6 +14,7 @@ accepted_info = {
     'PyClassDef': set(['name', 'doc', 'body', 'bases', 'decorators', 'pos'])
 }
 
+
 def node_to_dict(node, _recurse_level=0, memo=None):
     nodeid = id(node)  # just to be sure it's checked by identity in the memo
     if memo is None:
@@ -35,7 +36,6 @@ def node_to_dict(node, _recurse_level=0, memo=None):
         if _recurse_level == 1:
             data['__version__'] = Cython.__version__
 
-
         dct = node.__dict__
         accepted = accepted_info.get(node_name)
         if accepted is None:
@@ -45,7 +45,6 @@ def node_to_dict(node, _recurse_level=0, memo=None):
             #     if key not in accepted:
             #         print('Skipped: %s' % (key,))
             items = [(key, dct[key]) for key in accepted]
-
 
         for attr_name, attr in items:
             if attr_name in ("pos", "position"):
@@ -127,7 +126,6 @@ def source_to_dict(source, name=None):
 
 from _pydev_bundle import pydev_localhost
 HOST = pydev_localhost.get_localhost()  # Symbolic name meaning the local host
-IS_PYTHON_3_ONWARDS = sys.version_info[0] >= 3
 
 
 def dbg(s):
@@ -153,31 +151,14 @@ class CythonJsonServer(object):
         self.socket = None  # socket to send messages.
         self.exit_process_on_kill = True
 
-    def emulated_sendall(self, msg):
-        MSGLEN = 1024 * 20
-
-        totalsent = 0
-        while totalsent < MSGLEN:
-            sent = self.socket.send(msg[totalsent:])
-            if sent == 0:
-                return
-            totalsent = totalsent + sent
-
     def send(self, msg):
         if not isinstance(msg, bytes):
             msg = msg.encode('utf-8', 'replace')
 
-        if not hasattr(self.socket, 'sendall'):
-            # Older versions (jython 2.1)
-            self.emulated_sendall(msg)
-        else:
-            if IS_PYTHON_3_ONWARDS:
-                self.socket.sendall(msg)
-            else:
-                self.socket.sendall(msg)
+        self.socket.sendall(msg)
 
     def connect_to_server(self):
-        from _pydev_imps._pydev_saved_modules import socket
+        from _pydev_bundle._pydev_saved_modules import socket
 
         self.socket = s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
@@ -234,10 +215,7 @@ class CythonJsonServer(object):
             else:
                 result = {'command': '<unexpected>', 'received': json_contents}
         except:
-            try:
-                from StringIO import StringIO
-            except:
-                from io import StringIO
+            from io import StringIO
             s = StringIO()
             traceback.print_exc(file=s)
             result = {'command': '<errored>', 'error': s.getvalue()}

@@ -4,10 +4,10 @@ class A:
         ##|while (a < 2):
             a += 1##|
         var = a * a
-        print var
+        print(var)
             
     def my_method(self):
-        print self.attribute
+        print(self.attribute)
         
 a = A()
 a.test()

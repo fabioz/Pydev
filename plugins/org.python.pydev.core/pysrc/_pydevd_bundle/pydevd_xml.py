@@ -2,13 +2,13 @@ from _pydev_bundle import pydev_log
 from _pydevd_bundle import pydevd_extension_utils
 from _pydevd_bundle import pydevd_resolver
 import sys
-from _pydevd_bundle.pydevd_constants import dict_iter_items, dict_keys, IS_PY3K, \
-    BUILTINS_MODULE_NAME, MAXIMUM_VARIABLE_REPRESENTATION_SIZE, RETURN_VALUES_DICT, LOAD_VALUES_ASYNC, \
-    DEFAULT_VALUE
+from _pydevd_bundle.pydevd_constants import BUILTINS_MODULE_NAME, MAXIMUM_VARIABLE_REPRESENTATION_SIZE, \
+    RETURN_VALUES_DICT, LOAD_VALUES_ASYNC, DEFAULT_VALUE
 from _pydev_bundle.pydev_imports import quote
 from _pydevd_bundle.pydevd_extension_api import TypeResolveProvider, StrPresentationProvider
 from _pydevd_bundle.pydevd_utils import isinstance_checked, hasattr_checked, DAPGrouper
-from _pydevd_bundle.pydevd_resolver import get_var_scope
+from _pydevd_bundle.pydevd_resolver import get_var_scope, MoreItems, MoreItemsRange
+from typing import Optional
 
 try:
     import types
@@ -25,8 +25,10 @@ def make_valid_xml_value(s):
 
 class ExceptionOnEvaluate:
 
-    def __init__(self, result):
+    def __init__(self, result, etype, tb):
         self.result = result
+        self.etype = etype
+        self.tb = tb
 
 
 _IS_JYTHON = sys.platform.startswith("java")
@@ -58,12 +60,9 @@ def _create_default_type_map():
     except:
         pass  # not available on all python versions
 
-    try:
-        default_type_map.append((unicode, None))  # @UndefinedVariable
-    except:
-        pass  # not available on all python versions
-
     default_type_map.append((DAPGrouper, pydevd_resolver.dapGrouperResolver))
+    default_type_map.append((MoreItems, pydevd_resolver.forwardInternalResolverToObject))
+    default_type_map.append((MoreItemsRange, pydevd_resolver.forwardInternalResolverToObject))
 
     try:
         default_type_map.append((set, pydevd_resolver.setResolver))
@@ -92,6 +91,12 @@ def _create_default_type_map():
     try:
         from collections import deque
         default_type_map.append((deque, pydevd_resolver.dequeResolver))
+    except:
+        pass
+
+    try:
+        from ctypes import Array
+        default_type_map.append((Array, pydevd_resolver.tupleResolver))
     except:
         pass
 
@@ -138,19 +143,29 @@ class TypeResolveHandler(object):
         try:
             try:
                 # Faster than type(o) as we don't need the function call.
-                type_object = o.__class__
+                type_object = o.__class__  # could fail here
+                type_name = type_object.__name__
+                return self._get_type(o, type_object, type_name)  # could fail here
             except:
                 # Not all objects have __class__ (i.e.: there are bad bindings around).
                 type_object = type(o)
+                type_name = type_object.__name__
 
-            type_name = type_object.__name__
+                try:
+                    return self._get_type(o, type_object, type_name)
+                except:
+                    if isinstance(type_object, type):
+                        # If it's still something manageable, use the default resolver, otherwise
+                        # fallback to saying that it wasn't possible to get any info on it.
+                        return type_object, str(type_name), pydevd_resolver.defaultResolver
+
+                    return 'Unable to get Type', 'Unable to get Type', None
         except:
             # This happens for org.python.core.InitModule
             return 'Unable to get Type', 'Unable to get Type', None
 
-        return self._get_type(o, type_object, type_name)
-
     def _get_type(self, o, type_object, type_name):
+        # Note: we could have an exception here if the type_object is not hashable...
         resolver = self._type_to_resolver_cache.get(type_object)
         if resolver is not None:
             return type_object, type_name, resolver
@@ -191,14 +206,22 @@ class TypeResolveHandler(object):
 
             return self._base_get_type(o, type_object, type_name)
 
-    def str_from_providers(self, o, type_object, type_name):
+    def _get_str_from_provider(self, provider, o, context: Optional[str]=None):
+        if context is not None:
+            get_str_in_context = getattr(provider, 'get_str_in_context', None)
+            if get_str_in_context is not None:
+                return get_str_in_context(o, context)
+
+        return provider.get_str(o)
+
+    def str_from_providers(self, o, type_object, type_name, context: Optional[str]=None):
         provider = self._type_to_str_provider_cache.get(type_object)
 
         if provider is self.NO_PROVIDER:
             return None
 
         if provider is not None:
-            return provider.get_str(o)
+            return self._get_str_from_provider(provider, o, context)
 
         if not self._initialized:
             self._initialize()
@@ -206,7 +229,10 @@ class TypeResolveHandler(object):
         for provider in self._str_providers:
             if provider.can_provide(type_object, type_name):
                 self._type_to_str_provider_cache[type_object] = provider
-                return provider.get_str(o)
+                try:
+                    return self._get_str_from_provider(provider, o, context)
+                except:
+                    pydev_log.exception("Error when getting str with custom provider: %s." % (provider,))
 
         self._type_to_str_provider_cache[type_object] = self.NO_PROVIDER
         return None
@@ -238,25 +264,21 @@ def should_evaluate_full_value(val):
 
 
 def return_values_from_dict_to_xml(return_dict):
-    res = ""
-    for name, val in dict_iter_items(return_dict):
-        res += var_to_xml(val, name, additional_in_xml=' isRetVal="True"')
-    return res
+    res = []
+    for name, val in return_dict.items():
+        res.append(var_to_xml(val, name, additional_in_xml=' isRetVal="True"'))
+    return ''.join(res)
 
 
 def frame_vars_to_xml(frame_f_locals, hidden_ns=None):
     """ dumps frame variables to XML
     <var name="var_name" scope="local" type="type" value="value"/>
     """
-    xml = ""
+    xml = []
 
-    keys = dict_keys(frame_f_locals)
-    if hasattr(keys, 'sort'):
-        keys.sort()  # Python 3.0 does not have it
-    else:
-        keys = sorted(keys)  # Jython 2.1 does not have it
+    keys = sorted(frame_f_locals)
 
-    return_values_xml = ''
+    return_values_xml = []
 
     for k in keys:
         try:
@@ -267,23 +289,32 @@ def frame_vars_to_xml(frame_f_locals, hidden_ns=None):
                 continue
 
             if k == RETURN_VALUES_DICT:
-                for name, val in dict_iter_items(v):
-                    return_values_xml += var_to_xml(val, name, additional_in_xml=' isRetVal="True"')
+                for name, val in v.items():
+                    return_values_xml.append(var_to_xml(val, name, additional_in_xml=' isRetVal="True"'))
 
             else:
                 if hidden_ns is not None and k in hidden_ns:
-                    xml += var_to_xml(v, str(k), additional_in_xml=' isIPythonHidden="True"',
-                                      evaluate_full_value=eval_full_val)
+                    xml.append(var_to_xml(v, str(k), additional_in_xml=' isIPythonHidden="True"',
+                                      evaluate_full_value=eval_full_val))
                 else:
-                    xml += var_to_xml(v, str(k), evaluate_full_value=eval_full_val)
+                    xml.append(var_to_xml(v, str(k), evaluate_full_value=eval_full_val))
         except Exception:
             pydev_log.exception("Unexpected error, recovered safely.")
 
     # Show return values as the first entry.
-    return return_values_xml + xml
+    return_values_xml.extend(xml)
+    return ''.join(return_values_xml)
 
 
-def get_variable_details(val, evaluate_full_value=True, to_string=None):
+def get_variable_details(val, evaluate_full_value=True, to_string=None, context: Optional[str]=None):
+    '''
+    :param context:
+        This is the context in which the variable is being requested. Valid values:
+            "watch",
+            "repl",
+            "hover",
+            "clipboard"
+    '''
     try:
         # This should be faster than isinstance (but we have to protect against not having a '__class__' attribute).
         is_exception_on_eval = val.__class__ == ExceptionOnEvaluate
@@ -301,7 +332,7 @@ def get_variable_details(val, evaluate_full_value=True, to_string=None):
         value = DEFAULT_VALUE
     else:
         try:
-            str_from_provider = _str_from_providers(v, _type, type_name)
+            str_from_provider = _str_from_providers(v, _type, type_name, context)
             if str_from_provider is not None:
                 value = str_from_provider
 
@@ -342,12 +373,8 @@ def get_variable_details(val, evaluate_full_value=True, to_string=None):
 
     # fix to work with unicode values
     try:
-        if not IS_PY3K:
-            if value.__class__ == unicode:  # @UndefinedVariable
-                value = value.encode('utf-8', 'replace')
-        else:
-            if value.__class__ == bytes:
-                value = value.decode('utf-8', 'replace')
+        if value.__class__ == bytes:
+            value = value.decode('utf-8', 'replace')
     except TypeError:
         pass
 

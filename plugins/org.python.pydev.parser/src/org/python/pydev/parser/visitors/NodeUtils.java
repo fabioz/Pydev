@@ -11,6 +11,7 @@ package org.python.pydev.parser.visitors;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -77,6 +78,7 @@ import org.python.pydev.parser.jython.ast.comprehensionType;
 import org.python.pydev.parser.jython.ast.excepthandlerType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.keywordType;
+import org.python.pydev.parser.jython.ast.operatorType;
 import org.python.pydev.parser.jython.ast.sliceType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
@@ -92,9 +94,8 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
-import org.python.pydev.shared_core.utils.Reflection;
 
-public class NodeUtils {
+public final class NodeUtils {
 
     /**
      * @param node a function definition (if other will return an empty string)
@@ -115,7 +116,14 @@ public class NodeUtils {
                 if (buffer.length() > startPar.length()) {
                     buffer.append(", ");
                 }
-                buffer.append(getRepresentationString(f.args.args[i]));
+
+                // TODO: Do this only for .pyi files?
+                String rep = getRepresentationString(f.args.args[i]);
+                int leadingUnderscores = StringUtils.countLeadingChars('_', rep);
+                if (leadingUnderscores > 0) {
+                    rep = rep.substring(leadingUnderscores);
+                }
+                buffer.append(rep);
             }
             buffer.append(" )");
             return buffer.toString();
@@ -185,7 +193,7 @@ public class NodeUtils {
         throw new RuntimeException("Expecting a String or a SimpleNode");
     }
 
-    public static String getRepresentationString(SimpleNode node) {
+    public static String getRepresentationString(ISimpleNode node) {
         return getRepresentationString(node, false);
     }
 
@@ -193,7 +201,7 @@ public class NodeUtils {
      * @param node this is the node from whom we want to get the representation
      * @return A suitable String representation for some node.
      */
-    public static String getRepresentationString(SimpleNode node, boolean useTypeRepr) {
+    public static String getRepresentationString(ISimpleNode node, boolean useTypeRepr) {
         if (node instanceof NameTok) {
             NameTok tok = (NameTok) node;
             return tok.id;
@@ -354,6 +362,16 @@ public class NodeUtils {
         return s;
     }
 
+    public static String getFullRepresentationString(ClassDef node) {
+        ClassDef def = node;
+        return ((NameTok) def.name).id;
+    }
+
+    public static String getFullRepresentationString(FunctionDef node) {
+        FunctionDef def = node;
+        return ((NameTok) def.name).id;
+    }
+
     public static String getFullRepresentationString(SimpleNode node) {
         return getFullRepresentationString(node, false);
     }
@@ -378,9 +396,9 @@ public class NodeUtils {
         if (node instanceof Call) {
             Call c = (Call) node;
             node = c.func;
-            if (Reflection.hasAttr(node, "value") && Reflection.hasAttr(node, "attr")) {
-                return getFullRepresentationString((SimpleNode) Reflection.getAttrObj(node, "value")) + "."
-                        + discoverRep(Reflection.getAttrObj(node, "attr"));
+            if (node instanceof Attribute) {
+                Attribute attribute = (Attribute) node;
+                return getFullRepresentationString(attribute.value) + "." + discoverRep(attribute.attr);
             }
         }
 
@@ -820,6 +838,24 @@ public class NodeUtils {
             }
         }
         return null;
+    }
+
+    /**
+     * @return classdef.method_name
+     */
+    public static String getFullMethodName(SimpleNode last) {
+        StringBuffer buffer = new StringBuffer();
+        boolean first = true;
+        while (last != null) {
+            String name = NodeUtils.getRepresentationString(last);
+            buffer.insert(0, name);
+            last = last.parent;
+            if (!first) {
+                buffer.insert(name.length(), ".");
+            }
+            first = false;
+        }
+        return buffer.toString();
     }
 
     /**
@@ -1282,8 +1318,10 @@ public class NodeUtils {
             With module = (With) node;
             return module.body.body;
         }
-        return new stmtType[0];
+        return EMPTY_STMT;
     }
+
+    private final static stmtType[] EMPTY_STMT = new stmtType[0];
 
     /**
      * Sets the body of some node.
@@ -1589,7 +1627,7 @@ public class NodeUtils {
     }
 
     private static ArrayList<commentType> collectComments(SimpleNode node) {
-        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(node);
+        SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(node, false);
         Iterator<ASTEntry> iterator = visitor.getIterator();
         ArrayList<commentType> lst = new ArrayList<>();
         while (iterator.hasNext()) {
@@ -1658,7 +1696,7 @@ public class NodeUtils {
             FunctionDef functionDef = (FunctionDef) node;
             exprType returns = functionDef.returns;
             if (returns != null) {
-                return new TypeInfo(NodeUtils.extractOptionalValueSubscript(returns));
+                return new TypeInfo(returns);
             }
         }
         return null;
@@ -1725,6 +1763,7 @@ public class NodeUtils {
     }
 
     public static String getUnpackedTypeFromTypeDocstring(String compoundType, UnpackInfo checkPosForDict) {
+        final String initial = compoundType;
         ParsingUtils parsingUtils = ParsingUtils.create(compoundType);
         int len = parsingUtils.len();
         if (checkPosForDict.getUnpackFor()) {
@@ -1746,7 +1785,15 @@ public class NodeUtils {
             //NOTE: the getUnpackTuple(10) isn't really good, but we have to change the strategy
             //to first parse to get what's available to then know the length (so, right now
             //we won't work very well with negative numbers in this use-case).
-            return getValueForContainer(compoundType, 0, checkPosForDict.getUnpackTuple(10), -1);
+            String ret = getValueForContainer(compoundType, 0, checkPosForDict.getUnpackTuple(10), -1);
+            if (ret != null && ret.equals(initial)) {
+                if (checkPosForDict.isUnpackRequired()) {
+                    return "";
+                } else {
+                    return ret;
+                }
+            }
+            return ret;
         } catch (SyntaxErrorException e) {
             return "";
         }
@@ -2109,7 +2156,7 @@ public class NodeUtils {
     public static boolean isParamName(SimpleNode ast) {
         if (ast instanceof Name) {
             Name name = (Name) ast;
-            if (name.ctx == Name.Param) {
+            if (name.ctx == Name.Param || name.ctx == Name.Param) {
                 return true;
             }
         }
@@ -2174,4 +2221,179 @@ public class NodeUtils {
         return node;
     }
 
+    public static List<String> extractValuesFromSubscriptSlice(sliceType slice) {
+        List<String> values = new ArrayList<String>();
+
+        if (slice instanceof ExtSlice) {
+            ExtSlice extSlice = (ExtSlice) slice;
+            if (extSlice != null && extSlice.dims != null) {
+                for (sliceType dim : extSlice.dims) {
+                    if (dim instanceof Index) {
+                        List<String> valuesFromIndex = extractValuesFromSubscriptIndex((Index) dim);
+                        if (valuesFromIndex != null && valuesFromIndex.size() > 0) {
+                            values.addAll(valuesFromIndex);
+                        }
+                    }
+                }
+            }
+        } else if (slice instanceof Index) {
+            List<String> valuesFromIndex = extractValuesFromSubscriptIndex((Index) slice);
+            if (valuesFromIndex != null && valuesFromIndex.size() > 0) {
+                values.addAll(valuesFromIndex);
+            }
+        }
+
+        return values;
+    }
+
+    private static List<String> extractValuesFromSubscriptIndex(Index index) {
+        if (index.value instanceof BinOp) {
+            BinOp binOp = (BinOp) index.value;
+            return extractValuesFromBinOp(binOp, BinOp.BitOr);
+        } else if (index.value instanceof Name) {
+            return Arrays.asList(new String[] { getFullRepresentationString(index.value) });
+        } else if (index.value instanceof Subscript) {
+            Subscript subscript = (Subscript) index.value;
+            return extractValuesFromSubscriptSlice(subscript.slice);
+        }
+        return null;
+    }
+
+    public static List<String> extractValuesFromBinOp(exprType node) {
+        return extractValuesFromBinOp(node, 0);
+    }
+
+    public static List<String> extractValuesFromBinOp(exprType node, int op) {
+        List<String> values = new ArrayList<String>();
+
+        if (op >= operatorType.operatorTypeNames.length) {
+            return values;
+        }
+
+        if (node instanceof BinOp) {
+            BinOp binOp = (BinOp) node;
+            if (op < 1 || binOp.op == op) {
+                values.addAll(getInternalBinOpNodeValues(binOp.left, op));
+                values.addAll(getInternalBinOpNodeValues(binOp.right, op));
+            }
+        }
+
+        return values;
+    }
+
+    private static List<String> getInternalBinOpNodeValues(exprType node, int op) {
+        List<String> values = new ArrayList<String>();
+        if (node instanceof BinOp) {
+            values.addAll(NodeUtils.extractValuesFromBinOp(node, op));
+        } else if (node instanceof Subscript) {
+            Subscript subscript = (Subscript) node;
+            values.addAll(NodeUtils.extractValuesFromSubscriptSlice(subscript.slice));
+        } else if (node instanceof Str) {
+            Str str = (Str) node;
+            if (str.s != null && !str.s.isBlank()) {
+                values.add(str.s);
+            }
+        } else {
+            String rep = NodeUtils.getFullRepresentationString(node, true);
+            if (rep != null && !rep.isBlank()) {
+                values.add(rep);
+            }
+        }
+        return values;
+    }
+
+    public static boolean isAfterNameEnd(ClassDef classDef, int line, int col) {
+        return isAfterNameEnd(classDef.name, line, col);
+    }
+
+    public static boolean isAfterNameEnd(FunctionDef functionDef, int line, int col) {
+        return isAfterNameEnd(functionDef.name, line, col);
+    }
+
+    private static boolean isAfterNameEnd(NameTokType name, int line, int col) {
+        if (name != null) {
+            int astLine = name.beginLine;
+            if (astLine < line) {
+                return true;
+            }
+            if (astLine > line) {
+                return false;
+            }
+
+            // Same line, differentiate by the column
+            String rep = NodeUtils.getRepresentationString(name);
+            int astCol = name.beginColumn;
+            if (rep != null) {
+                astCol += rep.length();
+            }
+            if (astCol < col) {
+                return true;
+            }
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean isAfterDeclarationStart(ClassDef classDef, int line, int col) {
+        // i.e.: Basically we want to check if it's after the classdef declaration
+        return isAfterDeclarationStart(classDef.colonDefEnd, classDef.name, classDef.body, line, col);
+    }
+
+    public static boolean isAfterDeclarationStart(FunctionDef functionDef, int line, int col) {
+        // i.e.: Basically we want to check if it's after the function declaration
+        return isAfterDeclarationStart(functionDef.colonDefEnd, functionDef.name, functionDef.body, line, col);
+    }
+
+    private static boolean isAfterDeclarationStart(ISpecialStr colonDefEnd, NameTokType name, stmtType[] body, int line,
+            int col) {
+        // Ideal situation: we have the colon marker.
+        if (colonDefEnd != null) {
+            int colonLine = colonDefEnd.getBeginLine();
+            if (colonLine < line) {
+                return true;
+            }
+            if (colonLine > line) {
+                return false;
+            }
+
+            // Same line, differentiate by the column
+            int colonCol = colonDefEnd.getBeginCol();
+            if (colonCol < col) {
+                return true;
+            }
+            return false;
+        }
+
+        // Clear cut!
+        if (name != null) {
+            if (line < name.beginLine) {
+                return false;
+            }
+        }
+        // Clear cut!
+        if (body != null && body.length > 0) {
+            if (line > body[0].beginLine) {
+                return true;
+            }
+        }
+
+        // These are corner cases for which we provide a fallback (which may not be perfect).
+
+        // def func_name(): return 1
+        // In which case this isn't really correct
+        if (name != null) {
+            if (line == name.beginLine) {
+                return false;
+            }
+        }
+        if (body != null && body.length > 0) {
+            if (line == body[0].beginLine) {
+                return true;
+            }
+        }
+
+        // It seems it's in a limbo between the function name and the body,
+        // so, just say that it's inside.
+        return true;
+    }
 }

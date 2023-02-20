@@ -15,7 +15,7 @@
 *     Fabio Zadrozny <fabiofz@gmail.com>       - initial implementation
 *     Alexander Kurtakov <akurtako@redhat.com> - ongoing maintenance
 ******************************************************************************/
-/* 
+/*
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
  * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  */
@@ -52,19 +52,24 @@ public abstract class AbstractIOTestCase extends TestCase implements IInputOutpu
      * @param version IPythonNature.PYTHON_VERSION_XXX
      */
     protected ModuleAdapter createModuleAdapterFromDataSource(String version) throws Throwable {
-        codeCompletionTestsBase.restorePythonPath(FileUtils.getFileAbsolutePath(data.file.getParentFile()), true);
-        PythonModuleManager pythonModuleManager = new PythonModuleManager(CodeCompletionTestsBase.nature);
-        if (version != null) {
-            //As the files will be found in the system, we need to set the system modules manager info.
-            IModulesManager modulesManager = pythonModuleManager.getIModuleManager();
-            SystemModulesManager systemModulesManager = (SystemModulesManager) modulesManager.getSystemModulesManager();
-            systemModulesManager.setInfo(new InterpreterInfo(version, "", new ArrayList<String>()));
+        try {
+            codeCompletionTestsBase.restorePythonPath(FileUtils.getFileAbsolutePath(data.file.getParentFile()), true);
+            PythonModuleManager pythonModuleManager = new PythonModuleManager(CodeCompletionTestsBase.nature);
+            if (version != null) {
+                //As the files will be found in the system, we need to set the system modules manager info.
+                IModulesManager modulesManager = pythonModuleManager.getIModuleManager();
+                SystemModulesManager systemModulesManager = (SystemModulesManager) modulesManager
+                        .getSystemModulesManager();
+                systemModulesManager.setInfo(new InterpreterInfo(version, "", new ArrayList<String>()));
 
-            CodeCompletionTestsBase.nature.setVersion(version, null);
+                CodeCompletionTestsBase.nature.setVersion(version, null);
+            }
+            ModuleAdapter module = VisitorFactory.createModuleAdapter(pythonModuleManager, data.file, new Document(
+                    data.source), CodeCompletionTestsBase.nature, CodeCompletionTestsBase.nature);
+            return module;
+        } catch (Exception e) {
+            throw new RuntimeException("Error handling: " + data.file);
         }
-        ModuleAdapter module = VisitorFactory.createModuleAdapter(pythonModuleManager, data.file, new Document(
-                data.source), CodeCompletionTestsBase.nature, CodeCompletionTestsBase.nature);
-        return module;
     }
 
     protected IGrammarVersionProvider createVersionProvider() {
@@ -77,7 +82,7 @@ public abstract class AbstractIOTestCase extends TestCase implements IInputOutpu
                 } else if (data.file.toString().contains("_grammar3")) {
                     return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5;
                 }
-                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
+                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5;
             }
 
             @Override

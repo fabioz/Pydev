@@ -14,7 +14,7 @@
 * Contributors:
 *     Fabio Zadrozny <fabiofz@gmail.com> - initial implementation
 ******************************************************************************/
-/* 
+/*
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
  * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  */
@@ -32,6 +32,7 @@ import org.python.pydev.ast.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.ast.codecompletion.shell.AbstractShell;
 import org.python.pydev.ast.codecompletion.shell.PythonShell;
 import org.python.pydev.ast.codecompletion.shell.PythonShellTest;
+import org.python.pydev.core.ShellId;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.refactoring.ast.PythonModuleManager;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
@@ -58,7 +59,8 @@ public class HierarchyTestCase extends CodeCompletionTestsBase {
         super.setUp();
 
         CompiledModule.COMPILED_MODULES_ENABLED = true;
-        this.restorePythonPath(TestDependent.GetCompletePythonLib(true) + "|" + file.getParent(), false);
+        this.restorePythonPath(TestDependent.getCompletePythonLib(true, isPython3Test()) + "|" + file.getParent(),
+                false);
         codeCompletion = new PyCodeCompletion();
 
         //we don't want to start it more than once
@@ -75,8 +77,9 @@ public class HierarchyTestCase extends CodeCompletionTestsBase {
     @Override
     public void tearDown() throws Exception {
         CompiledModule.COMPILED_MODULES_ENABLED = false;
+        ShellId shellId = AbstractShell.getShellId();
+        AbstractShell.putServerShell(nature, shellId, null);
         super.tearDown();
-        AbstractShell.putServerShell(nature, AbstractShell.getShellId(), null);
     }
 
     public void testHierarchyWithBuiltins() throws Throwable {
@@ -94,8 +97,14 @@ public class HierarchyTestCase extends CodeCompletionTestsBase {
         }
         HashSet<String> expected = new HashSet<String>();
         expected.add("MyList2");
-        expected.add("__builtin__.list");
+        expected.add("Container");
+        expected.add("Iterable");
+        expected.add("Collection");
+        expected.add("MutableSequence");
+        expected.add("Sequence");
+        expected.add("list");
         expected.add("MyListBase");
+        expected.add("object");
 
         assertEquals(expected, actual);
     }

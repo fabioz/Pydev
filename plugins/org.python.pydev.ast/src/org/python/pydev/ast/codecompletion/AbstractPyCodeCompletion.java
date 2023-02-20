@@ -15,6 +15,7 @@ import org.python.pydev.ast.codecompletion.revisited.AbstractToken;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.ICompletionState.LookingFor;
+import org.python.pydev.core.IFilterToken;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.IterEntry;
 import org.python.pydev.core.TokensOrProposalsList;
@@ -44,7 +45,7 @@ public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
      * tokens to actual completions as requested by the Eclipse infrastructure.
      * @param lookingForInstance if looking for instance, we should not add the 'self' as parameter.
      */
-    protected void changeItokenToCompletionPropostal(CompletionRequest request,
+    public static void changeItokenToCompletionPropostal(CompletionRequest request,
             List<ICompletionProposalHandle> convertedProposals, TokensOrProposalsList iTokenList, boolean importsTip,
             ICompletionState state) {
 
@@ -69,6 +70,7 @@ public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
             }
         }
 
+        IFilterToken filterToken = request.filterToken;
         int i = 0;
         for (Iterator<IterEntry> iter = iTokenList.iterator(); iter.hasNext();) {
             i++;
@@ -83,6 +85,9 @@ public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
                 IToken element = (IToken) obj;
 
                 String name = element.getRepresentation();
+                if (filterToken != null && !filterToken.accept(name, element.getType())) {
+                    continue;
+                }
 
                 //GET the ARGS
                 int l = name.length();
@@ -155,6 +160,10 @@ public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
                     type = ((Integer) element[2]).intValue();
                 }
 
+                if (filterToken != null && !filterToken.accept(name, type)) {
+                    continue;
+                }
+
                 int priority = IPyCompletionProposal.PRIORITY_DEFAULT;
                 if (type == IToken.TYPE_PARAM) {
                     priority = IPyCompletionProposal.PRIORITY_LOCALS;
@@ -167,7 +176,7 @@ public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
 
                 convertedProposals.add(proposal);
 
-            } else if (obj instanceof ICompletionProposalHandle) {
+            } else if (obj instanceof ICompletionProposalHandle && filterToken == null) {
                 //no need to convert
                 convertedProposals.add((ICompletionProposalHandle) obj);
             }

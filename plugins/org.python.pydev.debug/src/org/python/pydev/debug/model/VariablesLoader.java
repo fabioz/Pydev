@@ -116,9 +116,9 @@ public class VariablesLoader implements ICommandResponseListener {
         try {
             Map<String, PyVariable> map = new HashMap<String, PyVariable>();
             for (PyVariable var : oldVariables) {
-                String pyDBLocation = var.getPyDBLocation();
-                if (pyDBLocation != null) {
-                    map.put(pyDBLocation, var);
+                String uniqueId = var.getUniqueId();
+                if (uniqueId != null) {
+                    map.put(uniqueId, var);
                 }
             }
             Map<String, PyVariable> variablesAsMap = map;
@@ -127,9 +127,9 @@ public class VariablesLoader implements ICommandResponseListener {
             for (int i = 0; i < newFrameVariables.length; i++) {
                 newVariable = newFrameVariables[i];
 
-                String pyDBLocation = newVariable.getPyDBLocation();
-                if (pyDBLocation != null) {
-                    PyVariable oldVariable = variablesAsMap.get(pyDBLocation);
+                String uniqueId = newVariable.getUniqueId();
+                if (uniqueId != null) {
+                    PyVariable oldVariable = variablesAsMap.get(uniqueId);
 
                     if (oldVariable != null) {
                         boolean equals;

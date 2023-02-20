@@ -19,9 +19,15 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.content.IContentTypeMatcher;
 
 public class AbstractIProjectStub extends AbstractIContainerStub implements IProject {
+
+    @Override
+    public String getDefaultLineSeparator() throws CoreException {
+        return "\n";
+    }
 
     @Override
     public void build(int kind, IProgressMonitor monitor) throws CoreException {
@@ -81,7 +87,7 @@ public class AbstractIProjectStub extends AbstractIContainerStub implements IPro
 
     @Override
     public IPath getWorkingLocation(String id) {
-        throw new RuntimeException("Not implemented");
+        return new Path(".");
     }
 
     @Override

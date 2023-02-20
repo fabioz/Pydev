@@ -17,6 +17,7 @@ import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IModuleRequestState;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.MisconfigurationException;
@@ -41,12 +42,12 @@ public class PythonNatureStub implements IPythonNature, IAdaptable {
     }
 
     @Override
-    public TokensList getBuiltinCompletions() {
+    public TokensList getBuiltinCompletions(IModuleRequestState moduleRequest) {
         throw new RuntimeException("Not implemented");
     }
 
     @Override
-    public IModule getBuiltinMod() {
+    public IModule getBuiltinMod(IModuleRequestState moduleRequest) {
         throw new RuntimeException("Not implemented");
     }
 
@@ -181,7 +182,7 @@ public class PythonNatureStub implements IPythonNature, IAdaptable {
 
     @Override
     public int getGrammarVersion() {
-        return IPythonNature.GRAMMAR_PYTHON_VERSION_2_5;
+        return IPythonNature.GRAMMAR_PYTHON_VERSION_3_5;
     }
 
     @Override

@@ -8,8 +8,8 @@ class Person(object):
 Person("Lancelot").name
 
 robin = Person("Sir Robin")
-print robin
-print robin.name
+print(robin)
+print(robin.name)
 
 ##r
 
@@ -23,5 +23,5 @@ class Person(object):
 Person("Lancelot").p
 
 robin = Person("Sir Robin")
-print robin
-print robin.p
+print(robin)
+print(robin.p)

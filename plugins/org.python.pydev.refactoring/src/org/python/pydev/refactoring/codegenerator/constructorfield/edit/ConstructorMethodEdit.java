@@ -14,12 +14,12 @@
 * Contributors:
 *     Fabio Zadrozny <fabiofz@gmail.com> - initial implementation
 ******************************************************************************/
-/* 
+/*
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
  * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  *
  * IFS Institute for Software, HSR Rapperswil, Switzerland
- * 
+ *
  */
 
 package org.python.pydev.refactoring.codegenerator.constructorfield.edit;
@@ -35,7 +35,6 @@ import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.Expr;
-import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.NameTokType;
@@ -43,6 +42,7 @@ import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.factory.NodeHelper;
+import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.INodeAdapter;
@@ -66,7 +66,7 @@ public class ConstructorMethodEdit extends AbstractInsertEdit {
 
     /**
      * Tricky :)
-     * @throws MisconfigurationException 
+     * @throws MisconfigurationException
      */
     @Override
     protected SimpleNode getEditNode() throws MisconfigurationException {
@@ -128,7 +128,7 @@ public class ConstructorMethodEdit extends AbstractInsertEdit {
         }
 
         //create function def
-        return new FunctionDef(new NameTok(NodeHelper.KEYWORD_INIT, NameTok.FunctionName), args,
+        return PyAstFactory.createFunctionDefFull(new NameTok(NodeHelper.KEYWORD_INIT, NameTok.FunctionName), args,
                 body.toArray(new stmtType[0]), null, null, false);
     }
 

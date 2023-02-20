@@ -190,6 +190,13 @@ public abstract class AbstractAdditionalTokensInfo {
     }
 
     /**
+     * Just for test access.
+     */
+    public void addInternal(IInfo info, int doOn) {
+        add(info, doOn);
+    }
+
+    /**
      * That's the function actually used to add some info
      *
      * @param info information to be added
@@ -281,6 +288,7 @@ public abstract class AbstractAdditionalTokensInfo {
 
     public List<IInfo> addAstInfo(ModulesKey key, boolean generateDelta) throws Exception {
         if (key instanceof ModulesKeyForFolder) {
+            addModulesKeyForFolderToIndex(key, generateDelta);
             return new ArrayList<IInfo>(0);
         }
         boolean isZipModule = key instanceof ModulesKeyForZip;
@@ -331,6 +339,8 @@ public abstract class AbstractAdditionalTokensInfo {
 
         return addAstInfo(node, key, generateDelta);
     }
+
+    protected abstract void addModulesKeyForFolderToIndex(ModulesKey key, boolean generateDelta);
 
     /**
      * Adds ast info information for a module.

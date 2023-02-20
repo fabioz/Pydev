@@ -13,16 +13,6 @@ public class ModulesKeyForFolder extends ModulesKey {
     }
 
     @Override
-    public String toString() {
-        FastStringBuffer ret = new FastStringBuffer(name, 40);
-        if (file != null) {
-            ret.append(" - ");
-            ret.appendObject(file);
-        }
-        return ret.toString();
-    }
-
-    @Override
     public void toIO(FastStringBuffer buf) {
         super.toIO(buf);
         buf.append("|^");

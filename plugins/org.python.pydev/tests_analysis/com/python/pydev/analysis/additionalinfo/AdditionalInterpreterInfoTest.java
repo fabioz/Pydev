@@ -30,8 +30,10 @@ import org.python.pydev.core.ModulesKey;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 import org.python.pydev.shared_core.callbacks.ICallbackListener;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
 import com.python.pydev.analysis.system_info_builder.InterpreterInfoBuilder;
@@ -104,17 +106,17 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
 
     public void testMap() {
         FuncInfo info2 = new FuncInfo(((NameTok) createFuncDef("metz").name).id, "mod1", null, null, null, 0, 0);
-        info.add(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
+        info.addInternal(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
         info2 = new FuncInfo(((NameTok) createFuncDef("metZ").name).id, "mod1", null, null, null, 0, 0);
-        info.add(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
+        info.addInternal(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
         info2 = new FuncInfo(((NameTok) createFuncDef("met9").name).id, "mod1", null, null, null, 0, 0);
-        info.add(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
+        info.addInternal(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
         info2 = new FuncInfo(((NameTok) createFuncDef("met0").name).id, "mod1", null, null, null, 0, 0);
-        info.add(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
+        info.addInternal(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
         info2 = new FuncInfo(((NameTok) createFuncDef("meta").name).id, "mod1", null, null, null, 0, 0);
-        info.add(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
+        info.addInternal(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
         info2 = new FuncInfo(((NameTok) createFuncDef("metA").name).id, "mod1", null, null, null, 0, 0);
-        info.add(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
+        info.addInternal(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
         Collection<IInfo> tokensStartingWith = info
                 .getTokensStartingWith("met", AbstractAdditionalTokensInfo.TOP_LEVEL);
         assertEquals(6, tokensStartingWith.size());
@@ -125,13 +127,13 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
 
     public void testMap2() {
         FuncInfo info2 = new FuncInfo(((NameTok) createFuncDef("m").name).id, "mod1", null, null, null, 0, 0);
-        info.add(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
+        info.addInternal(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
         info2 = new FuncInfo(((NameTok) createFuncDef("mm").name).id, "mod1", null, null, null, 0, 0);
-        info.add(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
+        info.addInternal(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
         info2 = new FuncInfo(((NameTok) createFuncDef("mmm").name).id, "mod1", null, null, null, 0, 0);
-        info.add(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
+        info.addInternal(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
         info2 = new FuncInfo(((NameTok) createFuncDef("mmmm").name).id, "mod1", null, null, null, 0, 0);
-        info.add(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
+        info.addInternal(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
         Collection<IInfo> tokensStartingWith = info.getTokensStartingWith("m", AbstractAdditionalTokensInfo.TOP_LEVEL);
         assertEquals(4, tokensStartingWith.size());
 
@@ -147,13 +149,13 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
 
     public void testAddFunc() {
         FuncInfo info2 = new FuncInfo(((NameTok) createFuncDef("met1").name).id, "mod1", null, null, null, 0, 0);
-        info.add(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
+        info.addInternal(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
         info2 = new FuncInfo(((NameTok) createFuncDef("met2").name).id, "mod1", null, null, null, 0, 0);
-        info.add(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
+        info.addInternal(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
         info2 = new FuncInfo(((NameTok) createFuncDef("func1").name).id, "mod1", null, null, null, 0, 0);
-        info.add(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
+        info.addInternal(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
         info2 = new FuncInfo(((NameTok) createFuncDef("func2").name).id, "mod1", null, null, null, 0, 0);
-        info.add(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
+        info.addInternal(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
         Collection<IInfo> tokensStartingWith = info.getTokensStartingWith("me", AbstractAdditionalTokensInfo.TOP_LEVEL);
         assertEquals(2, tokensStartingWith.size());
         assertIsIn("met1", tokensStartingWith);
@@ -170,13 +172,13 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
 
     public void testAddClass() {
         ClassInfo info1 = new ClassInfo(((NameTok) createClassDef("cls1").name).id, "mod1", null, null, null, 0, 0);
-        info.add(info1, AbstractAdditionalTokensInfo.TOP_LEVEL);
+        info.addInternal(info1, AbstractAdditionalTokensInfo.TOP_LEVEL);
         ClassInfo info2 = new ClassInfo(((NameTok) createClassDef("cls2").name).id, "mod1", null, null, null, 0, 0);
-        info.add(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
+        info.addInternal(info2, AbstractAdditionalTokensInfo.TOP_LEVEL);
         ClassInfo info3 = new ClassInfo(((NameTok) createClassDef("class1").name).id, "mod2", null, null, null, 0, 0);
-        info.add(info3, AbstractAdditionalTokensInfo.TOP_LEVEL);
+        info.addInternal(info3, AbstractAdditionalTokensInfo.TOP_LEVEL);
         ClassInfo info4 = new ClassInfo(((NameTok) createClassDef("class2").name).id, "mod2", null, null, null, 0, 0);
-        info.add(info4, AbstractAdditionalTokensInfo.TOP_LEVEL);
+        info.addInternal(info4, AbstractAdditionalTokensInfo.TOP_LEVEL);
         Collection<IInfo> tokensStartingWith = info
                 .getTokensStartingWith("cls", AbstractAdditionalTokensInfo.TOP_LEVEL);
         assertEquals(2, tokensStartingWith.size());
@@ -365,7 +367,7 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
         AdditionalSystemInterpreterInfo.setAdditionalSystemInfo(interpreterManager,
                 defaultInterpreter, newAdditionalInfo);
 
-        newAdditionalInfo.load();
+        newAdditionalInfo.loadInternal();
         assertEquals(indexSize, newAdditionalInfo.completeIndex.keys().size());
 
         final List<ModulesKey> added = new ArrayList<>();
@@ -382,18 +384,21 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
         };
         AbstractAdditionalDependencyInfo.modulesAddedAndRemoved.registerListener(listener);
         try {
-            new InterpreterInfoBuilder().syncInfoToPythonPath(new NullProgressMonitor(), defaultInterpreterInfo);
+            new InterpreterInfoBuilder().syncInfoToPythonPath(new NullProgressMonitor(), defaultInterpreterInfo,
+                    newAdditionalInfo);
         } finally {
             AbstractAdditionalDependencyInfo.modulesAddedAndRemoved.unregisterListener(listener);
         }
 
         if (added.size() > 0) {
             throw new AssertionError(
-                    "Expected no modules to be added as we just loaded from a clean save. Found: " + added);
+                    "Expected no modules to be added as we just loaded from a clean save. Found:\n"
+                            + StringUtils.join("\n", added));
         }
         if (removed.size() > 0) {
             throw new AssertionError(
-                    "Expected no modules to be removed as we just loaded from a clean save. Found: " + removed);
+                    "Expected no modules to be removed as we just loaded from a clean save. Found:\n"
+                            + StringUtils.join("\n", removed));
         }
 
         checkItertoolsToken(newAdditionalInfo, true);
@@ -402,7 +407,7 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
 
     private void checkItertoolsToken(AbstractAdditionalDependencyInfo additionalSystemInfo, boolean expect) {
         Collection<IInfo> tokensStartingWith;
-        tokensStartingWith = additionalSystemInfo.getTokensStartingWith("izip_longest",
+        tokensStartingWith = additionalSystemInfo.getTokensStartingWith("zip_longest",
                 AbstractAdditionalTokensInfo.TOP_LEVEL);
         if (expect) {
             assertEquals(1, tokensStartingWith.size());
@@ -428,7 +433,7 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
     }
 
     private FunctionDef createFuncDef(String metName) {
-        return new FunctionDef(new NameTok(metName, NameTok.FunctionName), null, null, null, null, false);
+        return PyAstFactory.createFunctionDef(metName);
     }
 
 }

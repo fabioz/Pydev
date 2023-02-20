@@ -1,7 +1,7 @@
 ##|import foo
 a = 10##|
-print foo
-print a
+print(foo)
+print(a)
 
 ##r
 
@@ -11,5 +11,5 @@ def extracted_method():
     return foo, a
 
 foo, a = extracted_method()
-print foo
-print a
+print(foo)
+print(a)

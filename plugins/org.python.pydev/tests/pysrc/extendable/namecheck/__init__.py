@@ -1,1 +1,1 @@
-from samename import samename #When it is resolved, it should never resolve to the module, always to the class 
+from .samename import samename #When it is resolved, it should never resolve to the module, always to the class

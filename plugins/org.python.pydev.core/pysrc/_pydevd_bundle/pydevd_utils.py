@@ -2,21 +2,19 @@ from __future__ import nested_scopes
 import traceback
 import warnings
 from _pydev_bundle import pydev_log
-from _pydev_imps._pydev_saved_modules import thread
+from _pydev_bundle._pydev_saved_modules import thread, threading
+from _pydev_bundle import _pydev_saved_modules
 import signal
 import os
 import ctypes
-
-try:
-    from urllib import quote
-except:
-    from urllib.parse import quote  # @UnresolvedImport
-
+from importlib import import_module
+from urllib.parse import quote  # @UnresolvedImport
+import time
 import inspect
 import sys
-from _pydevd_bundle.pydevd_constants import IS_PY3K, USE_CUSTOM_SYS_CURRENT_FRAMES, IS_PYPY, SUPPORT_GEVENT, \
-    GEVENT_SUPPORT_NOT_SET_MSG, GENERATED_LEN_ATTR_NAME
-from _pydev_imps._pydev_saved_modules import threading
+from _pydevd_bundle.pydevd_constants import USE_CUSTOM_SYS_CURRENT_FRAMES, IS_PYPY, SUPPORT_GEVENT, \
+    GEVENT_SUPPORT_NOT_SET_MSG, GENERATED_LEN_ATTR_NAME, PYDEVD_WARN_SLOW_RESOLVE_TIMEOUT, \
+    get_global_debugger
 
 
 def save_main_module(file, module_name):
@@ -90,19 +88,12 @@ def compare_object_attrs_key(x):
         return (-1, to_string(x))
 
 
-if IS_PY3K:
-
-    def is_string(x):
-        return isinstance(x, str)
-
-else:
-
-    def is_string(x):
-        return isinstance(x, basestring)
+def is_string(x):
+    return isinstance(x, str)
 
 
 def to_string(x):
-    if is_string(x):
+    if isinstance(x, str):
         return x
     else:
         return str(x)
@@ -113,18 +104,8 @@ def print_exc():
         traceback.print_exc()
 
 
-if IS_PY3K:
-
-    def quote_smart(s, safe='/'):
-        return quote(s, safe)
-
-else:
-
-    def quote_smart(s, safe='/'):
-        if isinstance(s, unicode):
-            s = s.encode('utf-8')
-
-        return quote(s, safe)
+def quote_smart(s, safe='/'):
+    return quote(s, safe)
 
 
 def get_clsname_for_code(code, frame):
@@ -177,7 +158,11 @@ def dump_threads(stream=None, show_pydevd_threads=True):
         stream = sys.stderr
     thread_id_to_name_and_is_pydevd_thread = {}
     try:
-        for t in threading.enumerate():
+        threading_enumerate = _pydev_saved_modules.pydevd_saved_threading_enumerate
+        if threading_enumerate is None:
+            threading_enumerate = threading.enumerate
+
+        for t in threading_enumerate():
             is_pydevd_thread = getattr(t, 'is_pydev_daemon_thread', False)
             thread_id_to_name_and_is_pydevd_thread[t.ident] = (
                 '%s  (daemon: %s, pydevd thread: %s)' % (t.name, t.daemon, is_pydevd_thread),
@@ -297,6 +282,7 @@ def hasattr_checked(obj, name):
     else:
         return True
 
+
 def getattr_checked(obj, name):
     try:
         return getattr(obj, name)
@@ -388,7 +374,7 @@ class DAPGrouper(object):
         return ''
 
 
-def interrupt_main_thread(main_thread):
+def interrupt_main_thread(main_thread=None):
     '''
     Generates a KeyboardInterrupt in the main thread by sending a Ctrl+C
     or by calling thread.interrupt_main().
@@ -400,6 +386,9 @@ def interrupt_main_thread(main_thread):
     when the next Python instruction is about to be executed (so, it won't interrupt
     a sleep(1000)).
     '''
+    if main_thread is None:
+        main_thread = threading.main_thread()
+
     pydev_log.debug('Interrupt main thread.')
     called = False
     try:
@@ -449,3 +438,86 @@ def interrupt_main_thread(main_thread):
         except:
             pydev_log.exception('Error on interrupt main thread fallback.')
 
+
+class Timer(object):
+
+    def __init__(self, min_diff=PYDEVD_WARN_SLOW_RESOLVE_TIMEOUT):
+        self.min_diff = min_diff
+        self._curr_time = time.time()
+
+    def print_time(self, msg='Elapsed:'):
+        old = self._curr_time
+        new = self._curr_time = time.time()
+        diff = new - old
+        if diff >= self.min_diff:
+            print('%s: %.2fs' % (msg, diff))
+
+    def _report_slow(self, compute_msg, *args):
+        old = self._curr_time
+        new = self._curr_time = time.time()
+        diff = new - old
+        if diff >= self.min_diff:
+            py_db = get_global_debugger()
+            if py_db is not None:
+                msg = compute_msg(diff, *args)
+                py_db.writer.add_command(py_db.cmd_factory.make_warning_message(msg))
+
+    def report_if_compute_repr_attr_slow(self, attrs_tab_separated, attr_name, attr_type):
+        self._report_slow(self._compute_repr_slow, attrs_tab_separated, attr_name, attr_type)
+
+    def _compute_repr_slow(self, diff, attrs_tab_separated, attr_name, attr_type):
+        try:
+            attr_type = attr_type.__name__
+        except:
+            pass
+        if attrs_tab_separated:
+            return (
+                'pydevd warning: Computing repr of %s.%s (%s) was slow (took %.2fs).\n'
+                'Customize report timeout by setting the `PYDEVD_WARN_SLOW_RESOLVE_TIMEOUT` environment variable to a higher timeout (default is: %ss)\n'
+                ) % (
+                attrs_tab_separated.replace('\t', '.'), attr_name, attr_type, diff, PYDEVD_WARN_SLOW_RESOLVE_TIMEOUT)
+        else:
+            return (
+                'pydevd warning: Computing repr of %s (%s) was slow (took %.2fs)\n'
+                'Customize report timeout by setting the `PYDEVD_WARN_SLOW_RESOLVE_TIMEOUT` environment variable to a higher timeout (default is: %ss)\n'
+                ) % (
+                attr_name, attr_type, diff, PYDEVD_WARN_SLOW_RESOLVE_TIMEOUT)
+
+    def report_if_getting_attr_slow(self, cls, attr_name):
+        self._report_slow(self._compute_get_attr_slow, cls, attr_name)
+
+    def _compute_get_attr_slow(self, diff, cls, attr_name):
+        try:
+            cls = cls.__name__
+        except:
+            pass
+        return (
+            'pydevd warning: Getting attribute %s.%s was slow (took %.2fs)\n'
+            'Customize report timeout by setting the `PYDEVD_WARN_SLOW_RESOLVE_TIMEOUT` environment variable to a higher timeout (default is: %ss)\n'
+            ) % (cls, attr_name, diff, PYDEVD_WARN_SLOW_RESOLVE_TIMEOUT)
+
+
+def import_attr_from_module(import_with_attr_access):
+    if '.' not in import_with_attr_access:
+        # We need at least one '.' (we don't support just the module import, we need the attribute access too).
+        raise ImportError('Unable to import module with attr access: %s' % (import_with_attr_access,))
+
+    module_name, attr_name = import_with_attr_access.rsplit('.', 1)
+
+    while True:
+        try:
+            mod = import_module(module_name)
+        except ImportError:
+            if '.' not in module_name:
+                raise ImportError('Unable to import module with attr access: %s' % (import_with_attr_access,))
+
+            module_name, new_attr_part = module_name.rsplit('.', 1)
+            attr_name = new_attr_part + '.' + attr_name
+        else:
+            # Ok, we got the base module, now, get the attribute we need.
+            try:
+                for attr in attr_name.split('.'):
+                    mod = getattr(mod, attr)
+                return mod
+            except:
+                raise ImportError('Unable to import module with attr access: %s' % (import_with_attr_access,))

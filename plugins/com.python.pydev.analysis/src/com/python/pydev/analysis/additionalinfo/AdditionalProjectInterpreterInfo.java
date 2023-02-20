@@ -31,6 +31,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.python.pydev.ast.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.FileUtilsFileBuffer;
+import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IInfo;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
@@ -172,7 +173,8 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
             AbstractAdditionalTokensInfo systemInfo;
             try {
                 systemInfo = AdditionalSystemInterpreterInfo.getAdditionalSystemInfo(
-                        InterpreterManagersAPI.getInterpreterManager(nature), nature.getProjectInterpreter().getExecutableOrJar());
+                        InterpreterManagersAPI.getInterpreterManager(nature),
+                        nature.getProjectInterpreter().getExecutableOrJar());
             } catch (MisconfigurationException e) {
                 throw e;
             } catch (PythonNatureWithoutProjectException e) {
@@ -323,7 +325,14 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
         try (GlobalFeedbackReporter r = GlobalFeedback.start("Full projects reindex...")) {
             synchronized (additionalNatureInfoLock) {
                 //Note: at this point we're 100% certain that the ast manager is there.
-                IModulesManager m = nature.getAstManager().getModulesManager();
+                ICodeCompletionASTManager astManager = nature.getAstManager();
+                if (astManager == null) {
+                    return;
+                }
+                IModulesManager m = astManager.getModulesManager();
+                if (m == null) {
+                    return;
+                }
                 IProject project = nature.getProject();
 
                 AbstractAdditionalDependencyInfo currInfo = AdditionalProjectInterpreterInfo

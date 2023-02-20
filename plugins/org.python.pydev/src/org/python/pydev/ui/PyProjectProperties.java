@@ -145,9 +145,11 @@ public class PyProjectProperties extends PropertyPage {
         Label l2;
         l2 = new Label(topComp, SWT.None);
         l2.setText("External libraries (source folders/zips/jars/eggs) outside of the workspace.\n\n"
-                + "When using variables, the final paths resolved must be filesystem absolute.\n\n"
-                + "Changes in external libraries are not monitored, so, the 'Force restore internal info'\ns"
-                + "hould be used if an external library changes. ");
+                + "When using variables, the final paths resolved must be filesystem absolute.\n"
+                + "To access scripts in a bundle from current platform, provide bundle SymbolicName\n"
+                + "with the prefix 'bundle:' in a variable expression.\n\n"
+                + "Changes in external libraries are not monitored, so, the 'Force restore internal info'\n"
+                + "should be used if an external library changes. ");
         gd = new GridData();
         gd.grabExcessHorizontalSpace = true;
         gd.grabExcessVerticalSpace = false;
@@ -188,7 +190,9 @@ public class PyProjectProperties extends PropertyPage {
 
                 } else if (nButton == 2) {
                     addItemWithDialog(new InputDialog(getShell(), "Add path to resolve with variable",
-                            "Add path to resolve with variable in the format: ${VARIABLE}", "", null));
+                            "Add path to resolve with variable in the format:\n"
+                                    + "    ${VARIABLE} or ${bundle:<Bundle-SymbolicName>}",
+                            "", null));
 
                 } else {
                     throw new AssertionError("Unexpected");

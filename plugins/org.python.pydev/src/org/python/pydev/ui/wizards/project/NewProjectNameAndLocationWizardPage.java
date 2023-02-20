@@ -14,7 +14,10 @@ package org.python.pydev.ui.wizards.project;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -22,7 +25,9 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -49,6 +54,7 @@ import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.ast.listing_utils.PyFileListing;
 import org.python.pydev.ast.listing_utils.PyFileListing.PyFileInfo;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.preferences.FileTypesPreferences;
 import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.plugin.PyStructureConfigHelpers;
 import org.python.pydev.plugin.PydevPlugin;
@@ -727,23 +733,53 @@ public class NewProjectNameAndLocationWizardPage extends AbstractNewProjectPage 
         setMessage(null);
 
         // Look for existing Python files in the destination folder.
-        File locFile = (!useDefaults ? getLocationPath() : getLocationPath().append(projectFieldContents)).toFile();
-        PyFileListing pyFileListing = PythonPathHelper.getModulesBelow(locFile, null, new ArrayList<>());
-        if (pyFileListing != null) {
-            boolean foundInit = false;
-            Collection<PyFileInfo> modulesBelow = pyFileListing.getFoundPyFileInfos();
-            for (PyFileInfo fileInfo : modulesBelow) {
-                // Only notify existence of init files in the top-level directory.
-                if (PythonPathHelper.isValidInitFile(fileInfo.getFile().getPath())
-                        && fileInfo.getFile().getParentFile().equals(locFile)) {
-                    setMessage(
-                            "Project location contains an __init__.py file. Consider using the location's parent folder instead.");
-                    foundInit = true;
-                    break;
-                }
+        File locDir = (!useDefaults ? getLocationPath() : getLocationPath().append(projectFieldContents)).toFile();
+        if (locDir.exists()) {
+            if (!locDir.isDirectory()) {
+                setErrorMessage("The location specified exists but is not a directory.");
+                return false;
             }
-            if (!foundInit && modulesBelow.size() > 0) {
-                setMessage("Project location contains existing Python files. The created project will include them.");
+            boolean foundInit = false;
+            try {
+                Set<String> s = new HashSet<>();
+                s.addAll(Arrays.asList(locDir.list()));
+                for (String init : FileTypesPreferences.getValidInitFiles()) {
+                    if (s.contains(init)) {
+                        foundInit = true;
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+                setErrorMessage("It was not possible to list the contents of the specified location.");
+                return false;
+            }
+
+            if (foundInit) {
+                setMessage(
+                        "Project location contains an __init__.py file. Consider using the location's parent folder instead.");
+
+            } else {
+                final long initialTime = System.currentTimeMillis();
+                IProgressMonitor monitor = new NullProgressMonitor() {
+                    @Override
+                    public boolean isCanceled() {
+                        // Cancel after 250 millis
+                        if (!super.isCanceled()) {
+                            if (System.currentTimeMillis() - initialTime > 250) {
+                                setCanceled(true);
+                            }
+                        }
+                        return super.isCanceled();
+                    }
+                };
+                PyFileListing pyFileListing = PythonPathHelper.getModulesBelow(locDir, monitor, new ArrayList<>());
+                if (pyFileListing != null) {
+                    Collection<PyFileInfo> modulesBelow = pyFileListing.getFoundPyFileInfos();
+                    if (modulesBelow.size() > 0) {
+                        setMessage(
+                                "Project location contains existing Python files. The created project will include them.");
+                    }
+                }
             }
         }
 

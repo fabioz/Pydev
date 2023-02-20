@@ -36,6 +36,7 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.core.logging.DebugSettings;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.io.HttpProtocolUtils;
 import org.python.pydev.shared_core.net.SocketUtil;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -141,19 +142,19 @@ public abstract class AbstractShell {
      * Initialize given the file that points to the python server (execute it
      * with python).
      *
-     * @param f file pointing to the python server
+     * @param scriptWithinPySrc file pointing to the python server
      *
      * @throws IOException
      * @throws CoreException
      */
-    protected AbstractShell(File f) throws IOException, CoreException {
+    protected AbstractShell(File scriptWithinPySrc) throws IOException, CoreException {
         if (finishedForGood) {
             throw new RuntimeException(
                     "Shells are already finished for good, so, it is an invalid state to try to create a new shell.");
         }
 
-        serverFile = f;
-        if (!serverFile.exists()) {
+        serverFile = scriptWithinPySrc;
+        if (!FileUtils.enhancedIsFile(serverFile)) {
             throw new RuntimeException("Can't find python server file");
         }
     }
@@ -226,7 +227,7 @@ public abstract class AbstractShell {
      * @throws MisconfigurationException
      * @throws PythonNatureWithoutProjectException
      */
-    /*package*/void startIt(IPythonNature nature) throws IOException, JDTNotAvailableException,
+    public void startIt(IPythonNature nature) throws IOException, JDTNotAvailableException,
             CoreException, MisconfigurationException, PythonNatureWithoutProjectException {
         this.startIt(nature.getProjectInterpreter());
     }
@@ -242,7 +243,7 @@ public abstract class AbstractShell {
      * @throws CoreException
      * @throws MisconfigurationException
      */
-    /*package*/void startIt(IInterpreterInfo interpreter) throws IOException,
+    public void startIt(IInterpreterInfo interpreter) throws IOException,
             JDTNotAvailableException, CoreException, MisconfigurationException {
 
         int milisSleep = AbstractShell.DEFAULT_SLEEP_BETWEEN_ATTEMPTS;
@@ -624,7 +625,7 @@ public abstract class AbstractShell {
      * Kill our sub-process.
      * @throws IOException
      */
-    /*default*/void endIt() {
+    public void endIt() {
         synchronized (ioLock) {
             try {
                 closeConn();

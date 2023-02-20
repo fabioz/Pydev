@@ -1,17 +1,17 @@
 class A:
     def __init__(self, **opts):
-        print "foo"
+        print("foo")
 
 class B(A):
     try:
-        print "foo"
+        print("foo")
     finally:
-        print "done."
+        print("done.")
     
     attribute = "hello"
     
     def my_method(self):
-        print self.attribute
+        print(self.attribute)
         
 b = B()
 b.my_method()
@@ -30,7 +30,7 @@ b.my_method()
 ##r Again any kwargs of a superclass init-method must be called with kwargs (same as for vararg)
 class A:
     def __init__(self, **opts):
-        print "foo"
+        print("foo")
 
 class B(A):
 
@@ -39,14 +39,14 @@ class B(A):
         self.attribute = attribute
 
     try:
-        print "foo"
+        print("foo")
     finally:
-        print "done."
+        print("done.")
     
     attribute = "hello"
     
     def my_method(self):
-        print self.attribute
+        print(self.attribute)
         
 b = B()
 b.my_method()

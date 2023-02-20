@@ -54,7 +54,7 @@ public interface IModulesManager {
 
     public abstract ModulesKey[] getOnlyDirectModules();
 
-    public abstract IModule getRelativeModule(String name, IPythonNature nature);
+    public abstract IModule getRelativeModule(String name, IPythonNature nature, IModuleRequestState moduleRequest);
 
     /**
      * This method returns the module that corresponds to the path passed as a parameter.
@@ -66,10 +66,11 @@ public interface IModulesManager {
      * NOTE: isLookingForRelative description was: when looking for relative imports, we don't check for __init__
      * @return the module represented by this name or null if not found.
      */
-    public abstract IModule getModule(String name, IPythonNature nature, boolean dontSearchInit);
+    public abstract IModule getModule(String name, IPythonNature nature, boolean dontSearchInit,
+            IModuleRequestState moduleRequest);
 
     public abstract IModule getModule(String name, IPythonNature nature, boolean checkSystemManager,
-            boolean dontSearchInit);
+            boolean dontSearchInit, IModuleRequestState moduleRequest);
 
     /**
      * @param member the member we want to know if it is in the pythonpath
@@ -162,7 +163,7 @@ public interface IModulesManager {
      * May return null if not found.
      */
     public Tuple<IModule, IModulesManager> getModuleAndRelatedModulesManager(String name, IPythonNature nature,
-            boolean checkSystemManager, boolean dontSearchInit);
+            boolean checkSystemManager, boolean dontSearchInit, IModuleRequestState moduleRequest);
 
     /**
      * Used so that we can deal with modules that are not saved (i.e.: modules that we're currently

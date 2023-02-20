@@ -93,6 +93,14 @@ public class PyVariable extends PlatformObject implements IVariable, IValue, IVa
         return locator.getThreadId() + "\t" + id + "\tBY_ID";
     }
 
+    @Override
+    public String getUniqueId() {
+        // This was added because on a corner-case, it's possible to have
+        // the same pydb location for a variable if the name of the variable
+        // is equal to the name of a function whose return value was gotten.
+        return getPyDBLocation() + this.isReturnValue;
+    }
+
     public String getDetailText() throws DebugException {
         return getValueString();
     }

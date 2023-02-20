@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Parser Plug-in
 Bundle-SymbolicName: org.python.pydev.parser; singleton:=true
-Bundle-Version: 8.3.0.qualifier
+Bundle-Version: 10.1.3.qualifier
 Bundle-ClassPath: parser.jar
 Bundle-Activator: org.python.pydev.parser.ParserPlugin
 Eclipse-BundleShape: dir
@@ -10,14 +10,11 @@ Require-Bundle: org.junit;bundle-version="4.0.0";resolution:=optional,
  org.eclipse.core.runtime,
  org.eclipse.core.resources,
  org.eclipse.text,
- org.python.pydev.core;bundle-version="[8.3.0,8.3.1)"
+ org.python.pydev.core;bundle-version="[10.1.3,10.1.4)"
 Bundle-ActivationPolicy: lazy
 Export-Package: org.python.pydev.parser,
  org.python.pydev.parser.fastparser,
  org.python.pydev.parser.fastparser.grammar_fstrings_common,
- org.python.pydev.parser.grammar25,
- org.python.pydev.parser.grammar26,
- org.python.pydev.parser.grammar27,
  org.python.pydev.parser.grammar30,
  org.python.pydev.parser.grammar36,
  org.python.pydev.parser.grammar_fstrings,

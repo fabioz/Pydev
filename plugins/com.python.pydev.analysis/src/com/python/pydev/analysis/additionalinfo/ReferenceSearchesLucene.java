@@ -122,7 +122,7 @@ public class ReferenceSearchesLucene implements IReferenceSearches {
 
         String folderToPersist = completeIndex.getFolderToPersist();
         Object indexApiLock;
-        File indexDir = new File(folderToPersist, "lc");
+        File indexDir = new File(folderToPersist, "lc" + IndexApi.luceneSuffix);
         synchronized (lock) {
             indexApiLock = indexDirToLock.get(indexDir);
             if (indexApiLock == null) {

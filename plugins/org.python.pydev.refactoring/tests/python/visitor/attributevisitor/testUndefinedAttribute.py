@@ -1,11 +1,11 @@
 class Foo:
     
     class Nested:
-        print self.nest_attr
+        print(self.nest_attr)
     
     def meth(self):
-        print self.bar * self.bar
-    print "bar"
+        print(self.bar * self.bar)
+    print("bar")
     
 ##r
 

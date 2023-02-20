@@ -43,6 +43,14 @@ import org.python.pydev.parser.jython.ast.Index;
 import org.python.pydev.parser.jython.ast.Lambda;
 import org.python.pydev.parser.jython.ast.List;
 import org.python.pydev.parser.jython.ast.ListComp;
+import org.python.pydev.parser.jython.ast.Match;
+import org.python.pydev.parser.jython.ast.MatchAs;
+import org.python.pydev.parser.jython.ast.MatchClass;
+import org.python.pydev.parser.jython.ast.MatchKeyword;
+import org.python.pydev.parser.jython.ast.MatchMapping;
+import org.python.pydev.parser.jython.ast.MatchOr;
+import org.python.pydev.parser.jython.ast.MatchSequence;
+import org.python.pydev.parser.jython.ast.MatchValue;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
@@ -77,6 +85,7 @@ import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.excepthandlerType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.keywordType;
+import org.python.pydev.parser.jython.ast.match_caseType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
 
@@ -117,6 +126,99 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
 
     @Override
     public Object visitModule(Module node) throws Exception {
+        fixNode(node);
+        traverse(node);
+        fixAfterNode(node);
+        return null;
+    }
+
+    @Override
+    public Object visitMatch(Match node) throws Exception {
+        fixNode(node);
+        handleMatchSubject(node);
+        for (match_caseType c : node.cases) {
+            fixNode(c);
+            if (c.pattern != null) {
+                c.pattern.accept(this);
+            }
+            if (c.guard != null) {
+                c.guard.accept(this);
+            }
+            for (SimpleNode n : c.body) {
+                n.accept(this);
+            }
+            fixAfterNode(c);
+        }
+        fixAfterNode(node);
+        return null;
+    }
+
+    private void handleMatchSubject(Match node) throws Exception {
+        node.subject.accept(this);
+        if (node.subject.specialsBefore != null) {
+            for (Object specialBefore : node.subject.specialsBefore) {
+                if (specialBefore instanceof SimpleNode) {
+                    SimpleNode nodeBefore = (SimpleNode) specialBefore;
+                    if (node.beginLine == nodeBefore.beginLine) {
+                        node.beginLine++;
+                        nextLine();
+                    }
+
+                }
+            }
+        }
+    }
+
+    @Override
+    public Object visitMatchValue(MatchValue node) throws Exception {
+        fixNode(node);
+        traverse(node);
+        fixAfterNode(node);
+        return null;
+    }
+
+    @Override
+    public Object visitMatchSequence(MatchSequence node) throws Exception {
+        fixNode(node);
+        traverse(node);
+        fixAfterNode(node);
+        return null;
+    }
+
+    @Override
+    public Object visitMatchMapping(MatchMapping node) throws Exception {
+        fixNode(node);
+        traverse(node);
+        fixAfterNode(node);
+        return null;
+    }
+
+    @Override
+    public Object visitMatchClass(MatchClass node) throws Exception {
+        fixNode(node);
+        traverse(node);
+        fixAfterNode(node);
+        return null;
+    }
+
+    @Override
+    public Object visitMatchAs(MatchAs node) throws Exception {
+        fixNode(node);
+        traverse(node);
+        fixAfterNode(node);
+        return null;
+    }
+
+    @Override
+    public Object visitMatchOr(MatchOr node) throws Exception {
+        fixNode(node);
+        traverse(node);
+        fixAfterNode(node);
+        return null;
+    }
+
+    @Override
+    public Object visitMatchKeyword(MatchKeyword node) throws Exception {
         fixNode(node);
         traverse(node);
         fixAfterNode(node);
@@ -765,7 +867,7 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
 
         if ((node.args != null && node.args.length > 0) || (node.keywords != null && node.keywords.length > 0)
                 || node.starargs != null || node.kwargs != null) {
-            handleArguments(reverseNodeArray(node.args), reverseNodeArray(node.keywords), node.starargs, node.kwargs);
+            handleArguments(node.args, node.keywords, node.starargs, node.kwargs);
         }
         fixAfterNode(node);
 

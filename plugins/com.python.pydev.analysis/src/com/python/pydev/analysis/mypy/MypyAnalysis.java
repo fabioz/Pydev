@@ -29,6 +29,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.python.pydev.ast.runners.SimplePythonRunner;
 import org.python.pydev.ast.runners.SimpleRunner;
 import org.python.pydev.core.CheckAnalysisErrors;
 import org.python.pydev.core.IModulesManager;
@@ -137,6 +138,8 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
         this.fDocument = document;
         this.location = location;
         this.monitor = monitor;
+
+        // May be null when we should do 'python -m mypy ...'.
         this.mypyLocation = mypyLocation;
     }
 
@@ -146,11 +149,9 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
     void createMypyProcess(IExternalCodeAnalysisStream out)
             throws CoreException,
             MisconfigurationException, PythonNatureWithoutProjectException {
-        String mypyExecutable = FileUtils.getFileAbsolutePath(mypyLocation);
         String target = location.toOSString();
 
         ArrayList<String> cmdList = new ArrayList<String>();
-        cmdList.add(mypyExecutable);
         String userArgs = StringUtils.replaceNewLines(
                 MypyPreferences.getMypyArgs(resource), " ");
         List<String> userArgsAsList = new ArrayList<>(Arrays.asList(ProcessUtils.parseArguments(userArgs)));
@@ -187,10 +188,6 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
 
         cmdList.addAll(userArgsAsList);
         cmdList.add(target);
-        String[] args = cmdList.toArray(new String[0]);
-
-        // run executable command (mypy or mypy.bat or mypy.exe)
-        WriteToStreamHelper.write("Mypy: Executing command line:", out, (Object) args);
 
         IPythonNature nature = PythonNature.getPythonNature(project);
         ICallback<String[], String[]> updateEnv = null;
@@ -230,13 +227,46 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
         }
 
         final ICallback<String[], String[]> finalUpdateEnv = updateEnv;
-        ICallback0<Process> launchProcessCallback = () -> {
-            SimpleRunner simpleRunner = new SimpleRunner();
-            final Tuple<Process, String> r = simpleRunner.run(args, workingDir, nature,
-                    null, finalUpdateEnv);
-            Process process = r.o1;
-            return process;
-        };
+
+        ICallback0<Process> launchProcessCallback;
+        if (mypyLocation == null) {
+            // use python -m mypy
+
+            launchProcessCallback = () -> {
+                String interpreter;
+                try {
+                    interpreter = nature.getProjectInterpreter().getExecutableOrJar();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                cmdList.add(0, "mypy");
+                String[] args = cmdList.toArray(new String[0]);
+                WriteToStreamHelper.write("MyPy: Executing command line:", out, "python", "-m", args);
+                SimplePythonRunner runner = new SimplePythonRunner();
+                String[] parameters = SimplePythonRunner.preparePythonCallParameters(interpreter, "-m", args);
+
+                Tuple<Process, String> r = runner.run(parameters, workingDir, nature, monitor, finalUpdateEnv);
+                return r.o1;
+            };
+
+        } else {
+            String mypyExecutable = FileUtils.getFileAbsolutePath(mypyLocation);
+            cmdList.add(0, mypyExecutable);
+
+            launchProcessCallback = () -> {
+                String[] args = cmdList.toArray(new String[0]);
+
+                // run executable command (mypy or mypy.bat or mypy.exe)
+                WriteToStreamHelper.write("Mypy: Executing command line:", out, (Object) args);
+
+                SimpleRunner simpleRunner = new SimpleRunner();
+                final Tuple<Process, String> r = simpleRunner.run(args, workingDir, nature,
+                        null, finalUpdateEnv);
+                Process process = r.o1;
+                return process;
+            };
+        }
+
         this.processWatchDoc = new ExternalAnalizerProcessWatchDoc(out, monitor, this, launchProcessCallback, project,
                 true);
         this.processWatchDoc.start();

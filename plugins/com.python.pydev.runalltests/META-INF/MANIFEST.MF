@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Runalltests2 Plug-in
 Bundle-SymbolicName: com.python.pydev.runalltests
-Bundle-Version: 8.3.0.qualifier
+Bundle-Version: 10.1.3.qualifier
 Bundle-Activator: com.python.pydev.runalltests2.Activator
 Eclipse-BundleShape: dir
 Bundle-Vendor: Brainwy Software Ltda

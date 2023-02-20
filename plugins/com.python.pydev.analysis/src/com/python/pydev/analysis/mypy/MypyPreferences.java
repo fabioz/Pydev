@@ -11,7 +11,7 @@ import java.net.MalformedURLException;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IAdaptable;
-import org.python.pydev.core.log.Log;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.preferences.PyScopedPreferences;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
@@ -55,21 +55,19 @@ public class MypyPreferences {
         return PyScopedPreferences.getString(MYPY_ARGS, projectAdaptable);
     }
 
+    public static boolean useMyPyFromPythonNature(IPythonNature pythonNature, IAdaptable projectAdaptable) {
+        if (LOCATION_SPECIFY.equals(PyScopedPreferences.getString(SEARCH_MYPY_LOCATION, projectAdaptable))) {
+            return false;
+        }
+        return true;
+    }
+
     public static File getMypyLocation(PythonNature pythonNature) {
         IProject project = pythonNature.getProject();
-        String searchlocation = PyScopedPreferences.getString(SEARCH_MYPY_LOCATION, project);
-        switch (searchlocation) {
-            case LOCATION_SPECIFY:
-                return new File(PyScopedPreferences.getString(MYPY_FILE_LOCATION, project));
-            default:
-                try {
-                    return pythonNature.getProjectInterpreter().searchExecutableForInterpreter("mypy", false);
-                } catch (Exception e) {
-                    Log.log(e);
-                    return null;
-                }
-
+        if (LOCATION_SPECIFY.equals(PyScopedPreferences.getString(SEARCH_MYPY_LOCATION, project))) {
+            return new File(PyScopedPreferences.getString(MYPY_FILE_LOCATION, project));
         }
+        return null;
     }
 
     public static ICallback<IExternalCodeAnalysisStream, IAdaptable> createMypyStream = ((

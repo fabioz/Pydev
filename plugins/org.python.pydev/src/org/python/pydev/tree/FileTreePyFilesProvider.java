@@ -12,8 +12,15 @@
 package org.python.pydev.tree;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.python.pydev.ast.listing_utils.PyFileListing;
+import org.python.pydev.ast.listing_utils.PyFileListing.PyFileListingFilter;
+import org.python.pydev.core.log.Log;
+import org.python.pydev.shared_core.structure.LowMemoryArrayList;
 
 /**
  * @author Fabio Zadrozny
@@ -22,8 +29,25 @@ public class FileTreePyFilesProvider extends FileTreeContentProvider {
 
     @Override
     public Object[] getChildren(Object element) {
-        Object[] kids = ((File) element).listFiles(PyFileListing.getPyFilesFileFilter(true));
-        return kids == null ? new Object[0] : kids;
+        LowMemoryArrayList<Object> lst = new LowMemoryArrayList<>();
+        try {
+            File file = (File) element;
+            PyFileListingFilter filter = PyFileListing.getPyFilesFileFilter(true);
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(file.toPath())) {
+                for (Path path : stream) {
+                    File subFile = path.toFile();
+                    if (filter.accept(path, subFile, Files.isDirectory(path))) {
+                        lst.add(subFile);
+                    }
+                }
+            } catch (IOException e) {
+                Log.log(e);
+            }
+        } catch (Exception e) {
+            Log.log(e);
+        }
+
+        return lst.toArray(new File[0]);
     }
 
 }

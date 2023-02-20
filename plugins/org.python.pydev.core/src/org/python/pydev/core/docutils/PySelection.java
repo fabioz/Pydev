@@ -25,6 +25,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.core.ICodeCompletionASTManager.ImportInfo;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.docutils.TabNannyDocIterator.IndentInfo;
 import org.python.pydev.core.log.Log;
@@ -60,7 +61,7 @@ public final class PySelection extends TextSelectionUtils {
     public static final String[] CLASS_TOKEN = new String[] { "class", };
 
     public static final String[] INDENT_TOKENS = new String[] { "async", "if", "for", "except", "def", "class",
-            "else", "elif", "while", "try", "with", "finally" };
+            "else", "elif", "while", "try", "with", "finally", "match", "case" };
 
     public static final Set<String> STATEMENT_TOKENS = new HashSet<String>();
 
@@ -68,6 +69,7 @@ public final class PySelection extends TextSelectionUtils {
         //Note that lambda is not here because it's usually inside other statements
         STATEMENT_TOKENS.add("assert");
         STATEMENT_TOKENS.add("break");
+        STATEMENT_TOKENS.add("case");
         STATEMENT_TOKENS.add("class");
         STATEMENT_TOKENS.add("continue");
         STATEMENT_TOKENS.add("def");
@@ -79,6 +81,7 @@ public final class PySelection extends TextSelectionUtils {
         STATEMENT_TOKENS.add("from");
         //STATEMENT_TOKENS.add("if"); -- can be used in the construct None if True else ''
         STATEMENT_TOKENS.add("import");
+        STATEMENT_TOKENS.add("match");
         STATEMENT_TOKENS.add("pass");
         STATEMENT_TOKENS.add("raise");
         STATEMENT_TOKENS.add("return");
@@ -98,6 +101,7 @@ public final class PySelection extends TextSelectionUtils {
         ALL_KEYWORD_TOKENS.add("as");
         ALL_KEYWORD_TOKENS.add("assert");
         ALL_KEYWORD_TOKENS.add("break");
+        ALL_KEYWORD_TOKENS.add("case");
         ALL_KEYWORD_TOKENS.add("class");
         ALL_KEYWORD_TOKENS.add("continue");
         ALL_KEYWORD_TOKENS.add("def");
@@ -115,6 +119,7 @@ public final class PySelection extends TextSelectionUtils {
         ALL_KEYWORD_TOKENS.add("in");
         ALL_KEYWORD_TOKENS.add("is");
         ALL_KEYWORD_TOKENS.add("lambda");
+        ALL_KEYWORD_TOKENS.add("match");
         ALL_KEYWORD_TOKENS.add("nonlocal");
         ALL_KEYWORD_TOKENS.add("not");
         ALL_KEYWORD_TOKENS.add("or");
@@ -169,6 +174,14 @@ public final class PySelection extends TextSelectionUtils {
      */
     public PySelection(IDocument doc) {
         this(doc, 0);
+    }
+
+    /**
+     * Used in jython scripting.
+     * @param edit
+     */
+    public PySelection(IPyEdit edit) {
+        this(edit.getDocument(), edit.getTextSelection());
     }
 
     /**
@@ -443,6 +456,14 @@ public final class PySelection extends TextSelectionUtils {
         return getInsideParentesisToks(addSelf, i, false);
     }
 
+    public String getFirstInsideParentesisTok(int line) {
+        List<String> insideParentesisToks = getInsideParentesisToks(true, line).o1;
+        if (insideParentesisToks != null && insideParentesisToks.size() > 0) {
+            return insideParentesisToks.get(0);
+        }
+        return null;
+    }
+
     public Tuple<List<String>, Integer> getInsideParentesisToks(boolean addSelf, int iLine) {
         String line = getLine(iLine);
         int openParIndex = line.indexOf('(');
@@ -481,21 +502,18 @@ public final class PySelection extends TextSelectionUtils {
         String docContents = doc.get();
         int j;
         try {
-            if (isCall) {
-                ParsingUtils parsingUtils = ParsingUtils.create(docContents);
-                j = parsingUtils.eatPar(offset, null);
-                final String insideParentesisTok = docContents.substring(offset + 1, j);
-                final ParsingUtils insideParensParsingUtils = ParsingUtils.create(insideParentesisTok);
-                final int len = insideParentesisTok.length();
-                final FastStringBuffer buf = new FastStringBuffer(len);
+            j = ParsingUtils.create(docContents).eatPar(offset, null);
 
+            final String insideParentesisTok = docContents.substring(offset + 1, j);
+            final ParsingUtils insideParensParsingUtils = ParsingUtils.create(insideParentesisTok);
+            final int len = insideParentesisTok.length();
+            final FastStringBuffer buf = new FastStringBuffer(len);
+
+            if (isCall) {
                 for (int i = 0; i < len; i++) {
                     char c = insideParentesisTok.charAt(i);
                     if (c == ',') {
-                        String trim = buf.toString().trim();
-                        if (trim.length() > 0) {
-                            params.add(trim);
-                        }
+                        addTrimmedBufToList(buf, params);
                         buf.clear();
                     } else {
                         switch (c) {
@@ -519,43 +537,55 @@ public final class PySelection extends TextSelectionUtils {
                         }
                     }
                 }
-                String trim = buf.toString().trim();
-                if (trim.length() > 0) {
-                    params.add(trim);
-                }
-
+                addTrimmedBufToList(buf, params);
             } else {
-                ParsingUtils parsingUtils = ParsingUtils.create(docContents);
-                final FastStringBuffer buf = new FastStringBuffer();
-                j = parsingUtils.eatPar(offset, buf);
-
-                final String insideParentesisTok = buf.toString();
-
-                StringTokenizer tokenizer = new StringTokenizer(insideParentesisTok, ",");
-                while (tokenizer.hasMoreTokens()) {
-                    String tok = tokenizer.nextToken();
-                    String trimmed = tok.split("=")[0].trim();
-                    trimmed = trimmed.replaceAll("\\(", "");
-                    trimmed = trimmed.replaceAll("\\)", "");
-                    if (!addSelf && trimmed.equals("self")) {
-                        // don't add self...
-                    } else if (trimmed.length() > 0) {
-                        int colonPos;
-                        if ((colonPos = trimmed.indexOf(':')) != -1) {
-                            trimmed = trimmed.substring(0, colonPos);
-                            trimmed = trimmed.trim();
+                boolean shouldAppendBuf = true;
+                for (int i = 0; i < len; i++) {
+                    char c = insideParentesisTok.charAt(i);
+                    if (c == ',') {
+                        if (addSelf || !"self".equals(buf.toString().trim())) {
+                            addTrimmedBufToList(buf, params);
                         }
-                        if (trimmed.length() > 0) {
-                            params.add(trimmed);
+                        buf.clear();
+                        shouldAppendBuf = true;
+                    } else {
+                        switch (c) {
+                            case ':':
+                            case '=':
+                                shouldAppendBuf = false;
+                                break;
+                            case '\'':
+                            case '"':
+                                i = insideParensParsingUtils.eatLiterals(null, i);
+                                break;
+
+                            case '{':
+                            case '(':
+                            case '[':
+                                i = insideParensParsingUtils.eatPar(i, null, c);
+                                break;
+
+                            default:
+                                if (shouldAppendBuf) {
+                                    buf.append(c);
+                                }
                         }
                     }
                 }
+                addTrimmedBufToList(buf, params);
             }
         } catch (SyntaxErrorException e) {
             throw new RuntimeException(e);
 
         }
         return new Tuple<List<String>, Integer>(params, j);
+    }
+
+    private static final void addTrimmedBufToList(FastStringBuffer buf, List<String> list) {
+        String trimmed = buf.toString().trim();
+        if (trimmed.length() > 0) {
+            list.add(trimmed);
+        }
     }
 
     public static final String[] TOKENS_BEFORE_ELSE = new String[] { "if", "for", "except", "while", "elif" };
@@ -798,8 +828,8 @@ public final class PySelection extends TextSelectionUtils {
         return null;
     }
 
-    public static class ActivationTokenAndQual {
-        public ActivationTokenAndQual(String activationToken, String qualifier, boolean changedForCalltip,
+    public static class ActivationTokenAndQualifier {
+        public ActivationTokenAndQualifier(String activationToken, String qualifier, boolean changedForCalltip,
                 boolean alreadyHasParams, boolean isInMethodKeywordParam, int offsetForKeywordParam,
                 int calltipOffset) {
             this.activationToken = activationToken;
@@ -844,22 +874,25 @@ public final class PySelection extends TextSelectionUtils {
     /**
      * Shortcut
      */
-    public String[] getActivationTokenAndQual(boolean getFullQualifier) {
-        return getActivationTokenAndQual(doc, getAbsoluteCursorOffset(), getFullQualifier);
+    public String[] getActivationTokenAndQualifier(boolean getFullQualifier) {
+        return getActivationTokenAndQualifier(doc, getAbsoluteCursorOffset(), getFullQualifier);
     }
 
     /**
      * Shortcut
      */
-    public ActivationTokenAndQual getActivationTokenAndQual(boolean getFullQualifier, boolean handleForCalltips) {
-        return getActivationTokenAndQual(doc, getAbsoluteCursorOffset(), getFullQualifier, handleForCalltips);
+    public ActivationTokenAndQualifier getActivationTokenAndQualifier(boolean getFullQualifier,
+            boolean handleForCalltips) {
+        return getActivationTokenAndQualifier(doc, getAbsoluteCursorOffset(), getFullQualifier, handleForCalltips);
     }
 
     /**
      * Shortcut
      */
-    public static String[] getActivationTokenAndQual(IDocument theDoc, int documentOffset, boolean getFullQualifier) {
-        ActivationTokenAndQual ret = getActivationTokenAndQual(theDoc, documentOffset, getFullQualifier, false);
+    public static String[] getActivationTokenAndQualifier(IDocument theDoc, int documentOffset,
+            boolean getFullQualifier) {
+        ActivationTokenAndQualifier ret = getActivationTokenAndQualifier(theDoc, documentOffset, getFullQualifier,
+                false);
         return new String[] { ret.activationToken, ret.qualifier }; //will never be changed for the calltip, as we didn't request it
     }
 
@@ -914,18 +947,16 @@ public final class PySelection extends TextSelectionUtils {
      *
      * @return the activation token and the qualifier.
      */
-    public static ActivationTokenAndQual getActivationTokenAndQual(IDocument doc, int documentOffset,
+    public static ActivationTokenAndQualifier getActivationTokenAndQualifier(IDocument doc, int documentOffset,
             boolean getFullQualifier, boolean handleForCalltips) {
         boolean changedForCalltip = false;
         boolean alreadyHasParams = false; //only useful if we're in a calltip
         int parOffset = -1;
         boolean isInMethodKeywordParam = false;
         int offsetForKeywordParam = -1;
-
         int foundCalltipOffset = -1;
         if (handleForCalltips) {
             int calltipOffset = documentOffset - 1;
-            //ok, in this case, we have to check if we're just after a ( or ,
             if (calltipOffset > 0 && calltipOffset < doc.getLength()) {
                 try {
                     char c = doc.getChar(calltipOffset);
@@ -939,7 +970,6 @@ public final class PySelection extends TextSelectionUtils {
                         //(that is, if we're in a function call and not inside a list, string or dict declaration)
                         parOffset = calltipOffset;
                         calltipOffset = getBeforeParentesisCall(doc, calltipOffset);
-
                         if (calltipOffset != -1) {
                             documentOffset = calltipOffset;
                             changedForCalltip = true;
@@ -1062,10 +1092,10 @@ public final class PySelection extends TextSelectionUtils {
             Log.log("documentOffset " + documentOffset + "\n" + "theDoc.getLength() " + doc.getLength(), e);
         }
 
-        String[] splitActAndQualifier = ActivationTokenAndQual.splitActAndQualifier(activationToken);
+        String[] splitActAndQualifier = ActivationTokenAndQualifier.splitActAndQualifier(activationToken);
         activationToken = splitActAndQualifier[0];
         String qualifier = splitActAndQualifier[1];
-        return new ActivationTokenAndQual(activationToken, qualifier, changedForCalltip, alreadyHasParams,
+        return new ActivationTokenAndQualifier(activationToken, qualifier, changedForCalltip, alreadyHasParams,
                 isInMethodKeywordParam, offsetForKeywordParam, foundCalltipOffset);
     }
 

@@ -36,6 +36,12 @@ public interface ICompletionProposalFactory {
             String additionalProposalInfo, int priority, IPyEdit edit, String line, PySelection ps, FormatStd format,
             IMarker marker);
 
+    ICompletionProposalHandle createIgnoreFlake8CompletionProposalInSameLine(
+            String replacementString, int replacementOffset, int replacementLength, int cursorPosition,
+            IImageHandle image, String displayString, Object contextInformation,
+            String additionalProposalInfo, int priority, IPyEdit edit, String line, PySelection ps, FormatStd format,
+            IMarker marker);
+
     ICompletionProposalHandle createPyTemplateProposal(Template template, TemplateContext context,
             IRegion region, IImageHandle image, int relevance);
 

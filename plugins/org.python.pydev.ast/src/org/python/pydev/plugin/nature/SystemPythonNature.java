@@ -22,6 +22,7 @@ import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IModuleRequestState;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.MisconfigurationException;
@@ -299,11 +300,11 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
     //builtin completions
 
     @Override
-    public TokensList getBuiltinCompletions() {
+    public TokensList getBuiltinCompletions(IModuleRequestState moduleRequest) {
         if (!this.isOkToUse()) {
             return null;
         }
-        return this.manager.getBuiltinCompletions(this.info.getName());
+        return this.manager.getBuiltinCompletions(this.info.getName(), moduleRequest);
     }
 
     @Override
@@ -314,11 +315,11 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
     //builtin mod
 
     @Override
-    public IModule getBuiltinMod() {
+    public IModule getBuiltinMod(IModuleRequestState moduleRequest) {
         if (!this.isOkToUse()) {
             return null;
         }
-        return this.manager.getBuiltinMod(this.info.getName());
+        return this.manager.getBuiltinMod(this.info.getName(), moduleRequest);
     }
 
     @Override

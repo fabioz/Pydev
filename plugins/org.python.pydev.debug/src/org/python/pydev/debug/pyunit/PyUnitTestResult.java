@@ -19,6 +19,7 @@ import org.python.pydev.ast.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.ast.item_pointer.ItemPointer;
 import org.python.pydev.ast.location.FindWorkspaceFiles;
 import org.python.pydev.ast.refactoring.PyRefactoringFindDefinition;
+import org.python.pydev.core.BaseModuleRequest;
 import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
@@ -138,7 +139,8 @@ public class PyUnitTestResult {
                         PythonNature nature = PythonNature.getPythonNature(project);
                         String moduleName = nature.resolveModule(file);
                         if (moduleName != null) {
-                            IModule mod = nature.getAstManager().getModule(moduleName, nature, true);
+                            IModule mod = nature.getAstManager().getModule(moduleName, nature, true,
+                                    new BaseModuleRequest(true));
                             if (mod != null) {
                                 ICompletionCache completionCache = new CompletionCache();
                                 IDefinition[] definitions = mod.findDefinition(CompletionStateFactory

@@ -11,12 +11,15 @@
  */
 package org.python.pydev.ast.codecompletion.revisited.visitors;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -59,8 +62,15 @@ public abstract class AbstractVisitor extends VisitorBase {
 
     protected final IPythonNature nature;
 
-    public AbstractVisitor(IPythonNature nature) {
+    /**
+     * This is the module we are visiting: just a weak reference so that we don't create a cycle (let's
+     * leave things easy for the garbage collector).
+     */
+    protected final WeakReference<IModule> module;
+
+    public AbstractVisitor(IPythonNature nature, IModule module) {
         this.nature = nature;
+        this.module = new WeakReference<IModule>(module);
     }
 
     /**
@@ -70,27 +80,29 @@ public abstract class AbstractVisitor extends VisitorBase {
      */
     protected SourceToken addToken(SimpleNode node) {
         //add the token
-        SourceToken t = makeToken(node, moduleName, nature);
+        SourceToken t = makeToken(node, moduleName, nature, module.get());
         this.tokens.add(t);
         return t;
     }
 
-    public static SourceToken makeToken(SimpleNode node, String moduleName, IPythonNature nature) {
+    public static SourceToken makeToken(SimpleNode node, String moduleName, IPythonNature nature, IModule module) {
         return new SourceToken(node, NodeUtils.getRepresentationString(node), NodeUtils.getNodeArgs(node),
-                NodeUtils.getNodeDocString(node), moduleName, nature);
+                NodeUtils.getNodeDocString(node), moduleName, nature, module);
     }
 
-    public static SourceToken makeToken(SimpleNode node, String rep, String moduleName, IPythonNature nature) {
+    public static SourceToken makeToken(SimpleNode node, String rep, String moduleName, IPythonNature nature,
+            IModule module) {
         return new SourceToken(node, rep, NodeUtils.getNodeArgs(node), NodeUtils.getNodeDocString(node), moduleName,
-                nature);
+                nature, module);
     }
 
     /**
      * same as make token, but returns the full representation for a token, instead of just a 'partial' name
      */
-    public static SourceToken makeFullNameToken(SimpleNode node, String moduleName, IPythonNature nature) {
+    public static SourceToken makeFullNameToken(SimpleNode node, String moduleName, IPythonNature nature,
+            IModule module) {
         return new SourceToken(node, NodeUtils.getFullRepresentationString(node), NodeUtils.getNodeArgs(node),
-                NodeUtils.getNodeDocString(node), moduleName, nature);
+                NodeUtils.getNodeDocString(node), moduleName, nature, module);
     }
 
     /**
@@ -103,30 +115,30 @@ public abstract class AbstractVisitor extends VisitorBase {
      * @return the tokens list passed in or the created one if it was null
      */
     public static IToken makeWildImportToken(ImportFrom node, List<IToken> tokens, String moduleName,
-            IPythonNature nature) {
+            IPythonNature nature, IModule module) {
         if (tokens == null) {
             tokens = new ArrayList<IToken>();
         }
         SourceToken sourceToken = null;
         if (isWildImport(node)) {
-            sourceToken = new SourceToken(node, ((NameTok) node.module).id, "", "", moduleName, nature);
+            sourceToken = new SourceToken(node, ((NameTok) node.module).id, "", "", moduleName, nature, module);
             tokens.add(sourceToken);
         }
         return sourceToken;
     }
 
     public static List<IToken> makeImportToken(SimpleNode node, List<IToken> tokens, String moduleName,
-            boolean allowForMultiple, IPythonNature nature) {
+            boolean allowForMultiple, IPythonNature nature, IModule module) {
         if (node instanceof Import) {
-            return makeImportToken((Import) node, tokens, moduleName, allowForMultiple, nature);
+            return makeImportToken((Import) node, tokens, moduleName, allowForMultiple, nature, module);
         }
         if (node instanceof ImportFrom) {
             ImportFrom i = (ImportFrom) node;
             if (isWildImport(i)) {
-                makeWildImportToken(i, tokens, moduleName, nature);
+                makeWildImportToken(i, tokens, moduleName, nature, module);
                 return tokens;
             }
-            return makeImportToken((ImportFrom) node, tokens, moduleName, allowForMultiple, nature);
+            return makeImportToken((ImportFrom) node, tokens, moduleName, allowForMultiple, nature, module);
         }
 
         throw new RuntimeException("Unable to create token for the passed import (" + node + ")");
@@ -144,20 +156,20 @@ public abstract class AbstractVisitor extends VisitorBase {
      * @return the tokens list passed in or the created one if it was null
      */
     public static List<IToken> makeImportToken(Import node, List<IToken> tokens, String moduleName,
-            boolean allowForMultiple, IPythonNature nature) {
+            boolean allowForMultiple, IPythonNature nature, IModule module) {
         aliasType[] names = node.names;
-        return makeImportToken(node, tokens, names, moduleName, "", nature);
+        return makeImportToken(node, tokens, names, moduleName, "", nature, module);
     }
 
     /**
      * The same as above but with ImportFrom
      */
     public static List<IToken> makeImportToken(ImportFrom node, List<IToken> tokens, String moduleName,
-            boolean allowForMultiple, IPythonNature nature) {
+            boolean allowForMultiple, IPythonNature nature, IModule module) {
         aliasType[] names = node.names;
         String importName = ((NameTok) node.module).id;
 
-        return makeImportToken(node, tokens, names, moduleName, importName, nature);
+        return makeImportToken(node, tokens, names, moduleName, importName, nature, module);
     }
 
     /**
@@ -180,16 +192,17 @@ public abstract class AbstractVisitor extends VisitorBase {
         private static final long serialVersionUID = 1L;
 
         public ImportPartSourceToken(SimpleNode node, String rep, String doc, String args, String parentPackage,
-                String originalRep, boolean originalHasRep, IPythonNature nature) {
-            super(node, rep, doc, args, parentPackage, originalRep, originalHasRep, nature);
+                String originalRep, boolean originalHasRep, IPythonNature nature, IModule module) {
+            super(node, rep, doc, args, parentPackage, originalRep, originalHasRep, nature, module);
         }
     }
 
     /**
      * The same as above
      */
-    private static List<IToken> makeImportToken(SimpleNode node, List<IToken> tokens, aliasType[] names, String module,
-            String initialImportName, IPythonNature nature) {
+    private static List<IToken> makeImportToken(SimpleNode node, List<IToken> tokens, aliasType[] names,
+            String moduleName,
+            String initialImportName, IPythonNature nature, IModule module) {
         if (tokens == null) {
             tokens = new ArrayList<IToken>();
         }
@@ -215,17 +228,18 @@ public abstract class AbstractVisitor extends VisitorBase {
                     String rep = it.next();
                     SourceToken sourceToken;
                     if (it.hasNext()) {
-                        sourceToken = new ImportPartSourceToken(node, rep, "", "", module, initialImportName + rep,
-                                true, nature);
+                        sourceToken = new ImportPartSourceToken(node, rep, "", "", moduleName, initialImportName + rep,
+                                true, nature, module);
 
                     } else {
-                        sourceToken = new SourceToken(node, rep, "", "", module, initialImportName + rep, true, nature);
+                        sourceToken = new SourceToken(node, rep, "", "", moduleName, initialImportName + rep, true,
+                                nature, module);
                     }
                     tokens.add(sourceToken);
                 }
             } else {
-                SourceToken sourceToken = new SourceToken(node, name, "", "", module, initialImportName + original,
-                        false, nature);
+                SourceToken sourceToken = new SourceToken(node, name, "", "", moduleName, initialImportName + original,
+                        false, nature, module);
                 tokens.add(sourceToken);
             }
 
@@ -273,12 +287,12 @@ public abstract class AbstractVisitor extends VisitorBase {
      * @throws Exception
      */
     public static List<IToken> getTokens(SimpleNode ast, int which, String moduleName, ICompletionState state,
-            boolean onlyAllowTokensIn__all__, IPythonNature nature) {
+            boolean onlyAllowTokensIn__all__, IPythonNature nature, IModule module) {
         AbstractVisitor modelVisitor;
         if (which == INNER_DEFS) {
-            modelVisitor = new InnerModelVisitor(moduleName, state, nature);
+            modelVisitor = new InnerModelVisitor(moduleName, state, nature, module);
         } else {
-            modelVisitor = new GlobalModelVisitor(which, moduleName, onlyAllowTokensIn__all__, nature);
+            modelVisitor = new GlobalModelVisitor(which, moduleName, onlyAllowTokensIn__all__, nature, module);
         }
 
         if (ast != null) {
@@ -296,14 +310,15 @@ public abstract class AbstractVisitor extends VisitorBase {
 
     /**
      * This method traverses the ast and returns a model visitor that has the list of found tokens (and other related info, such as __all__, etc.)
+     * @param sourceModule
      */
     public static GlobalModelVisitor getGlobalModuleVisitorWithTokens(SimpleNode ast, int which, String moduleName,
-            ICompletionState state, boolean onlyAllowTokensIn__all__, IPythonNature nature) {
+            boolean onlyAllowTokensIn__all__, IPythonNature nature, SourceModule sourceModule) {
         if (which == INNER_DEFS) {
             throw new RuntimeException("Only globals for getting the GlobalModelVisitor");
         }
         GlobalModelVisitor modelVisitor = new GlobalModelVisitor(which, moduleName, onlyAllowTokensIn__all__,
-                nature);
+                nature, sourceModule);
 
         if (ast != null) {
             try {

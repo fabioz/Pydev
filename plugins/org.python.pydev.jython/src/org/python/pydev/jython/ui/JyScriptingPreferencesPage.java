@@ -74,7 +74,7 @@ public class JyScriptingPreferencesPage extends FieldEditorPreferencePage implem
         String loc = JythonPlugin.getDefault().getPreferenceStore().getString(ADDITIONAL_SCRIPTING_LOCATION);
         if (loc != null && loc.trim().length() > 0) {
             File file = new File(loc);
-            if (file.exists() && file.isDirectory()) {
+            if (file.isDirectory()) {
                 return file;
             }
         }

@@ -3,6 +3,7 @@ package com.python.pydev.analysis.refactoring.quick_fixes;
 import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.shared_core.utils.PlatformUtils;
 
 import com.python.pydev.analysis.refactoring.quick_fixes.AddTokenAndImportStatement.ComputedInfo;
 
@@ -88,6 +89,8 @@ public class AddTokenAndImportStatementTest extends TestCase {
     public void testAllCases() throws Exception {
 
         // -- TESTS WITH STANDARD COLS VALUE -- //
+
+        String delimiter = PlatformUtils.isWindowsPlatform() ? "\r\n" : "\n";
 
         // normal situation
         checkImport("from math import ceil", "from math import sqrt", "from math import ceil, sqrt", 80);
@@ -266,32 +269,37 @@ public class AddTokenAndImportStatementTest extends TestCase {
         // -- TESTS WITH COLS LIMIT EXCEDEED -- //
 
         // normal situation
-        checkImport("from math import ceil", "from math import sqrt", "from math import ceil,\\\r\nsqrt", 20);
+        checkImport("from math import ceil", "from math import sqrt", "from math import ceil,\\" + delimiter + "sqrt",
+                20);
 
         // test with multiple spaces and tabs -> style conserves
         checkImport("from math import ceil      ", "from math import sqrt",
-                "from math import ceil,\\\r\nsqrt      ", 20);
+                "from math import ceil,\\" + delimiter + "sqrt      ", 20);
 
         // test with "(xxxx)"
-        checkImport("from math import (ceil)", "from math import sqrt", "from math import (ceil,\r\nsqrt)", 20);
+        checkImport("from math import (ceil)", "from math import sqrt", "from math import (ceil," + delimiter + "sqrt)",
+                20);
 
         // test with "(xxxx)" and spaces after
-        checkImport("from math import (ceil)   ", "from math import sqrt", "from math import (ceil,\r\nsqrt)   ", 20);
+        checkImport("from math import (ceil)   ", "from math import sqrt",
+                "from math import (ceil," + delimiter + "sqrt)   ", 20);
 
         //!! test with "(xxxx)" and multiple spaces and tabs
         checkImport("from math import (ceil       )", "from math import sqrt",
-                "from math import (ceil,\r\nsqrt       )",
+                "from math import (ceil," + delimiter + "sqrt       )",
                 20);
 
         //!! test with "(xxxx)", spaces after and multiple spaces and tabs
         checkImport("from math import (ceil       )   ", "from math import sqrt",
-                "from math import (ceil,\r\nsqrt       )   ", 20);
+                "from math import (ceil," + delimiter + "sqrt       )   ", 20);
 
         // test with "(xxxx)" and comma
-        checkImport("from math import (ceil,)", "from math import sqrt", "from math import (ceil,\r\nsqrt,)", 20);
+        checkImport("from math import (ceil,)", "from math import sqrt",
+                "from math import (ceil," + delimiter + "sqrt,)", 20);
 
         // test with "(xxxx)", spaces after and comma
-        checkImport("from math import (ceil,)    ", "from math import sqrt", "from math import (ceil,\r\nsqrt,)    ",
+        checkImport("from math import (ceil,)    ", "from math import sqrt",
+                "from math import (ceil," + delimiter + "sqrt,)    ",
                 20);
 
         // -- END OF TESTS WITH COLS LIMIT EXCEDEED -- //
@@ -299,35 +307,38 @@ public class AddTokenAndImportStatementTest extends TestCase {
         // -- TESTS WITH COLS LIMIT EXCEDEED WITH COMMENTS INLINE -- //
 
         // normal situation
-        checkImport("from math import ceil#foo", "from math import sqrt", "from math import ceil,\\\r\nsqrt#foo", 20);
+        checkImport("from math import ceil#foo", "from math import sqrt",
+                "from math import ceil,\\" + delimiter + "sqrt#foo", 20);
 
         // test with multiple spaces and tabs -> style conserves
         checkImport("from math import ceil      #foo", "from math import sqrt",
-                "from math import ceil,\\\r\nsqrt      #foo", 20);
+                "from math import ceil,\\" + delimiter + "sqrt      #foo", 20);
 
         // test with "(xxxx)"
-        checkImport("from math import (ceil)#foo", "from math import sqrt", "from math import (ceil,\r\nsqrt)#foo", 20);
+        checkImport("from math import (ceil)#foo", "from math import sqrt",
+                "from math import (ceil," + delimiter + "sqrt)#foo", 20);
 
         // test with "(xxxx)" and spaces after
         checkImport("from math import (ceil)   #foo", "from math import sqrt",
-                "from math import (ceil,\r\nsqrt)   #foo", 20);
+                "from math import (ceil," + delimiter + "sqrt)   #foo", 20);
 
         //!! test with "(xxxx)" and multiple spaces and tabs
         checkImport("from math import (ceil       )#foo", "from math import sqrt",
-                "from math import (ceil,\r\nsqrt       )#foo",
+                "from math import (ceil," + delimiter + "sqrt       )#foo",
                 20);
 
         //!! test with "(xxxx)", spaces after and multiple spaces and tabs
         checkImport("from math import (ceil       )   #foo", "from math import sqrt",
-                "from math import (ceil,\r\nsqrt       )   #foo", 20);
+                "from math import (ceil," + delimiter + "sqrt       )   #foo", 20);
 
         // test with "(xxxx)" and comma
-        checkImport("from math import (ceil,)#foo", "from math import sqrt", "from math import (ceil,\r\nsqrt,)#foo",
+        checkImport("from math import (ceil,)#foo", "from math import sqrt",
+                "from math import (ceil," + delimiter + "sqrt,)#foo",
                 20);
 
         // test with "(xxxx)", spaces after and comma
         checkImport("from math import (ceil,)    #foo", "from math import sqrt",
-                "from math import (ceil,\r\nsqrt,)    #foo",
+                "from math import (ceil," + delimiter + "sqrt,)    #foo",
                 20);
 
         // -- TESTS WITH COLS LIMIT EXCEDEED WITH COMMENTS INLINE -- //
@@ -335,37 +346,37 @@ public class AddTokenAndImportStatementTest extends TestCase {
         // -- TESTS WITH MULTI-LINE DECLARATIONS -- //
 
         // normal situation
-        checkImport("from math import ceil,\\\r\nsqrt", "from math import fmod",
-                "from math import ceil,\\\r\nsqrt, fmod", 80);
+        checkImport("from math import ceil,\\" + delimiter + "sqrt", "from math import fmod",
+                "from math import ceil,\\" + delimiter + "sqrt, fmod", 80);
 
         // test with multiple spaces and tabs -> style conserves
-        checkImport("from math import ceil,\\\r\nsqrt      ", "from math import fmod",
-                "from math import ceil,\\\r\nsqrt, fmod      ", 80);
+        checkImport("from math import ceil,\\" + delimiter + "sqrt      ", "from math import fmod",
+                "from math import ceil,\\" + delimiter + "sqrt, fmod      ", 80);
 
         // test with "(xxxx)"
-        checkImport("from math import (ceil,\r\nsqrt)", "from math import fmod",
-                "from math import (ceil,\r\nsqrt, fmod)", 80);
+        checkImport("from math import (ceil," + delimiter + "sqrt)", "from math import fmod",
+                "from math import (ceil," + delimiter + "sqrt, fmod)", 80);
 
         // test with "(xxxx)" and spaces after
-        checkImport("from math import (ceil,\r\nsqrt)   ", "from math import fmod",
-                "from math import (ceil,\r\nsqrt, fmod)   ", 80);
+        checkImport("from math import (ceil," + delimiter + "sqrt)   ", "from math import fmod",
+                "from math import (ceil," + delimiter + "sqrt, fmod)   ", 80);
 
         //!! test with "(xxxx)" and multiple spaces and tabs
-        checkImport("from math import (ceil,\r\nsqrt       )", "from math import fmod",
-                "from math import (ceil,\r\nsqrt, fmod       )",
+        checkImport("from math import (ceil," + delimiter + "sqrt       )", "from math import fmod",
+                "from math import (ceil," + delimiter + "sqrt, fmod       )",
                 80);
 
         //!! test with "(xxxx)", spaces after and multiple spaces and tabs
-        checkImport("from math import (ceil,\r\nsqrt       )   ", "from math import fmod",
-                "from math import (ceil,\r\nsqrt, fmod       )   ", 80);
+        checkImport("from math import (ceil," + delimiter + "sqrt       )   ", "from math import fmod",
+                "from math import (ceil," + delimiter + "sqrt, fmod       )   ", 80);
 
         // test with "(xxxx)" and comma
-        checkImport("from math import (ceil,\r\nsqrt,)", "from math import fmod",
-                "from math import (ceil,\r\nsqrt, fmod,)", 80);
+        checkImport("from math import (ceil," + delimiter + "sqrt,)", "from math import fmod",
+                "from math import (ceil," + delimiter + "sqrt, fmod,)", 80);
 
         // test with "(xxxx)", spaces after and comma
-        checkImport("from math import (ceil,\r\nsqrt,)    ", "from math import fmod",
-                "from math import (ceil,\r\nsqrt, fmod,)    ",
+        checkImport("from math import (ceil," + delimiter + "sqrt,)    ", "from math import fmod",
+                "from math import (ceil," + delimiter + "sqrt, fmod,)    ",
                 80);
 
         // -- END OF TESTS WITH MULTI-LINE DECLARATIONS -- //
@@ -373,37 +384,37 @@ public class AddTokenAndImportStatementTest extends TestCase {
         // -- TESTS WITH MULTI-LINE DECLARATIONS AND COLS LIMIT EXCEDEED -- //
 
         // normal situation
-        checkImport("from math import ceil,\\\r\nsqrt", "from math import fmod",
-                "from math import ceil,\\\r\nsqrt, fmod", 20);
+        checkImport("from math import ceil,\\" + delimiter + "sqrt", "from math import fmod",
+                "from math import ceil,\\" + delimiter + "sqrt, fmod", 20);
 
         // test with multiple spaces and tabs -> style conserves
-        checkImport("from math import ceil,\\\r\nsqrt      ", "from math import fmod",
-                "from math import ceil,\\\r\nsqrt, fmod      ", 20);
+        checkImport("from math import ceil,\\" + delimiter + "sqrt      ", "from math import fmod",
+                "from math import ceil,\\" + delimiter + "sqrt, fmod      ", 20);
 
         // test with "(xxxx)"
-        checkImport("from math import (ceil,\r\nsqrt)", "from math import fmod",
-                "from math import (ceil,\r\nsqrt, fmod)", 20);
+        checkImport("from math import (ceil," + delimiter + "sqrt)", "from math import fmod",
+                "from math import (ceil," + delimiter + "sqrt, fmod)", 20);
 
         // test with "(xxxx)" and spaces after
-        checkImport("from math import (ceil,\r\nsqrt)   ", "from math import fmod",
-                "from math import (ceil,\r\nsqrt, fmod)   ", 20);
+        checkImport("from math import (ceil," + delimiter + "sqrt)   ", "from math import fmod",
+                "from math import (ceil," + delimiter + "sqrt, fmod)   ", 20);
 
         //!! test with "(xxxx)" and multiple spaces and tabs
-        checkImport("from math import (ceil,\r\nsqrt       )", "from math import fmod",
-                "from math import (ceil,\r\nsqrt, fmod       )",
+        checkImport("from math import (ceil," + delimiter + "sqrt       )", "from math import fmod",
+                "from math import (ceil," + delimiter + "sqrt, fmod       )",
                 20);
 
         //!! test with "(xxxx)", spaces after and multiple spaces and tabs
-        checkImport("from math import (ceil,\r\nsqrt       )   ", "from math import fmod",
-                "from math import (ceil,\r\nsqrt, fmod       )   ", 20);
+        checkImport("from math import (ceil," + delimiter + "sqrt       )   ", "from math import fmod",
+                "from math import (ceil," + delimiter + "sqrt, fmod       )   ", 20);
 
         // test with "(xxxx)" and comma
-        checkImport("from math import (ceil,\r\nsqrt,)", "from math import fmod",
-                "from math import (ceil,\r\nsqrt, fmod,)", 20);
+        checkImport("from math import (ceil," + delimiter + "sqrt,)", "from math import fmod",
+                "from math import (ceil," + delimiter + "sqrt, fmod,)", 20);
 
         // test with "(xxxx)", spaces after and comma
-        checkImport("from math import (ceil,\r\nsqrt,)    ", "from math import fmod",
-                "from math import (ceil,\r\nsqrt, fmod,)    ",
+        checkImport("from math import (ceil," + delimiter + "sqrt,)    ", "from math import fmod",
+                "from math import (ceil," + delimiter + "sqrt, fmod,)    ",
                 20);
 
         // -- END OF TESTS WITH MULTI-LINE DECLARATIONS AND COLS LIMIT EXCEDEED -- //

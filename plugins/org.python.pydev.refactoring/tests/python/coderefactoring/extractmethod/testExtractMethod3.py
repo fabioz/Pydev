@@ -4,7 +4,7 @@ class A:
         attribute = ##|"hello" # peptic rocks##|
     
     def my_method(self):
-        print self.attribute
+        print(self.attribute)
         
 a = A()
 a.test()
@@ -21,7 +21,7 @@ class A:
         attribute = self.extracted_method()
     
     def my_method(self):
-        print self.attribute
+        print(self.attribute)
         
 a = A()
 a.test()

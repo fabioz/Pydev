@@ -43,7 +43,8 @@ public interface IProjectModulesManager extends IModulesManager {
     /**
      * @return a given module only if it's actually controlled in the given modules manager (not considering any dependencies)
      */
-    public abstract IModule getModuleInDirectManager(String name, IPythonNature nature, boolean dontSearchInit);
+    public abstract IModule getModuleInDirectManager(String name, IPythonNature nature, boolean dontSearchInit,
+            IModuleRequestState moduleRequest);
 
     /**
      * @return the name of a given module or null if it can't resolve it for this modules manager.

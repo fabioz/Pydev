@@ -29,27 +29,18 @@ import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.text.Document;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-import org.python.pydev.core.log.Log;
-import org.python.pydev.parser.jython.ParseException;
-import org.python.pydev.parser.jython.TokenMgrError;
-import org.python.pydev.parser.jython.ast.Expr;
-import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.exprType;
-import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
-import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
-import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.core.base.AbstractPythonRefactoring;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
+import org.python.pydev.refactoring.core.base.RefactoringInfo.SelectionComputer;
+import org.python.pydev.refactoring.core.base.RefactoringInfo.SelectionComputer.SelectionComputerKind;
 import org.python.pydev.refactoring.core.change.IChangeProcessor;
 import org.python.pydev.refactoring.core.validator.NameValidator;
 import org.python.pydev.refactoring.messages.Messages;
 import org.python.pydev.refactoring.utils.ListUtils;
 import org.python.pydev.shared_core.string.ICoreTextSelection;
-import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
-import org.python.pydev.shared_core.structure.Tuple;
 
 public class ExtractLocalRefactoring extends AbstractPythonRefactoring {
     private ExtractLocalRequestProcessor requestProcessor;
@@ -68,36 +59,14 @@ public class ExtractLocalRefactoring extends AbstractPythonRefactoring {
 
     @Override
     public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException {
-        List<Tuple<ICoreTextSelection, ModuleAdapter>> selections = new LinkedListWarningOnSlowOperations<Tuple<ICoreTextSelection, ModuleAdapter>>();
-
-        /* Use different approaches to find a valid selection */
-        selections
-                .add(new Tuple<ICoreTextSelection, ModuleAdapter>(info.getUserSelection(),
-                        info.getParsedUserSelection()));
-
-        selections.add(new Tuple<ICoreTextSelection, ModuleAdapter>(info.getExtendedSelection(), info
-                .getParsedExtendedSelection()));
-
-        selections.add(new Tuple<ICoreTextSelection, ModuleAdapter>(info.getUserSelection(),
-                getParsedMultilineSelection(info.getUserSelection())));
-
-        /* Find a valid selection */
-        ICoreTextSelection selection = null;
-        exprType expression = null;
-        for (Tuple<ICoreTextSelection, ModuleAdapter> s : selections) {
-            /* Is selection valid? */
-            if (s != null) {
-                expression = extractExpression(s.o2);
-                selection = s.o1;
-                if (expression != null) {
-                    break;
-                }
-            }
-        }
+        SelectionComputer bestSelection = info.getSelectionComputer(SelectionComputerKind.extractLocal);
+        exprType expression = bestSelection.getSingleExpression();
+        ICoreTextSelection selection = bestSelection.selection;
 
         /* No valid selections found, report error */
         if (expression == null) {
             status.addFatalError(Messages.extractLocalNoExpressionSelected);
+            return status;
         }
 
         AbstractScopeNode<?> scopeAdapter = info.getModuleAdapter().getScopeAdapter(selection);
@@ -107,42 +76,6 @@ public class ExtractLocalRefactoring extends AbstractPythonRefactoring {
         requestProcessor.setExpression(expression);
 
         return status;
-    }
-
-    private ModuleAdapter getParsedMultilineSelection(ICoreTextSelection selection) {
-        String source = selection.getText();
-        source = source.replaceAll("\n", "");
-        source = source.replaceAll("\r", "");
-
-        try {
-            ModuleAdapter node = VisitorFactory.createModuleAdapter(null, null, new Document(source), null,
-                    info.getVersionProvider());
-            return node;
-        } catch (TokenMgrError e) {
-            return null;
-        } catch (ParseException e) {
-            return null;
-        } catch (Throwable e) {
-            Log.log(e);
-            return null;
-        }
-    }
-
-    private exprType extractExpression(ModuleAdapter node) {
-        if (node == null) {
-            return null;
-        }
-        Module astNode = node.getASTNode();
-        if (astNode == null) {
-            return null;
-        }
-        stmtType[] body = astNode.body;
-
-        if (body.length > 0 && body[0] instanceof Expr) {
-            Expr expr = (Expr) body[0];
-            return expr.value;
-        }
-        return null;
     }
 
     @Override

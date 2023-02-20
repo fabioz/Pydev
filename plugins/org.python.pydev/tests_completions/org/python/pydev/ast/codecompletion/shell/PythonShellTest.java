@@ -16,8 +16,6 @@ import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.python.pydev.ast.codecompletion.revisited.CodeCompletionTestsBase;
-import org.python.pydev.ast.codecompletion.shell.IronpythonShell;
-import org.python.pydev.ast.codecompletion.shell.PythonShell;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
@@ -52,11 +50,11 @@ public class PythonShellTest extends CodeCompletionTestsBase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        if (TestDependent.PYTHON_OPENGL_PACKAGES == null) {
+        if (TestDependent.PYTHON2_OPENGL_PACKAGES == null) {
             restorePythonPathWithSitePackages(false);
         } else {
-            restorePythonPathWithCustomSystemPath(false, TestDependent.GetCompletePythonLib(true) + "|"
-                    + TestDependent.PYTHON_OPENGL_PACKAGES);
+            restorePythonPathWithCustomSystemPath(false, TestDependent.getCompletePythonLib(true, isPython3Test()) + "|"
+                    + TestDependent.PYTHON2_OPENGL_PACKAGES);
         }
         this.shell = startShell();
     }
@@ -126,7 +124,7 @@ public class PythonShellTest extends CodeCompletionTestsBase {
             return;
         }
 
-        if (TestDependent.PYTHON_OPENGL_PACKAGES != null) {
+        if (TestDependent.PYTHON2_OPENGL_PACKAGES != null) {
             List<String[]> list = shell.getImportCompletions("OpenGL.GLUT", getPythonpath()).o2;
 
             assertTrue("Expected the number of completions to be > 10. Found: \n" + list, list.size() > 10);

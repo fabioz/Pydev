@@ -6,19 +6,13 @@
  */
 package org.python.pydev.parser;
 
-import java.util.Arrays;
-import java.util.HashMap;
-
 import org.eclipse.jface.text.Document;
 import org.python.pydev.ast.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.ast.codecompletion.revisited.modules.CompiledModule;
-import org.python.pydev.ast.cython.GenCythonAst;
 import org.python.pydev.ast.cython.GenCythonAstImpl;
-import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.parser.PyParser.ParserInfo;
 import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
-import org.python.pydev.shared_core.utils.BaseExtensionHelper;
 
 /**
  * @author Fabio
@@ -44,15 +38,12 @@ public class PyParserCythonTest extends CodeCompletionTestsBase {
         GenCythonAstImpl.IN_TESTS = true;
         CompiledModule.COMPILED_MODULES_ENABLED = false;
         this.restorePythonPath(false);
-        PyParser.USE_NEW_CYTHON_PARSER = true;
-
-        BaseExtensionHelper.testingParticipants = new HashMap<>();
-        ExtensionHelper.testingParticipants.put(ExtensionHelper.GEN_CYTHON_AST, Arrays.asList(new GenCythonAst()));
     }
 
     @Override
     public void tearDown() throws Exception {
-        BaseExtensionHelper.testingParticipants = null;
+        CompiledModule.COMPILED_MODULES_ENABLED = true;
+        GenCythonAstImpl.IN_TESTS = false;
     }
 
     public void testCythonParsing() throws Exception {

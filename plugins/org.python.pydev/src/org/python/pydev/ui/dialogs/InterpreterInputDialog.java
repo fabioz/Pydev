@@ -95,7 +95,7 @@ public class InterpreterInputDialog extends AbstractKeyValueDialog {
                 }
                 if (errorMessage == null) {
                     File file = new File(executableOrJar);
-                    if (!file.exists() || file.isDirectory()) {
+                    if (!FileUtils.enhancedIsFile(file)) {
                         errorMessage = "Invalid interpreter";
                     }
                 }

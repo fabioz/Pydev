@@ -1,4 +1,5 @@
 import os
+import sys
 
 
 class ArgHandlerWithParam:
@@ -67,9 +68,14 @@ ACCEPTED_ARG_HANDLERS = [
     ArgHandlerWithParam('client'),
     ArgHandlerWithParam('access-token'),
     ArgHandlerWithParam('client-access-token'),
+    ArgHandlerWithParam('debug-mode'),
+    ArgHandlerWithParam('preimport'),
+
+    # Logging
+    ArgHandlerWithParam('log-file'),
+    ArgHandlerWithParam('log-level', int, None),
 
     ArgHandlerBool('server'),
-    ArgHandlerBool('DEBUG_RECORD_SOCKET_READS'),
     ArgHandlerBool('multiproc'),  # Used by PyCharm (reuses connection: ssh tunneling)
     ArgHandlerBool('multiprocess'),  # Used by PyDev (creates new connection to ide)
     ArgHandlerBool('save-signatures'),
@@ -103,17 +109,22 @@ def get_pydevd_file():
     return f
 
 
-def setup_to_argv(setup):
+def setup_to_argv(setup, skip_names=None):
     '''
     :param dict setup:
         A dict previously gotten from process_command_line.
 
+    :param set skip_names:
+        The names in the setup which shouldn't be converted to argv.
+
     :note: does not handle --file nor --DEBUG.
     '''
+    if skip_names is None:
+        skip_names = set()
     ret = [get_pydevd_file()]
 
     for handler in ACCEPTED_ARG_HANDLERS:
-        if handler.arg_name in setup:
+        if handler.arg_name in setup and handler.arg_name not in skip_names:
             handler.to_argv(ret, setup)
     return ret
 
@@ -126,6 +137,8 @@ def process_command_line(argv):
         setup[handler.arg_name] = handler.default_val
     setup['file'] = ''
     setup['qt-support'] = ''
+
+    initial_argv = tuple(argv)
 
     i = 0
     del argv[0]
@@ -164,10 +177,9 @@ def process_command_line(argv):
             i = len(argv)  # pop out, file is our last argument
 
         elif argv[i] == '--DEBUG':
-            from pydevd import set_debug
-            del argv[i]
-            set_debug(setup)
+            sys.stderr.write('pydevd: --DEBUG parameter deprecated. Use `--debug-level=3` instead.\n')
 
         else:
-            raise ValueError("Unexpected option: " + argv[i])
+            raise ValueError("Unexpected option: %s when processing: %s" % (argv[i], initial_argv))
     return setup
+

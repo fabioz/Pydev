@@ -8,7 +8,6 @@ from tests_python import debugger_unittest
 from tests_python.debugger_unittest import (get_free_port, overrides, IS_CPYTHON, IS_JYTHON, IS_IRONPYTHON,
     CMD_ADD_DJANGO_EXCEPTION_BREAK, CMD_REMOVE_DJANGO_EXCEPTION_BREAK,
     CMD_ADD_EXCEPTION_BREAK, wait_for_condition, IS_PYPY)
-from tests_python.debug_constants import IS_PY2
 from _pydevd_bundle.pydevd_comm_constants import file_system_encoding
 
 import sys
@@ -218,7 +217,7 @@ class DebuggerRunnerRemote(debugger_unittest.DebuggerRunner):
     def get_command_line(self):
         return [sys.executable, '-u']
 
-    def add_command_line_args(self, args):
+    def add_command_line_args(self, args, dap=False):
         writer = self.writer
 
         ret = args + [self.writer.TEST_FILE]
@@ -246,16 +245,15 @@ def case_setup(tmpdir, debugger_runner_simple):
     class CaseSetup(object):
 
         check_non_ascii = False
-        if IS_PY2 and IS_WINDOWS:
-            # Py2 has some issues converting the non latin1 chars to bytes in windows.
-            NON_ASCII_CHARS = u'áéíóú'
-        else:
-            NON_ASCII_CHARS = u'áéíóú汉字'
+        NON_ASCII_CHARS = u'áéíóú汉字'
+        dap = False
 
         @contextmanager
         def test_file(
                 self,
                 filename,
+                wait_for_port=True,
+                wait_for_initialization=True,
                 **kwargs
             ):
             import shutil
@@ -274,18 +272,26 @@ def case_setup(tmpdir, debugger_runner_simple):
                 shutil.copyfile(filename, new_filename)
                 filename = new_filename
 
-                if IS_PY2:
-                    filename = filename.encode(file_system_encoding)
-
             WriterThread.TEST_FILE = filename
             for key, value in kwargs.items():
                 assert hasattr(WriterThread, key)
                 setattr(WriterThread, key, value)
 
-            with runner.check_case(WriterThread) as writer:
+            with runner.check_case(
+                    WriterThread,
+                    wait_for_port=wait_for_port,
+                    wait_for_initialization=wait_for_initialization,
+                    dap=self.dap
+                ) as writer:
                 yield writer
 
     return CaseSetup()
+
+
+@pytest.fixture
+def case_setup_dap(case_setup):
+    case_setup.dap = True
+    return case_setup
 
 
 @pytest.fixture
@@ -320,6 +326,8 @@ def case_setup_remote(debugger_runner_remote):
 
     class CaseSetup(object):
 
+        dap = False
+
         @contextmanager
         def test_file(
                 self,
@@ -343,6 +351,9 @@ def case_setup_remote(debugger_runner_remote):
                     ret.append('--client-access-token')
                     ret.append(client_access_token)
 
+                if self.dap:
+                    ret.append('--use-dap-mode')
+
                 ret.extend(append_command_line_args)
                 return ret
 
@@ -359,7 +370,13 @@ def case_setup_remote(debugger_runner_remote):
 
 
 @pytest.fixture
-def case_setup_remote_attach_to(debugger_runner_remote):
+def case_setup_remote_dap(case_setup_remote):
+    case_setup_remote.dap = True
+    return case_setup_remote
+
+
+@pytest.fixture
+def case_setup_remote_attach_to_dap(debugger_runner_remote):
     '''
     The difference from this to case_setup_remote is that this one will connect to a server
     socket started by the debugger and case_setup_remote will create the server socket and wait
@@ -376,6 +393,8 @@ def case_setup_remote_attach_to(debugger_runner_remote):
 
     class CaseSetup(object):
 
+        dap = True
+
         @contextmanager
         def test_file(
                 self,
@@ -388,6 +407,8 @@ def case_setup_remote_attach_to(debugger_runner_remote):
             def update_command_line_args(writer, args):
                 ret = debugger_unittest.AbstractWriterThread.update_command_line_args(writer, args)
                 ret.append(str(port))
+                if self.dap:
+                    ret.append('--use-dap-mode')
                 ret.extend(additional_args)
                 return ret
 
@@ -411,6 +432,8 @@ def case_setup_multiprocessing(debugger_runner_simple):
 
     class CaseSetup(object):
 
+        dap = False
+
         @contextmanager
         def test_file(
                 self,
@@ -420,7 +443,11 @@ def case_setup_multiprocessing(debugger_runner_simple):
 
             def update_command_line_args(writer, args):
                 ret = debugger_unittest.AbstractWriterThread.update_command_line_args(writer, args)
-                ret.insert(ret.index('--DEBUG_RECORD_SOCKET_READS'), '--multiprocess')
+                ret.insert(ret.index('--client'), '--multiprocess')
+                if self.dap:
+                    ret.insert(ret.index('--client'), '--debug-mode')
+                    ret.insert(ret.index('--client'), 'debugpy-dap')
+                    ret.insert(ret.index('--client'), '--json-dap-http')
                 return ret
 
             WriterThread.update_command_line_args = update_command_line_args
@@ -433,6 +460,12 @@ def case_setup_multiprocessing(debugger_runner_simple):
                 yield writer
 
     return CaseSetup()
+
+
+@pytest.fixture
+def case_setup_multiprocessing_dap(case_setup_multiprocessing):
+    case_setup_multiprocessing.dap = True
+    return case_setup_multiprocessing
 
 
 @pytest.fixture
@@ -483,26 +516,34 @@ def case_setup_django(debugger_runner_simple):
 
     class CaseSetup(object):
 
+        dap = False
+
         @contextmanager
         def test_file(self, **kwargs):
             import django
             version = [int(x) for x in django.get_version().split('.')][:2]
             if version == [1, 7]:
                 django_folder = 'my_django_proj_17'
-            elif version in ([2, 1], [2, 2], [3, 0], [3, 1], [3, 2]):
+            elif version in ([2, 1], [2, 2], [3, 0], [3, 1], [3, 2], [4, 0], [4, 1]):
                 django_folder = 'my_django_proj_21'
             else:
-                raise AssertionError('Can only check django 1.7, 2.1, 2.2, 3.0, 3.1 and 3.2 right now. Found: %s' % (version,))
+                raise AssertionError('Can only check django 1.7 -> 4.1 right now. Found: %s' % (version,))
 
             WriterThread.DJANGO_FOLDER = django_folder
             for key, value in kwargs.items():
                 assert hasattr(WriterThread, key)
                 setattr(WriterThread, key, value)
 
-            with debugger_runner_simple.check_case(WriterThread) as writer:
+            with debugger_runner_simple.check_case(WriterThread, dap=self.dap) as writer:
                 yield writer
 
     return CaseSetup()
+
+
+@pytest.fixture
+def case_setup_django_dap(case_setup_django):
+    case_setup_django.dap = True
+    return case_setup_django
 
 
 @pytest.fixture
@@ -513,6 +554,8 @@ def case_setup_flask(debugger_runner_simple):
 
     class CaseSetup(object):
 
+        dap = False
+
         @contextmanager
         def test_file(self, **kwargs):
             WriterThread.FLASK_FOLDER = 'flask1'
@@ -520,7 +563,13 @@ def case_setup_flask(debugger_runner_simple):
                 assert hasattr(WriterThread, key)
                 setattr(WriterThread, key, value)
 
-            with debugger_runner_simple.check_case(WriterThread) as writer:
+            with debugger_runner_simple.check_case(WriterThread, dap=self.dap) as writer:
                 yield writer
 
     return CaseSetup()
+
+
+@pytest.fixture
+def case_setup_flask_dap(case_setup_flask):
+    case_setup_flask.dap = True
+    return case_setup_flask

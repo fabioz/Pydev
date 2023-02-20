@@ -1,41 +1,32 @@
 '''
 Entry point module to start the interactive console.
 '''
-from _pydev_imps._pydev_saved_modules import thread
-from _pydevd_bundle.pydevd_constants import IS_JYTHON, dict_iter_items
+from _pydev_bundle._pydev_saved_modules import thread, _code
+from _pydevd_bundle.pydevd_constants import IS_JYTHON
 start_new_thread = thread.start_new_thread
 
-try:
-    from code import InteractiveConsole
-except ImportError:
-    from _pydevd_bundle.pydevconsole_code_for_ironpython import InteractiveConsole
+from _pydevd_bundle.pydevconsole_code import InteractiveConsole
 
-from code import compile_command
-from code import InteractiveInterpreter
+compile_command = _code.compile_command
+InteractiveInterpreter = _code.InteractiveInterpreter
 
 import os
 import sys
 
-from _pydev_imps._pydev_saved_modules import threading
-from _pydevd_bundle.pydevd_constants import INTERACTIVE_MODE_AVAILABLE, dict_keys
+from _pydev_bundle._pydev_saved_modules import threading
+from _pydevd_bundle.pydevd_constants import INTERACTIVE_MODE_AVAILABLE
 
 import traceback
 from _pydev_bundle import pydev_log
 
-from _pydevd_bundle import pydevd_vars, pydevd_save_locals
+from _pydevd_bundle import pydevd_save_locals
 
 from _pydev_bundle.pydev_imports import Exec, _queue
 
-try:
-    import __builtin__
-except:
-    import builtins as __builtin__  # @UnresolvedImport
+import builtins as __builtin__
 
-from _pydev_bundle.pydev_console_utils import BaseInterpreterInterface, BaseStdIn
+from _pydev_bundle.pydev_console_utils import BaseInterpreterInterface, BaseStdIn  # @UnusedImport
 from _pydev_bundle.pydev_console_utils import CodeFragment
-
-IS_PYTHON_3_ONWARDS = sys.version_info[0] >= 3
-IS_PY24 = sys.version_info[0] == 2 and sys.version_info[1] == 4
 
 
 class Command:
@@ -69,22 +60,17 @@ class Command:
 
 
 try:
-    try:
-        execfile  # Not in Py3k
-    except NameError:
-        from _pydev_bundle.pydev_imports import execfile
+    from _pydev_bundle.pydev_imports import execfile
 
-        __builtin__.execfile = execfile
+    __builtin__.execfile = execfile
 except:
     pass
 
 # Pull in runfile, the interface to UMD that wraps execfile
 from _pydev_bundle.pydev_umd import runfile, _set_globals_function
 if sys.version_info[0] >= 3:
-    import builtins  # @UnresolvedImport
-    builtins.runfile = runfile
+    __builtin__.runfile = runfile
 else:
-    import __builtin__
     __builtin__.runfile = runfile
 
 
@@ -140,7 +126,7 @@ def set_debug_hook(debug_hook):
 
 def activate_mpl_if_already_imported(interpreter):
     if interpreter.mpl_modules_for_patching:
-        for module in dict_keys(interpreter.mpl_modules_for_patching):
+        for module in list(interpreter.mpl_modules_for_patching):
             if module in sys.modules:
                 activate_function = interpreter.mpl_modules_for_patching.pop(module)
                 activate_function()
@@ -178,7 +164,7 @@ def init_mpl_in_console(interpreter):
 
     activate_mpl_if_already_imported(interpreter)
     from _pydev_bundle.pydev_import_hook import import_hook_manager
-    for mod in dict_keys(interpreter.mpl_modules_for_patching):
+    for mod in list(interpreter.mpl_modules_for_patching):
         import_hook_manager.add_module_name(mod, interpreter.mpl_modules_for_patching.pop(mod))
 
 
@@ -373,10 +359,7 @@ def start_console_server(host, port, interpreter):
         from _pydev_bundle.pydev_imports import SimpleXMLRPCServer as XMLRPCServer  # @Reimport
 
         try:
-            if IS_PY24:
-                server = XMLRPCServer((host, port), logRequests=False)
-            else:
-                server = XMLRPCServer((host, port), logRequests=False, allow_none=True)
+            server = XMLRPCServer((host, port), logRequests=False, allow_none=True)
 
         except:
             sys.stderr.write('Error starting server with host: "%s", port: "%s", client_port: "%s"\n' % (host, port, interpreter.client_port))
@@ -442,7 +425,7 @@ def start_server(host, port, client_port):
     # note that this does not work in jython!!! (sys method can't be replaced).
     sys.exit = do_exit
 
-    interpreter = InterpreterInterface(host, client_port, threading.currentThread())
+    interpreter = InterpreterInterface(host, client_port, threading.current_thread())
 
     start_new_thread(start_console_server, (host, port, interpreter))
 
@@ -459,7 +442,7 @@ def get_interpreter():
     try:
         interpreterInterface = getattr(__builtin__, 'interpreter')
     except AttributeError:
-        interpreterInterface = InterpreterInterface(None, None, threading.currentThread())
+        interpreterInterface = InterpreterInterface(None, None, threading.current_thread())
         __builtin__.interpreter = interpreterInterface
         sys.stderr.write(interpreterInterface.get_greeting_msg())
         sys.stderr.flush()

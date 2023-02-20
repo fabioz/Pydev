@@ -1,21 +1,6 @@
-try:
-    import inspect
-except:
-    try:
-        from _pydev_imps import _pydev_inspect as inspect
-    except:
-        import traceback;traceback.print_exc() #Ok, no inspect available (search will not work)
+import inspect
+import re
 
-try:
-    import re
-except:
-    try:
-        import sre as re  # for older versions
-    except:
-        import traceback;traceback.print_exc() #Ok, no inspect available (search will not work)
-
-
-from _pydevd_bundle.pydevd_constants import xrange
 
 def do_find(f, mod):
     import linecache
@@ -27,7 +12,7 @@ def do_find(f, mod):
     if inspect.isclass(mod):
         name = mod.__name__
         pat = re.compile(r'^\s*class\s*' + name + r'\b')
-        for i in xrange(len(lines)):
+        for i in range(len(lines)):
             if pat.match(lines[i]):
                 return f, i, 0
 
@@ -40,7 +25,7 @@ def do_find(f, mod):
         try:
             mod = mod.func_code
         except AttributeError:
-            mod = mod.__code__ #python 3k
+            mod = mod.__code__  # python 3k
 
     if inspect.istraceback(mod):
         mod = mod.tb_frame

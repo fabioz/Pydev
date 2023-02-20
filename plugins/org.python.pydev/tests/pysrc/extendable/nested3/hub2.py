@@ -1,4 +1,4 @@
-import mod3
-c = mod3.C1()    
-    
+from . import mod3
+c = mod3.C1()
+
 

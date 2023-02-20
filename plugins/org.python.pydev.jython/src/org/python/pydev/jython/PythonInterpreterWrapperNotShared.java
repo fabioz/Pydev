@@ -7,6 +7,7 @@
 package org.python.pydev.jython;
 
 import org.python.core.PySystemState;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.shared_core.jython.IPythonInterpreter;
 import org.python.util.PythonInterpreter;
 
@@ -22,7 +23,12 @@ public class PythonInterpreterWrapperNotShared extends PythonInterpreter impleme
         } catch (IllegalStateException e) {
             //happens when running tests.
             PySystemState.initialize();
-            return new PySystemState();
+            try {
+                return new PySystemState();
+            } catch (RuntimeException e1) {
+                Log.log(e1);
+                throw e1;
+            }
         }
     }
 

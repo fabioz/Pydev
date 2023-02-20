@@ -245,7 +245,7 @@ public class JythonPlugin extends AbstractUIPlugin {
                 prop2.put("python.home", FileUtils.getFileAbsolutePath(plugin.getPluginRootDir()));
                 prop2.put("python.path", FileUtils.getFileAbsolutePath(getJySrcDirFile()));
                 prop2.put("python.console.encoding", "UTF-8"); // Used to prevent: console: Failed to install '': java.nio.charset.UnsupportedCharsetException: cp0.
-                prop2.put("python.security.respectJavaAccessibility", "false"); //don't respect java accessibility, so that we can access protected members on subclasses
+                prop2.put("python.security.respectJavaAccessibility", "true"); //respect java accessibility (note: no access to protected members anymore!)
                 // prop2.put("python.verbose", "0"); //Don't print anything -- Jython itself won't start!
                 try {
                     AllBundleClassLoader allBundleClassLoader = new AllBundleClassLoader(plugin.getClass()

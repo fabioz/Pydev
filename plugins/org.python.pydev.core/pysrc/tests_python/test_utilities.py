@@ -1,12 +1,11 @@
 import threading
 
 from _pydevd_bundle.pydevd_utils import convert_dap_log_message_to_expression
-from tests_python.debug_constants import IS_PY26, IS_PY3K, TEST_GEVENT, IS_CPYTHON
+from tests_python.debug_constants import TEST_GEVENT, IS_CPYTHON
 import sys
-from _pydevd_bundle.pydevd_constants import IS_WINDOWS, IS_PY2, IS_PYPY
+from _pydevd_bundle.pydevd_constants import IS_WINDOWS, IS_PYPY, IS_JYTHON
 import pytest
 import os
-import codecs
 from _pydevd_bundle.pydevd_thread_lifecycle import pydevd_find_thread_by_id
 
 
@@ -19,11 +18,8 @@ def test_expression_to_evaluate():
     assert _expression_to_evaluate(b'  for a in b:\nfoo') == b'  for a in b:\nfoo'
     assert _expression_to_evaluate(b'\tfor a in b:\n\t\tfoo') == b'for a in b:\n\tfoo'
 
-    if IS_PY2:
-        assert _expression_to_evaluate(u'  expr') == (codecs.BOM_UTF8 + b'expr')
-    else:
-        assert _expression_to_evaluate(u'  expr') == u'expr'
-        assert _expression_to_evaluate(u'  for a in expr:\n  pass') == u'for a in expr:\npass'
+    assert _expression_to_evaluate(u'  expr') == u'expr'
+    assert _expression_to_evaluate(u'  for a in expr:\n  pass') == u'for a in expr:\npass'
 
 
 @pytest.mark.skipif(IS_WINDOWS, reason='Brittle on Windows.')
@@ -88,10 +84,7 @@ conftest.py:67: AssertionError
             error_msg += 'Current main thread not instance of: %s (%s)' % (
                 threading._MainThread, current_thread.__class__.__mro__,)
 
-        try:
-            from StringIO import StringIO
-        except:
-            from io import StringIO
+        from io import StringIO
 
         stream = StringIO()
         dump_threads(stream=stream)
@@ -162,13 +155,11 @@ def test_convert_dap_log_message_to_expression():
         'a (22, 33)} 2'
     )
 
-    if not IS_PY26:
-        # Note: set literal not valid for Python 2.6.
-        assert check_dap_log_message(
-            'a {{1: {1}}}',
-            "'a %s' % ({1: {1}},)",
-            'a {1: {1}}' if IS_PY3K else 'a {1: set([1])}',
-        )
+    assert check_dap_log_message(
+        'a {{1: {1}}}',
+        "'a %s' % ({1: {1}},)",
+        'a {1: {1}}'
+    )
 
     # Error condition.
     assert check_dap_log_message(
@@ -180,10 +171,7 @@ def test_convert_dap_log_message_to_expression():
 
 def test_pydevd_log():
     from _pydev_bundle import pydev_log
-    try:
-        import StringIO as io
-    except:
-        import io
+    import io
     from _pydev_bundle.pydev_log import log_context
 
     stream = io.StringIO()
@@ -191,33 +179,32 @@ def test_pydevd_log():
         pydev_log.critical('always')
         pydev_log.info('never')
 
-    assert stream.getvalue() == 'always\n'
+    assert stream.getvalue().endswith('always\n')
 
     stream = io.StringIO()
     with log_context(1, stream=stream):
         pydev_log.critical('always')
         pydev_log.info('this too')
-
-    assert stream.getvalue() == 'always\nthis too\n'
+        assert stream.getvalue().endswith('always\n0.00s - this too\n')
 
     stream = io.StringIO()
     with log_context(0, stream=stream):
         pydev_log.critical('always %s', 1)
 
-    assert stream.getvalue() == 'always 1\n'
+    assert stream.getvalue().endswith('always 1\n')
 
     stream = io.StringIO()
     with log_context(0, stream=stream):
         pydev_log.critical('always %s %s', 1, 2)
 
-    assert stream.getvalue() == 'always 1 2\n'
+    assert stream.getvalue().endswith('always 1 2\n')
 
     stream = io.StringIO()
     with log_context(0, stream=stream):
         pydev_log.critical('always %s %s', 1)
 
     # Even if there's an error in the formatting, don't fail, just print the message and args.
-    assert stream.getvalue() == 'always %s %s - (1,)\n'
+    assert stream.getvalue().endswith('always %s %s - (1,)\n')
 
     stream = io.StringIO()
     with log_context(0, stream=stream):
@@ -234,7 +221,7 @@ def test_pydevd_log():
         pydev_log.error_once('always %s %s', 1)
 
     # Even if there's an error in the formatting, don't fail, just print the message and args.
-    assert stream.getvalue() == 'always %s %s - (1,)\n'
+    assert stream.getvalue().endswith('always %s %s - (1,)\n')
 
 
 def test_pydevd_logging_files(tmpdir):
@@ -243,10 +230,7 @@ def test_pydevd_logging_files(tmpdir):
     import os.path
     from _pydev_bundle.pydev_log import _LoggingGlobals
 
-    try:
-        import StringIO as io
-    except:
-        import io
+    import io
     from _pydev_bundle.pydev_log import log_context
 
     stream = io.StringIO()
@@ -271,10 +255,7 @@ def _check_tracing_other_threads():
     import pydevd_tracing
     import time
     from tests_python.debugger_unittest import wait_for_condition
-    try:
-        import _thread
-    except ImportError:
-        import thread as _thread
+    import _thread
 
     # This method is called in a subprocess, so, make sure we exit properly even if we somehow
     # deadlock somewhere else.
@@ -371,6 +352,31 @@ def test_tracing_other_threads():
     _check_in_separate_process('_check_tracing_other_threads')
 
 
+def _check_basic_tracing():
+    import pydevd_tracing
+
+    # Note: run this test in a separate process so that it doesn't mess with any current tracing
+    # in our current process.
+    called = [0]
+
+    def tracing_func(frame, event, args):
+        called[0] = called[0] + 1
+        return tracing_func
+
+    assert pydevd_tracing.set_trace_to_threads(tracing_func) == 0
+
+    def foo():
+        pass
+
+    foo()
+    assert called[0] > 2
+
+
+@pytest.mark.skipif(not IS_CPYTHON, reason='Functionality to trace other threads requires CPython.')
+def test_tracing_basic():
+    _check_in_separate_process('_check_basic_tracing')
+
+
 @pytest.mark.skipif(not IS_CPYTHON, reason='Functionality to trace other threads requires CPython.')
 def test_find_main_thread_id():
     # Note: run the checks below in a separate process because they rely heavily on what's available
@@ -399,17 +405,14 @@ def test_find_main_thread_id():
     )
 
 
-@pytest.mark.skipif(not IS_WINDOWS, reason='Windows-only test.')
+@pytest.mark.skipif(not IS_WINDOWS or IS_JYTHON, reason='Windows-only test.')
 def test_get_ppid():
     from _pydevd_bundle.pydevd_api import PyDevdAPI
     api = PyDevdAPI()
-    if IS_PY3K:
-        # On python 3 we can check that our internal api which is used for Python 2 gives the
-        # same result as os.getppid.
-        ppid = os.getppid()
-        assert api._get_windows_ppid() == ppid
-    else:
-        assert api._get_windows_ppid() is not None
+    # On python 3 we can check that our internal api which is used for Python 2 gives the
+    # same result as os.getppid.
+    ppid = os.getppid()
+    assert api._get_windows_ppid() == ppid
 
 
 def _check_gevent(expect_msg):
@@ -497,3 +500,51 @@ def test_get_smart_step_into_variant_from_frame_offset():
     assert get_smart_step_into_variant_from_frame_offset(2, variants) is variants[0]
     assert get_smart_step_into_variant_from_frame_offset(3, variants) is variants[1]
     assert get_smart_step_into_variant_from_frame_offset(4, variants) is variants[1]
+
+
+def test_threading_hide_pydevd():
+
+    class T(threading.Thread):
+
+        def __init__(self, is_pydev_daemon_thread):
+            from _pydevd_bundle.pydevd_daemon_thread import mark_as_pydevd_daemon_thread
+            threading.Thread.__init__(self)
+            if is_pydev_daemon_thread:
+                mark_as_pydevd_daemon_thread(self)
+            else:
+                self.daemon = True
+            self.event = threading.Event()
+
+        def run(self):
+            self.event.wait(10)
+
+    current_count = threading.active_count()
+    t0 = T(True)
+    t1 = T(False)
+    t0.start()
+    t1.start()
+
+    # i.e.: the patching doesn't work for other implementations.
+    if IS_CPYTHON:
+        assert threading.active_count() == current_count + 1
+        assert t0 not in threading.enumerate()
+    else:
+        assert threading.active_count() == current_count + 2
+        assert t0 in threading.enumerate()
+
+    assert t1 in threading.enumerate()
+    t0.event.set()
+    t1.event.set()
+
+
+def test_import_token_from_module():
+    from _pydevd_bundle.pydevd_utils import import_attr_from_module
+
+    with pytest.raises(ImportError):
+        import_attr_from_module('sys')
+
+    with pytest.raises(ImportError):
+        import_attr_from_module('sys.settrace.foo')
+
+    assert import_attr_from_module('sys.settrace') == sys.settrace
+    assert import_attr_from_module('threading.Thread.start') == threading.Thread.start

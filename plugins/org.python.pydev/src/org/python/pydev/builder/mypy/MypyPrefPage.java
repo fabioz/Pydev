@@ -16,11 +16,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.python.pydev.plugin.PydevPlugin;
+import org.python.pydev.shared_ui.field_editors.ArgsStringFieldEditor;
 import org.python.pydev.shared_ui.field_editors.LinkFieldEditor;
 import org.python.pydev.shared_ui.field_editors.RadioGroupFieldEditor;
 import org.python.pydev.shared_ui.field_editors.ScopedFieldEditorPreferencePage;
 import org.python.pydev.shared_ui.field_editors.ScopedPreferencesFieldEditor;
-import org.python.pydev.utils.CustomizableFieldEditor;
 
 import com.python.pydev.analysis.PyAnalysisScopedPreferences;
 import com.python.pydev.analysis.mypy.MypyPreferences;
@@ -81,7 +81,7 @@ public class MypyPrefPage extends ScopedFieldEditorPreferencePage implements IWo
                 true, parent);
         addField(fileField);
 
-        CustomizableFieldEditor stringFieldEditor = new CustomizableFieldEditor(MypyPreferences.MYPY_ARGS,
+        ArgsStringFieldEditor stringFieldEditor = new ArgsStringFieldEditor(MypyPreferences.MYPY_ARGS,
                 "Arguments to pass to the mypy command.",
                 parent);
         addField(stringFieldEditor);

@@ -191,7 +191,9 @@ public class ProcessUtils {
                 continue; //ignore nulls (changed from original code)
             }
 
-            buf.append(' ');
+            if (i > 0) {
+                buf.append(' ');
+            }
             char[] characters = commandLine[i].toCharArray();
             command.clear();
             boolean containsSpace = false;
@@ -224,16 +226,18 @@ public class ProcessUtils {
      * @return an array with the formatted map
      */
     public static String[] getMapEnvAsArray(Map<String, String> env) {
-        List<String> strings = new ArrayList<String>(env.size());
+        String[] strings = new String[env.size()];
         FastStringBuffer buffer = new FastStringBuffer();
+        int i = 0;
         for (Iterator<Map.Entry<String, String>> iter = env.entrySet().iterator(); iter.hasNext();) {
             Map.Entry<String, String> entry = iter.next();
             buffer.clear().append(entry.getKey());
             buffer.append('=').append(entry.getValue());
-            strings.add(buffer.toString());
+            strings[i] = buffer.toString();
+            i++;
         }
 
-        return strings.toArray(new String[strings.size()]);
+        return strings;
     }
 
     /**

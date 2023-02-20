@@ -1916,7 +1916,7 @@
             contextTypeId="org.python.pydev.editor.templates.python"
             id="org.python.pydev.editor.templates.python.super">
 <pattern>
-super(${current_class}, self).${current_method}(${cursor})
+super(${current_class}, ${self_or_cls}).${current_method}(${cursor})
 </pattern>
       </template>
 
@@ -3095,6 +3095,10 @@ The related image showing the error is at: http://i.stack.imgur.com/IfNFY.png
 
    <extension point="org.python.pydev.pydev_ctrl_1">
 		<ctrl_1_participant class="com.python.pydev.analysis.ctrl_1.pylint.PyLintAnalysisMarkersParticipants"/>
+   </extension>
+
+   <extension point="org.python.pydev.pydev_ctrl_1">
+		<ctrl_1_participant class="com.python.pydev.analysis.ctrl_1.flake8.Flake8AnalysisMarkersParticipants"/>
    </extension>
 
    <extension point="org.python.pydev.pydev_ctrl_1">

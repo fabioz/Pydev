@@ -13,6 +13,7 @@ import java.util.Comparator;
 import org.python.pydev.ast.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.ast.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
+import org.python.pydev.core.BaseModuleRequest;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.IterTokenEntry;
 import org.python.pydev.core.MisconfigurationException;
@@ -37,7 +38,7 @@ public class ForcedLibGroup extends ElementWithChildren {
     @Override
     protected void calculateChildren() throws MisconfigurationException {
         SystemModulesManager m = (SystemModulesManager) this.interpreterInfo.getModulesManager();
-        AbstractModule builtinModule = m.getBuiltinModule(forcedLib, true);
+        AbstractModule builtinModule = m.getBuiltinModule(forcedLib, true, new BaseModuleRequest(true));
         TokensList globalTokens = builtinModule.getGlobalTokens();
 
         ArrayList<LeafElement> lst = new ArrayList<LeafElement>();

@@ -10,10 +10,10 @@ import java.util.Set;
 
 import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
 import org.python.pydev.ast.runners.SimpleExeRunner;
-import org.python.pydev.ast.runners.SimpleRunner;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.preferences.PydevPrefs;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.PlatformUtils;
 
@@ -53,7 +53,30 @@ public class PipenvHelper {
         return null;
     }
 
+    private static String computedPipEnvLocation = null;
+
     public static String searchDefaultPipenvLocation(IInterpreterInfo interpreterInfo,
+            IInterpreterManager interpreterManager) {
+        String ret = PydevPrefs.getEclipsePreferences().get("DEFAULT_PIPENV_LOCATION", "");
+        if (!ret.trim().isEmpty()) {
+            return ret;
+        }
+        if (interpreterInfo != null) {
+            // if available, store computed location in the interpreter.
+            String computed = interpreterInfo.getComputedPipEnvLocation();
+            if (computed == null) {
+                interpreterInfo.setComputedPipEnvLocation(computePipEnvLocation(interpreterInfo, interpreterManager)); // may still be null.
+            }
+            return interpreterInfo.getComputedPipEnvLocation(); // may still be null.
+        } else {
+            if (computedPipEnvLocation == null) {
+                computedPipEnvLocation = computePipEnvLocation(interpreterInfo, interpreterManager); // may still be null
+            }
+            return computedPipEnvLocation;
+        }
+    }
+
+    private static String computePipEnvLocation(IInterpreterInfo interpreterInfo,
             IInterpreterManager interpreterManager) {
         Set<String> pathsToSearch = PythonNature.getPathsToSearch();
         List<File> searchedDirectories = new ArrayList<>();
@@ -74,13 +97,7 @@ public class PipenvHelper {
             }
 
             // Ok, not installed in the interpreter, let's search in the user site packages.
-            SimpleRunner simpleRunner = new SimpleRunner();
-            Tuple<String, String> output = simpleRunner.runAndGetOutput(
-                    new String[] { executableOrJar, "-m", "site",
-                            PlatformUtils.isWindowsPlatform() ? "--user-site" : "--user-base" },
-                    new File(executableOrJar).getParentFile(),
-                    new SystemPythonNature(interpreterManager, interpreterInfo), null, "utf-8");
-            String userInfo = output.o1.trim();
+            String userInfo = interpreterInfo.obtainUserSitePackages(interpreterManager);
             if (!userInfo.isEmpty()) {
                 File f = new File(userInfo);
                 if (f.exists()) {
@@ -98,11 +115,7 @@ public class PipenvHelper {
                 }
             }
         }
-        String ret = PydevPrefs.getEclipsePreferences().get("DEFAULT_PIPENV_LOCATION", "");
-        if (ret.trim().isEmpty()) {
-            return null;
-        }
-        return ret;
+        return null;
     }
 
     public static void storeDefaultPipenvLocation(String pipenvLocation) {
@@ -142,7 +155,7 @@ public class PipenvHelper {
                 List<File> searchedDirectories = new ArrayList<File>();
                 File pythonExecutable = InterpreterInfo.searchExecutableInContainer("python", venvLocation,
                         searchedDirectories);
-                if (pythonExecutable != null && pythonExecutable.exists()) {
+                if (pythonExecutable != null && FileUtils.enhancedIsFile(pythonExecutable)) {
                     synchronized (PipenvHelper.projectLocationToPipenvPythonLocationChacheLock) {
                         PipenvHelper.projectLocationToPipenvPythonLocationChache.put(projectlocation,
                                 Optional.of(pythonExecutable));

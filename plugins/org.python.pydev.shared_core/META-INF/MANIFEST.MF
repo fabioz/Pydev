@@ -2,11 +2,11 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Shared Core Plug-in
 Bundle-SymbolicName: org.python.pydev.shared_core;singleton:=true
-Bundle-Version: 8.3.0.qualifier
+Bundle-Version: 10.1.3.qualifier
 Bundle-ClassPath: shared_core.jar,
- libs/lucene-analyzers-common-6.1.0.jar,
- libs/lucene-core-6.1.0.jar,
- libs/snakeyaml-engine-2.1-20200105.160423-4.jar
+ libs/snakeyaml-engine-2.1-20200105.160423-4.jar,
+ libs/org.apache.lucene.analyzers-common_8.4.1.v20200122-1459.jar,
+ libs/org.apache.lucene.core_8.4.1.v20200122-1459.jar
 Bundle-Activator: org.python.pydev.shared_core.SharedCorePlugin
 Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.core.runtime,
@@ -35,6 +35,7 @@ Export-Package: org.apache.lucene,
  org.apache.lucene.analysis.el,
  org.apache.lucene.analysis.en,
  org.apache.lucene.analysis.es,
+ org.apache.lucene.analysis.et,
  org.apache.lucene.analysis.eu,
  org.apache.lucene.analysis.fa,
  org.apache.lucene.analysis.fi,
@@ -78,9 +79,10 @@ Export-Package: org.apache.lucene,
  org.apache.lucene.codecs.blocktree,
  org.apache.lucene.codecs.compressing,
  org.apache.lucene.codecs.lucene50,
- org.apache.lucene.codecs.lucene53,
- org.apache.lucene.codecs.lucene54,
  org.apache.lucene.codecs.lucene60,
+ org.apache.lucene.codecs.lucene70,
+ org.apache.lucene.codecs.lucene80,
+ org.apache.lucene.codecs.lucene84,
  org.apache.lucene.codecs.perfield,
  org.apache.lucene.collation,
  org.apache.lucene.collation.tokenattributes,
@@ -95,6 +97,7 @@ Export-Package: org.apache.lucene,
  org.apache.lucene.util.automaton,
  org.apache.lucene.util.bkd,
  org.apache.lucene.util.fst,
+ org.apache.lucene.util.graph,
  org.apache.lucene.util.mutable,
  org.apache.lucene.util.packed,
  org.python.pydev.shared_core,

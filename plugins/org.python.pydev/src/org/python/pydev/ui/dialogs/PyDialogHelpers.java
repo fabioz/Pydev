@@ -35,11 +35,13 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ListDialog;
 import org.python.pydev.ast.interpreter_managers.AbstractInterpreterManager;
+import org.python.pydev.ast.interpreter_managers.PyDevCondaPreferences;
 import org.python.pydev.core.IInterpreterInfo.UnableToFindExecutableException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.preferences.InterpreterGeneralPreferences;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.image.UIConstants;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.utils.ArrayUtils;
 import org.python.pydev.shared_core.utils.PlatformUtils;
@@ -52,7 +54,6 @@ import org.python.pydev.shared_ui.utils.UIUtils;
 import org.python.pydev.ui.pythonpathconf.InterpreterConfigHelpers;
 import org.python.pydev.ui.pythonpathconf.NameAndExecutable;
 import org.python.pydev.ui.pythonpathconf.conda.CondaConfigDialog;
-import org.python.pydev.ui.pythonpathconf.conda.PyDevCondaPreferences;
 import org.python.pydev.ui.pythonpathconf.package_manager.CondaPackageManager;
 
 /**
@@ -287,7 +288,7 @@ public class PyDialogHelpers {
         if (PlatformUtils.isWindowsPlatform()) {
             for (File env : envs) {
                 File exec = new File(env, "python.exe");
-                if (exec.exists()) {
+                if (FileUtils.enhancedIsFile(exec)) {
                     ret.add(new NameAndExecutable(env.getName(), exec.getPath()));
                 } else {
                     Log.logInfo("Did not find: " + exec + " in conda environment.");
@@ -296,7 +297,7 @@ public class PyDialogHelpers {
         } else {
             for (File env : envs) {
                 File exec = new File(new File(env, "bin"), "python");
-                if (exec.exists()) {
+                if (FileUtils.enhancedIsFile(exec)) {
                     ret.add(new NameAndExecutable(env.getName(), exec.getPath()));
                 } else {
                     Log.logInfo("Did not find: " + exec + " in conda environment.");

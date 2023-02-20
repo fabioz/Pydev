@@ -3,16 +3,16 @@ class A:
        ##|var = a * a
         
        u = "foo"
-       print u##|
+       print(u)##|
 
        v = "bar"
        w = "baz"
         
-       print v        
-       print var
+       print(v)        
+       print(var)
 
     def my_method(self):
-        print self.attribute
+        print(self.attribute)
 
 b = A()
 b.test(55)
@@ -24,7 +24,7 @@ class A:
     def extracted_method(self, a):
         var = a * a
         u = "foo"
-        print u
+        print(u)
         return var
 
     def test(self, a):
@@ -33,11 +33,11 @@ class A:
        v = "bar"
        w = "baz"
         
-       print v        
-       print var
+       print(v)        
+       print(var)
 
     def my_method(self):
-        print self.attribute
+        print(self.attribute)
 
 b = A()
 b.test(55)

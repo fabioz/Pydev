@@ -22,6 +22,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.markers.PyMarkerUtils;
 import org.python.pydev.shared_core.progress.NullProgressMonitorWrapper;
 
@@ -60,15 +61,18 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
             return;
         }
 
-        File flake8Location = Flake8Preferences.getFlake8Location(pythonNature);
-        if (flake8Location == null || !flake8Location.exists()) {
-            if (flake8Location == null) {
-                Log.log("Unable to find flake8. Project: " + project.getName());
-            } else {
-                Log.log("flake8 location does not exist: " + flake8Location);
+        File flake8Location = null;
+        if (!Flake8Preferences.useFlake8FromPythonNature(pythonNature, project)) {
+            flake8Location = Flake8Preferences.getFlake8Location(pythonNature);
+            if (flake8Location == null || !FileUtils.enhancedIsFile(flake8Location)) {
+                if (flake8Location == null) {
+                    Log.log("Unable to find flake8. Project: " + project.getName());
+                } else {
+                    Log.log("flake8 location does not exist: " + flake8Location);
+                }
+                deleteMarkers();
+                return;
             }
-            deleteMarkers();
-            return;
         }
 
         try {

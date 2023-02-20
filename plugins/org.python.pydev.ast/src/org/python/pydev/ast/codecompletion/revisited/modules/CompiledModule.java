@@ -77,10 +77,10 @@ public class CompiledModule extends AbstractModule {
 
     private static final Map<String, String> BUILTIN_REPLACEMENTS = new HashMap<String, String>();
     static {
-        BUILTIN_REPLACEMENTS.put("open", "file");
+        BUILTIN_REPLACEMENTS.put("open", "io.TextIOWrapper");
         BUILTIN_REPLACEMENTS.put("dir", "list");
         BUILTIN_REPLACEMENTS.put("filter", "list");
-        BUILTIN_REPLACEMENTS.put("raw_input", "str");
+        BUILTIN_REPLACEMENTS.put("input", "str");
         BUILTIN_REPLACEMENTS.put("input", "str");
         BUILTIN_REPLACEMENTS.put("locals", "dict");
         BUILTIN_REPLACEMENTS.put("map", "list");
@@ -530,7 +530,11 @@ public class CompiledModule extends AbstractModule {
                 if (isPythonBuiltin) {
                     String replacement = BUILTIN_REPLACEMENTS.get(activationToken);
                     if (replacement != null) {
-                        tokenToCompletion = name + '.' + replacement;
+                        if (replacement.indexOf('.') != -1) {
+                            tokenToCompletion = replacement;
+                        } else {
+                            tokenToCompletion = name + '.' + replacement;
+                        }
                     }
                 }
 
@@ -640,7 +644,7 @@ public class CompiledModule extends AbstractModule {
             String n = FullRepIterable.getFirstPart(f.getName());
             mod = AbstractModule.createModule(n, f, nature, true);
         } else {
-            mod = nature.getAstManager().getModule(foundModName, nature, true);
+            mod = nature.getAstManager().getModule(foundModName, nature, true, state);
         }
 
         if (TRACE_COMPILED_MODULES) {

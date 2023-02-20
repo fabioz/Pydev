@@ -124,11 +124,11 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <properties>
-    <tycho-version>1.4.0</tycho-version>
-    <tycho-extras-version>1.4.0</tycho-extras-version>
+    <tycho-version>2.7.5</tycho-version>
+    <tycho-extras-version>2.7.5</tycho-extras-version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <repository.id>eclipse-2019-09</repository.id>
-    <repository.url>http://download.eclipse.org/releases/2019-09/</repository.url>
+    <repository.id>eclipse-2022-12</repository.id>
+    <repository.url>http://download.eclipse.org/releases/2022-12/</repository.url>
   </properties>
   <prerequisites>
     <maven>3.0</maven>
@@ -136,7 +136,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.python.pydev</groupId>
   <artifactId>parent</artifactId>
-  <version>8.3.0-SNAPSHOT</version>
+  <version>10.1.3-SNAPSHOT</version>
   <name>Pydev Build Parent</name>
   <packaging>pom</packaging>
   <modules>
@@ -155,6 +155,7 @@
         <groupId>org.eclipse.tycho</groupId>
         <artifactId>tycho-surefire-plugin</artifactId>
         <version>${tycho-version}</version>
+
         <configuration>
           <explodedBundles>
             <!-- pysrc is in org.python.pydev, so explode it -->
@@ -167,7 +168,7 @@
             <explodedBundle>com.python.pydev.debug</explodedBundle>
             <!-- TODO com.python.pydev.docs -->
             <explodedBundle>com.python.pydev.refactoring</explodedBundle>
-            <explodedBundle>com.python.pydev.runalltests</explodedBundle>
+            <!-- <explodedBundle>com.python.pydev.runalltests</explodedBundle> -->
             <explodedBundle>org.python.pydev</explodedBundle>
             <explodedBundle>org.python.pydev.ast</explodedBundle>
             <explodedBundle>org.python.pydev.core</explodedBundle>
@@ -176,17 +177,38 @@
             <explodedBundle>org.python.pydev.django</explodedBundle>
             <explodedBundle>org.python.pydev.help</explodedBundle>
             <explodedBundle>org.python.pydev.jython</explodedBundle>
-            <explodedBundle>org.python.pydev.mylyn</explodedBundle>
+            <!-- <explodedBundle>org.python.pydev.mylyn</explodedBundle> -->
             <explodedBundle>org.python.pydev.parser</explodedBundle>
             <explodedBundle>org.python.pydev.refactoring</explodedBundle>
             <explodedBundle>org.python.pydev.shared_core</explodedBundle>
             <explodedBundle>org.python.pydev.shared_interactive_console</explodedBundle>
             <explodedBundle>org.python.pydev.shared_ui</explodedBundle>
           </explodedBundles>
+	      <providerProperties>
+	          <property>
+	              <name>listener</name>
+	              <value>org.python.pydev.shared_core.PrintOutCurrentTestRunListener</value>
+	          </property>
+	      </providerProperties>
+          <!-- See: https://www.eclipse.org/tycho/sitedocs/tycho-surefire-plugin/test-mojo.html -->
+          <!-- <useUIThread>false</useUIThread> -->
+          <skipAfterFailureCount>1</skipAfterFailureCount>
+          <!-- <testClass>org.python.pydev.ast.codecompletion.PythonCompletionWithBuiltinsTest</testClass> -->
+          <excludes>
+            <exclude>**/*IronPython*Test.java</exclude>
+            <exclude>**/*Ironpython*Test.java</exclude>
+            <exclude>**/*IronPython*TestsBase.java</exclude>
+            <exclude>**/*Jython*Test.java</exclude>
+            <exclude>**/*Jython*TestsBase.java</exclude>
+            <exclude>**/Abstract*Test.java</exclude>
+            <exclude>**/Abstract*TestCase.java</exclude>
+            <exclude>**/*$*</exclude>
+          </excludes>
           <failIfNoTests>false</failIfNoTests>
-          <useUIHarness>false</useUIHarness>
-          <testFailureIgnore>true</testFailureIgnore>
+          <useUIHarness>true</useUIHarness>
+          <testFailureIgnore>false</testFailureIgnore>
           <argLine>-enableassertions</argLine>
+          <forkedProcessTimeoutInSeconds>1000</forkedProcessTimeoutInSeconds>
           <systemProperties>
             <!-- We are in test mode when running JUnit (non-workbench) tests.
                  See SharedCorePlugin.inTestMode().  -->
@@ -233,6 +255,11 @@
               <os>macosx</os>
               <ws>cocoa</ws>
               <arch>x86_64</arch>
+            </environment>
+            <environment>
+                <os>macosx</os>
+                <ws>cocoa</ws>
+                <arch>aarch64</arch>
             </environment>
           </environments>
         </configuration>

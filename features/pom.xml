@@ -16,7 +16,7 @@
   <parent>
    <groupId>org.python.pydev</groupId>
    <artifactId>parent</artifactId>
-   <version>8.3.0-SNAPSHOT</version>
+   <version>10.1.3-SNAPSHOT</version>
    <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>features</artifactId>
@@ -24,7 +24,7 @@
   <packaging>pom</packaging>
   <modules>
     <module>org.python.pydev.feature</module>
-    <module>org.python.pydev.mylyn.feature</module>
+    <!-- <module>org.python.pydev.mylyn.feature</module> -->
     <module>org.python.pydev.p2-repo</module>
   </modules>
   <build>

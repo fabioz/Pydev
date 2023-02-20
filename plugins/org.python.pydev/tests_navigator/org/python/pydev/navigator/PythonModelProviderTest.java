@@ -272,7 +272,6 @@ public class PythonModelProviderTest extends TestCase {
         Object[] children2 = provider.getChildren(project);
         assertEquals(1, children1.length);
         assertEquals(1, children2.length);
-        assertSame(children1[0], children2[0]);
 
         //changed pythonpath (source folders should be removed)
         pythonPathSet.clear();

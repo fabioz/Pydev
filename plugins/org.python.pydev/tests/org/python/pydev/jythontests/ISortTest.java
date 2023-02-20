@@ -18,7 +18,7 @@ public class ISortTest extends TestCase {
     public void testJythonTests() throws Exception {
         CorePlugin.setBundleInfo(new BundleInfoStub());
 
-        File f = new File(TestDependent.TEST_PYSRC_TESTING_LOC + "\\extendable\\isortWithCfg\\snippet.py");
+        File f = new File(TestDependent.TEST_PYSRC_TESTING_LOC + "extendable/isortWithCfg/snippet.py");
 
         byte[] encoded = Files.readAllBytes(f.toPath());
         String fileContents = new String(encoded, StandardCharsets.UTF_8);
@@ -69,7 +69,7 @@ public class ISortTest extends TestCase {
 
         CorePlugin.setBundleInfo(new BundleInfoStub());
 
-        File f = new File(TestDependent.TEST_PYSRC_TESTING_LOC + "\\extendable\\isortWithoutCfg\\snippet.py");
+        File f = new File(TestDependent.TEST_PYSRC_TESTING_LOC + "extendable/isortWithoutCfg/snippet.py");
 
         byte[] encoded = Files.readAllBytes(f.toPath());
         String fileContents = new String(encoded, StandardCharsets.UTF_8);

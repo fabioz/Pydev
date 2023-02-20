@@ -18,7 +18,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
+import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -27,8 +27,8 @@ import org.eclipse.jface.text.IRegion;
 import org.python.pydev.ast.codecompletion.PyCodeCompletionUtils.IFilter;
 import org.python.pydev.ast.codecompletion.revisited.AbstractASTManager;
 import org.python.pydev.ast.codecompletion.revisited.AssignAnalysis;
-import org.python.pydev.ast.codecompletion.revisited.CompletionCache;
 import org.python.pydev.ast.codecompletion.revisited.CompletionState;
+import org.python.pydev.ast.codecompletion.revisited.modules.ClassDefTokensExtractor;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
@@ -57,6 +57,7 @@ import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.TokensList;
 import org.python.pydev.core.TokensListMixedLookingFor;
 import org.python.pydev.core.TokensOrProposalsList;
+import org.python.pydev.core.autoedit.DefaultIndentPrefs;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
@@ -70,6 +71,7 @@ import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.Return;
+import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
@@ -81,6 +83,7 @@ import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_core.model.ISimpleNode;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.structure.FastStack;
 import org.python.pydev.shared_core.structure.ImmutableTuple;
@@ -307,7 +310,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                                             if (parentPackage.equals(current.getName())) {
                                                 module = current;
                                             } else {
-                                                module = astManager.getModule(parentPackage, nature, true);
+                                                module = astManager.getModule(parentPackage, nature, true, state);
                                             }
                                             if (module != null) {
                                                 if (module instanceof SourceModule) {
@@ -318,9 +321,11 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                                                             LookingFor lookingFor = state.getLookingFor();
                                                             TokensList completions;
                                                             try {
-                                                                completions = sourceModule.getCompletionsForBase(
-                                                                        state,
-                                                                        astManager, classDef, j);
+                                                                ClassDefTokensExtractor classTokensExtractor = new ClassDefTokensExtractor(
+                                                                        classDef, sourceModule, state);
+                                                                completions = classTokensExtractor
+                                                                        .getCompletionsForBase(astManager,
+                                                                                classDef.bases[j]);
                                                             } finally {
                                                                 // Completions at this point shouldn't change the state of what we were looking for.
                                                                 state.setLookingFor(lookingFor, true);
@@ -581,7 +586,8 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             RefactoringRequest findRequest = new RefactoringRequest(request.editorFile, ps, new NullProgressMonitor(),
                     request.nature, null);
             ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
-            PyRefactoringFindDefinition.findActualDefinition(findRequest, new CompletionCache(), selected);
+            CompletionState completionState = new CompletionState();
+            PyRefactoringFindDefinition.findActualDefinition(findRequest, completionState, selected);
 
             //Changed: showing duplicated parameters (only removing self and cls).
             //Tuple<List<String>, Integer> insideParentesisToks = ps.getInsideParentesisToks(false, completionRequestForKeywordParam.documentOffset);
@@ -598,25 +604,81 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                 if (iDefinition instanceof Definition) {
                     Definition definition = (Definition) iDefinition;
                     if (definition.ast != null) {
-                        String args = NodeUtils.getNodeArgs(definition.ast);
-                        String fullArgs = NodeUtils.getFullArgs(definition.ast);
-                        StringTokenizer tokenizer = new StringTokenizer(args, "(, )");
-                        while (tokenizer.hasMoreTokens()) {
-                            String nextToken = tokenizer.nextToken();
-                            if (ignore.contains(nextToken)) {
-                                continue;
+                        SimpleNode node = definition.ast;
+                        if (node instanceof ClassDef) {
+                            node = NodeUtils.getClassDefInit((ClassDef) node);
+                        }
+
+                        if (node instanceof FunctionDef) {
+                            FunctionDef f = (FunctionDef) node;
+
+                            String nodeDocString = NodeUtils.getNodeDocString(definition.ast);
+
+                            if (f.args.args != null) {
+                                for (int i = 0; i < f.args.args.length; i++) {
+                                    addArg(request, ignore, definition, alreadyChecked, f.args.args, f.args.annotation,
+                                            f.args.defaults, i, nodeDocString);
+                                }
                             }
-                            String kwParam = nextToken + "=";
-                            SimpleNode node = new NameTok(kwParam, NameTok.KwArg);
-                            SourceToken sourceToken = new SourceToken(node, kwParam, "", "", "", IToken.TYPE_LOCAL,
-                                    definition.module != null ? definition.module.getNature() : null);
-                            sourceToken.setDocStr(fullArgs);
-                            alreadyChecked.put(kwParam, new IterTokenEntry(sourceToken));
+                            if (f.args.kwonlyargs != null) {
+                                for (int i = 0; i < f.args.kwonlyargs.length; i++) {
+                                    addArg(request, ignore, definition, alreadyChecked, f.args.kwonlyargs,
+                                            f.args.kwonlyargannotation, f.args.kw_defaults, i, nodeDocString);
+                                }
+                            }
                         }
                     }
                 }
             }
         }
+    }
+
+    private void addArg(final CompletionRequest request, final Set<String> ignore, final Definition definition,
+            final Map<String, IterTokenEntry> alreadyChecked, final exprType[] argName, final exprType[] annotation,
+            final exprType[] defaults, final int i, final String nodeDocString) {
+        final String rep = NodeUtils.getRepresentationString(argName[i]);
+        if (ignore.contains(rep)) {
+            return;
+        }
+        String kwParam = rep + "=";
+        SimpleNode paramNode = new NameTok(kwParam, NameTok.KwArg);
+        SourceToken sourceToken = new SourceToken(paramNode, kwParam, "", "", "", IToken.TYPE_LOCAL,
+                definition.module != null ? definition.module.getNature() : null, definition.module);
+        alreadyChecked.put(kwParam, new IterTokenEntry(sourceToken));
+
+        sourceToken.setDocStrCallback((token) -> {
+            FastStringBuffer buf = new FastStringBuffer();
+            buf.clear();
+            buf.append("param: ");
+            buf.append(rep);
+
+            if (annotation != null && annotation[i] != null) {
+                String val = NodeUtils.printAst(DefaultIndentPrefs.get(null), request.nature, annotation[i], "\n");
+                if (val != null) {
+                    val = val.strip();
+                    if (val.length() > 0) {
+                        buf.append(val);
+                    }
+                }
+
+            }
+            if (defaults != null && defaults[i] != null) {
+                String val = NodeUtils.printAst(DefaultIndentPrefs.get(null), request.nature, defaults[i], "\n");
+                if (val != null) {
+                    val = val.strip();
+                    if (val.length() > 0) {
+                        buf.append(val);
+                    }
+                }
+
+            }
+
+            if (nodeDocString != null && nodeDocString.length() > 0) {
+                buf.append("\n\n");
+                buf.append(nodeDocString);
+            }
+            return buf.toString();
+        });
     }
 
     /**
@@ -726,7 +788,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
      * @return completions added from contributors
      * @throws MisconfigurationException
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({ "rawtypes" })
     private TokensOrProposalsList getGlobalsFromParticipants(CompletionRequest request, ICompletionState state)
             throws MisconfigurationException {
         TokensOrProposalsList ret = new TokensOrProposalsList();
@@ -759,7 +821,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
             s = sourceModule.getAst();
         }
         if (s != null) {
-            FindScopeVisitor visitor = new FindScopeVisitor(state.getLine() + 1, 1, state.getNature());
+            FindScopeVisitor visitor = new FindScopeVisitor(state.getLine() + 1, 1, state.getNature(), module);
             try {
                 s.accept(visitor);
                 if (checkIfInCorrectScope) {
@@ -809,10 +871,9 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
      * Get self completions when you already have a scope
      * @throws MisconfigurationException
      */
-    @SuppressWarnings({ "unchecked" })
     public static void getSelfOrClsCompletions(ILocalScope scope, ITokenCompletionRequest request, TokensList theList,
             ICompletionState state, boolean getOnlySupers) throws BadLocationException, MisconfigurationException {
-        for (Iterator<SimpleNode> it = scope.iterator(); it.hasNext();) {
+        for (Iterator<ISimpleNode> it = scope.iterator(); it.hasNext();) {
 
             List<ITypeInfo> possibleClassesForActivationToken = scope
                     .getPossibleClassesForActivationToken(request.getActivationToken());
@@ -831,7 +892,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                 }
             }
 
-            SimpleNode node = it.next();
+            ISimpleNode node = it.next();
             if (node instanceof ClassDef) {
                 ClassDef d = (ClassDef) node;
 
@@ -886,13 +947,11 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
 
                         //ok, try our best shot at getting the module name of the current buffer used in the request.
                         IModule module = request.getModule();
-
                         AbstractASTManager astMan = ((AbstractASTManager) request.getNature().getAstManager());
-                        TokensList assignCompletions = new AssignAnalysis().getAssignCompletions(astMan, module,
-                                new CompletionState(
-                                        line, col, request.getActivationToken(), request.getNature(),
-                                        request.getQualifier()),
-                                scope).completions;
+                        ICompletionState st = state.getCopyWithActTok(request.getActivationToken(), line, col);
+                        st.setQualifier(request.getQualifier());
+                        TokensList assignCompletions = new AssignAnalysis().getCompletionsFollowingDefinition(astMan,
+                                module, st, scope).completions;
                         theList.addAll(assignCompletions);
                     }
                 }

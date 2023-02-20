@@ -40,6 +40,11 @@ public class OccurrencesAnalyzerPy36Test extends AnalysisTestsBase {
         super.tearDown();
     }
 
+    @Override
+    protected boolean isPython3Test() {
+        return true;
+    }
+
     public void testUsedVariable1() throws Exception {
         doc = new Document(""
                 + "def bar(a):\n" +
@@ -358,9 +363,7 @@ public class OccurrencesAnalyzerPy36Test extends AnalysisTestsBase {
                 "        pass\n" +
                 "");
         analyzer = new OccurrencesAnalyzer();
-        // Seems like we aren't getting it from the library (but that's ok, just check that
-        // Duplicated signature: spam does not appear).
-        checkError("Unresolved import: typing");
+        checkNoError();
     }
 
     public void testErrorTypingAssign() throws Exception {

@@ -2,11 +2,11 @@ class Rectangle(object):
     class Foo:
         def foo(self):
             class Bla:
-                print "foo"
+                print("foo")
             
             
             b = Bla()
-            print "foo nested class"
+            print("foo nested class")
     
     
     a = Foo()
@@ -24,5 +24,5 @@ class Rectangle(object):
 
 
 rect = Rectangle(10, 15)
-print rect.width
-print rect.area
+print(rect.width)
+print(rect.area)

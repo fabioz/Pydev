@@ -59,6 +59,7 @@ import org.eclipse.ui.navigator.INavigatorContentService;
 import org.eclipse.ui.navigator.INavigatorFilterService;
 import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.core.BaseModuleRequest;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
@@ -731,8 +732,9 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
                             String moduleName = projectModulesManager.resolveModuleInDirectManager(file
                                     .getActualObject());
                             if (moduleName != null) {
+                                BaseModuleRequest moduleRequest = new BaseModuleRequest(true);
                                 IModule module = projectModulesManager.getModuleInDirectManager(moduleName, nature,
-                                        true);
+                                        true, moduleRequest);
                                 if (module == null) {
                                     //ok, something strange happened... it shouldn't be null... maybe empty, but not null at this point
                                     //so, if it exists, let's try to create it...
@@ -744,7 +746,7 @@ public abstract class PythonBaseModelProvider extends BaseWorkbenchContentProvid
                                         if (f.exists()) {
                                             projectModulesManager.addModule(new ModulesKey(moduleName, f));
                                             module = projectModulesManager.getModuleInDirectManager(moduleName, nature,
-                                                    true);
+                                                    true, moduleRequest);
                                         }
                                     }
                                 }

@@ -40,10 +40,11 @@ import org.python.pydev.ui.ColorAndStyleCache;
 public class PyCodeScanner extends RuleBasedScanner {
 
     // keywords list has to be alphabetized for the keyword detector to work properly
-    static final public String[] DEFAULT_KEYWORDS = { "and", "as", "assert", "async", "await", "break", "class",
+    static final public String[] DEFAULT_KEYWORDS = { "and", "as", "assert", "async", "await", "break", "case", "class",
             "continue", "def",
             "del", "elif", "else", "except", "exec", "finally", "for", "from", "global", "if", "import", "in", "is",
-            "lambda", "nonlocal", "not", "or", "pass", "print", "raise", "return", "self", "try", "while", "with",
+            "lambda", "match", "nonlocal", "not", "or", "pass", "print", "raise", "return", "self", "try", "while",
+            "with",
             "yield", "False", "None", "True",
 
     };
@@ -86,25 +87,6 @@ public class PyCodeScanner extends RuleBasedScanner {
         @Override
         public boolean isWhitespace(char c) {
             return Character.isWhitespace(c);
-        }
-    }
-
-    /**
-     * Python keyword detector
-     */
-    static private class GreatKeywordDetector implements IWordDetector {
-
-        public GreatKeywordDetector() {
-        }
-
-        @Override
-        public boolean isWordStart(char c) {
-            return Character.isJavaIdentifierStart(c);
-        }
-
-        @Override
-        public boolean isWordPart(char c) {
-            return Character.isJavaIdentifierPart(c);
         }
     }
 
@@ -240,7 +222,7 @@ public class PyCodeScanner extends RuleBasedScanner {
         // must be before PyWordRule (to match decorator before matmul as operator).
         rules.add(new PyDecoratorRule(decoratorToken));
 
-        PyWordRule wordRule = new PyWordRule(new GreatKeywordDetector(), defaultToken, classNameToken, funcNameToken,
+        PyWordRule wordRule = new PyWordRule(defaultToken, classNameToken, funcNameToken,
                 parensToken, operatorsToken);
         for (String keyword : keywords) {
             IToken token = defaults.get(keyword);

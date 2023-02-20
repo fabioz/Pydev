@@ -53,29 +53,37 @@ for root, dirs, files in os.walk("pydevd_attach_to_process"):
 import pydevd
 version = pydevd.__version__
 
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'README.md'), 'r', encoding='utf-8') as stream:
+    long_description = stream.read()
+
 args = dict(
     name='pydevd',
     version=version,
     description='PyDev.Debugger (used in PyDev, PyCharm and VSCode Python)',
+    long_description_content_type='text/markdown',
+    long_description=long_description,
     author='Fabio Zadrozny and others',
     url='https://github.com/fabioz/PyDev.Debugger/',
-    license='EPL (Eclipse Public License)',
+    license='EPL, Apache 2.0',
     packages=[
         '_pydev_bundle',
-        '_pydev_imps',
+        '_pydev_bundle.fsnotify',
         '_pydev_runfiles',
         '_pydevd_bundle',
         '_pydevd_bundle._debug_adapter',
+        '_pydevd_bundle.pydevd_concurrency_analyser',
         '_pydevd_frame_eval',
+        '_pydevd_frame_eval.vendored',
+        '_pydevd_frame_eval.vendored.bytecode',
         'pydev_ipython',
 
         # 'pydev_sitecustomize', -- Not actually a package (not added)
 
         'pydevd_attach_to_process',
 
-        'pydevd_concurrency_analyser',
         'pydevd_plugins',
         'pydevd_plugins.extensions',
+        'pydevd_plugins.extensions.types',
     ],
     py_modules=[
         # 'interpreterInfo', -- Not needed for debugger
@@ -89,7 +97,7 @@ args = dict(
         'pydevd',
         'pydevd_tracing',
         # 'runfiles', -- Not needed for debugger
-        'setup_cython',  # Distributed to clients. See: https://github.com/fabioz/PyDev.Debugger/issues/102
+        'setup_pydevd_cython',  # Distributed to clients. See: https://github.com/fabioz/PyDev.Debugger/issues/102
         # 'setup', -- Should not be included as a module
     ],
     classifiers=[
@@ -98,19 +106,19 @@ args = dict(
         'Intended Audience :: Developers',
 
         'License :: OSI Approved :: Eclipse Public License 1.0 (EPL-1.0)',
+        'License :: OSI Approved :: Apache Software License',
 
         'Operating System :: MacOS :: MacOS X',
         'Operating System :: Microsoft :: Windows',
         'Operating System :: POSIX',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
         'Topic :: Software Development :: Debuggers',
     ],
     entry_points={
@@ -166,7 +174,7 @@ try:
             Extension(
                 '_pydevd_bundle.pydevd_cython',
                 ["_pydevd_bundle/pydevd_cython.c", ],
-                define_macros = [('Py_BUILD_CORE_MODULE', '1')],
+                define_macros=[('Py_BUILD_CORE_MODULE', '1')],
                 **kwargs
             )
         ]

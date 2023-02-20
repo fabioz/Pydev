@@ -24,6 +24,7 @@ import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
 import org.python.pydev.shared_core.structure.Tuple;
 
+import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
 public class PyParserTestBase extends TestCase {
@@ -252,8 +253,47 @@ public class PyParserTestBase extends TestCase {
      * @param iCallback
      * @throws Throwable
      */
-    public void checkWithAllGrammars(ICallback<Boolean, Integer> iCallback) throws Throwable {
+    public void checkWithAllGrammars(ICallback<Boolean, Integer> iCallback) throws RuntimeException {
         for (final Integer grammarVersion : Versions.getSupportedInternalGrammarVersions()) {
+            //try with all the grammars
+            boolean prev = PyParser.DEBUG_SHOW_PARSE_ERRORS;
+            // Uncomment the following line to get debug info
+            // We leave it off by default because it generates significant (MBs+) of
+            // output which causes Travis CI to reject the build for having too many
+            // logs
+            //            PyParser.DEBUG_SHOW_PARSE_ERRORS = true;
+
+            // Uncomment the following lines to test only the specific grammar
+            // if (grammarVersion != IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_6) {
+            //     continue;
+            // }
+            setDefaultVersion(grammarVersion);
+            try {
+                iCallback.call(grammarVersion);
+            } catch (AssertionFailedError e) {
+                System.out.println("\nFound error while parsing with version: "
+                        + IGrammarVersionProvider.grammarVersionToRep.get(grammarVersion));
+                throw e;
+            } catch (RuntimeException e) {
+                System.out.println("\nFound error while parsing with version: "
+                        + IGrammarVersionProvider.grammarVersionToRep.get(grammarVersion));
+                throw e;
+            } finally {
+                PyParser.DEBUG_SHOW_PARSE_ERRORS = prev;
+            }
+        }
+    }
+
+    /**
+     * The parameter passed in the callback is an integer with the version of the grammar.
+     * @param iCallback
+     * @throws Throwable
+     */
+    public void checkWithAllGrammars310Onwards(ICallback<Boolean, Integer> iCallback) throws RuntimeException {
+        for (final Integer grammarVersion : Versions.getSupportedInternalGrammarVersions()) {
+            if (grammarVersion < IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_10) {
+                continue;
+            }
             //try with all the grammars
             boolean prev = PyParser.DEBUG_SHOW_PARSE_ERRORS;
             // Uncomment the following line to get debug info
@@ -269,7 +309,7 @@ public class PyParserTestBase extends TestCase {
             setDefaultVersion(grammarVersion);
             try {
                 iCallback.call(grammarVersion);
-            } catch (Throwable e) {
+            } catch (RuntimeException e) {
                 System.out.println("\nFound error while parsing with version: "
                         + IGrammarVersionProvider.grammarVersionToRep.get(grammarVersion));
                 throw e;

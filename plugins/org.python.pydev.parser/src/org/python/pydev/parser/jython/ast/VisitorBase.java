@@ -185,6 +185,12 @@ public abstract class VisitorBase implements VisitorIF {
         return ret;
     }
 
+    public Object visitMatch(Match node) throws Exception {
+        Object ret = unhandled_node(node);
+        traverse(node);
+        return ret;
+    }
+
     public Object visitBoolOp(BoolOp node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
@@ -366,6 +372,48 @@ public abstract class VisitorBase implements VisitorIF {
     }
 
     public Object visitComprehension(Comprehension node) throws Exception {
+        Object ret = unhandled_node(node);
+        traverse(node);
+        return ret;
+    }
+
+    public Object visitMatchValue(MatchValue node) throws Exception {
+        Object ret = unhandled_node(node);
+        traverse(node);
+        return ret;
+    }
+
+    public Object visitMatchSequence(MatchSequence node) throws Exception {
+        Object ret = unhandled_node(node);
+        traverse(node);
+        return ret;
+    }
+
+    public Object visitMatchMapping(MatchMapping node) throws Exception {
+        Object ret = unhandled_node(node);
+        traverse(node);
+        return ret;
+    }
+
+    public Object visitMatchClass(MatchClass node) throws Exception {
+        Object ret = unhandled_node(node);
+        traverse(node);
+        return ret;
+    }
+
+    public Object visitMatchKeyword(MatchKeyword node) throws Exception {
+        Object ret = unhandled_node(node);
+        traverse(node);
+        return ret;
+    }
+
+    public Object visitMatchAs(MatchAs node) throws Exception {
+        Object ret = unhandled_node(node);
+        traverse(node);
+        return ret;
+    }
+
+    public Object visitMatchOr(MatchOr node) throws Exception {
         Object ret = unhandled_node(node);
         traverse(node);
         return ret;

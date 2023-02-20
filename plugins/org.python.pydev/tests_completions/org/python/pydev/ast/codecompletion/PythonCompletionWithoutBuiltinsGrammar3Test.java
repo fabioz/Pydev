@@ -117,10 +117,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
                 "    for key, val in stats.items():\n" +
                 "        key.";
 
-        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
-        assertEquals(1, proposals.length);
-        ICompletionProposalHandle prop = proposals[0];
-        assertEquals("method()", prop.getDisplayString());
+        requestCompl(s, s.length(), -1, new String[] { "method()" });
     }
 
     public void testListAccess() throws Exception {
@@ -132,10 +129,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
                 + "for p in primes:\n"
                 + "    p.";
 
-        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
-        assertEquals(1, proposals.length);
-        ICompletionProposalHandle prop = proposals[0];
-        assertEquals("method()", prop.getDisplayString());
+        requestCompl(s, s.length(), -1, new String[] { "method()" });
     }
 
     public void testListAccess2() throws Exception {
@@ -146,15 +140,12 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
                 + "primes: List[A] = []\n"
                 + "primes[0].";
 
-        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
-        assertEquals(1, proposals.length);
-        ICompletionProposalHandle prop = proposals[0];
-        assertEquals("method()", prop.getDisplayString());
+        requestCompl(s, s.length(), -1, new String[] { "method()" });
     }
 
     public void testAssignCompletionWithTypeAsString() throws Exception {
         String s = ""
-                + "class Bar(object):\n" +
+                + "class Bar:\n" +
                 "    def bar(self):\n" +
                 "        pass\n" +
                 "\n" +
@@ -162,10 +153,20 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
                 "    foo: 'Bar'\n" +
                 "    foo.";
 
-        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
-        assertEquals(1, proposals.length);
-        ICompletionProposalHandle prop = proposals[0];
-        assertEquals("bar()", prop.getDisplayString());
+        requestCompl(s, s.length(), 1, new String[] { "bar()" });
+    }
+
+    public void testAssignCompletionWithTypeAsStringObject() throws Exception {
+        String s = ""
+                + "class Bar:\n" +
+                "    def bar(self):\n" +
+                "        pass\n" +
+                "\n" +
+                "def method():\n" +
+                "    foo: 'Bar'\n" +
+                "    foo._";
+
+        requestCompl(s, s.length(), -1, new String[] { "__str__()" });
     }
 
     public void testParamTypeInfoAsString() throws Exception {
@@ -177,10 +178,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
                 "def method(a: 'Bar'):\n" +
                 "    a.";
 
-        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
-        assertEquals(1, proposals.length);
-        ICompletionProposalHandle prop = proposals[0];
-        assertEquals("bar()", prop.getDisplayString());
+        requestCompl(s, s.length(), -1, new String[] { "bar()" });
     }
 
     public void testParamTypeInfoAsString2() throws Exception {
@@ -193,10 +191,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
                 "    for b in a:\n" +
                 "        b.";
 
-        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
-        assertEquals(1, proposals.length);
-        ICompletionProposalHandle prop = proposals[0];
-        assertEquals("bar()", prop.getDisplayString());
+        requestCompl(s, s.length(), -1, new String[] { "bar()" });
     }
 
     public void testParamTypeInfoAsString3() throws Exception {
@@ -210,10 +205,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
                 "        self.bar = a\n" +
                 "        self.bar.";
 
-        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
-        assertEquals(1, proposals.length);
-        ICompletionProposalHandle prop = proposals[0];
-        assertEquals("bar()", prop.getDisplayString());
+        requestCompl(s, s.length(), -1, new String[] { "bar()" });
     }
 
     public void testCompletionForOptional() throws Exception {
@@ -230,10 +222,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
                 "a = method()\n" +
                 "a.";
 
-        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
-        assertEquals(1, proposals.length);
-        ICompletionProposalHandle prop = proposals[0];
-        assertEquals("some_method()", prop.getDisplayString());
+        requestCompl(s, s.length(), -11, new String[] { "some_method()" });
     }
 
     public void testCompletionForOptional2() throws Exception {
@@ -249,10 +238,7 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
                 "a: Optional[IFoo] = method()\n" +
                 "a.";
 
-        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
-        assertEquals(1, proposals.length);
-        ICompletionProposalHandle prop = proposals[0];
-        assertEquals("some_method()", prop.getDisplayString());
+        requestCompl(s, s.length(), -1, new String[] { "some_method()" });
     }
 
     public void testCompletionWithWalrus() throws Exception {
@@ -267,8 +253,396 @@ public class PythonCompletionWithoutBuiltinsGrammar3Test extends CodeCompletionT
                 "    if a := Foo():\n" +
                 "        a.";
         s = StringUtils.format(original, "");
-        ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
-        assertEquals(1, proposals.length);
-        assertEquals("foo()", proposals[0].getDisplayString());
+        requestCompl(s, s.length(), -1, new String[] { "foo()" });
+    }
+
+    public void testTypingCast() throws Exception {
+        String s;
+        s = "" +
+                ""
+                + "import typing"
+                + "\n"
+                + "class Foo:\n"
+                + "    def method(self):\n"
+                + "        pass\n"
+                + "\n"
+                + "x = None\n"
+                + "y = typing.cast(Foo, x)\n"
+                + "y.";
+        requestCompl(s, s.length(), -1, new String[] { "method()" });
+    }
+
+    public void testTypingCastUnresolved() throws Exception {
+        String s;
+        s = "" +
+                ""
+                + "import typing"
+                + "\n"
+                + "x = None\n"
+                + "y = typing.cast(NotThere, x)\n"
+                + "y.";
+        requestCompl(s, s.length(), -1, new String[] {});
+    }
+
+    public void testTypingCastInAnotherScope() throws Exception {
+        String s;
+        s = "" +
+                ""
+                + "import typing"
+                + "\n"
+                + "class Foo:\n"
+                + "    def method(self):\n"
+                + "        x = None\n"
+                + "        y = typing.cast(Foo, x)\n"
+                + "\n"
+                + "y.";
+        ICompletionProposalHandle[] completions = requestCompl(s, s.length(), -1, new String[] {});
+        for (ICompletionProposalHandle iCompletionProposalHandle : completions) {
+            if (iCompletionProposalHandle.getDisplayString().contains("method")) {
+                throw new AssertionError("method should not be found because it's in another scope.");
+            }
+        }
+    }
+
+    public void testUnion() throws Exception {
+        String s;
+        s = ""
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "def method1(param:Union[A, B]):\n"
+                + "    param.me";
+        requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()" });
+    }
+
+    public void testUnion2() throws Exception {
+        String s;
+        s = ""
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "def method1(param:Union[A, B]):\n"
+                + "    pass\n"
+                + "def method2(param:Union[A, B]):\n"
+                + "    param.me";
+        requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()" });
+    }
+
+    public void testUnion4() throws Exception {
+        String s;
+        s = ""
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "def method1(param:typing.Union[A, B]):\n"
+                + "    param.me";
+        requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()" });
+    }
+
+    public void testUnion5() throws Exception {
+        String s;
+        s = ""
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "def method1(param:foo.Union[A, B]):\n"
+                + "    param.me";
+        requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()" });
+    }
+
+    public void testUnion6() throws Exception {
+        String s;
+        s = ""
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "def method1(param: foo.Union[A, B]):\n"
+                + "    param.me";
+        requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()" });
+    }
+
+    public void testUnion7() throws Exception {
+        String s;
+        s = ""
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "def method1():\n"
+                + "    param: foo.Union[A, B]\n"
+                + "    param.me";
+        requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()" });
+    }
+
+    public void testUnion8() throws Exception {
+        String s;
+        s = ""
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "def method1(param: A | B):\n"
+                + "    param.me";
+        requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()" });
+    }
+
+    public void testUnion9() throws Exception {
+        String s;
+        s = ""
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "class C(object):\n"
+                + "    def method_c(self):\n"
+                + "        pass\n"
+                + "def method1(param: A | B | C):\n"
+                + "    param.me";
+        requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()", "method_c()" });
+    }
+
+    public void testUnion10() throws Exception {
+        String s;
+        s = ""
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "def method1(param:A|B):\n"
+                + "    param.me";
+        requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()" });
+    }
+
+    public void testUnion11() throws Exception {
+        String s;
+        s = ""
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "class C(object):\n"
+                + "    def method_c(self):\n"
+                + "        pass\n"
+                + "def method1(param:A|B|C):\n"
+                + "    param.me";
+        requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()", "method_c()" });
+    }
+
+    public void testUnion12() throws Exception {
+        String s;
+        s = ""
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "def method1(param: List[A|B]):\n"
+                + "    for x in param:\n"
+                + "        x.";
+        requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()" });
+    }
+
+    public void testUnion13() throws Exception {
+        String s;
+        s = ""
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "def method1(param: List[Union[A, B]]):\n"
+                + "    for x in param:\n"
+                + "        x.";
+        requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()" });
+    }
+
+    public void testUnion14() throws Exception {
+        String s;
+        s = ""
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "def method1(param: Union[A|B]):\n"
+                + "    param.";
+        requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()" });
+    }
+
+    public void testNonUnion() throws Exception {
+        String s;
+        s = ""
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "def method1(param: SomeSubscript[A|B]):\n"
+                + "    param.";
+        ICompletionProposalHandle[] completions = requestCompl(s, s.length(), -1, new String[] {});
+        assertEquals(0, completions.length);
+    }
+
+    public void testNonUnion2() throws Exception {
+        String s;
+        s = ""
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "def method1(param: SomeSubscript[A,B]):\n"
+                + "    param.";
+        ICompletionProposalHandle[] completions = requestCompl(s, s.length(), -1, new String[] {});
+        assertEquals(0, completions.length);
+    }
+
+    public void testMultipleUnions() throws Exception {
+        String s;
+        s = ""
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "class C(object):\n"
+                + "    def method_c(self):\n"
+                + "        pass\n"
+                + "def method1(param: Union[Union[A, B] | C]):\n"
+                + "    param.";
+        requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()", "method_c()" });
+    }
+
+    public void testMultipleUnions2() throws Exception {
+        String s;
+        s = ""
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "class C(object):\n"
+                + "    def method_c(self):\n"
+                + "        pass\n"
+                + "def method1(param: Union[Union[A | B] | C]):\n"
+                + "    param.";
+        requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()", "method_c()" });
+    }
+
+    public void testMultipleUnions3() throws Exception {
+        String s;
+        s = ""
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "class C(object):\n"
+                + "    def method_c(self):\n"
+                + "        pass\n"
+                + "class D(object):\n"
+                + "    def method_d(self):\n"
+                + "        pass\n"
+                + "def method1(param: Union[Union[A | B] | Union[C, D]]):\n"
+                + "    param.";
+        requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()", "method_c()", "method_c()" });
+    }
+
+    public void testMultipleUnions4() throws Exception {
+        String s;
+        s = ""
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "class C(object):\n"
+                + "    def method_c(self):\n"
+                + "        pass\n"
+                + "class D(object):\n"
+                + "    def method_d(self):\n"
+                + "        pass\n"
+                + "def method1(param: Union[Union[A | B] | Union[C | D]]):\n"
+                + "    param.";
+        requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()", "method_c()", "method_c()" });
+    }
+
+    public void testMultipleUnions5() throws Exception {
+        String s;
+        s = ""
+                + "class A(object):\n"
+                + "    def method_a(self):\n"
+                + "        pass\n"
+                + "class B(object):\n"
+                + "    def method_b(self):\n"
+                + "        pass\n"
+                + "class C(object):\n"
+                + "    def method_c(self):\n"
+                + "        pass\n"
+                + "class D(object):\n"
+                + "    def method_d(self):\n"
+                + "        pass\n"
+                + "def method1(param: Union[Union[A | B] | C | D]):\n"
+                + "    param.";
+        requestCompl(s, s.length(), -1, new String[] { "method_a()", "method_b()", "method_c()", "method_c()" });
+    }
+
+    public void testStaticClassVariable() throws Exception {
+        String s;
+        s = ""
+                + "class A:\n"
+                + "    pass\n"
+                + "A.some_var = 10\n"
+                + "A.";
+        requestCompl(s, s.length(), -1, new String[] { "some_var" });
+    }
+
+    public void testStaticClassVariable2() throws Exception {
+        String s;
+        s = ""
+                + "class Foo:\n"
+                + "    def __init__(self):\n"
+                + "        pass\n"
+                + "    def foo(self):\n"
+                + "        pass\n"
+                + "class Bar:\n"
+                + "    pass\n"
+                + "Bar.some_var = Foo()\n"
+                + "Bar.some_var.";
+        requestCompl(s, s.length(), -1, new String[] { "foo()" });
     }
 }

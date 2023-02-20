@@ -16,7 +16,7 @@
   <parent>
     <groupId>org.python.pydev</groupId>
     <artifactId>parent</artifactId>
-    <version>8.3.0-SNAPSHOT</version>
+    <version>10.1.3-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>plugins</artifactId>
@@ -26,6 +26,9 @@
     <module>com.python.pydev.analysis</module>
     <module>com.python.pydev.debug</module>
     <!-- TODO com.python.pydev.docs -->
+    <!-- Note: the module below should be uncommented for testing -->
+    <!-- See: add_tests_to_plugins.py -->
+    <!-- <module>com.python.pydev.runalltests</module> -->
     <module>com.python.pydev.refactoring</module>
     <module>org.python.pydev</module>
     <module>org.python.pydev.ast</module>
@@ -35,7 +38,7 @@
     <module>org.python.pydev.django</module>
     <module>org.python.pydev.help</module>
     <module>org.python.pydev.jython</module>
-    <module>org.python.pydev.mylyn</module>
+    <!-- <module>org.python.pydev.mylyn</module> -->
     <module>org.python.pydev.parser</module>
     <module>org.python.pydev.refactoring</module>
     <module>org.python.pydev.shared_core</module>

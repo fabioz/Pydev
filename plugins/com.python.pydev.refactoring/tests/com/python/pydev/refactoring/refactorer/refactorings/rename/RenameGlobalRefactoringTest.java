@@ -43,7 +43,7 @@ public class RenameGlobalRefactoringTest extends RefactoringRenameTestBase {
                 + "  ASTEntry<bar (Name L=2 C=1)>\n"
                 + "    Line: 1  bar = 10 --> new_name = 10\n"
                 + "  ASTEntry<bar (Name L=3 C=7)>\n"
-                + "    Line: 2  print bar --> print new_name\n"
+                + "    Line: 2  print(bar) --> print(new_name)\n"
                 + "  ASTEntry<bar (NameTok L=1 C=8)>\n"
                 + "    Line: 0  global bar --> global new_name\n"
                 + "\n"
@@ -62,8 +62,8 @@ public class RenameGlobalRefactoringTest extends RefactoringRenameTestBase {
                 + "reflib.renameglobal2.bar2\n"
                 + "  ASTEntry<Bar1 (Name L=3 C=1)>\n"
                 + "    Line: 2  Bar1 --> new_name\n"
-                + "  ASTEntry<Bar1 (NameTok L=1 C=18)>\n"
-                + "    Line: 0  from bar1 import Bar1 --> from bar1 import new_name\n"
+                + "  ASTEntry<Bar1 (NameTok L=1 C=19)>\n"
+                + "    Line: 0  from .bar1 import Bar1 --> from .bar1 import new_name\n"
                 + "\n"
                 + "", asStr(references));
     }

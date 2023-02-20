@@ -33,6 +33,7 @@ public interface ISimpleNodeSwitch {
     public void visit(Pass node);
     public void visit(Break node);
     public void visit(Continue node);
+    public void visit(Match node);
     public void visit(BoolOp node);
     public void visit(NamedExpr node);
     public void visit(BinOp node);
@@ -64,4 +65,11 @@ public interface ISimpleNodeSwitch {
     public void visit(ExtSlice node);
     public void visit(Index node);
     public void visit(Comprehension node);
+    public void visit(MatchValue node);
+    public void visit(MatchSequence node);
+    public void visit(MatchMapping node);
+    public void visit(MatchClass node);
+    public void visit(MatchKeyword node);
+    public void visit(MatchAs node);
+    public void visit(MatchOr node);
 }

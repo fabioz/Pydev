@@ -3,11 +3,11 @@ class A:
         ##|a = 10
         b = 20
         ##|
-        print a, b
+        print(a, b)
 
 
     def my_method(self):
-        print self.attribute
+        print(self.attribute)
 
 ##r
 
@@ -21,8 +21,8 @@ class A:
     def test(self):
         a, b = self.extracted_method()
         
-        print a, b
+        print(a, b)
 
 
     def my_method(self):
-        print self.attribute
+        print(self.attribute)

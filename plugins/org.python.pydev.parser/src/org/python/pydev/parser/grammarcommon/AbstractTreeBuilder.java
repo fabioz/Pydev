@@ -7,12 +7,10 @@
 package org.python.pydev.parser.grammarcommon;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
-import org.python.pydev.core.log.Log;
-import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
-import org.python.pydev.parser.jython.Token;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
 import org.python.pydev.parser.jython.ast.AugAssign;
@@ -29,6 +27,7 @@ import org.python.pydev.parser.jython.ast.Exec;
 import org.python.pydev.parser.jython.ast.Expr;
 import org.python.pydev.parser.jython.ast.ExtSlice;
 import org.python.pydev.parser.jython.ast.For;
+import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
@@ -49,6 +48,7 @@ import org.python.pydev.parser.jython.ast.With;
 import org.python.pydev.parser.jython.ast.WithItem;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.aliasType;
+import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.comprehensionType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
@@ -159,6 +159,10 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
 
             case JJTCONTINUE_STMT:
                 ret = new Continue();
+                break;
+
+            case JJTFUNCDEF:
+                ret = new FunctionDef(null, null, null, null, null, false);
                 break;
 
             case JJTBEGIN_DECORATOR:
@@ -556,7 +560,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
                 return n;
 
             case JJTDOT_OP:
-                NameTok attr = makeName(NameTok.Attrib);
+                NameTok attr = makeNameTok(NameTok.Attrib);
                 value = (exprType) stack.popNode();
                 Attribute attribute = (Attribute) n;
                 attribute.value = value;
@@ -595,16 +599,16 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
             case JJTDOTTED_AS_NAME:
                 NameTok asname = null;
                 if (arity > 1) {
-                    asname = makeName(NameTok.ImportName);
+                    asname = makeNameTok(NameTok.ImportName);
                 }
-                return new aliasType(makeName(NameTok.ImportName), asname);
+                return new aliasType(makeNameTok(NameTok.ImportName), asname);
 
             case JJTIMPORT_AS_NAME:
                 asname = null;
                 if (arity > 1) {
-                    asname = makeName(NameTok.ImportName);
+                    asname = makeNameTok(NameTok.ImportName);
                 }
-                return new aliasType(makeName(NameTok.ImportName), asname);
+                return new aliasType(makeNameTok(NameTok.ImportName), asname);
 
             case JJTSTRJOIN:
                 Str str2 = (Str) stack.popNode();
@@ -701,23 +705,15 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
         }
         NameTok nT;
         if (arity > 0) {
-            nT = makeName(NameTok.ImportModule);
+            nT = makeNameTok(NameTok.ImportModule);
         } else {
             nT = new NameTok("", NameTok.ImportModule);
-            Object temporaryTok = this.stack.getGrammar().temporaryToken;
-            ISpecialStr temporaryToken;
-            if (temporaryTok instanceof ISpecialStr) {
-                temporaryToken = (ISpecialStr) temporaryTok;
-            } else {
-                //must be a Token
-                temporaryToken = ((Token) temporaryTok).asSpecialStr();
-            }
-            if (temporaryToken.toString().equals("from")) {
-                nT.beginColumn = temporaryToken.getBeginCol();
-                nT.beginLine = temporaryToken.getBeginLine();
-            } else {
-                Log.log("Expected to find 'from' token as the current temporary token (begin col/line can be wrong)!");
-            }
+            // If it's an empty token it must be something as: from . import XXX
+            AbstractPythonGrammar grammar = stack.getGrammar();
+            int lastLevelImportCol = grammar.getLastLevelImportCol();
+            int lastLevelImportLine = grammar.getLastLevelImportLine();
+            nT.beginColumn = lastLevelImportCol;
+            nT.beginLine = lastLevelImportLine;
         }
         return new ImportFrom(nT, aliastL.toArray(new aliasType[0]), 0);
     }
@@ -850,6 +846,123 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
             ctx.setStore(exprs);
             return new Assign(exprs, null, type);
         }
+    }
+
+    public final FunctionDef closeFuncDef(int arity, SimpleNode n) throws Exception {
+        Suite suite = (Suite) stack.popNode();
+        stmtType[] body = suite.body;
+        arity--;
+
+        SimpleNode funcDefReturnAnn = stack.peekNode();
+        exprType actualReturnAnnotation = null;
+        if (funcDefReturnAnn instanceof FuncDefReturnAnn) {
+            stack.popNode();
+            actualReturnAnnotation = (exprType) ((FuncDefReturnAnn) funcDefReturnAnn).node;
+            arity--;
+            addSpecialsAndClearOriginal(funcDefReturnAnn, actualReturnAnnotation);
+        }
+        argumentsType arguments = makeArguments(arity - 1);
+        NameTok nameTok = makeNameTok(NameTok.FunctionName);
+        //decorator is always null at this point... it's decorated later on
+        FunctionDef funcDef = (FunctionDef) n;
+        funcDef.name = nameTok;
+        funcDef.args = arguments;
+        funcDef.body = body;
+        funcDef.returns = actualReturnAnnotation;
+        funcDef.async = this.stack.getGrammar().getInsideAsync();
+        addSpecialsAndClearOriginal(suite, funcDef);
+        setParentForFuncOrClass(body, funcDef);
+        return funcDef;
+    }
+
+    public argumentsType makeArguments(int l) throws Exception {
+        NameTok kwarg = null;
+        NameTok stararg = null;
+        exprType varargannotation = null;
+        exprType kwargannotation = null;
+
+        ArrayList<SimpleNode> list = new ArrayList<SimpleNode>();
+        for (int i = l - 1; i >= 0; i--) {
+            SimpleNode popped = stack.popNode();
+            try {
+                if (popped.getId() == JJTEXTRAKEYWORDLIST) {
+                    ExtraArg node = (ExtraArg) popped;
+                    kwarg = node.tok;
+                    kwargannotation = node.typeDef;
+                    addSpecialsAndClearOriginal(node, kwarg);
+                } else if (popped.getId() == JJTEXTRAARGLIST) {
+                    ExtraArg node = (ExtraArg) popped;
+                    stararg = node.tok;
+                    varargannotation = node.typeDef;
+                    if (stararg != null) {
+                        //can happen, as in 3.0 we can have a single '*'
+                        addSpecialsAndClearOriginal(node, stararg);
+                    }
+                } else {
+                    list.add(popped);
+                }
+            } catch (ClassCastException e) {
+                throw new ParseException("Internal error (ClassCastException):" + e.getMessage() + "\n" + popped,
+                        popped);
+            }
+        }
+        Collections.reverse(list);//we get them in reverse order in the stack
+        argumentsType arguments = __makeArguments(list.toArray(new DefaultArg[0]), stararg, kwarg);
+        arguments.varargannotation = varargannotation;
+        arguments.kwargannotation = kwargannotation;
+        return arguments;
+    }
+
+    /**
+     * Should only be called from makeArguments
+     */
+    private argumentsType __makeArguments(DefaultArg[] def, NameTok varg, NameTok kwarg) throws Exception {
+        java.util.List<exprType> fpargs = new ArrayList<exprType>();
+        java.util.List<exprType> fpargsAnn = new ArrayList<exprType>();
+        java.util.List<exprType> fpargsDefaults = new ArrayList<exprType>();
+
+        java.util.List<exprType> kwonlyargs = new ArrayList<exprType>();
+        java.util.List<exprType> kwonlyargsAnn = new ArrayList<exprType>();
+        java.util.List<exprType> kwonlyargsDefaults = new ArrayList<exprType>();
+
+        for (int i = 0; i < def.length; i++) {
+            DefaultArg node = def[i];
+            exprType parameter = node.parameter;
+
+            if (node.id == JJTONLYKEYWORDARG || node.id == JJTONLYKEYWORDARG2) {
+                ctx.setKwOnlyParam(parameter);
+                kwonlyargs.add(parameter);
+                kwonlyargsAnn.add(node.typeDef);
+                kwonlyargsDefaults.add(node.value);
+            } else {
+                //regular parameter
+                ctx.setParam(parameter);
+                fpargs.add(parameter);
+                fpargsAnn.add(node.typeDef);
+                fpargsDefaults.add(node.value);
+            }
+
+            if (node.specialsBefore != null && node.specialsBefore.size() > 0) {
+                parameter.getSpecialsBefore().addAll(node.specialsBefore);
+            }
+            if (node.specialsAfter != null && node.specialsAfter.size() > 0) {
+                parameter.getSpecialsAfter().addAll(node.specialsAfter);
+            }
+
+        }
+
+        return new argumentsType(fpargs.toArray(new exprType[fpargs.size()]), varg, kwarg,
+                fpargsDefaults.toArray(new exprType[fpargsDefaults.size()]),
+
+                //new on Python 3.0
+                kwonlyargs.toArray(new exprType[kwonlyargs.size()]),
+                kwonlyargsDefaults.toArray(new exprType[kwonlyargsDefaults.size()]),
+
+                //annotations
+                fpargsAnn.toArray(new exprType[fpargsAnn.size()]), null, //this one will be set later on makeArguments (varargannotation)
+                null, //this one will be set later on makeArguments (kwargannotation)
+                kwonlyargsAnn.toArray(new exprType[kwonlyargsAnn.size()]));
+
     }
 
 }

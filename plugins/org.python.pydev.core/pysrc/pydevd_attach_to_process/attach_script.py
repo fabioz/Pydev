@@ -31,6 +31,7 @@ def get_main_thread_id(unlikely_thread_id=None):
 
         if (frame.f_code.co_name, basename) in [
                 ('_run_module_as_main', 'runpy.py'),
+                ('_run_module_as_main', '<frozen runpy>'),
                 ('run_module_as_main', 'runpy.py'),
                 ('run_module', 'runpy.py'),
                 ('run_path', 'runpy.py'),
@@ -128,7 +129,7 @@ def fix_main_thread_id(on_warn=lambda msg:None, on_exception=lambda msg:None, on
         on_exception('Error patching main thread id.')
 
 
-def attach(port, host, protocol=''):
+def attach(port, host, protocol='', debug_mode=''):
     try:
         import sys
         fix_main_thread = 'threading' not in sys.modules
@@ -157,6 +158,10 @@ def attach(port, host, protocol=''):
             from _pydevd_bundle import pydevd_defaults
             pydevd_defaults.PydevdCustomization.DEFAULT_PROTOCOL = protocol
 
+        if debug_mode:
+            from _pydevd_bundle import pydevd_defaults
+            pydevd_defaults.PydevdCustomization.DEBUG_MODE = debug_mode
+
         import pydevd
 
         # I.e.: disconnect/reset if already connected.
@@ -167,8 +172,6 @@ def attach(port, host, protocol=''):
         if py_db is not None:
             py_db.dispose_and_kill_all_pydevd_threads(wait=False)
 
-        # pydevd.DebugInfoHolder.DEBUG_RECORD_SOCKET_READS = True
-        # pydevd.DebugInfoHolder.DEBUG_TRACE_BREAKPOINTS = 3
         # pydevd.DebugInfoHolder.DEBUG_TRACE_LEVEL = 3
         pydevd.settrace(
             port=port,

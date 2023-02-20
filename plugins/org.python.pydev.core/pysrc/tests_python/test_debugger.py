@@ -18,20 +18,17 @@ from tests_python.debugger_unittest import (CMD_SET_PROPERTY_TRACE, REASON_CAUGH
     CMD_THREAD_SUSPEND, CMD_STEP_OVER, REASON_STEP_OVER, CMD_THREAD_SUSPEND_SINGLE_NOTIFICATION,
     CMD_THREAD_RESUME_SINGLE_NOTIFICATION, REASON_STEP_RETURN, REASON_STEP_RETURN_MY_CODE,
     REASON_STEP_OVER_MY_CODE, REASON_STEP_INTO, CMD_THREAD_KILL, IS_PYPY, REASON_STOP_ON_START,
-    CMD_SMART_STEP_INTO)
+    CMD_SMART_STEP_INTO, CMD_GET_VARIABLE)
 from _pydevd_bundle.pydevd_constants import IS_WINDOWS, IS_PY38_OR_GREATER, \
     IS_MAC
-from _pydevd_bundle.pydevd_comm_constants import CMD_RELOAD_CODE, CMD_INPUT_REQUESTED
+from _pydevd_bundle.pydevd_comm_constants import CMD_RELOAD_CODE, CMD_INPUT_REQUESTED, \
+    CMD_RUN_CUSTOM_OPERATION
 import json
 import pydevd_file_utils
 import subprocess
 import threading
-from tests_python.debug_constants import IS_PY26
 from _pydev_bundle import pydev_log
-try:
-    from urllib import unquote
-except ImportError:
-    from urllib.parse import unquote
+from urllib.parse import unquote, unquote_plus
 
 from tests_python.debug_constants import *  # noqa
 
@@ -39,15 +36,7 @@ pytest_plugins = [
     str('tests_python.debugger_fixtures'),
 ]
 
-try:
-    xrange
-except:
-    xrange = range
-
-if IS_PY2:
-    builtin_qualifier = "__builtin__"
-else:
-    builtin_qualifier = "builtins"
+builtin_qualifier = "builtins"
 
 
 @pytest.mark.skipif(not IS_CPYTHON, reason='Test needs gc.get_referrers/reference counting to really check anything.')
@@ -131,7 +120,7 @@ def test_case_2(case_setup):
 def test_case_breakpoint_condition_exc(case_setup, skip_suspend_on_breakpoint_exception, skip_print_breakpoint_exception):
 
     msgs_in_stderr = (
-        'Error while evaluating expression: i > 5',
+        'Error while evaluating expression in conditional breakpoint: i > 5',
         'Traceback (most recent call last):',
         'File "<string>", line 1, in <module>',
     )
@@ -152,9 +141,31 @@ def test_case_breakpoint_condition_exc(case_setup, skip_suspend_on_breakpoint_ex
 
         return False
 
-    def additional_output_checks(stdout, stderr):
-        original_additional_output_checks(stdout, stderr)
-        if skip_print_breakpoint_exception in ([], ['ValueError']):
+    with case_setup.test_file('_debugger_case_breakpoint_condition_exc.py') as writer:
+
+        original_ignore_stderr_line = writer._ignore_stderr_line
+        writer._ignore_stderr_line = _ignore_stderr_line
+
+        writer.write_suspend_on_breakpoint_exception(skip_suspend_on_breakpoint_exception, skip_print_breakpoint_exception)
+
+        expect_print = skip_print_breakpoint_exception in ([], ['ValueError'])
+        expect_suspend = skip_suspend_on_breakpoint_exception in ([], ['ValueError'])
+
+        breakpoint_id = writer.write_add_breakpoint(
+            writer.get_line_index_with_content('break here'), 'Call', condition='i > 5')
+
+        if not expect_print:
+            _original = writer.reader_thread.on_message_found
+
+            def on_message_found(found_msg):
+                for msg in msgs_in_stderr + msgs_one_in_stderr:
+                    assert msg not in found_msg
+
+            writer.reader_thread.on_message_found = on_message_found
+
+        writer.write_make_initial_run()
+
+        def check_error_msg(stderr):
             for msg in msgs_in_stderr:
                 assert msg in stderr
 
@@ -164,32 +175,19 @@ def test_case_breakpoint_condition_exc(case_setup, skip_suspend_on_breakpoint_ex
             else:
                 raise AssertionError('Did not find any of: %s in stderr: %s' % (
                     msgs_one_in_stderr, stderr))
-        else:
-            for msg in msgs_in_stderr + msgs_one_in_stderr:
-                assert msg not in stderr
 
-    with case_setup.test_file('_debugger_case_breakpoint_condition_exc.py') as writer:
+        if expect_print:
+            msg, ctx = writer.wait_for_output()
+            check_error_msg(msg.replace('&gt;', '>'))
 
-        original_ignore_stderr_line = writer._ignore_stderr_line
-        writer._ignore_stderr_line = _ignore_stderr_line
-
-        original_additional_output_checks = writer.additional_output_checks
-        writer.additional_output_checks = additional_output_checks
-
-        writer.write_suspend_on_breakpoint_exception(skip_suspend_on_breakpoint_exception, skip_print_breakpoint_exception)
-        breakpoint_id = writer.write_add_breakpoint(
-            writer.get_line_index_with_content('break here'), 'Call', condition='i > 5')
-
-        writer.write_make_initial_run()
-
-        if skip_suspend_on_breakpoint_exception in ([], ['ValueError']):
+        if expect_suspend:
             writer.wait_for_message(CMD_GET_BREAKPOINT_EXCEPTION)
             hit = writer.wait_for_breakpoint_hit()
             writer.write_run_thread(hit.thread_id)
 
         if IS_JYTHON:
             # Jython will break twice.
-            if skip_suspend_on_breakpoint_exception in ([], ['ValueError']):
+            if expect_suspend:
                 writer.wait_for_message(CMD_GET_BREAKPOINT_EXCEPTION)
                 hit = writer.wait_for_breakpoint_hit()
                 writer.write_run_thread(hit.thread_id)
@@ -954,11 +952,24 @@ def test_case_django_a(case_setup_django):
         return env
 
     with case_setup_django.test_file(EXPECTED_RETURNCODE='any', get_environ=get_environ) as writer:
-        writer.write_add_breakpoint_django(5, None, 'index.html')
         writer.write_make_initial_run()
 
+        # Wait for the first request that works...
+        for i in range(4):
+            try:
+                t = writer.create_request_thread('my_app')
+                t.start()
+                contents = t.wait_for_contents()
+                contents = contents.replace(' ', '').replace('\r', '').replace('\n', '')
+                assert contents == '<ul><li>v1:v1</li><li>v2:v2</li></ul>'
+                break
+            except:
+                if i == 3:
+                    raise
+                continue
+
+        writer.write_add_breakpoint_django(5, None, 'index.html')
         t = writer.create_request_thread('my_app')
-        time.sleep(5)  # Give django some time to get to startup before requesting the page
         t.start()
 
         hit = writer.wait_for_breakpoint_hit(REASON_STOP_ON_BREAKPOINT, line=5)
@@ -1360,10 +1371,7 @@ def test_case_handled_and_unhandled_exception_generator(case_setup, target_file,
         if 'generator' in target_file:
             expected_frame_names = ['<genexpr>', 'f', '<module>']
         else:
-            if IS_PY27 or IS_PY26:
-                expected_frame_names = ['f', '<module>']
-            else:
-                expected_frame_names = ['<listcomp>', 'f', '<module>']
+            expected_frame_names = ['<listcomp>', 'f', '<module>']
 
         writer.write_get_current_exception(hit.thread_id)
         msg = writer.wait_for_message(accept_message=lambda msg:'exc_type="' in msg and 'exc_desc="' in msg, unquote_msg=False)
@@ -1374,15 +1382,10 @@ def test_case_handled_and_unhandled_exception_generator(case_setup, target_file,
         writer.write_run_thread(hit.thread_id)
 
         if not unhandled:
-            if (IS_PY26 or IS_PY27) and 'listcomp' in target_file:
-                expected_lines = [
-                    writer.get_line_index_with_content('# call exc'),
-                ]
-            else:
-                expected_lines = [
-                    writer.get_line_index_with_content('# exc line'),
-                    writer.get_line_index_with_content('# call exc'),
-                ]
+            expected_lines = [
+                writer.get_line_index_with_content('# exc line'),
+                writer.get_line_index_with_content('# call exc'),
+            ]
 
             for expected_line in expected_lines:
                 hit = writer.wait_for_breakpoint_hit(REASON_CAUGHT_EXCEPTION)
@@ -1668,13 +1671,13 @@ def test_case_throw_exc_reason_xml(case_setup):
             name_and_lines.append((frame['name'], frame['line']))
 
         assert name_and_lines == [
-            ('method2', '2'),
-            ('method', '6'),
-            ('foobar', '16'),
-            ('handle', '10'),
-            ('foobar', '18'),
             ('foobar', '20'),
             ('<module>', '23'),
+            ('[Chained Exc: another while handling] foobar', '18'),
+            ('[Chained Exc: another while handling] handle', '10'),
+            ('[Chained Exc: TEST SUCEEDED] foobar', '16'),
+            ('[Chained Exc: TEST SUCEEDED] method', '6'),
+            ('[Chained Exc: TEST SUCEEDED] method2', '2'),
         ]
 
         hit = writer.wait_for_breakpoint_hit(REASON_UNCAUGHT_EXCEPTION)
@@ -1700,6 +1703,8 @@ def test_case_get_next_statement_targets(case_setup):
         # it's also not that bad (that line has no code in the source and
         # executing it will just set the tracing for the method).
         targets.discard(20)
+        # On Python 3.11 there's now a line 1 (which should be harmless).
+        targets.discard(1)
         expected = set((2, 3, 5, 8, 9, 10, 12, 13, 14, 15, 17, 18, 19, 21))
         assert targets == expected, 'Expected targets to be %s, was: %s' % (expected, targets)
 
@@ -1737,6 +1742,98 @@ def test_case_type_ext(case_setup):
         ])
         writer.write_get_variable(hit.thread_id, hit.frame_id, 'my_rect')
         assert writer.wait_for_var(r'<var name="area" type="int" qualifier="{0}" value="int%253A 50" />'.format(builtin_qualifier))
+        writer.write_run_thread(hit.thread_id)
+        writer.finished_ok = True
+
+
+def test_case_variable_access(case_setup, pyfile, data_regression):
+
+    @pyfile
+    def case_custom():
+        obj = [
+            tuple(range(9)),
+            [
+                tuple(range(5)),
+            ]
+        ]
+
+        print('TEST SUCEEDED')
+
+    with case_setup.test_file(case_custom) as writer:
+        line = writer.get_line_index_with_content('TEST SUCEEDED')
+        writer.write_add_breakpoint(line)
+        writer.write_make_initial_run()
+
+        hit = writer.wait_for_breakpoint_hit('111')
+        writer.write_get_frame(hit.thread_id, hit.frame_id)
+
+        frame_vars = writer.wait_for_untangled_message(
+            accept_message=lambda cmd_id, untangled: cmd_id == CMD_GET_FRAME)
+
+        obj_var = [v for v in frame_vars.var if v['name'] == 'obj'][0]
+        assert obj_var['type'] == 'list'
+        assert unquote_plus(obj_var['value']) == "<class 'list'>: [(0, 1, 2, 3, 4, 5, 6, 7, 8), [(0, 1, 2, 3, 4)]]"
+        assert obj_var['isContainer'] == "True"
+
+        def _skip_key_in_dict(key):
+            try:
+                int(key)
+            except ValueError:
+                if 'more' in key or '[' in key:
+                    return False
+                return True
+            return False
+
+        def collect_vars(locator, level=0):
+            writer.write("%s\t%s\t%s\t%s" % (CMD_GET_VARIABLE, writer.next_seq(), hit.thread_id, locator))
+            obj_vars = writer.wait_for_untangled_message(
+                accept_message=lambda cmd_id, _untangled: cmd_id == CMD_GET_VARIABLE)
+
+            for v in obj_vars.var:
+                if _skip_key_in_dict(v['name']):
+                    continue
+                new_locator = locator + '\t' + v['name']
+                yield level, v, new_locator
+                if v['isContainer'] == 'True':
+                    yield from collect_vars(new_locator, level + 1)
+
+        found = []
+        for level, val, _locator in collect_vars('%s\tFRAME\tobj' % hit.frame_id):
+            found.append((('    ' * level) + val['name'] + ': ' + unquote_plus(val['value'])))
+
+        data_regression.check(found)
+
+        # Check referrers
+        full_loc = '%s\t%s\t%s' % (hit.thread_id, hit.frame_id, 'FRAME\tobj\t1\t0')
+        writer.write_custom_operation(full_loc, 'EXEC', "from _pydevd_bundle.pydevd_referrers import get_referrer_info", "get_referrer_info")
+        msg = writer.wait_for_untangled_message(
+            double_unquote=True,
+            accept_message=lambda cmd_id, _untangled: cmd_id == CMD_RUN_CUSTOM_OPERATION)
+
+        msg_vars = msg.var
+        try:
+            msg_vars['found_as']
+            msg_vars = [msg_vars]
+        except:
+            pass  # it's a container.
+
+        for v in msg_vars:
+            if v['found_as'] == 'list[0]':
+                # In pypy we may have more than one reference, find out the one
+                referrer_id = v['id']
+                assert int(referrer_id)
+                assert unquote_plus(v['value']) == "<class 'list'>: [(0, 1, 2, 3, 4)]"
+                break
+        else:
+            raise AssertionError("Unable to find ref with list[0]. Found: %s" % (msg_vars,))
+
+        found = []
+        by_id_locator = '%s\t%s' % (referrer_id, 'BY_ID')
+        for level, val, _locator in collect_vars(by_id_locator):
+            found.append((('    ' * level) + val['name'] + ': ' + unquote_plus(val['value'])))
+
+        data_regression.check(found, basename='test_case_variable_access_by_id')
+
         writer.write_run_thread(hit.thread_id)
         writer.finished_ok = True
 
@@ -1965,7 +2062,7 @@ def test_case_settrace(case_setup):
         writer.finished_ok = True
 
 
-@pytest.mark.skipif(True or IS_PY26 or IS_JYTHON, reason='This is *very* flaky. Scapy only supports 2.7 onwards, not available for jython.')
+@pytest.mark.skipif(True, reason='This is *very* flaky.')
 def test_case_scapy(case_setup):
     with case_setup.test_file('_debugger_case_scapy.py') as writer:
         writer.FORCE_KILL_PROCESS_WHEN_FINISHED_OK = True
@@ -2283,9 +2380,9 @@ def test_case_method_single_line(case_setup):
         writer.write_add_breakpoint(writer.get_line_index_with_content('Break here'), 'None')
         writer.write_make_initial_run()
 
-        for _ in range(5):
-            # We'll hit the same breakpoint 5 times (method creation,
-            # (enter method, exit method) * 2.
+        for _ in range(3):
+            # We'll hit the same breakpoint 3 times (method creation,
+            # method line for each call).
             hit = writer.wait_for_breakpoint_hit()
 
             writer.write_run_thread(hit.thread_id)
@@ -2433,14 +2530,11 @@ def test_py_37_breakpoint(case_setup, filename):
 
 
 def _get_generator_cases():
-    if IS_PY2:
-        return ('_debugger_case_generator_py2.py',)
-    else:
-        # On py3 we should check both versions.
-        return (
-            '_debugger_case_generator_py2.py',
-            '_debugger_case_generator_py3.py',
-        )
+    # On py3 we should check both versions.
+    return (
+        '_debugger_case_generator_py2.py',
+        '_debugger_case_generator_py3.py',
+    )
 
 
 @pytest.mark.parametrize("filename", _get_generator_cases())
@@ -2653,8 +2747,7 @@ def test_multiprocessing_with_stopped_breakpoints(case_setup_multiprocessing, co
         secondary_process_thread_communication.start()
 
         ok = listening_event.wait(timeout=10)
-        if not IS_PY26:
-            assert ok
+        assert ok
         writer.write_make_initial_run()
         hit2 = writer.wait_for_breakpoint_hit()  # Breaks in thread.
         writer.write_step_over(hit2.thread_id)
@@ -2682,10 +2775,13 @@ def test_multiprocessing_with_stopped_breakpoints(case_setup_multiprocessing, co
 
 
 @pytest.mark.skipif(not IS_CPYTHON, reason='CPython only test.')
-def test_subprocess_quoted_args(case_setup_multiprocessing):
-    import threading
+@pytest.mark.parametrize('target', [
+    '_debugger_case_quoting.py',
+    '_debugger_case_subprocess_zip.py'
+])
+def test_subprocess_quoted_args(case_setup_multiprocessing, target):
     from tests_python.debugger_unittest import AbstractWriterThread
-    with case_setup_multiprocessing.test_file('_debugger_case_quoting.py') as writer:
+    with case_setup_multiprocessing.test_file(target) as writer:
         break_subprocess_line = writer.get_line_index_with_content('break here')
 
         writer.write_add_breakpoint(break_subprocess_line)
@@ -3005,7 +3101,7 @@ def test_remote_debugger_multi_proc(case_setup_remote, authenticate):
         writer.log.append('run thread')
         writer.write_run_thread(hit.thread_id)
 
-        for _i in xrange(400):
+        for _i in range(400):
             if secondary_multi_proc_process_writer.finished_ok:
                 break
             time.sleep(.1)
@@ -3083,7 +3179,6 @@ def test_trace_dispatch_correct(case_setup):
         writer.finished_ok = True
 
 
-@pytest.mark.skipif(IS_PY26, reason='Failing on Python 2.6 on travis (needs investigation).')
 def test_case_single_notification_on_step(case_setup):
     from tests_python.debugger_unittest import REASON_STEP_INTO
     with case_setup.test_file('_debugger_case_import_main.py') as writer:
@@ -3205,6 +3300,36 @@ def test_gevent(case_setup):
         for _i in range(10):
             hit = writer.wait_for_breakpoint_hit(name='run')
             writer.write_run_thread(hit.thread_id)
+        writer.finished_ok = True
+
+
+@pytest.mark.skipif(not TEST_GEVENT, reason='Gevent not installed.')
+@pytest.mark.parametrize('show', [True, False])
+def test_gevent_show_paused_greenlets(case_setup, show):
+
+    def get_environ(writer):
+        env = os.environ.copy()
+        env['GEVENT_SUPPORT'] = 'True'
+        if show:
+            env['GEVENT_SHOW_PAUSED_GREENLETS'] = 'True'
+        else:
+            env['GEVENT_SHOW_PAUSED_GREENLETS'] = 'False'
+        return env
+
+    with case_setup.test_file('_debugger_case_gevent_simple.py', get_environ=get_environ) as writer:
+        writer.write_add_breakpoint(writer.get_line_index_with_content('break here'))
+        writer.write_make_initial_run()
+        hit = writer.wait_for_breakpoint_hit(name='bar')
+        writer.write_run_thread(hit.thread_id)
+
+        seq = writer.write_list_threads()
+        msg = writer.wait_for_list_threads(seq)
+
+        if show:
+            assert len(msg) > 1
+        else:
+            assert len(msg) == 1
+
         writer.finished_ok = True
 
 
@@ -3440,7 +3565,7 @@ def test_frame_eval_limitations(case_setup, filename, break_at_lines):
             hit = writer.wait_for_breakpoint_hit()
             thread_id = hit.thread_id
 
-            if IS_PY36_OR_GREATER and TEST_CYTHON:
+            if (IS_PY36_OR_GREATER and TEST_CYTHON) and not TODO_PY311:
                 assert hit.suspend_type == break_mode
             else:
                 # Before 3.6 frame eval is not available.
@@ -3479,7 +3604,7 @@ def test_step_return_my_code(case_setup):
         writer.finished_ok = True
 
 
-@pytest.mark.skipif(IS_PY2, reason='Python 3 onwards required.')
+@pytest.mark.skipif(TODO_PY311, reason='Needs bytecode support in Python 3.11')
 def test_smart_step_into_case1(case_setup):
     with case_setup.test_file('_debugger_case_smart_step_into.py') as writer:
         line = writer.get_line_index_with_content('break here')
@@ -3489,8 +3614,8 @@ def test_smart_step_into_case1(case_setup):
 
         found = writer.get_step_into_variants(hit.thread_id, hit.frame_id, line, line)
 
-        # Remove the offset to compare (as it changes for each python version)
-        assert [x[:-1] for x in found] == [
+        # Remove the offset/childOffset to compare (as it changes for each python version)
+        assert [x[:-2] for x in found] == [
             ('bar', 'false', '14', '1'), ('foo', 'false', '14', '1'), ('call_outer', 'false', '14', '1')]
 
         # Note: this is just using the name, not really taking using the context.
@@ -3502,7 +3627,7 @@ def test_smart_step_into_case1(case_setup):
         writer.finished_ok = True
 
 
-@pytest.mark.skipif(IS_PY2, reason='Python 3 onwards required.')
+@pytest.mark.skipif(TODO_PY311, reason='Needs bytecode support in Python 3.11')
 def test_smart_step_into_case2(case_setup):
     with case_setup.test_file('_debugger_case_smart_step_into2.py') as writer:
         line = writer.get_line_index_with_content('break here')
@@ -3514,7 +3639,8 @@ def test_smart_step_into_case2(case_setup):
 
         # Note: we have multiple 'foo' calls, so, we have to differentiate to
         # know in which one we want to stop.
-        writer.write_smart_step_into(hit.thread_id, 'offset=' + found[2][-1], 'foo')
+        OFFSET_POS = 4
+        writer.write_smart_step_into(hit.thread_id, 'offset=' + found[2][OFFSET_POS], 'foo')
         hit = writer.wait_for_breakpoint_hit(reason=CMD_SMART_STEP_INTO)
         assert hit.line == writer.get_line_index_with_content('on foo mark')
 
@@ -3525,6 +3651,33 @@ def test_smart_step_into_case2(case_setup):
                 '<var name="arg" type="int" qualifier="builtins" value="int: 3"',
             )
         ])
+
+        writer.write_run_thread(hit.thread_id)
+        writer.finished_ok = True
+
+
+@pytest.mark.skipif(TODO_PY311, reason='Needs bytecode support in Python 3.11')
+def test_smart_step_into_case3(case_setup):
+    with case_setup.test_file('_debugger_case_smart_step_into3.py') as writer:
+        line = writer.get_line_index_with_content('break here')
+        writer.write_add_breakpoint(line)
+        writer.write_make_initial_run()
+        hit = writer.wait_for_breakpoint_hit(line=line)
+
+        found = writer.get_step_into_variants(hit.thread_id, hit.frame_id, 0, 9999)
+
+        # Note: we have multiple 'foo' calls, so, we have to differentiate to
+        # know in which one we want to stop.
+        NAME_POS = 0
+        OFFSET_POS = 4
+        CHILD_OFFSET_POS = 5
+
+        f = [x for x in found if x[NAME_POS] == 'foo']
+        assert len(f) == 1
+
+        writer.write_smart_step_into(hit.thread_id, 'offset=' + f[0][OFFSET_POS] + ';' + f[0][CHILD_OFFSET_POS], 'foo')
+        hit = writer.wait_for_breakpoint_hit(reason=CMD_SMART_STEP_INTO)
+        assert hit.line == writer.get_line_index_with_content('on foo mark')
 
         writer.write_run_thread(hit.thread_id)
         writer.finished_ok = True
@@ -3789,10 +3942,12 @@ def test_step_over_my_code_global_setting_and_explicit_include(case_setup):
 def test_access_token(case_setup):
 
     def update_command_line_args(self, args):
-        args.insert(2, '--access-token')
-        args.insert(3, 'bar123')
-        args.insert(2, '--client-access-token')
-        args.insert(3, 'foo234')
+        i = args.index('--client')
+        assert i > 0
+        args.insert(i, '--access-token')
+        args.insert(i + 1, 'bar123')
+        args.insert(i, '--client-access-token')
+        args.insert(i + 1, 'foo234')
         return args
 
     with case_setup.test_file('_debugger_case_print.py', update_command_line_args=update_command_line_args) as writer:
@@ -3857,11 +4012,9 @@ def test_matplotlib_activation(case_setup):
 
 _GENERATOR_FILES = [
     '_debugger_case_generator3.py',
+    '_debugger_case_generator.py',
+    '_debugger_case_generator2.py',
 ]
-
-if not IS_PY2:
-    _GENERATOR_FILES.append('_debugger_case_generator.py')
-    _GENERATOR_FILES.append('_debugger_case_generator2.py')
 
 
 @pytest.mark.parametrize('target_filename', _GENERATOR_FILES)
@@ -4189,13 +4342,13 @@ def test_frame_eval_mode_corner_case_03(case_setup):
             hit = writer.wait_for_breakpoint_hit(line=line + 1, reason=REASON_STEP_OVER)
 
             writer.write_step_over(hit.thread_id)  # i.e.: check that the jump target is still ok.
-            hit = writer.wait_for_breakpoint_hit(line=line, reason=REASON_STEP_OVER)
+            hit = writer.wait_for_breakpoint_hit(line=line, reason=REASON_STOP_ON_BREAKPOINT)
 
             writer.write_step_over(hit.thread_id)
             hit = writer.wait_for_breakpoint_hit(line=line + 1, reason=REASON_STEP_OVER)
 
             writer.write_step_over(hit.thread_id)
-            hit = writer.wait_for_breakpoint_hit(line=line, reason=REASON_STEP_OVER)
+            hit = writer.wait_for_breakpoint_hit(line=line, reason=REASON_STOP_ON_BREAKPOINT)
 
             writer.write_run_thread(hit.thread_id)
 
@@ -4235,11 +4388,17 @@ def test_frame_eval_mode_corner_case_04(case_setup):
         'break finally 1',
         'break except 2',
         'break finally 2',
+        'break finally 3',
+        'break finally 4',
         'break in dict',
         'break else',
     ]
 )
 def test_frame_eval_mode_corner_case_many(case_setup, break_name):
+    if break_name == 'break finally 4' and sys.version_info[:2] == (3, 9):
+        # This case is currently failing in Python 3.9
+        return
+
     # Check the constructs where we stop only once and proceed.
     with case_setup.test_file(
             '_bytecode_constructs.py',
@@ -4251,7 +4410,95 @@ def test_frame_eval_mode_corner_case_many(case_setup, break_name):
             hit = writer.wait_for_breakpoint_hit(line=line)
             writer.write_run_thread(hit.thread_id)
 
+            if break_name == 'break with':
+                if sys.version_info[:2] >= (3, 10):
+                    # On Python 3.10 it'll actually backtrack for the
+                    # with and thus will execute the line where the
+                    # 'with' statement was started again.
+                    hit = writer.wait_for_breakpoint_hit(line=line)
+                    writer.write_run_thread(hit.thread_id)
+
             writer.finished_ok = True
+
+
+check_shadowed = [
+    (
+        u'''
+if __name__ == '__main__':
+    import queue
+    print(queue)
+''',
+        'queue.py',
+        u'shadowed = True\n'
+    ),
+
+    (
+        u'''
+if __name__ == '__main__':
+    import queue
+    print(queue)
+''',
+        'queue.py',
+        u'raise AssertionError("error on import")'
+    )
+]
+
+
+@pytest.mark.parametrize('module_name_and_content', check_shadowed)
+def test_debugger_shadowed_imports(case_setup, tmpdir, module_name_and_content):
+    main_content, module_name, content = module_name_and_content
+    target = tmpdir.join('main.py')
+    shadowed = tmpdir.join(module_name)
+
+    target.write_text(main_content, encoding='utf-8')
+
+    shadowed.write_text(content, encoding='utf-8')
+
+    def get_environ(writer):
+        env = os.environ.copy()
+        env.update({
+            'PYTHONPATH': str(tmpdir),
+        })
+        return env
+
+    try:
+        with case_setup.test_file(
+                str(target),
+                get_environ=get_environ,
+                wait_for_initialization=False,
+            ) as writer:
+            writer.write_make_initial_run()
+    except AssertionError:
+        pass  # This is expected as pydevd didn't start-up.
+
+    assert ('the module "%s" could not be imported because it is shadowed by:' % (module_name.split('.')[0])) in writer.get_stderr()
+
+
+def test_debugger_hide_pydevd_threads(case_setup, pyfile):
+
+    @pyfile
+    def target_file():
+        import threading
+        from _pydevd_bundle import pydevd_constants
+        found_pydevd_thread = False
+        for t in threading.enumerate():
+            if getattr(t, 'is_pydev_daemon_thread', False):
+                found_pydevd_thread = True
+
+        if pydevd_constants.IS_CPYTHON:
+            assert not found_pydevd_thread
+        else:
+            assert found_pydevd_thread
+        print('TEST SUCEEDED')
+
+    with case_setup.test_file(target_file) as writer:
+        line = writer.get_line_index_with_content('TEST SUCEEDED')
+        writer.write_add_breakpoint(line)
+        writer.write_make_initial_run()
+
+        hit = writer.wait_for_breakpoint_hit(line=line)
+        writer.write_run_thread(hit.thread_id)
+        writer.finished_ok = True
 
 # Jython needs some vars to be set locally.
 # set JAVA_HOME=c:\bin\jdk1.8.0_172

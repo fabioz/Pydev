@@ -28,9 +28,9 @@ import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionRequest;
 import org.python.pydev.core.ICompletionState;
-import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IModuleRequestState;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
@@ -40,6 +40,7 @@ import org.python.pydev.core.UnpackInfo;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.shared_core.callbacks.ICallback0;
+import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.structure.ImmutableTuple;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
@@ -76,6 +77,12 @@ public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
+    public TokensList getCompletionsUnpackingInLocalScope(ICompletionState state, IModule module, ILocalScope scope)
+            throws CompletionRecursionException {
+        throw new RuntimeException("Not implemented");
+    }
+
     public TokensList getCompletionsForImport(ImportInfo original, ICompletionRequest request)
             throws CompletionRecursionException {
         throw new RuntimeException("Not implemented");
@@ -85,8 +92,11 @@ public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
     public TokensList getCompletionsForModule(IModule module, ICompletionState state)
             throws CompletionRecursionException {
         return new TokensList(
-                new IToken[] { new SourceToken(new Name("True", Name.Store, true), "True", "", "", "__builtin__", null),
-                        new SourceToken(new Name("False", Name.Store, true), "False", "", "", "__builtin__", null), });
+                new IToken[] {
+                        new SourceToken(new Name("True", Name.Store, true), "True", "", "", "__builtin__", null,
+                                module),
+                        new SourceToken(new Name("False", Name.Store, true), "False", "", "", "__builtin__", null,
+                                module), });
     }
 
     @Override
@@ -119,12 +129,14 @@ public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
     }
 
     @Override
-    public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit, boolean lookingForRelative) {
+    public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit, boolean lookingForRelative,
+            IModuleRequestState moduleRequest) {
         throw new RuntimeException("Not implemented");
     }
 
     @Override
-    public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit) {
+    public IModule getModule(String name, IPythonNature nature, boolean dontSearchInit,
+            IModuleRequestState moduleRequest) {
         throw new RuntimeException("Not implemented");
     }
 
@@ -195,7 +207,7 @@ public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
     }
 
     @Override
-    public TokensList getCompletionFromFuncDefReturn(ICompletionState state, IModule s, IDefinition definition,
+    public TokensList getCompletionFromFuncDefReturn(ICompletionState state, IModule s, ISimpleNode functionDef,
             boolean considerYieldTheReturnType) {
         throw new RuntimeException("Not implemented");
     }
@@ -234,6 +246,11 @@ public class CodeCompletionASTManagerStub implements ICodeCompletionASTManager {
 
     @Override
     public IModule getPyiStubModule(IModule module, ICompletionState completionState) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
+    public boolean isNodeTypingUnionSubscript(IModule module, Object node) {
         throw new RuntimeException("Not implemented");
     }
 

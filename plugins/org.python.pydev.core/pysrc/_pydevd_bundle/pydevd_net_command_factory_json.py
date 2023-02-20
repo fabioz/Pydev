@@ -1,6 +1,8 @@
 from functools import partial
 import itertools
 import os
+import sys
+import socket as socket_module
 
 from _pydev_bundle._pydev_imports_tipper import TYPE_IMPORT, TYPE_CLASS, TYPE_FUNCTION, TYPE_ATTR, \
     TYPE_BUILTIN, TYPE_PARAM
@@ -8,14 +10,16 @@ from _pydev_bundle.pydev_is_thread_alive import is_thread_alive
 from _pydev_bundle.pydev_override import overrides
 from _pydevd_bundle._debug_adapter import pydevd_schema
 from _pydevd_bundle._debug_adapter.pydevd_schema import ModuleEvent, ModuleEventBody, Module, \
-    OutputEventBody, OutputEvent, ContinuedEventBody
+    OutputEventBody, OutputEvent, ContinuedEventBody, ExitedEventBody, \
+    ExitedEvent
 from _pydevd_bundle.pydevd_comm_constants import CMD_THREAD_CREATE, CMD_RETURN, CMD_MODULE_EVENT, \
     CMD_WRITE_TO_CONSOLE, CMD_STEP_INTO, CMD_STEP_INTO_MY_CODE, CMD_STEP_OVER, CMD_STEP_OVER_MY_CODE, \
     CMD_STEP_RETURN, CMD_STEP_CAUGHT_EXCEPTION, CMD_ADD_EXCEPTION_BREAK, CMD_SET_BREAK, \
     CMD_SET_NEXT_STATEMENT, CMD_THREAD_SUSPEND_SINGLE_NOTIFICATION, \
     CMD_THREAD_RESUME_SINGLE_NOTIFICATION, CMD_THREAD_KILL, CMD_STOP_ON_START, CMD_INPUT_REQUESTED, \
-    CMD_EXIT, CMD_STEP_INTO_COROUTINE, CMD_STEP_RETURN_MY_CODE, CMD_SMART_STEP_INTO
-from _pydevd_bundle.pydevd_constants import get_thread_id, dict_values, ForkSafeLock
+    CMD_EXIT, CMD_STEP_INTO_COROUTINE, CMD_STEP_RETURN_MY_CODE, CMD_SMART_STEP_INTO, \
+    CMD_SET_FUNCTION_BREAK
+from _pydevd_bundle.pydevd_constants import get_thread_id, ForkSafeLock, DebugInfoHolder
 from _pydevd_bundle.pydevd_net_command import NetCommand, NULL_NET_COMMAND
 from _pydevd_bundle.pydevd_net_command_factory_xml import NetCommandFactory
 from _pydevd_bundle.pydevd_utils import get_non_pydevd_threads
@@ -24,12 +28,8 @@ from _pydevd_bundle.pydevd_comm import build_exception_info_response
 from _pydevd_bundle.pydevd_additional_thread_info import set_additional_thread_info
 from _pydevd_bundle import pydevd_frame_utils, pydevd_constants, pydevd_utils
 import linecache
-from _pydevd_bundle.pydevd_thread_lifecycle import pydevd_find_thread_by_id
-
-try:
-    from StringIO import StringIO
-except:
-    from io import StringIO
+from io import StringIO
+from _pydev_bundle import pydev_log
 
 
 class ModulesManager(object):
@@ -85,7 +85,7 @@ class ModulesManager(object):
         :return list(Module)
         '''
         with self._lock:
-            return dict_values(self._modules)
+            return list(self._modules.values())
 
 
 class NetCommandFactoryJson(NetCommandFactory):
@@ -123,8 +123,18 @@ class NetCommandFactoryJson(NetCommandFactory):
 
         return NetCommand(CMD_THREAD_CREATE, 0, msg, is_json=True)
 
+    @overrides(NetCommandFactory.make_custom_frame_created_message)
+    def make_custom_frame_created_message(self, frame_id, frame_description):
+        self._additional_thread_id_to_thread_name[frame_id] = frame_description
+        msg = pydevd_schema.ThreadEvent(
+            pydevd_schema.ThreadEventBody('started', frame_id),
+        )
+
+        return NetCommand(CMD_THREAD_CREATE, 0, msg, is_json=True)
+
     @overrides(NetCommandFactory.make_thread_killed_message)
     def make_thread_killed_message(self, tid):
+        self._additional_thread_id_to_thread_name.pop(tid, None)
         msg = pydevd_schema.ThreadEvent(
             pydevd_schema.ThreadEventBody('exited', tid),
         )
@@ -141,8 +151,12 @@ class NetCommandFactoryJson(NetCommandFactory):
                 # Notify that it's created (no-op if we already notified before).
                 py_db.notify_thread_created(thread_id, thread)
 
-                thread_schema = pydevd_schema.Thread(id=thread_id, name=thread.getName())
+                thread_schema = pydevd_schema.Thread(id=thread_id, name=thread.name)
                 threads.append(thread_schema.to_dict())
+
+        for thread_id, thread_name in list(self._additional_thread_id_to_thread_name.items()):
+            thread_schema = pydevd_schema.Thread(id=thread_id, name=thread_name)
+            threads.append(thread_schema.to_dict())
 
         body = pydevd_schema.ThreadsResponseBody(threads)
         response = pydevd_schema.ThreadsResponse(
@@ -215,8 +229,8 @@ class NetCommandFactoryJson(NetCommandFactory):
                 else:
                     frames_list = pydevd_frame_utils.create_frames_list_from_frame(topmost_frame)
 
-            for frame_id, frame, method_name, original_filename, filename_in_utf8, lineno, applied_mapping, show_as_current_frame in self._iter_visible_frames_info(
-                    py_db, frames_list
+            for frame_id, frame, method_name, original_filename, filename_in_utf8, lineno, applied_mapping, show_as_current_frame, line_col_info in self._iter_visible_frames_info(
+                    py_db, frames_list, flatten_chained=True
                 ):
 
                 try:
@@ -251,8 +265,23 @@ class NetCommandFactoryJson(NetCommandFactory):
                             source_reference = pydevd_file_utils.create_source_reference_for_linecache(
                                 original_filename)
 
+                column = 1
+                endcol = None
+                if line_col_info is not None:
+                    try:
+                        line_text = linecache.getline(original_filename, lineno)
+                    except:
+                        if DebugInfoHolder.DEBUG_TRACE_LEVEL >= 2:
+                            pydev_log.exception('Unable to get line from linecache for file: %s', original_filename)
+                    else:
+                        if line_text:
+                            colno, endcolno = line_col_info.map_columns_to_line(line_text)
+                            column = colno + 1
+                            if line_col_info.lineno == line_col_info.end_lineno:
+                                endcol = endcolno + 1
+
                 frames.append(pydevd_schema.StackFrame(
-                    frame_id, formatted_name, lineno, column=1, source={
+                    frame_id, formatted_name, lineno, column=column, endColumn=endcol, source={
                         'path': filename_in_utf8,
                         'sourceReference': source_reference,
                     },
@@ -279,7 +308,7 @@ class NetCommandFactoryJson(NetCommandFactory):
 
     @overrides(NetCommandFactory.make_warning_message)
     def make_warning_message(self, msg):
-        category = 'console'
+        category = 'important'
         body = OutputEventBody(msg, category)
         event = OutputEvent(body)
         return NetCommand(CMD_WRITE_TO_CONSOLE, 0, event, is_json=True)
@@ -287,6 +316,13 @@ class NetCommandFactoryJson(NetCommandFactory):
     @overrides(NetCommandFactory.make_io_message)
     def make_io_message(self, msg, ctx):
         category = 'stdout' if int(ctx) == 1 else 'stderr'
+        body = OutputEventBody(msg, category)
+        event = OutputEvent(body)
+        return NetCommand(CMD_WRITE_TO_CONSOLE, 0, event, is_json=True)
+
+    @overrides(NetCommandFactory.make_console_message)
+    def make_console_message(self, msg):
+        category = 'console'
         body = OutputEventBody(msg, category)
         event = OutputEvent(body)
         return NetCommand(CMD_WRITE_TO_CONSOLE, 0, event, is_json=True)
@@ -309,12 +345,12 @@ class NetCommandFactoryJson(NetCommandFactory):
     ])
 
     @overrides(NetCommandFactory.make_thread_suspend_single_notification)
-    def make_thread_suspend_single_notification(self, py_db, thread_id, stop_reason):
+    def make_thread_suspend_single_notification(self, py_db, thread_id, thread, stop_reason):
         exc_desc = None
         exc_name = None
-        thread = pydevd_find_thread_by_id(thread_id)
         info = set_additional_thread_info(thread)
 
+        preserve_focus_hint = False
         if stop_reason in self._STEP_REASONS:
             if info.pydev_original_step_cmd == CMD_STOP_ON_START:
 
@@ -327,14 +363,17 @@ class NetCommandFactoryJson(NetCommandFactory):
             stop_reason = 'exception'
         elif stop_reason == CMD_SET_BREAK:
             stop_reason = 'breakpoint'
+        elif stop_reason == CMD_SET_FUNCTION_BREAK:
+            stop_reason = 'function breakpoint'
         elif stop_reason == CMD_SET_NEXT_STATEMENT:
             stop_reason = 'goto'
         else:
             stop_reason = 'pause'
+            preserve_focus_hint = True
 
         if stop_reason == 'exception':
             exception_info_response = build_exception_info_response(
-                py_db, thread_id, -1, set_additional_thread_info, self._iter_visible_frames_info, max_frames=-1)
+                py_db, thread_id, thread, -1, set_additional_thread_info, self._iter_visible_frames_info, max_frames=-1)
             exception_info_response
 
             exc_name = exception_info_response.body.exceptionId
@@ -346,7 +385,7 @@ class NetCommandFactoryJson(NetCommandFactory):
             threadId=thread_id,
             text=exc_name,
             allThreadsStopped=True,
-            preserveFocusHint=stop_reason not in ['step', 'exception', 'breakpoint', 'entry', 'goto'],
+            preserveFocusHint=preserve_focus_hint,
         )
         event = pydevd_schema.StoppedEvent(body)
         return NetCommand(CMD_THREAD_SUSPEND_SINGLE_NOTIFICATION, 0, event, is_json=True)
@@ -382,6 +421,18 @@ class NetCommandFactoryJson(NetCommandFactory):
     @overrides(NetCommandFactory.make_process_created_message)
     def make_process_created_message(self, *args, **kwargs):
         return NULL_NET_COMMAND  # Not a part of the debug adapter protocol
+
+    @overrides(NetCommandFactory.make_process_about_to_be_replaced_message)
+    def make_process_about_to_be_replaced_message(self):
+        event = ExitedEvent(ExitedEventBody(-1, pydevdReason="processReplaced"))
+
+        cmd = NetCommand(CMD_RETURN, 0, event, is_json=True)
+
+        def after_send(socket):
+            socket.setsockopt(socket_module.IPPROTO_TCP, socket_module.TCP_NODELAY, 1)
+
+        cmd.call_after_send(after_send)
+        return cmd
 
     @overrides(NetCommandFactory.make_thread_suspend_message)
     def make_thread_suspend_message(self, *args, **kwargs):

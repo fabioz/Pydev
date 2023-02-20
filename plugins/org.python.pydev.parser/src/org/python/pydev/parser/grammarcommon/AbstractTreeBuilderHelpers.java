@@ -7,12 +7,14 @@
 package org.python.pydev.parser.grammarcommon;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 
 import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.SpecialStr;
+import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Comprehension;
 import org.python.pydev.parser.jython.ast.Dict;
@@ -34,7 +36,7 @@ import org.python.pydev.parser.jython.ast.stmtType;
 
 /**
  * Provides a bunch of helpers useful when creating a tree builder.
- * 
+ *
  * @author Fabio
  */
 public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeConstants {
@@ -153,7 +155,7 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
         return exprs;
     }
 
-    protected final NameTok makeName(int ctx) throws ParseException {
+    protected final NameTok makeNameTok(int ctx) throws ParseException {
         SimpleNode popNode = stack.popNode();
         if (!(popNode instanceof Name)) {
             this.stack.getGrammar().addAndReport(
@@ -161,12 +163,24 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
                     "Treated class cast exception making name");
             popNode = new Name("invalid", ctx, false);
         }
-
         Name name = (Name) popNode;
-        return makeName(ctx, name);
+        return makeNameTok(ctx, name);
     }
 
-    protected final NameTok makeName(int ctx, Name name) {
+    protected final void addAndReportException(String cls) throws ParseException {
+        this.stack.getGrammar().addAndReport(
+                new ParseException("Syntax error. Expected " + cls + ", found: `null`"),
+                "Treated class cast exception making " + cls);
+    }
+
+    protected final void addAndReportException(String cls, SimpleNode nodeFound) throws ParseException {
+        this.stack.getGrammar().addAndReport(
+                new ParseException("Syntax error. Expected " + cls + ", found: " + nodeFound.getClass().getName(),
+                        nodeFound),
+                "Treated class cast exception making " + cls);
+    }
+
+    protected final NameTok makeNameTok(int ctx, Name name) {
         NameTok n = new NameTok(name.id, ctx);
         n.beginColumn = name.beginColumn;
         n.beginLine = name.beginLine;
@@ -186,7 +200,7 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
     protected final NameTok[] makeIdentifiers(int ctx, int arity) throws ParseException {
         NameTok[] ids = new NameTok[arity];
         for (int i = arity - 1; i >= 0; i--) {
-            ids[i] = makeName(ctx);
+            ids[i] = makeNameTok(ctx);
         }
         return ids;
     }
@@ -301,18 +315,38 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
                         ListComp.EmptyCtx));
 
             } else if (node instanceof ComprehensionCollection) {
-                //list comp (2 nodes: comp type and the elt -- what does elt mean by the way?) 
+                //list comp (2 nodes: comp type and the elt -- what does elt mean by the way?)
                 argsl.add(new ListComp((exprType) iter.next(), ((ComprehensionCollection) node).getGenerators(),
                         ListComp.EmptyCtx));
 
             } else if (node instanceof decoratorsType) {
-                func = (exprType) stack.popNode();//the func is the last thing in the stack
                 decoratorsType d = (decoratorsType) node;
-                d.func = func;
-                d.args = argsl.toArray(new exprType[0]);
-                d.keywords = keywordsl.toArray(new keywordType[0]);
-                d.starargs = starargs;
-                d.kwargs = kwargs;
+
+                func = (exprType) stack.popNode();//the func is the last thing in the stack
+                if (func instanceof Call) {
+                    // On 3.8 onwards the parser changed and we get the decorator func separately.
+                    Call call = (Call) func;
+                    d.func = call.func;
+                    d.args = call.args;
+                    d.starargs = call.starargs;
+                    d.keywords = call.keywords;
+                    d.kwargs = call.kwargs;
+                    d.isCall = true;
+                    if (call.specialsBefore != null && call.specialsBefore.size() > 0) {
+                        d.getSpecialsBefore().addAll(call.specialsBefore);
+                    }
+                    if (call.specialsAfter != null && call.specialsAfter.size() > 0) {
+                        d.getSpecialsAfter().addAll(call.specialsAfter);
+                    }
+                } else {
+                    d.func = func;
+                    Collections.reverse(argsl);
+                    Collections.reverse(keywordsl);
+                    d.args = argsl.toArray(new exprType[0]);
+                    d.keywords = keywordsl.toArray(new keywordType[0]);
+                    d.starargs = starargs;
+                    d.kwargs = kwargs;
+                }
                 return d;
 
             } else {

@@ -255,6 +255,7 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
             request = new RefactoringRequest(f, newSelection, null, nature, edit);
             //Don't look in additional info.
             request.setAdditionalInfo(RefactoringRequest.FIND_DEFINITION_IN_ADDITIONAL_INFO, false);
+            request.setAdditionalInfo(RefactoringRequest.FIND_DEFINITION_FOLLOW_PARAM_DECLARATION, true);
             pointers = pyRefactoring.findDefinition(request);
             if (pointers.length == 1) {
                 if (checkCreationBasedOnFoundPointers(edit, callPs, ret, possibleMatch, pointers, methodToCreate,

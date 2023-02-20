@@ -27,6 +27,7 @@ import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.modType;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.parser.jython.ISpecialStr;
 import org.python.pydev.parser.jython.ast.Await;
 
 /** Token Manager. */

@@ -20,6 +20,8 @@ import org.eclipse.jface.text.Document;
 import org.python.pydev.ast.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.IToken;
+import org.python.pydev.core.IterTokenEntry;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.TokensList;
 import org.python.pydev.core.structure.CompletionRecursionException;
@@ -76,7 +78,8 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
 
     public void testResolvePath() {
         PythonPathHelper helper = new PythonPathHelper();
-        String path = TestDependent.GetCompletePythonLib(true) + "|" + TestDependent.TEST_PYSRC_TESTING_LOC;
+        String path = TestDependent.getCompletePythonLib(true, isPython3Test()) + "|"
+                + TestDependent.TEST_PYSRC_TESTING_LOC;
         helper.setPythonPath(path);
 
         IProject project = null;
@@ -114,7 +117,8 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
 
     public void testGetModulesFoundStructure() {
         PythonPathHelper helper = new PythonPathHelper();
-        String path = TestDependent.GetCompletePythonLib(true) + "|" + TestDependent.TEST_PYSRC_TESTING_LOC;
+        String path = TestDependent.getCompletePythonLib(true, isPython3Test()) + "|"
+                + TestDependent.TEST_PYSRC_TESTING_LOC;
         helper.setPythonPath(path);
         ModulesFoundStructure modulesFoundStructure = helper.getModulesFoundStructure(null, null);
         Map<File, String> regularModules = modulesFoundStructure.regularModules;
@@ -186,14 +190,25 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
         line = 3;
         col = 2;
 
-        sDoc = "" + "from testrec.imp3 import MethodReturn1 \n" + "i = MethodReturn1()                    \n" + "i.";
+        sDoc = "" +
+                "from testrec.imp3 import MethodReturn1 \n" +
+                "i = MethodReturn1()                    \n" +
+                "i.";
 
         TokensList comps = null;
         Document doc = new Document(sDoc);
         ICompletionState state = new CompletionState(line, col, token, nature, "");
         ICodeCompletionASTManager a = nature.getAstManager();
         comps = a.getCompletionsForToken(doc, state);
-        assertEquals(0, comps.size());
+        boolean found = false;
+        for (IterTokenEntry e : comps) {
+            IToken token2 = e.getToken();
+            if (token2.getRepresentation().equals("denominator")) {
+                found = true;
+                break;
+            }
+        }
+        assertTrue("Could not find denominator in: " + comps, found);
 
     }
 
@@ -322,7 +337,18 @@ public class PythonPathHelperTest extends CodeCompletionTestsBase {
         comps = getComps(doc, state);
         ASTManagerTest.assertIsIn("test1", comps);
         ASTManagerTest.assertIsIn("test2", comps);
-        assertEquals(2, comps.size());
+        ASTManagerTest.assertIsIn("__str__", comps);
+
+        int count = 0;
+        for (IterTokenEntry entry : comps) {
+            IToken t = entry.getToken();
+            String rep = t.getRepresentation();
+            if ("__str__".equals(rep)) {
+                count += 1;
+            }
+        }
+
+        assertEquals("Expected a single __str__ entry. Found: " + count + ".", 1, count);
 
     }
 

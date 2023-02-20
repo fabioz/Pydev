@@ -31,6 +31,7 @@ import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
+import org.python.pydev.parser.jython.ast.BinOp;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
@@ -66,7 +67,7 @@ public class AssignAnalysis {
      * that we can search in other scopes as well).
      * @param localScope
      */
-    public DefinitionAndCompletions getAssignCompletions(ICodeCompletionASTManager manager, IModule module,
+    public DefinitionAndCompletions getCompletionsFollowingDefinition(ICodeCompletionASTManager manager, IModule module,
             ICompletionState state, ILocalScope localScope) {
         state.pushAssign();
         try {
@@ -76,20 +77,24 @@ public class AssignAnalysis {
                 SourceModule sourceModule = (SourceModule) module;
 
                 try {
-                    defs = sourceModule.findDefinition(state, state.getLine() + 1, state.getCol() + 1,
-                            state.getNature());
+                    defs = sourceModule.findDefinition(
+                            state, state.getLine() + 1, state.getCol() + 1, state.getNature());
                     if (defs.length > 0) {
                         for (int i = 0; i < defs.length; i++) {
                             //go through all definitions found and make a merge of it...
                             Definition definition = defs[i];
-                            TokensList completionsFromDefinition = getCompletionsFromDefinition(definition, state,
-                                    sourceModule, manager);
+                            if ("TypeVar".equals(definition.value)) {
+                                ret.setMapsToTypeVar(true);
+                                continue;
+                            }
+                            TokensList completionsFromDefinition = getCompletionsFromDefinition(
+                                    definition, state, sourceModule, manager);
                             if (completionsFromDefinition != null && completionsFromDefinition.notEmpty()) {
                                 if (definition instanceof AssignDefinition) {
                                     AssignDefinition assignDefinition = (AssignDefinition) definition;
                                     if (assignDefinition.nodeValue instanceof Call) {
-                                        completionsFromDefinition
-                                                .setLookingFor(LookingFor.LOOKING_FOR_INSTANCED_VARIABLE);
+                                        completionsFromDefinition.setLookingFor(
+                                                LookingFor.LOOKING_FOR_INSTANCED_VARIABLE);
                                     }
                                 }
                                 ret.addAll(completionsFromDefinition);
@@ -98,8 +103,7 @@ public class AssignAnalysis {
                     } else {
                         if (localScope != null) {
                             TokensList tokens = searchInLocalTokens(manager, state, true, state.getLine() + 1,
-                                    state.getCol() + 1,
-                                    module, localScope, state.getActivationToken());
+                                    state.getCol() + 1, module, localScope, state.getActivationToken());
                             if (tokens != null) {
                                 ret.addAll(tokens);
                             }
@@ -132,6 +136,12 @@ public class AssignAnalysis {
     public TokensList getCompletionsFromDefinition(Definition definition, ICompletionState state,
             SourceModule sourceModule, ICodeCompletionASTManager manager) throws CompletionRecursionException {
         TokensList ret = new TokensList();
+        if (SourceModule.DEBUG_FIND_DEFINITION) {
+            System.out.println("\n\n------------\nSearch: " + state.getActivationToken() + " " + definition.line + " "
+                    + definition.col + " "
+                    + definition.module.getName() + " " + definition.scope);
+        }
+
         if (state.getAlreadySearchedInAssign(definition.line, definition.col, definition.module,
                 definition.value, state.getActivationToken())) {
             // It's possible that we have many assigns where it may be normal to have loops
@@ -205,10 +215,15 @@ public class AssignAnalysis {
             }
         }
 
+        ret.addAll(manager.getCompletionsUnpackingInLocalScope(state, definition.module, definition.scope));
+        if (ret != null && ret.size() > 0) {
+            return ret;
+        }
+
         if (!foundAsParamWithTypingInfo) {
             if (definition.ast instanceof FunctionDef) {
                 TokensList found = manager.getCompletionFromFuncDefReturn(
-                        state, sourceModule, definition, false);
+                        state, definition.module, definition.ast, false);
                 ret.addAll(found);
             } else {
                 TokensList found = getNonFunctionDefCompletionsFromAssign(manager, state, sourceModule,
@@ -237,9 +252,12 @@ public class AssignAnalysis {
                 if (info != null) {
                     List<ITypeInfo> lookForClass = new ArrayList<>();
                     lookForClass.add(info);
-                    ret.addAll(manager.getCompletionsForClassInLocalScope(sourceModule, state,
-                            true, false, lookForClass));
-                    foundAsParamWithTypingInfo = true;
+                    TokensList completions = manager.getCompletionsForClassInLocalScope(sourceModule, state,
+                            true, false, lookForClass);
+                    if (completions != null && completions.size() > 0) {
+                        ret.addAll(completions);
+                        foundAsParamWithTypingInfo = true;
+                    }
                 }
             }
         }
@@ -301,7 +319,7 @@ public class AssignAnalysis {
         TokensList ret = new TokensList();
         if (definition.ast instanceof ClassDef) {
             try (NoExceptionCloseable x = state.pushLookingFor(LookingFor.LOOKING_FOR_UNBOUND_VARIABLE)) {
-                ret.addAll(((SourceModule) definition.module).getClassToks(state, manager, definition.ast));
+                ret.addAll(((SourceModule) definition.module).getClassToks(state, manager, (ClassDef) definition.ast));
             }
 
         } else {
@@ -337,8 +355,9 @@ public class AssignAnalysis {
                                 for (exprType exprType : elts) {
                                     if (exprType instanceof Str) {
                                         ret.addAll(new TokensList(
-                                                new IToken[] { new SourceToken(exprType, ((Str) exprType).s, "",
-                                                        "", sourceModule.getName(), sourceModule.getNature()) }));
+                                                new IToken[] { new SourceToken(exprType, ((Str) exprType).s, "", "",
+                                                        sourceModule.getName(), sourceModule.getNature(),
+                                                        sourceModule) }));
                                     }
                                 }
                                 return ret;
@@ -353,9 +372,9 @@ public class AssignAnalysis {
                                             if (str.s != null) {
                                                 List<String> split = StringUtils.split(str.s, " ");
                                                 for (String string : split) {
-                                                    ret.addAll(new TokensList(new IToken[] { new SourceToken(str,
-                                                            string, "",
-                                                            "", sourceModule.getName(), sourceModule.getNature()) }));
+                                                    ret.addAll(new TokensList(new IToken[] {
+                                                            new SourceToken(str, string, "", "", sourceModule.getName(),
+                                                                    sourceModule.getNature(), sourceModule) }));
                                                 }
                                                 return ret;
                                             }
@@ -368,9 +387,8 @@ public class AssignAnalysis {
                                 if (str.s != null) {
                                     for (String s : str.s.split("(\\s|,)+")) {
                                         if (!s.isEmpty()) {
-                                            ret.addAll(new TokensList(new IToken[] { new SourceToken(str,
-                                                    s, "",
-                                                    "", sourceModule.getName(), sourceModule.getNature()) }));
+                                            ret.addAll(new TokensList(new IToken[] { new SourceToken(str, s, "", "",
+                                                    sourceModule.getName(), sourceModule.getNature(), sourceModule) }));
                                         }
                                     }
                                     return ret;
@@ -395,7 +413,7 @@ public class AssignAnalysis {
                     }
                 }
 
-                if (lookForAssign) {
+                if (lookForAssign && assignDefinition.unpackPos == -1) {
                     TokensList tokens = null;
                     if (assign.type != null) {
                         tokens = searchInLocalTokens(manager, state, lookForAssign,
@@ -439,12 +457,22 @@ public class AssignAnalysis {
                 int unpackPos = -1;
                 boolean unpackBackwards = false;
                 if (assignDefinition != null) {
-                    // If we have a type, activation token has already been defined as type
-                    // So let's check first if we can find completions using the type. If we can not find, we just ignore it and continue normally
                     if (assignDefinition.nodeType != null) {
-                        TokensList tks = manager.getCompletionsForModule(module, copy, true, true);
-                        if (tks != null && tks.size() > 0) {
-                            ret.addAll(tks);
+                        TokensList completions = new TokensList();
+                        List<String> typingUnionValues = extractTypingUnionValues(manager, module,
+                                assignDefinition.nodeType);
+                        if (typingUnionValues != null && typingUnionValues.size() > 0) {
+                            typingUnionValues.add(NodeUtils.getFullRepresentationString(assignDefinition.nodeType));
+                            for (String value : typingUnionValues) {
+                                ICompletionState customCopy = state.getCopyWithActTok(value);
+                                TokensList valueComps = manager.getCompletionsForModule(module, customCopy);
+                                completions.addAll(valueComps);
+                            }
+                        }
+                        TokensList normalCompletions = manager.getCompletionsForModule(module, copy, true, true);
+                        completions.addAll(normalCompletions);
+                        if (completions != null && completions.size() > 0) {
+                            ret.addAll(completions);
                             return ret;
                         }
                     }
@@ -498,6 +526,19 @@ public class AssignAnalysis {
         return ret;
     }
 
+    private static List<String> extractTypingUnionValues(ICodeCompletionASTManager manager,
+            IModule module, exprType node)
+            throws CompletionRecursionException {
+        if (manager.isNodeTypingUnionSubscript(module, node)) {
+            Subscript subscript = (Subscript) node;
+            return NodeUtils.extractValuesFromSubscriptSlice(subscript.slice);
+        } else if (node instanceof BinOp) {
+            BinOp binOp = (BinOp) node;
+            return NodeUtils.extractValuesFromBinOp(binOp, BinOp.BitOr);
+        }
+        return null;
+    }
+
     /**
      *
      * @param manager
@@ -522,8 +563,7 @@ public class AssignAnalysis {
                     SourceToken srcToken = (SourceToken) token;
                     SimpleNode ast = srcToken.getAst();
                     if (ast instanceof ClassDef && module instanceof SourceModule) {
-                        TokensList classToks = ((SourceModule) module).getClassToks(
-                                state, manager, ast);
+                        TokensList classToks = ((SourceModule) module).getClassToks(state, manager, (ClassDef) ast);
                         if (classToks.notEmpty()) {
                             return classToks;
                         }

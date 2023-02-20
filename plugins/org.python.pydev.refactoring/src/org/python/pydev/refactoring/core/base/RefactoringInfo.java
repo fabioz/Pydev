@@ -29,6 +29,7 @@ import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.TextUtilities;
@@ -43,8 +44,13 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.autoedit.DefaultIndentPrefs;
 import org.python.pydev.core.autoedit.TestIndentPrefs;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.TokenMgrError;
+import org.python.pydev.parser.jython.ast.Expr;
+import org.python.pydev.parser.jython.ast.Module;
+import org.python.pydev.parser.jython.ast.exprType;
+import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.refactoring.ast.PythonModuleManager;
 import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
@@ -54,13 +60,13 @@ import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.string.CoreTextSelection;
 import org.python.pydev.shared_core.string.ICoreTextSelection;
+import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 import org.python.pydev.shared_core.structure.Tuple;
 
 public class RefactoringInfo {
-    private IFile sourceFile;
+    private final IFile sourceFile;
     private IDocument doc;
     private ICoreTextSelection userSelection;
-    private ICoreTextSelection extendedSelection;
     private ModuleAdapter moduleAdapter;
     private final IPythonNature nature;
     private final IGrammarVersionProvider versionProvider;
@@ -102,6 +108,7 @@ public class RefactoringInfo {
             this.sourceFile = editorInput.getFile();
             this.realFile = sourceFile != null ? sourceFile.getLocation().toFile() : null;
         } else {
+            this.sourceFile = null;
             this.realFile = edit.getEditorFile();
         }
 
@@ -132,7 +139,6 @@ public class RefactoringInfo {
             throw new RuntimeException(e);
         }
 
-        this.extendedSelection = null;
         this.userSelection = moduleAdapter.normalizeSelection(selection);
     }
 
@@ -156,48 +162,194 @@ public class RefactoringInfo {
         return this.doc;
     }
 
-    public ICoreTextSelection getExtendedSelection() {
-        if (this.extendedSelection == null) {
-            this.extendedSelection = new CoreTextSelection(this.doc, this.userSelection.getOffset(),
-                    this.userSelection.getLength());
+    public static class SelectionComputer {
 
-            if (getScopeAdapter() != null) {
-                this.extendedSelection = moduleAdapter.normalizeSelection(VisitorFactory.createSelectionExtension(
-                        getScopeAdapter(), this.extendedSelection));
+        public enum SelectionComputerKind {
+            inline, extractMethod, extractLocal
+        }
+
+        public final ICoreTextSelection selection;
+        public final ModuleAdapter selectionModuleAdapter;
+
+        public SelectionComputer(RefactoringInfo info, SelectionComputerKind kind) {
+            List<Tuple<ICoreTextSelection, ModuleAdapter>> selections = new LinkedListWarningOnSlowOperations<Tuple<ICoreTextSelection, ModuleAdapter>>();
+
+            /* Use different approaches to find a valid selection */
+            final ICoreTextSelection userSelection = info.getUserSelection();
+            if (userSelection.getLength() > 0) {
+                selections.add(new Tuple<ICoreTextSelection, ModuleAdapter>(userSelection,
+                        info.getParsedSelection(userSelection)));
             }
 
+            final ICoreTextSelection extendedSelection = info.getExtendedSelection();
+            if (extendedSelection != null && extendedSelection.getLength() > 0) {
+                selections.add(new Tuple<ICoreTextSelection, ModuleAdapter>(extendedSelection, info
+                        .getParsedSelection(extendedSelection)));
+
+            }
+
+            if (userSelection.getLength() > 0) {
+                selections.add(new Tuple<ICoreTextSelection, ModuleAdapter>(userSelection,
+                        getParsedMultilineSelection(info, userSelection)));
+            }
+
+            IDocument doc = info.getDocument();
+            int startOffset = userSelection.getOffset();
+            int endOffset = userSelection.getOffset() + userSelection.getLength();
+            for (int i = startOffset - 1; i >= 0; i--) {
+                try {
+                    char c = doc.getChar(i);
+                    if (!Character.isJavaIdentifierPart(c)) {
+                        break;
+                    }
+                    startOffset = i;
+                } catch (BadLocationException e) {
+                    break;
+                }
+            }
+
+            final int length = doc.getLength();
+            for (int i = endOffset; i < length; i++) {
+                try {
+                    char c = doc.getChar(i);
+                    if (!Character.isJavaIdentifierPart(c)) {
+                        break;
+                    }
+                    endOffset = i + 1;
+                } catch (BadLocationException e) {
+                    break;
+                }
+            }
+            CoreTextSelection sel = new CoreTextSelection(info.getDocument(), startOffset, endOffset - startOffset);
+            if (sel.getLength() > 0) {
+                selections.add(new Tuple<ICoreTextSelection, ModuleAdapter>(sel,
+                        info.getParsedSelection(sel)));
+            }
+
+            /* Find a valid selection */
+            ICoreTextSelection selection = null;
+            ModuleAdapter selectionModuleAdapter = null;
+            for (Tuple<ICoreTextSelection, ModuleAdapter> s : selections) {
+                /* Is selection valid? */
+                if (s == null) {
+                    continue;
+                }
+                if (s.o1 == null || s.o2 == null) {
+                    continue;
+                }
+                if (kind == SelectionComputerKind.inline) {
+                    if (extractExpression(s.o2) == null) {
+                        continue;
+                    }
+                } else {
+                    if (!isValidWhenCodeExtracted(info, s.o1, info.getDocument())) {
+                        continue;
+                    }
+                }
+                selection = s.o1;
+                selectionModuleAdapter = s.o2;
+            }
+
+            this.selectionModuleAdapter = selectionModuleAdapter;
+            this.selection = selection;
         }
-        return extendedSelection;
-    }
 
-    public ICoreTextSelection getUserSelection() {
-        return userSelection;
-    }
+        public exprType getSingleExpression() {
+            exprType expression = extractExpression(selectionModuleAdapter);
+            return expression;
+        }
 
-    public ModuleAdapter getParsedExtendedSelection() {
-        String source = normalizeSourceSelection(getExtendedSelection());
-
-        if (source.length() > 0) {
+        private boolean isValidWhenCodeExtracted(RefactoringInfo info, ICoreTextSelection o1, IDocument document) {
             try {
-                return VisitorFactory.createModuleAdapter(moduleManager, null, new Document(source), nature,
-                        this.versionProvider);
+                String text = o1.getText();
+                int firstNonWhitespace = 0;
+                for (int i = 0; i < text.length(); i++) {
+                    if (!Character.isWhitespace(text.charAt(i))) {
+                        firstNonWhitespace = i;
+                        break;
+                    }
+                }
+
+                int lastNonWhitespace = 0;
+                for (int i = text.length() - 1; i >= 0; i--) {
+                    if (!Character.isWhitespace(text.charAt(i))) {
+                        break;
+                    }
+                    lastNonWhitespace++;
+                }
+
+                Document temp = new Document(document.get());
+                temp.replace(o1.getOffset() + firstNonWhitespace,
+                        o1.getLength() - (firstNonWhitespace + lastNonWhitespace), "call()");
+                Module rootNode = VisitorFactory.getRootNode(temp, info.getVersionProvider());
+                if (rootNode != null) {
+                    return true;
+                }
+            } catch (Exception e) {
+                return false;
+            }
+            return false;
+        }
+
+        private exprType extractExpression(ModuleAdapter node) {
+            if (node == null) {
+                return null;
+            }
+            Module astNode = node.getASTNode();
+            if (astNode == null) {
+                return null;
+            }
+            stmtType[] body = astNode.body;
+
+            if (body.length > 0 && body[0] instanceof Expr) {
+                Expr expr = (Expr) body[0];
+                return expr.value;
+            }
+            return null;
+        }
+
+        private ModuleAdapter getParsedMultilineSelection(RefactoringInfo info, ICoreTextSelection selection) {
+            String source = selection.getText();
+            source = source.replaceAll("\n", "");
+            source = source.replaceAll("\r", "");
+
+            try {
+                ModuleAdapter node = VisitorFactory.createModuleAdapter(null, null, new Document(source), null,
+                        info.getVersionProvider());
+                return node;
             } catch (TokenMgrError e) {
                 return null;
             } catch (ParseException e) {
-                /* Parse Exception means the current selection is invalid, discard and return null */
                 return null;
             } catch (Throwable e) {
-                throw new RuntimeException(e);
+                Log.log(e);
+                return null;
             }
+        }
+
+    }
+
+    public SelectionComputer getSelectionComputer(SelectionComputer.SelectionComputerKind kind) {
+        return new SelectionComputer(this, kind);
+    }
+
+    private ICoreTextSelection getExtendedSelection() {
+        if (getScopeAdapter() != null) {
+            return moduleAdapter.normalizeSelection(VisitorFactory.createSelectionExtension(
+                    getScopeAdapter(), this.userSelection));
         }
         return null;
     }
 
-    public ModuleAdapter getParsedUserSelection() {
-        ModuleAdapter parsedAdapter = null;
-        String source = normalizeSourceSelection(this.userSelection);
+    private ICoreTextSelection getUserSelection() {
+        return userSelection;
+    }
 
-        if (this.userSelection != null && source.length() > 0) {
+    private ModuleAdapter getParsedSelection(ICoreTextSelection selection) {
+        ModuleAdapter parsedAdapter = null;
+        String source = normalizeSourceSelection(selection);
+
+        if (selection != null && source.length() > 0) {
             try {
                 parsedAdapter = VisitorFactory.createModuleAdapter(moduleManager, null, new Document(source), nature,
                         this.versionProvider);
@@ -215,6 +367,9 @@ public class RefactoringInfo {
     }
 
     public String normalizeSourceSelection(ICoreTextSelection selection) {
+        if (selection == null) {
+            return "";
+        }
         String selectedText = "";
 
         if (selection.getText() != null) {
@@ -283,11 +438,6 @@ public class RefactoringInfo {
             scopeAdapter = moduleAdapter.getScopeAdapter(userSelection);
         }
         return scopeAdapter;
-    }
-
-    public boolean isSelectionExtensionRequired() {
-        return !(this.getUserSelection().getOffset() == this.getExtendedSelection().getOffset() && this
-                .getUserSelection().getLength() == this.getExtendedSelection().getLength());
     }
 
     public String getNewLineDelim() {

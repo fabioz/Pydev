@@ -30,30 +30,30 @@ public class TestDependent {
     // TEST_PYDEV_BASE_LOC is only used to set other variables in TestDependent
     public static String TEST_PYDEV_BASE_LOC = null;
 
+    // CONDA_PYTHON_38_ENV is used to get the default Conda Python environment for Conda tests.
+    public static String CONDA_PYTHON_38_ENV = null;
+
     //Python (implicitly resolved based on the Python variables above if not specified).
     public static String PYTHON_LIB = null;
     // PYTHON_DLLS applies to Windows only
     public static String PYTHON_DLLS = null;
     public static String PYTHON_EXE = null;
-    public static String PYTHON_SITE_PACKAGES = null;
-    public static String PYTHON_TEST_PACKAGES = null;
+    public static String PYTHON2_SITE_PACKAGES = null;
     public static String PYTHON_LIB_DYNLOAD = null;
 
     //Python (optional): related tests won't be run if not available
-    public static String PYTHON_WXPYTHON_PACKAGES = null;
+    public static String PYTHON38_QT5_PACKAGES = null;
+
+    public static String PYTHON2_WXPYTHON_PACKAGES = null;
     public static String PYTHON_NUMPY_PACKAGES = null;
     public static String PYTHON_DJANGO_PACKAGES = null;
-    public static String PYTHON_QT4_PACKAGES = null;
-    public static String PYTHON_OPENGL_PACKAGES = null;
-    public static String PYTHON_MX_PACKAGES = null;
-    public static String PYTHON_PIL_PACKAGES = null;
-
-    //python 3.x
-    public static String PYTHON_30_LIB = null;
-    public static String PYTHON_30_EXE = null;
+    public static String PYTHON2_OPENGL_PACKAGES = null;
+    public static String PYTHON2_MX_PACKAGES = null;
+    public static String PYTHON2_PIL_PACKAGES = null;
 
     // the following are all derived from TEST_PYDEV_BASE_LOC if unset
     public static String PYSRC_LOC = null;
+    public static String HELPERS_LOC = null;
     public static String TEST_PYSRC_TESTING_LOC = null;
     public static String TEST_PYSRC_NAVIGATOR_LOC = null;
     public static String TEST_PYSRC_TESTING_LOC2 = null;
@@ -88,7 +88,7 @@ public class TestDependent {
     // Google App Engine
     public static String GOOGLE_APP_ENGINE_LOCATION = null;
 
-    public static String GetCompletePythonLib(boolean addSitePackages) {
+    public static String getCompletePythonLib(boolean addSitePackages, boolean isPython3) {
         String dlls = "";
         if (PYTHON_LIB_DYNLOAD == null) {
             PYTHON_LIB_DYNLOAD = "";
@@ -99,7 +99,7 @@ public class TestDependent {
         if (!addSitePackages) {
             return PYTHON_LIB + "|" + PYTHON_LIB_DYNLOAD + dlls;
         } else {
-            return PYTHON_LIB + "|" + PYTHON_LIB_DYNLOAD + "|" + PYTHON_SITE_PACKAGES + dlls;
+            return PYTHON_LIB + "|" + PYTHON_LIB_DYNLOAD + "|" + PYTHON2_SITE_PACKAGES + dlls;
         }
     }
 
@@ -194,19 +194,24 @@ public class TestDependent {
                 System.err.println("PYTHON_EXE variable points to path that does NOT exist: " + PYTHON_EXE);
             }
 
+            if (CONDA_PYTHON_38_ENV != null) {
+                if (!new File(CONDA_PYTHON_38_ENV).exists()) {
+                    System.err.println(
+                            "CONDA_PYTHON_38_ENV variable points to path that does NOT exist: " + CONDA_PYTHON_38_ENV);
+                }
+                if (!CONDA_PYTHON_38_ENV.endsWith("/")) {
+                    throw new RuntimeException("Expecting CONDA_PYTHON_38_ENV to end with '/'");
+                }
+            }
+
             if (PYTHON_LIB == null) {
                 PYTHON_LIB = PYTHON_INSTALL + "Lib/";
             }
             if (PYTHON_DLLS == null) {
                 PYTHON_DLLS = PYTHON_INSTALL + "DLLs/";
             }
-            if (PYTHON_SITE_PACKAGES == null) {
-                PYTHON_SITE_PACKAGES = PYTHON_LIB + "site-packages/";
-            }
-            if (PYTHON_TEST_PACKAGES == null) {
-                if (new File(TestDependent.PYTHON_LIB + "test/").exists()) {
-                    PYTHON_TEST_PACKAGES = TestDependent.PYTHON_LIB + "test/";
-                }
+            if (PYTHON2_SITE_PACKAGES == null) {
+                PYTHON2_SITE_PACKAGES = PYTHON_LIB + "site-packages/";
             }
 
             if (TEST_PYSRC_TESTING_LOC == null) {
@@ -235,6 +240,17 @@ public class TestDependent {
             }
             if (!TEST_PYDEV_PLUGIN_LOC.endsWith("/")) {
                 throw new RuntimeException("Expecting TEST_PYDEV_PLUGIN_LOC to end with '/'");
+            }
+
+            if (HELPERS_LOC == null) {
+                HELPERS_LOC = TEST_PYDEV_BASE_LOC + "org.python.pydev.core/helpers/";
+            }
+            if (!HELPERS_LOC.endsWith("/")) {
+                throw new RuntimeException("Expecting HELPERS_LOC to end with '/'");
+            }
+            if (!new File(HELPERS_LOC).exists()) {
+                throw new RuntimeException("HELPERS_LOC variable points to path that does NOT exist: "
+                        + HELPERS_LOC);
             }
 
             if (PYSRC_LOC == null) {

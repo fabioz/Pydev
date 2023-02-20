@@ -27,7 +27,7 @@ public class PyDebugTargetServer extends AbstractDebugTarget {
     private boolean isTerminated;
 
     public PyDebugTargetServer(ILaunch launch, IPath[] file, RemoteDebuggerServer debugger) {
-        this.file = file;
+        super(file);
         this.debugger = debugger;
         this.threads = new PyThread[0];
         this.launch = launch;

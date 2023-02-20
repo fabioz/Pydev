@@ -12,6 +12,7 @@ public class IterEntry {
         this.object = o;
     }
 
+    //This is the token or proposal.
     public Object object;
     public LookingFor lookingFor;
 

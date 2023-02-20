@@ -617,9 +617,11 @@ public final class JsonFieldEditor extends FieldEditor {
      * @param content
      */
     private void handleStateChange(String content) {
-        if (isValid != oldState) {
-            fireStateChanged(IS_VALID, oldState, isValid);
-        }
+        // if (isValid != oldState) {
+        // Note: always fire (a restore defaults wouldn't work
+        // due to threading issues if that wasn't the case).
+        fireStateChanged(IS_VALID, !isValid, isValid);
+        // }
         String newValue = content;
         if (!content.equals(oldValue)) {
             fireValueChanged(VALUE, oldValue, newValue);

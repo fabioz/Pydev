@@ -18,7 +18,7 @@ Authors:  Robin Dunn, Brian Granger, Ondrej Certik
 
 import sys
 import signal
-from _pydev_imps._pydev_saved_modules import time
+from _pydev_bundle._pydev_saved_modules import time
 from timeit import default_timer as clock
 import wx
 
@@ -114,7 +114,10 @@ def inputhook_wx3():
     try:
         app = wx.GetApp()  # @UndefinedVariable
         if app is not None:
-            assert wx.Thread_IsMain()  # @UndefinedVariable
+            if hasattr(wx, 'IsMainThread'):
+                assert wx.IsMainThread()  # @UndefinedVariable
+            else:
+                assert wx.Thread_IsMain()  # @UndefinedVariable
 
             # The import of wx on Linux sets the handler for signal.SIGINT
             # to 0.  This is a bug in wx or gtk.  We fix by just setting it

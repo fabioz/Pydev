@@ -42,7 +42,8 @@ r'''
 '''
 
 from _pydev_bundle import pydev_log
-from _pydevd_bundle.pydevd_constants import IS_PY2, IS_PY3K, DebugInfoHolder, IS_WINDOWS, IS_JYTHON
+from _pydevd_bundle.pydevd_constants import DebugInfoHolder, IS_WINDOWS, IS_JYTHON, \
+    DISABLE_FILE_VALIDATION, is_true_in_env, IS_MAC
 from _pydev_bundle._pydev_filesystem_encoding import getfilesystemencoding
 from _pydevd_bundle.pydevd_comm_constants import file_system_encoding, filesystem_encoding_is_utf8
 from _pydev_bundle.pydev_log import error_once
@@ -123,6 +124,79 @@ convert_to_long_pathname = lambda filename:filename
 convert_to_short_pathname = lambda filename:filename
 get_path_with_real_case = lambda filename:filename
 
+# Note that we have a cache for previous list dirs... the only case where this may be an
+# issue is if the user actually changes the case of an existing file on while
+# the debugger is executing (as this seems very unlikely and the cache can save a
+# reasonable time -- especially on mapped drives -- it seems nice to have it).
+_listdir_cache = {}
+
+# May be changed during tests.
+os_listdir = os.listdir
+
+
+def _resolve_listing(resolved, iter_parts_lowercase, cache=_listdir_cache):
+    while True:  # Note: while True to make iterative and not recursive
+        try:
+            resolve_lowercase = next(iter_parts_lowercase)  # must be lowercase already
+        except StopIteration:
+            return resolved
+
+        resolved_lower = resolved.lower()
+
+        resolved_joined = cache.get((resolved_lower, resolve_lowercase))
+        if resolved_joined is None:
+            dir_contents = cache.get(resolved_lower)
+            if dir_contents is None:
+                dir_contents = cache[resolved_lower] = os_listdir(resolved)
+
+            for filename in dir_contents:
+                if filename.lower() == resolve_lowercase:
+                    resolved_joined = os.path.join(resolved, filename)
+                    cache[(resolved_lower, resolve_lowercase)] = resolved_joined
+                    break
+            else:
+                raise FileNotFoundError('Unable to find: %s in %s. Dir Contents: %s' % (
+                    resolve_lowercase, resolved, dir_contents))
+
+        resolved = resolved_joined
+
+
+def _resolve_listing_parts(resolved, parts_in_lowercase, filename):
+    try:
+        if parts_in_lowercase == ['']:
+            return resolved
+        return _resolve_listing(resolved, iter(parts_in_lowercase))
+    except FileNotFoundError:
+        _listdir_cache.clear()
+        # Retry once after clearing the cache we have.
+        try:
+            return _resolve_listing(resolved, iter(parts_in_lowercase))
+        except FileNotFoundError:
+            if os_path_exists(filename):
+                # This is really strange, ask the user to report as error.
+                pydev_log.critical(
+                    'pydev debugger: critical: unable to get real case for file. Details:\n'
+                    'filename: %s\ndrive: %s\nparts: %s\n'
+                    '(please create a ticket in the tracker to address this).',
+                    filename, resolved, parts_in_lowercase
+                )
+                pydev_log.exception()
+            # Don't fail, just return the original file passed.
+            return filename
+    except OSError:
+        # Something as: PermissionError (listdir may fail).
+        # See: https://github.com/microsoft/debugpy/issues/1154
+        # Don't fail nor log unless the trace level is at least info. Just return the original file passed.
+        if DebugInfoHolder.DEBUG_TRACE_LEVEL >= 1:
+            pydev_log.info(
+                'pydev debugger: OSError: Unable to get real case for file. Details:\n'
+                'filename: %s\ndrive: %s\nparts: %s\n',
+                filename, resolved, parts_in_lowercase
+            )
+            pydev_log.exception()
+        return filename
+
+
 if sys.platform == 'win32':
     try:
         import ctypes
@@ -139,60 +213,20 @@ if sys.platform == 'win32':
         def _convert_to_long_pathname(filename):
             buf = ctypes.create_unicode_buffer(MAX_PATH)
 
-            if IS_PY2 and isinstance(filename, str):
-                filename = filename.decode(getfilesystemencoding())
             rv = GetLongPathName(filename, buf, MAX_PATH)
             if rv != 0 and rv <= MAX_PATH:
                 filename = buf.value
 
-            if IS_PY2:
-                filename = filename.encode(getfilesystemencoding())
             return filename
 
         def _convert_to_short_pathname(filename):
             buf = ctypes.create_unicode_buffer(MAX_PATH)
 
-            if IS_PY2 and isinstance(filename, str):
-                filename = filename.decode(getfilesystemencoding())
             rv = GetShortPathName(filename, buf, MAX_PATH)
             if rv != 0 and rv <= MAX_PATH:
                 filename = buf.value
 
-            if IS_PY2:
-                filename = filename.encode(getfilesystemencoding())
             return filename
-
-        # Note that we have a cache for previous list dirs... the only case where this may be an
-        # issue is if the user actually changes the case of an existing file on windows while
-        # the debugger is executing (as this seems very unlikely and the cache can save a
-        # reasonable time -- especially on mapped drives -- it seems nice to have it).
-        _listdir_cache = {}
-
-        def _resolve_listing(resolved, iter_parts, cache=_listdir_cache):
-            while True:  # Note: while True to make iterative and not recursive
-                try:
-                    resolve_lowercase = next(iter_parts)  # must be lowercase already
-                except StopIteration:
-                    return resolved
-
-                resolved_lower = resolved.lower()
-
-                resolved_joined = cache.get((resolved_lower, resolve_lowercase))
-                if resolved_joined is None:
-                    dir_contents = cache.get(resolved_lower)
-                    if dir_contents is None:
-                        dir_contents = cache[resolved_lower] = os.listdir(resolved)
-
-                    for filename in dir_contents:
-                        if filename.lower() == resolve_lowercase:
-                            resolved_joined = os.path.join(resolved, filename)
-                            cache[(resolved_lower, resolve_lowercase)] = resolved_joined
-                            break
-                    else:
-                        raise FileNotFoundError('Unable to find: %s in %s' % (
-                            resolve_lowercase, resolved))
-
-                resolved = resolved_joined
 
         def _get_path_with_real_case(filename):
             # Note: this previously made:
@@ -200,9 +234,6 @@ if sys.platform == 'win32':
             # but this is no longer done because we can't rely on getting the shortname
             # consistently (there are settings to disable it on Windows).
             # So, using approach which resolves by listing the dir.
-
-            if IS_PY2 and isinstance(filename, unicode):  # noqa
-                filename = filename.encode(getfilesystemencoding())
 
             if '~' in filename:
                 filename = convert_to_long_pathname(filename)
@@ -216,26 +247,7 @@ if sys.platform == 'win32':
                 parts = parts[1:]
                 drive += os.path.sep
             parts = parts.lower().split(os.path.sep)
-
-            try:
-                return _resolve_listing(drive, iter(parts))
-            except FileNotFoundError:
-                _listdir_cache.clear()
-                # Retry once after clearing the cache we have.
-                try:
-                    return _resolve_listing(drive, iter(parts))
-                except FileNotFoundError:
-                    if os_path_exists(filename):
-                        # This is really strange, ask the user to report as error.
-                        pydev_log.critical(
-                            'pydev debugger: critical: unable to get real case for file. Details:\n'
-                            'filename: %s\ndrive: %s\nparts: %s\n'
-                            '(please create a ticket in the tracker to address this).',
-                            filename, drive, parts
-                        )
-                        pydev_log.exception()
-                    # Don't fail, just return the original file passed.
-                    return filename
+            return _resolve_listing_parts(drive, parts, filename)
 
         # Check that it actually works
         _get_path_with_real_case(__file__)
@@ -251,12 +263,28 @@ if sys.platform == 'win32':
 elif IS_JYTHON and IS_WINDOWS:
 
     def get_path_with_real_case(filename):
+        if filename.startswith('<'):
+            return filename
+
         from java.io import File  # noqa
         f = File(filename)
         ret = f.getCanonicalPath()
-        if IS_PY2 and not isinstance(ret, str):
-            return ret.encode(getfilesystemencoding())
         return ret
+
+elif IS_MAC:
+
+    def get_path_with_real_case(filename):
+        if filename.startswith('<') or not os_path_exists(filename):
+            return filename  # Not much we can do.
+
+        parts = filename.lower().split('/')
+
+        found = ''
+        while parts and parts[0] == '':
+            found += '/'
+            parts = parts[1:]
+
+        return _resolve_listing_parts(found, parts, filename)
 
 if IS_JYTHON:
 
@@ -296,6 +324,13 @@ elif _filename_normalization == 'none':
 elif IS_WINDOWS:
     _default_normcase = _normcase_windows
 
+elif IS_MAC:
+
+    def _normcase_lower(filename):
+        return filename.lower()
+
+    _default_normcase = _normcase_lower
+
 else:
     _default_normcase = _normcase_linux
 
@@ -311,6 +346,11 @@ def normcase(s, NORMCASE_CACHE={}):
 _ide_os = 'WINDOWS' if IS_WINDOWS else 'UNIX'
 
 _normcase_from_client = normcase
+
+
+def normcase_from_client(s):
+    return _normcase_from_client(s)
+
 
 DEBUG_CLIENT_SERVER_TRANSLATION = os.environ.get('DEBUG_PYDEVD_PATHS_TRANSLATION', 'False').lower() in ('1', 'true')
 
@@ -405,6 +445,9 @@ def _abs_and_canonical_path(filename, NORM_PATHS_CONTAINER=NORM_PATHS_CONTAINER)
             return filename, filename
 
         isabs = os_path_isabs(filename)
+
+        if _global_resolve_symlinks:
+            os_path_abspath = os_path_real_path
 
         normalize = False
         abs_path = _apply_func_and_normalize_case(filename, os_path_abspath, isabs, normalize)
@@ -532,19 +575,31 @@ def exists(filename):
 
 
 try:
+    report = pydev_log.critical
+    if DISABLE_FILE_VALIDATION:
+        report = pydev_log.debug
+
     try:
         code = os_path_real_path.func_code
     except AttributeError:
         code = os_path_real_path.__code__
-    if not os.path.isabs(code.co_filename):
-        pydev_log.critical('This version of python seems to be incorrectly compiled')
-        pydev_log.critical('(internal generated filenames are not absolute).')
-        pydev_log.critical('This may make the debugger miss breakpoints.')
-        pydev_log.critical('Related bug: http://bugs.python.org/issue1666807')
+
+    if code.co_filename.startswith('<frozen'):
+        # See: https://github.com/fabioz/PyDev.Debugger/issues/213
+        report('Debugger warning: It seems that frozen modules are being used, which may')
+        report('make the debugger miss breakpoints. Please pass -Xfrozen_modules=off')
+        report('to python to disable frozen modules.')
+        report('Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.')
+
+    elif not os.path.isabs(code.co_filename):
+        report('Debugger warning: The os.path.realpath.__code__.co_filename (%s)', code.co_filename)
+        report('is not absolute, which may make the debugger miss breakpoints.')
+        report('Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.')
+
     elif not exists(code.co_filename):  # Note: checks for files inside .zip containers.
-        pydev_log.critical('It seems the debugger cannot resolve %s', code.co_filename)
-        pydev_log.critical('This may make the debugger miss breakpoints in the standard library.')
-        pydev_log.critical('Related bug: https://bugs.python.org/issue1180193')
+        report('Debugger warning: It seems the debugger cannot find os.path.realpath.__code__.co_filename (%s).', code.co_filename)
+        report('This may make the debugger miss breakpoints in the standard library.')
+        report('Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.')
 except:
     # Don't fail if there's something not correct here -- but at least print it to the user so that we can correct that
     pydev_log.exception()
@@ -559,18 +614,8 @@ except:
 
 
 def _path_to_expected_str(filename):
-    if IS_PY2:
-        if not filesystem_encoding_is_utf8 and hasattr(filename, "decode"):
-            # filename_in_utf8 is a byte string encoded using the file system encoding
-            # convert it to utf8
-            filename = filename.decode(file_system_encoding)
-
-        if not isinstance(filename, bytes):
-            filename = filename.encode('utf-8')
-
-    else:  # py3
-        if isinstance(filename, bytes):
-            filename = filename.decode(file_system_encoding)
+    if isinstance(filename, bytes):
+        filename = filename.decode(file_system_encoding)
 
     return filename
 
@@ -646,6 +691,14 @@ def get_frame_id_from_source_reference(source_reference):
     return _source_reference_to_frame_id.get(source_reference)
 
 
+_global_resolve_symlinks = is_true_in_env('PYDEVD_RESOLVE_SYMLINKS')
+
+
+def set_resolve_symlinks(resolve_symlinks):
+    global _global_resolve_symlinks
+    _global_resolve_symlinks = resolve_symlinks
+
+
 def setup_client_server_paths(paths):
     '''paths is the same format as PATHS_FROM_ECLIPSE_TO_PYTHON'''
 
@@ -676,12 +729,6 @@ def setup_client_server_paths(paths):
     # Apply normcase to the existing paths to follow the os preferences.
 
     for i, (path0, path1) in enumerate(paths):
-        if IS_PY2:
-            if isinstance(path0, unicode):  # noqa
-                path0 = path0.encode(sys.getfilesystemencoding())
-            if isinstance(path1, unicode):  # noqa
-                path1 = path1.encode(sys.getfilesystemencoding())
-
         force_only_slash = path0.endswith(('/', '\\')) and path1.endswith(('/', '\\'))
 
         if not force_only_slash:
@@ -887,10 +934,7 @@ def get_abs_path_real_path_and_base_from_frame(frame, NORM_PATHS_AND_BASE_CONTAI
 
 
 def get_fullname(mod_name):
-    if IS_PY3K:
-        import pkgutil
-    else:
-        from _pydev_imps import _pydev_pkgutil_old as pkgutil
+    import pkgutil
     try:
         loader = pkgutil.get_loader(mod_name)
     except:

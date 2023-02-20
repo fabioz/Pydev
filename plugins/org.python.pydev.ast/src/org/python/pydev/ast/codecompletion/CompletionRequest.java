@@ -19,12 +19,13 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.python.pydev.ast.codecompletion.revisited.AbstractASTManager;
 import org.python.pydev.core.ICompletionRequest;
+import org.python.pydev.core.IFilterToken;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ITokenCompletionRequest;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQual;
+import org.python.pydev.core.docutils.PySelection.ActivationTokenAndQualifier;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
 /**
@@ -33,6 +34,8 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
  * @author Fabio Zadrozny
  */
 public final class CompletionRequest implements ICompletionRequest, ITokenCompletionRequest {
+
+    public IFilterToken filterToken;
 
     /**
      * This is used on the AssistOverride: the activationToken is pre-specified
@@ -76,7 +79,7 @@ public final class CompletionRequest implements ICompletionRequest, ITokenComple
         this.doc = doc;
         this.documentOffset = documentOffset;
 
-        ActivationTokenAndQual act = getPySelection().getActivationTokenAndQual(false, true);
+        ActivationTokenAndQualifier act = getPySelection().getActivationTokenAndQualifier(false, true);
         this.activationToken = act.activationToken;
         this.qualifier = act.qualifier;
         this.isInCalltip = act.changedForCalltip;
@@ -92,7 +95,7 @@ public final class CompletionRequest implements ICompletionRequest, ITokenComple
         this.qlen = qlen;
         this.codeCompletion = codeCompletion;
 
-        this.fullQualifier = getPySelection().getActivationTokenAndQual(true)[1];
+        this.fullQualifier = getPySelection().getActivationTokenAndQualifier(true)[1];
         this.useSubstringMatchInCodeCompletion = useSubstringMatchInCodeCompletion;
     }
 

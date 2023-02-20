@@ -12,7 +12,6 @@
 package org.python.pydev.ast.codecompletion.revisited;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -42,6 +41,7 @@ import org.python.pydev.ast.codecompletion.IPythonModuleResolver;
 import org.python.pydev.ast.codecompletion.revisited.ModulesFoundStructure.ZipContents;
 import org.python.pydev.ast.listing_utils.PyFileListing;
 import org.python.pydev.ast.listing_utils.PyFileListing.PyFileInfo;
+import org.python.pydev.ast.listing_utils.PyFileListing.PyFileListingFilter;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.ModulesKey;
@@ -115,20 +115,18 @@ public final class PythonPathHelper implements IPythonPathHelper {
             }
             otherRoots.remove(root);
 
-            FileFilter filter = new FileFilter() {
+            PyFileListingFilter filter = new PyFileListingFilter() {
 
                 @Override
-                public boolean accept(File file) {
-                    if (file.isFile()) {
-                        return isValidFileMod(FileUtils.getFileAbsolutePath(file));
-                    } else if (file.isDirectory()) {
+                public boolean accept(java.nio.file.Path path, File file, boolean isDirectory) {
+                    if (!isDirectory) {
+                        return isValidFileMod(file.toString());
+                    } else { // isDirectory
                         if (otherRoots.contains(file)) {
                             // We should not go into other roots.
                             return false;
                         }
                         return isValidModuleLastPart(file.getName());
-                    } else {
-                        return false;
                     }
                 }
 
@@ -229,6 +227,9 @@ public final class PythonPathHelper implements IPythonPathHelper {
         if (path.endsWith(".pypredef")) {
             return true;
         }
+        if (path.endsWith(".pyi")) {
+            return true;
+        }
         return false;
     }
 
@@ -250,6 +251,9 @@ public final class PythonPathHelper implements IPythonPathHelper {
             }
         }
         if (ext.equals(".pypredef")) {
+            return true;
+        }
+        if (ext.equals(".pyi")) {
             return true;
         }
         return false;
@@ -485,7 +489,8 @@ public final class PythonPathHelper implements IPythonPathHelper {
      * @return
      */
     public static boolean isValidModuleLastPart(String s) {
-        for (int i = 0; i < s.length(); i++) {
+        int len = s.length();
+        for (int i = 0; i < len; i++) {
             char c = s.charAt(i);
             if (c == '-' || c == ' ' || c == '.' || c == '+') {
                 return false;

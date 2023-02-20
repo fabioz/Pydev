@@ -67,4 +67,16 @@ public class UnpackInfo {
         return this.unpackTuple >= 0;
     }
 
+    /**
+     * If false, this means that the although we have an unpack info
+     * we have already unpacked (and thus don't really need to further
+     * unpack).
+     */
+    public boolean isUnpackRequired() {
+        if (this.unpackFor || this.unpackTuple >= 0) {
+            return true;
+        }
+        return false;
+    }
+
 }

@@ -45,7 +45,7 @@ public class RenameLocalRefactoringTest extends RefactoringRenameTestBase {
                 + "  ASTEntry<aa (Name L=2 C=5)>\n"
                 + "    Line: 1      aa = 10 -->     new_name = 10\n"
                 + "  ASTEntry<aa (Name L=3 C=11)>\n"
-                + "    Line: 2      print aa -->     print new_name\n"
+                + "    Line: 2      print(aa) -->     print(new_name)\n"
                 + "\n"
                 + "", asStr(references));
     }

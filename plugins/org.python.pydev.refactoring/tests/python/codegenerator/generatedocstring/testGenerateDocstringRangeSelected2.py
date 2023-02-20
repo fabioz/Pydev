@@ -1,9 +1,9 @@
 class Test(object):
 
     def method(self):##|
-        print "method"##|
+        print("method")##|
         def nested():
-            print "nested"
+            print("nested")
         nested()
 
 ##r
@@ -14,7 +14,7 @@ class Test(object):
         '''
         ##|
         '''
-        print "method"
+        print("method")
         def nested():
-            print "nested"
+            print("nested")
         nested()

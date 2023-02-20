@@ -46,12 +46,12 @@ def compare_lines(lines_obtained, lines_expected):
 def find_files(top):
     print(top)
     for root, dirs, files in os.walk(top):
-        for d in ('.svn', '.git', '.metadata'):
+        for d in ('.svn', '.git', '.metadata', 'target'):
             if d in dirs:
                   dirs.remove(d)
 
         for file in files:
-            if file.lower() in ('feature.xml', 'pom.xml', 'manifest.mf', 'liclipse.product'):
+            if file.lower() in ('feature.xml', 'pom.xml', 'manifest.mf', 'liclipse.product', 'com.brainwy.liclipse.prod.product'):
                 yield os.path.join(root, file)
 
 def update_version(version):
@@ -61,28 +61,30 @@ def update_version(version):
             contents = stream.read()
 
         new_contents = fix_contents_version(contents, version)
+        print('PyDev file to update', f)
         if contents != new_contents:
+            print('CHANGED', f)
             with open(f, 'w') as stream:
                 stream.write(new_contents)
 
 
 def fix_contents_version(contents, version):
-    bugfixversion = int(re.sub(r'^\d\.\d\.(\d)', r'\1', version))
-    nextversion = re.sub(r'^(\d\.\d\.)\d', r'\1', version) + str(bugfixversion + 1)
+    bugfixversion = int(re.sub(r'^\d+\.\d+\.(\d+)', r'\1', version))
+    nextversion = re.sub(r'^(\d+\.\d+\.)\d+', r'\1', version) + str(bugfixversion + 1)
     
-    contents = re.sub(r'(bundle-version=")\[\d\.\d\.\d,\d\.\d\.\d\)"', r'\1[%s,%s)"' % (version, nextversion), contents)
-    contents = re.sub(r'(version=)\"\d\.\d\.\d(\.qualifier\")', r'\1"%s\2' % (version,), contents)
-    contents = re.sub(r'(<version)>\d\.\d\.\d(-SNAPSHOT</version>)', r'\1>%s\2' % (version,), contents)
-    contents = re.sub(r'(Bundle-Version:)\s\d\.\d\.\d(\.qualifier)', r'\1 %s\2' % (version,), contents)
+    contents = re.sub(r'(bundle-version=")\[\d+\.\d+\.\d+,\d+\.\d+\.\d+\)"', r'\1[%s,%s)"' % (version, nextversion), contents)
+    contents = re.sub(r'(version=)\"\d+\.\d+\.\d+(\.qualifier\")', r'\1"%s\2' % (version,), contents)
+    contents = re.sub(r'(<version)>\d+\.\d+\.\d+(-SNAPSHOT</version>)', r'\1>%s\2' % (version,), contents)
+    contents = re.sub(r'(Bundle-Version:)\s\d+\.\d+\.\d+(\.qualifier)', r'\1 %s\2' % (version,), contents)
 
     return contents
 
 def fix_liclipse_contents_version(contents, version):
-    bugfixversion = int(re.sub(r'^\d\.\d\.(\d)', r'\1', version))
-    nextversion = re.sub(r'^(\d\.\d\.)\d', r'\1', version) + str(bugfixversion + 1)
+    bugfixversion = int(re.sub(r'^\d+\.\d+\.(\d+)', r'\1', version))
+    nextversion = re.sub(r'^(\d+\.\d+\.)\d+', r'\1', version) + str(bugfixversion + 1)
     
-    contents = re.sub(r'((com|org)\.python\.pydev(\.\w+)?;)(bundle-version=")\[\d\.\d\.\d,\d\.\d\.\d\)"', r'\1\4[%s,%s)"' % (version, nextversion), contents)
-    contents = re.sub(r'(<feature id="org\.python\.pydev\.feature" version=")(\d\.\d\.\d)(\.qualifier"/>)', r'\g<1>%s\3' % (version,), contents)
+    contents = re.sub(r'((com|org)\.python\.pydev(\.\w+)?;)(bundle-version=")\[\d+\.\d+\.\d+,\d+\.\d+\.\d+\)"', r'\1\4[%s,%s)"' % (version, nextversion), contents)
+    contents = re.sub(r'(<feature id="org\.python\.pydev\.feature" version=")(\d+\.\d+\.\d+)(\.qualifier"/>)', r'\g<1>%s\3' % (version,), contents)
     return contents
 
 
@@ -153,7 +155,9 @@ def update_version_in_liclipse(version):
             contents = stream.read()
 
         new_contents = fix_liclipse_contents_version(contents, version)
+        print('LiClipse File to update', f)
         if contents != new_contents:
+            print('CHANGED', f)
             with open(f, 'w') as stream:
                 stream.write(new_contents)
 

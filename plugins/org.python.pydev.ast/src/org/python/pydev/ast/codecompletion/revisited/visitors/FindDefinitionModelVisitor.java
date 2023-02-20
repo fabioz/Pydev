@@ -11,7 +11,6 @@
  */
 package org.python.pydev.ast.codecompletion.revisited.visitors;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -72,12 +71,6 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
     private FastStack<Set<String>> globalDeclarationsStack = new FastStack<Set<String>>(20);
 
     /**
-     * This is the module we are visiting: just a weak reference so that we don't create a cycle (let's
-     * leave things easy for the garbage collector).
-     */
-    private WeakReference<IModule> module;
-
-    /**
      * It is only available if the cursor position is upon a NameTok in an import (it represents the complete
      * path for finding the module from the current module -- it can be a regular or relative import).
      */
@@ -108,9 +101,8 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
      * @param col: starts at 1
      */
     public FindDefinitionModelVisitor(String token, int line, int col, IModule module, IPythonNature nature) {
-        super(nature);
+        super(nature, module);
         this.tokenToFind = token;
-        this.module = new WeakReference<IModule>(module);
         this.line = line;
         this.col = col;
         this.moduleName = module.getName();
@@ -227,7 +219,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
                 && col <= name.beginColumn + rep.length()) {
             foundAsDefinition = true;
             // if it is found as a definition it is an 'exact' match, so, erase all the others.
-            ILocalScope scope = new LocalScope(this.nature, this.defsStack);
+            ILocalScope scope = new LocalScope(this.nature, this.defsStack, this.module.get());
             for (Iterator<Definition> it = definitions.iterator(); it.hasNext();) {
                 Definition d = it.next();
                 if (!d.scope.equals(scope)) {
@@ -257,7 +249,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
                 if (PySelection.isInside(col, node.beginColumn, rep.length())) {
                     foundAsDefinition = true;
                     // if it is found as a definition it is an 'exact' match, so, erase all the others.
-                    ILocalScope scope = new LocalScope(nature, this.defsStack);
+                    ILocalScope scope = new LocalScope(nature, this.defsStack, this.module.get());
                     for (Iterator<Definition> it = definitions.iterator(); it.hasNext();) {
                         Definition d = it.next();
                         if (!d.scope.equals(scope)) {
@@ -291,7 +283,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
                                 + rep.length()))) {
             foundAsDefinition = true;
             // if it is found as a definition it is an 'exact' match, so, erase all the others.
-            ILocalScope scope = new LocalScope(nature, this.defsStack);
+            ILocalScope scope = new LocalScope(nature, this.defsStack, this.module.get());
             for (Iterator<Definition> it = definitions.iterator(); it.hasNext();) {
                 Definition d = it.next();
                 if (!d.scope.equals(scope)) {
@@ -327,7 +319,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
     }
 
     public Object visitAssign(Assign node, int unpackPos) throws Exception {
-        ILocalScope scope = new LocalScope(nature, this.defsStack);
+        ILocalScope scope = new LocalScope(nature, this.defsStack, this.module.get());
         scope.setFoundAtASTNode(node);
         if (foundAsDefinition && !scope.equals(definitionFound.scope)) { //if it is found as a definition it is an 'exact' match, so, we do not keep checking it
             return null;
@@ -385,7 +377,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
      */
     @Override
     public Object visitNamedExpr(NamedExpr node) throws Exception {
-        ILocalScope scope = new LocalScope(nature, this.defsStack);
+        ILocalScope scope = new LocalScope(nature, this.defsStack, this.module.get());
         scope.setFoundAtASTNode(node);
         if (foundAsDefinition && !scope.equals(definitionFound.scope)) { //if it is found as a definition it is an 'exact' match, so, we do not keep checking it
             return null;
@@ -407,7 +399,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
         exprType elt = node.elt;
         elt = fixMissingAttribute(elt);
         if (this.line == elt.beginLine) {
-            ILocalScope scope = new LocalScope(nature, this.defsStack);
+            ILocalScope scope = new LocalScope(nature, this.defsStack, this.module.get());
             scope.setFoundAtASTNode(node);
             if (foundAsDefinition && !scope.equals(definitionFound.scope)) { //if it is found as a definition it is an 'exact' match, so, we do not keep checking it
                 return super.visitListComp(node);
@@ -538,6 +530,9 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
         }
     }
 
+    /**
+     * The line and col are defined starting at 1
+     */
     public static AssignDefinition getAssignDefinition(Assign node, String target, int targetPos, int line, int col,
             ILocalScope scope, IModule module, int unpackPos) {
         exprType nodeValue = node.value;
@@ -552,5 +547,32 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
         }
         return new AssignDefinition(value, type, target, targetPos, node, line, col, scope, module, nodeValue, nodeType,
                 unpackPos);
+    }
+
+    public static int findUnpackPos(Assign foundInAssign, String representation) {
+        if (foundInAssign.targets != null) {
+            if (foundInAssign.targets.length > 0) {
+                if (foundInAssign.targets.length == 1) {
+                    if (foundInAssign.targets[0] instanceof Tuple) {
+                        Tuple tuple = (Tuple) foundInAssign.targets[0];
+                        if (tuple != null && tuple.elts != null && tuple.elts.length > 0) {
+                            for (int i = 0; i < tuple.elts.length; i++) {
+                                if (representation.equals(NodeUtils.getRepresentationString(tuple.elts[i]))) {
+                                    return i;
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    // len > 1
+                    for (int i = 0; i < foundInAssign.targets.length; i++) {
+                        if (representation.equals(NodeUtils.getRepresentationString(foundInAssign.targets[i]))) {
+                            return i;
+                        }
+                    }
+                }
+            }
+        }
+        return -1; // Nothing to unpack.
     }
 }

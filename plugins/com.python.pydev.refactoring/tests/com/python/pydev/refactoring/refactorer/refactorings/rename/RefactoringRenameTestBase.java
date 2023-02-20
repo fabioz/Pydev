@@ -12,6 +12,7 @@ package com.python.pydev.refactoring.refactorer.refactorings.rename;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -38,6 +39,7 @@ import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
 import org.python.pydev.ast.listing_utils.PyFileListing;
 import org.python.pydev.ast.listing_utils.PyFileListing.PyFileInfo;
 import org.python.pydev.ast.refactoring.RefactoringRequest;
+import org.python.pydev.core.BaseModuleRequest;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IProjectModulesManager;
@@ -167,14 +169,22 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
     protected void checkProcessors() {
         if (lastProcessorUsed != null) {
             List<IRefactorRenameProcess> processes = lastProcessorUsed.getAllProcesses();
-            assertEquals(1, processes.size());
+            assertEquals(getExpectedProcessesSize(), processes.size());
 
-            Class processUnderTest = getProcessUnderTest();
+            Set<Class<?>> processUnderTest = getProcessesUnderTest();
             if (processUnderTest != null) {
                 for (IRefactorRenameProcess p : processes) {
-                    assertTrue(StringUtils.format("Expected %s. Received:%s",
-                            processUnderTest, p.getClass()),
-                            processUnderTest.isInstance(p)); //we should only activate the rename class process in this test case
+                    boolean found = false;
+                    for (Class<?> c : processUnderTest) {
+                        if (c.isInstance(p)) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        throw new AssertionError(
+                                StringUtils.format("Expected %s. Received:%s", processUnderTest, p.getClass()));
+                    }
                 }
             }
         }
@@ -183,7 +193,19 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
     /**
      * @return the process class that we're testing.
      */
-    protected abstract Class getProcessUnderTest();
+    protected abstract Class<?> getProcessUnderTest();
+
+    protected Set<Class<?>> getProcessesUnderTest() {
+        Class<?> processUnderTest = getProcessUnderTest();
+        if (processUnderTest == null) {
+            return null;
+        }
+        return new HashSet<>(Arrays.asList(processUnderTest));
+    }
+
+    protected int getExpectedProcessesSize() {
+        return 1;
+    };
 
     /**
      * A method that creates a project that references no other project
@@ -305,7 +327,8 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
         try {
             IProjectModulesManager modulesManager = (IProjectModulesManager) natureRefactoring.getAstManager()
                     .getModulesManager();
-            IModule module = modulesManager.getModuleInDirectManager(moduleName, natureRefactoring, true);
+            IModule module = modulesManager.getModuleInDirectManager(moduleName, natureRefactoring, true,
+                    new BaseModuleRequest(true));
             if (module == null) {
                 throw new RuntimeException("Unable to get source module for module:" + moduleName);
             }
@@ -392,25 +415,31 @@ public abstract class RefactoringRenameTestBase extends RefactoringLocalTestBase
 
                 buf.append(entry.getKey().o1).append("\n");
                 for (ASTEntry e : lst2) {
+                    List<TextEdit> edits = (List<TextEdit>) e.getAdditionalInfo(
+                            AstEntryScopeAnalysisConstants.AST_ENTRY_REPLACE_EDIT, null);
+                    if (e instanceof ASTEntryWithSourceModule) {
+                        buf.append("  ");
+                        buf.append(e.toString()).append("\n");
+                        continue;
+                    }
+
+                    if (edits == null) {
+                        // null edits are expected for ASTEntryWithSourceModule as well
+                        // as edits which are duplicated.
+                        continue;
+                    }
+
                     buf.append("  ");
                     buf.append(e.toString()).append("\n");
 
-                    List<TextEdit> edits = (List<TextEdit>) e.getAdditionalInfo(
-                            AstEntryScopeAnalysisConstants.AST_ENTRY_REPLACE_EDIT, null);
-                    if (edits == null) {
-                        if (!(e instanceof ASTEntryWithSourceModule)) {
-                            throw new AssertionError("Only ASTEntryWithSourceModule can have null edits. Found: " + e);
-                        }
-                    } else {
-                        Document changedDoc = new Document(fileContents);
-                        for (TextEdit textEdit : edits) {
-                            textEdit.apply(changedDoc);
-                        }
-                        List<String> changedLines = getChangedLines(initialDoc, changedDoc);
-                        for (String i : changedLines) {
-                            buf.append("    ");
-                            buf.append(StringUtils.rightTrim(i)).append("\n");
-                        }
+                    Document changedDoc = new Document(fileContents);
+                    for (TextEdit textEdit : edits) {
+                        textEdit.apply(changedDoc);
+                    }
+                    List<String> changedLines = getChangedLines(initialDoc, changedDoc);
+                    for (String i : changedLines) {
+                        buf.append("    ");
+                        buf.append(StringUtils.rightTrim(i)).append("\n");
                     }
                 }
                 buf.append("\n");

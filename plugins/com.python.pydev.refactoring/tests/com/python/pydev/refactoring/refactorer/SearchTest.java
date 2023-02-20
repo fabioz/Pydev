@@ -7,7 +7,10 @@
 package com.python.pydev.refactoring.refactorer;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
@@ -61,7 +64,8 @@ public class SearchTest extends AdditionalInfoTestsBase {
         ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
 
         assertEquals(1, pointers.length);
-        assertEquals(new File(TestDependent.TEST_PYSRC_TESTING_LOC + "testlib/unittest/relative/toimport.py"), pointers[0].file);
+        assertEquals(new File(TestDependent.TEST_PYSRC_TESTING_LOC + "testlib/unittest/relative/toimport.py"),
+                pointers[0].file);
         assertEquals(0, pointers[0].start.line);
         assertEquals(6, pointers[0].start.column);
     }
@@ -215,7 +219,8 @@ public class SearchTest extends AdditionalInfoTestsBase {
         ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
 
         assertEquals(1, pointers.length);
-        assertEquals(new File(TestDependent.TEST_PYSRC_TESTING_LOC + "extendable/dependencies/file2.py"), pointers[0].file);
+        assertEquals(new File(TestDependent.TEST_PYSRC_TESTING_LOC + "extendable/dependencies/file2.py"),
+                pointers[0].file);
         //found the module
         assertEquals(0, pointers[0].start.line);
         assertEquals(6, pointers[0].start.column);
@@ -237,7 +242,8 @@ public class SearchTest extends AdditionalInfoTestsBase {
         ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
 
         assertEquals(1, pointers.length);
-        assertEquals(new File(TestDependent.TEST_PYSRC_TESTING_LOC + "extendable/dependencies/file2.py"), pointers[0].file);
+        assertEquals(new File(TestDependent.TEST_PYSRC_TESTING_LOC + "extendable/dependencies/file2.py"),
+                pointers[0].file);
         //found the module
         assertEquals(0, pointers[0].start.line);
         assertEquals(6, pointers[0].start.column);
@@ -259,7 +265,8 @@ public class SearchTest extends AdditionalInfoTestsBase {
         ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
 
         assertEquals(1, pointers.length);
-        assertEquals(new File(TestDependent.TEST_PYSRC_TESTING_LOC + "extendable/dependencies/file2.py"), pointers[0].file);
+        assertEquals(new File(TestDependent.TEST_PYSRC_TESTING_LOC + "extendable/dependencies/file2.py"),
+                pointers[0].file);
         //found the module
         assertEquals(0, pointers[0].start.line);
         assertEquals(0, pointers[0].start.column);
@@ -281,7 +288,8 @@ public class SearchTest extends AdditionalInfoTestsBase {
         ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
 
         assertEquals(1, pointers.length);
-        assertEquals(new File(TestDependent.TEST_PYSRC_TESTING_LOC + "extendable/dependencies/__init__.py"), pointers[0].file);
+        assertEquals(new File(TestDependent.TEST_PYSRC_TESTING_LOC + "extendable/dependencies/__init__.py"),
+                pointers[0].file);
         //found the module
         assertEquals(0, pointers[0].start.line);
         assertEquals(0, pointers[0].start.column);
@@ -321,7 +329,8 @@ public class SearchTest extends AdditionalInfoTestsBase {
             }
         }
         assertEquals(1, pointers.length);
-        assertEquals(new File(TestDependent.TEST_PYSRC_TESTING_LOC + "someparent/somechild/config.py"), pointers[0].file);
+        assertEquals(new File(TestDependent.TEST_PYSRC_TESTING_LOC + "someparent/somechild/config.py"),
+                pointers[0].file);
         //found the module
         assertEquals(0, pointers[0].start.line);
         assertEquals(0, pointers[0].start.column);
@@ -356,7 +365,8 @@ public class SearchTest extends AdditionalInfoTestsBase {
         ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
 
         assertEquals(1, pointers.length);
-        assertEquals(new File(TestDependent.TEST_PYSRC_TESTING_LOC + "extendable/searching/mod1/foo.py"), pointers[0].file);
+        assertEquals(new File(TestDependent.TEST_PYSRC_TESTING_LOC + "extendable/searching/mod1/foo.py"),
+                pointers[0].file);
         //found the module
         assertEquals(0, pointers[0].start.line);
         assertEquals(6, pointers[0].start.column);
@@ -364,11 +374,11 @@ public class SearchTest extends AdditionalInfoTestsBase {
 
     public void testSearchParameter() throws Exception {
         //        class Param(object): - this is line 0
-        //            
+        //
         //            def hasParams(self, aa, bb):
         //                #TestStatic has static1 and static2
         //                print aa.static1() - line 4
-        //                print aa.static2()        
+        //                print aa.static2()
 
         List<IInfo> tokens = AdditionalProjectInterpreterInfo.getTokensEqualTo("static1", nature,
                 AbstractAdditionalTokensInfo.TOP_LEVEL | AbstractAdditionalTokensInfo.INNER);
@@ -393,6 +403,7 @@ public class SearchTest extends AdditionalInfoTestsBase {
         String line = "import os";
         final File file = new File(TestDependent.TEST_PYSRC_TESTING_LOC + "simpleosimport.py");
         RefactoringRequest refactoringRequest = createRefactoringRequest(line, file);
+        refactoringRequest.acceptTypeshed = false;
         refactoringRequest.ps = new PySelection(refactoringRequest.getDoc(), 0, line.length()); //find the os module
 
         ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
@@ -409,6 +420,7 @@ public class SearchTest extends AdditionalInfoTestsBase {
         String line = "import os.path.normpath";
         final File file = new File(TestDependent.TEST_PYSRC_TESTING_LOC + "definitions/__init__.py");
         RefactoringRequest refactoringRequest = createRefactoringRequest(line, file);
+        refactoringRequest.acceptTypeshed = false;
         refactoringRequest.ps = new PySelection(refactoringRequest.getDoc(), 0, line.length()); //find the os.path.normpath func pos
 
         ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
@@ -420,26 +432,27 @@ public class SearchTest extends AdditionalInfoTestsBase {
         File expectedFile;
         if (PlatformUtils.isWindowsPlatform()) {
             expectedFile = windowsFile;
+            assertEquals(expectedFile, pointers[0].file);
             assertTrue("Expecting to find it at line > 300, found it at:" + pointers[0].start.line,
                     pointers[0].start.line > 300); //depends on python version
         } else {
             expectedFile = linuxFile;
+            assertEquals(expectedFile, pointers[0].file);
             assertTrue("Expecting to find it at line > 300, found it at:" + pointers[0].start.line,
                     pointers[0].start.line > 300); //depends on python version (linux)
         }
-        assertEquals(expectedFile, pointers[0].file);
         //found the module
         assertEquals(0, pointers[0].start.column);
     }
 
     public void testOnMethodFind() throws Exception {
-        //class TestStatic(object):    --line 0  
-        //          
-        //    @staticmethod      
+        //class TestStatic(object):    --line 0
+        //
+        //    @staticmethod
         //    def static1(self):      --line 3
-        //        pass      
-        //          
-        //    @staticmethod      
+        //        pass
+        //
+        //    @staticmethod
         //    def static2(self):
         //        pass
         String line = "    def static1(self):";
@@ -459,13 +472,13 @@ public class SearchTest extends AdditionalInfoTestsBase {
     }
 
     public void testOnClassFind() throws Exception {
-        //class TestStatic(object):    --line 0  
-        //          
-        //    @staticmethod      
+        //class TestStatic(object):    --line 0
+        //
+        //    @staticmethod
         //    def static1(self):      --line 3
-        //        pass      
-        //          
-        //    @staticmethod      
+        //        pass
+        //
+        //    @staticmethod
         //    def static2(self):
         //        pass
         String line = "class TestStatic(object):";
@@ -486,8 +499,13 @@ public class SearchTest extends AdditionalInfoTestsBase {
     }
 
     public void testOnSameName() throws Exception {
-        String str = "" + "class Foo:\n" + "    def m1(self):\n" + //this line, col 9
-                "        m1 = 10\n" + "        print m1\n" + "        print self.m1\n" + "";
+        String str = "" +
+                "class Foo:\n" +
+                "    def m1(self):\n" + //this line, col 9
+                "        m1 = 10\n" +
+                "        print(m1)\n" +
+                "        print(self.m1)\n" +
+                "";
 
         RefactoringRequest refactoringRequest = createRefactoringRequest(new Document(str), "foo", 1, 9);
 
@@ -500,8 +518,11 @@ public class SearchTest extends AdditionalInfoTestsBase {
     }
 
     public void testOnParam() throws Exception {
-        String str = "" + "tok = 10\n" + "def m1(tok=tok):\n" + //parameter tok (left side)
-                "    '@param tok: this is tok'\n" + "    #checking tok right?\n" + "";
+        String str = "" +
+                "tok = 10\n" +
+                "def m1(tok=tok):\n" + //parameter tok (left side)
+                "    '@param tok: this is tok'\n" +
+                "    #checking tok right?\n" + "";
 
         RefactoringRequest refactoringRequest = createRefactoringRequest(new Document(str), "foo", 1, 9);
 
@@ -513,9 +534,28 @@ public class SearchTest extends AdditionalInfoTestsBase {
         assertEquals(1, pointers[0].start.line);
     }
 
+    public void testOnParam2() throws Exception {
+        String str = "tok = 10\n" +
+                "def m1(*, tok=tok):\n" + //parameter tok (left side)
+                "    '@param tok: this is tok'\n" +
+                "    #checking tok right?\n" + "";
+
+        RefactoringRequest refactoringRequest = createRefactoringRequest(new Document(str), "foo", 1, 11);
+
+        refactoringRequest.setAdditionalInfo(RefactoringRequest.FIND_DEFINITION_IN_ADDITIONAL_INFO,
+                false);
+        ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
+
+        assertEquals(1, pointers.length);
+        assertEquals(1, pointers[0].start.line);
+    }
+
     public void testOnSameName2() throws Exception {
-        String str = "" + "class Foo:\n" + "    def m1():\n" + //this line, col 9
-                "        pass\n" + "    m1 = staticmethod(m1)\n" + //we will find this definition too
+        String str = "" +
+                "class Foo:\n" +
+                "    def m1():\n" + //this line, col 9
+                "        pass\n" +
+                "    m1 = staticmethod(m1)\n" + //we will find this definition too
                 "";
 
         RefactoringRequest refactoringRequest = createRefactoringRequest(new Document(str), "foo", 1, 9);
@@ -525,7 +565,8 @@ public class SearchTest extends AdditionalInfoTestsBase {
         ItemPointer[] pointers = refactorer.findDefinition(refactoringRequest);
 
         assertEquals(2, pointers.length);
-        assertEquals(1, pointers[0].start.line);
-        assertEquals(3, pointers[1].start.line);
+        Set<Integer> obtained = new HashSet<>(Arrays.asList(pointers[0].start.line, pointers[1].start.line));
+        Set<Integer> expected = new HashSet<>(Arrays.asList(1, 3));
+        assertEquals(expected, obtained);
     }
 }

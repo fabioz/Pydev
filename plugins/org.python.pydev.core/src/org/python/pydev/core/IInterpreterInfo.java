@@ -149,4 +149,10 @@ public interface IInterpreterInfo {
 
     public File getCondaPrefix();
 
+    String obtainUserSitePackages(IInterpreterManager interpreterManager);
+
+    public String getComputedPipEnvLocation();
+
+    public void setComputedPipEnvLocation(String location);
+
 }

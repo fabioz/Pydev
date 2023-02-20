@@ -10,14 +10,17 @@
  */
 package org.python.pydev.ast.codecompletion.revisited.visitors;
 
+import java.util.Iterator;
 import java.util.List;
 
-import org.python.pydev.ast.codecompletion.revisited.visitors.FindScopeVisitor;
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.ITypeInfo;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.PyParserTestBase;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.FunctionDef;
+import org.python.pydev.shared_core.model.ISimpleNode;
 
 public class FindScopeVisitorTest extends PyParserTestBase {
 
@@ -35,7 +38,7 @@ public class FindScopeVisitorTest extends PyParserTestBase {
 
     /**
      * This method tries to find a local scope given some code, the current line and col
-     * 
+     *
      * @param s the code
      * @param line starts at 1
      * @param col starts at 1
@@ -43,7 +46,7 @@ public class FindScopeVisitorTest extends PyParserTestBase {
      */
     private ILocalScope findLocalScope(String s, int line, int col) {
         SimpleNode ast = parseLegalDocStr(s);
-        FindScopeVisitor scopeVisitor = new FindScopeVisitor(line, col, null);
+        FindScopeVisitor scopeVisitor = new FindScopeVisitor(line, col, null, null);
         if (ast != null) {
             try {
                 ast.accept(scopeVisitor);
@@ -56,26 +59,73 @@ public class FindScopeVisitorTest extends PyParserTestBase {
     }
 
     public void testFindLocalScope() throws Exception {
-        String s = ""
-                +
-                "#file mod3.py \n"
-                + //line = 1 (in ast)
+        String s = "" +
+                "#file mod3.py \n" + //line = 1 (in ast)
                 "class SomeA(object):\n" +
                 "    def fun(self):\n" +
                 "        pass\n" +
                 "    \n" +
-                "class C1(object):\n"
-                +
+                "class C1(object):\n" +
                 "  a = SomeA() #yes, these are class-defined\n" +
-                "  \n" +
-                "  def someFunct(self):\n"
-                +
+                "  \n" + // line 8
+                "  def someFunct(self):\n" +
                 "      pass\n" +
                 "    \n" +
                 "\n" +
                 "";
         ILocalScope localScope = findLocalScope(s, 8, 3);
         assertTrue(localScope.getClassDef() != null);
+    }
+
+    public void testFindLocalScope2() throws Exception {
+        String s = "" +
+                "def method():\n" +
+                "    a = 1\n" +
+                "";
+        ILocalScope localScope = findLocalScope(s, 2, 2);
+        Iterator<ISimpleNode> iterator = localScope.iterator();
+        assertTrue(iterator.next() instanceof FunctionDef);
+        assertTrue(iterator.next() instanceof org.python.pydev.parser.jython.ast.Module);
+        assertTrue(!iterator.hasNext());
+    }
+
+    public void testFindLocalScope3() throws Exception {
+        String s = "def func(arg, *, arg2=None):\n" +
+                "    ar" +
+                "";
+        ILocalScope localScope = findLocalScope(s, 2, 6);
+        Iterator<ISimpleNode> iterator = localScope.iterator();
+        assertTrue(iterator.next() instanceof FunctionDef);
+        assertTrue(iterator.next() instanceof org.python.pydev.parser.jython.ast.Module);
+        assertTrue(!iterator.hasNext());
+    }
+
+    public void testFindLocalScope5() throws Exception {
+        String s = "class A:\n" +
+                "    def method1(self, *args, **kwargs):\n" +
+                "        pass";
+        ILocalScope localScope = findLocalScope(s, 3, 8);
+        Iterator<ISimpleNode> iterator = localScope.iterator();
+        assertTrue("Found: " + localScope, iterator.next() instanceof FunctionDef);
+        assertTrue(iterator.next() instanceof ClassDef);
+        assertTrue(iterator.next() instanceof org.python.pydev.parser.jython.ast.Module);
+        assertTrue(!iterator.hasNext());
+    }
+
+    public void testFindLocalScope4() throws Exception {
+        String s;
+        s = ""
+                + "class F:\n"
+                + "    def m1(self):\n"
+                + "        pass\n"
+                + "x = dict(((i, str(i)) for i in [F(1), F(2)]))\n"
+                + "for k, v in x.iteritems():\n"
+                + "    k"
+                + "";
+        ILocalScope localScope = findLocalScope(s, 6, 6);
+        Iterator<ISimpleNode> iterator = localScope.iterator();
+        assertTrue(iterator.next() instanceof org.python.pydev.parser.jython.ast.Module);
+        assertTrue(!iterator.hasNext());
     }
 
     public void testFindAssertInLocalScope() throws Exception {

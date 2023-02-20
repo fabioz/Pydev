@@ -1,7 +1,7 @@
 import sys
 
 from _pydev_bundle import pydev_log
-from _pydev_imps._pydev_saved_modules import threading
+from _pydev_bundle._pydev_saved_modules import threading
 from _pydevd_bundle.pydevd_comm import get_global_debugger
 from pydevd_file_utils import get_abs_path_real_path_and_base_from_frame, NORM_PATHS_AND_BASE_CONTAINER
 from _pydevd_bundle.pydevd_additional_thread_info import set_additional_thread_info
@@ -34,7 +34,7 @@ def _get_line_for_frame(frame):
 def _pydev_stop_at_break(line):
     frame = sys._getframe(1)
     # print('pydevd SET TRACING at ', line, 'curr line', frame.f_lineno)
-    t = threading.currentThread()
+    t = threading.current_thread()
     try:
         additional_info = t.additional_info
     except:
@@ -73,7 +73,7 @@ def _pydev_needs_stop_at_break(line):
         # then, proceed to go to the current line
         # (which will then trigger a line event).
     '''
-    t = threading.currentThread()
+    t = threading.current_thread()
     try:
         additional_info = t.additional_info
     except:

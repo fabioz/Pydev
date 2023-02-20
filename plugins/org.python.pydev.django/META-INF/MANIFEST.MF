@@ -2,33 +2,33 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Pydev Django
 Bundle-SymbolicName: org.python.pydev.django;singleton:=true
-Bundle-Version: 8.3.0.qualifier
+Bundle-Version: 10.1.3.qualifier
 Bundle-Vendor: Brainwy Software Ltda
 Bundle-Activator: org.python.pydev.django.DjangoPlugin
 Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.jface.text,
- org.python.pydev;bundle-version="[8.3.0,8.3.1)",
- org.python.pydev.core;bundle-version="[8.3.0,8.3.1)",
+ org.python.pydev;bundle-version="[10.1.3,10.1.4)",
+ org.python.pydev.core;bundle-version="[10.1.3,10.1.4)",
  org.junit;bundle-version="4.0";resolution:=optional,
- org.python.pydev.ast;bundle-version="[8.3.0,8.3.1)",
- org.python.pydev.parser;bundle-version="[8.3.0,8.3.1)",
+ org.python.pydev.ast;bundle-version="[10.1.3,10.1.4)",
+ org.python.pydev.parser;bundle-version="[10.1.3,10.1.4)",
  org.eclipse.ui.editors,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.core.resources,
  org.eclipse.core.variables,
  org.eclipse.debug.core,
  org.eclipse.debug.ui,
- org.python.pydev.debug;bundle-version="[8.3.0,8.3.1)",
+ org.python.pydev.debug;bundle-version="[10.1.3,10.1.4)",
  org.eclipse.ui.console,
- org.python.pydev.jython;bundle-version="[8.3.0,8.3.1)",
+ org.python.pydev.jython;bundle-version="[10.1.3,10.1.4)",
  org.eclipse.search,
  org.eclipse.ui.ide,
- org.python.pydev.customizations;bundle-version="[8.3.0,8.3.1)",
+ org.python.pydev.customizations;bundle-version="[10.1.3,10.1.4)",
  org.eclipse.core.expressions,
- org.python.pydev.shared_ui;bundle-version="[8.3.0,8.3.1)",
- org.python.pydev.shared_interactive_console;bundle-version="[8.3.0,8.3.1)"
+ org.python.pydev.shared_ui;bundle-version="[10.1.3,10.1.4)",
+ org.python.pydev.shared_interactive_console;bundle-version="[10.1.3,10.1.4)"
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: pydev_django.jar
 Bundle-RequiredExecutionEnvironment: JavaSE-11

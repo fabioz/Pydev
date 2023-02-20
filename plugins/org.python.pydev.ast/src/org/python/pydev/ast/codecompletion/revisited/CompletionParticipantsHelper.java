@@ -14,7 +14,6 @@ import org.python.pydev.ast.codecompletion.IPyDevCompletionParticipant;
 import org.python.pydev.ast.codecompletion.IPyDevCompletionParticipant3;
 import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.core.ExtensionHelper;
-import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.ILocalScope;
@@ -116,7 +115,7 @@ public class CompletionParticipantsHelper {
     }
 
     public static IDefinition findDefinitionForMethodParameterFromParticipants(Definition d, IPythonNature nature,
-            ICompletionCache completionCache) {
+            ICompletionState completionCache) {
         List<?> participants = ExtensionHelper.getParticipants(ExtensionHelper.PYDEV_COMPLETION);
         for (Iterator<?> iter = participants.iterator(); iter.hasNext();) {
             IPyDevCompletionParticipant participant = (IPyDevCompletionParticipant) iter.next();

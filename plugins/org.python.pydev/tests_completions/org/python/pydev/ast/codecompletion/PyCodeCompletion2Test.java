@@ -11,11 +11,15 @@
  */
 package org.python.pydev.ast.codecompletion;
 
+import java.util.ArrayList;
+
 import org.eclipse.jface.text.Document;
 import org.python.pydev.ast.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.ast.codecompletion.revisited.CompletionState;
 import org.python.pydev.ast.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.core.ICompletionState;
+import org.python.pydev.core.IToken;
+import org.python.pydev.core.IterTokenEntry;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.TokensList;
 import org.python.pydev.core.docutils.PySelection;
@@ -39,8 +43,8 @@ public class PyCodeCompletion2Test extends CodeCompletionTestsBase {
     public void setUp() throws Exception {
         super.setUp();
         CompiledModule.COMPILED_MODULES_ENABLED = false;
-        this.restorePythonPath(TestDependent.GetCompletePythonLib(true) +
-                "|" + TestDependent.PYTHON_PIL_PACKAGES,
+        this.restorePythonPath(TestDependent.getCompletePythonLib(true, isPython3Test()) +
+                "|" + TestDependent.PYTHON2_PIL_PACKAGES,
                 false);
         this.restorePythonPath(false);
         codeCompletion = new PyCodeCompletion();
@@ -76,8 +80,16 @@ public class PyCodeCompletion2Test extends CodeCompletionTestsBase {
                 ps.getAbsoluteCursorOffset(), 0, new PyCodeCompletion(), "", false);
         TokensList selfCompletions = new TokensList();
         PyCodeCompletion.getSelfOrClsCompletions(request, selfCompletions, state, false, false, "self.m1");
-        assertEquals(1, selfCompletions.size());
-        assertEquals("m2", selfCompletions.getFirst().getRepresentation());
+        ArrayList<IToken> lst = new ArrayList<>();
+        for (IterTokenEntry entry : selfCompletions) {
+            IToken token = entry.getToken();
+            if (token.getRepresentation().startsWith("_")) {
+                continue;
+            }
+            lst.add(token);
+        }
+        assertEquals(1, lst.size());
+        assertEquals("m2", lst.get(0).getRepresentation());
 
     }
 }

@@ -16,6 +16,11 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>.github</name>
+			<type>2</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/.github</locationURI>
+		</link>
+		<link>
 			<name>.gitignore</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/.gitignore</locationURI>
@@ -51,19 +56,9 @@
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/make_release.py</locationURI>
 		</link>
 		<link>
-			<name>update_version.py</name>
-			<type>1</type>
-			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/update_version.py</locationURI>
-		</link>
-		<link>
 			<name>make_s3cfg.sh</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/make_s3cfg.sh</locationURI>
-		</link>
-		<link>
-			<name>mvnts.sh</name>
-			<type>1</type>
-			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/mvnts.sh</locationURI>
 		</link>
 		<link>
 			<name>pom.xml</name>
@@ -96,19 +91,14 @@
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/travisgetkeystore.sh</locationURI>
 		</link>
 		<link>
-			<name>travism2_install.sh</name>
-			<type>1</type>
-			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/travism2_install.sh</locationURI>
-		</link>
-		<link>
-			<name>travism2_upload.sh</name>
-			<type>1</type>
-			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/travism2_upload.sh</locationURI>
-		</link>
-		<link>
 			<name>travisupload.sh</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/travisupload.sh</locationURI>
+		</link>
+		<link>
+			<name>update_version.py</name>
+			<type>1</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/update_version.py</locationURI>
 		</link>
 		<link>
 			<name>features/pom.xml</name>

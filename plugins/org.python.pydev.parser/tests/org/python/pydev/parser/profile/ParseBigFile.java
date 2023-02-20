@@ -68,7 +68,7 @@ public class ParseBigFile extends PyParserTestBase {
 
             //uncomment line below to see the time for parsing
             //System.out.println(StringUtils.format("Took: %s secs", (System.currentTimeMillis()-curr)/1000.0));
-            SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(node);
+            SequencialASTIteratorVisitor visitor = SequencialASTIteratorVisitor.create(node, true);
 
             ASTEntry entry = visitor.getAsList(Str.class).get(0);
             String s0 = ((Str) entry.node).s;

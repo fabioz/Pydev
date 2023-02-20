@@ -27,6 +27,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.autoedit.DefaultIndentPrefs;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.preferences.InterpreterGeneralPreferences;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -362,60 +363,33 @@ public class MatchImportsVisitor extends VisitorBase {
         return ret;
     }
 
-    private boolean acceptOnlyAbsoluteImports = false;
-
     @Override
     public Object visitImportFrom(ImportFrom node) throws Exception {
         int level = node.level;
         String modRep = NodeUtils.getRepresentationString(node.module);
-        if ("__future__".equals(modRep)) {
-            if (node.names != null && node.names.length == 1) {
-                aliasType aliasType = node.names[0];
-                if ("absolute_import".equals(((NameTok) aliasType.name).id)) {
-                    acceptOnlyAbsoluteImports = true;
-                }
-            }
-        }
-
-        HashSet<Tuple<String, Boolean>> s = new HashSet<>(); //the module and whether it's relative
+        Tuple<String, Boolean> modNameAndIsRelative;//the module and whether it's relative
         if (level > 0) {
             //Ok, direct match didn't work, so, let's check relative imports
             modRep = makeRelative(level, modRep);
-            s.add(new Tuple<String, Boolean>(modRep, false));
+            modNameAndIsRelative = new Tuple<String, Boolean>(modRep, false);
         } else {
-            //Treat imports as relative on Python 2.x variants without the from __future__ import absolute_import statement.
-            if (nature.getGrammarVersion() < IPythonNature.GRAMMAR_PYTHON_VERSION_3_5 && !acceptOnlyAbsoluteImports) {
-                s.add(new Tuple<String, Boolean>(modRep, false));
-                s.add(new Tuple<String, Boolean>(makeRelative(1, modRep), true));
-            }
+            modNameAndIsRelative = new Tuple<String, Boolean>(modRep, false);
         }
 
-        boolean matched = false;
-
-        for (Tuple<String, Boolean> modRep2 : s) {
-            if (!matched) {
-                //try to check full name first
-                matched = handleNames(node, node.names, modRep2.o1, true);
-            }
-        }
+        //Try to check full name first.
+        boolean matched = handleNames(node, node.names, modNameAndIsRelative.o1, true);
 
         if (!matched) {
-            //check partial in module later
-
-            for (Tuple<String, Boolean> tup : s) {
-                if (!matched) {
-                    String modRep2 = tup.o1;
-                    boolean isRelative = tup.o2;
-                    if (modRep2.equals(this.initialModuleName)
-                            || (!isRelative && (modRep2 + ".").startsWith(initialModuleName + "."))) {
-                        //Ok, if the first part matched, no need to check other things (i.e.: rename only the from "xxx.yyy" part)
-                        importFromsMatchingOnModulePart.add(node);
-                        occurrences.add(new ImportFromModPartRenameAstEntry(null, node, modRep2, initialModuleName));
-                        //Found a match
-                        matched = true;
-                        break;
-                    }
-                }
+            //Check partial in module later.
+            String modRep2 = modNameAndIsRelative.o1;
+            boolean isRelative = modNameAndIsRelative.o2;
+            if (modRep2.equals(this.initialModuleName)
+                    || (!isRelative && (modRep2 + ".").startsWith(initialModuleName + "."))) {
+                //Ok, if the first part matched, no need to check other things (i.e.: rename only the from "xxx.yyy" part)
+                importFromsMatchingOnModulePart.add(node);
+                occurrences.add(new ImportFromModPartRenameAstEntry(null, node, modRep2, initialModuleName));
+                //Found a match
+                matched = true;
             }
         }
 
@@ -526,7 +500,8 @@ public class MatchImportsVisitor extends VisitorBase {
             ASTEntry renameAstEntry, int beginColumn, int beginLine) {
         ArrayList<IDefinition> definitions = new ArrayList<>();
         try {
-            PyRefactoringFindDefinition.findActualDefinition(monitor, this.currentModule,
+            boolean acceptTypeshed = InterpreterGeneralPreferences.getUseTypeshed();
+            PyRefactoringFindDefinition.findActualDefinition(monitor, acceptTypeshed, this.currentModule,
                     nameInImport, definitions, beginLine,
                     beginColumn, nature, this.completionState);
             for (IDefinition iDefinition : definitions) {

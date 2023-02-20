@@ -2,19 +2,20 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Analysis Plug-in
 Bundle-SymbolicName: com.python.pydev.analysis; singleton:=true
-Bundle-Version: 8.3.0.qualifier
+Bundle-Version: 10.1.3.qualifier
 Bundle-Activator: com.python.pydev.analysis.AnalysisPlugin
 Bundle-Vendor: Brainwy Software Ltda
 Eclipse-BundleShape: dir
 Require-Bundle: org.eclipse.core.runtime,
  org.junit;bundle-version="4.0";resolution:=optional,
  org.eclipse.text,
- org.python.pydev.ast;bundle-version="[8.3.0,8.3.1)",
- org.python.pydev.core;bundle-version="[8.3.0,8.3.1)",
- org.python.pydev.parser;bundle-version="[8.3.0,8.3.1)",
+ org.python.pydev.ast;bundle-version="[10.1.3,10.1.4)",
+ org.python.pydev.core;bundle-version="[10.1.3,10.1.4)",
+ org.python.pydev.parser;bundle-version="[10.1.3,10.1.4)",
  org.eclipse.core.resources,
  org.eclipse.ltk.core.refactoring,
- org.eclipse.core.filebuffers
+ org.eclipse.core.filebuffers,
+ org.python.pydev.shared_core
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: analysis.jar
 Export-Package: com.python.pydev.analysis,

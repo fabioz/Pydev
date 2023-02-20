@@ -142,7 +142,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
         this.monitor = monitor;
         this.current = current;
         this.nature = nature;
-        currentLocalScope = new LocalScope(nature);
+        currentLocalScope = new LocalScope(nature, current);
         this.moduleName = moduleName;
         this.document = document;
         this.scope = new Scope(this, nature, moduleName);
@@ -162,7 +162,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
             //__path__ should be added to modules that have __init__
             builtinCompletions
                     .addAll(new TokensList(new SourceToken(new Name("__path__", Name.Load, false), "__path__", "", "",
-                            moduleName, nature)));
+                            moduleName, nature, current)));
         }
 
         for (IterTokenEntry entry : builtinCompletions) {
@@ -295,7 +295,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
      * used so that the token is added to the names to ignore...
      */
     protected void addToNamesToIgnore(SimpleNode node, boolean finishClassScope, boolean checkBuiltins) {
-        SourceToken token = AbstractVisitor.makeToken(node, "", nature);
+        SourceToken token = AbstractVisitor.makeToken(node, "", nature, this.current);
 
         if (checkBuiltins) {
             if (checkCurrentScopeForAssignmentsToBuiltins()) {
@@ -548,9 +548,8 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
     @Override
     public Object visitNameTok(NameTok nameTok) throws Exception {
         unhandled_node(nameTok);
-        if (nameTok.ctx == NameTok.VarArg || nameTok.ctx == NameTok.KwArg) {
-
-            SourceToken token = AbstractVisitor.makeToken(nameTok, moduleName, nature);
+        if (nameTok.ctx == NameTok.VarArg || nameTok.ctx == NameTok.KwArg || nameTok.ctx == NameTok.PatternName) {
+            SourceToken token = AbstractVisitor.makeToken(nameTok, moduleName, nature, this.current);
             scope.addToken(token, token, (nameTok).id);
             if (checkCurrentScopeForAssignmentsToBuiltins()) {
                 if (builtinTokens.contains(token.getRepresentation())) {
@@ -577,7 +576,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
     @Override
     public Object visitImport(Import node) throws Exception {
         unhandled_node(node);
-        List<IToken> list = AbstractVisitor.makeImportToken(node, null, moduleName, true, nature);
+        List<IToken> list = AbstractVisitor.makeImportToken(node, null, moduleName, true, nature, current);
 
         if (checkCurrentScopeForAssignmentsToBuiltins()) {
             for (IToken token : list) {
@@ -600,7 +599,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
         unhandled_node(node);
         try {
             if (AbstractVisitor.isWildImport(node)) {
-                IToken wildImport = AbstractVisitor.makeWildImportToken(node, null, moduleName, nature);
+                IToken wildImport = AbstractVisitor.makeWildImportToken(node, null, moduleName, nature, current);
 
                 ICompletionState state = CompletionStateFactory.getEmptyCompletionState(nature, this.completionCache);
                 state.setBuiltinsGotten(true); //we don't want any builtins
@@ -610,7 +609,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
                     scope.addImportTokens(completionsForWildImport, wildImport, this.completionCache);
                 }
             } else {
-                List<IToken> list = AbstractVisitor.makeImportToken(node, null, moduleName, true, nature);
+                List<IToken> list = AbstractVisitor.makeImportToken(node, null, moduleName, true, nature, current);
 
                 ListIterator<IToken> listIterator = list.listIterator();
                 while (listIterator.hasNext()) {
@@ -640,7 +639,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
     public Object visitName(Name node) throws Exception {
         unhandled_node(node);
         //when visiting the global namespace, we don't go into any inner scope.
-        SourceToken token = AbstractVisitor.makeToken(node, moduleName, nature);
+        SourceToken token = AbstractVisitor.makeToken(node, moduleName, nature, current);
         boolean found = true;
         //on aug assign, it has to enter both, the load and the read (but first the load, because it can be undefined)
         if (node.ctx == Name.Load || node.ctx == Name.Del || node.ctx == Name.AugStore) {
@@ -694,7 +693,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
             nameAst.beginLine = name.beginLine;
             nameAst.beginColumn = name.beginColumn;
 
-            SourceToken token = AbstractVisitor.makeToken(nameAst, moduleName, nature);
+            SourceToken token = AbstractVisitor.makeToken(nameAst, moduleName, nature, current);
             scope.addTokenToGlobalScope(token);
             addToNamesToIgnore(nameAst, false, true); // it is global, so, ignore it...
         }
@@ -712,7 +711,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
      */
     @Override
     public Object visitAttribute(Attribute node) throws Exception {
-        SourceToken token = AbstractVisitor.makeFullNameToken(node, moduleName, nature);
+        SourceToken token = AbstractVisitor.makeFullNameToken(node, moduleName, nature, current);
         unhandled_node(node);
 
         visitingAttributeStackI += 1;
@@ -1406,10 +1405,10 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
                 Attribute a = (Attribute) ast;
 
                 if (((NameTok) a.attr).id.equals(searchFor)) {
-                    return new SourceToken(a.attr, searchFor, "", "", token.getParentPackage(), nature);
+                    return new SourceToken(a.attr, searchFor, "", "", token.getParentPackage(), nature, s.module);
 
                 } else if (a.value.toString().equals(searchFor)) {
-                    return new SourceToken(a.value, searchFor, "", "", token.getParentPackage(), nature);
+                    return new SourceToken(a.value, searchFor, "", "", token.getParentPackage(), nature, s.module);
                 }
                 ast = a.value;
             }

@@ -60,6 +60,8 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
         this.fDocument = document;
         this.location = location;
         this.monitor = monitor;
+
+        // If null we must execute with 'python -m pylint ...'
         this.pyLintLocation = pyLintLocation;
     }
 
@@ -69,17 +71,9 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
     void createPyLintProcess(IExternalCodeAnalysisStream out)
             throws CoreException,
             MisconfigurationException, PythonNatureWithoutProjectException {
-        String script = FileUtils.getFileAbsolutePath(pyLintLocation);
         String target = FileUtils.getFileAbsolutePath(new File(location.toOSString()));
 
-        // check whether lint.py module or pylint executable has been specified
-        boolean isPyScript = script.endsWith(".py") || script.endsWith(".pyw");
-
         ArrayList<String> cmdList = new ArrayList<String>();
-        // pylint executable
-        if (!isPyScript) {
-            cmdList.add(script);
-        }
         //user args
         String userArgs = StringUtils.replaceNewLines(
                 PyLintPreferences.getPyLintArgs(resource), " ");
@@ -101,14 +95,14 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
         cmdList.add("--msg-template='{C}:{line:3d},{column:2d}: ({symbol}) {msg}'");
         // target file to be linted
         cmdList.add(target);
-        String[] args = cmdList.toArray(new String[0]);
 
         // run pylint in project location
         IProject project = resource.getProject();
         File workingDir = project.getLocation().toFile();
         ICallback0<Process> launchProcessCallback;
-        if (isPyScript) {
-            // run Python script (lint.py) with the interpreter of current project
+
+        if (pyLintLocation == null) {
+            // run python -m pylint with the interpreter of current project
             PythonNature nature = PythonNature.getPythonNature(project);
             if (nature == null) {
                 Throwable e = new RuntimeException("PyLint ERROR: Nature not configured for: " + project);
@@ -122,14 +116,20 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
-                WriteToStreamHelper.write("PyLint: Executing command line:", out, script, args);
+                cmdList.add(0, "pylint");
+                String[] args = cmdList.toArray(new String[0]);
+                WriteToStreamHelper.write("PyLint: Executing command line:", out, "python", "-m", args);
                 SimplePythonRunner runner = new SimplePythonRunner();
-                String[] parameters = SimplePythonRunner.preparePythonCallParameters(interpreter, script, args);
+                String[] parameters = SimplePythonRunner.preparePythonCallParameters(interpreter, "-m", args);
 
                 Tuple<Process, String> r = runner.run(parameters, workingDir, nature, monitor);
                 return r.o1;
             };
         } else {
+            String script = FileUtils.getFileAbsolutePath(pyLintLocation);
+            cmdList.add(0, script);
+            String[] args = cmdList.toArray(new String[0]);
+
             // run executable command (pylint or pylint.bat or pylint.exe)
             launchProcessCallback = () -> {
                 WriteToStreamHelper.write("PyLint: Executing command line:", out, (Object) args);

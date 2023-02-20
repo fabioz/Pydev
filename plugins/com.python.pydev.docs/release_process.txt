@@ -1,27 +1,28 @@
 --------- For nightly ---------
 Update the version:
 
-x:
-cd x:\pydev
-python update_version.py 8.3.0
+cd /d X:\liclipsews\liclipsews\Pydev
+python update_version.py 10.1.3
 
-X:\pydev\builders\org.python.pydev.build\build_cmd.bat
-C:\bin\Miniconda\envs\tests_py27\python.exe X:\release_tools\pydev_uploader_bintray.py -s X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository -d https://api.bintray.com/content/fabioz/pydev/nightly/
+x:\liclipsews\liclipsews\Pydev\builders\org.python.pydev.build\build_cmd.bat
 
 
 --------- For full build ---------
 		Update the version:
 
 			x:
-			cd x:\pydev
-			python update_version.py 8.3.0
+			cd x:\liclipsews\liclipsews\Pydev
+			python update_version.py 10.1.3
 
+
+		# TODO: Get debugger binaries from modules in pypi (either during build or when
+		# the user starts up PyDev) so that the step below is not needed.
+		
 		Make sure debugger builtins are updated and commited:
 
-			cd /D x:\PyDev.Debugger
-			set PYTHONPATH=x:\PyDev.Debugger
-			C:\bin\Python38-32\python build_tools\build.py
-			C:\bin\Python38-32\python build_tools\build_binaries_windows.py
+			cd /D x:\liclipsews\liclipsews\Pydev\plugins\org.python.pydev.core\pysrc\
+			set PYTHONPATH=x:\liclipsews\liclipsews\Pydev\plugins\org.python.pydev.core\pysrc\
+			python build_tools\build.py
 
 		Update homepage
 			- index.rst
@@ -33,10 +34,10 @@ C:\bin\Miniconda\envs\tests_py27\python.exe X:\release_tools\pydev_uploader_bint
 		Update the version of all plugins to the new version.
 
 		Run:
-		    - Update version at X:\pydev.page\build_homepage.py
+		    - Update version at x:\liclipsews\pydev.page\build_homepage.py
 		    - Add version to update sites:
 		    	- pydev.page/homepage/update_sites/index.contents.rst_html
-		    - X:\pydev.page\build_homepage.py
+		    - x:\liclipsews\pydev.page\build_homepage.py
 
 		Commit everything
         Merge with master
@@ -47,7 +48,9 @@ C:\bin\Miniconda\envs\tests_py27\python.exe X:\release_tools\pydev_uploader_bint
 
 		throws an exception (it cannot be installed in the environment)
 
-		Create tab in cmdermini: X:\pydev\builders\org.python.pydev.build\build_cmd.bat
+		Create tab in cmdermini:
+			set FORCE_PYDEVD_VC_VARS=C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat 
+			X:\liclipsews\liclipsews\Pydev\builders\org.python.pydev.build\build_cmd.bat
 
 		Copy features and plugins folders from X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository to X:\pydev_build\update_site_dir\updates
 
@@ -58,9 +61,9 @@ copy X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\rep
 
 x:
 cd X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable
-"C:\Program Files\7-Zip\7z" a -tzip -r "PyDev 8.3.0.zip" features plugins
+"C:\Program Files\7-Zip\7z" a -tzip -r "PyDev 10.1.3.zip" features plugins
 cd X:\pydev_build\build_dir\pydev
-git archive -o "X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable\PyDev 8.3.0-sources.zip" origin/master
+git archive -o "X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable\PyDev 10.1.3-sources.zip" origin/master
 
         ** Submit feature and sources .zip in folder X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable to:
 
@@ -69,7 +72,7 @@ git archive -o "X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo
 Note: check pageant if it does not connect.
 
 Check if the main download button points to the proper place (not to the sources) --
-https://sourceforge.net/projects/pydev/files/pydev/PyDev 8.3.0/ -- choose file > file info > set default.
+https://sourceforge.net/projects/pydev/files/pydev/PyDev 10.1.3/ -- choose file > file info > set default.
 
 
 		** Add contents to the update site
@@ -77,42 +80,49 @@ https://sourceforge.net/projects/pydev/files/pydev/PyDev 8.3.0/ -- choose file >
 
 cd /D X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\
 
-mkdir org.python.pydev.p2-repo-8.3.0-SNAPSHOT
+mkdir org.python.pydev.p2-repo-10.1.3-SNAPSHOT
 
-cd org.python.pydev.p2-repo-8.3.0-SNAPSHOT
+cd org.python.pydev.p2-repo-10.1.3-SNAPSHOT
 
-"C:\Program Files\7-Zip\7z" x ..\org.python.pydev.p2-repo-8.3.0-SNAPSHOT.zip
+"C:\Program Files\7-Zip\7z" x ..\org.python.pydev.p2-repo-10.1.3-SNAPSHOT.zip
 
-cdd X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-8.3.0-SNAPSHOT
-C:\Users\fabio\AppData\Roaming\npm\surge.cmd --domain pydev-8-3-0.surge.sh
-"C:\Program Files\FileZilla FTP Client\filezilla.exe" sftp://fabioz,pydev@frs.sourceforge.net/home/project-web/pydev/htdocs/pydev_update_site --local="X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-8.3.0-SNAPSHOT"
+cdd X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-10.1.3-SNAPSHOT
+C:\Users\fabio\AppData\Roaming\npm\surge.cmd --domain pydev-10-1-3.surge.sh
+"C:\Program Files\FileZilla FTP Client\filezilla.exe" sftp://fabioz,pydev@frs.sourceforge.net/home/project-web/pydev/htdocs/pydev_update_site --local="X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-10.1.3-SNAPSHOT"
 
 
     ** Tag repository:
-      git tag pydev_8_3_0 -a -m "PyDev 8.3.0"
+      git tag pydev_10_1_3 -a -m "PyDev 10.1.3"
       git push --tags
 
-python X:\release_tools\convert_to_github.py 8.3.0 X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-8.3.0-SNAPSHOT
+SET CONVERT_SOURCE=X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-10.1.3-SNAPSHOT
+SET CONVERT_FINAL_ZIP=X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable\PyDev 10.1.3.zip
+SET CONVERT_TARGET_DIR=X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\github
+python X:\release_tools\convert_to_github.py 10.1.3
 Do GH release in:
-    https://github.com/fabioz/Pydev/releases/new?tag=pydev_8_3_0
+    https://github.com/fabioz/Pydev/releases/new?tag=pydev_10_1_3
     Contents in: X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\github
+    
+	Title:
+		PyDev 10.1.3
+		
     Message:
 
-        This release contains PyDev 8.3.0
+        This release contains PyDev 10.1.3
 
         It's possible to add it as an Eclipse update site using the url:
 
-        https://github.com/fabioz/Pydev/releases/download/pydev_8_3_0/
+        https://github.com/fabioz/Pydev/releases/download/pydev_10_1_3/
 
         Or get a .zip to install manually by unzipping it in the dropins:
 
-        https://github.com/fabioz/Pydev/releases/download/pydev_8_3_0/PyDev.8.3.0.zip
+        https://github.com/fabioz/Pydev/releases/download/pydev_10_1_3/PyDev.10.1.3.zip
 
 
 		** Update homepage:
 
 Update version in build_homepage.py
-cd /D X:\pydev.page
+cd /D x:\liclipsews\pydev.page
 python deploy.py
 
 
@@ -127,9 +137,3 @@ python deploy.py
 		** Add to reddit: http://www.reddit.com/r/Python/submit
 
 		** Twitter
-
-        ** Update the versions:
-x:
-cd x:\pydev
-python update_version.py 8.3.0
-

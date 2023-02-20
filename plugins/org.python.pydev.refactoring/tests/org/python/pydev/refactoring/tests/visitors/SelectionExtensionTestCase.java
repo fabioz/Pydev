@@ -14,7 +14,7 @@
 * Contributors:
 *     Fabio Zadrozny <fabiofz@gmail.com> - initial implementation
 ******************************************************************************/
-/* 
+/*
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
  * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  */
@@ -27,6 +27,8 @@ import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.refactoring.ast.visitors.rewriter.Rewriter;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
+import org.python.pydev.refactoring.core.base.RefactoringInfo.SelectionComputer;
+import org.python.pydev.refactoring.core.base.RefactoringInfo.SelectionComputer.SelectionComputerKind;
 import org.python.pydev.refactoring.tests.core.AbstractIOTestCase;
 import org.python.pydev.shared_core.string.CoreTextSelection;
 import org.python.pydev.shared_core.string.ICoreTextSelection;
@@ -50,14 +52,15 @@ public class SelectionExtensionTestCase extends AbstractIOTestCase {
     }
 
     private void runSelectionExtension(RefactoringInfo info) {
+        SelectionComputer selectionComputer = info.getSelectionComputer(SelectionComputerKind.extractLocal);
         StringBuilder buffer = new StringBuilder();
         try {
-            String source = Rewriter.createSourceFromAST(info.getParsedExtendedSelection().getASTParent(), "\n",
+            String source = Rewriter.createSourceFromAST(selectionComputer.selectionModuleAdapter.getASTParent(), "\n",
                     new IGrammarVersionProvider() {
 
                         @Override
                         public int getGrammarVersion() throws MisconfigurationException {
-                            return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
+                            return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5;
                         }
 
                         @Override
@@ -69,7 +72,7 @@ public class SelectionExtensionTestCase extends AbstractIOTestCase {
             buffer.append(source); // normalized source
         } catch (Throwable e) {
             buffer.append("# Invalid selection:\n");
-            String[] lines = info.normalizeSourceSelection(info.getExtendedSelection()).split("\\n"); // normalized
+            String[] lines = info.normalizeSourceSelection(selectionComputer.selection).split("\\n"); // normalized
 
             for (String line : lines) {
                 if (line.trim().length() != 0) {
@@ -90,7 +93,7 @@ public class SelectionExtensionTestCase extends AbstractIOTestCase {
 
             @Override
             public int getGrammarVersion() throws MisconfigurationException {
-                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7;
+                return IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5;
             }
 
             @Override

@@ -90,8 +90,12 @@ def _generate_cython_from_files(target, modules):
 # DO NOT edit manually!
 ''']
 
+    found = []
     for mod in modules:
+        found.append(mod.__file__)
         contents.append(get_cython_contents(mod.__file__))
+
+    print('Generating cython from: %s' % (found,))
 
     with open(target, 'w') as stream:
         stream.write(''.join(contents))
@@ -102,8 +106,6 @@ def generate_dont_trace_files():
 
 # DO NOT edit manually!
 # DO NOT edit manually!
-
-from _pydevd_bundle.pydevd_constants import IS_PY3K
 
 LIB_FILE = 1
 PYDEV_FILE = 2
@@ -124,18 +126,16 @@ DONT_TRACE = {
     'dis.py':LIB_FILE,
 
     # things from pydev that we don't want to trace
-    '_pydev_execfile.py':PYDEV_FILE,
 %(pydev_files)s
 }
 
-if IS_PY3K:
-    # if we try to trace io.py it seems it can get halted (see http://bugs.python.org/issue4716)
-    DONT_TRACE['io.py'] = LIB_FILE
+# if we try to trace io.py it seems it can get halted (see http://bugs.python.org/issue4716)
+DONT_TRACE['io.py'] = LIB_FILE
 
-    # Don't trace common encodings too
-    DONT_TRACE['cp1252.py'] = LIB_FILE
-    DONT_TRACE['utf_8.py'] = LIB_FILE
-    DONT_TRACE['codecs.py'] = LIB_FILE
+# Don't trace common encodings too
+DONT_TRACE['cp1252.py'] = LIB_FILE
+DONT_TRACE['utf_8.py'] = LIB_FILE
+DONT_TRACE['codecs.py'] = LIB_FILE
 '''
 
     pydev_files = []
@@ -185,15 +185,15 @@ if IS_PY3K:
                     'pydev_coverage.py',
                     'pydev_pysrc.py',
                     'setup.py',
-                    'setup_cython.py',
+                    'setup_pydevd_cython.py',
                     'interpreterInfo.py',
                     'conftest.py',
                     ):
                     pydev_files.append("    '%s': PYDEV_FILE," % (f,))
 
     contents = template % (dict(
-        pydev_files='\n'.join(sorted(pydev_files)),
-        pydev_dirs='\n'.join(sorted(pydev_dirs)),
+        pydev_files='\n'.join(sorted(set(pydev_files))),
+        pydev_dirs='\n'.join(sorted(set(pydev_dirs))),
     ))
     assert 'pydevd.py' in contents
     assert 'pydevd_dont_trace.py' in contents
@@ -210,6 +210,7 @@ def remove_if_exists(f):
 
 
 def generate_cython_module():
+    print('Removing pydevd_cython.pyx')
     remove_if_exists(os.path.join(root_dir, '_pydevd_bundle', 'pydevd_cython.pyx'))
 
     target = os.path.join(root_dir, '_pydevd_bundle', 'pydevd_cython.pyx')

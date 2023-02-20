@@ -13,18 +13,19 @@ class Echo(protocol.DatagramProtocol):
 
 
     def makeConnection(self, transport):
-        print "got a connection"
+        print("got a connection")
 
     
-    def datagramReceived(self, data, (host, port)):
+    def datagramReceived(self, data, xxx_todo_changeme):
+        (host, port) = xxx_todo_changeme
         if (port > 80):
-            print "bigger than 80"
-            print "received %r from %s:%d" % (data, host, port)
+            print("bigger than 80")
+            print("received %r from %s:%d" % (data, host, port))
         elif(port == 9999):
-    ##|        print "is 9999"
-            print "cool hm"
+    ##|        print("is 9999")
+            print("cool hm")
        ##| else:
-            print "wow it works"
+            print("wow it works")
             var = a*a
         self.transport.write(data, (host, port))
         
@@ -33,5 +34,5 @@ reactor.run()
 
 ##r selection starts somewhere before the "while"-node, still have to normalize selected code in order to parse it
 
-print "is 9999"
-print "cool hm"
+print("is 9999")
+print("cool hm")

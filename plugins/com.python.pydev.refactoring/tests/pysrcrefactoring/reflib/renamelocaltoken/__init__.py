@@ -1,9 +1,9 @@
 def m1():
     class LocalFoo:
         pass
-    print LocalFoo
-    
+    print(LocalFoo)
+
 class LocalFoo:
     pass
-print LocalFoo
-    
+print(LocalFoo)
+

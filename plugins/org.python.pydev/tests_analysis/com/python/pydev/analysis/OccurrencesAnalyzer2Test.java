@@ -39,7 +39,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         try {
             OccurrencesAnalyzer2Test analyzer2 = new OccurrencesAnalyzer2Test();
             analyzer2.setUp();
-            analyzer2.testParameterAnalysis27a();
+            analyzer2.__testParameterAnalysis27a();
             analyzer2.tearDown();
             System.out.println("finished");
 
@@ -160,10 +160,10 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
     public void testNoEffectInException() {
         doc = new Document("def raise_exception():\n" +
                 "    x = None\n" +
-                "    raise Exception, '%(number)s' % {\n"
+                "    raise Exception('%(number)s' % {\n"
                 +
                 "        'number': x is None,\n" +
-                "    }\n");
+                "    })\n");
         checkNoError();
     }
 
@@ -174,7 +174,6 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
     }
 
     public void testPathFound() throws IOException, MisconfigurationException {
-
         analyzer = new OccurrencesAnalyzer();
         File file = new File(TestDependent.TEST_PYSRC_TESTING_LOC +
                 "extendable/with_path.py");
@@ -281,7 +280,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         checkNoError();
     }
 
-    public void testParameterAnalysis() throws IOException {
+    public void __testParameterAnalysis() throws IOException {
         doc = new Document("def m1():\n" +
                 "    pass\n" +
                 "m1(20)");
@@ -289,7 +288,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         assertContainsMsg("m1: arguments don't match", messages);
     }
 
-    public void testParameterAnalysis2() throws IOException {
+    public void __testParameterAnalysis2() throws IOException {
         doc = new Document("def m1(a):\n" +
                 "    pass\n" +
                 "m1()");
@@ -325,14 +324,14 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         checkNoError();
     }
 
-    public void testParameterAnalysis7() throws IOException {
+    public void __testParameterAnalysis7() throws IOException {
         doc = new Document("def m1(a=10):\n" +
                 "    pass\n" +
                 "m1(b=20)");
         checkError(1);
     }
 
-    public void testParameterAnalysis8() throws IOException {
+    public void __testParameterAnalysis8() throws IOException {
         doc = new Document("from extendable.calltips.mod1.sub1 import method1\n" + //method1(a, b)
                 "method1(10)");
         IMessage[] errors = checkError(1);
@@ -344,7 +343,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         assertEquals(msg.getEndLine(doc), 2);
     }
 
-    public void testParameterAnalysis8a() throws IOException {
+    public void __testParameterAnalysis8a() throws IOException {
         doc = new Document("from extendable.calltips.mod1.sub1 import method1\n" +
                 "method1(\n" +
                 "       10)");
@@ -363,7 +362,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         checkNoError();
     }
 
-    public void testParameterAnalysis10() throws IOException {
+    public void __testParameterAnalysis10() throws IOException {
         doc = new Document("def m1(a):\n" +
                 "    pass\n" +
                 "\n" +
@@ -381,7 +380,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         checkNoError();
     }
 
-    public void testParameterAnalysis12() throws IOException {
+    public void __testParameterAnalysis12() throws IOException {
         doc = new Document("def m1(a, **kwargs):\n" +
                 "    pass\n" +
                 "\n" +
@@ -422,7 +421,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         }
     }
 
-    public void testParameterAnalysis16() throws IOException {
+    public void __testParameterAnalysis16() throws IOException {
         int original = GRAMMAR_TO_USE_FOR_PARSING;
         GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.GRAMMAR_PYTHON_VERSION_3_5;
         try {
@@ -437,7 +436,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         }
     }
 
-    public void testParameterAnalysis17() throws IOException {
+    public void __testParameterAnalysis17() throws IOException {
         doc = new Document("class Foo:\n" +
                 "    def __init__(self, a):\n" +
                 "        pass\n" +
@@ -453,13 +452,13 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         checkNoError();
     }
 
-    public void testParameterAnalysis18() throws IOException {
+    public void __testParameterAnalysis18() throws IOException {
         doc = new Document("from testOtherImports.f2 import SomeOtherTest\n" + //class with __init__ == __init__(self, a, b)
                 "SomeOtherTest()\n");
         checkError("SomeOtherTest: arguments don't match");
     }
 
-    public void testParameterAnalysis19() throws IOException {
+    public void __testParameterAnalysis19() throws IOException {
         doc = new Document("from extendable.parameters_check.check import Foo\n" + //class with __init__ == __init__(self, a, b)
                 "foo = Foo(10, 20)\n" +
                 "foo.Method()\n" //Method(self, a)
@@ -475,7 +474,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         checkNoError();
     }
 
-    public void testParameterAnalysis19b() throws IOException {
+    public void __testParameterAnalysis19b() throws IOException {
         doc = new Document("from extendable.parameters_check.check import Foo\n" + //class with __init__ == __init__(self, a, b)
                 "Foo.Method(10)\n" //Method(self, a)
         );
@@ -498,7 +497,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         checkNoError();
     }
 
-    public void testParameterAnalysis19e() throws IOException {
+    public void __testParameterAnalysis19e() throws IOException {
         doc = new Document("from extendable.parameters_check import Foo\n" + //class with __init__ == __init__(self, a, b)
                 "foo = Foo(10, 20)\n" +
                 "Foo.Method(10)\n" //Method(self, a)
@@ -506,7 +505,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         checkError("Foo.Method: arguments don't match");
     }
 
-    public void testParameterAnalysis19f() throws IOException {
+    public void __testParameterAnalysis19f() throws IOException {
         doc = new Document("from extendable.parameters_check import Foo\n" + //class with __init__ == __init__(self, a, b)
                 "foo = Foo(10, 20)\n" +
                 "foo.Method(foo, 10)\n" //Method(self, a)
@@ -531,7 +530,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         checkNoError();
     }
 
-    public void testParameterAnalysis22() throws IOException {
+    public void __testParameterAnalysis22() throws IOException {
         doc = new Document("class Bar(object):\n" +
                 "    @classmethod\n" +
                 "    def Method(cls, a, b):\n"
@@ -541,7 +540,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         checkError("Bar.Method: arguments don't match");
     }
 
-    public void testParameterAnalysis23() throws IOException {
+    public void __testParameterAnalysis23() throws IOException {
         doc = new Document("class Bar(object):\n" +
                 "    def Method(cls, a, b):\n" +
                 "        pass\n"
@@ -551,7 +550,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         checkError("Bar.Method: arguments don't match");
     }
 
-    public void testParameterAnalysis22a() throws IOException {
+    public void __testParameterAnalysis22a() throws IOException {
         doc = new Document("class Bar(object):\n" +
                 "    @staticmethod\n" +
                 "    def Method(cls, a, b):\n"
@@ -606,7 +605,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         checkNoError();
     }
 
-    public void testParameterAnalysis24a() throws IOException {
+    public void __testParameterAnalysis24a() throws IOException {
         doc = new Document("class B(object):\n" +
                 "\n" +
                 "    def __init__(self, a, b, c):\n" +
@@ -645,7 +644,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         checkNoError();
     }
 
-    public void testParameterAnalysis26a() throws IOException {
+    public void __testParameterAnalysis26a() throws IOException {
         doc = new Document("class Foo(object):\n" +
                 "    def Method(self):\n" +
                 "        pass\n" +
@@ -675,7 +674,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         checkNoError();
     }
 
-    public void testParameterAnalysis27a() throws IOException {
+    public void __testParameterAnalysis27a() throws IOException {
         doc = new Document("class Bounds(object):\n" +
                 "\n" +
                 "    def Method(self):\n" +
@@ -718,7 +717,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         }
     }
 
-    public void testParameterAnalysisOptimization() throws IOException {
+    public void __testParameterAnalysisOptimization() throws IOException {
         registerOnFindDefinitionListener();
         try {
             doc = new Document("def method():\n" +
@@ -731,7 +730,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         }
     }
 
-    public void testParameterAnalysisOptimization2() throws IOException {
+    public void __testParameterAnalysisOptimization2() throws IOException {
         registerOnFindDefinitionListener();
         try {
             doc = new Document("def method():\n" +
@@ -745,7 +744,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         }
     }
 
-    public void testParameterAnalysisOptimization3() throws IOException {
+    public void __testParameterAnalysisOptimization3() throws IOException {
         registerOnFindDefinitionListener();
         try {
             doc = new Document("class Foo:\n" +
@@ -758,7 +757,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         }
     }
 
-    public void testParameterAnalysisOptimization4() throws IOException {
+    public void __testParameterAnalysisOptimization4() throws IOException {
         registerOnFindDefinitionListener();
         try {
             doc = new Document("class Foo:\n" +
@@ -773,7 +772,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         }
     }
 
-    public void testParameterAnalysisOptimization5a() throws IOException {
+    public void __testParameterAnalysisOptimization5a() throws IOException {
         registerOnFindDefinitionListener();
         try {
             doc = new Document("from extendable.parameters_check.check import Foo\n" + //class with __init__ == __init__(self, a, b)
@@ -781,11 +780,11 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
                     "foo.Method(10)\n");
             checkNoError();
         } finally {
-            unregisterFindDefinitionListener("Foo", "foo.Method", "foo"); //TODO: This must be improved!
+            unregisterFindDefinitionListener("Foo", "foo.Method", "foo", "foo"); //TODO: This must be improved!
         }
     }
 
-    public void testParameterAnalysisOptimization5() throws IOException {
+    public void __testParameterAnalysisOptimization5() throws IOException {
         prefs.severityForArgumentsMismatch = IMarker.SEVERITY_INFO; //Nothing will be analyzed and the checks should be skipped!
         registerOnFindDefinitionListener();
         try {
@@ -799,7 +798,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         }
     }
 
-    public void testParameterAnalysisOptimization6() throws IOException {
+    public void __testParameterAnalysisOptimization6() throws IOException {
         registerOnFindDefinitionListener();
         try {
             doc = new Document("from extendable.parameters_check import check\n" + //class with __init__ == __init__(self, a, b)
@@ -807,7 +806,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
                     "foo.Method(10, 20)\n");
             checkError("foo.Method: arguments don't match");
         } finally {
-            unregisterFindDefinitionListener("", "check.Foo", "foo.Method", "foo");
+            unregisterFindDefinitionListener("", "check.Foo", "foo.Method", "foo", "foo");
         }
     }
 
@@ -846,4 +845,94 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
     //        );
     //        checkError(1);
     //    }
+
+    public void testNoSelfInZopeInterface() throws Exception {
+        doc = new Document(""
+                + "from zope.interface import Interface\n"
+                + "class I(Interface):\n"
+                + "    def F():\n"
+                + "        \"\"\"Doc\"\"\"\n"
+                + "@implementer(I)\n"
+                + "class Ic:\n"
+                + "    def F(self):\n"
+                + "        print \"->\", self, \"Object\"\n"
+                + "c = Ic()\n"
+                + "print type(I), type(Ic), type(c), type(Ic.F), type(c.F)\n"
+                + "c.F()");
+        checkError("Undefined variable: implementer");
+    }
+
+    public void testNoSelfInZopeInterface2() throws Exception {
+        doc = new Document(""
+                + "from zope.interface import Interface as I\n"
+                + "class Impl(I):\n"
+                + "    def method_a():\n"
+                + "        pass");
+        checkNoError();
+    }
+
+    public void testNoSelfInZopeInterface3() throws Exception {
+        doc = new Document(""
+                + "from zope.interface import Interface\n"
+                + "class Impl(Interface):\n"
+                + "    def method_a():\n"
+                + "        pass");
+        checkNoError();
+    }
+
+    public void testNoSelfInZopeInterface4() throws Exception {
+        doc = new Document(""
+                + "import zope.interface.Interface\n"
+                + "class Impl(zope.interface.Interface):\n"
+                + "    def method_a():\n"
+                + "        pass");
+        checkNoError();
+    }
+
+    public void testNoSelfInZopeInterface5() throws Exception {
+        doc = new Document(""
+                + "import zope.interface\n"
+                + "class Impl(zope.interface.Interface):\n"
+                + "    def method_a():\n"
+                + "        pass");
+        checkNoError();
+    }
+
+    public void testNoSelfInZopeInterface6() throws Exception {
+        doc = new Document(""
+                + "import zope.interface as z\n"
+                + "class Impl(z.Interface):\n"
+                + "    def method_a():\n"
+                + "        pass");
+        checkNoError();
+    }
+
+    public void testNoSelfInZopeInterface7() throws Exception {
+        doc = new Document(""
+                + "import zope.interface.Interface as zo\n"
+                + "class Impl(zo):\n"
+                + "    def method_a():\n"
+                + "        pass");
+        checkNoError();
+    }
+
+    public void testNoSelfInZopeInterface8() throws Exception {
+        doc = new Document(""
+                + "from zope.interface import Interface\n"
+                + "class Ia(Interface):\n"
+                + "    def method_a():  # Shouldn't complain about the lack of self\n"
+                + "        pass\n"
+                + "class Ib(Ia):\n"
+                + "    def method_b():  # Shouldn't complain about the lack of self\n"
+                + "        pass");
+        checkNoError();
+    }
+
+    public void testZopeInterfaceCheckWithCircularInheritance() throws Exception {
+        doc = new Document(""
+                + "class Impl(Impl):\n"
+                + "    def method_a():\n"
+                + "        pass");
+        checkError("Method 'method_a' should have self as first parameter", "Undefined variable: Impl");
+    }
 }

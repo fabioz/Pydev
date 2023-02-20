@@ -30,49 +30,26 @@ import java.util.List;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.ast.visitors.selection.SelectionException;
 import org.python.pydev.refactoring.core.base.AbstractPythonRefactoring;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
+import org.python.pydev.refactoring.core.base.RefactoringInfo.SelectionComputer;
+import org.python.pydev.refactoring.core.base.RefactoringInfo.SelectionComputer.SelectionComputerKind;
 import org.python.pydev.refactoring.core.change.IChangeProcessor;
 import org.python.pydev.refactoring.messages.Messages;
-import org.python.pydev.shared_core.string.ICoreTextSelection;
 
 public class ExtractMethodRefactoring extends AbstractPythonRefactoring {
     private ExtractMethodRequestProcessor requestProcessor;
     private IChangeProcessor changeProcessor;
-    private ModuleAdapter parsedExtendedSelection;
-    private ModuleAdapter parsedUserSelection;
-    private ModuleAdapter module;
+    private final ModuleAdapter module;
 
     public ExtractMethodRefactoring(RefactoringInfo req) {
         super(req);
-        this.parsedExtendedSelection = null;
-        this.parsedUserSelection = req.getParsedUserSelection();
-        this.parsedExtendedSelection = req.getParsedExtendedSelection();
         this.module = req.getModuleAdapter();
-
-        validateSelections();
-
-        try {
-            initWizard();
-        } catch (Throwable e) {
-            status.addInfo(Messages.infoFixCode);
-        }
-    }
-
-    private void initWizard() throws Throwable {
-        ICoreTextSelection standardSelection = info.getUserSelection();
-        ModuleAdapter standardModule = this.parsedUserSelection;
-        if (standardModule == null) {
-            standardSelection = info.getExtendedSelection();
-            standardModule = this.parsedExtendedSelection;
-        }
-
-        this.requestProcessor = new ExtractMethodRequestProcessor(info.getScopeAdapter(), standardModule,
-                this.getModule(), standardSelection);
     }
 
     @Override
@@ -85,55 +62,38 @@ public class ExtractMethodRefactoring extends AbstractPythonRefactoring {
 
     @Override
     public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException {
+        SelectionComputer selectionComputer = this.info.getSelectionComputer(SelectionComputerKind.extractMethod);
+
+        if (selectionComputer.selection == null) {
+            status.addFatalError(Messages.extractMethodIncompleteSelection);
+            return status;
+        }
+
+        try {
+            VisitorFactory.validateSelection(selectionComputer.selectionModuleAdapter);
+        } catch (SelectionException e) {
+            status.addFatalError(e.getMessage());
+            return status;
+        }
+
+        try {
+            this.requestProcessor = new ExtractMethodRequestProcessor(
+                    info.getScopeAdapter(),
+                    selectionComputer.selectionModuleAdapter,
+                    this.module,
+                    selectionComputer.selection);
+        } catch (Throwable e) {
+            Log.log(e);
+            status.addFatalError("Unexpected exception: " + e.getMessage());
+        }
 
         if (this.requestProcessor.getScopeAdapter() == null
                 || this.requestProcessor.getScopeAdapter() instanceof IClassDefAdapter) {
             status.addFatalError(Messages.extractMethodScopeInvalid);
             return status;
         }
-        if (status.getEntries().length > 0) {
-            return status;
-        }
 
-        if (parsedExtendedSelection == null && parsedUserSelection == null) {
-            status.addFatalError(Messages.extractMethodIncompleteSelection);
-            return status;
-        }
         return status;
-    }
-
-    private void validateSelections() {
-        /* FIXME: refactor this (-rschuett) */
-        try {
-            if (parsedUserSelection != null) {
-                VisitorFactory.validateSelection(parsedUserSelection);
-            }
-        } catch (SelectionException e) {
-            this.parsedUserSelection = null;
-            if (parsedExtendedSelection == null) {
-                status.addFatalError(e.getMessage());
-                return;
-            }
-        }
-        try {
-            if (parsedExtendedSelection != null) {
-                VisitorFactory.validateSelection(parsedExtendedSelection);
-            }
-        } catch (SelectionException e) {
-            this.parsedExtendedSelection = null;
-            if (parsedUserSelection == null) {
-                status.addFatalError(e.getMessage());
-                return;
-            }
-        }
-    }
-
-    public void setModule(ModuleAdapter module) {
-        this.module = module;
-    }
-
-    public ModuleAdapter getModule() {
-        return module;
     }
 
     @Override

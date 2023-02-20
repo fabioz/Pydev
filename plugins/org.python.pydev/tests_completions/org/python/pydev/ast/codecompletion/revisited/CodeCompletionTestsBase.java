@@ -13,6 +13,7 @@ package org.python.pydev.ast.codecompletion.revisited;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,10 +29,12 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.ast.codecompletion.CompletionRequest;
 import org.python.pydev.ast.codecompletion.IPyCodeCompletion;
 import org.python.pydev.ast.codecompletion.PyCodeCompletionUtils;
+import org.python.pydev.ast.cython.GenCythonAst;
 import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
 import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.ast.interpreter_managers.PythonInterpreterManager;
 import org.python.pydev.core.CorePlugin;
+import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
@@ -49,6 +52,7 @@ import org.python.pydev.shared_core.preferences.InMemoryEclipsePreferences;
 import org.python.pydev.shared_core.progress.PrintProgressMonitor;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.utils.BaseExtensionHelper;
 import org.python.pydev.ui.BundleInfoStub;
 
 import junit.framework.TestCase;
@@ -126,6 +130,9 @@ public class CodeCompletionTestsBase extends TestCase {
         ProjectModulesManager.IN_TESTS = true;
         FileUtils.IN_TESTS = true;
         PydevTestUtils.setTestPlatformStateLocation();
+
+        BaseExtensionHelper.testingParticipants = new HashMap<>();
+        BaseExtensionHelper.testingParticipants.put(ExtensionHelper.GEN_CYTHON_AST, Arrays.asList(new GenCythonAst()));
     }
 
     /*
@@ -133,6 +140,7 @@ public class CodeCompletionTestsBase extends TestCase {
      */
     @Override
     public void tearDown() throws Exception {
+        BaseExtensionHelper.testingParticipants = null;
         CompletionProposalFactory.set(null);
         PydevPlugin.setBundleInfo(null);
         CorePlugin.setBundleInfo(null);
@@ -350,9 +358,9 @@ public class CodeCompletionTestsBase extends TestCase {
 
         InterpreterInfo info;
         if (isPython3Test()) {
-            info = (InterpreterInfo) interpreterManager.createInterpreterInfo(TestDependent.PYTHON_30_EXE,
+            info = (InterpreterInfo) interpreterManager.createInterpreterInfo(TestDependent.PYTHON_EXE,
                     new NullProgressMonitor(), false);
-            TestDependent.PYTHON_30_EXE = info.executableOrJar;
+            TestDependent.PYTHON_EXE = info.executableOrJar;
         } else {
             info = (InterpreterInfo) interpreterManager.createInterpreterInfo(TestDependent.PYTHON_EXE,
                     new NullProgressMonitor(), false);
@@ -422,7 +430,7 @@ public class CodeCompletionTestsBase extends TestCase {
      * same as the restorePythonPath function but also includes the site packages in the distribution
      */
     public void restorePythonPathWithSitePackages(boolean force) {
-        restoreSystemPythonPath(force, TestDependent.GetCompletePythonLib(true));
+        restoreSystemPythonPath(force, TestDependent.getCompletePythonLib(true, isPython3Test()));
         restoreProjectPythonPath(force, getProjectPythonpath());
         restoreProjectPythonPath2(force, getProjectPythonpathNature2());
         checkSize();
@@ -437,7 +445,7 @@ public class CodeCompletionTestsBase extends TestCase {
         if (DEBUG_TESTS_BASE) {
             System.out.println("-------------- Restoring system pythonpath");
         }
-        restoreSystemPythonPath(force, TestDependent.GetCompletePythonLib(false));
+        restoreSystemPythonPath(force, TestDependent.getCompletePythonLib(false, isPython3Test()));
         if (DEBUG_TESTS_BASE) {
             System.out.println("-------------- Restoring project pythonpath");
         }

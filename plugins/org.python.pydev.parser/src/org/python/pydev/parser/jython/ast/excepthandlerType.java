@@ -8,11 +8,14 @@ public final class excepthandlerType extends SimpleNode {
     public exprType type;
     public exprType name;
     public stmtType[] body;
+    public boolean isExceptionGroup;
 
-    public excepthandlerType(exprType type, exprType name, stmtType[] body) {
+    public excepthandlerType(exprType type, exprType name, stmtType[] body, boolean
+    isExceptionGroup) {
         this.type = type;
         this.name = name;
         this.body = body;
+        this.isExceptionGroup = isExceptionGroup;
     }
 
     @Override
@@ -22,6 +25,7 @@ public final class excepthandlerType extends SimpleNode {
         result = prime * result + ((type == null) ? 0 : type.hashCode());
         result = prime * result + ((name == null) ? 0 : name.hashCode());
         result = prime * result + Arrays.hashCode(body);
+        result = prime * result + (isExceptionGroup ? 17 : 137);
         return result;
     }
 
@@ -36,6 +40,7 @@ public final class excepthandlerType extends SimpleNode {
         if (name == null) { if (other.name != null) return false;}
         else if (!name.equals(other.name)) return false;
         if (!Arrays.equals(body, other.body)) return false;
+        if(this.isExceptionGroup != other.isExceptionGroup) return false;
         return true;
     }
     @Override
@@ -55,7 +60,7 @@ public final class excepthandlerType extends SimpleNode {
         }
         excepthandlerType temp = new
         excepthandlerType(type!=null?(exprType)type.createCopy(copyComments):null,
-        name!=null?(exprType)name.createCopy(copyComments):null, new0);
+        name!=null?(exprType)name.createCopy(copyComments):null, new0, isExceptionGroup);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
         if(this.specialsBefore != null && copyComments){
@@ -88,6 +93,9 @@ public final class excepthandlerType extends SimpleNode {
         sb.append(", ");
         sb.append("body=");
         sb.append(dumpThis(this.body));
+        sb.append(", ");
+        sb.append("isExceptionGroup=");
+        sb.append(dumpThis(this.isExceptionGroup));
         sb.append("]");
         return sb.toString();
     }

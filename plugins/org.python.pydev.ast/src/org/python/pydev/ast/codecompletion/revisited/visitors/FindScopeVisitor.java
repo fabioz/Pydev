@@ -11,15 +11,20 @@
  */
 package org.python.pydev.ast.codecompletion.revisited.visitors;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.python.pydev.core.ILocalScope;
+import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.Module;
-import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.structure.FastStack;
 
 /**
@@ -52,12 +57,17 @@ public class FindScopeVisitor extends AbstractVisitor {
      */
     private int col;
 
+    private ISimpleNode lastDef;
+
+    private IModule module;
+
     /**
      * Only for subclasses
      */
-    protected FindScopeVisitor(IPythonNature nature) {
-        super(nature);
-        scope = new LocalScope(nature, new FastStack<SimpleNode>(20));
+    protected FindScopeVisitor(IPythonNature nature, IModule module) {
+        super(nature, module);
+        scope = new LocalScope(nature, new FastStack<SimpleNode>(20), module);
+        this.module = module;
     }
 
     /**
@@ -66,10 +76,11 @@ public class FindScopeVisitor extends AbstractVisitor {
      * @param line in ast coords (starts at 1)
      * @param col in ast coords (starts at 1)
      */
-    public FindScopeVisitor(int line, int col, IPythonNature nature) {
-        this(nature);
+    public FindScopeVisitor(int line, int col, IPythonNature nature, IModule module) {
+        this(nature, module);
         this.line = line;
         this.col = col;
+        this.module = module;
     }
 
     /**
@@ -78,14 +89,10 @@ public class FindScopeVisitor extends AbstractVisitor {
     @Override
     protected Object unhandled_node(SimpleNode node) throws Exception {
         //the line passed in starts at 1 and the lines for the visitor nodes start at 0
-        if (!found && !(node instanceof Module || node instanceof Pass)) {
+        if (!found && !(node instanceof Module)) {
             if (line <= node.beginLine) {
                 //scope is locked at this time.
-                found = true;
-                int original = scope.getIfMainLine();
-                scope = new LocalScope(nature, this.stackScope.createCopy());
-                scope.setIfMainLine(original);
-                scope.setFoundAtASTNode(node);
+                onScopeFound(node);
             }
         } else {
             if (scope.getScopeEndLine() == -1 && line < node.beginLine && col >= node.beginColumn) {
@@ -93,6 +100,17 @@ public class FindScopeVisitor extends AbstractVisitor {
             }
         }
         return node;
+    }
+
+    /**
+     * @param node
+     */
+    private void onScopeFound(SimpleNode node) {
+        found = true;
+        int original = scope.getIfMainLine();
+        scope = new LocalScope(nature, this.stackScope.createCopy(), this.module);
+        scope.setIfMainLine(original);
+        scope.setFoundAtASTNode(node);
     }
 
     /**
@@ -128,9 +146,14 @@ public class FindScopeVisitor extends AbstractVisitor {
     @Override
     public Object visitClassDef(ClassDef node) throws Exception {
         if (!found) {
-            stackScope.push(node);
-            node.traverse(this);
-            stackScope.pop();
+            this.lastDef = node;
+            if (NodeUtils.isAfterNameEnd(node, line, col)) {
+                stackScope.push(node);
+                node.traverse(this);
+                stackScope.pop();
+            } else {
+                unhandled_node(node); // Just handle it directly without adding to the stack.
+            }
         }
         return null;
     }
@@ -141,9 +164,14 @@ public class FindScopeVisitor extends AbstractVisitor {
     @Override
     public Object visitFunctionDef(FunctionDef node) throws Exception {
         if (!found) {
-            stackScope.push(node);
-            node.traverse(this);
-            stackScope.pop();
+            this.lastDef = node;
+            if (NodeUtils.isAfterNameEnd(node, line, col)) {
+                stackScope.push(node);
+                node.traverse(this);
+                stackScope.pop();
+            } else {
+                unhandled_node(node); // Just handle it directly without adding to the stack.
+            }
         }
         return null;
     }
@@ -151,6 +179,24 @@ public class FindScopeVisitor extends AbstractVisitor {
     @Override
     public Object visitModule(Module node) throws Exception {
         stackScope.push(node);
-        return super.visitModule(node);
+        super.visitModule(node);
+        if (!found && col > 1) {
+            // If it wasn't found, keep the last opened scope.
+            if (this.lastDef != null) {
+                SimpleNode n = (SimpleNode) this.lastDef;
+                List<SimpleNode> lst = new ArrayList<>(3);
+                while (n != null && !(n instanceof Module)) {
+                    lst.add(n);
+                    n = n.parent;
+                }
+                Collections.reverse(lst);
+                for (SimpleNode n1 : lst) {
+                    stackScope.push(n1);
+                }
+                onScopeFound(null);
+            }
+        }
+
+        return null;
     }
 }

@@ -1,6 +1,6 @@
 def RenFoo():
     pass
 
-print RenFoo
+print(RenFoo)
 'String with RenFoo'
 #comment with RenFoo

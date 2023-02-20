@@ -18,6 +18,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.ast.analysis.IAnalysisPreferences;
 import org.python.pydev.ast.codecompletion.revisited.CompletionCache;
+import org.python.pydev.ast.codecompletion.revisited.CompletionState;
 import org.python.pydev.ast.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
@@ -121,7 +122,7 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant {
                 //in which case 'Bar' is undefined
                 //in this situation, the activationTokenAndQual would be "sys." and "Bar"
                 //and we want to get the definition for "sys"
-                String[] activationTokenAndQual = ps.getActivationTokenAndQual(true);
+                String[] activationTokenAndQual = ps.getActivationTokenAndQualifier(true);
 
                 if (activationTokenAndQual[0].endsWith(".")) {
                     ArrayList<IDefinition> selected = findDefinitions(nature, edit, start - 2, doc);
@@ -418,14 +419,14 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant {
     }
 
     private ArrayList<IDefinition> findDefinitions(IPythonNature nature, PyEdit edit, int start, IDocument doc) {
-        CompletionCache completionCache = new CompletionCache();
+        CompletionState completionState = new CompletionState();
         ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
 
         RefactoringRequest request = new RefactoringRequest(edit.getEditorFile(), new PySelection(doc,
                 new CoreTextSelection(doc, start, 0)), new NullProgressMonitor(), nature, edit);
 
         try {
-            PyRefactoringFindDefinition.findActualDefinition(request, completionCache, selected);
+            PyRefactoringFindDefinition.findActualDefinition(request, completionState, selected);
         } catch (CompletionRecursionException | BadLocationException e1) {
             Log.log(e1);
         }

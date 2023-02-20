@@ -9,12 +9,14 @@ package org.python.pydev.ast.codecompletion.revisited;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IDefinition;
+import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.NoExceptionCloseable;
 import org.python.pydev.core.TokensList;
 import org.python.pydev.core.structure.CompletionRecursionException;
+import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
 public final class CompletionStateWrapper implements ICompletionState {
@@ -25,10 +27,12 @@ public final class CompletionStateWrapper implements ICompletionState {
         this.wrapped = state;
         this.activationToken = state.getActivationToken();
         this.localImportsGotten = state.getLocalImportsGotten();
+        this.qualifier = state.getQualifier();
     }
 
     //things that are not delegated ------------------------------------------------------------------------------------
     private String activationToken;
+    private String qualifier;
     private int col = -1;
     private int line = -1;
     private boolean localImportsGotten;
@@ -41,6 +45,16 @@ public final class CompletionStateWrapper implements ICompletionState {
     @Override
     public String getActivationToken() {
         return activationToken;
+    }
+
+    @Override
+    public String getQualifier() {
+        return qualifier;
+    }
+
+    @Override
+    public void setQualifier(String qualifier) {
+        this.qualifier = qualifier;
     }
 
     @Override
@@ -88,6 +102,16 @@ public final class CompletionStateWrapper implements ICompletionState {
         line = i;
     }
 
+    @Override
+    public boolean getAcceptTypeshed() {
+        return wrapped.getAcceptTypeshed();
+    }
+
+    @Override
+    public void setAcceptTypeshed(boolean acceptTypeshed) {
+        wrapped.setAcceptTypeshed(acceptTypeshed);
+    }
+
     //delegated --------------------------------------------------------------------------------------------------------
     @Override
     public void checkDefinitionMemory(IModule module, IDefinition definition) throws CompletionRecursionException {
@@ -125,6 +149,12 @@ public final class CompletionStateWrapper implements ICompletionState {
     }
 
     @Override
+    public void checkUnpackMemory(IModule module, String string, int beginLine, int beginColumn)
+            throws CompletionRecursionException {
+        wrapped.checkUnpackMemory(module, string, beginLine, beginColumn);
+    }
+
+    @Override
     public void checkMemory(IModule module, String base) throws CompletionRecursionException {
         wrapped.checkMemory(module, base);
     }
@@ -137,6 +167,11 @@ public final class CompletionStateWrapper implements ICompletionState {
     @Override
     public void checkWildImportInMemory(IModule current, IModule mod) throws CompletionRecursionException {
         wrapped.checkWildImportInMemory(current, mod);
+    }
+
+    @Override
+    public void checkLookForFunctionDefReturn(IModule module, ISimpleNode node) throws CompletionRecursionException {
+        wrapped.checkLookForFunctionDefReturn(module, node);
     }
 
     @Override
@@ -156,7 +191,7 @@ public final class CompletionStateWrapper implements ICompletionState {
 
     @Override
     public ICompletionState getCopy() {
-        return wrapped.getCopy();
+        return wrapped.getCopyWithActTok(this.activationToken);
     }
 
     @Override
@@ -186,11 +221,6 @@ public final class CompletionStateWrapper implements ICompletionState {
     @Override
     public IPythonNature getNature() {
         return wrapped.getNature();
-    }
-
-    @Override
-    public String getQualifier() {
-        return wrapped.getQualifier();
     }
 
     @Override
@@ -316,4 +346,48 @@ public final class CompletionStateWrapper implements ICompletionState {
     public NoExceptionCloseable pushLookingFor(LookingFor lookingForInstancedVariable) {
         return this.wrapped.pushLookingFor(lookingForInstancedVariable);
     }
+
+    @Override
+    public boolean isResolvingBuiltins() {
+        return this.wrapped.isResolvingBuiltins();
+    }
+
+    @Override
+    public void pushResolvingBuiltins() {
+        this.wrapped.pushResolvingBuiltins();
+    }
+
+    @Override
+    public void popResolvingBuiltins() {
+        this.wrapped.popResolvingBuiltins();
+    }
+
+    @Override
+    public void pushSkipObjectBaseCompletions() {
+        this.wrapped.pushSkipObjectBaseCompletions();
+    }
+
+    @Override
+    public void popSkipObjectBaseCompletions() {
+        this.wrapped.popSkipObjectBaseCompletions();
+    }
+
+    @Override
+    public boolean getSkipObjectBaseCompletions() {
+        return this.wrapped.getSkipObjectBaseCompletions();
+
+    }
+
+    @Override
+    public boolean pushGettingCompletionsFromTokenInLocalScope(IModule module, String activationToken,
+            ILocalScope localScope) {
+        return this.wrapped.pushGettingCompletionsFromTokenInLocalScope(module, activationToken, localScope);
+    }
+
+    @Override
+    public void popGettingCompletionsFromTokenInLocalScope(IModule module, String activationToken,
+            ILocalScope localScope) {
+        this.wrapped.popGettingCompletionsFromTokenInLocalScope(module, activationToken, localScope);
+    }
+
 }

@@ -1,1 +1,1 @@
-from f2 import *
+from .f2 import *

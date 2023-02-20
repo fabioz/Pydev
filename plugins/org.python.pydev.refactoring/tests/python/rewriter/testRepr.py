@@ -1,2 +1,2 @@
 v = "hello"
-print `v`
+print(repr(v))

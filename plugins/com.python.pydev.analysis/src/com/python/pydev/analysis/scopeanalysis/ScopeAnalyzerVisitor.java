@@ -80,7 +80,7 @@ public class ScopeAnalyzerVisitor extends ScopeAnalyzerVisitorWithoutImports {
      * Used to add some Found that is related to an import to a 'global import register'.
      * This is needed because, unlike other regular tokens, we want to find imports that are
      * in diferent contexts as being in the same context.
-     * 
+     *
      * @param found this is the Found that we want to add to the imports
      * @param map this is the map that contains the imports Found occurrences (it has to be passed,
      * as there is a map for the imports that are actually in the namespace and another for those
@@ -125,7 +125,7 @@ public class ScopeAnalyzerVisitor extends ScopeAnalyzerVisitorWithoutImports {
                 importTok.beginColumn = tokModName.beginColumn;
 
                 List<IToken> createdTokens = AbstractVisitor.makeImportToken(importTok, null, this.current.getName(),
-                        true, this.current.getNature());
+                        true, this.current.getNature(), current);
                 for (IToken token : createdTokens) {
                     ImportInfo info = this.scope.importChecker.visitImportToken(token, false, this.completionCache);
                     Found found = new Found(token, token, scope.getCurrScopeId(), scope.getCurrScopeItems());
@@ -147,7 +147,7 @@ public class ScopeAnalyzerVisitor extends ScopeAnalyzerVisitorWithoutImports {
 
     /**
      * Called for each found occurrence in the complete token occurrences
-     * 
+     *
      * Is used to add other returns to ret
      */
     @Override
@@ -164,7 +164,7 @@ public class ScopeAnalyzerVisitor extends ScopeAnalyzerVisitorWithoutImports {
         ret.addAll(fromImports);
 
         //let's iterate through the imports that are to be recognized as the same import we're checking and get the
-        //individual occurrences for each one of those (but this only happens if the context of the current 
+        //individual occurrences for each one of those (but this only happens if the context of the current
         //import is different from the context of that import)
         for (Tuple4<IToken, Integer, ASTEntry, Found> tuple3 : fromImports) {
 

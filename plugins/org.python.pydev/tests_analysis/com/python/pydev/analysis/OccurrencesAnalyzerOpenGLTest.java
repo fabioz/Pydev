@@ -35,11 +35,11 @@ public class OccurrencesAnalyzerOpenGLTest extends AnalysisTestsBase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        if (TestDependent.PYTHON_OPENGL_PACKAGES == null) {
+        if (TestDependent.PYTHON2_OPENGL_PACKAGES == null) {
             restorePythonPathWithSitePackages(false);
         } else {
-            restorePythonPathWithCustomSystemPath(false, TestDependent.GetCompletePythonLib(true) + "|"
-                    + TestDependent.PYTHON_OPENGL_PACKAGES);
+            restorePythonPathWithCustomSystemPath(false, TestDependent.getCompletePythonLib(true, isPython3Test()) + "|"
+                    + TestDependent.PYTHON2_OPENGL_PACKAGES);
         }
     }
 
@@ -47,7 +47,7 @@ public class OccurrencesAnalyzerOpenGLTest extends AnalysisTestsBase {
         if (SharedCorePlugin.skipKnownFailures()) {
             return;
         }
-        if (TestDependent.PYTHON_OPENGL_PACKAGES != null) {
+        if (TestDependent.PYTHON2_OPENGL_PACKAGES != null) {
             doc = new Document("from OpenGL.GL import glPushMatrix\n" + "print glPushMatrix\n" + "");
             checkNoError();
         }
@@ -59,7 +59,7 @@ public class OccurrencesAnalyzerOpenGLTest extends AnalysisTestsBase {
             return;
         }
 
-        if (TestDependent.PYTHON_OPENGL_PACKAGES != null) {
+        if (TestDependent.PYTHON2_OPENGL_PACKAGES != null) {
             doc = new Document("from OpenGL.GL import * #@UnusedWildImport\n" + "print glPushMatrix\n" + "");
             checkNoError();
         }
@@ -71,7 +71,7 @@ public class OccurrencesAnalyzerOpenGLTest extends AnalysisTestsBase {
             return;
         }
 
-        if (TestDependent.PYTHON_OPENGL_PACKAGES != null) {
+        if (TestDependent.PYTHON2_OPENGL_PACKAGES != null) {
             doc = new Document("from OpenGL.GL import glRotatef\n" + "print glRotatef\n" + "");
             checkNoError();
         }
@@ -83,7 +83,7 @@ public class OccurrencesAnalyzerOpenGLTest extends AnalysisTestsBase {
             return;
         }
 
-        if (TestDependent.PYTHON_OPENGL_PACKAGES != null) {
+        if (TestDependent.PYTHON2_OPENGL_PACKAGES != null) {
             doc = new Document("from OpenGL.GLU import gluLookAt\n" + "print gluLookAt" + "");
             checkNoError();
         }

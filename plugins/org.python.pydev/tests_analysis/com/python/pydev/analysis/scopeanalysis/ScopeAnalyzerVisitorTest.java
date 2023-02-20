@@ -21,6 +21,7 @@ import org.python.pydev.core.IToken;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 
 import com.python.pydev.analysis.AnalysisTestsBase;
@@ -43,12 +44,12 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
 
     public void testIt2() throws Exception {
         doc = new Document("import os\n" +
-                "print os\n" +
+                "print(os)\n" +
                 "\n");
         int line = 0;
         int col = 8;
         List<IToken> tokenOccurrences = getTokenOccurrences(line, col);
-        assertEquals(2, tokenOccurrences.size());
+        checkNOccurrences(2, tokenOccurrences);
 
         assertEquals(0, AbstractMessage.getStartLine(tokenOccurrences.get(0), doc) - 1);
         assertEquals(7, AbstractMessage.getStartCol(tokenOccurrences.get(0), doc) - 1);
@@ -58,34 +59,34 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     }
 
     public void testIt4() throws Exception {
-        doc = new Document("print os\n" +
+        doc = new Document("print(os)\n" +
                 "\n");
         int line = 0;
         int col = 7;
         //if we don't have the definition, we may still have occurrences
         List<IToken> tokenOccurrences = getTokenOccurrences(line, col);
-        assertEquals(1, tokenOccurrences.size());
+        checkNOccurrences(1, tokenOccurrences);
     }
 
     public void testIt5() throws Exception {
         doc = new Document("foo = 10\n" +
-                "print foo\n" +
+                "print(foo)\n" +
                 "foo = 20\n" +
-                "print foo\n" +
+                "print(foo)\n" +
                 "\n");
         int line = 0;
         int col = 0;
         //if we don't have the definition, we don't have any references...
         List<IToken> tokenOccurrences = getTokenOccurrences(line, col);
-        assertEquals(4, tokenOccurrences.size());
+        checkNOccurrences(4, tokenOccurrences);
     }
 
     public void testIt6() throws Exception {
         doc = new Document("foo = 10\n" +
                 "foo.a = 10\n" +
-                "print foo.a\n" +
+                "print(foo.a)\n" +
                 "foo.a = 20\n" +
-                "print foo.a\n" +
+                "print(foo.a)\n" +
                 "\n");
 
         assertEquals(4, getTokenOccurrences(1, 4).size());
@@ -94,7 +95,7 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
 
     public void testIt3() throws Exception {
         doc = new Document("import os.path.os\n" +
-                "print  os.path.os\n" +
+                "print (os.path.os)\n" +
                 "\n");
         checkTestResults(0, 10, "path");
         checkTestResults(1, 10, "path");
@@ -108,7 +109,7 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
 
     public void testIt7() throws Exception {
         doc = new Document("from os import path\n" +
-                "print          path\n" +
+                "print         (path)\n" +
                 "\n");
         checkTestResults(0, 15, "path");
         checkTestResults(1, 15, "path");
@@ -116,7 +117,7 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
 
     public void testIt8() throws Exception {
         doc = new Document("from os import foo, path\n" +
-                "print               path\n" +
+                "print              (path)\n" +
                 "\n");
         checkTestResults(0, 20, "path");
         checkTestResults(1, 20, "path");
@@ -124,7 +125,7 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
 
     public void testIt9() throws Exception {
         doc = new Document("from os import foo as path\n" +
-                "print                 path\n" +
+                "print                (path)\n" +
                 "\n");
         checkTestResults(0, 22, "path");
         checkTestResults(1, 22, "path");
@@ -132,15 +133,15 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
 
     public void testIt10() throws Exception {
         doc = new Document("import path as foo\n" +
-                "print          foo\n" +
+                "print         (foo)\n" +
                 "\n");
         checkTestResults(0, 15, "foo");
         checkTestResults(1, 15, "foo");
     }
 
     public void testIt11() throws Exception {
-        doc = new Document("print          foo\n" +
-                "print          foo\n" +
+        doc = new Document("print         (foo)\n" +
+                "print         (foo)\n" +
                 "\n");
         checkTestResults(0, 15, "foo");
         checkTestResults(1, 15, "foo", false);
@@ -148,19 +149,19 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
 
     public void testIt12() throws Exception {
         doc = new Document("def m1():\n" +
-                "    print foo\n" +
-                "    print bla.foo\n" +
+                "    print(foo)\n" +
+                "    print(bla.foo)\n" +
                 "\n");
         List<IToken> tokenOccurrences = getTokenOccurrences(1, 11);
-        assertEquals(1, tokenOccurrences.size());
+        checkNOccurrences(1, tokenOccurrences);
     }
 
     public void testIt13() throws Exception {
         doc = new Document("def m1():\n" +
-                "    print foo.bla\n" + //accessing this should not get the locals
-                "    print bla\n");
+                "    print(foo.bla)\n" + //accessing this should not get the locals
+                "    print(bla)\n");
         List<IToken> tokenOccurrences = getTokenOccurrences(1, 15);
-        assertEquals(1, tokenOccurrences.size());
+        checkNOccurrences(1, tokenOccurrences);
 
     }
 
@@ -169,7 +170,7 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
                 "    getattr(self).value\n" +
                 "\n");
         List<IToken> tokenOccurrences = getTokenOccurrences(0, 16);
-        assertEquals(2, tokenOccurrences.size());
+        checkNOccurrences(2, tokenOccurrences);
     }
 
     public void testIt15() throws Exception {
@@ -178,7 +179,7 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
                 "    def setUp(self):\n" +
                 "        leaf.Leaf.setUp(self)");
         List<IToken> tokenOccurrences = getTokenOccurrences(1, 17);
-        assertEquals(2, tokenOccurrences.size());
+        checkNOccurrences(2, tokenOccurrences);
         assertEquals(1, tokenOccurrences.get(0).getLineDefinition() - 1);
         assertEquals(15, tokenOccurrences.get(0).getColDefinition() - 1);
 
@@ -188,31 +189,31 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
 
     public void testIt16() throws Exception {
         doc = new Document("import b    \n" +
-                "print b.bar\n" + //this one is selected (b is undefined)
+                "print(b.bar)\n" + //this one is selected (b is undefined)
                 "class C2:\n" +
                 "    def m1(self):\n" +
                 "        bar = 10\n" //should not get this one
         );
         List<IToken> tokenOccurrences = getTokenOccurrences(1, 10);
-        assertEquals(1, tokenOccurrences.size());
+        checkNOccurrences(1, tokenOccurrences);
     }
 
     public void testIt17() throws Exception {
         doc = new Document("import testlib    \n" +
-                "print testlib.bar\n" + //this one is selected (bar is undefined)
+                "print(testlib.bar)\n" + //this one is selected (bar is undefined)
                 "class C2:\n" +
                 "    def m1(self):\n" +
                 "        bar = 10\n" //should not get this one
         );
         List<IToken> tokenOccurrences = getTokenOccurrences(1, 16);
-        assertEquals(1, tokenOccurrences.size());
+        checkNOccurrences(1, tokenOccurrences);
     }
 
     public void testIt18() throws Exception {
         doc = new Document("import bla as fooo\n" +
                 "raise fooo.ffff(msg)\n");
         List<IToken> tokenOccurrences = getTokenOccurrences(0, 16);
-        assertEquals(2, tokenOccurrences.size());
+        checkNOccurrences(2, tokenOccurrences);
 
         IToken t0 = tokenOccurrences.get(0);
         IToken t1 = tokenOccurrences.get(1);
@@ -227,9 +228,9 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
 
     public void testIt19() throws Exception {
         doc = new Document("import os.path\n" +
-                "print os.path\n");
+                "print(os.path)\n");
         List<IToken> tokenOccurrences = getTokenOccurrences(0, 10);
-        assertEquals(2, tokenOccurrences.size());
+        checkNOccurrences(2, tokenOccurrences);
 
     }
 
@@ -238,23 +239,23 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
                 "    class LocalFoo: \n" +
                 "        pass        \n"
                 +
-                "    print LocalFoo  \n" +
+                "    print(LocalFoo) \n" +
                 "                    \n" +
                 "class LocalFoo:     \n"
                 +
                 "    pass            \n" +
-                "print LocalFoo      \n");
+                "print(LocalFoo)     \n");
         List<IToken> tokenOccurrences = getTokenOccurrences(1, 13);
-        assertEquals(2, tokenOccurrences.size());
+        checkNOccurrences(2, tokenOccurrences);
 
     }
 
     public void testIt21() throws Exception {
         doc = new Document("class LocalFoo: \n" +
                 "    pass        \n" +
-                "print LocalFoo  \n");
+                "print(LocalFoo) \n");
         List<IToken> tokenOccurrences = getTokenOccurrences(2, 8);
-        assertEquals(2, tokenOccurrences.size());
+        checkNOccurrences(2, tokenOccurrences);
 
     }
 
@@ -262,49 +263,62 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
         doc = new Document("class LocalFoo(object): \n" +
                 "    pass        \n");
         List<IToken> tokenOccurrences = getTokenOccurrences(0, 17);
-        assertEquals(1, tokenOccurrences.size());
+        checkNOccurrences(1, tokenOccurrences);
+    }
+
+    private void checkNOccurrences(int expectedSize, List<IToken> tokenOccurrences) {
+        if (expectedSize != tokenOccurrences.size()) {
+            FastStringBuffer buf = new FastStringBuffer("Found occurrences:", tokenOccurrences.size() * 40);
+            for (IToken token : tokenOccurrences) {
+                buf.appendObject(token);
+                buf.append(token.getParentPackage());
+                buf.append("line:" + (AbstractMessage.getStartLine(token, doc) - 1));
+                buf.append("col:" + (AbstractMessage.getStartCol(token, doc) - 1));
+            }
+            fail("Expected " + expectedSize + ". Found: " + tokenOccurrences.size() + "\nDetails:\n" + buf);
+        }
     }
 
     public void testIt23() throws Exception {
         doc = new Document("class Foo(object): \n" +
                 "    pass        \n");
         List<IToken> tokenOccurrences = getTokenOccurrences(0, 7);
-        assertEquals(1, tokenOccurrences.size());
+        checkNOccurrences(1, tokenOccurrences);
     }
 
     public void testIt24() throws Exception {
         doc = new Document("import os\n" +
                 "from os import path\n");
         List<IToken> tokenOccurrences = getTokenOccurrences(0, 8);
-        assertEquals(2, tokenOccurrences.size());
+        checkNOccurrences(2, tokenOccurrences);
     }
 
     public void testIt24a() throws Exception {
         doc = new Document("import os\n" +
                 "from os import path\n");
         List<IToken> tokenOccurrences = getTokenOccurrences(1, 6);
-        assertEquals(2, tokenOccurrences.size());
+        checkNOccurrences(2, tokenOccurrences);
     }
 
     public void testIt24b() throws Exception {
         doc = new Document("from os import path\n" +
                 "import os\n");
         List<IToken> tokenOccurrences = getTokenOccurrences(0, 6);
-        assertEquals(2, tokenOccurrences.size());
+        checkNOccurrences(2, tokenOccurrences);
     }
 
     public void testIt24c() throws Exception {
         doc = new Document("from os import path\n" +
                 "import os\n");
         List<IToken> tokenOccurrences = getTokenOccurrences(1, 8);
-        assertEquals(2, tokenOccurrences.size());
+        checkNOccurrences(2, tokenOccurrences);
     }
 
     public void testIt24d() throws Exception {
         doc = new Document("from notFound import path\n" +
                 "import notFound\n");
         List<IToken> tokenOccurrences = getTokenOccurrences(1, 8);
-        assertEquals(2, tokenOccurrences.size());
+        checkNOccurrences(2, tokenOccurrences);
     }
 
     public void testIt25() throws Exception {
@@ -314,7 +328,7 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
                 "    import os\n" +
                 "\n");
         List<IToken> tokenOccurrences = getTokenOccurrences(1, 12);
-        assertEquals(2, tokenOccurrences.size());
+        checkNOccurrences(2, tokenOccurrences);
     }
 
     public void testIt25a() throws Exception {
@@ -322,7 +336,7 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
                 "import os\n" +
                 "\n");
         List<IToken> tokenOccurrences = getTokenOccurrences(0, 8);
-        assertEquals(2, tokenOccurrences.size());
+        checkNOccurrences(2, tokenOccurrences);
     }
 
     public void testIt25b() throws Exception {
@@ -337,29 +351,29 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     public void testIt26() throws Exception {
         doc = new Document("def m1():\n" +
                 "    import os\n" +
-                "    print os\n" +
+                "    print(os)\n" +
                 "    \n" +
                 "def m2():\n"
                 +
                 "    import os\n" +
-                "    print os\n" +
+                "    print(os)\n" +
                 "\n");
         List<IToken> tokenOccurrences = getTokenOccurrences(1, 12);
-        assertEquals(4, tokenOccurrences.size());
+        checkNOccurrences(4, tokenOccurrences);
     }
 
     public void testIt27() throws Exception {
         doc = new Document("def m1():\n" +
                 "    import os.path\n" +
-                "    print os.path\n" +
+                "    print(os.path)\n" +
                 "    \n" +
                 "def m2():\n"
                 +
                 "    import os.path\n" +
-                "    print os.path\n" +
+                "    print(os.path)\n" +
                 "\n");
         List<IToken> tokenOccurrences = getTokenOccurrences(1, 15);
-        assertEquals(4, tokenOccurrences.size());
+        checkNOccurrences(4, tokenOccurrences);
         assertContains(1, 14, tokenOccurrences);
         assertContains(2, 13, tokenOccurrences);
         assertContains(5, 14, tokenOccurrences);
@@ -369,15 +383,15 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     public void testIt27a() throws Exception {
         doc = new Document("def m1():\n" +
                 "    import os.path.os\n" +
-                "    print os.path.os\n" +
+                "    print(os.path.os)\n" +
                 "    \n"
                 +
                 "def m2():\n" +
                 "    import os.path.os\n" +
-                "    print os.path.os\n" +
+                "    print(os.path.os)\n" +
                 "\n");
         List<IToken> tokenOccurrences = getTokenOccurrences(1, 20);
-        assertEquals(4, tokenOccurrences.size());
+        checkNOccurrences(4, tokenOccurrences);
         assertContains(1, 19, tokenOccurrences);
         assertContains(2, 18, tokenOccurrences);
         assertContains(5, 19, tokenOccurrences);
@@ -391,7 +405,7 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
                 "    pass\n" +
                 "\n");
         List<IToken> tokenOccurrences = getTokenOccurrences(2, 7);
-        assertEquals(2, tokenOccurrences.size());
+        checkNOccurrences(2, tokenOccurrences);
         assertContains(1, 4, tokenOccurrences);
         assertContains(2, 6, tokenOccurrences);
     }
@@ -410,7 +424,7 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
                 "            self._DoCreateIt(root_info)\n" +
                 "\n");
         List<IToken> tokenOccurrences = getTokenOccurrences(2, 27);
-        assertEquals(1, tokenOccurrences.size());
+        checkNOccurrences(1, tokenOccurrences);
     }
 
     public void testIt30() throws Exception {
@@ -422,7 +436,7 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
                 "\n" +
                 "\n");
         List<IToken> tokenOccurrences = getTokenOccurrences(0, 7);
-        assertEquals(2, tokenOccurrences.size());
+        checkNOccurrences(2, tokenOccurrences);
         for (IToken token : tokenOccurrences) {
             int colDefinition = token.getColDefinition();
             assertTrue(colDefinition == 7 || colDefinition == 9);
@@ -455,11 +469,11 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     //                "class Foo:\n" +
     //                "    vlMolecularWeigth = ''\n" +
     //                "    def toSimulator(self):\n" +
-    //                "        print self.vlMolecularWeigth\n" +
+    //                "        print(self.vlMolecularWeigth)\n" +
     //                ""
     //        );
     //        List<IToken> tokenOccurrences = getTokenOccurrences(3, 21);
-    //        assertEquals(2, tokenOccurrences.size());
+    //        checkNOccurrences(2, tokenOccurrences);
     //    }
 
     private void checkTestResults(int line, int col, String lookFor) throws Exception {
@@ -467,16 +481,8 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
     }
 
     private void checkTestResults(int line, int col, String lookFor, boolean checkPositions) throws Exception {
-        List<IToken> tokenOccurrences = getTokenOccurrences(line, col);
-        if (tokenOccurrences.size() != 2) {
-            System.out.println("Found occurrences:");
-            for (IToken token : tokenOccurrences) {
-                System.out.println(token);
-                System.out.println("line:" + (AbstractMessage.getStartLine(token, doc) - 1));
-                System.out.println("col:" + (AbstractMessage.getStartCol(token, doc) - 1));
-            }
-        }
-        assertEquals(2, tokenOccurrences.size());
+    	List<IToken> tokenOccurrences = getTokenOccurrences(line, col);
+        checkNOccurrences(2, tokenOccurrences);
 
         IToken tok0 = tokenOccurrences.get(0);
         assertEquals(lookFor, tok0.getRepresentation());
@@ -495,11 +501,11 @@ public class ScopeAnalyzerVisitorTest extends AnalysisTestsBase {
 
     public void testIt() throws Exception {
         doc = new Document("foo = 20\n" +
-                "print foo\n" +
+                "print(foo)\n" +
                 "\n");
 
         List<IToken> toks = getTokenOccurrences(0, 1);
-        assertEquals(2, toks.size());
+        checkNOccurrences(2, toks);
         assertEquals(0, toks.get(0).getLineDefinition() - 1);
         assertEquals(0, toks.get(0).getColDefinition() - 1);
 

@@ -1,10 +1,7 @@
 from collections import namedtuple
 from contextlib import contextmanager
 import json
-try:
-    from urllib import quote, quote_plus, unquote_plus
-except ImportError:
-    from urllib.parse import quote, quote_plus, unquote_plus  # @UnresolvedImport
+from urllib.parse import quote, quote_plus, unquote_plus
 
 import re
 import socket
@@ -127,11 +124,6 @@ try:
 except ImportError:
     from _thread import start_new_thread  # @UnresolvedImport
 
-try:
-    xrange
-except:
-    xrange = range
-
 Hit = namedtuple('Hit', 'thread_id, frame_id, line, suspend_type, name, file')
 
 
@@ -201,12 +193,13 @@ class ReaderThread(threading.Thread):
         except ImportError:
             from Queue import Queue
 
-        self.setDaemon(True)
+        self.daemon = True
         self._buffer = b''
         self.sock = sock
         self._queue = Queue()
         self._kill = False
         self.accept_xml_messages = True
+        self.on_message_found = lambda msg: None
 
     def set_messages_timeout(self, timeout):
         self.MESSAGES_TIMEOUT = timeout
@@ -216,6 +209,7 @@ class ReaderThread(threading.Thread):
             timeout = self.MESSAGES_TIMEOUT
         try:
             msg = self._queue.get(block=True, timeout=timeout)
+            self.on_message_found(msg)
         except:
             raise TimeoutError('No message was written in %s seconds. Error message:\n%s' % (timeout, context_message,))
         else:
@@ -291,8 +285,7 @@ class ReaderThread(threading.Thread):
 
                 if SHOW_WRITES_AND_READS:
                     show_line = line
-                    if IS_PY3K:
-                        show_line = line.decode('utf-8')
+                    show_line = line.decode('utf-8')
 
                     print('%s Received %s' % (self.name, show_line,))
 
@@ -311,8 +304,7 @@ class ReaderThread(threading.Thread):
                             return  # Finished communication.
 
                         msg = json_contents
-                        if IS_PY3K:
-                            msg = msg.decode('utf-8')
+                        msg = msg.decode('utf-8')
                         print('Test Reader Thread Received %s' % (msg,))
                         self._queue.put(msg)
 
@@ -329,9 +321,8 @@ class ReaderThread(threading.Thread):
                         line = line[:-1]
 
                     msg = line
-                    if IS_PY3K:
-                        msg = msg.decode('utf-8')
-                        print('Test Reader Thread Received %s' % (msg,))
+                    msg = msg.decode('utf-8')
+                    print('Test Reader Thread Received %s' % (msg,))
                     self._queue.put(msg)
 
         except:
@@ -369,8 +360,7 @@ def read_process(stream, buffer, debug_stream, stream_name, finish):
         if not line:
             break
 
-        if IS_PY3K:
-            line = line.decode('utf-8', errors='replace')
+        line = line.decode('utf-8', errors='replace')
 
         if SHOW_STDOUT:
             debug_stream.write('%s: %s' % (stream_name, line,))
@@ -382,7 +372,7 @@ def read_process(stream, buffer, debug_stream, stream_name, finish):
 
 def start_in_daemon_thread(target, args):
     t0 = threading.Thread(target=target, args=args)
-    t0.setDaemon(True)
+    t0.daemon = True
     t0.start()
 
 
@@ -400,14 +390,13 @@ class DebuggerRunner(object):
         '''
         raise NotImplementedError
 
-    def add_command_line_args(self, args):
+    def add_command_line_args(self, args, dap=False):
         writer = self.writer
         port = int(writer.port)
 
         localhost = pydev_localhost.get_localhost()
         ret = [
             writer.get_pydevd_file(),
-            '--DEBUG_RECORD_SOCKET_READS',
         ]
 
         if not IS_PY36_OR_GREATER or not IS_CPYTHON or not TEST_CYTHON:
@@ -422,6 +411,10 @@ class DebuggerRunner(object):
             str(port),
         ]
 
+        if dap:
+            ret += ['--debug-mode', 'debugpy-dap']
+            ret += ['--json-dap-http']
+
         if writer.IS_MODULE:
             ret += ['--module']
 
@@ -430,7 +423,7 @@ class DebuggerRunner(object):
         return args + ret
 
     @contextmanager
-    def check_case(self, writer_class, wait_for_port=True):
+    def check_case(self, writer_class, wait_for_port=True, wait_for_initialization=True, dap=False):
         try:
             if callable(writer_class):
                 writer = writer_class()
@@ -444,14 +437,18 @@ class DebuggerRunner(object):
 
                 args = self.get_command_line()
 
-                args = self.add_command_line_args(args)
+                args = self.add_command_line_args(args, dap=dap)
 
                 if SHOW_OTHER_DEBUG_INFO:
                     print('executing: %s' % (' '.join(args),))
 
                 with self.run_process(args, writer) as dct_with_stdout_stder:
                     try:
-                        if wait_for_port:
+                        if not wait_for_initialization:
+                            # The use-case for this is that the debugger can't even start-up in this
+                            # scenario, as such, sleep a bit so that the output can be collected.
+                            time.sleep(1)
+                        elif wait_for_port:
                             wait_for_condition(lambda: writer.finished_initialization)
                     except TimeoutError:
                         sys.stderr.write('Timed out waiting for initialization\n')
@@ -667,7 +664,7 @@ class AbstractWriterThread(threading.Thread):
     def __init__(self, *args, **kwargs):
         threading.Thread.__init__(self, *args, **kwargs)
         self.process = None  # Set after the process is created.
-        self.setDaemon(True)
+        self.daemon = True
         self.finished_ok = False
         self.finished_initialization = False
         self._next_breakpoint_id = 0
@@ -697,6 +694,9 @@ class AbstractWriterThread(threading.Thread):
         for expected in (
             'PyDev console: using IPython',
             'Attempting to work in a virtualenv. If you encounter problems, please',
+            'Unable to create basic Accelerated OpenGL',  # Issue loading qt5
+            'Core Image is now using the software OpenGL',  # Issue loading qt5
+            'XDG_RUNTIME_DIR not set',  # Issue loading qt5
             ):
             if expected in line:
                 return True
@@ -735,14 +735,6 @@ class AbstractWriterThread(threading.Thread):
             if line.strip().startswith('at '):
                 return True
 
-        if IS_PY26:
-            # Sometimes in the ci there's an unhandled exception which doesn't have a stack trace
-            # (apparently this happens when a daemon thread dies during process shutdown).
-            # This was only reproducible on the ci on Python 2.6, so, ignoring that output on Python 2.6 only.
-            for expected in (
-                'Unhandled exception in thread started by <_pydev_bundle.pydev_monkey._NewThreadStartupWithTrace'):
-                if expected in line:
-                    return True
         return False
 
     def additional_output_checks(self, stdout, stderr):
@@ -840,8 +832,7 @@ class AbstractWriterThread(threading.Thread):
             print('%s.sock not available when sending: %s' % (self, msg))
             return
 
-        if IS_PY3K:
-            msg = msg.encode('utf-8')
+        msg = msg.encode('utf-8')
 
         self.sock.send(msg)
 
@@ -1302,7 +1293,7 @@ class AbstractWriterThread(threading.Thread):
 
     def write_custom_operation(self, locator, style, codeOrFile, operation_fn_name):
         self.write("%s\t%s\t%s||%s\t%s\t%s" % (
-            CMD_RUN_CUSTOM_OPERATION, self.next_seq(), locator, style, codeOrFile, operation_fn_name))
+            CMD_RUN_CUSTOM_OPERATION, self.next_seq(), locator, style, quote_plus(codeOrFile), operation_fn_name))
 
     def write_evaluate_expression(self, locator, expression):
         self.write("%s\t%s\t%s\t%s\t1" % (CMD_EVALUATE_EXPRESSION, self.next_seq(), locator, expression))
@@ -1343,7 +1334,7 @@ class AbstractWriterThread(threading.Thread):
             traceback.print_exc()
             raise AssertionError('Unable to parse:\n%s\njson:\n%s' % (last, json_msg))
 
-    def wait_for_message(self, accept_message, unquote_msg=True, expect_xml=True, timeout=None):
+    def wait_for_message(self, accept_message, unquote_msg=True, expect_xml=True, timeout=None, double_unquote=True):
         if isinstance(accept_message, (str, int)):
             msg_starts_with = '%s\t' % (accept_message,)
 
@@ -1356,7 +1347,12 @@ class AbstractWriterThread(threading.Thread):
         while True:
             last = self.get_next_message('wait_for_message', timeout=timeout)
             if unquote_msg:
-                last = unquote_plus(unquote_plus(last))
+                last = unquote_plus(last)
+                if double_unquote:
+                    # This is useful if the checking will be done without needing to unpack the
+                    # actual xml (in which case we'll be unquoting things inside of attrs --
+                    # this could actually make the xml invalid though).
+                    last = unquote_plus(last)
             if accept_message(last):
                 if expect_xml:
                     # Extract xml and return untangled.
@@ -1375,6 +1371,42 @@ class AbstractWriterThread(threading.Thread):
                 else:
                     return last
             if prev != last:
+                sys.stderr.write('Ignored message: %r\n' % (last,))
+                # Uncomment to know where in the stack it was ignored.
+                # import traceback
+                # traceback.print_stack(limit=7)
+
+            prev = last
+
+    def wait_for_untangled_message(self, accept_message, timeout=None, double_unquote=False):
+        import untangle
+        from io import StringIO
+        prev = None
+        while True:
+            last = self.get_next_message('wait_for_message', timeout=timeout)
+            last = unquote_plus(last)
+            if double_unquote:
+                last = unquote_plus(last)
+            # Extract xml with untangled.
+            xml = ''
+            try:
+                xml = last[last.index('<xml>'):]
+            except:
+                traceback.print_exc()
+                raise AssertionError('Unable to find xml in: %s' % (last,))
+
+            try:
+                if isinstance(xml, bytes):
+                    xml = xml.decode('utf-8')
+                xml = untangle.parse(StringIO(xml))
+            except:
+                traceback.print_exc()
+                raise AssertionError('Unable to parse:\n%s\nxml:\n%s' % (last, xml))
+            untangled = xml.xml
+            cmd_id = last.split('\t', 1)[0]
+            if accept_message(int(cmd_id), untangled):
+                return untangled
+            if prev != last:
                 print('Ignored message: %r' % (last,))
 
             prev = last
@@ -1391,7 +1423,10 @@ class AbstractWriterThread(threading.Thread):
         self.write("%s\t%s\t%s\t%s\t%s\t%s" % (CMD_GET_SMART_STEP_INTO_VARIANTS, self.next_seq(), thread_id, frame_id, start_line, end_line))
         msg = self.wait_for_message(CMD_GET_SMART_STEP_INTO_VARIANTS)
         if msg.variant:
-            variant_info = [(variant['name'], variant['isVisited'], variant['line'], variant['callOrder'], variant['offset']) for variant in msg.variant]
+            variant_info = [
+                (variant['name'], variant['isVisited'], variant['line'], variant['callOrder'], variant['offset'], variant['childOffset'])
+                for variant in msg.variant
+            ]
             return variant_info
         return []
 
@@ -1400,7 +1435,8 @@ class AbstractWriterThread(threading.Thread):
         def condition():
             return self.get_frame_names(main_thread_id) in (
                 ['wait', 'join', '<module>'],
-                ['_wait_for_tstate_lock', 'join', '<module>']
+                ['_wait_for_tstate_lock', 'join', '<module>'],
+                ['_wait_for_tstate_lock', 'join', '<module>', '_run_code', '_run_module_code', 'run_path'],
             )
 
         def msg():
@@ -1430,8 +1466,7 @@ class AbstractWriterThread(threading.Thread):
                     try:
                         stream = urlopen(full_url)
                         contents = stream.read()
-                        if IS_PY3K:
-                            contents = contents.decode('utf-8')
+                        contents = contents.decode('utf-8')
                         self.contents = contents
                         break
                     except IOError:

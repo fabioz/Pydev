@@ -2,28 +2,25 @@
     resolution/conversion to XML.
 """
 import pickle
-from _pydevd_bundle.pydevd_constants import get_frame, get_current_thread_id, xrange, IS_PY2, \
-    iter_chars, silence_warnings_decorator
+from _pydevd_bundle.pydevd_constants import get_frame, get_current_thread_id, \
+    iter_chars, silence_warnings_decorator, get_global_debugger
 
 from _pydevd_bundle.pydevd_xml import ExceptionOnEvaluate, get_type, var_to_xml
 from _pydev_bundle import pydev_log
-import codecs
-import os
 import functools
 from _pydevd_bundle.pydevd_thread_lifecycle import resume_threads, mark_thread_suspended, suspend_all_threads
 from _pydevd_bundle.pydevd_comm_constants import CMD_SET_BREAK
 
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
 import sys  # @Reimport
 
-from _pydev_imps._pydev_saved_modules import threading
-import traceback
-from _pydevd_bundle import pydevd_save_locals, pydevd_timeout, pydevd_constants, pydevd_utils
+from _pydev_bundle._pydev_saved_modules import threading
+from _pydevd_bundle import pydevd_save_locals, pydevd_timeout, pydevd_constants
 from _pydev_bundle.pydev_imports import Exec, execfile
 from _pydevd_bundle.pydevd_utils import to_string
+import inspect
+from _pydevd_bundle.pydevd_daemon_thread import PyDBDaemonThread
+from _pydevd_bundle.pydevd_save_locals import update_globals_and_locals
+from functools import lru_cache
 
 SENTINEL_VALUE = []
 
@@ -41,7 +38,7 @@ def iter_frames(frame):
 
 def dump_frames(thread_id):
     sys.stdout.write('dumping frames\n')
-    if thread_id != get_current_thread_id(threading.currentThread()):
+    if thread_id != get_current_thread_id(threading.current_thread()):
         raise VariableError("find_frame: must execute on same thread")
 
     frame = get_frame()
@@ -50,7 +47,7 @@ def dump_frames(thread_id):
 
 
 @silence_warnings_decorator
-def getVariable(dbg, thread_id, frame_id, scope, attrs):
+def getVariable(dbg, thread_id, frame_id, scope, locator):
     """
     returns the value of a variable
 
@@ -58,14 +55,14 @@ def getVariable(dbg, thread_id, frame_id, scope, attrs):
 
     BY_ID means we'll traverse the list of all objects alive to get the object.
 
-    :attrs: after reaching the proper scope, we have to get the attributes until we find
+    :locator: after reaching the proper scope, we have to get the attributes until we find
             the proper location (i.e.: obj\tattr1\tattr2)
 
     :note: when BY_ID is used, the frame_id is considered the id of the object to find and
            not the frame (as we don't care about the frame in this case).
     """
     if scope == 'BY_ID':
-        if thread_id != get_current_thread_id(threading.currentThread()):
+        if thread_id != get_current_thread_id(threading.current_thread()):
             raise VariableError("getVariable: must execute on same thread")
 
         try:
@@ -77,15 +74,15 @@ def getVariable(dbg, thread_id, frame_id, scope, attrs):
             frame_id = int(frame_id)
             for var in objects:
                 if id(var) == frame_id:
-                    if attrs is not None:
-                        attrList = attrs.split('\t')
-                        for k in attrList:
+                    if locator is not None:
+                        locator_parts = locator.split('\t')
+                        for k in locator_parts:
                             _type, _type_name, resolver = get_type(var)
                             var = resolver.resolve(var, k)
 
                     return var
 
-        # If it didn't return previously, we coudn't find it by id (i.e.: alrceady garbage collected).
+        # If it didn't return previously, we coudn't find it by id (i.e.: already garbage collected).
         sys.stderr.write('Unable to find object with id: %s\n' % (frame_id,))
         return None
 
@@ -93,33 +90,33 @@ def getVariable(dbg, thread_id, frame_id, scope, attrs):
     if frame is None:
         return {}
 
-    if attrs is not None:
-        attrList = attrs.split('\t')
+    if locator is not None:
+        locator_parts = locator.split('\t')
     else:
-        attrList = []
+        locator_parts = []
 
-    for attr in attrList:
+    for attr in locator_parts:
         attr.replace("@_@TAB_CHAR@_@", '\t')
 
     if scope == 'EXPRESSION':
-        for count in xrange(len(attrList)):
+        for count in range(len(locator_parts)):
             if count == 0:
                 # An Expression can be in any scope (globals/locals), therefore it needs to evaluated as an expression
-                var = evaluate_expression(dbg, frame, attrList[count], False)
+                var = evaluate_expression(dbg, frame, locator_parts[count], False)
             else:
                 _type, _type_name, resolver = get_type(var)
-                var = resolver.resolve(var, attrList[count])
+                var = resolver.resolve(var, locator_parts[count])
     else:
         if scope == "GLOBAL":
             var = frame.f_globals
-            del attrList[0]  # globals are special, and they get a single dummy unused attribute
+            del locator_parts[0]  # globals are special, and they get a single dummy unused attribute
         else:
             # in a frame access both locals and globals as Python does
             var = {}
             var.update(frame.f_globals)
             var.update(frame.f_locals)
 
-        for k in attrList:
+        for k in locator_parts:
             _type, _type_name, resolver = get_type(var)
             var = resolver.resolve(var, k)
 
@@ -210,6 +207,7 @@ def custom_operation(dbg, thread_id, frame_id, scope, attrs, style, code_or_file
         pydev_log.exception()
 
 
+@lru_cache(3)
 def _expression_to_evaluate(expression):
     keepends = True
     lines = expression.splitlines(keepends)
@@ -244,47 +242,44 @@ def _expression_to_evaluate(expression):
             else:
                 expression = u''.join(new_lines)
 
-    if IS_PY2 and isinstance(expression, unicode):
-        # In Python 2 we need to compile with bytes and not unicode (otherwise it'd use
-        # the default encoding which could be ascii).
-        # See https://github.com/microsoft/ptvsd/issues/1864 and https://bugs.python.org/issue18870
-        # for why we're using the utf-8 bom.
-        # i.e.: ... if an utf-8 bom is present, it is considered utf-8 in eval/exec.
-        expression = codecs.BOM_UTF8 + expression.encode('utf-8')
     return expression
 
 
-def eval_in_context(expression, globals, locals):
+def eval_in_context(expression, global_vars, local_vars, py_db=None):
     result = None
     try:
-        result = eval(_expression_to_evaluate(expression), globals, locals)
+        compiled = compile_as_eval(expression)
+        is_async = inspect.CO_COROUTINE & compiled.co_flags == inspect.CO_COROUTINE
+
+        if is_async:
+            if py_db is None:
+                py_db = get_global_debugger()
+                if py_db is None:
+                    raise RuntimeError('Cannot evaluate async without py_db.')
+            t = _EvalAwaitInNewEventLoop(py_db, compiled, global_vars, local_vars)
+            t.start()
+            t.join()
+
+            if t.exc:
+                raise t.exc[1].with_traceback(t.exc[2])
+            else:
+                result = t.evaluated_value
+        else:
+            result = eval(compiled, global_vars, local_vars)
     except (Exception, KeyboardInterrupt):
-        s = StringIO()
-        traceback.print_exc(file=s)
-        result = s.getvalue()
-
-        try:
-            try:
-                etype, value, tb = sys.exc_info()
-                result = value
-            finally:
-                etype = value = tb = None
-        except:
-            pass
-
-        result = ExceptionOnEvaluate(result)
+        etype, result, tb = sys.exc_info()
+        result = ExceptionOnEvaluate(result, etype, tb)
 
         # Ok, we have the initial error message, but let's see if we're dealing with a name mangling error...
         try:
-            if IS_PY2 and isinstance(expression, unicode):
-                expression = expression.encode('utf-8')
-
             if '.__' in expression:
                 # Try to handle '__' name mangling (for simple cases such as self.__variable.__another_var).
                 split = expression.split('.')
                 entry = split[0]
 
-                curr = locals[entry]  # Note: we want the KeyError if it's not there.
+                if local_vars is None:
+                    local_vars = global_vars
+                curr = local_vars[entry]  # Note: we want the KeyError if it's not there.
                 for entry in split[1:]:
                     if entry.startswith('__') and not hasattr(curr, entry):
                         entry = '_%s%s' % (curr.__class__.__name__, entry)
@@ -330,7 +325,7 @@ def _run_with_unblock_threads(original_func, py_db, curr_thread, frame, expressi
             on_timeout_unblock_threads.called = True
             pydev_log.info('Resuming threads after evaluate timeout.')
             resume_threads('*', except_thread=curr_thread)
-            py_db.threads_suspended_single_notification.on_thread_resume(tid)
+            py_db.threads_suspended_single_notification.on_thread_resume(tid, curr_thread)
 
         on_timeout_unblock_threads.called = False
 
@@ -346,7 +341,7 @@ def _run_with_unblock_threads(original_func, py_db, curr_thread, frame, expressi
             mark_thread_suspended(curr_thread, CMD_SET_BREAK)
             py_db.threads_suspended_single_notification.increment_suspend_time()
             suspend_all_threads(py_db, except_thread=curr_thread)
-            py_db.threads_suspended_single_notification.on_thread_suspend(tid, CMD_SET_BREAK)
+            py_db.threads_suspended_single_notification.on_thread_suspend(tid, curr_thread, CMD_SET_BREAK)
 
 
 def _evaluate_with_timeouts(original_func):
@@ -359,6 +354,10 @@ def _evaluate_with_timeouts(original_func):
 
     @functools.wraps(original_func)
     def new_func(py_db, frame, expression, is_exec):
+        if py_db is None:
+            # Only for testing...
+            pydev_log.critical('_evaluate_with_timeouts called without py_db!')
+            return original_func(py_db, frame, expression, is_exec)
         warn_evaluation_timeout = pydevd_constants.PYDEVD_WARN_EVALUATION_TIMEOUT
         curr_thread = threading.current_thread()
 
@@ -373,66 +372,212 @@ def _evaluate_with_timeouts(original_func):
     return new_func
 
 
+_ASYNC_COMPILE_FLAGS = None
+try:
+    from ast import PyCF_ALLOW_TOP_LEVEL_AWAIT
+    _ASYNC_COMPILE_FLAGS = PyCF_ALLOW_TOP_LEVEL_AWAIT
+except:
+    pass
+
+
+def compile_as_eval(expression):
+    '''
+
+    :param expression:
+        The expression to be _compiled.
+
+    :return: code object
+
+    :raises Exception if the expression cannot be evaluated.
+    '''
+    expression_to_evaluate = _expression_to_evaluate(expression)
+    if _ASYNC_COMPILE_FLAGS is not None:
+        return compile(expression_to_evaluate, '<string>', 'eval', _ASYNC_COMPILE_FLAGS)
+    else:
+        return compile(expression_to_evaluate, '<string>', 'eval')
+
+
+def _compile_as_exec(expression):
+    '''
+
+    :param expression:
+        The expression to be _compiled.
+
+    :return: code object
+
+    :raises Exception if the expression cannot be evaluated.
+    '''
+    expression_to_evaluate = _expression_to_evaluate(expression)
+    if _ASYNC_COMPILE_FLAGS is not None:
+        return compile(expression_to_evaluate, '<string>', 'exec', _ASYNC_COMPILE_FLAGS)
+    else:
+        return compile(expression_to_evaluate, '<string>', 'exec')
+
+
+class _EvalAwaitInNewEventLoop(PyDBDaemonThread):
+
+    def __init__(self, py_db, compiled, updated_globals, updated_locals):
+        PyDBDaemonThread.__init__(self, py_db)
+        self._compiled = compiled
+        self._updated_globals = updated_globals
+        self._updated_locals = updated_locals
+
+        # Output
+        self.evaluated_value = None
+        self.exc = None
+
+    async def _async_func(self):
+        return await eval(self._compiled, self._updated_locals, self._updated_globals)
+
+    def _on_run(self):
+        try:
+            import asyncio
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            self.evaluated_value = asyncio.run(self._async_func())
+        except:
+            self.exc = sys.exc_info()
+
+
 @_evaluate_with_timeouts
 def evaluate_expression(py_db, frame, expression, is_exec):
     '''
-    There are some changes in this function depending on whether it's an exec or an eval.
+    :param str expression:
+        The expression to be evaluated.
 
-    When it's an exec (i.e.: is_exec==True):
-        This function returns None.
-        Any exception that happens during the evaluation is reraised.
-        If the expression could actually be evaluated, the variable is printed to the console if not None.
+        Note that if the expression is indented it's automatically dedented (based on the indentation
+        found on the first non-empty line).
 
-    When it's an eval (i.e.: is_exec==False):
-        This function returns the result from the evaluation.
-        If some exception happens in this case, the exception is caught and a ExceptionOnEvaluate is returned.
-        Also, in this case we try to resolve name-mangling (i.e.: to be able to add a self.__my_var watch).
+        i.e.: something as:
+
+        `
+            def method():
+                a = 1
+        `
+
+        becomes:
+
+        `
+        def method():
+            a = 1
+        `
+
+        Also, it's possible to evaluate calls with a top-level await (currently this is done by
+        creating a new event loop in a new thread and making the evaluate at that thread -- note
+        that this is still done synchronously so the evaluation has to finish before this
+        function returns).
 
     :param is_exec: determines if we should do an exec or an eval.
+        There are some changes in this function depending on whether it's an exec or an eval.
+
+        When it's an exec (i.e.: is_exec==True):
+            This function returns None.
+            Any exception that happens during the evaluation is reraised.
+            If the expression could actually be evaluated, the variable is printed to the console if not None.
+
+        When it's an eval (i.e.: is_exec==False):
+            This function returns the result from the evaluation.
+            If some exception happens in this case, the exception is caught and a ExceptionOnEvaluate is returned.
+            Also, in this case we try to resolve name-mangling (i.e.: to be able to add a self.__my_var watch).
+
+    :param py_db:
+        The debugger. Only needed if some top-level await is detected (for creating a
+        PyDBDaemonThread).
     '''
     if frame is None:
         return
 
-    # Note: not using frame.f_globals directly because we need variables to be mutated in that
-    # context to support generator expressions (i.e.: the case below doesn't work unless
-    # globals=locals) because a generator expression actually creates a new function context.
-    # i.e.:
-    # global_vars = {}
-    # local_vars = {'ar':["foo", "bar"], 'y':"bar"}
-    # print eval('all((x == y for x in ar))', global_vars, local_vars)
-    # See: https://mail.python.org/pipermail/python-list/2009-January/522213.html
+    # This is very tricky. Some statements can change locals and use them in the same
+    # call (see https://github.com/microsoft/debugpy/issues/815), also, if locals and globals are
+    # passed separately, it's possible that one gets updated but apparently Python will still
+    # try to load from the other, so, what's done is that we merge all in a single dict and
+    # then go on and update the frame with the results afterwards.
 
+    # -- see tests in test_evaluate_expression.py
+
+    # This doesn't work because the variables aren't updated in the locals in case the
+    # evaluation tries to set a variable and use it in the same expression.
+    # updated_globals = frame.f_globals
+    # updated_locals = frame.f_locals
+
+    # This doesn't work because the variables aren't updated in the locals in case the
+    # evaluation tries to set a variable and use it in the same expression.
+    # updated_globals = {}
+    # updated_globals.update(frame.f_globals)
+    # updated_globals.update(frame.f_locals)
+    #
+    # updated_locals = frame.f_locals
+
+    # This doesn't work either in the case where the evaluation tries to set a variable and use
+    # it in the same expression (I really don't know why as it seems like this *should* work
+    # in theory but doesn't in practice).
+    # updated_globals = {}
+    # updated_globals.update(frame.f_globals)
+    #
+    # updated_locals = {}
+    # updated_globals.update(frame.f_locals)
+
+    # This is the only case that worked consistently to run the tests in test_evaluate_expression.py
+    # It's a bit unfortunate because although the exec works in this case, we have to manually
+    # put the updates in the frame locals afterwards.
     updated_globals = {}
     updated_globals.update(frame.f_globals)
-    updated_globals.update(frame.f_locals)  # locals later because it has precedence over the actual globals
+    updated_globals.update(frame.f_locals)
+    if 'globals' not in updated_globals:
+        # If the user explicitly uses 'globals()' then we provide the
+        # frame globals (unless he has shadowed it already).
+        updated_globals['globals'] = lambda: frame.f_globals
+
+    initial_globals = updated_globals.copy()
+
+    updated_locals = None
 
     try:
-        if IS_PY2 and isinstance(expression, unicode):
-            expression = expression.replace(u'@LINE@', u'\n')
-        else:
-            expression = expression.replace('@LINE@', '\n')
+        expression = expression.replace('@LINE@', '\n')
 
         if is_exec:
             try:
-                # try to make it an eval (if it is an eval we can print it, otherwise we'll exec it and
+                # Try to make it an eval (if it is an eval we can print it, otherwise we'll exec it and
                 # it will have whatever the user actually did)
-                compiled = compile(_expression_to_evaluate(expression), '<string>', 'eval')
+                compiled = compile_as_eval(expression)
             except Exception:
-                Exec(_expression_to_evaluate(expression), updated_globals, frame.f_locals)
-                pydevd_save_locals.save_locals(frame)
+                compiled = None
+
+            if compiled is None:
+                try:
+                    compiled = _compile_as_exec(expression)
+                    is_async = inspect.CO_COROUTINE & compiled.co_flags == inspect.CO_COROUTINE
+                    if is_async:
+                        t = _EvalAwaitInNewEventLoop(py_db, compiled, updated_globals, updated_locals)
+                        t.start()
+                        t.join()
+
+                        if t.exc:
+                            raise t.exc[1].with_traceback(t.exc[2])
+                    else:
+                        Exec(compiled, updated_globals, updated_locals)
+                finally:
+                    # Update the globals even if it errored as it may have partially worked.
+                    update_globals_and_locals(updated_globals, initial_globals, frame)
             else:
-                result = eval(compiled, updated_globals, frame.f_locals)
+                is_async = inspect.CO_COROUTINE & compiled.co_flags == inspect.CO_COROUTINE
+                if is_async:
+                    t = _EvalAwaitInNewEventLoop(py_db, compiled, updated_globals, updated_locals)
+                    t.start()
+                    t.join()
+
+                    if t.exc:
+                        raise t.exc[1].with_traceback(t.exc[2])
+                    else:
+                        result = t.evaluated_value
+                else:
+                    result = eval(compiled, updated_globals, updated_locals)
                 if result is not None:  # Only print if it's not None (as python does)
-                    if IS_PY2 and isinstance(result, unicode):
-                        encoding = sys.stdout.encoding
-                        if not encoding:
-                            encoding = os.environ.get('PYTHONIOENCODING', 'utf-8')
-                        result = result.encode(encoding, 'replace')
                     sys.stdout.write('%s\n' % (result,))
             return
 
         else:
-            ret = eval_in_context(expression, updated_globals, frame.f_locals)
+            ret = eval_in_context(expression, updated_globals, updated_locals, py_db)
             try:
                 is_exception_returned = ret.__class__ == ExceptionOnEvaluate
             except:
@@ -441,11 +586,13 @@ def evaluate_expression(py_db, frame, expression, is_exec):
                 if not is_exception_returned:
                     # i.e.: by using a walrus assignment (:=), expressions can change the locals,
                     # so, make sure that we save the locals back to the frame.
-                    pydevd_save_locals.save_locals(frame)
+                    update_globals_and_locals(updated_globals, initial_globals, frame)
             return ret
     finally:
         # Should not be kept alive if an exception happens and this frame is kept in the stack.
         del updated_globals
+        del updated_locals
+        del initial_globals
         del frame
 
 
@@ -479,7 +626,7 @@ def change_attr_expression(frame, attr, expression, dbg, value=SENTINEL_VALUE):
                     pydevd_save_locals.save_locals(frame)
                     return frame.f_locals[attr]
 
-            # default way (only works for changing it in the topmost frame)
+            # i.e.: case with '.' or save locals not available (just exec the assignment in the frame).
             if value is SENTINEL_VALUE:
                 value = eval(expression, frame.f_globals, frame.f_locals)
             result = value
@@ -535,9 +682,9 @@ def array_to_xml(array, roffset, coffset, rows, cols, format):
             rows = min(rows, len(array))
 
     xml += "<arraydata rows=\"%s\" cols=\"%s\"/>" % (rows, cols)
-    for row in xrange(rows):
+    for row in range(rows):
         xml += "<row index=\"%s\"/>" % to_string(row)
-        for col in xrange(cols):
+        for col in range(cols):
             value = array
             if rows == 1 or cols == 1:
                 if rows == 1 and cols == 1:
@@ -566,7 +713,7 @@ def array_to_meta_xml(array, name, format):
     if format == '%':
         if l > 2:
             slice += '[0]' * (l - 2)
-            for r in xrange(l - 2):
+            for r in range(l - 2):
                 array = array[0]
         if type == 'f':
             format = '.5f'
@@ -649,7 +796,7 @@ def dataframe_to_xml(df, name, roffset, coffset, rows, cols, format):
     cols = min(min(cols, MAXIMUM_ARRAY_SIZE), num_cols)
     # need to precompute column bounds here before slicing!
     col_bounds = [None] * cols
-    for col in xrange(cols):
+    for col in range(cols):
         dtype = df.dtypes.iloc[coffset + col].kind
         if dtype in "biufc":
             cvalues = df.iloc[:, coffset + col]
@@ -667,7 +814,7 @@ def dataframe_to_xml(df, name, roffset, coffset, rows, cols, format):
 
     get_label = lambda label: str(label) if not isinstance(label, tuple) else '/'.join(map(str, label))
 
-    for col in xrange(cols):
+    for col in range(cols):
         dtype = df.dtypes.iloc[col].kind
         if dtype == 'f' and format:
             fmt = format
@@ -687,9 +834,9 @@ def dataframe_to_xml(df, name, roffset, coffset, rows, cols, format):
                (str(row), get_label(label))
     xml += "</headerdata>\n"
     xml += "<arraydata rows=\"%s\" cols=\"%s\"/>\n" % (rows, cols)
-    for row in xrange(rows):
+    for row in range(rows):
         xml += "<row index=\"%s\"/>\n" % str(row)
-        for col in xrange(cols):
+        for col in range(cols):
             value = df.iat[row, col]
             value = col_formats[col] % value
             xml += var_to_xml(value, '')

@@ -87,6 +87,9 @@ public class PyDevCorePreferencesInitializer {
         node.putBoolean(InterpreterGeneralPreferences.UPDATE_INTERPRETER_INFO_ON_FILESYSTEM_CHANGES,
                 InterpreterGeneralPreferences.DEFAULT_UPDATE_INTERPRETER_INFO_ON_FILESYSTEM_CHANGES);
 
+        node.putBoolean(InterpreterGeneralPreferences.USE_TYPESHED,
+                InterpreterGeneralPreferences.DEFAULT_USE_TYPESHED);
+
     }
 
 }

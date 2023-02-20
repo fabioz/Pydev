@@ -87,7 +87,8 @@ public class PyVariableCollection extends PyVariable implements IVariablesContai
                 for (String scope : SCOPES_SORTED_REVERSED) {
                     List<PyVariable> list = scopedVars.remove(scope);
                     if (list != null && list.size() > 0) {
-                        PyVariableGroup element = new PyVariableGroup(target, scope, "", "", locator.getThreadId(), "");
+                        PyVariableGroup element = new PyVariableGroup(target, scope, "", "", locator.getThreadId(), "",
+                                locator.getUniqueId());
                         element.setVariables(list);
                         otherVars.add(0, element);
                     }
@@ -97,7 +98,7 @@ public class PyVariableCollection extends PyVariable implements IVariablesContai
                     Log.log("Unexpected scope: " + entry.getKey());
                     List<PyVariable> list = entry.getValue();
                     PyVariableGroup element = new PyVariableGroup(target, entry.getKey(), "", "", locator.getThreadId(),
-                            "");
+                            "", locator.getUniqueId());
                     element.setVariables(list);
                     otherVars.add(0, element);
 

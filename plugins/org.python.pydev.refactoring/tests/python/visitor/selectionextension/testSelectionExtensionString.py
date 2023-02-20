@@ -1,5 +1,5 @@
-print "fo##|ob##|ar"
+print("fo##|ob##|ar")
 
 ##r
 
-"foobar"
+foobar

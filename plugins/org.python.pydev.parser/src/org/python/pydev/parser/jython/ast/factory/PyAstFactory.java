@@ -41,19 +41,27 @@ public class PyAstFactory {
         nodeHelper = new NodeHelper(adapterPrefs);
     }
 
-    public FunctionDef createFunctionDef(String name) {
+    public static FunctionDef createFunctionDef(String name) {
         return createFunctionDef(new NameTok(name, NameTok.FunctionName));
     }
 
-    public FunctionDef createFunctionDef(NameTokType name) {
-        FunctionDef functionDef = new FunctionDef(name, null, null, null, null,
-                false);
-        return functionDef;
+    public static FunctionDef createFunctionDef(NameTokType name) {
+        return createFunctionDefFull(name, null, null, null, null, false);
     }
 
-    private static final exprType[] EMPTY_EXPR_TYPE = new exprType[0];
-    private static final keywordType[] EMPTY_KEYWORD_TYPE = new keywordType[0];
-    private static final stmtType[] EMPTY_STMT_TYPE = new stmtType[0];
+    public static FunctionDef createFunctionDefEmptyArrays(NameTokType nameTok, argumentsType args) {
+        return createFunctionDefFull(nameTok, args, EMPTY_STMT_TYPE, EMPTY_DECORATORS_TYPE, null, false);
+    }
+
+    public static FunctionDef createFunctionDefFull(NameTokType name, argumentsType args, stmtType[] body,
+            decoratorsType[] decs, exprType returns, boolean async) {
+        return new FunctionDef(decs, name, args, returns, body, async);
+    }
+
+    public static final exprType[] EMPTY_EXPR_TYPE = new exprType[0];
+    public static final keywordType[] EMPTY_KEYWORD_TYPE = new keywordType[0];
+    public static final stmtType[] EMPTY_STMT_TYPE = new stmtType[0];
+    public static final decoratorsType[] EMPTY_DECORATORS_TYPE = new decoratorsType[0];
 
     public argumentsType createEmptyArgumentsType() {
         exprType[] args = EMPTY_EXPR_TYPE;
@@ -107,12 +115,17 @@ public class PyAstFactory {
         return name;
     }
 
+    public Name createStoreName(String s) {
+        Name name = new Name(s, Name.Store, false);
+        return name;
+    }
+
     public FunctionDef createSetterFunctionDef(String accessorName, String attributeName) {
         NameTok functionName = new NameTok(accessorName, NameTok.FunctionName);
         argumentsType args = createArguments(true, "value");
         stmtType[] body = createSetterBody(attributeName);
 
-        return new FunctionDef(functionName, args, body, null, null, false);
+        return createFunctionDefFull(functionName, args, body, null, null, false);
     }
 
     public argumentsType createArguments(boolean addSelf, String... simpleParams) {
@@ -286,37 +299,42 @@ public class PyAstFactory {
     public stmtType createOverrideBody(FunctionDef functionDef, String parentClassName, String currentClassName) {
         //create a copy because we do not want to retain the original line/col and we may change the originals here.
         final boolean[] addReturn = new boolean[] { false };
-        VisitorBase visitor = new VisitorBase() {
+        if (functionDef.returns != null) {
+            String rep = NodeUtils.getRepresentationString(functionDef.returns);
+            addReturn[0] = !("None".equals(rep));
+        } else {
+            VisitorBase visitor = new VisitorBase() {
 
-            @Override
-            public Object visitClassDef(ClassDef node) throws Exception {
-                return null;
-            }
-
-            @Override
-            public Object visitFunctionDef(FunctionDef node) throws Exception {
-                return null; //don't visit internal scopes.
-            }
-
-            @Override
-            protected Object unhandled_node(SimpleNode node) throws Exception {
-                if (node instanceof Return) {
-                    addReturn[0] = true;
-                    throw stopVisitingException;
+                @Override
+                public Object visitClassDef(ClassDef node) throws Exception {
+                    return null;
                 }
-                return null;
-            }
 
-            @Override
-            public void traverse(SimpleNode node) throws Exception {
-                node.traverse(this);
-            }
-        };
-        try {
-            visitor.traverse(functionDef);
-        } catch (Exception e) {
-            if (e != stopVisitingException) {
-                Log.log(e);
+                @Override
+                public Object visitFunctionDef(FunctionDef node) throws Exception {
+                    return null; //don't visit internal scopes.
+                }
+
+                @Override
+                protected Object unhandled_node(SimpleNode node) throws Exception {
+                    if (node instanceof Return) {
+                        addReturn[0] = true;
+                        throw stopVisitingException;
+                    }
+                    return null;
+                }
+
+                @Override
+                public void traverse(SimpleNode node) throws Exception {
+                    node.traverse(this);
+                }
+            };
+            try {
+                visitor.traverse(functionDef);
+            } catch (Exception e) {
+                if (e != stopVisitingException) {
+                    Log.log(e);
+                }
             }
         }
 
@@ -398,6 +416,18 @@ public class PyAstFactory {
 
     public Name createNone() {
         Name node = createName("None");
+        node.reserved = true;
+        return node;
+    }
+
+    public Name createFalse() {
+        Name node = createName("False");
+        node.reserved = true;
+        return node;
+    }
+
+    public Name createTrue() {
+        Name node = createName("True");
         node.reserved = true;
         return node;
     }

@@ -1,22 +1,22 @@
 def method1():
 ##|    if idx > 2:
-        print ''
+        print('')
     else:
-        print ''
+        print('')
     
     if idx == 5:
-        print "nothing!"
+        print("nothing!")
 ##|
 
 
 ##r
 def extracted_method():
     if idx > 2:
-        print ''
+        print('')
     else:
-        print ''
+        print('')
     if idx == 5:
-        print "nothing!"
+        print("nothing!")
 
 def method1():
     extracted_method()

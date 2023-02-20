@@ -1,24 +1,19 @@
-PyDev 8.1.0 Released
+PyDev 8.3.0 Released
 
-PyDev 8.1.0 Release Highlights
+PyDev 8.3.0 Release Highlights
 -------------------------------
 
-* **Interactive Console**
-	* The selection for which console to open may be saved. (**#PyDev-1112**)
-	* When the **current editor** option is selected, the related interpreter is no longer asked. (**#PyDev-1112**)
+* **Java 11** is now required to run PyDev.
 
-* **Debugger** (updated to pydevd 2.2.0)
-	* Better support for Python flags when auto-attaching to subprocesses.
-	* Fixes to path translation (when debugging in a different machine).
-	* Catch warnings related to **imp** import from **pkg_resources**.
-	* No longer crashing when running with **Pyjion** (patch by Anthony Shaw).
-
+* **External linters**
+    * Configurations of the linters can be saved to the project or user settings.
+    * Flake8 has a more flexible UI for configuration.
+    
 * **Others**
-	* Code analysis now supports **from __future__ import anotations**. (**#PyDev-1040**)
-	* AST pretty-printing supports printing slices. (**#PyDev-1106**)
-	* Code-completion with auto imports for the builtin module is no longer shown. (**#PyDev-1117**)
-	* MyPy messages from a different file are no longer shown in the current editor. (**#PyDev-1114**)
-
+	* Option to add comments all at a single indent (note: this is now the default).
+	* LRU for context-insensitive completion/quick fix.
+	* Fixed some code-completion cases where **self** was wrongly added.
+	* Environment variables are now supported in **.pydevproject** (expected format: **${env_var:VAR_NAME}**).
 
 
 About PyDev

@@ -8,6 +8,7 @@ package org.python.pydev.ast.codecompletion;
 
 import org.python.pydev.ast.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.ast.codecompletion.revisited.modules.CompiledModule;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.StringUtils;
 
@@ -30,11 +31,15 @@ public class PythonCompletionStringsTest extends CodeCompletionTestsBase {
         }
     }
 
+    private int initialGrammar;
+
     /*
      * @see TestCase#setUp()
      */
     @Override
     public void setUp() throws Exception {
+        this.initialGrammar = CodeCompletionTestsBase.GRAMMAR_TO_USE_FOR_PARSING;
+        CodeCompletionTestsBase.GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.LATEST_GRAMMAR_PY3_VERSION;
         super.setUp();
         CompiledModule.COMPILED_MODULES_ENABLED = false;
         this.restorePythonPath(false);
@@ -46,6 +51,7 @@ public class PythonCompletionStringsTest extends CodeCompletionTestsBase {
      */
     @Override
     public void tearDown() throws Exception {
+        CodeCompletionTestsBase.GRAMMAR_TO_USE_FOR_PARSING = this.initialGrammar;
         CompiledModule.COMPILED_MODULES_ENABLED = true;
         super.tearDown();
     }
@@ -257,6 +263,92 @@ public class PythonCompletionStringsTest extends CodeCompletionTestsBase {
         ICompletionProposalHandle[] proposals = requestCompl(s, s.length() - 5, -1, new String[] {});
         assertEquals(1, proposals.length);
         assertEquals("bar()", proposals[0].getDisplayString());
+    }
+
+    //    public void testTypedDict() throws Exception {
+    //        String s = ""
+    //                + "class EnvEntry(TypedDict):\n"
+    //                + "    key: str\n"
+    //                + "    value: str\n"
+    //                + "def method(env_entry: EnvEntry):\n"
+    //                + "    env_entry['";
+    //        requestCompl(s, s.length(), -1, new String[] { "key", "value" });
+    //    }
+
+    public void testTypedDict2() throws Exception {
+        String s = ""
+                + "class EnvEntry(TypedDict):\n"
+                + "    key: str\n"
+                + "    value: str\n"
+                + "def method(env_entry: EnvEntry):\n"
+                + "    env_entry['va']";
+        requestCompl(s, s.length() - 2, -1, new String[] { "value" });
+    }
+
+    //    public void testTypedDict3() throws Exception {
+    //        String s = ""
+    //                + "class EnvEntry(TypedDict):\n"
+    //                + "    key: str\n"
+    //                + "    value: str\n"
+    //                + "def method(env_entry: EnvEntry):\n"
+    //                + "    env_entry['\n" // cursor should be right after the `'`
+    //                + "    foo = 10\n"
+    //                + "    bar = 20\n"
+    //                + "    result = foo + bar";
+    //        requestCompl(s, 103, -1, new String[] { "key", "value" });
+    //    }
+
+    //    public void testTypedDict4() throws Exception {
+    //        String s = ""
+    //                + "class EnvEntry(TypedDict):\n"
+    //                + "    key: str\n"
+    //                + "    value: str\n"
+    //                + "def method(env_entry: EnvEntry):\n"
+    //                + "    env_entry[\"";
+    //        requestCompl(s, s.length(), -1, new String[] { "key", "value" });
+    //    }
+
+    public void testTypedDict5() throws Exception {
+        String s = ""
+                + "class EnvEntry(TypedDict):\n"
+                + "    key: str\n"
+                + "    value: str\n"
+                + "def method(env_entry: EnvEntry):\n"
+                + "    env_entry[\"va\"]";
+        requestCompl(s, s.length() - 2, -1, new String[] { "value" });
+    }
+
+    //    public void testTypedDict6() throws Exception {
+    //        String s = ""
+    //                + "class EnvEntry(TypedDict):\n"
+    //                + "    key: str\n"
+    //                + "    value: str\n"
+    //                + "def method(env_entry: EnvEntry):\n"
+    //                + "    env_entry[\"\n" // cursor should be right after the `'`
+    //                + "    foo = 10\n"
+    //                + "    bar = 20\n"
+    //                + "    result = foo + bar";
+    //        requestCompl(s, 103, -1, new String[] { "key", "value" });
+    //    }
+
+    public void testTypedDict7() throws Exception {
+        String s = ""
+                + "class EnvEntry(TypedDict):\n"
+                + "    key: str\n"
+                + "    value: str\n"
+                + "def method(env_entry: EnvEntry):\n"
+                + "    env_entry[\"\"]";
+        requestCompl(s, s.length() - 2, -1, new String[] { "key", "value" });
+    }
+
+    public void testTypedDict8() throws Exception {
+        String s = ""
+                + "class EnvEntry(TypedDict):\n"
+                + "    key: str\n"
+                + "    value: str\n"
+                + "def method(env_entry: EnvEntry):\n"
+                + "    env_entry['']";
+        requestCompl(s, s.length() - 2, -1, new String[] { "key", "value" });
     }
 
 }

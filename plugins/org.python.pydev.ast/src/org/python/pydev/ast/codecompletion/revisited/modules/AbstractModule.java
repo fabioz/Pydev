@@ -50,8 +50,6 @@ import org.python.pydev.shared_core.string.FullRepIterable;
  */
 public abstract class AbstractModule implements IModule {
 
-    private static final IToken[] EMPTY_TOKEN_ARRAY = new IToken[0];
-
     /**
      * May be changed for tests
      */

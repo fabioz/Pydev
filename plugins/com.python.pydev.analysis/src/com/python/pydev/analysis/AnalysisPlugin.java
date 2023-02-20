@@ -23,7 +23,7 @@ import org.python.pydev.ast.codecompletion.revisited.visitors.HeuristicFindAttrs
 import org.python.pydev.ast.item_pointer.ItemPointer;
 import org.python.pydev.ast.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.core.ICodeCompletionASTManager;
-import org.python.pydev.core.ICompletionCache;
+import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IInfo;
 import org.python.pydev.core.IModule;
@@ -67,6 +67,9 @@ public class AnalysisPlugin extends Plugin {
         PyLintPrefInitializer.initializeDefaultPreferences();
         MypyPrefInitializer.initializeDefaultPreferences();
         Flake8PrefInitializer.initializeDefaultPreferences();
+
+        // We need to manually call it because it initializes things from org.python.pydev.
+        new AnalysisPreferenceInitializer().initializeDefaultPreferences();
         stateLocation = AnalysisPlugin.getDefault().getStateLocation();
 
         // Leaving code around to know when we get to the PyDev perspective in the active window (may be
@@ -134,7 +137,7 @@ public class AnalysisPlugin extends Plugin {
      * @return whether we actually tried to look for a completion or just bailed out due to force being == false.
      */
     public static boolean getDefinitionFromIInfo(List<ItemPointer> pointers, ICodeCompletionASTManager manager,
-            IPythonNature nature, IInfo info, ICompletionCache completionCache, boolean requireIDefinition,
+            IPythonNature nature, IInfo info, ICompletionState completionCache, boolean requireIDefinition,
             boolean force) {
         if (pointers == null) {
             pointers = new ArrayList<>();
@@ -159,7 +162,7 @@ public class AnalysisPlugin extends Plugin {
         }
         IModule mod;
         String tok;
-        mod = manager.getModule(info.getDeclaringModuleName(), nature, true);
+        mod = manager.getModule(info.getDeclaringModuleName(), nature, true, completionCache);
         if (mod != null) {
             if (info.getType() == IInfo.MOD_IMPORT_TYPE) {
                 Definition definition = new Definition(1, 1, "", null, null, mod);
@@ -205,7 +208,8 @@ public class AnalysisPlugin extends Plugin {
                                             Map<String, SourceToken> repToTokenWithArgs = new HashMap<String, SourceToken>();
                                             HeuristicFindAttrs heuristicFindAttrs = new HeuristicFindAttrs(
                                                     HeuristicFindAttrs.WHITIN_ANY, HeuristicFindAttrs.IN_ASSIGN, "",
-                                                    definition.module.getName(), null, repToTokenWithArgs, nature);
+                                                    definition.module.getName(), null, repToTokenWithArgs, nature,
+                                                    definition.module);
                                             heuristicFindAttrs.visitFunctionDef(functionDef);
 
                                             List<IToken> tokens = heuristicFindAttrs.getTokens();

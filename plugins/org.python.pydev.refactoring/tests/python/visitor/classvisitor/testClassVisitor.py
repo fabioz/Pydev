@@ -3,9 +3,9 @@ class Rectangle(object):
     class Foo:
         def foo(self):
             class bla:
-                print "foo"
+                print("foo")
             b = bla()
-            print "foo nested class"
+            print("foo nested class")
 
     a = Foo() 
     a.foo()
@@ -20,8 +20,8 @@ class Rectangle(object):
     area = property(get_area, doc='area of the rectangle')
     
 rect = Rectangle(10, 15)
-print rect.width
-print rect.area
+print(rect.width)
+print(rect.area)
 
 ##r
 

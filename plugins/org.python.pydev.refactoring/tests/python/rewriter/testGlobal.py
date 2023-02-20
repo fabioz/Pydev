@@ -10,9 +10,9 @@ class Foo:
     global a, b # on-ine
     # after
     def foometh(self):
-        print a, b, c, d
+        print(a, b, c, d)
     
-    print a, b, c, d
+    print(a, b, c, d)
 
 
 foo_obj = Foo()

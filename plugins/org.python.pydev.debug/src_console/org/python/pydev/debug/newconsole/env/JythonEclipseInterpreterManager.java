@@ -16,6 +16,7 @@ import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IInterpreterManagerListener;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IModuleRequestState;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TokensList;
@@ -131,13 +132,13 @@ public class JythonEclipseInterpreterManager implements IInterpreterManager {
     }
 
     @Override
-    public TokensList getBuiltinCompletions(String projectInterpreterName) {
+    public TokensList getBuiltinCompletions(String projectInterpreterName, IModuleRequestState moduleRequest) {
 
         return null;
     }
 
     @Override
-    public IModule getBuiltinMod(String projectInterpreterName) {
+    public IModule getBuiltinMod(String projectInterpreterName, IModuleRequestState moduleRequest) {
 
         return null;
     }

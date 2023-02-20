@@ -332,6 +332,7 @@ import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.modType;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.parser.jython.ISpecialStr;
 '''
 
 
@@ -633,6 +634,8 @@ def CreateGrammarFiles():
 
         COLON='''{grammarActions.findTokenAndAdd(":");}<COLON>''',
 
+        COLON_END_DEF='''{ISpecialStr s = grammarActions.findTokenAndAdd(":"); if(s != null){grammarActions.markEndDefColon(s, jjtThis);}}<COLON>''',
+
         AT='''temporaryToken=<AT>  {grammarActions.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);}''',
 
         COMMA='''{grammarActions.findTokenAndAdd(",");}<COMMA>''',
@@ -746,29 +749,18 @@ void slice() #void: {}
 
 
     files = [
-        (os.path.join(parent_dir, 'grammar25', 'python.jjt_template'), 25),
-        (os.path.join(parent_dir, 'grammar26', 'python.jjt_template'), 26),
-        (os.path.join(parent_dir, 'grammar27', 'python.jjt_template'), 27),
         (os.path.join(parent_dir, 'grammar30', 'python.jjt_template'), 30),
         (os.path.join(parent_dir, 'grammar36', 'python.jjt_template'), 36),
         (os.path.join(parent_dir, 'grammar38', 'python.jjt_template'), 38),
+        (os.path.join(parent_dir, 'grammar310', 'python.jjt_template'), 310),
+        (os.path.join(parent_dir, 'grammar311', 'python.jjt_template'), 311),
     ]
 
     for file, version in files:
-        if version == 24:
-            definitions['NAME_DEFINITION'] = CreateNameDefinition(True, False, True)
-        elif version == 25:
-            definitions['NAME_DEFINITION'] = CreateNameDefinition(True, True, True)
-        else:
-            definitions['NAME_DEFINITION'] = CreateNameDefinition(False, False, False)
+        definitions['NAME_DEFINITION'] = CreateNameDefinition(False, False, False)
+        definitions['STMT'] = CreateStmt()
 
-        if version == 25:
-            definitions['STMT'] = CreateStmt25()
-
-        else:
-            definitions['STMT'] = CreateStmt()
-
-        if version == 38:
+        if version >= 38:
             definitions['IF'] = CreateIfWithDeps38(definitions)
             definitions['WHILE'] = CreateWhileWithDeps38(definitions)
 

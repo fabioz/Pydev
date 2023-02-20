@@ -1,10 +1,73 @@
 # coding: utf-8
 import os.path
-from _pydevd_bundle.pydevd_constants import IS_WINDOWS, IS_PY2
-from _pydev_bundle._pydev_filesystem_encoding import getfilesystemencoding
+from _pydevd_bundle.pydevd_constants import IS_WINDOWS, IS_MAC
 import io
 from _pydev_bundle.pydev_log import log_context
 import pytest
+import sys
+
+
+@pytest.fixture(autouse=True)
+def _reset_ide_os():
+    yield
+    from pydevd_file_utils import set_ide_os
+    set_ide_os('WINDOWS' if sys.platform == 'win32' else 'UNIX')
+
+
+@pytest.mark.skipif(sys.platform != 'win32', reason='Windows-only test.')
+def test_get_path_with_real_case_windows_unc_path(monkeypatch):
+    import pydevd_file_utils
+    from pydevd_file_utils import get_path_with_real_case
+
+    def temp_listdir(d):
+        # When we have a UNC drive in windows the "drive" is something as:
+        # \\MACHINE_NAME\MOUNT_POINT\
+        if d == '\\\\A\\B\\':
+            return ['Cc']
+        raise AssertionError('Unexpected: %s' % (d,))
+
+    monkeypatch.setattr(pydevd_file_utils, 'os_path_exists', lambda *args: True)
+    monkeypatch.setattr(pydevd_file_utils, 'os_listdir', temp_listdir)
+    assert get_path_with_real_case(r'\\a\b\cc') == r'\\A\B\Cc'
+
+
+@pytest.mark.skipif(sys.platform != 'win32', reason='Windows-only test.')
+def test_get_path_with_real_case_windows_slashes_drive(tmpdir):
+    from pydevd_file_utils import get_path_with_real_case
+    test_dir = str(tmpdir.mkdir("Test_Convert_Utilities")).lower()
+    real_case = get_path_with_real_case(test_dir)
+    assert real_case.endswith("Test_Convert_Utilities")
+
+    prefix = '\\\\?\\'
+    path = prefix + test_dir
+    real_case = get_path_with_real_case(path)
+    assert real_case.endswith("Test_Convert_Utilities")
+    assert path.startswith(prefix)
+
+
+@pytest.mark.skipif(not IS_MAC, reason='Mac-only test.')
+def test_get_path_with_real_case_mac_os(tmpdir):
+    from pydevd_file_utils import get_path_with_real_case
+    test_dir = str(tmpdir.mkdir("Test_Convert_Utilities")).lower()
+    real_case = get_path_with_real_case(test_dir)
+    assert real_case.endswith("Test_Convert_Utilities")
+
+
+@pytest.mark.skipif(not IS_MAC, reason='Mac-only test.')
+def test_double_slash_mac(monkeypatch):
+    import pydevd_file_utils
+    from pydevd_file_utils import get_path_with_real_case
+
+    def temp_listdir(d):
+        if d == '//':
+            return ['A']
+        if d == '//A':
+            return ['Bb']
+        raise AssertionError('Unexpected: %s' % (d,))
+
+    monkeypatch.setattr(pydevd_file_utils, 'os_path_exists', lambda *args: True)
+    monkeypatch.setattr(pydevd_file_utils, 'os_listdir', temp_listdir)
+    assert get_path_with_real_case(r'//a/bb') == r'//A/Bb'
 
 
 def test_convert_utilities(tmpdir):
@@ -14,7 +77,7 @@ def test_convert_utilities(tmpdir):
 
     if IS_WINDOWS:
         normalized = pydevd_file_utils.normcase(test_dir)
-        assert isinstance(normalized, str)  # bytes on py2, unicode on py3
+        assert isinstance(normalized, str)
         assert normalized.lower() == normalized
 
         upper_version = os.path.join(test_dir, 'ÁÉÍÓÚ')
@@ -36,7 +99,7 @@ def test_convert_utilities(tmpdir):
 
             assert pydevd_file_utils.get_path_with_real_case('<does not EXIST>') == '<does not EXIST>'
             real_case = pydevd_file_utils.get_path_with_real_case(normalized)
-            assert isinstance(real_case, str)  # bytes on py2, unicode on py3
+            assert isinstance(real_case, str)
             # Note test_dir itself cannot be compared with because pytest may
             # have passed the case normalized.
             assert real_case.endswith("Test_Convert_Utilities")
@@ -46,15 +109,6 @@ def test_convert_utilities(tmpdir):
                 assert pydevd_file_utils._listdir_cache[os.path.dirname(normalized).lower()] == ['Test_Convert_Utilities']
                 assert pydevd_file_utils._listdir_cache[(os.path.dirname(normalized).lower(), 'Test_Convert_Utilities'.lower())] == real_case
 
-            if IS_PY2:
-                # Test with unicode in python 2 too.
-                real_case = pydevd_file_utils.get_path_with_real_case(normalized.decode(
-                    getfilesystemencoding()))
-                assert isinstance(real_case, str)  # bytes on py2, unicode on py3
-                # Note test_dir itself cannot be compared with because pytest may
-                # have passed the case normalized.
-                assert real_case.endswith("Test_Convert_Utilities")
-
         # Check that it works with a shortened path.
         shortened = pydevd_file_utils.convert_to_short_pathname(normalized)
         assert '~' in shortened
@@ -62,8 +116,12 @@ def test_convert_utilities(tmpdir):
         assert with_real_case.endswith('Test_Convert_Utilities')
         assert '~' not in with_real_case
 
+    elif IS_MAC:
+        assert pydevd_file_utils.normcase(test_dir) == test_dir.lower()
+        assert pydevd_file_utils.get_path_with_real_case(test_dir) == test_dir
+
     else:
-        # On other platforms, nothing should change
+        # On Linux, nothing should change
         assert pydevd_file_utils.normcase(test_dir) == test_dir
         assert pydevd_file_utils.get_path_with_real_case(test_dir) == test_dir
 
@@ -99,20 +157,26 @@ def test_source_reference(tmpdir):
         assert pydevd_file_utils.get_server_filename_from_source_reference(source_reference) == '/another/my'
 
 
+@pytest.mark.skipif(sys.platform != 'win32', reason='Windows-only test.')
+def test_translate_only_drive():
+    import pydevd_file_utils
+    assert pydevd_file_utils.get_path_with_real_case('c:\\') == 'C:\\'
+
+
 def test_to_server_and_to_client(tmpdir):
     try:
 
         def check(obtained, expected):
             assert obtained == expected, '%s (%s) != %s (%s)' % (obtained, type(obtained), expected, type(expected))
             if isinstance(obtained, tuple):
-                assert isinstance(obtained[0], str)  # bytes on py2, unicode on py3
+                assert isinstance(obtained[0], str)
             else:
-                assert isinstance(obtained, str)  # bytes on py2, unicode on py3
+                assert isinstance(obtained, str)
 
             if isinstance(expected, tuple):
-                assert isinstance(expected[0], str)  # bytes on py2, unicode on py3
+                assert isinstance(expected[0], str)
             else:
-                assert isinstance(expected, str)  # bytes on py2, unicode on py3
+                assert isinstance(expected, str)
 
         import pydevd_file_utils
         if IS_WINDOWS:
@@ -347,7 +411,7 @@ def test_zip_paths(tmpdir):
         # Check that we can deal with the zip path.
         assert pydevd_file_utils.exists(zipfile_path)
         abspath, realpath, basename = pydevd_file_utils.get_abs_path_real_path_and_base_from_file(zipfile_path)
-        if IS_WINDOWS:
+        if IS_WINDOWS or IS_MAC:
             assert abspath == zipfile_path
             assert basename == zip_basename.lower()
         else:
@@ -427,7 +491,7 @@ def test_source_mapping():
     assert source_mapping.map_to_client(filename, 12) == (filename, 12, False)
 
 
-@pytest.mark.skipif(IS_WINDOWS, reason='Linux-only test')
+@pytest.mark.skipif(IS_WINDOWS, reason='Linux/Mac-only test')
 def test_mapping_conflict_to_client():
     import pydevd_file_utils
 
@@ -477,7 +541,7 @@ _MAPPING_CONFLICT = [
 ]
 
 
-@pytest.mark.skipif(IS_WINDOWS, reason='Linux-only test')
+@pytest.mark.skipif(IS_WINDOWS, reason='Linux/Mac-only test')
 def test_mapping_conflict_to_server():
     import pydevd_file_utils
 

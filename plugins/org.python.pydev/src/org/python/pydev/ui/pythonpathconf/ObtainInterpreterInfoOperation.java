@@ -59,17 +59,20 @@ public class ObtainInterpreterInfoOperation implements IRunnableWithProgress {
     private PrintWriter logger;
     private IInterpreterManager interpreterManager;
     private boolean autoSelect;
+    private boolean isConda;
 
     /**
      * @param file2
      * @param logger 
+     * @param isConda 
      */
     public ObtainInterpreterInfoOperation(String file2, PrintWriter logger, IInterpreterManager interpreterManager,
-            boolean autoSelect) {
+            boolean autoSelect, boolean isConda) {
         this.file = file2;
         this.logger = logger;
         this.interpreterManager = interpreterManager;
         this.autoSelect = autoSelect;
+        this.isConda = isConda;
     }
 
     /**
@@ -83,6 +86,7 @@ public class ObtainInterpreterInfoOperation implements IRunnableWithProgress {
             InterpreterInfo interpreterInfo = (InterpreterInfo) interpreterManager.createInterpreterInfo(file, monitor,
                     !autoSelect);
             if (interpreterInfo != null) {
+                interpreterInfo.setActivateCondaEnv(isConda);
                 result = interpreterInfo;
             }
         } catch (Exception e) {

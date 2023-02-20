@@ -13,6 +13,7 @@ import java.util.List;
 import org.eclipse.core.runtime.IPath;
 import org.python.pydev.ast.interpreter_managers.ChooseInterpreterManager;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.IModuleRequestState;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.IterTokenEntry;
@@ -162,11 +163,12 @@ public class PyExceptionBreakPointManager {
      * @return a list the default 'builtin' exceptions to be presented to the user (i.e.:
      * AssertionError, RuntimeError, etc)
      */
-    public List<String> getBuiltinExceptions() {
+    public List<String> getBuiltinExceptions(IModuleRequestState moduleRequest) {
         ArrayList<String> list = new ArrayList<String>();
         IInterpreterManager useManager = ChooseInterpreterManager.chooseInterpreterManager();
         if (useManager != null) {
-            TokensList pythonTokens = useManager.getBuiltinMod(IPythonNature.DEFAULT_INTERPRETER).getGlobalTokens();
+            TokensList pythonTokens = useManager.getBuiltinMod(IPythonNature.DEFAULT_INTERPRETER, moduleRequest)
+                    .getGlobalTokens();
             for (IterTokenEntry entry : pythonTokens) {
                 IToken token = entry.getToken();
                 String pyToken = token.getRepresentation();

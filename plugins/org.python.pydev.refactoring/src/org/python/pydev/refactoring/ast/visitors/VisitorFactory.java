@@ -29,6 +29,7 @@ import java.io.File;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
+import org.python.pydev.core.BaseModuleRequest;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
@@ -137,7 +138,7 @@ public final class VisitorFactory {
                 if (modulesManager != null) {
                     String modName = modulesManager.resolveModule(FileUtils.getFileAbsolutePath(file));
                     if (modName != null) {
-                        IModule module = modulesManager.getModule(modName, nature, true);
+                        IModule module = modulesManager.getModule(modName, nature, true, new BaseModuleRequest(false));
                         if (module instanceof ISourceModule) {
                             SourceModule iSourceModule = (SourceModule) module;
                             if (iSourceModule.parseError != null) {

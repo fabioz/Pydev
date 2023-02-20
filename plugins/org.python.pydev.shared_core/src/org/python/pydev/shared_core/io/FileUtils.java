@@ -1226,4 +1226,19 @@ public class FileUtils {
         return true;
     }
 
+    public static boolean enhancedIsFile(File file) {
+        // The windows store Python seems to be some kind of link into an
+        // area which is protected and can't be read, so, the following methods
+        // return false (indicating that we can't really know anything about it).
+        // Files.notExists
+        // Files.exists
+        // Still, the link appears properly, so, not following the link seems
+        // to do the right thing.
+        Path path = file.toPath();
+        if (Files.exists(path, LinkOption.NOFOLLOW_LINKS) && !Files.isDirectory(path)) {
+            return true;
+        }
+        return false;
+    }
+
 }

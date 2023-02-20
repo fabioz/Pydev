@@ -59,7 +59,7 @@ public interface IPythonGrammarActions {
      * @param radix the radix in which it was found (octal=8, decimal=10, hex=16)
      * @param token this is the image of the object (the exact way it was found in the file)
      * @param numberToFill the Num object that should be set given the other parameters
-     * @throws ParseException 
+     * @throws ParseException
      */
     void makeInt(Token t, int radix, Token token, Num numberToFill) throws ParseException;
 
@@ -73,7 +73,7 @@ public interface IPythonGrammarActions {
 
     /**
      * Fills the string properly according to the representation found.
-     * 
+     *
      * 0 = the string
      * 1 = boolean indicating unicode
      * 2 = boolean indicating raw
@@ -82,7 +82,7 @@ public interface IPythonGrammarActions {
      */
     void makeString(Token t, int quotes, Str strToFill);
 
-    void findTokenAndAdd(String token) throws ParseException;
+    ISpecialStr findTokenAndAdd(String token) throws ParseException;
 
     void addSpecialToPrev(Object special, boolean after);
 
@@ -94,5 +94,7 @@ public interface IPythonGrammarActions {
     void pushStarExpr(int store);
 
     int getStarExprScope();
+
+    void markEndDefColon(ISpecialStr s, SimpleNode node);
 
 }

@@ -23,6 +23,8 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.SpecialStr;
 import org.python.pydev.parser.jython.Token;
 import org.python.pydev.parser.jython.ast.Call;
+import org.python.pydev.parser.jython.ast.ClassDef;
+import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Starred;
@@ -218,6 +220,17 @@ public final class DefaultPythonGrammarActions implements IPythonGrammarActions 
         return peeked;
     }
 
+    @Override
+    public void markEndDefColon(ISpecialStr s, SimpleNode node) {
+        if (node instanceof FunctionDef) {
+            FunctionDef functionDef = (FunctionDef) node;
+            functionDef.colonDefEnd = s;
+        } else if (node instanceof ClassDef) {
+            ClassDef classDef = (ClassDef) node;
+            classDef.colonDefEnd = s;
+        }
+    }
+
     /**
      * Adds a special token to the current token that's in the top of the stack (the peeked token)
      */
@@ -350,10 +363,11 @@ public final class DefaultPythonGrammarActions implements IPythonGrammarActions 
     }
 
     @Override
-    public void findTokenAndAdd(String token) throws ParseException {
+    public ISpecialStr findTokenAndAdd(String token) throws ParseException {
         ISpecialStr s = createSpecialStr(token, AbstractPythonGrammar.DEFAULT_SEARCH_ON_LAST, true);
         grammar.getTokenSourceSpecialTokensList()
                 .add(new Object[] { s, AbstractPythonGrammar.STRATEGY_ADD_AFTER_PREV });
+        return s;
     }
 
     /**

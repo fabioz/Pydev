@@ -1,1 +1,1 @@
-from defmod import Definition
+from .defmod import Definition

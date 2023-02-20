@@ -1,18 +1,18 @@
 li = ['a', 'b', 'e']
 for s in li:
-    print s
+    print(s)
 
 x = (1, 2, 3)
 for y in x:
-    print "foo" # on-line foo
+    print("foo") # on-line foo
 else:
-    print "bar"
+    print("bar")
 
 for (y) in (x):
     for a in x:
-        print "foo"
+        print("foo")
     else:
-        print "bar"
+        print("bar")
 
 else:
-    print "bla"
+    print("bla")

@@ -55,13 +55,13 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
     protected String nameToFind = "";
 
     /**
-     * List of tuple with: 
-     * 
+     * List of tuple with:
+     *
      * - the token found
-     * 
+     *
      * - the delta to the column that the token we're looking for was found (delta from the currCol)
      * negative values mean that it is undefined
-     * 
+     *
      * - the entry that is the parent of this found
      */
     private List<Tuple3<Found, Integer, ASTEntry>> foundOccurrences = new ArrayList<Tuple3<Found, Integer, ASTEntry>>();
@@ -91,13 +91,13 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
     public ScopeAnalyzerVisitorWithoutImports(IPythonNature nature, String moduleName, IModule current,
             IProgressMonitor monitor, PySelection ps) throws BadLocationException {
         this(nature, moduleName, current, ps.getDoc(), monitor, ps.getCurrToken().o1, ps.getAbsoluteCursorOffset(), ps
-                .getActivationTokenAndQual(true));
+                .getActivationTokenAndQualifier(true));
 
     }
 
     /**
      * Base constructor (after data from the PySelection is gotten)
-     * @throws BadLocationException 
+     * @throws BadLocationException
      */
     protected ScopeAnalyzerVisitorWithoutImports(IPythonNature nature, String moduleName, IModule current,
             IDocument document, IProgressMonitor monitor, String pNameToFind, int absoluteCursorOffset,
@@ -120,7 +120,7 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
         for (Found found : probablyNotDefined) {
             ASTEntry parent = peekParent();
             if (checkFound(found, parent) == null) {
-                //ok, it was actually not found, so, after marking it as an occurrence, we have to check all 
+                //ok, it was actually not found, so, after marking it as an occurrence, we have to check all
                 //the others that have the same representation in its scope.
                 String rep = found.getSingle().generator.getRepresentation();
                 if (FullRepIterable.containsPart(rep, nameToFind)) {
@@ -198,7 +198,7 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
     protected void onAddUndefinedMessage(IToken token, Found found) {
         ASTEntry parent = peekParent();
         if (checkFound(found, parent) == null) {
-            //ok, it was actually not found, so, after marking it as an occurrence, we have to check all 
+            //ok, it was actually not found, so, after marking it as an occurrence, we have to check all
             //the others that have the same representation in its scope.
             if (token.getRepresentation().equals(nameToFind)) {
                 undefinedFound.add(found);
@@ -356,7 +356,7 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
 
         List<ASTEntry> entryOccurrences = getEntryOccurrences();
         for (ASTEntry entry : entryOccurrences) {
-            ret.add(AbstractVisitor.makeToken(entry.node, moduleName, nature));
+            ret.add(AbstractVisitor.makeToken(entry.node, moduleName, nature, current));
         }
         return ret;
     }
@@ -364,10 +364,10 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
     /**
      * We get the occurrences as tokens for the name we're looking for. Note that the complete name (may be a dotted name)
      * we're looking for may not be equal to the 'partial' name.
-     * 
+     *
      * This can happen when we're looking for some import such as os.path, and are looking just for the 'path' part.
      * So, when this happens, the return is analyzed and only returns names as the one we're looking for (with
-     * the correct line and col positions). 
+     * the correct line and col positions).
      */
     public List<ASTEntry> getEntryOccurrences() {
         checkFinished();
@@ -384,6 +384,10 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
 
             //if it is different, we have to make partial names
             SourceToken sourceToken = (SourceToken) tup.o1;
+            if (!moduleName.equals(sourceToken.getParentPackage()) && !sourceToken.getParentPackage().equals("")) {
+                // We don't want things defined from other packages.
+                continue;
+            }
             SimpleNode ast = (sourceToken).getAst();
 
             String representation = null;
@@ -423,13 +427,24 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
                 if (ast instanceof Attribute) {
                     //it can happen, as we won't go up to the part of the actual call (if there's one).
                     ast = NodeUtils.getAttributeParts((Attribute) ast).get(0);
-                    ASTEntry entry = new ASTEntry(tup.o3, ast);
-                    entry.setAdditionalInfo(FOUND_ADDITIONAL_INFO_IN_AST_ENTRY, tup.o4);
-                    ret.add(entry);
+
+                    Tuple3<String, Integer, Integer> t = new Tuple3<String, Integer, Integer>(nameToFind,
+                            ast.beginColumn, ast.beginLine);
+                    if (!s.contains(t)) {
+                        s.add(t);
+                        ASTEntry entry = new ASTEntry(tup.o3, ast);
+                        entry.setAdditionalInfo(FOUND_ADDITIONAL_INFO_IN_AST_ENTRY, tup.o4);
+                        ret.add(entry);
+                    }
                 } else {
-                    ASTEntry entry = new ASTEntry(tup.o3, ast);
-                    entry.setAdditionalInfo(FOUND_ADDITIONAL_INFO_IN_AST_ENTRY, tup.o4);
-                    ret.add(entry);
+                    Tuple3<String, Integer, Integer> t = new Tuple3<String, Integer, Integer>(nameToFind,
+                            ast.beginColumn, ast.beginLine);
+                    if (!s.contains(t)) {
+                        s.add(t);
+                        ASTEntry entry = new ASTEntry(tup.o3, ast);
+                        entry.setAdditionalInfo(FOUND_ADDITIONAL_INFO_IN_AST_ENTRY, tup.o4);
+                        ret.add(entry);
+                    }
                 }
 
             } else if (FullRepIterable.containsPart(representation, nameToFind)) {
@@ -498,7 +513,7 @@ public class ScopeAnalyzerVisitorWithoutImports extends AbstractScopeAnalyzerVis
 
     /**
      * To be overriden
-     * @param ret 
+     * @param ret
      */
     protected void onGetCompleteTokenOccurrences(Tuple3<Found, Integer, ASTEntry> found, Set<IToken> f,
             ArrayList<Tuple4<IToken, Integer, ASTEntry, Found>> ret) {

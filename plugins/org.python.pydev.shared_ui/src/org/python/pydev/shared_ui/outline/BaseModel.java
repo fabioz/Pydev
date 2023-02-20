@@ -155,6 +155,11 @@ public abstract class BaseModel implements IOutlineModel {
     public void setRoot(IParsedItem newRoot) {
         // We'll try to do the 'least flicker replace'
         // compare the two root structures, and tell outline what to refresh
+        if (disposed) {
+            // If it's already disposed, don't do anything (as we do notifications
+            // asynchronously, this isn't uncommon).
+            return;
+        }
         onModelChanged.call(this);
         try {
             if (root != null) {

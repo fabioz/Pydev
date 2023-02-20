@@ -17,16 +17,16 @@ import org.python.pydev.debug.model.AbstractDebugTarget;
 
 /**
  * GetVariable network command.
- * 
+ *
  * GetVariable gets the value of the variable from network as XML.
  * The caller can busy-wait for the response.
  */
 public class GetVariableCommand extends AbstractDebuggerCommand {
 
-    String locator;
-    boolean isError = false;
-    int responseCode;
-    String payload;
+    private String locator;
+    private boolean isError = false;
+    private int responseCode;
+    private String payload;
 
     public GetVariableCommand(AbstractDebugTarget debugger, String locator) {
         super(debugger);
@@ -46,9 +46,9 @@ public class GetVariableCommand extends AbstractDebuggerCommand {
     @Override
     public void processOKResponse(int cmdCode, String payload) {
         responseCode = cmdCode;
-        if (cmdCode == getCommandId())
+        if (cmdCode == getCommandId()) {
             this.payload = payload;
-        else {
+        } else {
             isError = true;
             PydevDebugPlugin.log(IStatus.ERROR, "Unexpected response to " + this.getClass(), null);
         }
@@ -66,9 +66,10 @@ public class GetVariableCommand extends AbstractDebuggerCommand {
     }
 
     public String getResponse() throws CoreException {
-        if (isError)
+        if (isError) {
             throw new CoreException(PydevDebugPlugin.makeStatus(IStatus.ERROR, "pydevd error:" + payload, null));
-        else
+        } else {
             return payload;
+        }
     }
 }

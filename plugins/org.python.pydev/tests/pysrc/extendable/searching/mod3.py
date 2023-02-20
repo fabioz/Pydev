@@ -1,2 +1,2 @@
-import mod2
+from . import mod2
 mod2.Foo

@@ -28,6 +28,7 @@ import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IModuleRequestState;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.MisconfigurationException;
@@ -52,12 +53,12 @@ public class PythonNatureStub implements IPythonNature {
     }
 
     @Override
-    public TokensList getBuiltinCompletions() {
+    public TokensList getBuiltinCompletions(IModuleRequestState moduleRequest) {
         throw new RuntimeException("Not implemented");
     }
 
     @Override
-    public IModule getBuiltinMod() {
+    public IModule getBuiltinMod(IModuleRequestState moduleRequest) {
         throw new RuntimeException("Not implemented");
     }
 

@@ -14,12 +14,12 @@
 * Contributors:
 *     Fabio Zadrozny <fabiofz@gmail.com> - initial implementation
 ******************************************************************************/
-/* 
+/*
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
  * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  *
  * IFS Institute for Software, HSR Rapperswil, Switzerland
- * 
+ *
  */
 
 package org.python.pydev.refactoring.codegenerator.overridemethods.edit;
@@ -34,6 +34,7 @@ import org.python.pydev.parser.jython.ast.Return;
 import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
 import org.python.pydev.refactoring.codegenerator.overridemethods.request.OverrideMethodsRequest;
 import org.python.pydev.refactoring.core.edit.AbstractInsertEdit;
@@ -58,7 +59,7 @@ public class MethodEdit extends AbstractInsertEdit {
         FunctionDef origin = method.getASTNode();
         stmtType[] body = initBody(origin);
 
-        return new FunctionDef(origin.name, origin.args, body, null, null, false);
+        return PyAstFactory.createFunctionDefFull(origin.name, origin.args, body, null, null, false);
     }
 
     private stmtType[] initBody(FunctionDef origin) {

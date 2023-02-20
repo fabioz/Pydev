@@ -50,6 +50,7 @@ import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.modType;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.parser.jython.ISpecialStr;
 
 import org.python.pydev.parser.jython.ast.Await;
 import org.python.pydev.parser.jython.ast.Expr;
@@ -626,7 +627,7 @@ Expr eval_input(): {}
 //funcdef: 'def' NAME parameters ['->' test] ':' suite
 void funcdef(): {}
 {
-    <DEF> {this.markLastAsSuiteStart();} Name() parameters() [{grammarActions.addSpecialToken("->", STRATEGY_BEFORE_NEXT);}<MINUS_GREATER> test()#funcdef_return_annottation] {grammarActions.findTokenAndAdd(":");}<COLON>
+    <DEF> {this.markLastAsSuiteStart();} Name() parameters() [{grammarActions.addSpecialToken("->", STRATEGY_BEFORE_NEXT);}<MINUS_GREATER> test()#funcdef_return_annottation] {ISpecialStr s = grammarActions.findTokenAndAdd(":"); if(s != null){grammarActions.markEndDefColon(s, jjtThis);}}<COLON>
         suite()
 }
 
@@ -1004,7 +1005,7 @@ void ImportFrom(): { int level=0; int state=0;String fromName=null;String import
 {
     //we need to set the  {grammarActions.findTokenAndAdd("import");}<IMPORT> in both otherwise the lookahead will not work as we want it to work
     //because it confuses the import with the dotted name
-     (("." {level++;} )* (fromName=dotted_name())? )  {if(fromName==null && level==0){throw new ParseException("Expecting to find '.' or name in import.");}}
+     (("." {level++;markLastImportLevelPos();} )* (fromName=dotted_name())? )  {if(fromName==null && level==0){throw new ParseException("Expecting to find '.' or name in import.");}}
      {grammarActions.findTokenAndAdd("import");}<IMPORT>
 
     (
@@ -1563,7 +1564,7 @@ void async_funcdef() #void : {}
 //classdef: 'class' NAME ['(' [arglist] ')'] ':' suite
 void classdef(): {Token spStr;Token spStr2;}
 {
-    <CLASS> {this.markLastAsSuiteStart();} Name() [{temporaryToken=grammarActions.createSpecialStr("(");}<LPAREN>  {grammarActions.addSpecialToken(temporaryToken, STRATEGY_ADD_AFTER_PREV);}   [arglist()] try{{grammarActions.findTokenAndAdd(")");}<RPAREN> }catch(ParseException e){handleRParensNearButNotCurrent(e);} ] {grammarActions.findTokenAndAdd(":");}<COLON>
+    <CLASS> {this.markLastAsSuiteStart();} Name() [{temporaryToken=grammarActions.createSpecialStr("(");}<LPAREN>  {grammarActions.addSpecialToken(temporaryToken, STRATEGY_ADD_AFTER_PREV);}   [arglist()] try{{grammarActions.findTokenAndAdd(")");}<RPAREN> }catch(ParseException e){handleRParensNearButNotCurrent(e);} ] {ISpecialStr s = grammarActions.findTokenAndAdd(":"); if(s != null){grammarActions.markEndDefColon(s, jjtThis);}}<COLON>
         suite()
 }
 

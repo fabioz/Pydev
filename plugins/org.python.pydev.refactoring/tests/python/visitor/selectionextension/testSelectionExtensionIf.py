@@ -1,13 +1,13 @@
 class A:
     def test(self):
         ##|if (2 == 3):
-            print "foo"
+            print("foo")
         els##|e:
-            print "bar"
+            print("bar")
         attribute = "hello"  
     
     def my_method(self):
-        print self.attribute
+        print(self.attribute)
         
 a = A()
 a.test()
@@ -15,6 +15,6 @@ a.test()
 ##r
 
 if (2 == 3):
-    print "foo"
+    print("foo")
 else:
-    print "bar"
+    print("bar")

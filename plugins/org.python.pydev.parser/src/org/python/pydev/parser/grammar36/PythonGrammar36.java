@@ -28,6 +28,7 @@ import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.modType;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.parser.jython.ISpecialStr;
 
 import org.python.pydev.parser.jython.ast.Await;
 import org.python.pydev.parser.jython.ast.Expr;
@@ -387,7 +388,7 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
         jj_la1[3] = jj_gen;
         ;
       }
-                                                                                                                                                                               grammarActions.findTokenAndAdd(":");
+                                                                                                                                                                               ISpecialStr s = grammarActions.findTokenAndAdd(":"); if(s != null){grammarActions.markEndDefColon(s, jjtn000);}
       jj_consume_token(COLON);
       suite();
     } catch (Throwable jjte000) {
@@ -3366,7 +3367,7 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
           break label_14;
         }
         jj_consume_token(DOT);
-            level++;
+            level++;markLastImportLevelPos();
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case ASYNC:
@@ -3378,7 +3379,7 @@ public final class PythonGrammar36 extends AbstractPythonGrammar implements/*@bg
         jj_la1[67] = jj_gen;
         ;
       }
-                                                       if(fromName==null && level==0){{if (true) throw new ParseException("Expecting to find '.' or name in import.");}}
+                                                                                if(fromName==null && level==0){{if (true) throw new ParseException("Expecting to find '.' or name in import.");}}
       grammarActions.findTokenAndAdd("import");
       jj_consume_token(IMPORT);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -8165,7 +8166,7 @@ else
         jj_la1[162] = jj_gen;
         ;
       }
-                                                                                                                                                                                                                                                                                                                               grammarActions.findTokenAndAdd(":");
+                                                                                                                                                                                                                                                                                                                               ISpecialStr s = grammarActions.findTokenAndAdd(":"); if(s != null){grammarActions.markEndDefColon(s, jjtn000);}
       jj_consume_token(COLON);
       suite();
     } catch (Throwable jjte000) {

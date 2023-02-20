@@ -26,6 +26,7 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -568,7 +569,7 @@ public final class FastDefinitionsParser {
         nameTok.beginLine = startMethodRow;
         nameTok.beginColumn = nameCol;
 
-        FunctionDef functionDef = new FunctionDef(nameTok, null, null, null, null, false);
+        FunctionDef functionDef = PyAstFactory.createFunctionDef(nameTok);
         functionDef.beginLine = startMethodRow;
         functionDef.beginColumn = startMethodCol;
 

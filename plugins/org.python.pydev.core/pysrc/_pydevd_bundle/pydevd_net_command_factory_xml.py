@@ -1,7 +1,7 @@
 import json
 
 from _pydev_bundle.pydev_is_thread_alive import is_thread_alive
-from _pydev_imps._pydev_saved_modules import thread
+from _pydev_bundle._pydev_saved_modules import thread
 from _pydevd_bundle import pydevd_xml, pydevd_frame_utils, pydevd_constants, pydevd_utils
 from _pydevd_bundle.pydevd_comm_constants import (
     CMD_THREAD_CREATE, CMD_THREAD_KILL, CMD_THREAD_SUSPEND, CMD_THREAD_RUN, CMD_GET_VARIABLE,
@@ -17,7 +17,7 @@ from _pydevd_bundle.pydevd_comm_constants import (
     CMD_GET_NEXT_STATEMENT_TARGETS, CMD_VERSION,
     CMD_RETURN, CMD_SET_PROTOCOL, CMD_ERROR, MAX_IO_MSG_SIZE, VERSION_STRING,
     CMD_RELOAD_CODE, CMD_LOAD_SOURCE_FROM_FRAME_ID)
-from _pydevd_bundle.pydevd_constants import (DebugInfoHolder, get_thread_id, IS_IRONPYTHON,
+from _pydevd_bundle.pydevd_constants import (DebugInfoHolder, get_thread_id,
     get_global_debugger, GetGlobalDebugger, set_global_debugger)  # Keep for backward compatibility @UnusedImport
 from _pydevd_bundle.pydevd_net_command import NetCommand, NULL_NET_COMMAND, NULL_EXIT_COMMAND
 from _pydevd_bundle.pydevd_utils import quote_smart as quote, get_non_pydevd_threads
@@ -27,17 +27,7 @@ from pydevd_tracing import get_exception_traceback_str
 from _pydev_bundle._pydev_completer import completions_to_xml
 from _pydev_bundle import pydev_log
 from _pydevd_bundle.pydevd_frame_utils import FramesList
-
-try:
-    from StringIO import StringIO
-except:
-    from io import StringIO
-
-if IS_IRONPYTHON:
-
-    # redefine `unquote` for IronPython, since we use it only for logging messages, but it leads to SOF with IronPython
-    def unquote(s):
-        return s
+from io import StringIO
 
 
 #=======================================================================================================================
@@ -45,11 +35,14 @@ if IS_IRONPYTHON:
 #=======================================================================================================================
 class NetCommandFactory(object):
 
+    def __init__(self):
+        self._additional_thread_id_to_thread_name = {}
+
     def _thread_to_xml(self, thread):
         """ thread information as XML """
-        name = pydevd_xml.make_valid_xml_value(thread.getName())
-        cmdText = '<thread name="%s" id="%s" />' % (quote(name), get_thread_id(thread))
-        return cmdText
+        name = pydevd_xml.make_valid_xml_value(thread.name)
+        cmd_text = '<thread name="%s" id="%s" />' % (quote(name), get_thread_id(thread))
+        return cmd_text
 
     def make_error_message(self, seq, text):
         cmd = NetCommand(CMD_ERROR, seq, text)
@@ -68,6 +61,9 @@ class NetCommandFactory(object):
         cmdText = '<process/>'
         return NetCommand(CMD_PROCESS_CREATED, 0, cmdText)
 
+    def make_process_about_to_be_replaced_message(self):
+        return NULL_NET_COMMAND
+
     def make_show_cython_warning_message(self):
         try:
             return NetCommand(CMD_SHOW_CYTHON_WARNING, 0, '')
@@ -75,6 +71,7 @@ class NetCommandFactory(object):
             return self.make_error_message(0, get_exception_traceback_str())
 
     def make_custom_frame_created_message(self, frame_id, frame_description):
+        self._additional_thread_id_to_thread_name[frame_id] = frame_description
         frame_description = pydevd_xml.make_valid_xml_value(frame_description)
         return NetCommand(CMD_THREAD_CREATE, 0, '<xml><thread name="%s" id="%s"/></xml>' % (frame_description, frame_id))
 
@@ -87,6 +84,11 @@ class NetCommandFactory(object):
             for thread in threads:
                 if is_thread_alive(thread):
                     append(self._thread_to_xml(thread))
+
+            for thread_id, thread_name in list(self._additional_thread_id_to_thread_name.items()):
+                name = pydevd_xml.make_valid_xml_value(thread_name)
+                append('<thread name="%s" id="%s" />' % (quote(name), thread_id))
+
             append("</xml>")
             return NetCommand(CMD_RETURN, seq, ''.join(cmd_text))
         except:
@@ -129,6 +131,9 @@ class NetCommandFactory(object):
     def make_warning_message(self, msg):
         return self.make_io_message(msg, 2)
 
+    def make_console_message(self, msg):
+        return self.make_io_message(msg, 2)
+
     def make_io_message(self, msg, ctx):
         '''
         @param msg: the message to pass to the debug server
@@ -153,38 +158,53 @@ class NetCommandFactory(object):
             return self.make_error_message(seq, get_exception_traceback_str())
 
     def make_thread_killed_message(self, tid):
+        self._additional_thread_id_to_thread_name.pop(tid, None)
         try:
             return NetCommand(CMD_THREAD_KILL, 0, str(tid))
         except:
             return self.make_error_message(0, get_exception_traceback_str())
 
-    def _iter_visible_frames_info(self, py_db, frames_list):
+    def _iter_visible_frames_info(self, py_db, frames_list, flatten_chained=False):
         assert frames_list.__class__ == FramesList
-        for frame in frames_list:
-            show_as_current_frame = frame is frames_list.current_frame
-            if frame.f_code is None:
-                pydev_log.info('Frame without f_code: %s', frame)
-                continue  # IronPython sometimes does not have it!
+        is_chained = False
+        while True:
+            for frame in frames_list:
+                show_as_current_frame = frame is frames_list.current_frame
+                if frame.f_code is None:
+                    pydev_log.info('Frame without f_code: %s', frame)
+                    continue  # IronPython sometimes does not have it!
 
-            method_name = frame.f_code.co_name  # method name (if in method) or ? if global
-            if method_name is None:
-                pydev_log.info('Frame without co_name: %s', frame)
-                continue  # IronPython sometimes does not have it!
+                method_name = frame.f_code.co_name  # method name (if in method) or ? if global
+                if method_name is None:
+                    pydev_log.info('Frame without co_name: %s', frame)
+                    continue  # IronPython sometimes does not have it!
 
-            abs_path_real_path_and_base = get_abs_path_real_path_and_base_from_frame(frame)
-            if py_db.get_file_type(frame, abs_path_real_path_and_base) == py_db.PYDEV_FILE:
-                # Skip pydevd files.
-                frame = frame.f_back
-                continue
+                if is_chained:
+                    method_name = '[Chained Exc: %s] %s' % (frames_list.exc_desc, method_name)
 
-            frame_id = id(frame)
-            lineno = frames_list.frame_id_to_lineno.get(frame_id, frame.f_lineno)
+                abs_path_real_path_and_base = get_abs_path_real_path_and_base_from_frame(frame)
+                if py_db.get_file_type(frame, abs_path_real_path_and_base) == py_db.PYDEV_FILE:
+                    # Skip pydevd files.
+                    frame = frame.f_back
+                    continue
 
-            filename_in_utf8, lineno, changed = py_db.source_mapping.map_to_client(abs_path_real_path_and_base[0], lineno)
-            new_filename_in_utf8, applied_mapping = pydevd_file_utils.map_file_to_client(filename_in_utf8)
-            applied_mapping = applied_mapping or changed
+                frame_id = id(frame)
+                lineno = frames_list.frame_id_to_lineno.get(frame_id, frame.f_lineno)
+                line_col_info = frames_list.frame_id_to_line_col_info.get(frame_id)
 
-            yield frame_id, frame, method_name, abs_path_real_path_and_base[0], new_filename_in_utf8, lineno, applied_mapping, show_as_current_frame
+                filename_in_utf8, lineno, changed = py_db.source_mapping.map_to_client(abs_path_real_path_and_base[0], lineno)
+                new_filename_in_utf8, applied_mapping = pydevd_file_utils.map_file_to_client(filename_in_utf8)
+                applied_mapping = applied_mapping or changed
+
+                yield frame_id, frame, method_name, abs_path_real_path_and_base[0], new_filename_in_utf8, lineno, applied_mapping, show_as_current_frame, line_col_info
+
+            if not flatten_chained:
+                break
+
+            frames_list = frames_list.chained_frames_list
+            if frames_list is None or len(frames_list) == 0:
+                break
+            is_chained = True
 
     def make_thread_stack_str(self, py_db, frames_list):
         assert frames_list.__class__ == FramesList
@@ -193,8 +213,8 @@ class NetCommandFactory(object):
         append = cmd_text_list.append
 
         try:
-            for frame_id, frame, method_name, _original_filename, filename_in_utf8, lineno, _applied_mapping, _show_as_current_frame in self._iter_visible_frames_info(
-                    py_db, frames_list
+            for frame_id, frame, method_name, _original_filename, filename_in_utf8, lineno, _applied_mapping, _show_as_current_frame, line_col_info in self._iter_visible_frames_info(
+                    py_db, frames_list, flatten_chained=True
                 ):
 
                 # print("file is ", filename_in_utf8)
@@ -273,7 +293,7 @@ class NetCommandFactory(object):
         except:
             return self.make_error_message(0, get_exception_traceback_str())
 
-    def make_thread_suspend_single_notification(self, py_db, thread_id, stop_reason):
+    def make_thread_suspend_single_notification(self, py_db, thread_id, thread, stop_reason):
         try:
             return NetCommand(CMD_THREAD_SUSPEND_SINGLE_NOTIFICATION, 0, json.dumps(
                 {'thread_id': thread_id, 'stop_reason':stop_reason}))

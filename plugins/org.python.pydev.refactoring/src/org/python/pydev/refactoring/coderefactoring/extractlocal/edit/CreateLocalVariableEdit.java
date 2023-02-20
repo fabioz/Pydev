@@ -15,12 +15,12 @@
 *     Fabio Zadrozny <fabiofz@gmail.com>    - initial implementation
 *     Jonah Graham <jonah@kichwacoders.com> - ongoing maintenance
 ******************************************************************************/
-/* 
+/*
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
  * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  *
  * IFS Institute for Software, HSR Rapperswil, Switzerland
- * 
+ *
  */
 
 package org.python.pydev.refactoring.coderefactoring.extractlocal.edit;
@@ -39,8 +39,10 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.expr_contextType;
 import org.python.pydev.parser.visitors.scope.GetNodeForExtractLocalVisitor;
+import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.coderefactoring.extractlocal.request.ExtractLocalRequest;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
+import org.python.pydev.refactoring.core.base.RefactoringInfo.SelectionComputer.SelectionComputerKind;
 import org.python.pydev.refactoring.core.edit.AbstractInsertEdit;
 import org.python.pydev.shared_core.string.ICoreTextSelection;
 import org.python.pydev.shared_core.structure.FastStack;
@@ -79,7 +81,7 @@ public class CreateLocalVariableEdit extends AbstractInsertEdit {
 
     private int calculateLineForLocal() {
         if (lineForLocal == -1) {
-            ICoreTextSelection userSelection = info.getUserSelection();
+            ICoreTextSelection userSelection = info.getSelectionComputer(SelectionComputerKind.inline).selection;
             if (replaceDuplicates) {
                 //When replacing duplicates, we have to consider the selection the first
                 //replace (so that the local created works for all the replaces).
@@ -92,12 +94,13 @@ public class CreateLocalVariableEdit extends AbstractInsertEdit {
             PySelection selection = new PySelection(info.getDocument(), userSelection);
             int startLineIndexIndocCoords = selection.getStartLineIndex();
             int startLineIndexInASTCoords = startLineIndexIndocCoords + 1; //from doc to ast
-            Module module = info.getModuleAdapter().getASTNode();
+            ModuleAdapter modAdapter = info.getModuleAdapter();
+            Module module = modAdapter.getASTNode();
             SimpleNode currentScope = module;
 
             try {
                 FindScopeVisitor scopeVisitor = new FindScopeVisitor(startLineIndexInASTCoords,
-                        selection.getCursorColumn() + 1, info.getNature());
+                        selection.getCursorColumn() + 1, info.getNature(), modAdapter.getIModule());
                 module.accept(scopeVisitor);
                 ILocalScope scope = scopeVisitor.scope;
                 FastStack scopeStack = scope.getScopeStack();

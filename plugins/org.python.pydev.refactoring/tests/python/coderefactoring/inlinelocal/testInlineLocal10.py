@@ -1,10 +1,10 @@
 x = 5
 obj.x = 10
 
-print x##|
+print(x##|)
 
 
 ##r
 obj.x = 10
 
-print 5
+print(5)

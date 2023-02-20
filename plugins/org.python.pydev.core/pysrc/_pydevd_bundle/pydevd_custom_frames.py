@@ -1,6 +1,6 @@
 from _pydevd_bundle.pydevd_constants import get_current_thread_id, Null, ForkSafeLock
 from pydevd_file_utils import get_abs_path_real_path_and_base_from_frame
-from _pydev_imps._pydev_saved_modules import thread, threading
+from _pydev_bundle._pydev_saved_modules import thread, threading
 import sys
 from _pydev_bundle import pydev_log
 
@@ -75,7 +75,7 @@ def add_custom_frame(frame, name, thread_id):
         Returns the custom thread id which will be used to show the given frame paused.
     '''
     with CustomFramesContainer.custom_frames_lock:
-        curr_thread_id = get_current_thread_id(threading.currentThread())
+        curr_thread_id = get_current_thread_id(threading.current_thread())
         next_id = CustomFramesContainer._next_frame_id = CustomFramesContainer._next_frame_id + 1
 
         # Note: the frame id kept contains an id and thread information on the thread where the frame was added

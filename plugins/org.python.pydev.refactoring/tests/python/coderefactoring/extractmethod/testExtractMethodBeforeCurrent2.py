@@ -4,7 +4,7 @@ class A:
         pass
     
     def my_method(self):
-        print ##|self.attribute##|
+        print(##|self.attribute##|)
     
 
 ##c
@@ -25,4 +25,4 @@ class A:
         return self.attribute
 
     def my_method(self):
-        print self.extracted_method()
+        print(self.extracted_method())

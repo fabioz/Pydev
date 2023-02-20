@@ -23,12 +23,13 @@ public interface ISystemModulesManager extends IModulesManager {
     /**
      * @return a given module only considering the modules in the builtins.
      */
-    public IModule getBuiltinModule(String name, boolean dontSearchInit);
+    public IModule getBuiltinModule(String name, boolean dontSearchInit, IModuleRequestState moduleRequest);
 
     /**
      * @return a given module only considering modules that are not in the builtins.
      */
-    public abstract IModule getModuleWithoutBuiltins(String name, IPythonNature nature, boolean dontSearchInit);
+    public abstract IModule getModuleWithoutBuiltins(String name, IPythonNature nature, boolean dontSearchInit,
+            IModuleRequestState moduleRequest);
 
     /**
      * Loads the system information from the disk.

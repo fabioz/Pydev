@@ -148,7 +148,7 @@ def notify_error(*args):
 #=======================================================================================================================
 def code_objects_equal(code0, code1):
     for d in dir(code0):
-        if d.startswith('_') or 'lineno' in d or d == 'replace':
+        if d.startswith('_') or 'line' in d or d in ('replace', 'co_positions', 'co_qualname'):
             continue
         if getattr(code0, d) != getattr(code1, d):
             return False
@@ -193,8 +193,16 @@ class Reload:
 
     def __init__(self, mod, mod_name=None, mod_filename=None):
         self.mod = mod
-        self.mod_name = (mod_name or mod.__name__) if mod_name else None
-        self.mod_filename = (mod_filename or mod.__file__) if mod else None
+        if mod_name:
+            self.mod_name = mod_name
+        else:
+            self.mod_name = mod.__name__ if mod is not None else None
+
+        if mod_filename:
+            self.mod_filename = mod_filename
+        else:
+            self.mod_filename = mod.__file__ if mod is not None else None
+
         self.found_change = False
 
     def apply(self):
@@ -319,23 +327,23 @@ class Reload:
                 return
 
             if namespace is not None:
-
-                if oldobj != newobj and str(oldobj) != str(newobj) and repr(oldobj) != repr(newobj):
-                    xreload_old_new = None
-                    if is_class_namespace:
-                        xreload_old_new = getattr(namespace, '__xreload_old_new__', None)
-                        if xreload_old_new is not None:
-                            self.found_change = True
-                            xreload_old_new(name, oldobj, newobj)
-
-                    elif '__xreload_old_new__' in namespace:
-                        xreload_old_new = namespace['__xreload_old_new__']
-                        xreload_old_new(namespace, name, oldobj, newobj)
+                # Check for the `__xreload_old_new__` protocol (don't even compare things
+                # as even doing a comparison may break things -- see: https://github.com/microsoft/debugpy/issues/615).
+                xreload_old_new = None
+                if is_class_namespace:
+                    xreload_old_new = getattr(namespace, '__xreload_old_new__', None)
+                    if xreload_old_new is not None:
                         self.found_change = True
+                        xreload_old_new(name, oldobj, newobj)
 
-                    # Too much information to the user...
-                    # else:
-                    #     notify_info0('%s NOT updated. Create __xreload_old_new__(name, old, new) for custom reload' % (name,))
+                elif '__xreload_old_new__' in namespace:
+                    xreload_old_new = namespace['__xreload_old_new__']
+                    xreload_old_new(namespace, name, oldobj, newobj)
+                    self.found_change = True
+
+                # Too much information to the user...
+                # else:
+                #     notify_info0('%s NOT updated. Create __xreload_old_new__(name, old, new) for custom reload' % (name,))
 
         except:
             notify_error('Exception found when updating %s. Proceeding for other items.' % (name,))

@@ -5,8 +5,8 @@ def updown(n):
     d = True
     # is handled by list comprehension
     (a for x in range(9) if 2 == 2)
-    for x in xrange(n, 0, -1):
+    for x in range(n, 0, -1):
         yield x
 
 for i in updown(3):
-    print i
+    print(i)

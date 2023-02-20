@@ -28,6 +28,7 @@ import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.modType;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.parser.jython.ISpecialStr;
 
 import org.python.pydev.parser.jython.ast.Await;
 import org.python.pydev.parser.jython.ast.Expr;
@@ -387,7 +388,7 @@ public final class PythonGrammar38 extends AbstractPythonGrammar implements/*@bg
         jj_la1[3] = jj_gen;
         ;
       }
-                                                                                                                                                                               grammarActions.findTokenAndAdd(":");
+                                                                                                                                                                               ISpecialStr s = grammarActions.findTokenAndAdd(":"); if(s != null){grammarActions.markEndDefColon(s, jjtn000);}
       jj_consume_token(COLON);
       suite();
     } catch (Throwable jjte000) {
@@ -3451,7 +3452,7 @@ public final class PythonGrammar38 extends AbstractPythonGrammar implements/*@bg
           break label_14;
         }
         jj_consume_token(DOT);
-            level++;
+            level++;markLastImportLevelPos();
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case ASYNC:
@@ -3463,7 +3464,7 @@ public final class PythonGrammar38 extends AbstractPythonGrammar implements/*@bg
         jj_la1[70] = jj_gen;
         ;
       }
-                                                       if(fromName==null && level==0){{if (true) throw new ParseException("Expecting to find '.' or name in import.");}}
+                                                                                if(fromName==null && level==0){{if (true) throw new ParseException("Expecting to find '.' or name in import.");}}
       grammarActions.findTokenAndAdd("import");
       jj_consume_token(IMPORT);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -8290,7 +8291,7 @@ else
         jj_la1[166] = jj_gen;
         ;
       }
-                                                                                                                                                                                                                                                                                                                               grammarActions.findTokenAndAdd(":");
+                                                                                                                                                                                                                                                                                                                               ISpecialStr s = grammarActions.findTokenAndAdd(":"); if(s != null){grammarActions.markEndDefColon(s, jjtn000);}
       jj_consume_token(COLON);
       suite();
     } catch (Throwable jjte000) {
@@ -9196,11 +9197,6 @@ else
     try { return !jj_3_35(); }
     catch(LookaheadSuccess ls) { return true; }
     finally { jj_save(34, xla); }
-  }
-
-  private boolean jj_3R_102() {
-    if (jj_3R_135()) return true;
-    return false;
   }
 
   private boolean jj_3_6() {
@@ -10907,6 +10903,11 @@ else
 
   private boolean jj_3R_135() {
     if (jj_scan_token(FOR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_102() {
+    if (jj_3R_135()) return true;
     return false;
   }
 

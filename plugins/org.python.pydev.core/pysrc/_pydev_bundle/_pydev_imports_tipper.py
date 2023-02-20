@@ -3,29 +3,15 @@ import os.path
 import sys
 
 from _pydev_bundle._pydev_tipper_common import do_find
-from _pydevd_bundle.pydevd_constants import IS_PY2
 from _pydevd_bundle.pydevd_utils import hasattr_checked, dir_checked
 
-if IS_PY2:
-    from inspect import getargspec as _originalgetargspec
+from inspect import getfullargspec
 
-    def getargspec(*args, **kwargs):
-        ret = list(_originalgetargspec(*args, **kwargs))
-        ret.append([])
-        ret.append({})
-        return ret
 
-else:
-    from inspect import getfullargspec
+def getargspec(*args, **kwargs):
+    arg_spec = getfullargspec(*args, **kwargs)
+    return arg_spec.args, arg_spec.varargs, arg_spec.varkw, arg_spec.defaults, arg_spec.kwonlyargs or [], arg_spec.kwonlydefaults or {}
 
-    def getargspec(*args, **kwargs):
-        arg_spec = getfullargspec(*args, **kwargs)
-        return arg_spec.args, arg_spec.varargs, arg_spec.varkw, arg_spec.defaults, arg_spec.kwonlyargs or [], arg_spec.kwonlydefaults or {}
-
-try:
-    xrange
-except:
-    xrange = range
 
 # completion types.
 TYPE_IMPORT = '0'
@@ -363,7 +349,7 @@ def signature_from_docstring(doc, obj_name):
                             # now, get rid of unwanted chars
                             l = len(args) - 1
                             r = []
-                            for i in xrange(len(args)):
+                            for i in range(len(args)):
                                 if i == 0 or i == l:
                                     r.append(args[i])
                                 else:

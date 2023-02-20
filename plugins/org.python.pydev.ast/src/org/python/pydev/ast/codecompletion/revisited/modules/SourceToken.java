@@ -12,10 +12,17 @@
 package org.python.pydev.ast.codecompletion.revisited.modules;
 
 import org.python.pydev.ast.codecompletion.revisited.AbstractToken;
+import org.python.pydev.ast.codecompletion.revisited.CompletionState;
 import org.python.pydev.ast.codecompletion.revisited.visitors.AbstractVisitor;
 import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
+import org.python.pydev.core.BaseModuleRequest;
+import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
+import org.python.pydev.core.TokensList;
+import org.python.pydev.core.log.Log;
+import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -28,6 +35,7 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.keywordType;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.shared_core.callbacks.ICallback;
 
 /**
  * @author Fabio Zadrozny
@@ -35,6 +43,77 @@ import org.python.pydev.parser.visitors.NodeUtils;
 public class SourceToken extends AbstractToken {
 
     private static final long serialVersionUID = 1L;
+
+    private static final ICallback<String, IToken> DEFAULT_COMPUTE_DOCSTRING = (token) -> {
+        if (token instanceof SourceToken) {
+            SourceToken sourceToken = (SourceToken) token;
+            if (sourceToken.getAst() != null) {
+                return NodeUtils.printAst(null, sourceToken.getAst());
+            }
+        }
+        return "";
+    };
+
+    private static final ThreadLocal<Boolean> threadLocalPreventRecursion = new ThreadLocal<>();
+
+    private static final ICallback<String, IToken> DEFAULT_COMPUTE_DOCSTRING_PREDEFINED = (token) -> {
+        if (token instanceof SourceToken) {
+            Boolean curr = threadLocalPreventRecursion.get();
+            if (curr == null || curr == false) {
+                threadLocalPreventRecursion.set(true);
+            } else {
+                Log.log("Prevented recursion when getting source token docs.");
+                return "";
+            }
+            try {
+                SourceToken sourceToken = (SourceToken) token;
+                IPythonNature nature = sourceToken.getNature();
+                BaseModuleRequest request = new BaseModuleRequest(false);
+                SimpleNode ast = sourceToken.getAst();
+                if (ast != null) {
+                    String signatureDoc = NodeUtils.printAst(null, ast);
+                    if (nature != null) {
+                        String qualifier = NodeUtils.getRepresentationString(ast);
+                        if (qualifier != null) {
+                            ICodeCompletionASTManager astManager = nature.getAstManager();
+                            IModule realModule = astManager.getModule(sourceToken.parentPackage, nature, false,
+                                    request);
+                            if (realModule != null && realModule != sourceToken.module) {
+                                String actTok = "";
+                                if (ast.parent != null) {
+                                    actTok = NodeUtils.getFullMethodName(ast.parent);
+                                }
+                                CompletionState state = new CompletionState(ast.beginLine - 1, ast.beginColumn - 1,
+                                        actTok, nature, "");
+                                try {
+                                    TokensList completionsForModule = astManager.getCompletionsForModule(realModule,
+                                            state);
+                                    IToken found = completionsForModule.find(qualifier);
+                                    if (found != null) {
+                                        if (found.equals(token)) {
+                                            // i.e.: we don't want to recurse...
+                                            return signatureDoc;
+                                        }
+                                        String docStr = found.getDocStr();
+                                        if (docStr == null || docStr.trim().length() == 0) {
+                                            return signatureDoc;
+                                        }
+                                        return docStr + "\n\n" + signatureDoc;
+                                    }
+                                } catch (CompletionRecursionException e) {
+                                    Log.log(e);
+                                }
+                            }
+                        }
+                    }
+                    return signatureDoc;
+                }
+            } finally {
+                threadLocalPreventRecursion.set(false);
+            }
+        }
+        return "";
+    };
 
     /**
      * The AST that generated this SourceToken
@@ -47,30 +126,47 @@ public class SourceToken extends AbstractToken {
     private FunctionDef aliased;
 
     /**
-     * @param node
+     * Note: may be null.
      */
+    public final IModule module;
+
     public SourceToken(SimpleNode node, String rep, String args, String doc, String parentPackage,
-            IPythonNature nature) {
+            IPythonNature nature, IModule module) {
         super(rep, doc, args, parentPackage, getType(node), nature);
         this.ast = node;
+        this.module = module;
+        setDefaultComputeDocstring();
     }
 
     /**
      * @param node
      */
     public SourceToken(SimpleNode node, String rep, String args, String doc, String parentPackage, int type,
-            IPythonNature nature) {
+            IPythonNature nature, IModule module) {
         super(rep, doc, args, parentPackage, type, nature);
         this.ast = node;
+        this.module = module;
+        setDefaultComputeDocstring();
     }
 
     /**
      * @param node
      */
     public SourceToken(SimpleNode node, String rep, String doc, String args, String parentPackage, String originalRep,
-            boolean originalHasRep, IPythonNature nature) {
+            boolean originalHasRep, IPythonNature nature, IModule module) {
         super(rep, doc, args, parentPackage, getType(node), originalRep, originalHasRep, nature);
         this.ast = node;
+        this.module = module;
+        setDefaultComputeDocstring();
+    }
+
+    private void setDefaultComputeDocstring() {
+        if (this.module instanceof PredefinedSourceModule) {
+            computeDocstring = DEFAULT_COMPUTE_DOCSTRING_PREDEFINED;
+
+        } else if (ast instanceof FunctionDef || ast instanceof ClassDef) {
+            computeDocstring = DEFAULT_COMPUTE_DOCSTRING;
+        }
     }
 
     /**
@@ -90,10 +186,7 @@ public class SourceToken extends AbstractToken {
         } else if (ast instanceof Import || ast instanceof ImportFrom) {
             return IToken.TYPE_IMPORT;
 
-        } else if (ast instanceof keywordType) {
-            return IToken.TYPE_ATTR;
-
-        } else if (ast instanceof Attribute) {
+        } else if (ast instanceof keywordType || ast instanceof Attribute || ast instanceof NameTok) {
             return IToken.TYPE_ATTR;
         }
 
@@ -267,6 +360,8 @@ public class SourceToken extends AbstractToken {
 
     private Assign foundInAssign;
 
+    private Assign dummyAssignFromParam;
+
     private Call foundInCall;
 
     public void setDefinition(Definition d) {
@@ -291,6 +386,14 @@ public class SourceToken extends AbstractToken {
 
     public Call getFoundInCall() {
         return foundInCall;
+    }
+
+    public void setDummyAssignFromParam(Assign dummyAssignFromParam) {
+        this.dummyAssignFromParam = dummyAssignFromParam;
+    }
+
+    public Assign getDummyAssignFromParam() {
+        return dummyAssignFromParam;
     }
 
 }

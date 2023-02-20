@@ -38,6 +38,8 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
  *
  * Note that if a directory being watched is removed, it should notify that the given path was removed
  * (and will remove all the listeners for the path afterwards).
+ *
+ * Also note that the listening is not recursive (we listen only for the paths registered, not children directories).
  */
 public class PathWatch implements IPathWatch {
 
@@ -125,8 +127,9 @@ public class PathWatch implements IPathWatch {
                         }
                         continue;
                     } catch (ClosedWatchServiceException cwse) {
-                        // other thread closed watch service
-                        // System.out.println("watch service closed, terminating.");
+                        if (log != null) {
+                            log.append("Closed watch system\n");
+                        }
                         break;
                     }
 
@@ -202,10 +205,16 @@ public class PathWatch implements IPathWatch {
                         try {
                             stacker.run();
                         } catch (Exception e1) {
+                            if (log != null) {
+                                log.append("Unexpected exception" + e1 + "\n");
+                            }
                             Log.log(e1);
                         }
                     }
                 } catch (Exception e) {
+                    if (log != null) {
+                        log.append("Unexpected exception" + e + "\n");
+                    }
                     Log.log(e);
                 }
             }

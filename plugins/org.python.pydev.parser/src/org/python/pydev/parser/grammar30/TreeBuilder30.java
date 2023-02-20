@@ -15,7 +15,6 @@ import org.python.pydev.parser.grammarcommon.ITreeBuilder;
 import org.python.pydev.parser.grammarcommon.ITreeConstants;
 import org.python.pydev.parser.grammarcommon.JJTPythonGrammarState;
 import org.python.pydev.parser.grammarcommon.JfpDef;
-import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assert;
 import org.python.pydev.parser.jython.ast.Assign;
@@ -67,9 +66,11 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
         Suite orelseSuite;
         stmtType[] body;
         Suite suite;
-
         int l;
         exprType awaitExpr;
+        NameTok nameTok;
+        argumentsType arguments;
+
         switch (n.getId()) {
             case JJTEXPR_STMT:
                 value = (exprType) stack.popNode();
@@ -152,26 +153,7 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
                 SimpleNode funcdefReturn = stack.popNode();
                 return new FuncDefReturnAnn(funcdefReturn);
             case JJTFUNCDEF:
-                suite = (Suite) stack.popNode();
-                body = suite.body;
-                arity--;
-
-                SimpleNode funcDefReturnAnn = stack.peekNode();
-                exprType actualReturnAnnotation = null;
-                if (funcDefReturnAnn instanceof FuncDefReturnAnn) {
-                    stack.popNode();
-                    actualReturnAnnotation = (exprType) ((FuncDefReturnAnn) funcDefReturnAnn).node;
-                    arity--;
-                    addSpecialsAndClearOriginal(funcDefReturnAnn, actualReturnAnnotation);
-                }
-                argumentsType arguments = makeArguments(arity - 1);
-                NameTok nameTok = makeName(NameTok.FunctionName);
-                //decorator is always null at this point... it's decorated later on
-                FunctionDef funcDef = new FunctionDef(nameTok, arguments, body, null, actualReturnAnnotation,
-                        this.stack.getGrammar().getInsideAsync());
-                addSpecialsAndClearOriginal(suite, funcDef);
-                setParentForFuncOrClass(body, funcDef);
-                return funcDef;
+                return closeFuncDef(arity, n);
             case JJTTFPDEF:
                 Name tfpdefName = null;
                 exprType typeDef = null;
@@ -213,21 +195,21 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
                     //nothing here (just '*')
                     return new ExtraArg(null, JJTEXTRAARGLIST, null);
                 }
-                return new ExtraArg(makeName(NameTok.VarArg), JJTEXTRAARGLIST);
+                return new ExtraArg(makeNameTok(NameTok.VarArg), JJTEXTRAARGLIST);
             case JJTEXTRAKEYWORDLIST:
-                return new ExtraArg(makeName(NameTok.KwArg), JJTEXTRAKEYWORDLIST);
+                return new ExtraArg(makeNameTok(NameTok.KwArg), JJTEXTRAKEYWORDLIST);
             case JJTEXTRAARGLIST2: //with type declaration
                 if (arity == 0) {
                     //nothing here (just '*')
                     return new ExtraArg(null, JJTEXTRAARGLIST, null);
                 }
                 jfpDef = (JfpDef) stack.popNode();
-                NameTok jfpDefName = makeName(NameTok.VarArg, jfpDef.nameNode);
+                NameTok jfpDefName = makeNameTok(NameTok.VarArg, jfpDef.nameNode);
                 ExtraArg extra = new ExtraArg(jfpDefName, JJTEXTRAARGLIST, jfpDef.typeDef);
                 return extra;
             case JJTEXTRAKEYWORDLIST2: //with type declaration
                 jfpDef = (JfpDef) stack.popNode();
-                return new ExtraArg(makeName(NameTok.KwArg, jfpDef.nameNode), JJTEXTRAKEYWORDLIST, jfpDef.typeDef);
+                return new ExtraArg(makeNameTok(NameTok.KwArg, jfpDef.nameNode), JJTEXTRAKEYWORDLIST, jfpDef.typeDef);
             case JJTDECORATED:
                 if (stack.nodeArity() != 2) {
                     throw new RuntimeException("Expected 2 nodes at this context, found: " + arity);
@@ -282,7 +264,7 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
                 }
 
                 exprType[] bases = makeExprs(nodeArity);
-                nameTok = makeName(NameTok.ClassName);
+                nameTok = makeNameTok(NameTok.ClassName);
                 //decorator is always null at this point... it's decorated later on
                 ClassDef classDef = new ClassDef(nameTok, bases, body, null,
                         classDefKeywords.toArray(new keywordType[classDefKeywords.size()]), starargs, kwargs);
@@ -366,7 +348,7 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
                 //we do that just to get the specials
                 return new Suite(null);
             case JJTBEGIN_EXCEPT_CLAUSE:
-                return new excepthandlerType(null, null, null);
+                return new excepthandlerType(null, null, null, false);
             case JJTEXCEPT_CLAUSE:
                 suite = (Suite) stack.popNode();
                 body = suite.body;
@@ -407,7 +389,7 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
             case JJTARGUMENT:
                 SimpleNode keyword = stack.popNode();
                 if (keyword instanceof keywordType) {
-                    nameTok = makeName(NameTok.KeywordName);
+                    nameTok = makeNameTok(NameTok.KeywordName);
                     ((keywordType) keyword).arg = nameTok;
                 }
                 return keyword;
@@ -529,95 +511,5 @@ public final class TreeBuilder30 extends AbstractTreeBuilder implements ITreeBui
                 Log.log(("Error at TreeBuilder: default not treated:" + n.getId()));
                 return null;
         }
-    }
-
-    /**
-     * Should only be called from makeArguments
-     */
-    private argumentsType __makeArguments(DefaultArg[] def, NameTok varg, NameTok kwarg) throws Exception {
-        java.util.List<exprType> fpargs = new ArrayList<exprType>();
-        java.util.List<exprType> fpargsAnn = new ArrayList<exprType>();
-        java.util.List<exprType> fpargsDefaults = new ArrayList<exprType>();
-
-        java.util.List<exprType> kwonlyargs = new ArrayList<exprType>();
-        java.util.List<exprType> kwonlyargsAnn = new ArrayList<exprType>();
-        java.util.List<exprType> kwonlyargsDefaults = new ArrayList<exprType>();
-
-        for (int i = 0; i < def.length; i++) {
-            DefaultArg node = def[i];
-            exprType parameter = node.parameter;
-
-            if (node.id == JJTONLYKEYWORDARG || node.id == JJTONLYKEYWORDARG2) {
-                ctx.setKwOnlyParam(parameter);
-                kwonlyargs.add(parameter);
-                kwonlyargsAnn.add(node.typeDef);
-                kwonlyargsDefaults.add(node.value);
-            } else {
-                //regular parameter
-                ctx.setParam(parameter);
-                fpargs.add(parameter);
-                fpargsAnn.add(node.typeDef);
-                fpargsDefaults.add(node.value);
-            }
-
-            if (node.specialsBefore != null && node.specialsBefore.size() > 0) {
-                parameter.getSpecialsBefore().addAll(node.specialsBefore);
-            }
-            if (node.specialsAfter != null && node.specialsAfter.size() > 0) {
-                parameter.getSpecialsAfter().addAll(node.specialsAfter);
-            }
-
-        }
-
-        return new argumentsType(fpargs.toArray(new exprType[fpargs.size()]), varg, kwarg,
-                fpargsDefaults.toArray(new exprType[fpargsDefaults.size()]),
-
-                //new on Python 3.0
-                kwonlyargs.toArray(new exprType[kwonlyargs.size()]),
-                kwonlyargsDefaults.toArray(new exprType[kwonlyargsDefaults.size()]),
-
-                //annotations
-                fpargsAnn.toArray(new exprType[fpargsAnn.size()]), null, //this one will be set later on makeArguments (varargannotation)
-                null, //this one will be set later on makeArguments (kwargannotation)
-                kwonlyargsAnn.toArray(new exprType[kwonlyargsAnn.size()]));
-
-    }
-
-    private argumentsType makeArguments(int l) throws Exception {
-        NameTok kwarg = null;
-        NameTok stararg = null;
-        exprType varargannotation = null;
-        exprType kwargannotation = null;
-
-        ArrayList<SimpleNode> list = new ArrayList<SimpleNode>();
-        for (int i = l - 1; i >= 0; i--) {
-            SimpleNode popped = stack.popNode();
-            try {
-                if (popped.getId() == JJTEXTRAKEYWORDLIST) {
-                    ExtraArg node = (ExtraArg) popped;
-                    kwarg = node.tok;
-                    kwargannotation = node.typeDef;
-                    addSpecialsAndClearOriginal(node, kwarg);
-                } else if (popped.getId() == JJTEXTRAARGLIST) {
-                    ExtraArg node = (ExtraArg) popped;
-                    stararg = node.tok;
-                    varargannotation = node.typeDef;
-                    if (stararg != null) {
-                        //can happen, as in 3.0 we can have a single '*'
-                        addSpecialsAndClearOriginal(node, stararg);
-                    }
-                } else {
-                    list.add(popped);
-                }
-            } catch (ClassCastException e) {
-                throw new ParseException("Internal error (ClassCastException):" + e.getMessage() + "\n" + popped,
-                        popped);
-            }
-        }
-        Collections.reverse(list);//we get them in reverse order in the stack
-        argumentsType arguments = __makeArguments(list.toArray(new DefaultArg[0]), stararg, kwarg);
-        arguments.varargannotation = varargannotation;
-        arguments.kwargannotation = kwargannotation;
-        return arguments;
     }
 }

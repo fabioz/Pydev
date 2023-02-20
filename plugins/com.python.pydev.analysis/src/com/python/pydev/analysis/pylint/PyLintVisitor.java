@@ -26,6 +26,7 @@ import org.python.pydev.core.IModule;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.markers.PyMarkerUtils;
 import org.python.pydev.shared_core.progress.NullProgressMonitorWrapper;
 
@@ -69,10 +70,14 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisStream;
             return;
         }
 
-        File pyLintLocation = PyLintPreferences.getPyLintLocation(pythonNature, resource);
-        if (pyLintLocation == null || !pyLintLocation.exists()) {
-            deleteMarkers();
-            return;
+        File pyLintLocation = null;
+        if (!PyLintPreferences.usePyLintFromPythonNature(pythonNature, project)) {
+            pyLintLocation = PyLintPreferences.getPyLintLocation(pythonNature, resource);
+            if (pyLintLocation == null || !FileUtils.enhancedIsFile(pyLintLocation)) {
+                Log.logInfo("PyLint specified but location is not valid: " + pyLintLocation);
+                deleteMarkers();
+                return;
+            }
         }
 
         try {

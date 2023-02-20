@@ -142,14 +142,20 @@ public class XMLUtils {
         public void startElement(String uri, String localName, String qName, Attributes attributes)
                 throws SAXException {
             if (qName.equals("variant")) {
-                String name = unescape(attributes.getValue("name"));
+                String name = decode(attributes.getValue("name"));
+                name = unescape(name);
                 boolean isVisited = Boolean.parseBoolean(attributes.getValue("isVisited"));
                 int line = Integer.parseInt(attributes.getValue("line"));
                 int offset = Integer.parseInt(attributes.getValue("offset"));
+                int childOffset = -1;
+                String value = attributes.getValue("childOffset");
+                if (value != null && !value.isEmpty()) {
+                    childOffset = Integer.parseInt(value);
+                }
                 int callOrder = Integer.parseInt(attributes.getValue("callOrder"));
 
-                name = decode(name);
-                variants.add(new SmartStepIntoVariant(target, name, isVisited, line - 1, offset, callOrder));
+                variants.add(
+                        new SmartStepIntoVariant(target, name, isVisited, line - 1, offset, childOffset, callOrder));
             }
         }
     }
@@ -201,16 +207,16 @@ public class XMLUtils {
         String value = decodeIgnoreError(attributes.getValue("value"));
         String isContainer = attributes.getValue("isContainer");
         String scope = attributes.getValue("scope");
-        if ("True".equals(isContainer)) {
+        String isRetVal = attributes.getValue("isRetVal");
+        boolean isReturnValue = "True".equals(isRetVal);
+
+        if ("True".equals(isContainer) && !isReturnValue) { // We can't currently expand return values (must fix locator)
             var = new PyVariableCollection(target, name, type, value, locator, scope);
         } else {
             var = new PyVariable(target, name, type, value, locator, scope);
         }
         var.setQualifier(qualifier);
-        String isRetVal = attributes.getValue("isRetVal");
-        if ("True".equals(isRetVal)) {
-            var.setIsReturnValue(true);
-        }
+        var.setIsReturnValue(isReturnValue);
         String isIPythonHidden = attributes.getValue("isIPythonHidden");
         if ("True".equals(isIPythonHidden)) {
             var.setIsIPythonHidden(true);
@@ -842,7 +848,7 @@ public class XMLUtils {
         return element;
     }
 
-    public static String decodeFromEncoding(String captured, String encoding) {
+    public static String decodeFromEncoding(String captured, String encoding) throws Exception {
         if (captured == null) {
             return "";
         }

@@ -715,7 +715,7 @@ public class GenCythonAstImpl {
                     setLine(type, asArray.get(0).asObject());
                 }
             }
-            excepthandlerType excepthandlerType = new excepthandlerType(type, name, body);
+            excepthandlerType excepthandlerType = new excepthandlerType(type, name, body, false);
             setLine(excepthandlerType, asObject);
             return excepthandlerType;
         }

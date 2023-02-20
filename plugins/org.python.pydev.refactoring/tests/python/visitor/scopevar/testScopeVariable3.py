@@ -4,25 +4,27 @@ class A:
         while (a < 2):
             a += 1
         var = a * a
-        print var
+        print(var)
             
     def my_method(self):
-        print self.attribute
+        print(self.attribute)
         
 a = A()
 a.test()
 
 ##r
 
-# test 7
+# test 8
 ## a
 ## a
 ## a
 ## var
 ## a
 ## a
+## print
 ## var
 
-# my_method 0
+# my_method 1
+## print
 
 # A 0

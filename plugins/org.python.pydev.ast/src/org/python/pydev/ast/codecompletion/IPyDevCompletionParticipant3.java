@@ -7,7 +7,7 @@
 package org.python.pydev.ast.codecompletion;
 
 import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
-import org.python.pydev.core.ICompletionCache;
+import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IPythonNature;
 
@@ -15,6 +15,6 @@ import org.python.pydev.core.IPythonNature;
  */
 public interface IPyDevCompletionParticipant3 {
 
-    IDefinition findDefinitionForMethodParameter(Definition d, IPythonNature nature, ICompletionCache completionCache);
+    IDefinition findDefinitionForMethodParameter(Definition d, IPythonNature nature, ICompletionState completionCache);
 
 }

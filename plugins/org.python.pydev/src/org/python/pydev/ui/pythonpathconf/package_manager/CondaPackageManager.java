@@ -3,11 +3,13 @@ package org.python.pydev.ui.pythonpathconf.package_manager;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.ast.codecompletion.shell.AbstractShell;
-import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
+import org.python.pydev.ast.interpreter_managers.PyDevCondaPreferences;
 import org.python.pydev.ast.runners.SimpleRunner;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterInfo.UnableToFindExecutableException;
@@ -15,16 +17,12 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.json.eclipsesource.JsonArray;
 import org.python.pydev.json.eclipsesource.JsonObject;
 import org.python.pydev.json.eclipsesource.JsonValue;
-import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.process_window.ProcessWindow;
 import org.python.pydev.shared_core.string.StringUtils;
-import org.python.pydev.shared_core.structure.OrderedSet;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.ArrayUtils;
-import org.python.pydev.shared_core.utils.PlatformUtils;
 import org.python.pydev.shared_ui.utils.UIUtils;
 import org.python.pydev.ui.dialogs.PyDialogHelpers;
-import org.python.pydev.ui.pythonpathconf.conda.PyDevCondaPreferences;
 
 public class CondaPackageManager extends AbstractPackageManager {
 
@@ -36,7 +34,6 @@ public class CondaPackageManager extends AbstractPackageManager {
     }
 
     public static List<File> listCondaEnvironments(File condaExecutable) {
-        List<File> lst = new ArrayList<>();
         String encoding = "utf-8";
         Tuple<String, String> output = new SimpleRunner().runAndGetOutput(
                 new String[] { condaExecutable.toString(), "env", "list", "--json" }, null, null,
@@ -45,10 +42,11 @@ public class CondaPackageManager extends AbstractPackageManager {
         Log.logInfo(output.o1);
         JsonObject jsonOutput = JsonValue.readFrom(output.o1).asObject();
         JsonArray envs = jsonOutput.get("envs").asArray();
+        Set<File> set = new HashSet<>();
         for (JsonValue env : envs.values()) {
-            lst.add(new File(env.asString()));
+            set.add(new File(env.asString()));
         }
-        return lst;
+        return new ArrayList<File>(set);
     }
 
     @Override
@@ -56,7 +54,7 @@ public class CondaPackageManager extends AbstractPackageManager {
         List<String[]> listed = new ArrayList<String[]>();
         File condaExecutable;
         try {
-            condaExecutable = findCondaExecutable();
+            condaExecutable = PyDevCondaPreferences.findCondaExecutable(interpreterInfo);
         } catch (UnableToFindExecutableException e) {
             return errorToList(listed, e);
         }
@@ -104,58 +102,6 @@ public class CondaPackageManager extends AbstractPackageManager {
         return listed;
     }
 
-    private File findCondaExecutable() throws UnableToFindExecutableException {
-
-        // Try to get from the preferences first.
-        File condaExecutable = PyDevCondaPreferences.getExecutable();
-        if (condaExecutable != null) {
-            return condaExecutable;
-        }
-        try {
-            condaExecutable = interpreterInfo.searchExecutableForInterpreter("conda", true);
-        } catch (UnableToFindExecutableException e) {
-            // Unable to find, let's see if it's in the path
-            OrderedSet<String> pathsToSearch = new OrderedSet<>(PythonNature.getPathsToSearch());
-            // use ordered set: we want to search the PATH before hard-coded paths.
-            String userHomeDir = System.getProperty("user.home");
-            if (PlatformUtils.isWindowsPlatform()) {
-                pathsToSearch.add("c:/tools/miniconda");
-                pathsToSearch.add("c:/tools/miniconda2");
-                pathsToSearch.add("c:/tools/miniconda3");
-                pathsToSearch.add("c:/tools/conda");
-                pathsToSearch.add("c:/tools/conda2");
-                pathsToSearch.add("c:/tools/conda3");
-            } else {
-                pathsToSearch.add("/opt/conda");
-                pathsToSearch.add("/opt/conda/bin");
-                pathsToSearch.add("/usr/bin");
-            }
-            pathsToSearch.add(new File(userHomeDir, "miniconda").toString());
-            pathsToSearch.add(new File(userHomeDir, "miniconda2").toString());
-            pathsToSearch.add(new File(userHomeDir, "miniconda3").toString());
-            pathsToSearch.add(new File(userHomeDir, "conda").toString());
-            pathsToSearch.add(new File(userHomeDir, "conda2").toString());
-            pathsToSearch.add(new File(userHomeDir, "conda3").toString());
-            pathsToSearch.add(new File(userHomeDir, "Anaconda").toString());
-            pathsToSearch.add(new File(userHomeDir, "Anaconda2").toString());
-            pathsToSearch.add(new File(userHomeDir, "Anaconda3").toString());
-            pathsToSearch.add(new File(userHomeDir).toString());
-
-            List<File> searchedDirectories = new ArrayList<>();
-            for (String string : pathsToSearch) {
-                File file = InterpreterInfo.searchExecutableInContainer("conda", new File(string),
-                        searchedDirectories);
-                if (file != null) {
-                    condaExecutable = file;
-                }
-            }
-            if (condaExecutable == null) {
-                throw e;
-            }
-        }
-        return condaExecutable;
-    }
-
     @Override
     protected String getPackageManagerName() {
         return "conda";
@@ -169,7 +115,7 @@ public class CondaPackageManager extends AbstractPackageManager {
     public void manage(String[] initialCommands, boolean autoRun, File workingDir) {
         final File condaExecutable;
         try {
-            condaExecutable = findCondaExecutable();
+            condaExecutable = PyDevCondaPreferences.findCondaExecutable(interpreterInfo);
         } catch (UnableToFindExecutableException e) {
             Log.log(e);
             PyDialogHelpers.openException("Unable to find conda", e);

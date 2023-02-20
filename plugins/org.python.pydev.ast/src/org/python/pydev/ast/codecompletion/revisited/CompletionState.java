@@ -25,19 +25,25 @@ import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.core.ICompletionCache;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IDefinition;
+import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IModuleRequestState;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.NoExceptionCloseable;
 import org.python.pydev.core.TokensList;
+import org.python.pydev.core.TupleN;
+import org.python.pydev.core.preferences.InterpreterGeneralPreferences;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.model.ISimpleNode;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.Tuple3;
 
 /**
  * @author Fabio Zadrozny
  */
-public final class CompletionState implements ICompletionState {
+public final class CompletionState implements ICompletionState, IModuleRequestState {
 
     private String activationToken;
     private int line = -1;
@@ -45,10 +51,13 @@ public final class CompletionState implements ICompletionState {
     private IPythonNature nature;
     private String qualifier;
     private int levelGetCompletionsUnpackingObject = 0;
+    private int resolvingBuiltins = 0;
 
     private final Memo<String> memory = new Memo<String>();
+    private final Memo<TupleN> memoryUnpack = new Memo<TupleN>();
     private final Memo<Definition> definitionMemory = new Memo<Definition>();
     private final Memo<IModule> wildImportMemory = new Memo<IModule>();
+    private final Memo<ISimpleNode> functionDefReturnMemory = new Memo<ISimpleNode>();
     private final Memo<String> importedModsCalled = new Memo<String>();
     private final Memo<String> findMemory = new Memo<String>();
     private final Memo<String> resolveImportMemory = new Memo<String>();
@@ -61,10 +70,11 @@ public final class CompletionState implements ICompletionState {
     private boolean builtinsGotten = false;
     private boolean localImportsGotten = false;
     private boolean isInCalltip = false;
+    private boolean acceptTypeshed = InterpreterGeneralPreferences.getUseTypeshed();
 
     private LookingFor lookingForInstance = LookingFor.LOOKING_FOR_INSTANCE_UNDEFINED;
     private TokensList tokenImportedModules;
-    private ICompletionCache completionCache;
+    private final ICompletionCache completionCache;
     private String fullActivationToken;
     private long initialMillis = 0;
     private long maxMillisToComplete;
@@ -180,7 +190,8 @@ public final class CompletionState implements ICompletionState {
     }
 
     public CompletionState() {
-
+        this.activationToken = "";
+        this.completionCache = new CompletionCache();
     }
 
     /**
@@ -197,6 +208,15 @@ public final class CompletionState implements ICompletionState {
 
     }
 
+    @Override
+    public void checkLookForFunctionDefReturn(IModule caller, ISimpleNode node) throws CompletionRecursionException {
+        if (this.functionDefReturnMemory.isInRecursion(caller, node)) {
+            throw new CompletionRecursionException(
+                    "Possible recursion found -- probably programming error -- (caller: " + caller.getName()
+                            + ", node: " + node + " ) - stopping analysis.");
+        }
+    }
+
     /**
      * @param module
      * @param definition
@@ -208,7 +228,6 @@ public final class CompletionState implements ICompletionState {
                     "Possible recursion found -- probably programming error --  (module: " + module.getName()
                             + ", token: " + definition + ") - stopping analysis.");
         }
-
     }
 
     /**
@@ -266,6 +285,17 @@ public final class CompletionState implements ICompletionState {
             throw new CompletionRecursionException(
                     "Possible recursion found -- probably programming error --  (module: " + module.getName()
                             + ", token: " + base + ") - stopping analysis.");
+        }
+    }
+
+    @Override
+    public void checkUnpackMemory(IModule module, String actTok, int beginLine, int beginColumn)
+            throws CompletionRecursionException {
+        TupleN key = new TupleN(actTok, beginLine, beginColumn);
+        if (this.memoryUnpack.isInRecursion(module, key)) {
+            throw new CompletionRecursionException(
+                    "Possible recursion found -- probably programming error --  (module: " + module.getName()
+                            + ", token: " + actTok + ") - stopping analysis.");
         }
     }
 
@@ -432,6 +462,21 @@ public final class CompletionState implements ICompletionState {
     }
 
     @Override
+    public boolean getAcceptTypeshed() {
+        return acceptTypeshed;
+    }
+
+    @Override
+    public void setAcceptTypeshed(boolean acceptTypeshed) {
+        if (!InterpreterGeneralPreferences.getUseTypeshed()) {
+            // i.e.: disabled in the preferences: never use typeshed.
+            acceptTypeshed = false;
+        }
+
+        this.acceptTypeshed = acceptTypeshed;
+    }
+
+    @Override
     public void raiseNFindTokensOnImportedModsCalled(IModule mod, String tok) throws CompletionRecursionException {
         if (this.importedModsCalled.isInRecursion(mod, tok)) {
             throw new CompletionRecursionException("Possible recursion found (mod: " + mod.getName() + ", tok: " + tok
@@ -485,6 +530,11 @@ public final class CompletionState implements ICompletionState {
     @Override
     public String getQualifier() {
         return this.qualifier;
+    }
+
+    @Override
+    public void setQualifier(String qualifier) {
+        this.qualifier = qualifier;
     }
 
     @Override
@@ -616,7 +666,8 @@ public final class CompletionState implements ICompletionState {
         return false;
     }
 
-    int assign = 0;
+    private int assign = 0;
+    private int skipObjectBaseCompletions;
 
     @Override
     public int pushAssign() {
@@ -631,6 +682,36 @@ public final class CompletionState implements ICompletionState {
             // When we get to level 0, clear anything searched previously
             alreadySearchedInAssign.clear();
         }
+    }
+
+    @Override
+    public void pushResolvingBuiltins() {
+        this.resolvingBuiltins += 1;
+    }
+
+    @Override
+    public void popResolvingBuiltins() {
+        this.resolvingBuiltins -= 1;
+    }
+
+    @Override
+    public boolean isResolvingBuiltins() {
+        return this.resolvingBuiltins > 0;
+    }
+
+    @Override
+    public void pushSkipObjectBaseCompletions() {
+        this.skipObjectBaseCompletions += 1;
+    }
+
+    @Override
+    public void popSkipObjectBaseCompletions() {
+        this.skipObjectBaseCompletions -= 1;
+    }
+
+    @Override
+    public boolean getSkipObjectBaseCompletions() {
+        return this.skipObjectBaseCompletions > 0;
     }
 
     @Override
@@ -674,4 +755,30 @@ public final class CompletionState implements ICompletionState {
             }
         };
     }
+
+    @Override
+    public String toString() {
+        FastStringBuffer buf = new FastStringBuffer();
+        buf.append("CompletionState[ ");
+        buf.append(this.activationToken);
+        buf.append(" ]");
+        return buf.toString();
+    }
+
+    private final Set<Object> tokensFromTokenInLocalScope = new HashSet<>();
+
+    @Override
+    public boolean pushGettingCompletionsFromTokenInLocalScope(IModule module, String activationToken,
+            ILocalScope localScope) {
+        TupleN key = new TupleN(module, activationToken, localScope);
+        return tokensFromTokenInLocalScope.add(key);
+    }
+
+    @Override
+    public void popGettingCompletionsFromTokenInLocalScope(IModule module, String activationToken,
+            ILocalScope localScope) {
+        TupleN key = new TupleN(module, activationToken, localScope);
+        tokensFromTokenInLocalScope.remove(key);
+    }
+
 }

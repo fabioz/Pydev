@@ -38,6 +38,7 @@ import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.process.ProcessUtils;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.PlatformUtils;
@@ -136,7 +137,7 @@ public class SimpleRunner {
      */
     public static Map<String, String> getDefaultSystemEnv(IPythonNature nature) throws CoreException {
         if (SharedCorePlugin.inTestMode()) {
-            return new HashMap<String, String>();
+            return new HashMap<String, String>(System.getenv());
         }
 
         DebugPlugin defaultPlugin = DebugPlugin.getDefault();
@@ -296,6 +297,44 @@ public class SimpleRunner {
             String[] envp = null;
             if (nature != null) {
                 envp = getEnvironment(nature, nature.getProjectInterpreter(), nature.getRelatedInterpreterManager()); //Don't remove as it *should* be updated based on the nature)
+            } else {
+                // When creating it the first time we don't have the nature, so, derive the
+                // PATH based on the python executable location (because Python 3.10 doesn't
+                // work in Windows by default because the Library/bin and DLLs folder is not in the PATH).
+                if (PlatformUtils.isWindowsPlatform()) {
+                    envp = getDefaultSystemEnvAsArray(null);
+                    String executable = cmdarray[0];
+                    File f = new File(executable);
+                    File parentFile = f.getParentFile();
+
+                    for (int i = 0; i < envp.length; i++) {
+                        String string = envp[i];
+                        if (string.startsWith("PATH=")) {
+                            boolean changed = false;
+                            FastStringBuffer buf = new FastStringBuffer(string, 50);
+                            for (File check : new File[] {
+                                    new File(parentFile, "DLLs"),
+                                    new File(new File(parentFile, "Library"), "bin")
+                            }) {
+                                try {
+                                    if (check.exists()) {
+                                        changed = true;
+                                        if (!buf.endsWith(File.pathSeparator)) {
+                                            buf.append(File.pathSeparator);
+                                        }
+                                        buf.appendObject(check);
+                                    }
+                                } catch (Exception e) {
+                                    // ignore
+                                }
+                            }
+                            if (changed) {
+                                envp[i] = buf.toString();
+                            }
+                            break;
+                        }
+                    }
+                }
             }
             //Otherwise, use default (used when configuring the interpreter for instance).
             monitor.setTaskName("Making exec..." + executionString);

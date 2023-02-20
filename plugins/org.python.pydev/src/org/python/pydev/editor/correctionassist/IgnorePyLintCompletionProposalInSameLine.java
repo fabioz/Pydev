@@ -90,7 +90,7 @@ public class IgnorePyLintCompletionProposalInSameLine extends IgnoreCompletionPr
 
             strToAdd = new FastStringBuffer("", 40);
             strToAdd.append('#');
-            PyFormatter.formatComment(formatStd, strToAdd);
+            PyFormatter.formatComment(formatStd, strToAdd, true);
 
             //Just add spaces before the '#' if there's actually some content in the line.
             if (c != '\r' && c != '\n' && c != '\0' && c != ' ') {

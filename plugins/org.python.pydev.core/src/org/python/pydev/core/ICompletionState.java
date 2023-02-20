@@ -11,8 +11,9 @@ package org.python.pydev.core;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.python.pydev.core.structure.CompletionRecursionException;
+import org.python.pydev.shared_core.model.ISimpleNode;
 
-public interface ICompletionState extends ICompletionCache {
+public interface ICompletionState extends ICompletionCache, IModuleRequestState {
 
     String getActivationToken();
 
@@ -29,6 +30,8 @@ public interface ICompletionState extends ICompletionCache {
      * And if we had x.ClassA(), this would be x.ClassA
      */
     void setActivationToken(String act);
+
+    void setQualifier(String qualifier);
 
     /**
      * This is the full activation token (e.g.: Grinder.grinder.getLogger().getIt())
@@ -67,6 +70,8 @@ public interface ICompletionState extends ICompletionCache {
 
     void checkDefinitionMemory(IModule module, IDefinition definition) throws CompletionRecursionException;
 
+    void checkLookForFunctionDefReturn(IModule module, ISimpleNode node) throws CompletionRecursionException;
+
     void checkWildImportInMemory(IModule current, IModule mod) throws CompletionRecursionException;
 
     public void checkResolveImportMemory(IModule module, String value) throws CompletionRecursionException;
@@ -84,6 +89,9 @@ public interface ICompletionState extends ICompletionCache {
     void checkFindModuleCompletionsMemory(IModule mod, String tok) throws CompletionRecursionException;
 
     void checkFindResolveImportMemory(IToken tok) throws CompletionRecursionException;
+
+    void checkUnpackMemory(IModule module, String string, int beginLine, int beginColumn)
+            throws CompletionRecursionException;
 
     void checkMaxTimeForCompletion() throws CompletionRecursionException;
 
@@ -187,5 +195,26 @@ public interface ICompletionState extends ICompletionCache {
     void setPyIStubModule(IModule module, IModule pyIModule);
 
     NoExceptionCloseable pushLookingFor(LookingFor lookingForInstancedVariable);
+
+    @Override
+    boolean getAcceptTypeshed();
+
+    void setAcceptTypeshed(boolean acceptTypeshed);
+
+    boolean isResolvingBuiltins();
+
+    void pushResolvingBuiltins();
+
+    void popResolvingBuiltins();
+
+    boolean getSkipObjectBaseCompletions();
+
+    void pushSkipObjectBaseCompletions();
+
+    void popSkipObjectBaseCompletions();
+
+    boolean pushGettingCompletionsFromTokenInLocalScope(IModule module, String activationToken, ILocalScope localScope);
+
+    void popGettingCompletionsFromTokenInLocalScope(IModule module, String activationToken, ILocalScope localScope);
 
 }

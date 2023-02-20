@@ -4,7 +4,7 @@ class A:
 
 
     def my_method(self):
-        print self.attribute
+        print(self.attribute)
 
 b = A()
 b.test(55)
@@ -21,7 +21,7 @@ class A:
 
 
     def my_method(self):
-        print self.attribute
+        print(self.attribute)
 
 b = A()
 b.test(55)

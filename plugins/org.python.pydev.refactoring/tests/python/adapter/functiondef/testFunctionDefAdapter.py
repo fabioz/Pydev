@@ -1,39 +1,39 @@
 class A:
     def __init__(self):
-        print "A"
+        print("A")
         
 class B:
     def __init__(self):
-        print "B" 
+        print("B") 
         
     def simple_meth(self):
-        print "simple_meth B"
+        print("simple_meth B")
         
 class C(A, B):
     def __init__(self):
-        print "C"
+        print("C")
         
     def kwarg(self, **kwarg):
-        print kwarg
+        print(kwarg)
 
 class D(B):
     def __init__(self, a):
         self.a = 2
-        print "D"
+        print("D")
     
     def simple_meth(self):
-        print "simple_meth D"
+        print("simple_meth D")
         
     def noarg():
-        print "foo"
+        print("foo")
     
     def vararg(self, *vararg):
-        print vararg
+        print(vararg)
         
 class E(D, B):
     def __init__(self):
         D.__init__(self, 2)
-        print "E"
+        print("E")
         
 e = E()
 d = D()

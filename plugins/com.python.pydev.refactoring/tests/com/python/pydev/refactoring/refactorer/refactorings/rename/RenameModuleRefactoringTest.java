@@ -13,6 +13,7 @@ import java.util.Map;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.python.pydev.ast.refactoring.ModuleRenameRefactoringRequest;
 import org.python.pydev.ast.refactoring.RefactoringRequest;
+import org.python.pydev.core.BaseModuleRequest;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IProjectModulesManager;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
@@ -56,9 +57,9 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
                         + "  FixedInputStringASTEntry<mod1 (Name L=4 C=2)>\n"
                         + "    Line: 3  'mod1 string' --> 'new_mod_name string'\n"
                         + "  ImportFromModPartRenameAstEntry<from mod1 import submod1 (ImportFrom L=2 C=6)>\n"
-                        + "    Line: 1  from mod1 import submod1 --> from new_mod_name import submod1\n"
-                        + "  ImportFromRenameAstEntry<import mod1 (Import L=1 C=8)>\n"
-                        + "    Line: 0  import mod1 --> import new_mod_name\n"
+                        + "    Line: 1  from .mod1 import submod1 --> from new_mod_name import submod1\n"
+                        + "  ImportFromRenameAstEntry<from  import mod1 (ImportFrom L=1 C=6)>\n"
+                        + "    Line: 0  from . import mod1 --> import new_mod_name\n"
                         + "\n"
                         + "reflib.renamemodule.importer2\n"
                         + "  FixedInputStringASTEntry<mod1 (Name L=3 C=2)>\n"
@@ -66,9 +67,9 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
                         + "  FixedInputStringASTEntry<mod1 (Name L=4 C=2)>\n"
                         + "    Line: 3  'mod1 string' --> 'new_mod_name string'\n"
                         + "  ImportFromModPartRenameAstEntry<from mod1 import submod1 (ImportFrom L=2 C=6)>\n"
-                        + "    Line: 1  from mod1 import submod1 --> from new_mod_name import submod1\n"
-                        + "  ImportFromRenameAstEntry<import mod1 (Import L=1 C=8)>\n"
-                        + "    Line: 0  import mod1 --> import new_mod_name\n"
+                        + "    Line: 1  from .mod1 import submod1 --> from new_mod_name import submod1\n"
+                        + "  ImportFromRenameAstEntry<from  import mod1 (ImportFrom L=1 C=6)>\n"
+                        + "    Line: 0  from . import mod1 --> import new_mod_name\n"
                         + "\n"
                         + "reflib.renamemodule.importer5\n"
                         + "  ImportFromModPartRenameAstEntry<from reflib.renamemodule.mod1 import submod1 (ImportFrom L=1 C=6)>\n"
@@ -88,7 +89,8 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
                         + "\n"
                         + "reflib.renamemodule.mod1\n"
                         + "  ASTEntryWithSourceModule<Module (Module L=0 C=0)>\n"
-                        + "\n",
+                        + "\n"
+                        + "",
                 asStr);
 
     }
@@ -107,9 +109,9 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
                         + "  FixedInputStringASTEntry<mod1 (Name L=4 C=2)>\n"
                         + "    Line: 3  'mod1 string' --> 'new_name string'\n"
                         + "  ImportFromModPartRenameAstEntry<from mod1 import submod1 (ImportFrom L=2 C=6)>\n"
-                        + "    Line: 1  from mod1 import submod1 --> from my.mod.new_name import submod1\n"
-                        + "  ImportFromRenameAstEntry<import mod1 (Import L=1 C=8)>\n"
-                        + "    Line: 0  import mod1 --> from my.mod import new_name\n"
+                        + "    Line: 1  from .mod1 import submod1 --> from my.mod.new_name import submod1\n"
+                        + "  ImportFromRenameAstEntry<from  import mod1 (ImportFrom L=1 C=6)>\n"
+                        + "    Line: 0  from . import mod1 --> from my.mod import new_name\n"
                         + "\n"
                         + "reflib.renamemodule.importer2\n"
                         + "  FixedInputStringASTEntry<mod1 (Name L=3 C=2)>\n"
@@ -117,9 +119,9 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
                         + "  FixedInputStringASTEntry<mod1 (Name L=4 C=2)>\n"
                         + "    Line: 3  'mod1 string' --> 'new_name string'\n"
                         + "  ImportFromModPartRenameAstEntry<from mod1 import submod1 (ImportFrom L=2 C=6)>\n"
-                        + "    Line: 1  from mod1 import submod1 --> from my.mod.new_name import submod1\n"
-                        + "  ImportFromRenameAstEntry<import mod1 (Import L=1 C=8)>\n"
-                        + "    Line: 0  import mod1 --> from my.mod import new_name\n"
+                        + "    Line: 1  from .mod1 import submod1 --> from my.mod.new_name import submod1\n"
+                        + "  ImportFromRenameAstEntry<from  import mod1 (ImportFrom L=1 C=6)>\n"
+                        + "    Line: 0  from . import mod1 --> from my.mod import new_name\n"
                         + "\n"
                         + "reflib.renamemodule.importer5\n"
                         + "  ImportFromModPartRenameAstEntry<from reflib.renamemodule.mod1 import submod1 (ImportFrom L=1 C=6)>\n"
@@ -139,7 +141,8 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
                         + "\n"
                         + "reflib.renamemodule.mod1\n"
                         + "  ASTEntryWithSourceModule<Module (Module L=0 C=0)>\n"
-                        + "\n",
+                        + "\n"
+                        + "",
                 asStr);
 
     }
@@ -155,15 +158,15 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
                         + "  FixedInputStringASTEntry<submod1 (Name L=6 C=5)>\n"
                         + "    Line: 5  a = submod1 --> a = new_mod_name\n"
                         + "  ImportFromRenameAstEntry<from mod1 import submod1 (ImportFrom L=2 C=6)>\n"
-                        + "    Line: 1  from mod1 import submod1 --> import new_mod_name\n"
+                        + "    Line: 1  from .mod1 import submod1 --> import new_mod_name\n"
                         + "\n"
                         + "reflib.renamemodule.importer2\n"
                         + "  ImportFromRenameAstEntry<from mod1 import submod1 (ImportFrom L=2 C=6)>\n"
-                        + "    Line: 1  from mod1 import submod1 --> import new_mod_name\n"
+                        + "    Line: 1  from .mod1 import submod1 --> import new_mod_name\n"
                         + "\n"
                         + "reflib.renamemodule.importer3\n"
                         + "  ImportFromRenameAstEntry<from importer2 import submod1 (ImportFrom L=1 C=6)>\n"
-                        + "    Line: 0  from importer2 import submod1 --> import new_mod_name\n"
+                        + "    Line: 0  from .importer2 import submod1 --> import new_mod_name\n"
                         + "\n"
                         + "reflib.renamemodule.importer3a\n"
                         + "  AttributeASTEntry<submod1 (NameTok L=3 C=16)>\n"
@@ -171,7 +174,7 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
                         + "\n"
                         + "reflib.renamemodule.importer4\n"
                         + "  ImportFromRenameAstEntry<from importer3 import submod1 (ImportFrom L=1 C=6)>\n"
-                        + "    Line: 0  from importer3 import submod1 --> import new_mod_name\n"
+                        + "    Line: 0  from .importer3 import submod1 --> import new_mod_name\n"
                         + "\n"
                         + "reflib.renamemodule.importer5\n"
                         + "  ImportFromRenameAstEntry<from reflib.renamemodule.mod1 import submod1 (ImportFrom L=1 C=6)>\n"
@@ -348,6 +351,10 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
                         + "renamemodule5.__init__\n"
                         + "  ASTEntryWithSourceModule<Module (Module L=0 C=0)>\n"
                         + "\n"
+                        + "renamemodule5._tests.foo\n"
+                        + "  ImportFromModPartRenameAstEntry<from  import foobar (ImportFrom L=1 C=6)>\n"
+                        + "    Line: 0  from . import foobar --> from p2 import foobar\n"
+                        + "\n"
                         + "renamemodule5.app_setup\n"
                         + "  ImportFromModPartRenameAstEntry<from renamemodule5._tests.foo import RenameModule5 (ImportFrom L=3 C=6)>\n"
                         + "    Line: 2  from renamemodule5._tests.foo import RenameModule5 --> from p2._tests.foo import RenameModule5\n"
@@ -450,16 +457,18 @@ public class RenameModuleRefactoringTest extends RefactoringRenameTestBase {
     }
 
     protected Map<Tuple<String, File>, HashSet<ASTEntry>> getReferencesForModuleRename(String moduleName,
-            String newName,
-            boolean expectError) {
+            String newName, boolean expectError) {
         Map<Tuple<String, File>, HashSet<ASTEntry>> occurrencesToReturn = null;
         try {
             IProjectModulesManager modulesManager = (IProjectModulesManager) natureRefactoring.getAstManager()
                     .getModulesManager();
-            IModule module = modulesManager.getModuleInDirectManager(moduleName, natureRefactoring, true);
+            BaseModuleRequest moduleRequest = new BaseModuleRequest(true);
+            IModule module = modulesManager.getModuleInDirectManager(moduleName, natureRefactoring, true,
+                    moduleRequest);
             if (module == null) {
                 if (!moduleName.endsWith("__init__")) {
-                    module = modulesManager.getModuleInDirectManager(moduleName + ".__init__", natureRefactoring, true);
+                    module = modulesManager.getModuleInDirectManager(moduleName + ".__init__", natureRefactoring, true,
+                            moduleRequest);
                 }
                 if (module == null) {
                     throw new RuntimeException("Unable to get source module for module:" + moduleName);

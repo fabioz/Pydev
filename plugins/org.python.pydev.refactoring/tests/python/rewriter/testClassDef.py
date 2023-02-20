@@ -3,43 +3,41 @@ class MyMeta(type):
         return "Beautiful class '%s'" % cls.__name__
 
 
-class MyClass:
-    __metaclass__ = MyMeta
+class MyClass(metaclass=MyMeta):
+    pass
 
 
 foox = MyClass()
-print type(foox)
+print(type(foox))
 # after print type
 class A(object): # on-line
     # foo test
     def met(self):
-        print 'A'
-    
+        print('A')
+
+
     # after class A comment
-
-
 class B(A):
     def met(self):
-        print 'B'
+        print('B')
         A.met(self)
 
 
 class C(A):
     def met(self):
-        print 'C'
+        print('C')
         A.met(self)
 
 
 class D(B, C):
     def met(self):
-        print 'D'
+        print('D')
         B.met(self)
         C.met(self) # C met comment
-    
+
+
     # after C.met
     # also after C.met
     # and this is after class D
-
-
 d = D()
 d.met()

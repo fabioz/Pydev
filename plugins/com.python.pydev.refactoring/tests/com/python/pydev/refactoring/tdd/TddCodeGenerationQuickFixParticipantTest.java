@@ -53,8 +53,8 @@ public class TddCodeGenerationQuickFixParticipantTest extends CodeCompletionTest
         super.setUp();
         AbstractPyRefactoring.setPyRefactoring(new Refactorer());
         CompiledModule.COMPILED_MODULES_ENABLED = false;
-        this.restorePythonPath(TestDependent.GetCompletePythonLib(true) +
-                "|" + TestDependent.PYTHON_PIL_PACKAGES +
+        this.restorePythonPath(TestDependent.getCompletePythonLib(true, isPython3Test()) +
+                "|" + TestDependent.PYTHON2_PIL_PACKAGES +
                 "|"
                 + TestDependent.TEST_PYSRC_TESTING_LOC +
                 "configobj-4.6.0-py2.6.egg", false);
@@ -177,6 +177,28 @@ public class TddCodeGenerationQuickFixParticipantTest extends CodeCompletionTest
                     "    pass\n" +
                     "\n" +
                     "def method(foo: Foo = 'A'):\n" +
+                    "    foo.bar()";
+            TddCodeGenerationQuickFixParticipant participant = new TddCodeGenerationQuickFixParticipant();
+            Document doc = new Document(s);
+            List<ICompletionProposalHandle> props = participant.getTddProps(new PySelection(doc, s.length() - 1), null,
+                    null,
+                    nature, null, s.length() - 1, null);
+            assertContains("Create bar method at Foo (__module_not_in_the_pythonpath__)",
+                    props.toArray(new ICompletionProposalHandle[0]));
+        } finally {
+            GRAMMAR_TO_USE_FOR_PARSING = usedGrammar;
+        }
+    }
+
+    public void testCreateWithTypeAsParam2() throws Exception {
+        int usedGrammar = GRAMMAR_TO_USE_FOR_PARSING;
+        GRAMMAR_TO_USE_FOR_PARSING = PythonNature.LATEST_GRAMMAR_PY3_VERSION;
+        try {
+            String s = "" +
+                    "class Foo(object):\n" +
+                    "    pass\n" +
+                    "\n" +
+                    "def method(foo = Foo()):\n" +
                     "    foo.bar()";
             TddCodeGenerationQuickFixParticipant participant = new TddCodeGenerationQuickFixParticipant();
             Document doc = new Document(s);

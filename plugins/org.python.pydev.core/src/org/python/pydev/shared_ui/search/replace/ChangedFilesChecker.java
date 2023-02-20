@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.participants.ResourceChangeChecker;
+import org.python.pydev.shared_core.SharedCorePlugin;
 
 /**
  * Checks changed files with a workspace's {@link IWorkspace#validateEdit(IFile[], Object)}
@@ -44,7 +45,7 @@ public class ChangedFilesChecker {
                 readOnly.add(file);
             }
         }
-        if (ResourcesPlugin.getPlugin() == null) {
+        if (ResourcesPlugin.getPlugin() == null || SharedCorePlugin.inTestMode()) {
             //i.e.: in test mode we won't be able to get the workspace
             return;
         }

@@ -67,7 +67,8 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
 
     @Override
     protected String getSystemPythonpathPaths() {
-        return TestDependent.GetCompletePythonLib(true) + "|" + TestDependent.TEST_PYSRC_TESTING_LOC + "myzipmodule.zip"
+        return TestDependent.getCompletePythonLib(true, isPython3Test()) + "|" + TestDependent.TEST_PYSRC_TESTING_LOC
+                + "myzipmodule.zip"
                 + "|"
                 + TestDependent.TEST_PYSRC_TESTING_LOC + "myeggmodule.egg";
     }
@@ -140,7 +141,7 @@ public class CompletionParticipantTest extends AdditionalInfoTestsBase {
 
         Import importTok = new Import(new aliasType[] { new aliasType(new NameTok("unittest", NameTok.ImportModule),
                 null) });
-        this.imports = new TokensList(new IToken[] { new SourceToken(importTok, "unittest", "", "", "", null) });
+        this.imports = new TokensList(new IToken[] { new SourceToken(importTok, "unittest", "", "", "", null, null) });
 
         requestCompl("import unittest\nunittest", new String[] {}); //none because the import for unittest is already there
         requestCompl("import unittest\nunittes", new String[] {}); //the local import for unittest (won't actually show anything because we're only exercising the participant test)

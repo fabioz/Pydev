@@ -1,7 +1,7 @@
 x = Foo()
 x.do_something
 x##|.x()
-print x.method()
+print(x.method())
 x.x.x.x(x.x(x))
 
 x.foo(x)
@@ -12,7 +12,7 @@ x()
 p = Foo()
 p.do_something
 p.x()
-print p.method()
+print(p.method())
 p.x.x.x(p.x(p))
 
 p.foo(p)

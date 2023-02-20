@@ -391,9 +391,9 @@ public class PyParserTest extends PyParserTestBase {
         if (SharedCorePlugin.skipKnownFailures()) {
             return;
         }
-        if (TestDependent.PYTHON_WXPYTHON_PACKAGES != null) {
+        if (TestDependent.PYTHON2_WXPYTHON_PACKAGES != null) {
             boolean recursive = STRESS_TEST;
-            File file = new File(TestDependent.PYTHON_WXPYTHON_PACKAGES, "wxPython");
+            File file = new File(TestDependent.PYTHON2_WXPYTHON_PACKAGES, "wxPython");
             Timer timer = new Timer();
 
             parseFilesInDir(file, recursive, false); //Don't generate ast
@@ -402,7 +402,7 @@ public class PyParserTest extends PyParserTestBase {
             parseFilesInDir(file, recursive, true);
             timer.printDiff("Time to generate with AST");
 
-            file = new File(TestDependent.PYTHON_WXPYTHON_PACKAGES, "wx");
+            file = new File(TestDependent.PYTHON2_WXPYTHON_PACKAGES, "wx");
             parseFilesInDir(file, recursive, false); //Don't generate ast
             timer.printDiff("Time to generate without AST");
 
@@ -469,20 +469,6 @@ public class PyParserTest extends PyParserTestBase {
     //
     //    }
 
-    public void testOnTestGrammar() throws Throwable {
-        // Fails because the "standard" test files are not where the tests expect.
-        // TODO might be solvable by installing python source package?
-        // TODO the loc here should use TestDependent.PYTHON_TEST_PACKAGES
-        if (SharedCorePlugin.skipKnownFailures()) {
-            return;
-        }
-
-        String loc = TestDependent.PYTHON_LIB +
-                "test/test_grammar.py";
-        String s = FileUtils.getFileContents(new File(loc));
-        parseLegalDocStr(s, "(file: test_grammar.py)");
-    }
-
     public void testSimple() throws Throwable {
         final String s = "" +
                 "if maxint == 10:\n" +
@@ -502,36 +488,9 @@ public class PyParserTest extends PyParserTestBase {
         });
     }
 
-    public void testOnTestContextLib() throws Throwable {
-        // Fails because the "standard" test files are not where the tests expect.
-        // TODO might be solvable by installing python source package?
-        if (SharedCorePlugin.skipKnownFailures()) {
-            return;
-        }
-
-        if (TestDependent.PYTHON_TEST_PACKAGES != null) {
-            String loc = TestDependent.PYTHON_TEST_PACKAGES +
-                    "test_contextlib.py";
-            String s = FileUtils.getFileContents(new File(loc));
-            parseLegalDocStr(s, "(file: test_contextlib.py)");
-        }
-    }
-
     public void testOnCalendar() throws Throwable {
         String loc = TestDependent.PYTHON_LIB +
                 "hmac.py";
-        String s = FileUtils.getFileContents(new File(loc));
-        parseLegalDocStr(s);
-    }
-
-    public void testOnUnittestMod() throws Throwable {
-        // fails on Python >= 2.7 because unittest became a dir instead of one file.
-        if (SharedCorePlugin.skipKnownFailures()) {
-            return;
-        }
-
-        String loc = TestDependent.PYTHON_LIB +
-                "unittest.py";
         String s = FileUtils.getFileContents(new File(loc));
         parseLegalDocStr(s);
     }
@@ -545,14 +504,7 @@ public class PyParserTest extends PyParserTestBase {
 
     public void testOnDocBaseHTTPServer() throws Throwable {
         String loc = TestDependent.PYTHON_LIB +
-                "BaseHTTPServer.py";
-        String s = FileUtils.getFileContents(new File(loc));
-        parseLegalDocStr(s);
-    }
-
-    public void testOnDocXMLRPCServerMod() throws Throwable {
-        String loc = TestDependent.PYTHON_LIB +
-                "DocXMLRPCServer.py";
+                "http/server.py";
         String s = FileUtils.getFileContents(new File(loc));
         parseLegalDocStr(s);
     }
@@ -672,15 +624,6 @@ public class PyParserTest extends PyParserTestBase {
         });
     }
 
-    public void testParser7() throws Throwable {
-        String s = "" +
-                "if a < (2, 2):\n" +
-                "    False, True = 0, 1\n" +
-                "\n" +
-                "\n";
-        parseLegalDocStr(s);
-    }
-
     public void testParser8() throws Throwable {
         String s = "" +
                 "if type(clsinfo) in (types.TupleType, types.ListType):\n" +
@@ -699,7 +642,7 @@ public class PyParserTest extends PyParserTestBase {
                 +
                 "for foo in sorted(val for val in td.itervalues() if val[0] == 's'):    \n"
                 +
-                "    print foo                                                          \n";
+                "    print(foo)                                                         \n";
 
         parseLegalDocStr(s);
     }
@@ -724,13 +667,13 @@ public class PyParserTest extends PyParserTestBase {
     }
 
     public void testParser4() throws Throwable {
-        String s = "print sum(x for x in y)";
+        String s = "print(sum(x for x in y))";
 
         parseLegalDocStr(s);
     }
 
     public void testParser5() throws Throwable {
-        String s = "print sum(x.b for x in y)";
+        String s = "print(sum(x.b for x in y))";
 
         parseLegalDocStr(s);
     }
@@ -773,7 +716,8 @@ public class PyParserTest extends PyParserTestBase {
                         "l = [ \"encode\", \"decode\" ] \n" +
                         "\n";
                 SimpleNode node = parseLegalDocStr(s);
-                List<ASTEntry> strs = SequencialASTIteratorVisitor.create(node).getAsList(new Class[] { Str.class });
+                List<ASTEntry> strs = SequencialASTIteratorVisitor.create(node, true)
+                        .getAsList(new Class[] { Str.class });
                 assertEquals(7, strs.get(0).node.beginColumn);
                 assertEquals(17, strs.get(1).node.beginColumn);
                 return true;
@@ -880,42 +824,14 @@ public class PyParserTest extends PyParserTestBase {
     public void testParserAs1() throws Throwable {
         final String s = "" +
                 "as = 1\n" +
-                "print as\n" +
+                "print(as)\n" +
                 "" +
                 "with = 1\n" +
-                "print with\n" +
+                "print(with)\n" +
                 "";
 
-        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5);
-        parseLegalDocStr(s);
-        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6);
-        parseILegalDocStr(s);
-        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7);
-        parseILegalDocStr(s);
         setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5);
         parseILegalDocStr(s);
-    }
-
-    public void testParserPrint() throws Throwable {
-        String s = "" +
-                "import os.print.os\n" +
-                "print os.print.os\n" +
-                "";
-
-        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_5);
-        parseLegalDocStr(s);
-
-        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6);
-        parseILegalDocStr(s);
-        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7);
-        parseILegalDocStr(s);
-        setDefaultVersion(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5);
-        parseILegalDocStr(s);
-
-        s = "" +
-                "import os.print.os\n" +
-                "";
-        parseLegalDocStr(s);
     }
 
     public void testThreadingInParser() throws Exception {

@@ -20,10 +20,10 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
-import org.python.pydev.ast.codecompletion.revisited.CompletionCache;
 import org.python.pydev.ast.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
+import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IDefinition;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPyEdit;
@@ -32,6 +32,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.preferences.InterpreterGeneralPreferences;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.core.structure.DecoratableObject;
 import org.python.pydev.parser.jython.SimpleNode;
@@ -49,6 +50,8 @@ public class RefactoringRequest extends DecoratableObject {
     public static final String FIND_REFERENCES_ONLY_IN_LOCAL_SCOPE = "findReferencesOnlyOnLocalScope";
 
     public static final String FIND_DEFINITION_IN_ADDITIONAL_INFO = "findDefinitionInAdditionalInfo";
+
+    public static final String FIND_DEFINITION_FOLLOW_PARAM_DECLARATION = "findDefinitionFollowParamDeclaration";
 
     /**
      * Flag used when renaming modules. If set and True, we won't do a refactoring rename and will
@@ -119,6 +122,8 @@ public class RefactoringRequest extends DecoratableObject {
     public String qualifier;
 
     private List<IDefinition> actualDefinitions;
+
+    public boolean acceptTypeshed = InterpreterGeneralPreferences.getUseTypeshed();
 
     /**
      * If the file is passed, we also set the document automatically
@@ -283,7 +288,7 @@ public class RefactoringRequest extends DecoratableObject {
      */
     public void fillActivationTokenAndQualifier() {
         try {
-            String[] currToken = ps.getActivationTokenAndQual(true);
+            String[] currToken = ps.getActivationTokenAndQualifier(true);
             activationToken = currToken[0];
             qualifier = currToken[1];
         } catch (Exception e) {
@@ -393,7 +398,7 @@ public class RefactoringRequest extends DecoratableObject {
 
     }
 
-    public List<IDefinition> findActualDefinitions(CompletionCache completionCache) {
+    public List<IDefinition> findActualDefinitions(ICompletionState completionCache) {
         if (this.actualDefinitions == null) {
             List<IDefinition> actualDefinitions = new ArrayList<IDefinition>();
             try {

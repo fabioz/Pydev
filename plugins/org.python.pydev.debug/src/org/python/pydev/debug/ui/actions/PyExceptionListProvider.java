@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.Viewer;
+import org.python.pydev.core.BaseModuleRequest;
 import org.python.pydev.debug.model.PyExceptionBreakPointManager;
 
 public class PyExceptionListProvider implements IStructuredContentProvider {
@@ -52,7 +53,7 @@ public class PyExceptionListProvider implements IStructuredContentProvider {
         }
 
         PyExceptionBreakPointManager instance = PyExceptionBreakPointManager.getInstance();
-        List<String> list = instance.getBuiltinExceptions();
+        List<String> list = instance.getBuiltinExceptions(new BaseModuleRequest(true));
         list.addAll(instance.getUserConfiguredExceptions());
 
         elementsForCurrentInput = list.toArray(new String[0]);

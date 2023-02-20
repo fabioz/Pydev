@@ -12,7 +12,6 @@ package org.python.pydev.ast.codecompletion;
 
 import java.io.File;
 
-import org.python.pydev.ast.codecompletion.PyCodeCompletion;
 import org.python.pydev.ast.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.ast.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.core.TestDependent;
@@ -57,23 +56,24 @@ public class PythonCompletion25Test extends CodeCompletionTestsBase {
         super.tearDown();
     }
 
-    //changed... returns all but testcase
-    public String[] getTestLibUnittestTokens() {
-        return new String[] { "__file__", "__name__", "__init__", "__path__", "__dict__", "anothertest", "AnotherTest",
-                "GUITest", "guitestcase", "main", "relative", "t", "TestCase", "TestCaseAlias" };
-    }
-
     public void testNewRelativeFromOtherModule() throws Exception {
         String doc = "" + "from .file1 import imp1\n" + "imp1.";
         File file = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC + "tests/pysrc/extendable/newimport/sub1/file2.py");
-        String[] toks = new String[] { "__file__", "__name__", "__dict__", "Imp1" };
+        String[] toks = new String[] { "Imp1" };
+        requestCompl(file, doc, doc.length(), toks.length, toks);
+    }
+
+    public void testNewRelativeFromOtherModuleUnderline() throws Exception {
+        String doc = "" + "from .file1 import imp1\n" + "imp1._";
+        File file = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC + "tests/pysrc/extendable/newimport/sub1/file2.py");
+        String[] toks = new String[] { "__file__", "__name__", "__dict__" };
         requestCompl(file, doc, doc.length(), toks.length, toks);
     }
 
     public void testNewRelativeFromOtherModule2() throws Exception {
         String doc = "" + "from .. import imp1\n" + "imp1.";
         File file = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC + "tests/pysrc/extendable/newimport/sub1/file1.py");
-        String[] toks = new String[] { "__file__", "__name__", "__dict__", "Imp1" };
+        String[] toks = new String[] { "Imp1" };
         requestCompl(file, doc, doc.length(), toks.length, toks);
     }
 
@@ -81,7 +81,18 @@ public class PythonCompletion25Test extends CodeCompletionTestsBase {
         //considering we're at: testlib.unittest.testcase
         String doc = "from . import ";
         File file = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC + "tests/pysrc/testlib/unittest/testcase.py");
-        String[] toks = getTestLibUnittestTokens();
+        String[] toks = new String[] {
+                "anothertest", "AnotherTest",
+                "GUITest", "guitestcase", "main", "relative", "t", "TestCase", "TestCaseAlias" };
+        requestCompl(file, doc, doc.length(), toks.length, toks);
+    }
+
+    public void testNewRelativeImport2Underline() throws Exception {
+        //considering we're at: testlib.unittest.testcase
+        String doc = "from . import _";
+        File file = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC + "tests/pysrc/testlib/unittest/testcase.py");
+        String[] toks = new String[] {
+                "__file__", "__name__", "__init__", "__path__", "__dict__" };
         requestCompl(file, doc, doc.length(), toks.length, toks);
     }
 
@@ -89,9 +100,20 @@ public class PythonCompletion25Test extends CodeCompletionTestsBase {
         //considering we're at: testlib.unittest.testcase
         String doc = "from ."; //just show the modules
         File file = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC + "tests/pysrc/testlib/unittest/testcase.py");
-        String[] toks = new String[] { "__init__", "anothertest", "guitestcase", "relative",
-        //                "relative.testrelative",
-        //                "relative.toimport",
+        String[] toks = new String[] { "anothertest", "guitestcase", "relative",
+                //                "relative.testrelative",
+                //                "relative.toimport",
+        };
+        requestCompl(file, doc, doc.length(), toks.length, toks);
+    }
+
+    public void testNewRelativeImport2aUnderline() throws Exception {
+        //considering we're at: testlib.unittest.testcase
+        String doc = "from ._"; //just show the modules
+        File file = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC + "tests/pysrc/testlib/unittest/testcase.py");
+        String[] toks = new String[] { "__init__"
+                //                "relative.testrelative",
+                //                "relative.toimport",
         };
         requestCompl(file, doc, doc.length(), toks.length, toks);
     }
@@ -100,7 +122,15 @@ public class PythonCompletion25Test extends CodeCompletionTestsBase {
         //considering we're at: testlib.unittest.testcase
         String doc = "from .anothertest import ";
         File file = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC + "tests/pysrc/testlib/unittest/testcase.py");
-        String[] toks = new String[] { "__file__", "__name__", "__dict__", "t", "AnotherTest" };
+        String[] toks = new String[] { "t", "AnotherTest" };
+        requestCompl(file, doc, doc.length(), toks.length, toks);
+    }
+
+    public void testNewRelativeImport3Underline() throws Exception {
+        //considering we're at: testlib.unittest.testcase
+        String doc = "from .anothertest import _";
+        File file = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC + "tests/pysrc/testlib/unittest/testcase.py");
+        String[] toks = new String[] { "__file__", "__name__", "__dict__", };
         requestCompl(file, doc, doc.length(), toks.length, toks);
     }
 
@@ -108,7 +138,15 @@ public class PythonCompletion25Test extends CodeCompletionTestsBase {
         //considering we're at: testlib.unittest.testcase
         String doc = "from ..unittest.anothertest import ";
         File file = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC + "tests/pysrc/testlib/unittest/testcase.py");
-        String[] toks = new String[] { "__file__", "__name__", "__dict__", "t", "AnotherTest" };
+        String[] toks = new String[] { "t", "AnotherTest" };
+        requestCompl(file, doc, doc.length(), toks.length, toks);
+    }
+
+    public void testNewRelativeImport3aUnderline() throws Exception {
+        //considering we're at: testlib.unittest.testcase
+        String doc = "from ..unittest.anothertest import _";
+        File file = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC + "tests/pysrc/testlib/unittest/testcase.py");
+        String[] toks = new String[] { "__file__", "__name__", "__dict__", };
         requestCompl(file, doc, doc.length(), toks.length, toks);
     }
 
@@ -124,7 +162,14 @@ public class PythonCompletion25Test extends CodeCompletionTestsBase {
         //considering we're at: testlib.unittest.testcase
         String doc = "from .. import ";
         File file = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC + "tests/pysrc/testlib/unittest/testcase.py");
-        requestCompl(file, doc, doc.length(), -1, new String[] { "__init__", "unittest" });
+        requestCompl(file, doc, doc.length(), -1, new String[] { "unittest" });
+    }
+
+    public void testNewRelativeImportUnderline() throws Exception {
+        //considering we're at: testlib.unittest.testcase
+        String doc = "from .. import _";
+        File file = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC + "tests/pysrc/testlib/unittest/testcase.py");
+        requestCompl(file, doc, doc.length(), -1, new String[] { "__init__" });
     }
 
 }

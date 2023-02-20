@@ -266,7 +266,7 @@ public class PythonRunnerConfig {
                 return interpreterInfo;
             } else {
                 File file = new File(location);
-                if (!file.exists()) {
+                if (!FileUtils.enhancedIsFile(file)) {
                     throw new InvalidRunException("Error. The interprer: " + location + " does not exist");
 
                 } else {

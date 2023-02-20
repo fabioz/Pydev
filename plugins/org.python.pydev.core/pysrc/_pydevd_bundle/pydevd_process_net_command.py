@@ -11,10 +11,10 @@ from _pydevd_bundle.pydevd_breakpoints import get_exception_class
 from _pydevd_bundle.pydevd_comm import (
     InternalEvaluateConsoleExpression, InternalConsoleGetCompletions, InternalRunCustomOperation,
     internal_get_next_statement_targets, internal_get_smart_step_into_variants)
-from _pydevd_bundle.pydevd_constants import IS_PY3K, NEXT_VALUE_SEPARATOR, IS_WINDOWS, IS_PY2, NULL
+from _pydevd_bundle.pydevd_constants import NEXT_VALUE_SEPARATOR, IS_WINDOWS, NULL
 from _pydevd_bundle.pydevd_comm_constants import ID_TO_MEANING, CMD_EXEC_EXPRESSION, CMD_AUTHENTICATE
 from _pydevd_bundle.pydevd_api import PyDevdAPI
-from _pydev_bundle.pydev_imports import StringIO
+from io import StringIO
 from _pydevd_bundle.pydevd_net_command import NetCommand
 from _pydevd_bundle.pydevd_thread_lifecycle import pydevd_find_thread_by_id
 import pydevd_file_utils
@@ -118,9 +118,6 @@ class _PyDevCommandProcessor(object):
         return self.api.request_suspend_thread(py_db, text.strip())
 
     def cmd_version(self, py_db, cmd_id, seq, text):
-        if IS_PY2 and isinstance(text, unicode):
-            text = text.encode('utf-8')
-
         # Default based on server process (although ideally the IDE should
         # provide it).
         if IS_WINDOWS:
@@ -175,8 +172,16 @@ class _PyDevCommandProcessor(object):
             # and the location of the parent frame bytecode offset and not just the func_name
             # (this implies that `CMD_GET_SMART_STEP_INTO_VARIANTS` was previously used
             # to know what are the valid stop points).
-            offset = int(line_or_bytecode_offset[len('offset='):])
-            return self.api.request_smart_step_into(py_db, seq, thread_id, offset)
+
+            temp = line_or_bytecode_offset[len('offset='):]
+            if ';' in temp:
+                offset, child_offset = temp.split(';')
+                offset = int(offset)
+                child_offset = int(child_offset)
+            else:
+                child_offset = -1
+                offset = int(temp)
+            return self.api.request_smart_step_into(py_db, seq, thread_id, offset, child_offset)
         else:
             # If the offset wasn't passed, just use the line/func_name to do the stop.
             return self.api.request_smart_step_into_by_func_name(py_db, seq, thread_id, line_or_bytecode_offset, func_name)
@@ -295,21 +300,42 @@ class _PyDevCommandProcessor(object):
         if hit_condition is not None and (len(hit_condition) <= 0 or hit_condition == u"None"):
             hit_condition = None
 
-        result = self.api.add_breakpoint(
-            py_db, self.api.filename_to_str(filename), btype, breakpoint_id, line, condition, func_name, expression, suspend_policy, hit_condition, is_logpoint)
-        error_code = result.error_code
+        def on_changed_breakpoint_state(breakpoint_id, add_breakpoint_result):
+            error_code = add_breakpoint_result.error_code
 
-        if error_code:
-            translated_filename = result.translated_filename
-            if error_code == self.api.ADD_BREAKPOINT_FILE_NOT_FOUND:
-                pydev_log.critical('pydev debugger: warning: Trying to add breakpoint to file that does not exist: %s (will have no effect).' % (translated_filename,))
+            translated_line = add_breakpoint_result.translated_line
+            translated_filename = add_breakpoint_result.translated_filename
+            msg = ''
+            if error_code:
 
-            elif error_code == self.api.ADD_BREAKPOINT_FILE_EXCLUDED_BY_FILTERS:
-                pydev_log.critical('pydev debugger: warning: Trying to add breakpoint to file that is excluded by filters: %s (will have no effect).' % (translated_filename,))
+                if error_code == self.api.ADD_BREAKPOINT_FILE_NOT_FOUND:
+                    msg = 'pydev debugger: Trying to add breakpoint to file that does not exist: %s (will have no effect).\n' % (translated_filename,)
+
+                elif error_code == self.api.ADD_BREAKPOINT_FILE_EXCLUDED_BY_FILTERS:
+                    msg = 'pydev debugger: Trying to add breakpoint to file that is excluded by filters: %s (will have no effect).\n' % (translated_filename,)
+
+                elif error_code == self.api.ADD_BREAKPOINT_LAZY_VALIDATION:
+                    msg = ''  # Ignore this here (if/when loaded, it'll call on_changed_breakpoint_state again accordingly).
+
+                elif error_code == self.api.ADD_BREAKPOINT_INVALID_LINE:
+                    msg = 'pydev debugger: Trying to add breakpoint to line (%s) that is not valid in: %s.\n' % (translated_line, translated_filename,)
+
+                else:
+                    # Shouldn't get here.
+                    msg = 'pydev debugger: Breakpoint not validated (reason unknown -- please report as error): %s (%s).\n' % (translated_filename, translated_line)
 
             else:
-                # Shouldn't get here.
-                pydev_log.critical('pydev debugger: warning: Breakpoint not validated (reason unknown -- please report as error): %s.' % (translated_filename,))
+                if add_breakpoint_result.original_line != translated_line:
+                    msg = 'pydev debugger (info): Breakpoint in line: %s moved to line: %s (in %s).\n' % (add_breakpoint_result.original_line, translated_line, translated_filename)
+
+            if msg:
+                py_db.writer.add_command(py_db.cmd_factory.make_warning_message(msg))
+
+        result = self.api.add_breakpoint(
+            py_db, self.api.filename_to_str(filename), btype, breakpoint_id, line, condition, func_name,
+            expression, suspend_policy, hit_condition, is_logpoint, on_changed_breakpoint_state=on_changed_breakpoint_state)
+
+        on_changed_breakpoint_state(breakpoint_id, result)
 
     def cmd_remove_break(self, py_db, cmd_id, seq, text):
         # command to remove some breakpoint
@@ -641,9 +667,6 @@ class _PyDevCommandProcessor(object):
     def cmd_ignore_thrown_exception_at(self, py_db, cmd_id, seq, text):
         if text:
             replace = 'REPLACE:'  # Not all 3.x versions support u'REPLACE:', so, doing workaround.
-            if not IS_PY3K:
-                replace = unicode(replace)  # noqa
-
             if text.startswith(replace):
                 text = text[8:]
                 py_db.filename_to_lines_where_exceptions_are_ignored.clear()
@@ -668,9 +691,6 @@ class _PyDevCommandProcessor(object):
     def cmd_enable_dont_trace(self, py_db, cmd_id, seq, text):
         if text:
             true_str = 'true'  # Not all 3.x versions support u'str', so, doing workaround.
-            if not IS_PY3K:
-                true_str = unicode(true_str)  # noqa
-
             mode = text.strip() == true_str
             pydevd_dont_trace.trace_filter(mode)
 
@@ -723,10 +743,11 @@ class _PyDevCommandProcessor(object):
         thread_id = text
         t = pydevd_find_thread_by_id(thread_id)
         frame = None
-        if t and not getattr(t, 'pydev_do_not_trace', None):
+        if t is not None and not getattr(t, 'pydev_do_not_trace', None):
             additional_info = set_additional_thread_info(t)
             frame = additional_info.get_topmost_frame(t)
         try:
+            # Note: provide the return even if the thread is empty.
             return py_db.cmd_factory.make_get_exception_details_message(py_db, seq, thread_id, frame)
         finally:
             frame = None

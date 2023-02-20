@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.core.runtime.Assert;
 import org.python.pydev.core.ICompletionState.LookingFor;
 import org.python.pydev.shared_core.structure.LowMemoryArrayList;
 
@@ -16,6 +15,7 @@ public class TokensList implements IObjectsList, Iterable<IterTokenEntry> {
     private final List<TokensList> appended = new LowMemoryArrayList<>();
     private LookingFor lookingFor;
     private boolean freeze;
+    private boolean mapsToTypeVar;
 
     public TokensList(IToken[] tokens) {
         this.tokens = tokens;
@@ -29,6 +29,7 @@ public class TokensList implements IObjectsList, Iterable<IterTokenEntry> {
         ret.size = size;
         ret.freeze = true;
         ret.lookingFor = lookingFor;
+        ret.mapsToTypeVar = mapsToTypeVar;
         ret.appended.addAll(this.appended);
         return ret;
     }
@@ -65,8 +66,12 @@ public class TokensList implements IObjectsList, Iterable<IterTokenEntry> {
     }
 
     public void addAll(TokensList lst) {
-        Assert.isTrue(!freeze);
-        Assert.isTrue(lst != this);
+        if (freeze) {
+            throw new AssertionError("Cannot add items after TokensList is frozen.");
+        }
+        if (lst == this) {
+            throw new AssertionError("Cannot add a list to itself.");
+        }
         if (lst == null || lst.size == 0) {
             return;
         }
@@ -158,6 +163,28 @@ public class TokensList implements IObjectsList, Iterable<IterTokenEntry> {
 
     public void freeze() {
         this.freeze = true;
+    }
+
+    public void setMapsToTypeVar(boolean b) {
+        this.mapsToTypeVar = b;
+    }
+
+    public boolean getMapsToTypeVar() {
+        return this.mapsToTypeVar;
+    }
+
+    public IToken find(String qualifier) {
+        for (IterTokenEntry entry : this) {
+            Object obj = entry.object;
+            if (obj instanceof IToken) {
+                IToken tok = (IToken) obj;
+                String rep = tok.getRepresentation();
+                if (qualifier.equals(rep)) {
+                    return tok;
+                }
+            }
+        }
+        return null;
     }
 
 }

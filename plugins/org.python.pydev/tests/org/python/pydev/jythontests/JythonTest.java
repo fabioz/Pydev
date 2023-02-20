@@ -37,10 +37,12 @@ public class JythonTest extends TestCase {
             new File(TestDependent.TEST_PYDEV_PLUGIN_LOC + "tests/jysrc/tests"),
             new File(TestDependent.PYSRC_LOC + "tests_runfiles"), };
 
-    final File[] additionalPythonpathFolders = new File[] {
-            new File(TestDependent.TEST_PYDEV_JYTHON_PLUGIN_LOC + "jysrc/"),
-            new File(TestDependent.PYSRC_LOC), new File(TestDependent.JYTHON_ANT_JAR_LOCATION),
-            new File(TestDependent.JYTHON_JUNIT_JAR_LOCATION), new File(TestDependent.JYTHON_LIB_LOCATION), };
+    final File[] getAdditionalPythonpathFolders() {
+        return new File[] {
+                new File(TestDependent.TEST_PYDEV_JYTHON_PLUGIN_LOC + "jysrc/"),
+                new File(TestDependent.PYSRC_LOC), new File(TestDependent.JYTHON_ANT_JAR_LOCATION),
+                new File(TestDependent.JYTHON_JUNIT_JAR_LOCATION), new File(TestDependent.JYTHON_LIB_LOCATION), };
+    }
 
     private static final boolean RUN_TESTS_ON_SEPARATE_PROCESS = true;
     private static final boolean RUN_TESTS_ON_SAME_PROCESS = true;
@@ -75,6 +77,11 @@ public class JythonTest extends TestCase {
     }
 
     public void testJythonTests() throws Exception {
+        if (TestDependent.JYTHON_ANT_JAR_LOCATION == null || TestDependent.JYTHON_JAR_LOCATION == null) {
+            System.out.println("Skipped running: JythonTest");
+            return;
+        }
+
         if (RUN_TESTS_ON_SAME_PROCESS) {
             //unittest.TestCase format: the __main__ is required in the global namespace
             HashMap<String, Object> locals = new HashMap<String, Object>();
@@ -88,7 +95,7 @@ public class JythonTest extends TestCase {
             for (File f : foldersWithTestContentsOnSameProcess) {
                 System.out.println("\n\nRunning tests from dir: " + f);
                 List<Throwable> errors = JythonPlugin.execAll(locals, "test", interpreter,
-                        new File[] { f }, additionalPythonpathFolders);
+                        new File[] { f }, getAdditionalPythonpathFolders());
 
                 System.out.println(stdOut);
                 System.out.println(stdErr);

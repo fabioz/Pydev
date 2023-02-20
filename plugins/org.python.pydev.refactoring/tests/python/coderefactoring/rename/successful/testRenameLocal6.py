@@ -6,14 +6,14 @@ class Z(object):
         
         def foo():
             x = 10
-            print x
+            print(x)
             
-        print x
+        print(x)
 
     def barfoo():
-        print x
+        print(x)
         
-print x##|
+print(x)##|
 
 ##r
 
@@ -25,11 +25,11 @@ class Z(object):
         
         def foo():
             x = 10
-            print x
+            print(x)
             
-        print x
+        print(x)
 
     def barfoo():
-        print p
+        print(p)
         
-print p
+print(p)

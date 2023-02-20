@@ -12,6 +12,7 @@ package org.python.pydev.ast.codecompletion;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
@@ -26,6 +27,7 @@ import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.ast.codecompletion.shell.AbstractShell;
 import org.python.pydev.ast.codecompletion.shell.PythonShell;
 import org.python.pydev.ast.codecompletion.shell.PythonShellTest;
+import org.python.pydev.core.BaseModuleRequest;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IInterpreterManager;
@@ -41,10 +43,13 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.string.StringUtils;
+
+import junit.framework.AssertionFailedError;
 
 public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
 
-    protected boolean isInTestFindDefinition = false;
+    protected static boolean isInTestFindDefinition = false;
 
     public static void main(String[] args) {
         try {
@@ -71,7 +76,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
 
             @Override
             public int getGrammarVersion() {
-                return IPythonNature.LATEST_GRAMMAR_PY2_VERSION;
+                return IPythonNature.LATEST_GRAMMAR_PY3_VERSION;
             }
 
             @Override
@@ -107,16 +112,18 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
         }
 
         CompiledModule.COMPILED_MODULES_ENABLED = true;
-        this.restorePythonPath(TestDependent.GetCompletePythonLib(true) +
-                "|" + TestDependent.PYTHON_WXPYTHON_PACKAGES
-                +
-                "|" + TestDependent.PYTHON_MX_PACKAGES +
-                "|" + TestDependent.PYTHON_NUMPY_PACKAGES +
-                "|"
-                + TestDependent.PYTHON_OPENGL_PACKAGES +
-                "|" + TestDependent.PYTHON_DJANGO_PACKAGES
+        String additionalPaths = "";
+        for (String s : new String[] { TestDependent.PYTHON2_WXPYTHON_PACKAGES, TestDependent.PYTHON2_MX_PACKAGES,
+                TestDependent.PYTHON_NUMPY_PACKAGES, TestDependent.PYTHON2_OPENGL_PACKAGES,
+                TestDependent.PYTHON_DJANGO_PACKAGES
 
-                , false);
+        }) {
+            if (s != null) {
+                additionalPaths += ("|" + s);
+            }
+        }
+        this.restorePythonPath(TestDependent.getCompletePythonLib(true, isPython3Test()) + "|" + additionalPaths,
+                false);
 
         codeCompletion = new PyCodeCompletion();
 
@@ -152,8 +159,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
         } catch (CompletionRecursionException e) {
             //that's ok... we're asking for it here...
         }
-        requestCompl(f, strDoc, strDoc.length(), -1, new String[] { "__doc__", "__getitem__()", "__init__()",
-                "__str__()" });
+        requestCompl(f, strDoc, strDoc.length(), -1, new String[] { "args", "with_traceback(tb)" });
     }
 
     public void testCompleteImportBuiltin() throws BadLocationException, IOException, Exception {
@@ -218,21 +224,31 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
 
     }
 
-    public void testBuiltinsInNamespace() throws BadLocationException, IOException, Exception {
+    public void testBuiltinsInNamespace0() throws BadLocationException, IOException, Exception {
+        String s = "_";
+        requestCompl(s, s.length(), -1, new String[] { "__builtins__" });
+    }
+
+    public void testBuiltinsInNamespace1() throws BadLocationException, IOException, Exception {
         String s = "__builtins__.";
         requestCompl(s, s.length(), -1, new String[] { "RuntimeError" });
     }
 
     public void testBuiltinsInNamespace2() throws BadLocationException, IOException, Exception {
         String s = "__builtins__.RuntimeError.";
-        requestCompl(s, s.length(), -1, new String[] { "__doc__", "__getitem__()", "__init__()", "__str__()" });
+        requestCompl(s, s.length(), 2, new String[] { "args", "with_traceback(tb)" });
+    }
+
+    public void testBuiltinsInNamespace2Underline() throws BadLocationException, IOException, Exception {
+        String s = "__builtins__.RuntimeError._";
+        requestCompl(s, s.length(), -1, new String[] { "__doc__", "__init__()", "__str__()" });
     }
 
     public void testPreferForcedBuiltin() throws BadLocationException, IOException, Exception {
         if (SharedCorePlugin.skipKnownFailures()) {
             return;
         }
-        if (TestDependent.PYTHON_MX_PACKAGES != null) {
+        if (TestDependent.PYTHON2_MX_PACKAGES != null) {
             String s = "" +
                     "from mx import DateTime\n" +
                     "DateTime.";
@@ -245,8 +261,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
             String s = "" +
                     "from numpy import less\n" +
                     "less.";
-            requestCompl(new File(TestDependent.TEST_PYSRC_TESTING_LOC +
-                    "extendable/not_existent.py"), s, s.length(), -1,
+            requestCompl(s, s.length(), -1,
                     new String[] { "types", "ntypes", "nout", "nargs", "nin" });
         }
     }
@@ -329,7 +344,8 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
             String s = "" +
                     "from extendable.bootstrap_dll import umath\n" +
                     "umath.";
-            IModule module = nature.getAstManager().getModule("extendable.bootstrap_dll.umath", nature, true);
+            IModule module = nature.getAstManager().getModule("extendable.bootstrap_dll.umath", nature, true,
+                    new BaseModuleRequest(true));
             assertTrue("Expected CompiledModule. Found: " + module.getClass(), module instanceof CompiledModule);
             //NOTE: The test can fail if numpy is not available (umath.pyd depends on numpy)
             requestCompl(s, s.length(), -1, new String[] { "less" });
@@ -345,7 +361,8 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
         if (TestDependent.PYTHON_NUMPY_PACKAGES != null) {
             String s = "" +
                     "from extendable.bootstrap_dll.umath import ";
-            IModule module = nature.getAstManager().getModule("extendable.bootstrap_dll.umath", nature, true);
+            IModule module = nature.getAstManager().getModule("extendable.bootstrap_dll.umath", nature, true,
+                    new BaseModuleRequest(true));
             assertTrue(module instanceof CompiledModule);
             //NOTE: The test can fail if numpy is not available (umath.pyd depends on numpy)
             requestCompl(s, s.length(), -1, new String[] { "less" });
@@ -353,7 +370,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
     }
 
     public void testWxPython1() throws BadLocationException, IOException, Exception {
-        if (TestDependent.PYTHON_WXPYTHON_PACKAGES != null) { //we can only test what we have
+        if (TestDependent.PYTHON2_WXPYTHON_PACKAGES != null) { //we can only test what we have
             String s = "" +
                     "from wxPython.wx import *\n" +
                     "import wx\n" +
@@ -377,7 +394,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
 
     public void testCompleteImportBuiltinReference2() throws BadLocationException, IOException, Exception {
         String s;
-        if (TestDependent.PYTHON_WXPYTHON_PACKAGES != null) { //we can only test what we have
+        if (TestDependent.PYTHON2_WXPYTHON_PACKAGES != null) { //we can only test what we have
             s = "" +
                     "from wx import ";
             requestCompl(s, s.length(), -1, new String[] { "glcanvas" });
@@ -388,7 +405,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
         if (SharedCorePlugin.skipKnownFailures()) {
             return;
         }
-        if (TestDependent.PYTHON_OPENGL_PACKAGES != null) {
+        if (TestDependent.PYTHON2_OPENGL_PACKAGES != null) {
             final String s = "from OpenGL import ";
             requestCompl(s, s.length(), -1, new String[] { "GLU", "GLUT" });
         }
@@ -400,20 +417,16 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
             return;
         }
 
-        if (TestDependent.PYTHON_OPENGL_PACKAGES != null) {
+        if (TestDependent.PYTHON2_OPENGL_PACKAGES != null) {
             final String s = "from OpenGL.GL import ";
             requestCompl(s, s.length(), -1, new String[] { "glPushMatrix" });
         }
     }
 
     public void testCompleteImportBuiltinReference() throws BadLocationException, IOException, Exception {
-
-        if (SharedCorePlugin.skipKnownFailures()) {
-            return;
-        }
         String s;
 
-        if (TestDependent.PYTHON_WXPYTHON_PACKAGES != null) { //we can only test what we have
+        if (TestDependent.PYTHON2_WXPYTHON_PACKAGES != null) { //we can only test what we have
             s = "" +
                     "from wxPython.wx import wxButton\n" +
                     "                \n" +
@@ -443,21 +456,16 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
                 "os.";
         requestCompl(s, s.length(), -1, new String[] { "path" });
 
-        if (TestDependent.PYTHON_QT4_PACKAGES != null) { //we can only test what we have
-            //check for builtins with reference..3
-            s = "" +
-                    "from PyQt4.QtGui import *\n" +
-                    "                \n" +
-                    "q = QLabel()    \n" +
-                    "q.";
-            requestCompl(s, s.length(), -1, new String[] { "acceptDrops()", "childEvent()" });
-        }
-
         //check for builtins with reference..3
         s = "" +
                 "from testlib.unittest import anothertest\n" +
                 "anothertest.";
-        requestCompl(s, s.length(), 5, new String[] { "__file__", "__dict__", "__name__", "AnotherTest", "t" });
+        requestCompl(s, s.length(), 2, new String[] { "AnotherTest", "t" });
+
+        s = "" +
+                "from testlib.unittest import anothertest\n" +
+                "anothertest._";
+        requestCompl(s, s.length(), 3, new String[] { "__file__", "__dict__", "__name__" });
 
     }
 
@@ -470,7 +478,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
                 "    a = A()\n" +
                 "    a.list1.";
 
-        requestCompl(s, -1, new String[] { "pop()", "remove(value)" });
+        requestCompl(s, -1, new String[] { "pop(index)", "remove(value)" });
     }
 
     public void test__all__() throws Exception {
@@ -495,11 +503,8 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
     }
 
     public void testSortParamsCorrect() throws Exception {
-        String s = "[].sort" +
-                "";
-
         //should keep the variables from the __builtins__ in this module
-        requestCompl(s, -1, new String[] { "sort(cmp=None, key=None, reverse=False)" });
+        requestCompl("[].sort", 1, new String[] { "sort()" });
     }
 
     public void testFindDefinition() throws Exception {
@@ -578,9 +583,31 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
         comp.applyOnDocument(null, doc, ' ', 0, s.length());
         assertEquals("" +
                 "class Bar(object):\n" +
-                "    def __hash__(self, *args, **kwargs):\n"
-                +
-                "        return object.__hash__(self, *args, **kwargs)", doc.get());
+                "    def __hash__(self)->int:\n" +
+                "        return object.__hash__(self)", doc.get());
+    }
+
+    public void testOverrideCompletionsNoReturn() throws Exception {
+        String s;
+        s = "" +
+                "class Foo:\n" +
+                "    def method(self)->None:\n" +
+                "        ...\n" +
+                "class Bar(Foo):\n" +
+                "    def method";//bring override completions!
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1,
+                new String[] { "method (Override method in Foo)" });
+        assertEquals(1, comps.length);
+        Document doc = new Document(s);
+        OverrideMethodCompletionProposal comp = (OverrideMethodCompletionProposal) comps[0];
+        comp.applyOnDocument(null, doc, ' ', 0, s.length());
+        assertEquals("" +
+                "class Foo:\n" +
+                "    def method(self)->None:\n" +
+                "        ...\n" +
+                "class Bar(Foo):\n" +
+                "    def method(self)->None:\n" +
+                "        Foo.method(self)", doc.get());
     }
 
     public void testBuiltinKnownReturns() throws Exception {
@@ -588,24 +615,38 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
                 "a.";
 
         //open returns a file object.
-        requestCompl(s, -1, new String[] { "close()", "flush()", "readlines()" });
+        requestCompl(s, -1, new String[] { "close()", "flush()", "write(s)" });
     }
 
     public void testBuiltinKnownReturns1() throws Exception {
         String s = "a = ''.split()\n" + //returns list
                 "a.";
 
-        requestCompl(s, -1, new String[] { "append(object)", "reverse()" });
+        ICompletionProposalHandle[] comps = requestCompl(s, -1, new String[] { "append(object)", "reverse()" });
+        ICompletionProposalHandle appendComp = Arrays.stream(comps).filter((comp) -> {
+            return comp.getDisplayString().startsWith("append(");
+        }).findFirst().get();
+        String additionalProposalInfo = appendComp.getAdditionalProposalInfo();
+        assertTrue(additionalProposalInfo.indexOf("object to the end of the list") != -1);
     }
 
     public void testBuiltinCached() throws Exception {
-        IModule module = nature.getAstManager().getModule("__builtin__", nature, true);
-        assertTrue(module instanceof CompiledModule);
+        IModule module = nature.getAstManager().getModule("_bisect", nature, true, new BaseModuleRequest(false));
+        assertTrue("Expected CompiledModule. Found: " + module, module instanceof CompiledModule);
         ISystemModulesManager systemModulesManager = nature.getAstManager().getModulesManager()
                 .getSystemModulesManager();
         RunnableAsJobsPoolThread.getSingleton().waitToFinishCurrent();
         File file = systemModulesManager.getCompiledModuleCacheFile(module.getName());
         assertTrue(file.exists());
+
+        module = nature.getAstManager().getModule("_bisect.foo", nature, true, new BaseModuleRequest(false));
+        assertNull(module);
+
+        module = nature.getAstManager().getModule("os", nature, true, new BaseModuleRequest(false));
+        assertTrue("Expected CompiledModule. Found: " + module, module instanceof CompiledModule);
+
+        module = nature.getAstManager().getModule("os.path", nature, true, new BaseModuleRequest(false));
+        assertTrue("Expected CompiledModule. Found: " + module, module instanceof CompiledModule);
     }
 
     public void testAssignToFuncCompletion() throws Exception {
@@ -645,6 +686,16 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
                 + "";
         ICompletionProposalHandle[] comps = requestCompl(s, s.length(), -1, new String[] { "append(object)" });
         assertTrue(comps.length > 10); //list completions
+        ICompletionProposalHandle appendCompletion = Arrays.stream(comps).filter((comp) -> {
+            return comp.getDisplayString().startsWith("append(");
+        }).findFirst().get();
+        String info = appendCompletion.getAdditionalProposalInfo();
+        if (!info.contains("def append(self")) {
+            throw new AssertionFailedError("Did not find 'def append(self' in: " + info);
+        }
+        if (!info.contains("Append object to the end of the list.")) {
+            throw new AssertionFailedError("Did not find 'Append object to the end of the list.' in: " + info);
+        }
     }
 
     public void testCodeCompletionForCompoundObjectsBuiltin() throws Exception {
@@ -678,5 +729,20 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
                 "    White = '#ffffff'\n" +
                 "Color.Black.";
         requestCompl(s, s.length(), -1, new String[] { "name", "value" });
+    }
+
+    public void testTypingCloseDocs() throws Exception {
+        String s;
+        s = "" +
+                "from typing import Generator\n" +
+                "\n" +
+                "generator = Generator()\n" +
+                "generator.close";
+        ICompletionProposalHandle[] comps = requestCompl(s, s.length(), 1, new String[] { "close()" });
+        String info = comps[0].getAdditionalProposalInfo();
+        if (StringUtils.count(info, "def close(self)->None") != 1) {
+            throw new AssertionFailedError("Expected 1 occurrence of: 'def close(self)->None' in " + info);
+        }
+
     }
 }

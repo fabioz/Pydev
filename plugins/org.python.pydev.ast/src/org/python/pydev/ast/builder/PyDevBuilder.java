@@ -12,19 +12,26 @@
 package org.python.pydev.ast.builder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.ast.codecompletion.revisited.PyCodeCompletionVisitor;
@@ -38,7 +45,9 @@ import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.preferences.PyDevBuilderPreferences;
 import org.python.pydev.plugin.nature.PythonNature;
+import org.python.pydev.shared_core.IMiscConstants;
 import org.python.pydev.shared_core.callbacks.ICallback0;
+import org.python.pydev.shared_core.markers.PyMarkerUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
 /**
@@ -86,6 +95,8 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
         if (PyDevBuilderPreferences.usePydevBuilders() == false) {
             return null;
         }
+        IProject project = getProject();
+        verifyBaseProjectIssues(project);
 
         if (kind == IncrementalProjectBuilder.FULL_BUILD || kind == IncrementalProjectBuilder.CLEAN_BUILD) {
             // Do a Full Build: Use a ResourceVisitor to process the tree.
@@ -137,6 +148,29 @@ public class PyDevBuilder extends IncrementalProjectBuilder {
             }
         }
         return null;
+    }
+
+    private static Set<IPath> verifiedOnce = new HashSet<>();
+
+    private void verifyBaseProjectIssues(IProject project) {
+        IPath fullPath = project.getFullPath();
+        if (verifiedOnce.contains(fullPath)) {
+            return;
+        }
+        IFile f = project.getFile(new Path(".settings/org.python.pydev.analysis.yaml"));
+        if (f.exists()) {
+            PyMarkerUtils.MarkerInfo info = new PyMarkerUtils.MarkerInfo(null,
+                    "`.settings/org.python.pydev.analysis.yaml` is no longer used. Please move its contents to `.settings/org.python.pydev.yaml` (since PyDev 10.1.0).",
+                    IMiscConstants.PYDEV_ANALYSIS_PROBLEM_MARKER,
+                    IMarker.SEVERITY_ERROR, false, true, 0, 0, 0, new HashMap<>());
+
+            PyMarkerUtils.replaceMarkers(Arrays.asList(info), f,
+                    IMiscConstants.PYDEV_ANALYSIS_PROBLEM_MARKER, false,
+                    null);
+        } else {
+            // If it passes once, don't verify it again.
+            verifiedOnce.add(fullPath);
+        }
     }
 
     /**

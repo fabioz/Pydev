@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.python.pydev.ast.runners.SimplePythonRunner;
 import org.python.pydev.ast.runners.SimpleRunner;
 import org.python.pydev.core.CheckAnalysisErrors;
 import org.python.pydev.core.IPythonNature;
@@ -69,6 +70,8 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
         this.fDocument = document;
         this.location = location;
         this.monitor = monitor;
+
+        // When null we do: python -m flake8 ...
         this.flake8Location = flake8Location;
     }
 
@@ -78,11 +81,9 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
     void createFlake8Process(IExternalCodeAnalysisStream out)
             throws CoreException,
             MisconfigurationException, PythonNatureWithoutProjectException {
-        String flake8Executable = FileUtils.getFileAbsolutePath(flake8Location);
         String target = location.toOSString();
 
         ArrayList<String> cmdList = new ArrayList<String>();
-        cmdList.add(flake8Executable);
         String userArgs = StringUtils.replaceNewLines(
                 Flake8Preferences.getFlake8Args(resource), " ");
         List<String> userArgsAsList = new ArrayList<>(Arrays.asList(ProcessUtils.parseArguments(userArgs)));
@@ -94,21 +95,54 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
             return;
         }
         File workingDir = project.getLocation().toFile();
-        cmdList.addAll(userArgsAsList);
+        for (String s : userArgsAsList) {
+            if (s.startsWith("--format=")) {
+                continue; // ignore that as we'll add the '--format' as needed ourselves.
+            }
+            cmdList.add(s);
+        }
+        cmdList.add("--format=default");
         cmdList.add(target);
-        String[] args = cmdList.toArray(new String[0]);
-
-        // run executable command (flake8 or flake8.bat or flake8.exe)
-        WriteToStreamHelper.write("Flake8: Executing command line:", out, (Object) args);
 
         IPythonNature nature = PythonNature.getPythonNature(project);
-        ICallback0<Process> launchProcessCallback = () -> {
-            SimpleRunner simpleRunner = new SimpleRunner();
-            final Tuple<Process, String> r = simpleRunner.run(args, workingDir, nature,
-                    null, null);
-            Process process = r.o1;
-            return process;
-        };
+        ICallback0<Process> launchProcessCallback;
+        if (flake8Location == null) {
+            // use python -m flake8
+            launchProcessCallback = () -> {
+                String interpreter;
+                try {
+                    interpreter = nature.getProjectInterpreter().getExecutableOrJar();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                cmdList.add(0, "flake8");
+                String[] args = cmdList.toArray(new String[0]);
+                WriteToStreamHelper.write("Flake8: Executing command line:", out, "python", "-m", args);
+                SimplePythonRunner runner = new SimplePythonRunner();
+                String[] parameters = SimplePythonRunner.preparePythonCallParameters(interpreter, "-m", args);
+
+                Tuple<Process, String> r = runner.run(parameters, workingDir, nature, monitor);
+                return r.o1;
+            };
+
+        } else {
+            launchProcessCallback = () -> {
+                SimpleRunner simpleRunner = new SimpleRunner();
+
+                String flake8Executable = FileUtils.getFileAbsolutePath(flake8Location);
+                cmdList.add(flake8Executable);
+
+                String[] args = cmdList.toArray(new String[0]);
+
+                // run executable command (flake8 or flake8.bat or flake8.exe)
+                WriteToStreamHelper.write("Flake8: Executing command line:", out, (Object) args);
+
+                final Tuple<Process, String> r = simpleRunner.run(args, workingDir, nature,
+                        null, null);
+                Process process = r.o1;
+                return process;
+            };
+        }
         this.processWatchDoc = new ExternalAnalizerProcessWatchDoc(out, monitor, this, launchProcessCallback, project,
                 true);
         this.processWatchDoc.start();
@@ -236,12 +270,12 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                         }
                         String lineContents = document.get(region.getOffset(), region.getLength());
 
-                        if (CheckAnalysisErrors.isCodeAnalysisErrorHandled(lineContents, null)) {
+                        if (CheckAnalysisErrors.isFlake8ErrorHandledAtLine(lineContents, code)) {
                             continue;
                         }
 
-                        addToMarkers(message, priority, code, line - 1, column, lineContents, moduleFile,
-                                document);
+                        addToMarkers(message + " (" + code + ")", priority, code, line - 1, column, lineContents,
+                                moduleFile, document);
                     }
                 }
             } catch (Exception e) {

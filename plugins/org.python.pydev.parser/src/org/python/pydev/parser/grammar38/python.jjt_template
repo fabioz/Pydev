@@ -499,7 +499,7 @@ Expr eval_input(): {}
 //funcdef: 'def' NAME parameters ['->' test] ':' suite
 void funcdef(): {}
 {
-    $DEF_START parameters() [{grammarActions.addSpecialToken("->", STRATEGY_BEFORE_NEXT);}<MINUS_GREATER> test()#funcdef_return_annottation] $COLON
+    $DEF_START parameters() [{grammarActions.addSpecialToken("->", STRATEGY_BEFORE_NEXT);}<MINUS_GREATER> test()#funcdef_return_annottation] $COLON_END_DEF
         suite()
 }
 
@@ -865,7 +865,7 @@ void ImportFrom(): { int level=0; int state=0;String fromName=null;String import
 {
     //we need to set the  $IMPORT in both otherwise the lookahead will not work as we want it to work
     //because it confuses the import with the dotted name
-     (("." {level++;} )* (fromName=dotted_name())? )  {if(fromName==null && level==0){throw new ParseException("Expecting to find '.' or name in import.");}}
+     (("." {level++;markLastImportLevelPos();} )* (fromName=dotted_name())? )  {if(fromName==null && level==0){throw new ParseException("Expecting to find '.' or name in import.");}}
      $IMPORT
 
     (
@@ -1341,7 +1341,7 @@ void async_funcdef() #void : {}
 //classdef: 'class' NAME ['(' [arglist] ')'] ':' suite
 void classdef(): {Token spStr;Token spStr2;}
 {
-    $START_CLASS [$LPAREN3   [arglist()] $RPAREN ] $COLON
+    $START_CLASS [$LPAREN3   [arglist()] $RPAREN ] $COLON_END_DEF
         suite()
 }
 

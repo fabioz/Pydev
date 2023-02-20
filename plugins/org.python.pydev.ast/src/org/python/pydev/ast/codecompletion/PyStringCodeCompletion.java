@@ -28,8 +28,10 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.TokensOrProposalsList;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.partition.PyPartitionScanner;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
+import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.parser.fastparser.grammar_fstrings_common.FStringsAST;
 import org.python.pydev.parser.fastparser.grammar_fstrings_common.SimpleNode;
 import org.python.pydev.parser.grammar_fstrings.FStringsGrammarFactory;
@@ -172,13 +174,15 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
         fillWithEpydocFields(request, completionProposals);
 
         TokensOrProposalsList ret = new TokensOrProposalsList();
+
         if (completionProposals.size() == 0) {
             //if the size is not 0, it means that this is a place for the '@' stuff, and not for the 'default' context for a string.
-            IDocument doc = request.doc;
-            ITypedRegion partition = ((FastPartitioner) PyPartitionScanner.checkPartitionScanner(doc))
-                    .getPartition(request.documentOffset);
-            String partitionType = partition.getType();
 
+            IDocument doc = request.doc;
+            FastPartitioner fastPartitioner = ((FastPartitioner) PyPartitionScanner.checkPartitionScanner(doc));
+            ITypedRegion partition = fastPartitioner.getPartition(request.documentOffset);
+
+            String partitionType = partition.getType();
             if (IPythonPartitions.F_STRING_PARTITIONS.contains(partitionType)) {
                 // Now we are going to check whether where we are in the given completion offset
                 int requestOffset = request.documentOffset;
@@ -220,6 +224,21 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
                         }
                     }
                 }
+            }
+
+            PyCodeCompletionsForTypedDict pyCodeCompletionsForTypedDict = new PyCodeCompletionsForTypedDict(request);
+            if (pyCodeCompletionsForTypedDict.isTypedDictCompletionRequest()) {
+                // If it's a typed dict completion request, don't go into other requests.
+                TokensOrProposalsList completionsForTypedDict;
+                try {
+                    completionsForTypedDict = pyCodeCompletionsForTypedDict.getStringCompletions();
+                    if (completionsForTypedDict != null) {
+                        return completionsForTypedDict;
+                    }
+                } catch (CompletionRecursionException e) {
+                    Log.log(e);
+                }
+                return new TokensOrProposalsList();
             }
 
             TokensOrProposalsList stringGlobalsFromParticipants = getStringGlobalsFromParticipants(request,

@@ -55,9 +55,6 @@ public class InterpreterManagerTest extends TestCase {
     protected void setUp() throws Exception {
         ProjectModulesManager.IN_TESTS = true;
         baseDir = PydevTestUtils.setTestPlatformStateLocation();
-        baseDir = new File(TestDependent.TEST_PYDEV_PLUGIN_LOC, "data_temporary_for_testing");
-        FileUtils.deleteDirectoryTree(baseDir);
-
         baseDir.mkdirs();
         stateLocation = new File(baseDir, "pydev_plugin_state_location");
         stateLocation.mkdir();
@@ -75,7 +72,7 @@ public class InterpreterManagerTest extends TestCase {
     public void testInterpreterManager() throws Exception {
         Collection<String> pythonpath = new ArrayList<String>();
         pythonpath.add(TestDependent.PYTHON_LIB);
-        pythonpath.add(TestDependent.PYTHON_SITE_PACKAGES);
+        pythonpath.add(TestDependent.PYTHON2_SITE_PACKAGES);
 
         IEclipsePreferences prefs = new InMemoryEclipsePreferences();
         String interpreterStr = new InterpreterInfo("2.6", TestDependent.PYTHON_EXE, pythonpath).toString();
@@ -88,7 +85,7 @@ public class InterpreterManagerTest extends TestCase {
 
         pythonpath = new ArrayList<String>();
         pythonpath.add(TestDependent.PYTHON_LIB);
-        pythonpath.add(TestDependent.PYTHON_SITE_PACKAGES);
+        pythonpath.add(TestDependent.PYTHON2_SITE_PACKAGES);
         pythonpath.add(additionalPythonpathEntry.toString());
         interpreterStr = new InterpreterInfo("2.6", TestDependent.PYTHON_EXE, pythonpath).toString();
         prefs.put(IInterpreterManager.PYTHON_INTERPRETER_PATH, interpreterStr);

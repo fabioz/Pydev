@@ -7,6 +7,7 @@ import weakref
 import struct
 import warnings
 import functools
+from contextlib import contextmanager
 
 STATE_RUN = 1
 STATE_SUSPEND = 2
@@ -15,10 +16,7 @@ PYTHON_SUSPEND = 1
 DJANGO_SUSPEND = 2
 JINJA2_SUSPEND = 3
 
-try:
-    int_types = (int, long)
-except NameError:
-    int_types = (int,)
+int_types = (int,)
 
 # types does not include a MethodWrapperType
 try:
@@ -40,10 +38,6 @@ class DebugInfoHolder:
 
     # General information
     DEBUG_TRACE_LEVEL = 0  # 0 = critical, 1 = info, 2 = debug, 3 = verbose
-
-    # Flags to debug specific points of the code.
-    DEBUG_RECORD_SOCKET_READS = False
-    DEBUG_TRACE_BREAKPOINTS = -1
 
     PYDEVD_DEBUG_FILE = None
 
@@ -100,19 +94,17 @@ from _pydevd_bundle import pydevd_vm_type
 IS_WINDOWS = sys.platform == 'win32'
 IS_LINUX = sys.platform in ('linux', 'linux2')
 IS_MAC = sys.platform == 'darwin'
+IS_WASM = sys.platform == 'emscripten' or sys.platform == 'wasi'
 
 IS_64BIT_PROCESS = sys.maxsize > (2 ** 32)
 
 IS_JYTHON = pydevd_vm_type.get_vm_type() == pydevd_vm_type.PydevdVmType.JYTHON
-IS_JYTH_LESS25 = False
 
 IS_PYPY = platform.python_implementation() == 'PyPy'
 
 if IS_JYTHON:
     import java.lang.System  # @UnresolvedImport
     IS_WINDOWS = java.lang.System.getProperty("os.name").lower().startswith("windows")
-    if sys.version_info[0] == 2 and sys.version_info[1] < 5:
-        IS_JYTH_LESS25 = True
 
 USE_CUSTOM_SYS_CURRENT_FRAMES = not hasattr(sys, '_current_frames') or IS_PYPY
 USE_CUSTOM_SYS_CURRENT_FRAMES_MAP = USE_CUSTOM_SYS_CURRENT_FRAMES and (IS_PYPY or IS_IRONPYTHON)
@@ -164,45 +156,19 @@ IS_PYTHON_STACKLESS = "stackless" in sys.version.lower()
 CYTHON_SUPPORTED = False
 
 python_implementation = platform.python_implementation()
-if python_implementation == 'CPython' and not IS_PYTHON_STACKLESS:
+if python_implementation == 'CPython':
     # Only available for CPython!
-    if (
-        (sys.version_info[0] == 2 and sys.version_info[1] >= 6)
-        or (sys.version_info[0] == 3 and sys.version_info[1] >= 3)
-        or (sys.version_info[0] > 3)
-        ):
-        # Supported in 2.6,2.7 or 3.3 onwards (32 or 64)
-        CYTHON_SUPPORTED = True
+    CYTHON_SUPPORTED = True
 
 #=======================================================================================================================
 # Python 3?
 #=======================================================================================================================
-IS_PY3K = False
-IS_PY34_OR_GREATER = False
-IS_PY35_OR_GREATER = False
-IS_PY36_OR_GREATER = False
-IS_PY37_OR_GREATER = False
-IS_PY38_OR_GREATER = False
-IS_PY39_OR_GREATER = False
-IS_PY2 = True
-IS_PY27 = False
-IS_PY24 = False
-try:
-    if sys.version_info[0] >= 3:
-        IS_PY3K = True
-        IS_PY2 = False
-        IS_PY34_OR_GREATER = sys.version_info >= (3, 4)
-        IS_PY35_OR_GREATER = sys.version_info >= (3, 5)
-        IS_PY36_OR_GREATER = sys.version_info >= (3, 6)
-        IS_PY37_OR_GREATER = sys.version_info >= (3, 7)
-        IS_PY38_OR_GREATER = sys.version_info >= (3, 8)
-        IS_PY39_OR_GREATER = sys.version_info >= (3, 9)
-    elif sys.version_info[0] == 2 and sys.version_info[1] == 7:
-        IS_PY27 = True
-    elif sys.version_info[0] == 2 and sys.version_info[1] == 4:
-        IS_PY24 = True
-except AttributeError:
-    pass  # Not all versions have sys.version_info
+IS_PY36_OR_GREATER = sys.version_info >= (3, 6)
+IS_PY37_OR_GREATER = sys.version_info >= (3, 7)
+IS_PY38_OR_GREATER = sys.version_info >= (3, 8)
+IS_PY39_OR_GREATER = sys.version_info >= (3, 9)
+IS_PY310_OR_GREATER = sys.version_info >= (3, 10)
+IS_PY311_OR_GREATER = sys.version_info >= (3, 11)
 
 
 def version_str(v):
@@ -247,8 +213,27 @@ def as_float_in_env(env_key, default):
                 env_key, value))
 
 
+def as_int_in_env(env_key, default):
+    value = os.getenv(env_key)
+    if value is None:
+        return default
+    try:
+        return int(value)
+    except Exception:
+        raise RuntimeError(
+            'Error: expected the env variable: %s to be set to a int value. Found: %s' % (
+                env_key, value))
+
+
 # If true in env, use gevent mode.
 SUPPORT_GEVENT = is_true_in_env('GEVENT_SUPPORT')
+
+# Opt-in support to show gevent paused greenlets. False by default because if too many greenlets are
+# paused the UI can slow-down (i.e.: if 1000 greenlets are paused, each one would be shown separate
+# as a different thread, but if the UI isn't optimized for that the experience is lacking...).
+GEVENT_SHOW_PAUSED_GREENLETS = is_true_in_env('GEVENT_SHOW_PAUSED_GREENLETS')
+
+DISABLE_FILE_VALIDATION = is_true_in_env('PYDEVD_DISABLE_FILE_VALIDATION')
 
 GEVENT_SUPPORT_NOT_SET_MSG = os.getenv(
     'GEVENT_SUPPORT_NOT_SET_MSG',
@@ -267,9 +252,6 @@ INTERACTIVE_MODE_AVAILABLE = sys.platform in ('darwin', 'win32') or os.getenv('D
 # If not specified, uses default heuristic to determine if it should be loaded.
 USE_CYTHON_FLAG = os.getenv('PYDEVD_USE_CYTHON')
 
-# Use to disable loading the lib to set tracing to all threads (default is using heuristics based on where we're running).
-LOAD_NATIVE_LIB_FLAG = os.getenv('PYDEVD_LOAD_NATIVE_LIB', '').lower()
-
 if USE_CYTHON_FLAG is not None:
     USE_CYTHON_FLAG = USE_CYTHON_FLAG.lower()
     if USE_CYTHON_FLAG not in ENV_TRUE_LOWER_VALUES and USE_CYTHON_FLAG not in ENV_FALSE_LOWER_VALUES:
@@ -280,14 +262,60 @@ else:
     if not CYTHON_SUPPORTED:
         USE_CYTHON_FLAG = 'no'
 
+# If true in env, forces frame eval to be used (raises error if not available).
+# If false in env, disables it.
+# If not specified, uses default heuristic to determine if it should be loaded.
+PYDEVD_USE_FRAME_EVAL = os.getenv('PYDEVD_USE_FRAME_EVAL', '').lower()
+
+# Values used to determine how much container items will be shown.
+# PYDEVD_CONTAINER_INITIAL_EXPANDED_ITEMS:
+#     - Defines how many items will appear initially expanded after which a 'more...' will appear.
+#
+# PYDEVD_CONTAINER_BUCKET_SIZE
+#    - Defines the size of each bucket inside the 'more...' item
+#        i.e.: a bucket with size == 2 would show items such as:
+#            - [2:4]
+#            - [4:6]
+#            ...
+#
+# PYDEVD_CONTAINER_RANDOM_ACCESS_MAX_ITEMS
+#    - Defines the maximum number of items for dicts and sets.
+#
+PYDEVD_CONTAINER_INITIAL_EXPANDED_ITEMS = as_int_in_env('PYDEVD_CONTAINER_INITIAL_EXPANDED_ITEMS', 100)
+PYDEVD_CONTAINER_BUCKET_SIZE = as_int_in_env('PYDEVD_CONTAINER_BUCKET_SIZE', 1000)
+PYDEVD_CONTAINER_RANDOM_ACCESS_MAX_ITEMS = as_int_in_env('PYDEVD_CONTAINER_RANDOM_ACCESS_MAX_ITEMS', 500)
+PYDEVD_CONTAINER_NUMPY_MAX_ITEMS = as_int_in_env('PYDEVD_CONTAINER_NUMPY_MAX_ITEMS', 500)
+
+PYDEVD_IPYTHON_COMPATIBLE_DEBUGGING = is_true_in_env('PYDEVD_IPYTHON_COMPATIBLE_DEBUGGING')
+
+# If specified in PYDEVD_IPYTHON_CONTEXT it must be a string with the basename
+# and then the name of 2 methods in which the evaluate is done.
+PYDEVD_IPYTHON_CONTEXT = ('interactiveshell.py', 'run_code', 'run_ast_nodes')
+_ipython_ctx = os.getenv('PYDEVD_IPYTHON_CONTEXT')
+if _ipython_ctx:
+    PYDEVD_IPYTHON_CONTEXT = tuple(x.strip() for x in _ipython_ctx.split(','))
+    assert len(PYDEVD_IPYTHON_CONTEXT) == 3, 'Invalid PYDEVD_IPYTHON_CONTEXT: %s' % (_ipython_ctx,)
+
+# Use to disable loading the lib to set tracing to all threads (default is using heuristics based on where we're running).
+LOAD_NATIVE_LIB_FLAG = os.getenv('PYDEVD_LOAD_NATIVE_LIB', '').lower()
+
+LOG_TIME = os.getenv('PYDEVD_LOG_TIME', 'true').lower() in ENV_TRUE_LOWER_VALUES
+
 SHOW_COMPILE_CYTHON_COMMAND_LINE = is_true_in_env('PYDEVD_SHOW_COMPILE_CYTHON_COMMAND_LINE')
 
 LOAD_VALUES_ASYNC = is_true_in_env('PYDEVD_LOAD_VALUES_ASYNC')
 DEFAULT_VALUE = "__pydevd_value_async"
 ASYNC_EVAL_TIMEOUT_SEC = 60
 NEXT_VALUE_SEPARATOR = "__pydev_val__"
-BUILTINS_MODULE_NAME = '__builtin__' if IS_PY2 else 'builtins'
-SHOW_DEBUG_INFO_ENV = is_true_in_env(('PYCHARM_DEBUG', 'PYDEV_DEBUG', 'PYDEVD_DEBUG'))
+BUILTINS_MODULE_NAME = 'builtins'
+
+# Pandas customization.
+PANDAS_MAX_ROWS = as_int_in_env('PYDEVD_PANDAS_MAX_ROWS', 60)
+PANDAS_MAX_COLS = as_int_in_env('PYDEVD_PANDAS_MAX_COLS', 10)
+PANDAS_MAX_COLWIDTH = as_int_in_env('PYDEVD_PANDAS_MAX_COLWIDTH', 50)
+
+# If getting an attribute or computing some value is too slow, let the user know if the given timeout elapses.
+PYDEVD_WARN_SLOW_RESOLVE_TIMEOUT = as_float_in_env('PYDEVD_WARN_SLOW_RESOLVE_TIMEOUT', 0.50)
 
 # This timeout is used to track the time to send a message saying that the evaluation
 # is taking too long and possible mitigations.
@@ -315,15 +343,18 @@ PYDEVD_UNBLOCK_THREADS_TIMEOUT = as_float_in_env('PYDEVD_UNBLOCK_THREADS_TIMEOUT
 # on how the thread interruption works (there are some caveats related to it).
 PYDEVD_INTERRUPT_THREAD_TIMEOUT = as_float_in_env('PYDEVD_INTERRUPT_THREAD_TIMEOUT', -1)
 
+# If PYDEVD_APPLY_PATCHING_TO_HIDE_PYDEVD_THREADS is set to False, the patching to hide pydevd threads won't be applied.
+PYDEVD_APPLY_PATCHING_TO_HIDE_PYDEVD_THREADS = os.getenv('PYDEVD_APPLY_PATCHING_TO_HIDE_PYDEVD_THREADS', 'true').lower() in ENV_TRUE_LOWER_VALUES
+
 EXCEPTION_TYPE_UNHANDLED = 'UNHANDLED'
 EXCEPTION_TYPE_USER_UNHANDLED = 'USER_UNHANDLED'
 EXCEPTION_TYPE_HANDLED = 'HANDLED'
 
+SHOW_DEBUG_INFO_ENV = is_true_in_env(('PYCHARM_DEBUG', 'PYDEV_DEBUG', 'PYDEVD_DEBUG'))
+
 if SHOW_DEBUG_INFO_ENV:
     # show debug info before the debugger start
-    DebugInfoHolder.DEBUG_RECORD_SOCKET_READS = True
     DebugInfoHolder.DEBUG_TRACE_LEVEL = 3
-    DebugInfoHolder.DEBUG_TRACE_BREAKPOINTS = 1
 
 DebugInfoHolder.PYDEVD_DEBUG_FILE = os.getenv('PYDEVD_DEBUG_FILE')
 
@@ -334,7 +365,7 @@ def protect_libraries_from_patching():
       `_pydev_saved_modules` in order to save their original copies there. After that we can use these
       saved modules within the debugger to protect them from patching by external libraries (e.g. gevent).
     """
-    patched = ['threading', 'thread', '_thread', 'time', 'socket', 'Queue', 'queue', 'select',
+    patched = ['threading', 'thread', '_thread', 'time', 'socket', 'queue', 'select',
                'xmlrpclib', 'SimpleXMLRPCServer', 'BaseHTTPServer', 'SocketServer',
                'xmlrpc.client', 'xmlrpc.server', 'http.server', 'socketserver']
 
@@ -351,7 +382,7 @@ def protect_libraries_from_patching():
         del sys.modules[name]
 
     # import for side effects
-    import _pydev_imps._pydev_saved_modules
+    import _pydev_bundle._pydev_saved_modules
 
     for name in patched_modules:
         sys.modules[name] = patched_modules[name]
@@ -360,7 +391,7 @@ def protect_libraries_from_patching():
 if USE_LIB_COPY:
     protect_libraries_from_patching()
 
-from _pydev_imps._pydev_saved_modules import thread, threading
+from _pydev_bundle._pydev_saved_modules import thread, threading
 
 _fork_safe_locks = []
 
@@ -438,112 +469,42 @@ def after_fork():
 _thread_id_lock = ForkSafeLock()
 thread_get_ident = thread.get_ident
 
-if IS_PY3K:
 
-    def dict_keys(d):
-        return list(d.keys())
+def as_str(s):
+    assert isinstance(s, str)
+    return s
 
-    def dict_values(d):
-        return list(d.values())
 
-    dict_iter_values = dict.values
-
-    def dict_iter_items(d):
-        return d.items()
-
-    def dict_items(d):
-        return list(d.items())
-
-    def as_str(s):
-        assert isinstance(s, str)
-        return s
-
-else:
-    dict_keys = None
-    try:
-        dict_keys = dict.keys
-    except:
-        pass
-
-    if IS_JYTHON or not dict_keys:
-
-        def dict_keys(d):
-            return d.keys()
-
-    try:
-        dict_iter_values = dict.itervalues
-    except:
-        try:
-            dict_iter_values = dict.values  # Older versions don't have the itervalues
-        except:
-
-            def dict_iter_values(d):
-                return d.values()
-
-    try:
-        dict_values = dict.values
-    except:
-
-        def dict_values(d):
-            return d.values()
-
-    def dict_iter_items(d):
-        try:
-            return d.iteritems()
-        except:
-            return d.items()
-
-    def dict_items(d):
-        return d.items()
-
-    def as_str(s):
-        if isinstance(s, unicode):
-            return s.encode('utf-8')
-        return s
+@contextmanager
+def filter_all_warnings():
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore")
+        yield
 
 
 def silence_warnings_decorator(func):
 
     @functools.wraps(func)
     def new_func(*args, **kwargs):
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore")
+        with filter_all_warnings():
             return func(*args, **kwargs)
 
     return new_func
 
 
 def sorted_dict_repr(d):
-    s = sorted(dict_iter_items(d), key=lambda x:str(x[0]))
+    s = sorted(d.items(), key=lambda x:str(x[0]))
     return '{' + ', '.join(('%r: %r' % x) for x in s) + '}'
 
 
 def iter_chars(b):
-    # In Python 2, we can iterate bytes or unicode with individual characters, but Python 3 onwards
+    # In Python 2, we can iterate bytes or str with individual characters, but Python 3 onwards
     # changed that behavior so that when iterating bytes we actually get ints!
-    if not IS_PY2:
-        if isinstance(b, bytes):
-            # i.e.: do something as struct.unpack('3c', b)
-            return iter(struct.unpack(str(len(b)) + 'c', b))
+    if isinstance(b, bytes):
+        # i.e.: do something as struct.unpack('3c', b)
+        return iter(struct.unpack(str(len(b)) + 'c', b))
     return iter(b)
 
-
-try:
-    xrange = xrange
-except:
-    # Python 3k does not have it
-    xrange = range
-
-try:
-    import itertools
-    izip = itertools.izip
-except:
-    izip = zip
-
-try:
-    from StringIO import StringIO
-except:
-    from io import StringIO
 
 if IS_JYTHON:
 

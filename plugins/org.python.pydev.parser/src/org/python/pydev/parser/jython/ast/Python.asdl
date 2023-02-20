@@ -16,7 +16,7 @@ module Python
 
 	NameTok = NameTok(identifier id, name_context ctx)
 
-	name_context = ClassName | FunctionName | KeywordName | ImportName | VarArg | KwArg | ImportModule | Attrib | GlobalName | NonLocalName
+	name_context = ClassName | FunctionName | KeywordName | ImportName | VarArg | KwArg | ImportModule | Attrib | GlobalName | NonLocalName | PatternName
 
 	-- the body is an array of statements (this is not used for all constructs because initially the suite was 'inlined'
 	-- in the constructs, but some information was lost in this way).
@@ -25,7 +25,7 @@ module Python
 	--with item because the With() construct may have multiple items in the same construct in python 3.1
 	WithItem = WithItem(expr context_expr, expr? optional_vars)
 
-	stmt = FunctionDef(NameTok name, arguments args, stmt* body, decorators* decs, expr? returns, bool? async)
+	stmt = FunctionDef(decorators* decs, NameTok name, arguments args, expr? returns, stmt* body, bool? async)
 	      | ClassDef(NameTok name, expr* bases, stmt* body, decorators* decs, keyword* keywords, expr? starargs, expr? kwargs)
 	      | Return(expr? value)
 
@@ -60,6 +60,8 @@ module Python
 	      | NonLocal(NameTok* names, expr? value)
 	      | Expr(expr value)
 	      | Pass | Break | Continue
+
+	      | Match(expr subject, match_case* cases)
 
 	      -- XXX Jython will be different
 	      attributes (int lineno)
@@ -112,7 +114,7 @@ module Python
 	-- the Artificial context is not actually used in the parser directly. It is used in the application
 	-- to create 'artificial' names, as if it was a regular name (e.g.: create a name for a match inside
 	-- a comment or string)
-	expr_context = Load | Store | Del | AugLoad | AugStore | Param | Artificial | KwOnlyParam |  NamedStore
+	expr_context = Load | Store | Del | AugLoad | AugStore | Param | Artificial | KwOnlyParam |  NamedStore | Pattern
 
 	-- This identifies whether the list comprehension was created when we were matching a list, tuple or none of those.
 	comp_context = ListCtx | TupleCtx | EmptyCtx
@@ -134,7 +136,7 @@ module Python
 
 	-- not sure what to call the first argument for raise and except
 
-	excepthandler = (expr? type, expr? name, stmt* body)
+	excepthandler = (expr? type, expr? name, stmt* body, bool?isExceptionGroup)
 
 	arguments = (expr* args,     --regular arguments
 	         NameTok? vararg,    --varargs (has no defaults)
@@ -162,4 +164,19 @@ module Python
 	decorators = (expr func, expr* args, keyword* keywords, expr? starargs, expr? kwargs, bool? isCall)
 
 	comment = (identifier id)
+
+	match_case = (pattern pattern, expr? guard, stmt* body)
+
+	enclosing = LIST | TUPLE
+
+	pattern = MatchValue(expr value)
+            | MatchSequence(pattern* patterns, enclosing enclosing)
+            | MatchMapping(expr* keys, pattern* values)
+            | MatchClass(expr cls, pattern* args)
+            | MatchKeyword(expr arg, pattern value)
+
+            | MatchAs(pattern? pattern, NameTok? asname)
+            | MatchOr(pattern* patterns)
+
+         	attributes (int lineno, int col_offset, int end_lineno, int end_col_offset)
 }

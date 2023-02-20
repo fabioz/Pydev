@@ -1,6 +1,6 @@
 def m1():
     ##|from bar import foo as b##|
-    print b
+    print(b)
 
 ##r
 
@@ -10,4 +10,4 @@ def extracted_method():
 
 def m1():
     b = extracted_method()
-    print b
+    print(b)

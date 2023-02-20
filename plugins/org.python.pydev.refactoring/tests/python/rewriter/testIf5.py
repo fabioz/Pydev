@@ -3,21 +3,21 @@ if random():
         if random():
             if random():
                 pass
-            print "foo"
+            print("foo")
         else:
-            print "foo"
-    print "foo"
+            print("foo")
+    print("foo")
 else:
-    print "foo"
+    print("foo")
 ##r
 if random():
     if random():
         if random():
             if random():
                 pass
-            print "foo"
+            print("foo")
         else:
-            print "foo"
-    print "foo"
+            print("foo")
+    print("foo")
 else:
-    print "foo"
+    print("foo")

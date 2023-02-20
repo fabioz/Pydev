@@ -28,7 +28,7 @@ public class BlackRunner {
 
             String executableLocation = std.blackExecutableLocation;
             if (!std.searchBlackInInterpreter && executableLocation != null && !executableLocation.isEmpty()
-                    && new File(executableLocation).exists()) {
+                    && FileUtils.enhancedIsFile(new File(executableLocation))) {
                 SimpleRunner simpleRunner = new SimpleRunner();
                 String[] args = ArrayUtils.concatArrays(new String[] { executableLocation, "-" }, parseArguments);
                 Tuple<Process, String> r = simpleRunner.run(args, workingDir, null, null);
@@ -55,11 +55,18 @@ public class BlackRunner {
             if (pythonFileEncoding == null) {
                 pythonFileEncoding = "utf-8";
             }
-            process.getOutputStream().write(doc.get().getBytes(pythonFileEncoding));
+            boolean failedWrite = false;
+            try {
+                process.getOutputStream().write(doc.get().getBytes(pythonFileEncoding));
+            } catch (Exception e) {
+                failedWrite = true;
+            }
             Tuple<String, String> processOutput = ProcessUtils.getProcessOutput(process, cmdarrayAsStr,
                     new NullProgressMonitor(), pythonFileEncoding);
-            if (process.exitValue() != 0) {
-                Log.log("Black formatter exited with: " + process.exitValue() + "\nStdout:\n" + processOutput.o1
+
+            if (process.exitValue() != 0 || failedWrite) {
+                Log.log("Black formatter exited with: " + process.exitValue() + " failedWrite: " + failedWrite
+                        + "\nStdout:\n" + processOutput.o1
                         + "\nStderr:\n" + processOutput.o2);
                 return null;
             }

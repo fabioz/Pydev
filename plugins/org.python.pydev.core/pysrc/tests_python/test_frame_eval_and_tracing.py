@@ -5,13 +5,13 @@ import time
 
 from contextlib import contextmanager
 from tests_python.debugger_unittest import IS_PY36_OR_GREATER, IS_CPYTHON
-from tests_python.debug_constants import TEST_CYTHON
+from tests_python.debug_constants import TEST_CYTHON, TODO_PY311
 
 pytest_plugins = [
     str('tests_python.debugger_fixtures'),
 ]
 
-pytestmark = pytest.mark.skipif(not IS_PY36_OR_GREATER or not IS_CPYTHON or not TEST_CYTHON, reason='Requires CPython >= 3.6')
+pytestmark = pytest.mark.skipif(not IS_PY36_OR_GREATER or not IS_CPYTHON or not TEST_CYTHON or TODO_PY311, reason='Requires CPython >= 3.6')
 
 
 @pytest.fixture
@@ -259,6 +259,20 @@ def test_generator_code_cache(case_setup_force_frame_eval):
         writer.write_run_thread(hit.thread_id)
 
         hit = writer.wait_for_breakpoint_hit(line=break2_line)
+        writer.write_run_thread(hit.thread_id)
+
+        writer.finished_ok = True
+
+
+def test_break_line_1(case_setup_force_frame_eval):
+    with case_setup_force_frame_eval.test_file('_debugger_case_yield_from.py') as writer:
+        break1_line = 1
+        break1_id = writer.write_add_breakpoint(break1_line, 'None')
+        writer.write_make_initial_run()
+
+        hit = writer.wait_for_breakpoint_hit(line=break1_line)
+        assert hit.suspend_type == "frame_eval"
+
         writer.write_run_thread(hit.thread_id)
 
         writer.finished_ok = True

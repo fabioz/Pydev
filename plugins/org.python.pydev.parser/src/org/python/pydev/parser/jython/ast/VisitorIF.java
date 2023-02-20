@@ -33,6 +33,7 @@ public interface VisitorIF {
     public Object visitPass(Pass node) throws Exception;
     public Object visitBreak(Break node) throws Exception;
     public Object visitContinue(Continue node) throws Exception;
+    public Object visitMatch(Match node) throws Exception;
     public Object visitBoolOp(BoolOp node) throws Exception;
     public Object visitNamedExpr(NamedExpr node) throws Exception;
     public Object visitBinOp(BinOp node) throws Exception;
@@ -64,4 +65,11 @@ public interface VisitorIF {
     public Object visitExtSlice(ExtSlice node) throws Exception;
     public Object visitIndex(Index node) throws Exception;
     public Object visitComprehension(Comprehension node) throws Exception;
+    public Object visitMatchValue(MatchValue node) throws Exception;
+    public Object visitMatchSequence(MatchSequence node) throws Exception;
+    public Object visitMatchMapping(MatchMapping node) throws Exception;
+    public Object visitMatchClass(MatchClass node) throws Exception;
+    public Object visitMatchKeyword(MatchKeyword node) throws Exception;
+    public Object visitMatchAs(MatchAs node) throws Exception;
+    public Object visitMatchOr(MatchOr node) throws Exception;
 }

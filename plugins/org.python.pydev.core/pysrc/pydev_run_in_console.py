@@ -5,7 +5,7 @@ import os
 import sys
 import traceback
 from pydevconsole import InterpreterInterface, process_exec_queue, start_console_server, init_mpl_in_console
-from _pydev_imps._pydev_saved_modules import threading, _queue
+from _pydev_bundle._pydev_saved_modules import threading, _queue
 
 from _pydev_bundle import pydev_imports
 from _pydevd_bundle.pydevd_utils import save_main_module
@@ -17,7 +17,7 @@ def run_file(file, globals=None, locals=None, is_module=False):
     module_name = None
     entry_point_fn = None
     if is_module:
-        file, _,  entry_point_fn = file.partition(':')
+        file, _, entry_point_fn = file.partition(':')
         module_name = file
         filename = get_fullname(file)
         if filename is None:
@@ -60,11 +60,8 @@ def run_file(file, globals=None, locals=None, is_module=False):
                 func()
             else:
                 # Run with the -m switch
-                import runpy
-                if hasattr(runpy, '_run_module_as_main'):
-                    runpy._run_module_as_main(module_name)
-                else:
-                    runpy.run_module(module_name)
+                from _pydevd_bundle import pydevd_runpy
+                pydevd_runpy._run_module_as_main(module_name)
     except:
         traceback.print_exc()
 
@@ -121,17 +118,17 @@ if __name__ == '__main__':
 
     host = pydev_localhost.get_localhost()
 
-    #replace exit (see comments on method)
-    #note that this does not work in jython!!! (sys method can't be replaced).
+    # replace exit (see comments on method)
+    # note that this does not work in jython!!! (sys method can't be replaced).
     sys.exit = skip_successful_exit
 
     connect_status_queue = _queue.Queue()
-    interpreter = InterpreterInterface(host, int(client_port), threading.currentThread(), connect_status_queue=connect_status_queue)
+    interpreter = InterpreterInterface(host, int(client_port), threading.current_thread(), connect_status_queue=connect_status_queue)
 
     server_thread = threading.Thread(target=start_console_server,
                                      name='ServerThread',
                                      args=(host, int(port), interpreter))
-    server_thread.setDaemon(True)
+    server_thread.daemon = True
     server_thread.start()
 
     sys.stdin = StdIn(interpreter, host, client_port, sys.stdin)

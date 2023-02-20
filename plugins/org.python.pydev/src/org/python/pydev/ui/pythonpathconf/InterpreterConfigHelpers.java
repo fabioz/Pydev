@@ -31,6 +31,7 @@ import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
 import org.python.pydev.ast.runners.SimpleJythonRunner;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.preferences.FileTypesPreferences;
 import org.python.pydev.plugin.nature.PipenvHelper;
 import org.python.pydev.plugin.nature.SystemPythonNature;
@@ -67,6 +68,22 @@ public class InterpreterConfigHelpers {
 
     public final static String ERMSG_NOLIBS = "The interpreter's standard libraries (typically in a Lib/ folder) are missing: ";
 
+    static ObtainInterpreterInfoOperation tryInterpreter(NameAndExecutable interpreterNameAndExecutable,
+            IInterpreterManager interpreterManager, boolean autoSelectFolders, boolean displayErrors,
+            PrintWriter logger, Shell shell) throws Exception {
+        String executableOrJar = interpreterNameAndExecutable.getExecutableOrJar();
+        File file = new File(executableOrJar);
+        boolean isConda = false;
+
+        try {
+            isConda = new File(file.getParentFile(), "conda-meta").exists();
+        } catch (Exception e) {
+            Log.log(e);
+        }
+        return tryInterpreter(interpreterNameAndExecutable, interpreterManager, autoSelectFolders, displayErrors,
+                logger, shell, isConda);
+    }
+
     /**
      * Attempts to set up a provided interpreter.
      *
@@ -82,7 +99,7 @@ public class InterpreterConfigHelpers {
      */
     static ObtainInterpreterInfoOperation tryInterpreter(NameAndExecutable interpreterNameAndExecutable,
             IInterpreterManager interpreterManager, boolean autoSelectFolders, boolean displayErrors,
-            PrintWriter logger, Shell shell) throws Exception {
+            PrintWriter logger, Shell shell, boolean isConda) throws Exception {
         String executable = interpreterNameAndExecutable.o2;
         logger.println("- Ok, file is non-null. Getting info on:" + executable);
         ProgressMonitorDialog monitorDialog = new AsynchronousProgressMonitorDialog(shell);
@@ -90,7 +107,7 @@ public class InterpreterConfigHelpers {
         ObtainInterpreterInfoOperation operation;
         while (true) {
             operation = new ObtainInterpreterInfoOperation(interpreterNameAndExecutable.o2, logger,
-                    interpreterManager, autoSelectFolders);
+                    interpreterManager, autoSelectFolders, isConda);
             monitorDialog.run(true, false, operation);
             if (operation.e != null) {
                 logger.println("- Some error happened while getting info on the interpreter:");

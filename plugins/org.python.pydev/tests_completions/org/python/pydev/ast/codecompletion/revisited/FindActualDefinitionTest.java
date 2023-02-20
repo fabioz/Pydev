@@ -8,7 +8,9 @@ package org.python.pydev.ast.codecompletion.revisited;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Set;
 
 import org.eclipse.jface.text.Document;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
@@ -67,7 +69,7 @@ public class FindActualDefinitionTest extends CodeCompletionTestsBase {
         IModule mod = SourceModule.createModuleFromDoc(null, new Document(str), nature);
         ICompletionCache completionCache = new CompletionCache();
         ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
-        PyRefactoringFindDefinition.findActualDefinition(null, mod, "printed.replace", selected, 8, 32, nature,
+        PyRefactoringFindDefinition.findActualDefinition(null, false, mod, "printed.replace", selected, 8, 32, nature,
                 completionCache);
         assertEquals(0, selected.size());
     }
@@ -87,7 +89,7 @@ public class FindActualDefinitionTest extends CodeCompletionTestsBase {
         IModule mod = SourceModule.createModuleFromDoc(null, new Document(str), nature);
         ICompletionCache completionCache = new CompletionCache();
         ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
-        PyRefactoringFindDefinition.findActualDefinition(null, mod, "mantissa.strip", selected, 6, 20, nature,
+        PyRefactoringFindDefinition.findActualDefinition(null, false, mod, "mantissa.strip", selected, 6, 20, nature,
                 completionCache);
         assertEquals(0, selected.size());
     }
@@ -111,7 +113,7 @@ public class FindActualDefinitionTest extends CodeCompletionTestsBase {
         IModule mod = SourceModule.createModuleFromDoc(null, new Document(str), nature);
         ICompletionCache completionCache = new CompletionCache();
         ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
-        PyRefactoringFindDefinition.findActualDefinition(null, mod, "parent.find", selected, 10, 33, nature,
+        PyRefactoringFindDefinition.findActualDefinition(null, false, mod, "parent.find", selected, 10, 33, nature,
                 completionCache);
         assertEquals(0, selected.size());
     }
@@ -136,9 +138,31 @@ public class FindActualDefinitionTest extends CodeCompletionTestsBase {
         IModule mod = SourceModule.createModuleFromDoc(null, new Document(str), nature);
         ICompletionCache completionCache = new CompletionCache();
         ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
-        PyRefactoringFindDefinition.findActualDefinition(null, mod, "x.items", selected, 13, 23, nature,
+        PyRefactoringFindDefinition.findActualDefinition(null, false, mod, "x.items", selected, 13, 23, nature,
                 completionCache);
         assertEquals(1, selected.size());
+    }
+
+    public void testFindActualDefinition5() throws Exception {
+        String str = ""
+                + "class SomeClass:\n"
+                + "    SOME_CONSTANT = 1\n"
+                + "\n"
+                + "\n"
+                + "SomeClass.SOME_CONSTANT = 22"
+                + "";
+        IModule mod = SourceModule.createModuleFromDoc(null, new Document(str), nature);
+        ICompletionCache completionCache = new CompletionCache();
+        ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
+        PyRefactoringFindDefinition.findActualDefinition(null, true, mod, "SomeClass.SOME_CONSTANT", selected, 5, 15,
+                nature,
+                completionCache);
+        assertEquals(2, selected.size());
+        Set<Integer> set = new HashSet<>();
+        for (IDefinition d : selected) {
+            set.add(d.getLine());
+        }
+        assertEquals(new HashSet<Integer>(Arrays.asList(2, 5)), set);
     }
 
     public void testFindActualDefinitionImported() throws Exception {
@@ -146,7 +170,19 @@ public class FindActualDefinitionTest extends CodeCompletionTestsBase {
         IModule mod = SourceModule.createModule("findActualDefinition.foo", file, nature, false);
         ICompletionCache completionCache = new CompletionCache();
         ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
-        PyRefactoringFindDefinition.findActualDefinition(null, mod, "self._endpoint.notify", selected, 5, 29, nature,
+        PyRefactoringFindDefinition.findActualDefinition(null, false, mod, "self._endpoint.notify", selected, 5, 29,
+                nature,
+                completionCache);
+        assertEquals(1, selected.size());
+    }
+
+    public void testFindActualDefinitionForAssignedStaticClassVariable() throws Exception {
+        File file = new File(TestDependent.TEST_PYSRC_TESTING_LOC + "static_class_variables/mod2.py");
+        IModule mod = SourceModule.createModule("static_class_variables.mod2", file, nature, false);
+        ICompletionCache completionCache = new CompletionCache();
+        ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
+        PyRefactoringFindDefinition.findActualDefinition(null, false, mod, "A.some_var", selected, 3, 1,
+                nature,
                 completionCache);
         assertEquals(1, selected.size());
     }

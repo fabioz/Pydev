@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assert;
 import org.python.pydev.parser.jython.ast.Assign;
@@ -42,6 +41,14 @@ import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Lambda;
 import org.python.pydev.parser.jython.ast.List;
 import org.python.pydev.parser.jython.ast.ListComp;
+import org.python.pydev.parser.jython.ast.Match;
+import org.python.pydev.parser.jython.ast.MatchAs;
+import org.python.pydev.parser.jython.ast.MatchClass;
+import org.python.pydev.parser.jython.ast.MatchKeyword;
+import org.python.pydev.parser.jython.ast.MatchMapping;
+import org.python.pydev.parser.jython.ast.MatchOr;
+import org.python.pydev.parser.jython.ast.MatchSequence;
+import org.python.pydev.parser.jython.ast.MatchValue;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.Num;
@@ -71,9 +78,12 @@ import org.python.pydev.parser.jython.ast.argumentsType;
 import org.python.pydev.parser.jython.ast.commentType;
 import org.python.pydev.parser.jython.ast.comprehensionType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
+import org.python.pydev.parser.jython.ast.enclosingType;
 import org.python.pydev.parser.jython.ast.excepthandlerType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.keywordType;
+import org.python.pydev.parser.jython.ast.match_caseType;
+import org.python.pydev.parser.jython.ast.patternType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -89,14 +99,14 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
  * global
  * exec
  * assert
- * 
- * 
+ *
+ *
  * flow:
  * return
  * yield
  * raise
- * 
- * 
+ *
+ *
  * compound:
  * if
  * while
@@ -104,7 +114,7 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
  * try
  * func
  * class
- * 
+ *
  * @author Fabio
  */
 public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
@@ -696,7 +706,12 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
 
             startStatementPart();
             beforeNode(h);
-            doc.addRequire("except", lastNode);
+            if (h.isExceptionGroup) {
+                doc.addRequire("except*", lastNode);
+
+            } else {
+                doc.addRequire("except", lastNode);
+            }
             this.pushTupleNeedsParens();
             if (h.type != null || h.name != null) {
                 doc.addRequire(" ", lastNode);
@@ -708,16 +723,7 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
 
                 if (h.type != null) {
                     int grammarVersion = this.prefs.getGrammarVersion();
-                    if (grammarVersion < IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6) {
-                        doc.addRequire(",", lastNode);
-
-                    } else if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_6
-                            || grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_2_7) {
-                        doc.addRequireOneOf(lastNode, "as", ",");
-
-                    } else { // Python 3.0 or greater
-                        doc.addRequire("as", lastNode);
-                    }
+                    doc.addRequire("as", lastNode);
                 }
                 h.name.accept(this);
             }
@@ -982,7 +988,7 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         }
         if ((node.args != null && node.args.length > 0) || (node.keywords != null && node.keywords.length > 0)
                 || node.starargs != null || node.kwargs != null) {
-            handleArguments(reverseNodeArray(node.args), reverseNodeArray(node.keywords), node.starargs, node.kwargs);
+            handleArguments(node.args, node.keywords, node.starargs, node.kwargs);
         }
         if (node.isCall) {
             doc.addRequire(")", lastNode);
@@ -1594,6 +1600,161 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
                 visitOrElsePart(node.orelse, "else", 0);
             }
         }
+    }
+
+    @Override
+    public Object visitMatch(Match node) throws Exception {
+        int id = doc.pushRecordChanges();
+        startStatementPart();
+        beforeNode(node);
+        doc.add(node.beginLine, node.beginColumn, "match ", node);
+        doc.replaceRecorded(doc.popRecordChanges(id), "match", "match ");
+        if (node.subject != null) {
+            node.subject.accept(this);
+        }
+        endStatementPart(node);
+        doc.addRequire(":", lastNode);
+        doc.addRequireIndent(":", lastNode);
+
+        for (match_caseType c : node.cases) {
+            visitMatchCase(c);
+        }
+
+        afterNode(node);
+        return null;
+    }
+
+    private void visitMatchCase(match_caseType node) throws Exception, IOException {
+        int id = doc.pushRecordChanges();
+        startStatementPart();
+        beforeNode(node);
+        doc.add(node.beginLine, node.beginColumn, "case ", node);
+        doc.replaceRecorded(doc.popRecordChanges(id), "case", "case ");
+        if (node.pattern != null) {
+            node.pattern.accept(this);
+        }
+        if (node.guard != null) {
+            doc.addRequireAfter(" if ", doc.getLastPart());
+            node.guard.accept(this);
+        }
+        endStatementPart(node);
+        doc.addRequire(":", lastNode);
+        doc.addRequireIndent(":", lastNode);
+        for (SimpleNode n : node.body) {
+            n.accept(this);
+        }
+        PrettyPrinterDocLineEntry docLineEntry = doc.getLine(lastNode.beginLine);
+        docLineEntry.dedent(0);
+        afterNode(node);
+    }
+
+    @Override
+    public Object visitMatchSequence(MatchSequence node) throws Exception {
+        boolean isListEnclosing = node.enclosing == enclosingType.LIST;
+        boolean isTupleEnclosing = node.enclosing == enclosingType.TUPLE;
+        beforeNode(node);
+        if (isListEnclosing) {
+            doc.addRequire("[", node);
+        } else if (isTupleEnclosing) {
+            doc.addRequire("(", node);
+        }
+        for (int i = 0; i < node.patterns.length; i++) {
+            if (i > 0) {
+                doc.addRequire(",", lastNode);
+            }
+            patternType p = node.patterns[i];
+            p.accept(this);
+        }
+        if (isListEnclosing) {
+            doc.addRequire("]", lastNode);
+        } else if (isTupleEnclosing) {
+            doc.addRequire(")", lastNode);
+        }
+        afterNode(node);
+        return null;
+    }
+
+    @Override
+    public Object visitMatchValue(MatchValue node) throws Exception {
+        beforeNode(node);
+        node.value.accept(this);
+        afterNode(node);
+        return null;
+    }
+
+    @Override
+    public Object visitMatchOr(MatchOr node) throws Exception {
+        beforeNode(node);
+        for (int i = 0; i < node.patterns.length; i++) {
+            if (i > 0) {
+                ILinePart lastPart = doc.getLastPart();
+                doc.addRequireAfter(" | ", lastPart);
+            }
+            patternType p = node.patterns[i];
+            p.accept(this);
+        }
+        afterNode(node);
+        return null;
+    }
+
+    @Override
+    public Object visitMatchAs(MatchAs node) throws Exception {
+        beforeNode(node);
+        node.pattern.accept(this);
+        ILinePart lastPart = doc.getLastPart();
+        if (!"as".equals(lastPart.toString())) {
+            doc.addRequireAfter(" as ", lastPart);
+        }
+        node.asname.accept(this);
+        afterNode(node);
+        return null;
+    }
+
+    @Override
+    public Object visitMatchClass(MatchClass node) throws Exception {
+        beforeNode(node);
+        node.cls.accept(this);
+        doc.addRequire("(", node);
+        if (node.args != null) {
+            for (int i = 0; i < node.args.length; i++) {
+                if (i > 0) {
+                    doc.addRequire(",", lastNode);
+                }
+                patternType p = node.args[i];
+                p.accept(this);
+            }
+        }
+        doc.addRequire(")", lastNode);
+        afterNode(node);
+        return null;
+    }
+
+    @Override
+    public Object visitMatchKeyword(MatchKeyword node) throws Exception {
+        beforeNode(node);
+        node.arg.accept(this);
+        doc.addRequire("=", lastNode);
+        node.value.accept(this);
+        afterNode(node);
+        return null;
+    }
+
+    @Override
+    public Object visitMatchMapping(MatchMapping node) throws Exception {
+        int length = node.keys.length;
+        beforeNode(node);
+        doc.addRequire("{", lastNode);
+        for (int i = 0; i < length; i++) {
+            if (i > 0) {
+                doc.addRequire(",", lastNode);
+            }
+            node.keys[i].accept(this);
+            doc.addRequire(":", lastNode);
+            node.values[i].accept(this);
+        }
+        doc.addRequire("}", lastNode);
+        afterNode(node);
+        return null;
     }
 
     @Override

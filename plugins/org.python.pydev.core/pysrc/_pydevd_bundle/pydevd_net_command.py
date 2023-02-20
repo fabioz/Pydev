@@ -1,4 +1,4 @@
-from _pydevd_bundle.pydevd_constants import DebugInfoHolder, IS_PY2, \
+from _pydevd_bundle.pydevd_constants import DebugInfoHolder, \
     get_global_debugger, GetGlobalDebugger, set_global_debugger  # Keep for backward compatibility @UnusedImport
 from _pydevd_bundle.pydevd_utils import quote_smart as quote, to_string
 from _pydevd_bundle.pydevd_comm_constants import ID_TO_MEANING, CMD_EXIT
@@ -17,6 +17,9 @@ class _BaseNetCommand(object):
     as_dict = None
 
     def send(self, *args, **kwargs):
+        pass
+
+    def call_after_send(self, callback):
         pass
 
 
@@ -48,6 +51,8 @@ class NetCommand(_BaseNetCommand):
     _showing_debug_info = 0
     _show_debug_info_lock = ForkSafeLock(rlock=True)
 
+    _after_send = None
+
     def __init__(self, cmd_id, seq, text, is_json=False):
         """
         If sequence is 0, new sequence will be generated (otherwise, this was the response
@@ -72,13 +77,7 @@ class NetCommand(_BaseNetCommand):
             self.as_dict = as_dict
             text = json.dumps(as_dict)
 
-        if IS_PY2:
-            if isinstance(text, unicode):
-                text = text.encode('utf-8')
-            else:
-                assert isinstance(text, str)
-        else:
-            assert isinstance(text, str)
+        assert isinstance(text, str)
 
         if DebugInfoHolder.DEBUG_TRACE_LEVEL >= 1:
             self._show_debug_info(cmd_id, seq, text)
@@ -93,15 +92,11 @@ class NetCommand(_BaseNetCommand):
             else:
                 msg = '%s\t%s\t%s' % (cmd_id, seq, text)
 
-        if IS_PY2:
-            assert isinstance(msg, str)  # i.e.: bytes
-            as_bytes = msg
-        else:
-            if isinstance(msg, str):
-                msg = msg.encode('utf-8')
+        if isinstance(msg, str):
+            msg = msg.encode('utf-8')
 
-            assert isinstance(msg, bytes)
-            as_bytes = msg
+        assert isinstance(msg, bytes)
+        as_bytes = msg
         self._as_bytes = as_bytes
 
     def send(self, sock):
@@ -110,6 +105,9 @@ class NetCommand(_BaseNetCommand):
             if get_protocol() in (HTTP_PROTOCOL, HTTP_JSON_PROTOCOL):
                 sock.sendall(('Content-Length: %s\r\n\r\n' % len(as_bytes)).encode('ascii'))
             sock.sendall(as_bytes)
+            if self._after_send:
+                for method in self._after_send:
+                    method(sock)
         except:
             if IS_JYTHON:
                 # Ignore errors in sock.sendall in Jython (seems to be common for Jython to
@@ -117,6 +115,12 @@ class NetCommand(_BaseNetCommand):
                 pass
             else:
                 raise
+
+    def call_after_send(self, callback):
+        if not self._after_send:
+            self._after_send = [callback]
+        else:
+            self._after_send.append(callback)
 
     @classmethod
     def _show_debug_info(cls, cmd_id, seq, text):

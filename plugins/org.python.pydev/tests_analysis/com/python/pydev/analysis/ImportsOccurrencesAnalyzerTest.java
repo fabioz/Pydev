@@ -13,7 +13,6 @@ import org.python.pydev.ast.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.autoedit.TestIndentPrefs;
-import org.python.pydev.shared_core.SharedCorePlugin;
 
 /**
  * Tests tokens gotten from imports to see if they really exist there
@@ -37,7 +36,7 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
     }
 
     public void testWx() throws Exception {
-        if (TestDependent.PYTHON_WXPYTHON_PACKAGES != null) {
+        if (TestDependent.PYTHON2_WXPYTHON_PACKAGES != null) {
             doc = new Document("from wx import glcanvas\n" +
                     "print glcanvas");
             analyzer = new OccurrencesAnalyzer();
@@ -112,22 +111,6 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
         msgs = analyzeDoc();
 
         printMessages(msgs, 0);
-    }
-
-    public void testQtInit() throws Exception {
-        if (SharedCorePlugin.skipKnownFailures()) {
-            return;
-        }
-        if (TestDependent.PYTHON_QT4_PACKAGES != null) {
-            doc = new Document("import PyQt4.QtGui\n" +
-                    "print PyQt4.QtGui.QWidget.__init__\n" +
-                    "\n" +
-                    "\n");
-            analyzer = new OccurrencesAnalyzer();
-            msgs = analyzeDoc();
-
-            printMessages(msgs, 0);
-        }
     }
 
     public void testTokenFromWildImport() throws Exception {
@@ -261,23 +244,6 @@ public class ImportsOccurrencesAnalyzerTest extends AnalysisTestsBase {
                     new NullProgressMonitor(), new TestIndentPrefs(true, 4));
         } catch (MisconfigurationException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    public void testQt() throws Exception {
-        if (SharedCorePlugin.skipKnownFailures()) {
-            return;
-        }
-
-        if (TestDependent.PYTHON_QT4_PACKAGES != null) {
-            doc = new Document("import PyQt4.QtGui\n" +
-                    "print PyQt4.QtGui.QColor.red\n" +
-                    "\n" +
-                    "\n");
-            analyzer = new OccurrencesAnalyzer();
-            msgs = analyzeDoc();
-
-            printMessages(msgs, 0);
         }
     }
 

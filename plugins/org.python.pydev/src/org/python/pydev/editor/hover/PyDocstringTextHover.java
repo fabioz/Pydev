@@ -14,7 +14,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
-import org.python.pydev.ast.codecompletion.revisited.CompletionCache;
+import org.python.pydev.ast.codecompletion.revisited.CompletionState;
 import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.ast.item_pointer.ItemPointer;
 import org.python.pydev.ast.refactoring.PyRefactoringFindDefinition;
@@ -81,10 +81,9 @@ public class PyDocstringTextHover extends AbstractPyEditorTextHover {
     /**
      * Fills the buffer with the text for docstrings of the selected element.
      */
-    @SuppressWarnings("unchecked")
     private void getDocstringHover(IRegion hoverRegion, PySourceViewer s, PySelection ps, FastStringBuffer buf) {
         //Now, aside from the marker, let's check if there's some definition we should show the user about.
-        CompletionCache completionCache = new CompletionCache();
+        CompletionState completionCache = new CompletionState();
         ArrayList<IDefinition> selected = new ArrayList<IDefinition>();
 
         PyEdit edit = s.getEdit();
@@ -98,7 +97,15 @@ public class PyDocstringTextHover extends AbstractPyEditorTextHover {
         }
         String[] tokenAndQual = null;
         try {
+            request.acceptTypeshed = false;
             tokenAndQual = PyRefactoringFindDefinition.findActualDefinition(request, completionCache, selected);
+
+            if (tokenAndQual == null || selected.size() == 0) {
+                // i.e.: if it wasn't able to compute without typeshed, do it once more with typeshed in place.
+                request.acceptTypeshed = true;
+                completionCache = new CompletionState();
+                tokenAndQual = PyRefactoringFindDefinition.findActualDefinition(request, completionCache, selected);
+            }
         } catch (CompletionRecursionException | BadLocationException e1) {
             Log.log(e1);
             buf.append("Unable to compute hover. Details: " + e1.getMessage());

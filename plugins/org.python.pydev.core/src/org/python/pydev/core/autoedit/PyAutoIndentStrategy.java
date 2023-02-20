@@ -783,7 +783,7 @@ public final class PyAutoIndentStrategy implements IHandleScriptAutoEditStrategy
 
                 } else {
 
-                    boolean addRegular = true;
+                    boolean addRegularWithSelf = true;
                     if (!considerOnlyCurrentLine) {
                         //ok, also analyze the scope we're in (otherwise, if we only have the current line
                         //that's the best guess we can give).
@@ -798,7 +798,7 @@ public final class PyAutoIndentStrategy implements IHandleScriptAutoEditStrategy
                                 int iCurrDef = PySelection.getFirstCharPosition(line);
                                 int iPrevDef = PySelection.getFirstCharPosition(scopeStart.lineStartingScope);
                                 if (iCurrDef > iPrevDef) {
-                                    addRegular = false;
+                                    addRegularWithSelf = false;
 
                                 } else if (iCurrDef == iPrevDef) {
                                     if (scopeStart.lineStartingScope.indexOf("self") == -1) {
@@ -806,9 +806,9 @@ public final class PyAutoIndentStrategy implements IHandleScriptAutoEditStrategy
                                         //with a 'gotcha': if it's a classmethod or staticmethod, we
                                         //should still add it.
                                         if (scopeStart.iLineStartingScope <= 0) {
-                                            addRegular = false;
+                                            addRegularWithSelf = false;
                                         } else {
-                                            addRegular = false;
+                                            addRegularWithSelf = false;
                                             int i = scopeStart.iLineStartingScope - 1;
                                             String line2;
                                             do {
@@ -816,7 +816,7 @@ public final class PyAutoIndentStrategy implements IHandleScriptAutoEditStrategy
                                                 i--;
                                                 if (line2.startsWith("@classmethod")
                                                         || line2.startsWith("@staticmethod")) {
-                                                    addRegular = true;
+                                                    addRegularWithSelf = true;
                                                     break;
                                                 }
                                             } while (line2.startsWith("@")); //check all the available decorators...
@@ -826,10 +826,32 @@ public final class PyAutoIndentStrategy implements IHandleScriptAutoEditStrategy
                                 }
                             }
                         } else {
-                            addRegular = false;
+                            addRegularWithSelf = false;
                         }
+                    } else {
+                        // i.e.: we want to consider only the current line, so, we can't base ourselves on the ident scope.
+                        // so, just base ourselves on the def position.
+                        addRegularWithSelf = false;
+                        int i = Math.max(line.indexOf("async def "), line.indexOf("async def\t"));
+                        if (i >= 0) {
+                            if (i == 0) {
+                                addRegularWithSelf = false;
+                            } else {
+                                addRegularWithSelf = true;
+                            }
+                        } else {
+                            i = Math.max(line.indexOf("def "), line.indexOf("def\t"));
+                            if (i >= 0) {
+                                if (i == 0) {
+                                    addRegularWithSelf = false;
+                                } else {
+                                    addRegularWithSelf = true;
+                                }
+                            }
+                        }
+
                     }
-                    if (addRegular) {
+                    if (addRegularWithSelf) {
                         if ("__exit__".equals(ps.getFunctionName(line))) {
                             command.setText("(self, exc_type, exc_val, exc_tb):");
                         } else {
@@ -840,6 +862,7 @@ public final class PyAutoIndentStrategy implements IHandleScriptAutoEditStrategy
                         command.setText("():");
                         command.setCaretOffset(command.getOffset() + 1);
                     }
+
                 }
             } else if (hasMethodDef) {
                 command.setText("():");

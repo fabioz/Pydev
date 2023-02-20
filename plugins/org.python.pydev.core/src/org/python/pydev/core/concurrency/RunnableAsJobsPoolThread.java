@@ -171,15 +171,13 @@ public class RunnableAsJobsPoolThread extends Thread {
      * Meant to be used in tests!
      */
     public void waitToFinishCurrent() {
-        final Object lock = new Object();
+        final Semaphore semaphore = new Semaphore(0);
 
         IRunnableWithMonitor runnable = new IRunnableWithMonitor() {
 
             @Override
             public void run() {
-                synchronized (lock) {
-                    lock.notifyAll();
-                }
+                semaphore.release();
             }
 
             @Override
@@ -188,13 +186,7 @@ public class RunnableAsJobsPoolThread extends Thread {
         };
         //I.e.: we'll schedule a job to wait until all the currently scheduled jobs are run.
         scheduleToRun(runnable, "Wait to run all currently scheduled jobs");
-        synchronized (lock) {
-            try {
-                lock.wait();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        semaphore.acquire();
     }
 
     private static RunnableAsJobsPoolThread singleton;

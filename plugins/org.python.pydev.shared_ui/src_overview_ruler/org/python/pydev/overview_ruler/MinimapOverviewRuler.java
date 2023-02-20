@@ -658,6 +658,7 @@ public class MinimapOverviewRuler extends CopiedOverviewRuler {
                             paintGc.drawImage(lastImage, 0, 0);
                         }
                     } finally {
+                        transform.dispose();
                         marginColor.dispose();
                     }
 

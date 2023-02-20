@@ -1,4 +1,6 @@
 eclipse.preferences.version=1
 encoding//.settings/org.python.pydev.yaml=UTF-8
 encoding//tests/org/python/pydev/ast/interpreter_managers/InterpreterInfoOutput.txt=UTF-8
+encoding//tests/pysrc/testenc/enccp1251.py=UTF-8
+encoding//tests/pysrc/testenc/encutf8.py=UTF-8
 encoding/<project>=utf-8

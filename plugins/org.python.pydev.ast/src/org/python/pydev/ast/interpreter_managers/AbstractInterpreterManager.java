@@ -37,6 +37,7 @@ import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IInterpreterManagerListener;
 import org.python.pydev.core.IModule;
+import org.python.pydev.core.IModuleRequestState;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.ISystemModulesManager;
@@ -51,6 +52,7 @@ import org.python.pydev.plugin.nature.PythonNatureListenersManager;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.callbacks.ICallback2;
 import org.python.pydev.shared_core.callbacks.ListenerList;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -83,7 +85,8 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 
     @Override
     public void clearBuiltinCompletions(String projectInterpreterName) {
-        this.builtinCompletions.remove(projectInterpreterName);
+        this.builtinCompletions.remove(projectInterpreterName + "_true");
+        this.builtinCompletions.remove(projectInterpreterName + "_false");
     }
 
     private ListenerList<IInterpreterManagerListener> listeners = new ListenerList<>(
@@ -95,20 +98,21 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     }
 
     @Override
-    public TokensList getBuiltinCompletions(String projectInterpreterName) {
+    public TokensList getBuiltinCompletions(String projectInterpreterName, IModuleRequestState moduleRequest) {
         //Cache with the internal name.
         projectInterpreterName = getInternalName(projectInterpreterName);
         if (projectInterpreterName == null) {
             return null;
         }
 
-        TokensList toks = this.builtinCompletions.get(projectInterpreterName);
+        String cacheName = projectInterpreterName + "_" + moduleRequest.getAcceptTypeshed();
+        TokensList toks = this.builtinCompletions.get(cacheName);
 
         if (toks == null || toks.size() == 0) {
-            IModule builtMod = getBuiltinMod(projectInterpreterName);
+            IModule builtMod = getBuiltinMod(projectInterpreterName, moduleRequest);
             if (builtMod != null) {
                 toks = builtMod.getGlobalTokens();
-                this.builtinCompletions.put(projectInterpreterName, toks);
+                this.builtinCompletions.put(cacheName, toks);
             }
         }
         if (toks != null) {
@@ -118,13 +122,14 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
     }
 
     @Override
-    public IModule getBuiltinMod(String projectInterpreterName) {
+    public IModule getBuiltinMod(String projectInterpreterName, IModuleRequestState moduleRequest) {
         //Cache with the internal name.
         projectInterpreterName = getInternalName(projectInterpreterName);
         if (projectInterpreterName == null) {
             return null;
         }
-        IModule mod = builtinMod.get(projectInterpreterName);
+        String cacheName = projectInterpreterName + "_" + moduleRequest.getAcceptTypeshed();
+        IModule mod = builtinMod.get(cacheName);
         if (mod != null) {
             return mod;
         }
@@ -133,19 +138,16 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
             InterpreterInfo interpreterInfo = this.getInterpreterInfo(projectInterpreterName, null);
             ISystemModulesManager modulesManager = interpreterInfo.getModulesManager();
 
-            mod = modulesManager.getBuiltinModule("__builtin__", false);
-            if (mod == null) {
-                //Python 3.0 has builtins and not __builtin__
-                mod = modulesManager.getBuiltinModule("builtins", false);
-            }
+            //Python 3.0 has builtins and not __builtin__
+            mod = modulesManager.getBuiltinModule("builtins", false, moduleRequest);
             if (mod != null) {
-                builtinMod.put(projectInterpreterName, mod);
+                builtinMod.put(cacheName, mod);
             }
 
         } catch (MisconfigurationException e) {
             Log.log(e);
         }
-        return builtinMod.get(projectInterpreterName);
+        return builtinMod.get(cacheName);
     }
 
     private String getInternalName(String projectInterpreterName) {
@@ -163,7 +165,9 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
 
     @Override
     public void clearBuiltinMod(String projectInterpreterName) {
-        this.builtinMod.remove(projectInterpreterName);
+        // Remove the version with and without typeshed information.
+        this.builtinMod.remove(projectInterpreterName + "_true");
+        this.builtinMod.remove(projectInterpreterName + "_false");
     }
 
     /**
@@ -369,7 +373,7 @@ public abstract class AbstractInterpreterManager implements IInterpreterManager 
         }
         String executableToUse = executableIsUserSpecified ? executableName : null;
         if (executableToUse != null) {
-            if (!new File(executableToUse).exists()) {
+            if (!FileUtils.enhancedIsFile(new File(executableToUse))) {
                 //Only use the user-specified version if the executable does exist (otherwise use the internal info).
                 executableToUse = null;
             }
