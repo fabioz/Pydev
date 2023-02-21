@@ -130,7 +130,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                 SimpleRunner simpleRunner = new SimpleRunner();
 
                 String flake8Executable = FileUtils.getFileAbsolutePath(flake8Location);
-                cmdList.add(flake8Executable);
+                cmdList.add(0, flake8Executable);
 
                 String[] args = cmdList.toArray(new String[0]);
 
