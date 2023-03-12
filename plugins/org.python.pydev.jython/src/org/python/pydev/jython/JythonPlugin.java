@@ -28,6 +28,7 @@ import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.python.core.Options;
 import org.python.core.PyClass;
 import org.python.core.PyException;
 import org.python.core.PyJavaType;
@@ -237,6 +238,29 @@ public class JythonPlugin extends AbstractUIPlugin {
 
     private static final Object lock = new Object();
 
+    public static File getDefaultJythonCacheDir() {
+        String userHome = System.getProperty("user.home");
+        if (userHome != null) {
+            try {
+                File f = new File(userHome);
+                if (f.isDirectory()) {
+                    f = new File(f, ".pydev");
+                    if (!f.exists()) {
+                        f.mkdirs();
+                    }
+                    f = new File(f, "jycachedir");
+                    if (!f.exists()) {
+                        f.mkdirs();
+                    }
+                    return f;
+                }
+            } catch (Throwable e) {
+                Log.log(e);
+            }
+        }
+        return null;
+    }
+
     private static void setupJython() {
         synchronized (lock) {
             if (bundles != null && plugin != null) {
@@ -251,7 +275,18 @@ public class JythonPlugin extends AbstractUIPlugin {
                     AllBundleClassLoader allBundleClassLoader = new AllBundleClassLoader(plugin.getClass()
                             .getClassLoader());
 
-                    PySystemState.initialize(System.getProperties(), prop2, new String[0], allBundleClassLoader);
+                    Properties preProperties = new Properties();
+                    Properties sysProperties = System.getProperties();
+                    preProperties.putAll(sysProperties);
+                    if (!preProperties.contains("python.cachedir")) {
+                        File cacheDir = getDefaultJythonCacheDir();
+                        if (cacheDir != null) {
+                            preProperties.put("python.cachedir", cacheDir.toString());
+                        }
+                    }
+
+                    Options.dont_write_bytecode = true;
+                    PySystemState.initialize(preProperties, prop2, new String[0], allBundleClassLoader);
                     List<String> packageNames = allBundleClassLoader.setBundlesAndGetPackageNames(bundles);
                     int size = packageNames.size();
                     for (int i = 0; i < size; ++i) {
