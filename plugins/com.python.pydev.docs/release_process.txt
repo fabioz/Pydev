@@ -2,7 +2,7 @@
 Update the version:
 
 cd /d X:\liclipsews\liclipsews\Pydev
-python update_version.py 10.1.3
+python update_version.py 10.1.4
 
 x:\liclipsews\liclipsews\Pydev\builders\org.python.pydev.build\build_cmd.bat
 
@@ -12,7 +12,7 @@ x:\liclipsews\liclipsews\Pydev\builders\org.python.pydev.build\build_cmd.bat
 
 			x:
 			cd x:\liclipsews\liclipsews\Pydev
-			python update_version.py 10.1.3
+			python update_version.py 10.1.4
 
 
 		# TODO: Get debugger binaries from modules in pypi (either during build or when
@@ -62,9 +62,9 @@ copy X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\rep
 
 x:
 cd X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable
-"C:\Program Files\7-Zip\7z" a -tzip -r "PyDev 10.1.3.zip" features plugins
+"C:\Program Files\7-Zip\7z" a -tzip -r "PyDev 10.1.4.zip" features plugins
 cd X:\pydev_build\build_dir\pydev
-git archive -o "X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable\PyDev 10.1.3-sources.zip" origin/master
+git archive -o "X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable\PyDev 10.1.4-sources.zip" origin/master
 
         ** Submit feature and sources .zip in folder X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable to:
 
@@ -73,7 +73,7 @@ git archive -o "X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo
 Note: check pageant if it does not connect.
 
 Check if the main download button points to the proper place (not to the sources) --
-https://sourceforge.net/projects/pydev/files/pydev/PyDev 10.1.3/ -- choose file > file info > set default.
+https://sourceforge.net/projects/pydev/files/pydev/PyDev 10.1.4/ -- choose file > file info > set default.
 
 
 		** Add contents to the update site
@@ -81,43 +81,43 @@ https://sourceforge.net/projects/pydev/files/pydev/PyDev 10.1.3/ -- choose file 
 
 cd /D X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\
 
-mkdir org.python.pydev.p2-repo-10.1.3-SNAPSHOT
+mkdir org.python.pydev.p2-repo-10.1.4-SNAPSHOT
 
-cd org.python.pydev.p2-repo-10.1.3-SNAPSHOT
+cd org.python.pydev.p2-repo-10.1.4-SNAPSHOT
 
-"C:\Program Files\7-Zip\7z" x ..\org.python.pydev.p2-repo-10.1.3-SNAPSHOT.zip
+"C:\Program Files\7-Zip\7z" x ..\org.python.pydev.p2-repo-10.1.4-SNAPSHOT.zip
 
-cdd X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-10.1.3-SNAPSHOT
-C:\Users\fabio\AppData\Roaming\npm\surge.cmd --domain pydev-10-1-3.surge.sh
-"C:\Program Files\FileZilla FTP Client\filezilla.exe" sftp://fabioz,pydev@frs.sourceforge.net/home/project-web/pydev/htdocs/pydev_update_site --local="X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-10.1.3-SNAPSHOT"
+cdd X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-10.1.4-SNAPSHOT
+C:\Users\fabio\AppData\Roaming\npm\surge.cmd --domain pydev-10-1-4.surge.sh
+"C:\Program Files\FileZilla FTP Client\filezilla.exe" sftp://fabioz,pydev@frs.sourceforge.net/home/project-web/pydev/htdocs/pydev_update_site --local="X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-10.1.4-SNAPSHOT"
 
 
     ** Tag repository:
-      git tag pydev_10_1_3 -a -m "PyDev 10.1.3"
+      git tag pydev_10_1_4 -a -m "PyDev 10.1.4"
       git push --tags
 
-SET CONVERT_SOURCE=X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-10.1.3-SNAPSHOT
-SET CONVERT_FINAL_ZIP=X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable\PyDev 10.1.3.zip
+SET CONVERT_SOURCE=X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-10.1.4-SNAPSHOT
+SET CONVERT_FINAL_ZIP=X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable\PyDev 10.1.4.zip
 SET CONVERT_TARGET_DIR=X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\github
-python X:\release_tools\convert_to_github.py 10.1.3
+python X:\release_tools\convert_to_github.py 10.1.4
 Do GH release in:
-    https://github.com/fabioz/Pydev/releases/new?tag=pydev_10_1_3
+    https://github.com/fabioz/Pydev/releases/new?tag=pydev_10_1_4
     Contents in: X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\github
     
 	Title:
-		PyDev 10.1.3
+		PyDev 10.1.4
 		
     Message:
 
-        This release contains PyDev 10.1.3
+        This release contains PyDev 10.1.4
 
         It's possible to add it as an Eclipse update site using the url:
 
-        https://github.com/fabioz/Pydev/releases/download/pydev_10_1_3/
+        https://github.com/fabioz/Pydev/releases/download/pydev_10_1_4/
 
         Or get a .zip to install manually by unzipping it in the dropins:
 
-        https://github.com/fabioz/Pydev/releases/download/pydev_10_1_3/PyDev.10.1.3.zip
+        https://github.com/fabioz/Pydev/releases/download/pydev_10_1_4/PyDev.10.1.4.zip
 
 
 		** Update homepage:
