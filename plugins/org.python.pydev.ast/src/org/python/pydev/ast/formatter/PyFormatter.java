@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IPath;
@@ -16,6 +17,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPyFormatStdProvider;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
@@ -806,9 +808,9 @@ public class PyFormatter {
         String formattedAsStr;
         try {
             boolean allowChangingBlankLines = false;
+            IFile file = edit instanceof IPyEdit ? ((IPyEdit) edit).getIFile() : null;
             formattedAsStr = formatStrAutopep8OrPyDev(edit != null ? edit.getPythonNature() : null, formatStd, true,
-                    doc,
-                    delimiter, allowChangingBlankLines);
+                    file, doc, delimiter, allowChangingBlankLines);
             formatted = new Document(formattedAsStr);
         } catch (SyntaxErrorException e) {
             return;
@@ -909,7 +911,8 @@ public class PyFormatter {
      * @return a new (formatted) string
      * @throws SyntaxErrorException
      */
-    /*default*/public static String formatStrAutopep8OrPyDev(IPythonNature nature, IDocument doc, FormatStd std,
+    /*default*/public static String formatStrAutopep8OrPyDev(IPythonNature nature, IDocument doc, IFile file,
+            FormatStd std,
             String delimiter, boolean throwSyntaxError, boolean allowChangingBlankLines, File workingDir)
             throws SyntaxErrorException {
         switch (std.formatterStyle) {
@@ -924,7 +927,7 @@ public class PyFormatter {
 
                 return formatted;
             case BLACK:
-                formatted = BlackRunner.formatWithBlack(nature, doc, std, workingDir);
+                formatted = BlackRunner.formatWithBlack(nature, file, doc, std, workingDir);
                 if (formatted == null) {
                     formatted = doc.get();
                 }
@@ -946,7 +949,7 @@ public class PyFormatter {
     }
 
     public static String formatStrAutopep8OrPyDev(IPythonNature nature, FormatStd formatStd, boolean throwSyntaxError,
-            IDocument doc, String delimiter, boolean allowChangingBlankLines)
+            IFile file, IDocument doc, String delimiter, boolean allowChangingBlankLines)
             throws SyntaxErrorException {
         File workingDir = null;
         if (nature != null) {
@@ -959,16 +962,16 @@ public class PyFormatter {
             }
         }
         return formatStrAutopep8OrPyDev(nature, formatStd, throwSyntaxError,
-                doc, delimiter, allowChangingBlankLines, workingDir);
+                file, doc, delimiter, allowChangingBlankLines, workingDir);
     }
 
     /**
      * @param nature may be null (used for formatting with black).
      */
     public static String formatStrAutopep8OrPyDev(IPythonNature nature, FormatStd formatStd, boolean throwSyntaxError,
-            IDocument doc, String delimiter, boolean allowChangingBlankLines, File workingDir)
+            IFile file, IDocument doc, String delimiter, boolean allowChangingBlankLines, File workingDir)
             throws SyntaxErrorException {
-        String formatted = formatStrAutopep8OrPyDev(nature, doc, formatStd, delimiter, throwSyntaxError,
+        String formatted = formatStrAutopep8OrPyDev(nature, doc, file, formatStd, delimiter, throwSyntaxError,
                 allowChangingBlankLines, workingDir);
         //To finish, check the end of line.
         if (formatStd.addNewLineAtEndOfFile) {
@@ -992,8 +995,9 @@ public class PyFormatter {
         String delimiter = PySelection.getDelimiter(doc);
         String formatted;
         try {
+            IFile file = (edit instanceof IPyEdit) ? ((IPyEdit) edit).getIFile() : null;
             formatted = formatStrAutopep8OrPyDev(edit != null ? edit.getPythonNature() : null, formatStd,
-                    throwSyntaxError, doc, delimiter, allowChangingLines);
+                    throwSyntaxError, file, doc, delimiter, allowChangingLines);
         } catch (MisconfigurationException e) {
             Log.log(e);
             return;
@@ -1086,8 +1090,8 @@ public class PyFormatter {
                     boolean allowChangingLines = true;
                     String newDocContents = "";
                     try {
-                        newDocContents = PyFormatter.formatStrAutopep8OrPyDev(null, formatStd, true, newDoc, delimiter,
-                                allowChangingLines);
+                        newDocContents = PyFormatter.formatStrAutopep8OrPyDev(null, formatStd, true, null, newDoc,
+                                delimiter, allowChangingLines);
                     } catch (SyntaxErrorException e) {
                         // Don't format: syntax is not Ok.
                         System.out.write(("Content-Length: 0\r\n").getBytes());
@@ -1124,8 +1128,8 @@ public class PyFormatter {
                 boolean allowChangingLines = true;
                 String newDocContents = "";
                 try {
-                    newDocContents = PyFormatter.formatStrAutopep8OrPyDev(null, formatStd, true, newDoc, delimiter,
-                            allowChangingLines);
+                    newDocContents = PyFormatter.formatStrAutopep8OrPyDev(null, formatStd, true, null, newDoc,
+                            delimiter, allowChangingLines);
                 } catch (SyntaxErrorException e) {
                     // Don't format: syntax is not Ok.
                     System.exit(1);
