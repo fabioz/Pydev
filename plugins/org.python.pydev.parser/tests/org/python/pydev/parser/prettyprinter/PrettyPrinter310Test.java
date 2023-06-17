@@ -118,7 +118,7 @@ public class PrettyPrinter310Test extends AbstractPrettyPrinterTestBase {
                 + "        pass# Ignore other keystrokes\n"
                 + "    case other_event:\n"
                 + "        raise ValueError(f\"Unrecognized event: {other_event}\")\n";
-        checkPrettyPrintEqual(s);
+        checkPrettyPrintEqual(s, s, s, null);
     }
 
     public void testMatchStmtMatchingPositionalAttribs() {
@@ -144,7 +144,7 @@ public class PrettyPrinter310Test extends AbstractPrettyPrinterTestBase {
                 + "        handle_click_at(x,y)\n"
                 + "    case Click():\n"
                 + "        pass# ignore other clicks\n";
-        checkPrettyPrintEqual(s);
+        checkPrettyPrintEqual(s, s, s, null);
     }
 
     public void testMatchStmtMappings() {

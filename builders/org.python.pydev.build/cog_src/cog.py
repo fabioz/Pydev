@@ -921,13 +921,13 @@ def main():
 #=======================================================================================================================
 def RunCogInFiles(files):
     import time
-    start = time.clock()
+    start = time.time()
 
     #-r to write back to the input file!
     #-U to write \n and not native lines
     ret = Cog().main(['unused', '-r', '-U']+files)
 
-    print("Time to run cog: %.2f sec" % (time.clock() - start))
+    print("Time to run cog: %.2f sec" % (time.time() - start))
     return ret
 
 #=======================================================================================================================

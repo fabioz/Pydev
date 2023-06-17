@@ -35,12 +35,14 @@ public class AbstractPrettyPrinterTestBase extends PyParserTestBase {
         return checkPrettyPrintEqual(s, prefs, expected, expected, expected);
     }
 
-    public SimpleNode checkPrettyPrintEqual(String s, String expected, String v2) throws Error {
-        return checkPrettyPrintEqual(s, prefs, expected, v2, v2);
+    public SimpleNode checkPrettyPrintEqual(String s, String expected, String withoutSpecialsAndScrambled)
+            throws Error {
+        return checkPrettyPrintEqual(s, prefs, expected, withoutSpecialsAndScrambled, withoutSpecialsAndScrambled);
     }
 
-    public SimpleNode checkPrettyPrintEqual(String s, String expected, String v2, String v3) throws Error {
-        return checkPrettyPrintEqual(s, prefs, expected, v2, v3);
+    public SimpleNode checkPrettyPrintEqual(String s, String expected, String withoutSpecials, String scrambledLines)
+            throws Error {
+        return checkPrettyPrintEqual(s, prefs, expected, withoutSpecials, scrambledLines);
     }
 
     public SimpleNode checkPrettyPrintEqual(String s) throws Error {
@@ -49,7 +51,7 @@ public class AbstractPrettyPrinterTestBase extends PyParserTestBase {
 
     /**
      * @param s
-     * @return 
+     * @return
      * @throws Exception
      * @throws IOException
      */
@@ -57,16 +59,18 @@ public class AbstractPrettyPrinterTestBase extends PyParserTestBase {
             String withoutSpecials, String scrambledLines) throws Error {
         SimpleNode node = parseLegalDocStr(s);
 
-        //Scramble the lines/columns
-        SimpleNode copy = node.createCopy();
-        MessLinesAndColumnsVisitor messLinesAndColumnsVisitor = new MessLinesAndColumnsVisitor();
-        try {
-            copy.accept(messLinesAndColumnsVisitor);
-            MakeAstValidForPrettyPrintingVisitor.makeValid(copy);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        if (scrambledLines != null) {
+            //Scramble the lines/columns
+            SimpleNode copy = node.createCopy();
+            MessLinesAndColumnsVisitor messLinesAndColumnsVisitor = new MessLinesAndColumnsVisitor();
+            try {
+                copy.accept(messLinesAndColumnsVisitor);
+                MakeAstValidForPrettyPrintingVisitor.makeValid(copy);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            assertEquals(scrambledLines, makePrint(prefs, copy));
         }
-        assertEquals(scrambledLines, makePrint(prefs, copy));
 
         //Without specials: When creating a copy, the specials won't go along.
         assertEquals(withoutSpecials, makePrint(prefs, node.createCopy()));
@@ -100,7 +104,7 @@ public class AbstractPrettyPrinterTestBase extends PyParserTestBase {
 
     /**
      * @param file
-     * @throws Exception 
+     * @throws Exception
      */
     protected void parseAndReparsePrettyPrintedFilesInDir(File file) throws Exception {
         assertTrue("Dir does not exist: " + file, file.exists());
@@ -139,7 +143,7 @@ public class AbstractPrettyPrinterTestBase extends PyParserTestBase {
         String result2 = null;
         SimpleNode nodePrintingWithoutSpecials = null;
         try {
-            //Ok, first print done... go on and create a version without the specials. 
+            //Ok, first print done... go on and create a version without the specials.
             SimpleNode node2 = node.createCopy();
             result2 = PrettyPrinterTest.makePrint(prefs, node2);
             nodePrintingWithoutSpecials = parseLegalDocStr(result2);

@@ -5266,7 +5266,7 @@ Token jjFillToken()
     t.beginColumn = input_stream.bufcolumn[input_stream.tokenBegin];
     t.endLine = input_stream.bufline[input_stream.bufpos];
     t.endColumn = input_stream.bufcolumn[input_stream.bufpos];
-      
+
    }
 
    return t;

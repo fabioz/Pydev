@@ -846,7 +846,7 @@ void stmt() #void: {}
 
         async_stmt()
     |
-    	LOOKAHEAD(2)
+    	LOOKAHEAD(match_stmt())
     	match_stmt()
     |
         non_async_stmt()
@@ -1345,14 +1345,14 @@ void begin_finally_stmt(): {}
 
 //except_clause: 'except' [test [as test]]
 void except_clause(SimpleNode tryNode): {}
-{ 
+{
 	(
 	begin_except_clause() {this.grammarActions.addToPeek("except",false);}
 	|
 	begin_except_multiply_clause() {this.grammarActions.addToPeek("except*",false);}
 	)
 
-	[test() [{grammarActions.findTokenAndAdd("as");}<AS> test()]] {grammarActions.findTokenAndAdd(":");}<COLON> suite() 
+	[test() [{grammarActions.findTokenAndAdd("as");}<AS> test()]] {grammarActions.findTokenAndAdd(":");}<COLON> suite()
 }
 
 void begin_except_clause(): {}

@@ -19,7 +19,7 @@ def ReplaceContents(contents, start, end, obtain_new_contents):
 def main():
     import sys
     if len(sys.argv) < 1:
-        print 'Expected directory containing grammar files to be optimized to be passed.'
+        print('Expected directory containing grammar files to be optimized to be passed.')
         return
 
     import re
@@ -27,17 +27,17 @@ def main():
     import os
     assert os.path.isdir(target_dir), 'Expected %s to be a directory.' % (target_dir,)
 
-    print 'Optimizing grammar at: ', target_dir
+    print('Optimizing grammar at: ', target_dir)
     for f in os.listdir(target_dir):
         if f.endswith('.java'):
             if f.startswith('PythonGrammar') or f.startswith('FStringsGrammar'):
                 full_filename = os.path.join(target_dir, f)
                 with open(full_filename, 'rb') as stream:
-                    contents = stream.read()
+                    contents = stream.read().decode('utf-8')
 
 
                 with open(full_filename, 'wb') as stream:
-                    print 'Writing', full_filename
+                    print('Writing', full_filename)
 
                     contents = re.sub(r'\bCharStream\b', 'FastCharStream', contents)
                     contents = re.sub(r'\bStringBuffer\b', 'FastStringBuffer', contents)
@@ -76,7 +76,7 @@ Token jjFillToken()
     t.beginColumn = input_stream.bufcolumn[input_stream.tokenBegin];
     t.endLine = input_stream.bufline[input_stream.bufpos];
     t.endColumn = input_stream.bufcolumn[input_stream.bufpos];
-      
+
    }
 
    return t;
@@ -88,7 +88,7 @@ Token jjFillToken()
                         line = line.replace('jjtree.builder', 'builder')
 
                         if 'GetSuffix' in line:
-                            #Change something as 
+                            #Change something as
                             #image.append(input_stream.GetSuffix(jjimageLen + (lengthOfMatch = jjmatchedPos + 1)));
                             #to:
                             #input_stream.AppendSuffix(image, jjimageLen + (lengthOfMatch = jjmatchedPos + 1));
@@ -101,7 +101,7 @@ Token jjFillToken()
 
                         lines.append(line)
 
-                    stream.write('\n'.join(lines))
+                    stream.write('\n'.join(lines).encode('utf-8'))
 
 
 if __name__ == '__main__':

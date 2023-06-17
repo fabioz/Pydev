@@ -458,4 +458,18 @@ public class PyParser310Test extends PyParserTestBase {
         });
 
     }
+
+    public void testRegularMatchCase() {
+        checkWithAllGrammars310Onwards((grammarVersion) -> {
+            String s = ""
+                    + "match = {}            \n"
+                    + "match['x'] = 1        \n"
+                    + "match.update({'x': 1})\n"
+                    + "";
+
+            parseLegalDocStr(s);
+            return true;
+        });
+    }
+
 }
