@@ -136,6 +136,12 @@ public class PyTodoVisitor extends PyDevBuilderVisitor {
                 }
 
                 String message = tok.substring(index).trim();
+                if (message.length() > 1024) {
+                    // todo messages shouldn't have more than 1024 chars
+                    // (we could go up to 65535 bytes, but it seems pointless for a
+                    // todo comment).
+                    message = message.substring(0, 1024) + " ...";
+                }
                 String markerType = IMarker.TASK;
                 int severity = IMarker.SEVERITY_WARNING;
                 boolean userEditable = false;
