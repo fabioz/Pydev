@@ -1327,11 +1327,15 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     public Object visitExtSlice(ExtSlice node) throws Exception {
         beforeNode(node);
         if (node.dims != null) {
+            boolean found = false;
             for (int i = 0; i < node.dims.length; i++) {
-                if (i > 0) {
-                    this.doc.addRequire(",", lastNode);
+                if (node.dims[i] != null) {
+                    if (found) {
+                        this.doc.addRequire(",", lastNode);
+                    }
+                    node.dims[i].accept(this);
+                    found = true;
                 }
-                node.dims[i].accept(this);
             }
         }
         afterNode(node);

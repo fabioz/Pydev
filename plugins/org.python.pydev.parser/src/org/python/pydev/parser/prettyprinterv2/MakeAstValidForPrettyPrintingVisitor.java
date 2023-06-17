@@ -1193,8 +1193,10 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
         fixNode(node);
         if (node.dims != null) {
             for (int i = 0; i < node.dims.length; i++) {
-                node.dims[i].accept(this);
-                nextCol();
+                if (node.dims[i] != null) {
+                    node.dims[i].accept(this);
+                    nextCol();
+                }
             }
         }
         fixAfterNode(node);

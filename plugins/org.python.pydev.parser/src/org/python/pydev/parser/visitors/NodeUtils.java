@@ -2130,6 +2130,10 @@ public final class NodeUtils {
                 str = prettyPrinterV2.print(astToPrint);
             } catch (IOException e) {
                 Log.log(e);
+                str = "Error generating ast: " + e.getMessage();
+            } catch (Exception e) {
+                Log.log(e);
+                str = "Error generating ast: " + e.getMessage();
             }
         }
         return str;
