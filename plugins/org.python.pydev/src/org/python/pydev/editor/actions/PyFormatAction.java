@@ -11,7 +11,10 @@
  */
 package org.python.pydev.editor.actions;
 
+import java.io.File;
+
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentRewriteSession;
@@ -29,6 +32,7 @@ import org.python.pydev.core.formatter.PyFormatterPreferences;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.PySelectionFromEditor;
 import org.python.pydev.parser.prettyprinterv2.IFormatter;
+import org.python.pydev.shared_core.io.FileUtils;
 
 /**
  * @author Fabio Zadrozny
@@ -150,7 +154,18 @@ public class PyFormatAction extends PyAction implements IFormatter {
         //        formatter.formatAll(doc, edit);
 
         FormatStd formatStd = (FormatStd) (edit != null ? edit.getFormatStd() : PyFormatterPreferences.getFormatStd(f));
-        PyFormatter.formatAll(doc, edit, isOpenedFile, formatStd, throwSyntaxError, true);
+        String filepath = null;
+        if (edit != null) {
+            File editorFile = edit.getEditorFile();
+            if (editorFile != null) {
+                filepath = FileUtils.getFileAbsolutePath(editorFile);
+            }
+        }
+        if (filepath == null && f != null) {
+            IPath path = f.getLocation().makeAbsolute();
+            filepath = path.toOSString();
+        }
+        PyFormatter.formatAll(filepath, doc, edit, isOpenedFile, formatStd, throwSyntaxError, true);
 
     }
 

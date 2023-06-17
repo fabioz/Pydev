@@ -135,7 +135,7 @@ public class StyledTextForShowingCodeFactory implements IPropertyChangeListener 
 
         try {
             Document doc = new Document(str);
-            PyFormatter.formatAll(doc, null, false, formatStd, false, true);
+            PyFormatter.formatAll(null, doc, null, false, formatStd, false, true);
             str = doc.get();
         } catch (SyntaxErrorException e) {
         }

@@ -1029,7 +1029,7 @@ public class PyFormatStdTest extends TestCase {
         //default check (defined with \n)
         try {
             Document doc = new Document(s);
-            PyFormatter.formatAll(doc, null, true, std, false, true);
+            PyFormatter.formatAll(null, doc, null, true, std, false, true);
             String formatStr = doc.get();
 
             if (DEBUG) {
@@ -1052,7 +1052,7 @@ public class PyFormatStdTest extends TestCase {
             String expected2 = expected.replace('\n', '\r');
 
             doc = new Document(s);
-            PyFormatter.formatAll(doc, null, true, std, false, true);
+            PyFormatter.formatAll(null, doc, null, true, std, false, true);
             formatStr = doc.get();
             assertEquals(expected, formatStr);
 
@@ -1061,11 +1061,12 @@ public class PyFormatStdTest extends TestCase {
             expected = StringUtils.replaceAll(expected, "\r", "\r\n");
 
             doc = new Document(s);
-            PyFormatter.formatAll(doc, null, true, std, false, true);
+            PyFormatter.formatAll(null, doc, null, true, std, false, true);
             formatStr = doc.get();
             assertEquals(expected, formatStr);
 
-            formatStr = PyFormatter.formatStrAutopep8OrPyDev(null, new Document(s2), std, "\r", false, true, null);
+            formatStr = PyFormatter.formatStrAutopep8OrPyDev(null, null, new Document(s2), std, "\r", false, true,
+                    null);
             if (expected2.endsWith("\r") && !formatStr.endsWith("\r")) {
                 expected2 = expected2.substring(0, expected2.length() - 1);
             }
@@ -1075,7 +1076,8 @@ public class PyFormatStdTest extends TestCase {
             String s3 = StringUtils.replaceAll(s, "\n", "\r\n");
             String expected3 = StringUtils.replaceAll(expected, "\n", "\r\n");
 
-            formatStr = PyFormatter.formatStrAutopep8OrPyDev(null, new Document(s3), std, "\r\n", false, true, null);
+            formatStr = PyFormatter.formatStrAutopep8OrPyDev(null, null, new Document(s3), std, "\r\n", false, true,
+                    null);
             if (expected3.endsWith("\r\n") && !formatStr.endsWith("\r\n")) {
                 expected3 = expected3.substring(0, expected3.length() - 2);
             }
@@ -1084,7 +1086,7 @@ public class PyFormatStdTest extends TestCase {
             //now, same thing with different API
             doc = new Document();
             doc.set(s);
-            PyFormatter.formatAll(doc, null, true, std, false, true);
+            PyFormatter.formatAll(null, doc, null, true, std, false, true);
             assertEquals(expected, doc.get());
         } catch (SyntaxErrorException e) {
             throw new RuntimeException(e);
@@ -1286,7 +1288,7 @@ public class PyFormatStdTest extends TestCase {
                 "";
         final PyFormatAction pyFormatStd = new PyFormatAction();
         try {
-            PyFormatter.formatAll(new Document(s), null, false, std, true, true);
+            PyFormatter.formatAll(null, new Document(s), null, false, std, true, true);
             fail("Expecting exception!");
         } catch (Exception e) {
         }

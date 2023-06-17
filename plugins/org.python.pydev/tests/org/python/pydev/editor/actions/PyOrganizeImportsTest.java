@@ -11,6 +11,8 @@
  */
 package org.python.pydev.editor.actions;
 
+import java.io.File;
+
 import org.eclipse.jface.text.Document;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IIndentPrefs;
@@ -66,6 +68,11 @@ public class PyOrganizeImportsTest extends TestCase {
 
         @Override
         public <T> T getAdapter(Class<T> adapter) {
+            return null;
+        }
+
+        @Override
+        public File getEditorFile() {
             return null;
         }
     };

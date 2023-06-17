@@ -20,7 +20,12 @@ import org.python.pydev.shared_core.utils.ArrayUtils;
 
 public class BlackRunner {
 
-    public static String formatWithBlack(IPythonNature nature, IDocument doc, FormatStd std, File workingDir) {
+    /**
+     * @param filepath note that it may be null
+     * @return
+     */
+    public static String formatWithBlack(String filepath, IPythonNature nature, IDocument doc, FormatStd std,
+            File workingDir) {
         try {
             Process process;
             String[] parseArguments = ProcessUtils.parseArguments(std.blackParameters);
@@ -44,8 +49,13 @@ public class BlackRunner {
                     }
                 }
                 PythonRunner pythonRunner = new PythonRunner(nature);
+
+                String[] pathArgs = filepath != null && filepath.length() > 0
+                        ? new String[] { "--stdin-filename", filepath }
+                        : new String[0];
+
                 Tuple<Process, String> processInfo = pythonRunner.createProcessFromModuleName("black",
-                        ArrayUtils.concatArrays(new String[] { "-" }, parseArguments),
+                        ArrayUtils.concatArrays(new String[] { "-" }, pathArgs, parseArguments),
                         workingDir, new NullProgressMonitor());
                 process = processInfo.o1;
                 cmdarrayAsStr = processInfo.o2;
