@@ -472,4 +472,19 @@ public class PyParser310Test extends PyParserTestBase {
         });
     }
 
+    public void testMatchCase() {
+        checkWithAllGrammars310Onwards((grammarVersion) -> {
+            String s = ""
+                    + "match x:                        \n"
+                    + "    case A.B.c:                 \n"
+                    + "        print('matched c')      \n"
+                    + "    case _:                     \n"
+                    + "        print('did not match c')\n"
+                    + "";
+
+            parseLegalDocStr(s);
+            return true;
+        });
+    }
+
 }

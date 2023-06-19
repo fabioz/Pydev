@@ -1,6 +1,9 @@
 package org.python.pydev.parser.prettyprinter;
 
 import org.python.pydev.core.IGrammarVersionProvider;
+import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Match;
+import org.python.pydev.parser.jython.ast.Module;
 
 public class PrettyPrinter310Test extends AbstractPrettyPrinterTestBase {
 
@@ -320,6 +323,52 @@ public class PrettyPrinter310Test extends AbstractPrettyPrinterTestBase {
                 + "case = 10\n"
                 + "result = match + case\n"
                 + "print(result)\n";
+        checkBodyHasNoMatch(parseLegalDocStr(s));
         checkPrettyPrintEqual(s);
+    }
+
+    public void testMatchCase() {
+        String s = ""
+                + "match x:\n"
+                + "    case A.B:\n"
+                + "        print('matched c')\n"
+                + "    case _:\n"
+                + "        print('did not match c')\n"
+                + "";
+        checkBodyHasMatch(parseLegalDocStr(s));
+        checkPrettyPrintEqual(s);
+    }
+
+    public void testMatchCase2() {
+        String s = ""
+                + "match \"foo bar\".split():\n"
+                + "    case (\"doo\",\"lee\"):\n"
+                + "        pass\n"
+                + "    case _:\n"
+                + "        pass\n";
+        checkBodyHasMatch(parseLegalDocStr(s));
+        checkPrettyPrintEqual(s);
+    }
+
+    private void checkBodyHasMatch(SimpleNode node) {
+        Module m = (Module) node;
+        for (SimpleNode x : m.body) {
+            if (x instanceof Match) {
+                return;
+            }
+        }
+
+        throw new AssertionError("Did not find match statement in: " + node);
+
+    }
+
+    private void checkBodyHasNoMatch(SimpleNode node) {
+        Module m = (Module) node;
+        for (SimpleNode x : m.body) {
+            if (x instanceof Match) {
+                throw new AssertionError("Did not expect find match statement in: " + node);
+            }
+        }
+
     }
 }

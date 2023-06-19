@@ -63,7 +63,6 @@ import org.python.pydev.parser.jython.ast.excepthandlerType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.keywordType;
 import org.python.pydev.parser.jython.ast.match_caseType;
-import org.python.pydev.parser.jython.ast.name_contextType;
 import org.python.pydev.parser.jython.ast.patternType;
 import org.python.pydev.parser.jython.ast.sliceType;
 import org.python.pydev.parser.jython.ast.stmtType;
@@ -676,7 +675,7 @@ public final class TreeBuilder311 extends AbstractTreeBuilder implements ITreeBu
                         Name arg = makeName(Name.Artificial);
                         return new MatchKeyword(arg, pattern);
                     } else {
-                        return popAttribute(arity);
+                        return popMatchAttributeInMatch(arity);
                     }
                 }
                 addAndReportException(Attribute.class.getName());
@@ -833,36 +832,6 @@ public final class TreeBuilder311 extends AbstractTreeBuilder implements ITreeBu
         copy.beginLine = referenceNode.beginLine;
         copy.beginColumn = referenceNode.beginColumn;
         return copy;
-    }
-
-    private SimpleNode popAttribute(int arity) throws ParseException {
-        Attribute[] attrs = new Attribute[arity - 1];
-        for (int i = 0; i < attrs.length; i++) {
-            NameTok attr = makeNameTok(name_contextType.Attrib);
-            attrs[i] = new Attribute(null, attr, attr.ctx);
-            if (i == attrs.length - 1) {
-                attrs[i].value = makeName(name_contextType.Attrib);
-            } else if (i > 0) {
-                attrs[i - 1].value = attrs[i];
-            }
-        }
-        return attrs[0];
-    }
-
-    private Name makeName(int ctx, SimpleNode node) throws ParseException {
-        if (!(node instanceof Name)) {
-            this.stack.getGrammar().addAndReport(
-                    new ParseException("Syntax error. Expected Name, found: " + node.getClass().getName(), node),
-                    "Treated class cast exception making name");
-            node = new Name("invalid", ctx, false);
-        }
-        Name name = (Name) node;
-        name.ctx = ctx;
-        return name;
-    }
-
-    private Name makeName(int ctx) throws ParseException {
-        return makeName(ctx, stack.popNode());
     }
 
     private SimpleNode createMatchSequence(int arity, int enclosing) throws Exception {

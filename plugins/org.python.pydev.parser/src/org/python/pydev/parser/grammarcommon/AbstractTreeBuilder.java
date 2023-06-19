@@ -965,4 +965,43 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
 
     }
 
+    protected SimpleNode popMatchAttributeInMatch(int arity) throws ParseException {
+        Attribute attr = null;
+        for (int i = 0; i < arity - 1; i++) {
+            if (attr == null) {
+                // Note: the Attribute.KwOnlyParam is wrong, but changing
+                // it to Attribute.Pattern makes other things misbehave, so, leave
+                // as is for now.
+                attr = new Attribute(null, makeNameTok(NameTok.Attrib), Attribute.KwOnlyParam);
+            } else {
+                // Note: the Attribute.KwOnlyParam is wrong, but changing
+                // it to Attribute.Pattern makes other things misbehave, so, leave
+                // as is for now.
+                Attribute newAttr = new Attribute(null, makeNameTok(NameTok.Attrib), Attribute.KwOnlyParam);
+                attr.value = newAttr;
+                attr = newAttr;
+            }
+        }
+        // Last one
+        attr.value = makeName(Name.Artificial);
+
+        return attr;
+    }
+
+    protected Name makeName(int ctx, SimpleNode node) throws ParseException {
+        if (!(node instanceof Name)) {
+            this.stack.getGrammar().addAndReport(
+                    new ParseException("Syntax error. Expected Name, found: " + node.getClass().getName(), node),
+                    "Treated class cast exception making name");
+            node = new Name("invalid", ctx, false);
+        }
+        Name name = (Name) node;
+        name.ctx = ctx;
+        return name;
+    }
+
+    protected Name makeName(int ctx) throws ParseException {
+        return makeName(ctx, stack.popNode());
+    }
+
 }

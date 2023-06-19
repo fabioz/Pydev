@@ -139,7 +139,12 @@ public class FindDuplicatesVisitor implements VisitorIF {
     private int getLineDefinition(SimpleNode ast2) {
         while (ast2 instanceof Attribute || ast2 instanceof Call) {
             if (ast2 instanceof Attribute) {
-                ast2 = ((Attribute) ast2).value;
+                final exprType value = ((Attribute) ast2).value;
+                if (value != null) {
+                    ast2 = value;
+                } else {
+                    break;
+                }
             } else {
                 Call c = (Call) ast2;
                 if (c.func != null) {

@@ -422,7 +422,7 @@ public class OccurrencesAnalyzerPy310Test extends AnalysisTestsBase {
 
     public void testWildcardPattern() {
         doc = new Document(""
-                + "match \"foo bar\".split()\n"
+                + "match \"foo bar\".split():\n"
                 + "    case (\"doo\", \"lee\"):\n"
                 + "        pass\n"
                 + "    case _:\n"
@@ -433,7 +433,7 @@ public class OccurrencesAnalyzerPy310Test extends AnalysisTestsBase {
     public void testNonPatternWildcard() {
         doc = new Document(""
                 + "x = 10\n"
-                + "match \"foo bar\".split()\n"
+                + "match \"foo bar\".split():\n"
                 + "    case (\"doo\", \"lee\"):\n"
                 + "        pass\n"
                 + "x = _");
@@ -443,7 +443,7 @@ public class OccurrencesAnalyzerPy310Test extends AnalysisTestsBase {
     public void testNonPatternWildcard2() {
         doc = new Document(""
                 + "x = 10\n"
-                + "match \"foo bar\".split()\n"
+                + "match \"foo bar\".split():\n"
                 + "    case (\"doo\", \"lee\"):\n"
                 + "        pass\n"
                 + "    case _:\n"

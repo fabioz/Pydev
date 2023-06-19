@@ -726,8 +726,12 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
     public Object visitAttribute(Attribute node) throws Exception {
         fixNode(node);
 
-        node.value.accept(this);
-        node.attr.accept(this);
+        if (node.value != null) {
+            node.value.accept(this);
+        }
+        if (node.attr != null) {
+            node.attr.accept(this);
+        }
 
         fixAfterNode(node);
         return null;
