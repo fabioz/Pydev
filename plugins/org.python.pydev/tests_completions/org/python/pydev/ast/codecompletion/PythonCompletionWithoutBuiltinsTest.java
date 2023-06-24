@@ -3493,4 +3493,36 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         requestCompl(s, s.length(), -1, new String[] { "open(name, mode, pwd)" });
     }
 
+    public void testForwardDeclarationCompletion1() throws Exception {
+        String s;
+        s = "" +
+                "from typing import Optional\n" +
+                "                           \n" +
+                "def a() -> 'Optional[C]':  \n" +
+                "    ...                    \n" +
+                "                           \n" +
+                "class C:                   \n" +
+                "    def d(self):           \n" +
+                "        ...                \n" +
+                "                           \n" +
+                "a().";
+        requestCompl(s, s.length(), -1, new String[] { "d()" });
+    }
+
+    public void testForwardDeclarationCompletion2() throws Exception {
+        String s;
+        s = "" +
+                "from typing import Optional\n" +
+                "                           \n" +
+                "def a() -> Optional['C']:  \n" +
+                "    ...                    \n" +
+                "                           \n" +
+                "class C:                   \n" +
+                "    def d(self):           \n" +
+                "        ...                \n" +
+                "                           \n" +
+                "a().";
+        requestCompl(s, s.length(), -1, new String[] { "d()" });
+    }
+
 }

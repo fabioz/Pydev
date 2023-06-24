@@ -2220,7 +2220,15 @@ public final class NodeUtils {
                 && "Optional".equals(((Name) ((Subscript) node).value).id)
                 && ((Subscript) node).slice instanceof Index
                 && ((Index) ((Subscript) node).slice).value != null) {
-            return ((Index) ((Subscript) node).slice).value;
+            final exprType value = ((Index) ((Subscript) node).slice).value;
+            if (value instanceof Str) {
+                // If it's a Str, convert it to a name load
+                // The case is that we have something as: Optional['C'],
+                // where 'C' is a string for a forward definition.
+                Str str = (Str) value;
+                return new Name(str.s, Name.Load, false);
+            }
+            return value;
         }
         return node;
     }
