@@ -69,7 +69,7 @@ public interface ISimpleNodeSwitch {
     public void visit(MatchSequence node);
     public void visit(MatchMapping node);
     public void visit(MatchClass node);
-    public void visit(MatchKeyword node);
+    public void visit(MatchKeyVal node);
     public void visit(MatchAs node);
     public void visit(MatchOr node);
 }

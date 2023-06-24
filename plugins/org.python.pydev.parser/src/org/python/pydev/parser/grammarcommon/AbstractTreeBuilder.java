@@ -965,7 +965,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
 
     }
 
-    protected SimpleNode popMatchAttributeInMatch(int arity) throws ParseException {
+    protected Attribute popMatchAttributeInMatch(int arity) throws ParseException {
         Attribute attr = null;
         for (int i = 0; i < arity - 1; i++) {
             if (attr == null) {

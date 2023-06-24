@@ -175,7 +175,7 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
 
     protected final void addAndReportException(String cls, SimpleNode nodeFound) throws ParseException {
         this.stack.getGrammar().addAndReport(
-                new ParseException("Syntax error. Expected " + cls + ", found: " + nodeFound.getClass().getName(),
+                new ParseException("Syntax error. Expected " + cls + ", found: " + nodeFound,
                         nodeFound),
                 "Treated class cast exception making " + cls);
     }

@@ -4476,29 +4476,35 @@ public final class PythonGrammar311 extends AbstractPythonGrammar implements/*@b
   }
 
   final public void literal_pattern() throws ParseException {
-    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case PLUS:
-    case MINUS:
-    case DECNUMBER:
-    case HEXNUMBER:
-    case OCTNUMBER:
-    case BINNUMBER:
-    case FLOAT:
-    case COMPLEX:
-      signed_number();
+                         /*@bgen(jjtree) literal_pattern */
+  SimpleNode jjtn000 = builder.openNode( JJTLITERAL_PATTERN);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+  jjtreeOpenNodeScope(jjtn000);
+    try {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case PLUS:
       case MINUS:
+      case DECNUMBER:
+      case HEXNUMBER:
+      case OCTNUMBER:
+      case BINNUMBER:
+      case FLOAT:
+      case COMPLEX:
+        signed_number();
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case PLUS:
-          jj_consume_token(PLUS);
+        case MINUS:
+          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+          case PLUS:
+            jj_consume_token(PLUS);
                  SimpleNode jjtn001 = builder.openNode( JJTADD_2OP);
                  boolean jjtc001 = true;
                  jjtree.openNodeScope(jjtn001);
                  jjtreeOpenNodeScope(jjtn001);
-          try {
-            signed_number();
-          } catch (Throwable jjte001) {
+            try {
+              signed_number();
+            } catch (Throwable jjte001) {
                  if (jjtc001) {
                    jjtree.clearNodeScope(jjtn001);
                    jjtc001 = false;
@@ -4512,22 +4518,22 @@ public final class PythonGrammar311 extends AbstractPythonGrammar implements/*@b
                    {if (true) throw (ParseException)jjte001;}
                  }
                  {if (true) throw (Error)jjte001;}
-          } finally {
+            } finally {
                  if (jjtc001) {
                    jjtree.closeNodeScope(jjtn001,  2);
                    jjtreeCloseNodeScope(jjtn001);
                  }
-          }
-          break;
-        case MINUS:
-          jj_consume_token(MINUS);
+            }
+            break;
+          case MINUS:
+            jj_consume_token(MINUS);
                     SimpleNode jjtn002 = builder.openNode( JJTSUB_2OP);
                     boolean jjtc002 = true;
                     jjtree.openNodeScope(jjtn002);
                     jjtreeOpenNodeScope(jjtn002);
-          try {
-            signed_number();
-          } catch (Throwable jjte002) {
+            try {
+              signed_number();
+            } catch (Throwable jjte002) {
                     if (jjtc002) {
                       jjtree.clearNodeScope(jjtn002);
                       jjtc002 = false;
@@ -4541,55 +4547,75 @@ public final class PythonGrammar311 extends AbstractPythonGrammar implements/*@b
                       {if (true) throw (ParseException)jjte002;}
                     }
                     {if (true) throw (Error)jjte002;}
-          } finally {
+            } finally {
                     if (jjtc002) {
                       jjtree.closeNodeScope(jjtn002,  2);
                       jjtreeCloseNodeScope(jjtn002);
                     }
+            }
+            break;
+          default:
+            jj_la1[95] = jj_gen;
+            jj_consume_token(-1);
+            throw new ParseException();
           }
           break;
         default:
-          jj_la1[95] = jj_gen;
-          jj_consume_token(-1);
-          throw new ParseException();
+          jj_la1[96] = jj_gen;
+          ;
         }
         break;
+      case SINGLE_STRING:
+      case SINGLE_STRING2:
+      case TRIPLE_STRING:
+      case TRIPLE_STRING2:
+      case SINGLE_BSTRING:
+      case SINGLE_BSTRING2:
+      case TRIPLE_BSTRING:
+      case TRIPLE_BSTRING2:
+      case SINGLE_FSTRING:
+      case SINGLE_FSTRING2:
+      case TRIPLE_FSTRING:
+      case TRIPLE_FSTRING2:
+      case SINGLE_USTRING:
+      case SINGLE_USTRING2:
+      case TRIPLE_USTRING:
+      case TRIPLE_USTRING2:
+        String();
+        break;
+      case NONE:
+        jj_consume_token(NONE);
+        break;
+      case TRUE:
+        jj_consume_token(TRUE);
+        break;
+      case FALSE:
+        jj_consume_token(FALSE);
+        break;
       default:
-        jj_la1[96] = jj_gen;
-        ;
+        jj_la1[97] = jj_gen;
+        jj_consume_token(-1);
+        throw new ParseException();
       }
-      break;
-    case SINGLE_STRING:
-    case SINGLE_STRING2:
-    case TRIPLE_STRING:
-    case TRIPLE_STRING2:
-    case SINGLE_BSTRING:
-    case SINGLE_BSTRING2:
-    case TRIPLE_BSTRING:
-    case TRIPLE_BSTRING2:
-    case SINGLE_FSTRING:
-    case SINGLE_FSTRING2:
-    case TRIPLE_FSTRING:
-    case TRIPLE_FSTRING2:
-    case SINGLE_USTRING:
-    case SINGLE_USTRING2:
-    case TRIPLE_USTRING:
-    case TRIPLE_USTRING2:
-      String();
-      break;
-    case NONE:
-      jj_consume_token(NONE);
-      break;
-    case TRUE:
-      jj_consume_token(TRUE);
-      break;
-    case FALSE:
-      jj_consume_token(FALSE);
-      break;
-    default:
-      jj_la1[97] = jj_gen;
-      jj_consume_token(-1);
-      throw new ParseException();
+    } catch (Throwable jjte000) {
+      if (jjtc000) {
+        jjtree.clearNodeScope(jjtn000);
+        jjtc000 = false;
+      } else {
+        jjtree.popNode();
+      }
+      if (jjte000 instanceof RuntimeException) {
+        {if (true) throw (RuntimeException)jjte000;}
+      }
+      if (jjte000 instanceof ParseException) {
+        {if (true) throw (ParseException)jjte000;}
+      }
+      {if (true) throw (Error)jjte000;}
+    } finally {
+      if (jjtc000) {
+        jjtree.closeNodeScope(jjtn000, true);
+        jjtreeCloseNodeScope(jjtn000);
+      }
     }
   }
 

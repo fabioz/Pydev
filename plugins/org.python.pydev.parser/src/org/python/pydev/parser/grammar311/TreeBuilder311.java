@@ -35,7 +35,7 @@ import org.python.pydev.parser.jython.ast.ListComp;
 import org.python.pydev.parser.jython.ast.Match;
 import org.python.pydev.parser.jython.ast.MatchAs;
 import org.python.pydev.parser.jython.ast.MatchClass;
-import org.python.pydev.parser.jython.ast.MatchKeyword;
+import org.python.pydev.parser.jython.ast.MatchKeyVal;
 import org.python.pydev.parser.jython.ast.MatchMapping;
 import org.python.pydev.parser.jython.ast.MatchOr;
 import org.python.pydev.parser.jython.ast.MatchSequence;
@@ -612,48 +612,85 @@ public final class TreeBuilder311 extends AbstractTreeBuilder implements ITreeBu
                     }
                     return popNode;
                 } else if (arity == 2) {
-                    NameTok asname = makeNameTok(NameTok.PatternName);
+                    Name asname = (Name) securePop(Name.class);
+                    asname.ctx = Name.Store;
                     patternType pattern = (patternType) securePop(patternType.class);
                     return new MatchAs(pattern, asname);
                 }
                 addAndReportException(patternType.class.getName());
                 return getDefaultInvalidPattern();
 
+            case JJTLITERAL_PATTERN:
+                exprType exp = (exprType) securePop(exprType.class);
+                if (exp instanceof Name) {
+                    Name name = (Name) exp;
+                    name.ctx = Name.Store;
+                }
+                return new MatchValue(exp);
+
             case JJTCLOSED_PATTERN:
                 popSurplus(arity, 2);
                 if (arity == 1) {
-                    return stack.popNode();
+                    return securePop(patternType.class);
                 } else if (arity == 2) {
                     MatchClass classPattern = (MatchClass) securePop(MatchClass.class);
-                    exprType cls = (exprType) securePop(exprType.class);
-                    return new MatchClass(cls, classPattern.args);
+                    SimpleNode cls = stack.popNode();
+                    if (cls instanceof exprType) {
+                        classPattern.cls = (exprType) cls;
+                        return classPattern;
+                    } else if (cls instanceof MatchValue) {
+                        MatchValue matchValue = (MatchValue) cls;
+                        ctx.setLoad(matchValue.value);
+                        classPattern.cls = matchValue.value;
+                        return classPattern;
+                    }
                 }
                 addAndReportException(exprType.class.getName());
                 return getDefaultInvalidExpr();
 
             case JJTKEY_VALUE_PATTERN:
                 popSurplus(arity, 2);
+                if (arity == 1) {
+                    // This means we got into the double_star_pattern()
+                    // and we just have a Name there. This is the '**rest'
+                    Name doubleStarName = (Name) securePop(Name.class);
+                    doubleStarName.ctx = Name.Store;
+                    return doubleStarName;
+                }
+
                 if (arity == 2) {
                     patternType pattern = (patternType) securePop(patternType.class);
-                    exprType arg = (exprType) securePop(exprType.class);
-                    return new MatchKeyword(arg, pattern);
+                    MatchValue arg = (MatchValue) securePop(MatchValue.class);
+
+                    // We want the expr in the MatchValue. As we're removing the MatchValue itself
+                    // we need to copy what it had before.
+                    this.addSpecialsAndClearOriginal(arg, arg.value);
+
+                    MatchKeyVal matchKeyword = new MatchKeyVal(arg.value, pattern);
+                    return matchKeyword;
                 }
                 addAndReportException(exprType.class.getName());
                 return getDefaultInvalidExpr();
 
             case JJTMAPPING_PATTERN:
                 if (arity > 0) {
-                    exprType[] keys = new exprType[arity];
-                    patternType[] patterns = new patternType[arity];
+                    java.util.List<patternType> lst = new ArrayList<>();
+                    Name rest = null;
                     for (int i = arity - 1; i >= 0; i--) {
-                        MatchKeyword pattern = (MatchKeyword) securePop(MatchKeyword.class);
-                        keys[i] = pattern.arg;
-                        patterns[i] = pattern.value;
+                        SimpleNode found = stack.popNode();
+                        if (found instanceof MatchKeyVal) {
+                            lst.add((MatchKeyVal) found);
+                        } else {
+                            if (found instanceof Name) {
+                                rest = (Name) found;
+                            }
+                        }
                     }
-                    return new MatchMapping(keys, patterns);
+                    Collections.reverse(lst);
+                    return new MatchMapping(lst.toArray(new patternType[0]), rest);
                 }
-                addAndReportException(MatchKeyword.class.getName());
-                return new MatchMapping(new exprType[0], new patternType[0]);
+                addAndReportException(MatchKeyVal.class.getName());
+                return new MatchMapping(new patternType[0], null);
 
             case JJTLIST_PATTERN:
                 return createMatchSequence(arity, enclosingType.LIST);
@@ -664,18 +701,19 @@ public final class TreeBuilder311 extends AbstractTreeBuilder implements ITreeBu
             case JJTATTR:
                 if (arity == 1) {
                     if (isPeekedNodeWildcardPattern()) {
-                        return new MatchValue(makeName(Name.Pattern));
+                        return new MatchValue(makeName(Name.Artificial));
                     }
-                    return stack.popNode();
+                    return new MatchValue(makeName(Name.Store));
                 } else if (arity >= 2) {
                     SimpleNode peekedNode = stack.peekNode();
                     if (peekedNode instanceof patternType) {
                         popSurplus(arity, 2);
                         patternType pattern = (patternType) securePop(patternType.class);
                         Name arg = makeName(Name.Artificial);
-                        return new MatchKeyword(arg, pattern);
+                        return new MatchKeyVal(arg, pattern);
                     } else {
-                        return popMatchAttributeInMatch(arity);
+                        Attribute attr = popMatchAttributeInMatch(arity);
+                        return new MatchValue(attr);
                     }
                 }
                 addAndReportException(Attribute.class.getName());
@@ -810,8 +848,8 @@ public final class TreeBuilder311 extends AbstractTreeBuilder implements ITreeBu
             return new Suite(getDefaultBody());
         } else if (MatchClass.class.equals(cls)) {
             return new MatchClass(getDefaultInvalidExpr(), null);
-        } else if (MatchKeyword.class.equals(cls)) {
-            return new MatchKeyword(getDefaultInvalidExpr(), getDefaultInvalidPattern());
+        } else if (MatchKeyVal.class.equals(cls)) {
+            return new MatchKeyVal(getDefaultInvalidExpr(), getDefaultInvalidPattern());
         }
         throw new Exception("Could not find any invalid default node for " + cls.getName());
     }

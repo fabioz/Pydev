@@ -69,7 +69,7 @@ public interface VisitorIF {
     public Object visitMatchSequence(MatchSequence node) throws Exception;
     public Object visitMatchMapping(MatchMapping node) throws Exception;
     public Object visitMatchClass(MatchClass node) throws Exception;
-    public Object visitMatchKeyword(MatchKeyword node) throws Exception;
+    public Object visitMatchKeyVal(MatchKeyVal node) throws Exception;
     public Object visitMatchAs(MatchAs node) throws Exception;
     public Object visitMatchOr(MatchOr node) throws Exception;
 }

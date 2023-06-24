@@ -167,4 +167,5 @@ public interface ITreeConstants {
     public static final int JJTLIST_PATTERN = 659;
     public static final int JJTTUPLE_PATTERN = 660;
     public static final int JJTBEGIN_EXCEPT_MULTIPLY_CLAUSE = 661;
+    public static final int JJTLITERAL_PATTERN = 662;
 }

@@ -487,4 +487,50 @@ public class PyParser310Test extends PyParserTestBase {
         });
     }
 
+    public void testMatchLiteralAs() {
+        checkWithAllGrammars310Onwards((grammarVersion) -> {
+            String s = ""
+                    + "def swallow_report(bird):\n"
+                    + "    match bird:\n"
+                    + "        case {\"family\": \"Hirundinidae\" as fam}:\n"
+                    + "            print(fam)\n"
+                    + "        case _:\n"
+                    + "            print(\"no match\")\n"
+                    + "\n"
+                    + "b1 = {\n"
+                    + "     \"family\": \"Hirundinidae\", \n"
+                    + "     \"status\": \"data deficient\"\n"
+                    + "    }\n"
+                    + "\n"
+                    + "swallow_report(b1)"
+                    + "";
+
+            parseLegalDocStr(s);
+            return true;
+        });
+    }
+
+    public void testMatchOther() {
+        checkWithAllGrammars310Onwards((grammarVersion) -> {
+            String s = ""
+                    + "def swallow_report(bird):\n"
+                    + "    match bird:\n"
+                    + "        case {\"family\": \"Hirundinidae\" as fam, **other}:\n"
+                    + "            print(fam)\n"
+                    + "            print(other)\n"
+                    + "        case _:\n"
+                    + "            print(\"no match\")\n"
+                    + "\n"
+                    + "b1 = {\n"
+                    + "     \"family\": \"Hirundinidae\", \n"
+                    + "     \"status\": \"data deficient\"\n"
+                    + "    }\n"
+                    + "\n"
+                    + "swallow_report(b1)"
+                    + "";
+            parseLegalDocStr(s);
+            return true;
+        });
+    }
+
 }

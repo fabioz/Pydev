@@ -44,7 +44,7 @@ import org.python.pydev.parser.jython.ast.ListComp;
 import org.python.pydev.parser.jython.ast.Match;
 import org.python.pydev.parser.jython.ast.MatchAs;
 import org.python.pydev.parser.jython.ast.MatchClass;
-import org.python.pydev.parser.jython.ast.MatchKeyword;
+import org.python.pydev.parser.jython.ast.MatchKeyVal;
 import org.python.pydev.parser.jython.ast.MatchMapping;
 import org.python.pydev.parser.jython.ast.MatchOr;
 import org.python.pydev.parser.jython.ast.MatchSequence;
@@ -1718,7 +1718,7 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     public Object visitMatchClass(MatchClass node) throws Exception {
         beforeNode(node);
         node.cls.accept(this);
-        doc.addRequire("(", node);
+        doc.addRequire("(", lastNode);
         if (node.args != null) {
             for (int i = 0; i < node.args.length; i++) {
                 if (i > 0) {
@@ -1734,9 +1734,9 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     }
 
     @Override
-    public Object visitMatchKeyword(MatchKeyword node) throws Exception {
+    public Object visitMatchKeyVal(MatchKeyVal node) throws Exception {
         beforeNode(node);
-        node.arg.accept(this);
+        node.key.accept(this);
         doc.addRequire("=", lastNode);
         node.value.accept(this);
         afterNode(node);
@@ -1745,16 +1745,18 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
 
     @Override
     public Object visitMatchMapping(MatchMapping node) throws Exception {
-        int length = node.keys.length;
+        int length = node.keyValues.length;
         beforeNode(node);
         doc.addRequire("{", lastNode);
         for (int i = 0; i < length; i++) {
             if (i > 0) {
                 doc.addRequire(",", lastNode);
             }
-            node.keys[i].accept(this);
+            MatchKeyVal keyValue = (MatchKeyVal) node.keyValues[i];
+
+            keyValue.key.accept(this);
             doc.addRequire(":", lastNode);
-            node.values[i].accept(this);
+            keyValue.value.accept(this);
         }
         doc.addRequire("}", lastNode);
         afterNode(node);

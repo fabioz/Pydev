@@ -1163,7 +1163,7 @@ void closed_pattern() : {}
     // | wildcard_pattern() "_" is matched as a regular Name
 }
 
-void literal_pattern() #void : {}
+void literal_pattern(): {}
 {
     signed_number() (
         <PLUS> signed_number() #add_2op(2)

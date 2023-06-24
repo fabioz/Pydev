@@ -13,7 +13,6 @@ public interface name_contextType {
     public static final int Attrib = 8;
     public static final int GlobalName = 9;
     public static final int NonLocalName = 10;
-    public static final int PatternName = 11;
 
     public static final String[] name_contextTypeNames = new String[] {
         "<undef>",
@@ -27,6 +26,5 @@ public interface name_contextType {
         "Attrib",
         "GlobalName",
         "NonLocalName",
-        "PatternName",
     };
 }

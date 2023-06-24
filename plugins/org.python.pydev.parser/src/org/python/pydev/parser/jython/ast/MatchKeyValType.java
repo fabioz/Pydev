@@ -4,21 +4,21 @@ package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 import java.util.Arrays;
 
-public final class MatchAs extends patternType {
-    public patternType pattern;
-    public exprType asname;
+public final class MatchKeyValType extends SimpleNode {
+    public exprType key;
+    public patternType value;
 
-    public MatchAs(patternType pattern, exprType asname) {
-        this.pattern = pattern;
-        this.asname = asname;
+    public MatchKeyValType(exprType key, patternType value) {
+        this.key = key;
+        this.value = value;
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((pattern == null) ? 0 : pattern.hashCode());
-        result = prime * result + ((asname == null) ? 0 : asname.hashCode());
+        result = prime * result + ((key == null) ? 0 : key.hashCode());
+        result = prime * result + ((value == null) ? 0 : value.hashCode());
         return result;
     }
 
@@ -27,22 +27,22 @@ public final class MatchAs extends patternType {
         if (this == obj) return true;
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
-        MatchAs other = (MatchAs) obj;
-        if (pattern == null) { if (other.pattern != null) return false;}
-        else if (!pattern.equals(other.pattern)) return false;
-        if (asname == null) { if (other.asname != null) return false;}
-        else if (!asname.equals(other.asname)) return false;
+        MatchKeyValType other = (MatchKeyValType) obj;
+        if (key == null) { if (other.key != null) return false;}
+        else if (!key.equals(other.key)) return false;
+        if (value == null) { if (other.value != null) return false;}
+        else if (!value.equals(other.value)) return false;
         return true;
     }
     @Override
-    public MatchAs createCopy() {
+    public MatchKeyValType createCopy() {
         return createCopy(true);
     }
     @Override
-    public MatchAs createCopy(boolean copyComments) {
-        MatchAs temp = new
-        MatchAs(pattern!=null?(patternType)pattern.createCopy(copyComments):null,
-        asname!=null?(exprType)asname.createCopy(copyComments):null);
+    public MatchKeyValType createCopy(boolean copyComments) {
+        MatchKeyValType temp = new
+        MatchKeyValType(key!=null?(exprType)key.createCopy(copyComments):null,
+        value!=null?(patternType)value.createCopy(copyComments):null);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
         if(this.specialsBefore != null && copyComments){
@@ -66,28 +66,33 @@ public final class MatchAs extends patternType {
 
     @Override
     public String toString() {
-        StringBuffer sb = new StringBuffer("MatchAs[");
-        sb.append("pattern=");
-        sb.append(dumpThis(this.pattern));
+        StringBuffer sb = new StringBuffer("MatchKeyVal[");
+        sb.append("key=");
+        sb.append(dumpThis(this.key));
         sb.append(", ");
-        sb.append("asname=");
-        sb.append(dumpThis(this.asname));
+        sb.append("value=");
+        sb.append(dumpThis(this.value));
         sb.append("]");
         return sb.toString();
     }
 
     @Override
     public Object accept(VisitorIF visitor) throws Exception {
-        return visitor.visitMatchAs(this);
+        if (visitor instanceof VisitorBase) {
+            ((VisitorBase) visitor).traverse(this);
+        } else {
+            traverse(visitor);
+        }
+        return null;
     }
 
     @Override
     public void traverse(VisitorIF visitor) throws Exception {
-        if (pattern != null) {
-            pattern.accept(visitor);
+        if (key != null) {
+            key.accept(visitor);
         }
-        if (asname != null) {
-            asname.accept(visitor);
+        if (value != null) {
+            value.accept(visitor);
         }
     }
 

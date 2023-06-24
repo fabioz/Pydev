@@ -49,6 +49,13 @@ public class CtxVisitor extends Visitor {
         }
     }
 
+    public void setLoad(SimpleNode node) throws Exception {
+        if (node != null) {
+            this.ctx = expr_contextType.Load;
+            visit(node);
+        }
+    }
+
     public void setNamedStore(SimpleNode node) throws Exception {
         if (node != null) {
             this.ctx = expr_contextType.NamedStore;

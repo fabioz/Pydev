@@ -16,7 +16,7 @@ module Python
 
 	NameTok = NameTok(identifier id, name_context ctx)
 
-	name_context = ClassName | FunctionName | KeywordName | ImportName | VarArg | KwArg | ImportModule | Attrib | GlobalName | NonLocalName | PatternName
+	name_context = ClassName | FunctionName | KeywordName | ImportName | VarArg | KwArg | ImportModule | Attrib | GlobalName | NonLocalName
 
 	-- the body is an array of statements (this is not used for all constructs because initially the suite was 'inlined'
 	-- in the constructs, but some information was lost in this way).
@@ -114,7 +114,7 @@ module Python
 	-- the Artificial context is not actually used in the parser directly. It is used in the application
 	-- to create 'artificial' names, as if it was a regular name (e.g.: create a name for a match inside
 	-- a comment or string)
-	expr_context = Load | Store | Del | AugLoad | AugStore | Param | Artificial | KwOnlyParam |  NamedStore | Pattern
+	expr_context = Load | Store | Del | AugLoad | AugStore | Param | Artificial | KwOnlyParam |  NamedStore
 
 	-- This identifies whether the list comprehension was created when we were matching a list, tuple or none of those.
 	comp_context = ListCtx | TupleCtx | EmptyCtx
@@ -171,11 +171,14 @@ module Python
 
 	pattern = MatchValue(expr value)
             | MatchSequence(pattern* patterns, enclosing enclosing)
-            | MatchMapping(expr* keys, pattern* values)
+            -- keyValues is actually MatchKeyVal*
+            -- rest is actually Name
+            | MatchMapping(pattern* keyValues, expr? rest)
             | MatchClass(expr cls, pattern* args)
-            | MatchKeyword(expr arg, pattern value)
+            | MatchKeyVal(expr key, pattern value)
 
-            | MatchAs(pattern? pattern, NameTok? asname)
+			-- asname is actually Name
+            | MatchAs(pattern? pattern, expr? asname)
             | MatchOr(pattern* patterns)
 
          	attributes (int lineno, int col_offset, int end_lineno, int end_col_offset)

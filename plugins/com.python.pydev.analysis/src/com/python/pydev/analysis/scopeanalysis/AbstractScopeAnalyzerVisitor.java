@@ -548,7 +548,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
     @Override
     public Object visitNameTok(NameTok nameTok) throws Exception {
         unhandled_node(nameTok);
-        if (nameTok.ctx == NameTok.VarArg || nameTok.ctx == NameTok.KwArg || nameTok.ctx == NameTok.PatternName) {
+        if (nameTok.ctx == NameTok.VarArg || nameTok.ctx == NameTok.KwArg) {
             SourceToken token = AbstractVisitor.makeToken(nameTok, moduleName, nature, this.current);
             scope.addToken(token, token, (nameTok).id);
             if (checkCurrentScopeForAssignmentsToBuiltins()) {

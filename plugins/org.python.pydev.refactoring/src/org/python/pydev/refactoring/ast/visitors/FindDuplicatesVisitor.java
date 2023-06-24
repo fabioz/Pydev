@@ -50,7 +50,7 @@ import org.python.pydev.parser.jython.ast.ListComp;
 import org.python.pydev.parser.jython.ast.Match;
 import org.python.pydev.parser.jython.ast.MatchAs;
 import org.python.pydev.parser.jython.ast.MatchClass;
-import org.python.pydev.parser.jython.ast.MatchKeyword;
+import org.python.pydev.parser.jython.ast.MatchKeyVal;
 import org.python.pydev.parser.jython.ast.MatchMapping;
 import org.python.pydev.parser.jython.ast.MatchOr;
 import org.python.pydev.parser.jython.ast.MatchSequence;
@@ -839,7 +839,7 @@ public class FindDuplicatesVisitor implements VisitorIF {
     }
 
     @Override
-    public Object visitMatchKeyword(MatchKeyword node) throws Exception {
+    public Object visitMatchKeyVal(MatchKeyVal node) throws Exception {
         boolean ret = unhandled_node(node);
         if (ret) {
             traverse(node);

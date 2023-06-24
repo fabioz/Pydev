@@ -183,7 +183,6 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
         assertEquals(GRAMMAR_TO_USE_FOR_PARSING, nature.getGrammarVersion());
         try {
             final SourceModule mod = AbstractModule.createModuleFromDoc(null, null, doc, nature, true);
-            System.out.println(mod.getAst());
             return analyzer.analyzeDocument(nature, mod, prefs, doc, new NullProgressMonitor(),
                     new TestIndentPrefs(true, 4));
         } catch (MisconfigurationException e) {

@@ -49,13 +49,4 @@ public class PyParser311Test extends PyParserTestBase {
         assertTrue(t.handlers[0].isExceptionGroup);
     }
 
-    public void testRegularMatchCase() {
-        String s = ""
-                + "match = {}            \n"
-                + "match['x'] = 1        \n"
-                + "match.update({'x': 1})\n"
-                + "";
-
-        parseLegalDocStr(s);
-    }
 }

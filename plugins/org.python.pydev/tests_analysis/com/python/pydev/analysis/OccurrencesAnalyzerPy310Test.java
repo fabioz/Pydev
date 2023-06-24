@@ -519,4 +519,28 @@ public class OccurrencesAnalyzerPy310Test extends AnalysisTestsBase {
                 + "    print(b)");
         checkNoError();
     }
+
+    public void testRestInMatch() {
+        doc = new Document("def swallow_report(bird):\n"
+                + "    match bird:\n"
+                + "        case {\"family\": \"Hirundinidae\" as fam, \"common name\": cn, **other}:\n"
+                + "            print(f\"The {cn} is a kind of swallow, a member of the {fam} family.\")\n"
+                + "            for key, value in other.items():\n"
+                + "                print(f\"\\t{key}: {value}\")\n"
+                + "        case {\"common name\": cn, **other}:\n"
+                + "            print(f'The {cn} is not a kind of swallow.')\n"
+                + "        case _:\n"
+                + "            print(\"no match\")\n"
+                + "\n"
+                + "b1 = {\n"
+                + "     \"common name\": \"African river martin\", \n"
+                + "     \"species\": \"Pseudochelidon eurystomina\",\n"
+                + "     \"family\": \"Hirundinidae\", \n"
+                + "     \"migrates\": True,\n"
+                + "     \"status\": \"data deficient\"\n"
+                + "    }\n"
+                + "\n"
+                + "swallow_report(b1)");
+        checkNoError();
+    }
 }

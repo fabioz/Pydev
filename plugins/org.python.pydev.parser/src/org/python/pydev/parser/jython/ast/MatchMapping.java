@@ -5,20 +5,20 @@ import org.python.pydev.parser.jython.SimpleNode;
 import java.util.Arrays;
 
 public final class MatchMapping extends patternType {
-    public exprType[] keys;
-    public patternType[] values;
+    public patternType[] keyValues;
+    public exprType rest;
 
-    public MatchMapping(exprType[] keys, patternType[] values) {
-        this.keys = keys;
-        this.values = values;
+    public MatchMapping(patternType[] keyValues, exprType rest) {
+        this.keyValues = keyValues;
+        this.rest = rest;
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + Arrays.hashCode(keys);
-        result = prime * result + Arrays.hashCode(values);
+        result = prime * result + Arrays.hashCode(keyValues);
+        result = prime * result + ((rest == null) ? 0 : rest.hashCode());
         return result;
     }
 
@@ -28,8 +28,9 @@ public final class MatchMapping extends patternType {
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
         MatchMapping other = (MatchMapping) obj;
-        if (!Arrays.equals(keys, other.keys)) return false;
-        if (!Arrays.equals(values, other.values)) return false;
+        if (!Arrays.equals(keyValues, other.keyValues)) return false;
+        if (rest == null) { if (other.rest != null) return false;}
+        else if (!rest.equals(other.rest)) return false;
         return true;
     }
     @Override
@@ -38,26 +39,18 @@ public final class MatchMapping extends patternType {
     }
     @Override
     public MatchMapping createCopy(boolean copyComments) {
-        exprType[] new0;
-        if(this.keys != null){
-        new0 = new exprType[this.keys.length];
-        for(int i=0;i<this.keys.length;i++){
-            new0[i] = (exprType) (this.keys[i] != null? this.keys[i].createCopy(copyComments):null);
+        patternType[] new0;
+        if(this.keyValues != null){
+        new0 = new patternType[this.keyValues.length];
+        for(int i=0;i<this.keyValues.length;i++){
+            new0[i] = (patternType) (this.keyValues[i] != null?
+            this.keyValues[i].createCopy(copyComments):null);
         }
         }else{
-            new0 = this.keys;
+            new0 = this.keyValues;
         }
-        patternType[] new1;
-        if(this.values != null){
-        new1 = new patternType[this.values.length];
-        for(int i=0;i<this.values.length;i++){
-            new1[i] = (patternType) (this.values[i] != null?
-            this.values[i].createCopy(copyComments):null);
-        }
-        }else{
-            new1 = this.values;
-        }
-        MatchMapping temp = new MatchMapping(new0, new1);
+        MatchMapping temp = new MatchMapping(new0,
+        rest!=null?(exprType)rest.createCopy(copyComments):null);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
         if(this.specialsBefore != null && copyComments){
@@ -82,11 +75,11 @@ public final class MatchMapping extends patternType {
     @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("MatchMapping[");
-        sb.append("keys=");
-        sb.append(dumpThis(this.keys));
+        sb.append("keyValues=");
+        sb.append(dumpThis(this.keyValues));
         sb.append(", ");
-        sb.append("values=");
-        sb.append(dumpThis(this.values));
+        sb.append("rest=");
+        sb.append(dumpThis(this.rest));
         sb.append("]");
         return sb.toString();
     }
@@ -98,19 +91,15 @@ public final class MatchMapping extends patternType {
 
     @Override
     public void traverse(VisitorIF visitor) throws Exception {
-        if (keys != null) {
-            for (int i = 0; i < keys.length; i++) {
-                if (keys[i] != null) {
-                    keys[i].accept(visitor);
+        if (keyValues != null) {
+            for (int i = 0; i < keyValues.length; i++) {
+                if (keyValues[i] != null) {
+                    keyValues[i].accept(visitor);
                 }
             }
         }
-        if (values != null) {
-            for (int i = 0; i < values.length; i++) {
-                if (values[i] != null) {
-                    values[i].accept(visitor);
-                }
-            }
+        if (rest != null) {
+            rest.accept(visitor);
         }
     }
 

@@ -4,12 +4,12 @@ package org.python.pydev.parser.jython.ast;
 import org.python.pydev.parser.jython.SimpleNode;
 import java.util.Arrays;
 
-public final class MatchKeyword extends patternType {
-    public exprType arg;
+public final class MatchKeyVal extends patternType {
+    public exprType key;
     public patternType value;
 
-    public MatchKeyword(exprType arg, patternType value) {
-        this.arg = arg;
+    public MatchKeyVal(exprType key, patternType value) {
+        this.key = key;
         this.value = value;
     }
 
@@ -17,7 +17,7 @@ public final class MatchKeyword extends patternType {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((arg == null) ? 0 : arg.hashCode());
+        result = prime * result + ((key == null) ? 0 : key.hashCode());
         result = prime * result + ((value == null) ? 0 : value.hashCode());
         return result;
     }
@@ -27,20 +27,20 @@ public final class MatchKeyword extends patternType {
         if (this == obj) return true;
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
-        MatchKeyword other = (MatchKeyword) obj;
-        if (arg == null) { if (other.arg != null) return false;}
-        else if (!arg.equals(other.arg)) return false;
+        MatchKeyVal other = (MatchKeyVal) obj;
+        if (key == null) { if (other.key != null) return false;}
+        else if (!key.equals(other.key)) return false;
         if (value == null) { if (other.value != null) return false;}
         else if (!value.equals(other.value)) return false;
         return true;
     }
     @Override
-    public MatchKeyword createCopy() {
+    public MatchKeyVal createCopy() {
         return createCopy(true);
     }
     @Override
-    public MatchKeyword createCopy(boolean copyComments) {
-        MatchKeyword temp = new MatchKeyword(arg!=null?(exprType)arg.createCopy(copyComments):null,
+    public MatchKeyVal createCopy(boolean copyComments) {
+        MatchKeyVal temp = new MatchKeyVal(key!=null?(exprType)key.createCopy(copyComments):null,
         value!=null?(patternType)value.createCopy(copyComments):null);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
@@ -65,9 +65,9 @@ public final class MatchKeyword extends patternType {
 
     @Override
     public String toString() {
-        StringBuffer sb = new StringBuffer("MatchKeyword[");
-        sb.append("arg=");
-        sb.append(dumpThis(this.arg));
+        StringBuffer sb = new StringBuffer("MatchKeyVal[");
+        sb.append("key=");
+        sb.append(dumpThis(this.key));
         sb.append(", ");
         sb.append("value=");
         sb.append(dumpThis(this.value));
@@ -77,13 +77,13 @@ public final class MatchKeyword extends patternType {
 
     @Override
     public Object accept(VisitorIF visitor) throws Exception {
-        return visitor.visitMatchKeyword(this);
+        return visitor.visitMatchKeyVal(this);
     }
 
     @Override
     public void traverse(VisitorIF visitor) throws Exception {
-        if (arg != null) {
-            arg.accept(visitor);
+        if (key != null) {
+            key.accept(visitor);
         }
         if (value != null) {
             value.accept(visitor);
