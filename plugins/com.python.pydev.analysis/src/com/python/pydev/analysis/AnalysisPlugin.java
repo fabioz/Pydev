@@ -36,6 +36,7 @@ import org.python.pydev.shared_core.structure.Location;
 import com.python.pydev.analysis.flake8.Flake8PrefInitializer;
 import com.python.pydev.analysis.mypy.MypyPrefInitializer;
 import com.python.pydev.analysis.pylint.PyLintPrefInitializer;
+import com.python.pydev.analysis.ruff.RuffPrefInitializer;
 
 /**
  * The main plugin class to be used in the desktop.
@@ -67,6 +68,7 @@ public class AnalysisPlugin extends Plugin {
         PyLintPrefInitializer.initializeDefaultPreferences();
         MypyPrefInitializer.initializeDefaultPreferences();
         Flake8PrefInitializer.initializeDefaultPreferences();
+        RuffPrefInitializer.initializeDefaultPreferences();
 
         // We need to manually call it because it initializes things from org.python.pydev.
         new AnalysisPreferenceInitializer().initializeDefaultPreferences();

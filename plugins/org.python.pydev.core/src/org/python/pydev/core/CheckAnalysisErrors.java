@@ -87,6 +87,11 @@ public class CheckAnalysisErrors {
         return isErrorHandledAtLine(line, pyLintMessageId, codeAnalysisIgnoreMessage, flake8Code);
     }
 
+    public static boolean isRuffErrorHandledAtLine(String line, String ruffCode) {
+        // ruff and flake8 seem to have the same codes...
+        return isFlake8ErrorHandledAtLine(line, ruffCode);
+    }
+
     private static boolean isErrorHandledAtLine(String line, String pyLintMessageId, String codeAnalysisIgnoreMessage,
             String flake8Code) {
         int i = line.indexOf('#');

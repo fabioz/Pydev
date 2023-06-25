@@ -40,6 +40,7 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisVisitor;
 import com.python.pydev.analysis.flake8.Flake8VisitorFactory;
 import com.python.pydev.analysis.mypy.MypyVisitorFactory;
 import com.python.pydev.analysis.pylint.PyLintVisitorFactory;
+import com.python.pydev.analysis.ruff.RuffVisitorFactory;
 
 /**
  * @author fabioz
@@ -98,9 +99,11 @@ public class ForceCodeAnalysisOnTree extends PyResourceAction implements IObject
             IExternalCodeAnalysisVisitor pyLintVisitor = PyLintVisitorFactory.create(next, null, null, monitor);
             IExternalCodeAnalysisVisitor mypyVisitor = MypyVisitorFactory.create(next, null, null, monitor);
             IExternalCodeAnalysisVisitor flake8Visitor = Flake8VisitorFactory.create(next, null, null, monitor);
+            IExternalCodeAnalysisVisitor ruffVisitor = RuffVisitorFactory.create(next, null, null, monitor);
             externalVisitors.add(pyLintVisitor);
             externalVisitors.add(mypyVisitor);
             externalVisitors.add(flake8Visitor);
+            externalVisitors.add(ruffVisitor);
         } else if (next instanceof IFile) {
             if (PythonPathHelper.isValidSourceFile((IFile) next)) {
                 filesToVisit.add((IFile) next);

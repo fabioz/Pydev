@@ -104,6 +104,7 @@ import org.python.pydev.ui.pythonpathconf.PythonSelectionLibrariesDialog;
 import com.python.pydev.analysis.flake8.Flake8Preferences;
 import com.python.pydev.analysis.mypy.MypyPreferences;
 import com.python.pydev.analysis.pylint.PyLintPreferences;
+import com.python.pydev.analysis.ruff.RuffPreferences;
 
 /**
  * The main plugin class - initialized on startup - has resource bundle for internationalization - has preferences
@@ -218,6 +219,19 @@ public class PydevPlugin extends AbstractUIPlugin {
             if (MypyPreferences.useMypyConsole(projectAdaptable)) {
                 IOConsoleOutputStream console = MessageConsoles.getConsoleOutputStream("Mypy",
                         UIConstants.MYPY_ICON);
+
+                return ((string) -> {
+                    console.write(string);
+                });
+            } else {
+                return null;
+            }
+        });
+
+        RuffPreferences.createRuffStream = ((IAdaptable projectAdaptable) -> {
+            if (RuffPreferences.useRuffConsole(projectAdaptable)) {
+                IOConsoleOutputStream console = MessageConsoles.getConsoleOutputStream("Ruff",
+                        UIConstants.RUFF_ICON);
 
                 return ((string) -> {
                     console.write(string);

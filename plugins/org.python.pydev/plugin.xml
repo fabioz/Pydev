@@ -467,6 +467,11 @@
             name="Mypy"
             id="org.python.pydev.prefs.mypy"/>
       <page
+            class="org.python.pydev.builder.ruff.RuffPrefPage"
+            category="org.python.pydev.prefs.extensions.analysis"
+            name="Ruff"
+            id="org.python.pydev.prefs.ruff"/>
+      <page
             class="org.python.pydev.builder.flake8.Flake8PrefPage"
             category="org.python.pydev.prefs.extensions.analysis"
             name="Flake8"
@@ -1215,6 +1220,14 @@
         point="org.eclipse.core.resources.markers"
         name="Mypy Problem"
         id="mypyproblemmarker">
+       <super type="org.eclipse.core.resources.problemmarker"/>
+       <persistent value="true"/>
+    </extension>
+<!-- Communicate ruff problems as markers -->
+    <extension
+        point="org.eclipse.core.resources.markers"
+        name="Ruff Problem"
+        id="ruffproblemmarker">
        <super type="org.eclipse.core.resources.problemmarker"/>
        <persistent value="true"/>
     </extension>
