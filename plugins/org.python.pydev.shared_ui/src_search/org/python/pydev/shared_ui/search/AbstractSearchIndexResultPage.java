@@ -68,7 +68,6 @@ import org.eclipse.ui.part.IShowInTargetList;
 import org.eclipse.ui.part.ResourceTransfer;
 import org.eclipse.ui.part.ShowInContext;
 import org.eclipse.ui.progress.WorkbenchJob;
-import org.eclipse.ui.views.navigator.NavigatorDragAdapter;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.log.Log;
 import org.python.pydev.shared_core.structure.TreeNode;
@@ -221,7 +220,8 @@ public abstract class AbstractSearchIndexResultPage extends AbstractTextSearchVi
 
     protected abstract AbstractSearchResultsViewerFilter createFilterFilter(String text, boolean wholeWord);
 
-    protected static final String[] SHOW_IN_TARGETS = new String[] { IPageLayout.ID_RES_NAV };
+    protected static final String[] SHOW_IN_TARGETS = new String[] { "org.python.pydev.navigator.view",
+            IPageLayout.ID_PROJECT_EXPLORER };
     protected static final IShowInTargetList SHOW_IN_TARGET_LIST = new IShowInTargetList() {
         @Override
         public String[] getShowInTargetIds() {
