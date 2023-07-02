@@ -12,8 +12,6 @@ import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.search.internal.ui.SearchMessages;
-import org.eclipse.search.internal.ui.SearchPlugin;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DragSource;
 import org.eclipse.swt.dnd.DragSourceAdapter;
@@ -32,9 +30,9 @@ import org.eclipse.ui.statushandlers.StatusManager;
  * navigator. Copied from deprecated org.eclipse.ui.views.navigator.NavigatorDragAdapter
  */
 public class NavigatorDragAdapter extends DragSourceAdapter {
-    private static final String CHECK_MOVE_TITLE = SearchMessages.DragAdapter_title;
+    private static final String CHECK_MOVE_TITLE = "Check Move";
 
-    private static final String CHECK_DELETE_MESSAGE = SearchMessages.DragAdapter_checkDeleteMessage;
+    private static final String CHECK_DELETE_MESSAGE = "{0} is read-only. Do you still wish to delete it?";
 
     ISelectionProvider selectionProvider;
 
@@ -88,7 +86,7 @@ public class NavigatorDragAdapter extends DragSourceAdapter {
                 try {
                     resource.delete(IResource.KEEP_HISTORY | IResource.FORCE, null);
                 } catch (CoreException e) {
-                    StatusManager.getManager().handle(e, SearchPlugin.getID());
+                    StatusManager.getManager().handle(e, "org.python.pydev.shared_ui");
                 }
             }
         } else if (event.detail == DND.DROP_TARGET_MOVE) {
@@ -103,7 +101,7 @@ public class NavigatorDragAdapter extends DragSourceAdapter {
                 try {
                     resource.refreshLocal(IResource.DEPTH_INFINITE, null);
                 } catch (CoreException e) {
-                    StatusManager.getManager().handle(e, SearchPlugin.getID());
+                    StatusManager.getManager().handle(e, "org.python.pydev.shared_ui");
                 }
             }
         }

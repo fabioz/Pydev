@@ -12,7 +12,6 @@ import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.search.internal.ui.SearchPlugin;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DragSource;
 import org.eclipse.swt.dnd.DragSourceAdapter;
@@ -87,7 +86,7 @@ public class NavigatorDragAdapter extends DragSourceAdapter {
                 try {
                     resource.delete(IResource.KEEP_HISTORY | IResource.FORCE, null);
                 } catch (CoreException e) {
-                    StatusManager.getManager().handle(e, SearchPlugin.getID());
+                    StatusManager.getManager().handle(e, "com.python.pydev.refactoring");
                 }
             }
         } else if (event.detail == DND.DROP_TARGET_MOVE) {
@@ -102,7 +101,7 @@ public class NavigatorDragAdapter extends DragSourceAdapter {
                 try {
                     resource.refreshLocal(IResource.DEPTH_INFINITE, null);
                 } catch (CoreException e) {
-                    StatusManager.getManager().handle(e, SearchPlugin.getID());
+                    StatusManager.getManager().handle(e, "com.python.pydev.refactoring");
                 }
             }
         }
