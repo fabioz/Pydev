@@ -15,6 +15,7 @@ package org.python.pydev.editor.actions;
 import java.io.File;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
@@ -37,12 +38,14 @@ import org.python.pydev.core.autoedit.DefaultIndentPrefs;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.pep8.ISortRunner;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.PySelectionFromEditor;
 import org.python.pydev.editor.actions.organize_imports.ImportArranger;
 import org.python.pydev.editor.actions.organize_imports.Pep8ImportArranger;
-import org.python.pydev.jython.JythonModules;
 import org.python.pydev.parser.prettyprinterv2.IFormatter;
+import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.io.PyUnsupportedEncodingException;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.utils.DocUtils;
@@ -188,10 +191,30 @@ public class PyOrganizeImports extends PyAction implements IFormatter {
                                 }
                             }
                         }
-                        String isortResult = JythonModules.makeISort(fileContents,
-                                targetFile,
-                                knownThirdParty);
+                        String encoding = null;
+                        try {
+                            encoding = FileUtils.getPythonFileEncoding(doc, null);
+                        } catch (PyUnsupportedEncodingException e) {
+                            Log.log(e);
+                        }
+                        if (encoding == null) {
+                            encoding = "utf-8";
+                        }
+
+                        Optional<String> executableLocation = ImportsPreferencesPage
+                                .getISortExecutable(projectAdaptable);
+                        String[] args = ImportsPreferencesPage.getISortArguments(projectAdaptable);
+
+                        String isortResult = ISortRunner.formatWithISort(targetFile, edit.getPythonNature(),
+                                fileContents, encoding, targetFile.getParentFile(), args, knownThirdParty,
+                                executableLocation);
+
                         if (isortResult != null) {
+                            String delimiter = PySelection.getDelimiter(doc);
+                            if (!delimiter.equals(System.lineSeparator())) {
+                                // Argh, isort seems to not keep line delimiters, so, hack around it.
+                                isortResult = StringUtils.replaceAll(isortResult, System.lineSeparator(), delimiter);
+                            }
                             try {
                                 DocUtils.updateDocRangeWithContents(doc, fileContents, isortResult.toString());
                             } catch (Exception e) {

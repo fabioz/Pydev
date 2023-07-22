@@ -67,6 +67,7 @@ public class PyDevCorePreferencesInitializer {
                 PyFormatterPreferences.DEFAULT_BLANK_LINES_INNER);
         node.put(PyFormatterPreferences.BLACK_FORMATTER_LOCATION_OPTION,
                 PyFormatterPreferences.DEFAULT_BLACK_FORMATTER_LOCATION_OPTION);
+        node.put(PyFormatterPreferences.BLACK_PARAMETERS, PyFormatterPreferences.DEFAULT_BLACK_PARAMETERS);
 
         //file types
         node.put(FileTypesPreferences.VALID_SOURCE_FILES, FileTypesPreferences.DEFAULT_VALID_SOURCE_FILES);

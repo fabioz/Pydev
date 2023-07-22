@@ -239,6 +239,7 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         //imports
         node.putBoolean(ImportsPreferencesPage.GROUP_IMPORTS, ImportsPreferencesPage.DEFAULT_GROUP_IMPORTS);
         node.putBoolean(ImportsPreferencesPage.MULTILINE_IMPORTS, ImportsPreferencesPage.DEFAULT_MULTILINE_IMPORTS);
+        node.put(ImportsPreferencesPage.ISORT_LOCATION_OPTION, ImportsPreferencesPage.DEFAULT_ISORT_LOCATION_OPTION);
         node.put(ImportsPreferencesPage.BREAK_IMPORTS_MODE, ImportsPreferencesPage.DEFAULT_BREAK_IMPORTS_MODE);
         node.put(ImportsPreferencesPage.IMPORT_ENGINE, ImportsPreferencesPage.DEFAULT_IMPORT_ENGINE);
         node.putBoolean(ImportsPreferencesPage.DELETE_UNUSED_IMPORTS,

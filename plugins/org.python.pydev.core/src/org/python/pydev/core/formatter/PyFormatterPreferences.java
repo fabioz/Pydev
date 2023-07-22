@@ -9,6 +9,8 @@ public class PyFormatterPreferences {
     public static final String FORMATTER_STYLE = "FORMATTER_STYLE";
 
     public static final String BLACK_PARAMETERS = "BLACK_PARAMETERS";
+    public static final String DEFAULT_BLACK_PARAMETERS = "--fast";
+
     public static final String AUTOPEP8_PARAMETERS = "AUTOPEP8_PARAMETERS";
 
     public static final String FORMAT_ONLY_CHANGED_LINES = "FORMAT_ONLY_CHANGED_LINES";

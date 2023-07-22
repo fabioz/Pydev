@@ -6,10 +6,13 @@
  */
 package org.python.pydev.ui.importsconf;
 
+import java.util.Optional;
+
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.jface.preference.BooleanFieldEditor;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
@@ -19,8 +22,12 @@ import org.python.pydev.core.preferences.PyScopedPreferences;
 import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.process.ProcessUtils;
 import org.python.pydev.shared_core.string.WrapAndCaseUtils;
+import org.python.pydev.shared_ui.field_editors.BooleanFieldEditorCustom;
 import org.python.pydev.shared_ui.field_editors.ComboFieldEditor;
+import org.python.pydev.shared_ui.field_editors.CustomStringFieldEditor;
+import org.python.pydev.shared_ui.field_editors.FileFieldEditorCustom;
 import org.python.pydev.shared_ui.field_editors.LabelFieldEditor;
 import org.python.pydev.shared_ui.field_editors.LinkFieldEditor;
 import org.python.pydev.shared_ui.field_editors.RadioGroupFieldEditor;
@@ -38,13 +45,29 @@ import org.python.pydev.shared_ui.field_editors.ScopedPreferencesFieldEditor;
  */
 public class ImportsPreferencesPage extends ScopedFieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
-    private BooleanFieldEditor fromImportsFirstBooleanEditor;
+    private BooleanFieldEditorCustom fromImportsFirstBooleanEditor;
     private ComboFieldEditor importEngineFieldEditor;
-    private BooleanFieldEditor deleteUnusedImportsField;
-    private BooleanFieldEditor groupImportsField;
-    private BooleanFieldEditor multilineImportsField;
-    private BooleanFieldEditor sortIndiviualOnGroupedField;
+    private BooleanFieldEditorCustom deleteUnusedImportsField;
+    private BooleanFieldEditorCustom groupImportsField;
+    private BooleanFieldEditorCustom multilineImportsField;
+    private BooleanFieldEditorCustom sortIndiviualOnGroupedField;
     private RadioGroupFieldEditor breakImportsInMultilineMode;
+    private RadioGroupFieldEditor isortFormatterLocation;
+    private FileFieldEditorCustom isortFileField;
+    private CustomStringFieldEditor isortParameters;
+
+    public static final String LOCATION_SEARCH = "LOCATION_SEARCH";
+    public static final String LOCATION_SPECIFY = "LOCATION_SPECIFY";
+    public static final String ISORT_LOCATION_OPTION = "ISORT_LOCATION_OPTION";
+    public static final String DEFAULT_ISORT_LOCATION_OPTION = LOCATION_SEARCH;
+
+    public static final String ISORT_FILE_LOCATION = "ISORT_FILE_LOCATION";
+    public static final String ISORT_PARAMETERS = "ISORT_PARAMETERS";
+
+    public static final String[][] SEARCH_FORMATTER_LOCATION_OPTIONS = new String[][] {
+            { "Search in interpreter", LOCATION_SEARCH },
+            { "Specify Location", LOCATION_SPECIFY },
+    };
 
     public ImportsPreferencesPage() {
         super(FLAT);
@@ -97,25 +120,45 @@ public class ImportsPreferencesPage extends ScopedFieldEditorPreferencePage impl
         addFieldWithToolTip(importEngineFieldEditor, p,
                 "Select which import engine should be used to sort the imports when such an operation is requested.");
 
-        deleteUnusedImportsField = new BooleanFieldEditor(DELETE_UNUSED_IMPORTS, WrapAndCaseUtils.wrap(
+        isortFormatterLocation = new RadioGroupFieldEditor(ISORT_LOCATION_OPTION,
+                "isort executable", 2, SEARCH_FORMATTER_LOCATION_OPTIONS, p);
+
+        for (Button b : isortFormatterLocation.getRadioButtons()) {
+            b.addSelectionListener(new SelectionAdapter() {
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                    updateEnablement(p, importEngineFieldEditor.getComboValue());
+                }
+            });
+        }
+
+        addField(isortFormatterLocation);
+        isortFileField = new FileFieldEditorCustom(ISORT_FILE_LOCATION,
+                "Location of the isort executable:", p, 1);
+        addField(isortFileField);
+
+        isortParameters = new CustomStringFieldEditor(ISORT_PARAMETERS, "Parameters for isort", p);
+        addField(isortParameters);
+
+        deleteUnusedImportsField = new BooleanFieldEditorCustom(DELETE_UNUSED_IMPORTS, WrapAndCaseUtils.wrap(
                 "Delete unused imports?", 80), p);
         addFieldWithToolTip(
                 deleteUnusedImportsField,
                 p,
                 "Simple unused imports as reported by the code analysis are deleted. This can be configured to ignore certain files, and individual warnings can be surpressed.");
 
-        groupImportsField = new BooleanFieldEditor(GROUP_IMPORTS, "Combine 'from' imports when possible?", p);
+        groupImportsField = new BooleanFieldEditorCustom(GROUP_IMPORTS, "Combine 'from' imports when possible?", p);
         addField(groupImportsField);
 
-        fromImportsFirstBooleanEditor = new BooleanFieldEditor(FROM_IMPORTS_FIRST,
+        fromImportsFirstBooleanEditor = new BooleanFieldEditorCustom(FROM_IMPORTS_FIRST,
                 "Sort 'from' imports before 'import' imports?", p);
         addField(fromImportsFirstBooleanEditor);
 
-        multilineImportsField = new BooleanFieldEditor(MULTILINE_IMPORTS, WrapAndCaseUtils.wrap(
+        multilineImportsField = new BooleanFieldEditorCustom(MULTILINE_IMPORTS, WrapAndCaseUtils.wrap(
                 "Allow multiline imports when the import size would exceed the print margin?", 80), p);
         addField(multilineImportsField);
 
-        sortIndiviualOnGroupedField = new BooleanFieldEditor(SORT_NAMES_GROUPED, WrapAndCaseUtils.wrap(
+        sortIndiviualOnGroupedField = new BooleanFieldEditorCustom(SORT_NAMES_GROUPED, WrapAndCaseUtils.wrap(
                 "Sort individual names on grouped imports?", 80), p);
         addField(sortIndiviualOnGroupedField);
 
@@ -160,39 +203,46 @@ public class ImportsPreferencesPage extends ScopedFieldEditorPreferencePage impl
     }
 
     private void updateEnablement(Composite p, String importEngine) {
+        boolean isIsort = importEngine.equals(IMPORT_ENGINE_ISORT);
+
+        isortParameters.setVisible(isIsort, p);
+        isortFileField.setVisible(isIsort);
+        isortFormatterLocation.setVisible(isIsort, p);
+
         switch (importEngine) {
             case IMPORT_ENGINE_PEP_8:
-                fromImportsFirstBooleanEditor.setEnabled(true, p); // Setting only valid for PEP 8 engine.
+                fromImportsFirstBooleanEditor.setVisible(true, p); // Setting only valid for PEP 8 engine.
 
-                deleteUnusedImportsField.setEnabled(true, p);
-                groupImportsField.setEnabled(true, p);
-                multilineImportsField.setEnabled(true, p);
-                sortIndiviualOnGroupedField.setEnabled(true, p);
-                breakImportsInMultilineMode.setEnabled(true, p);
+                deleteUnusedImportsField.setVisible(true, p);
+                groupImportsField.setVisible(true, p);
+                multilineImportsField.setVisible(true, p);
+                sortIndiviualOnGroupedField.setVisible(true, p);
+                breakImportsInMultilineMode.setVisible(true, p);
                 break;
 
             case IMPORT_ENGINE_REGULAR_SORT:
-                fromImportsFirstBooleanEditor.setEnabled(false, p);
+                fromImportsFirstBooleanEditor.setVisible(false, p);
 
-                deleteUnusedImportsField.setEnabled(true, p);
-                groupImportsField.setEnabled(true, p);
-                multilineImportsField.setEnabled(true, p);
-                sortIndiviualOnGroupedField.setEnabled(true, p);
-                breakImportsInMultilineMode.setEnabled(true, p);
+                deleteUnusedImportsField.setVisible(true, p);
+                groupImportsField.setVisible(true, p);
+                multilineImportsField.setVisible(true, p);
+                sortIndiviualOnGroupedField.setVisible(true, p);
+                breakImportsInMultilineMode.setVisible(true, p);
                 break;
 
             case IMPORT_ENGINE_ISORT:
-                fromImportsFirstBooleanEditor.setEnabled(false, p);
-                deleteUnusedImportsField.setEnabled(false, p);
-                groupImportsField.setEnabled(false, p);
-                multilineImportsField.setEnabled(false, p);
-                sortIndiviualOnGroupedField.setEnabled(false, p);
-                breakImportsInMultilineMode.setEnabled(false, p);
+                fromImportsFirstBooleanEditor.setVisible(false, p);
+                deleteUnusedImportsField.setVisible(false, p);
+                groupImportsField.setVisible(false, p);
+                multilineImportsField.setVisible(false, p);
+                sortIndiviualOnGroupedField.setVisible(false, p);
+                breakImportsInMultilineMode.setVisible(false, p);
                 break;
         }
+        p.getParent().layout(true);
     }
 
-    private void addFieldWithToolTip(BooleanFieldEditor editor, Composite p, String tip) {
+    private void addFieldWithToolTip(BooleanFieldEditorCustom editor, Composite p, String tip) {
         addField(editor);
         editor.getDescriptionControl(p).setToolTipText(tip);
     }
@@ -333,5 +383,24 @@ public class ImportsPreferencesPage extends ScopedFieldEditorPreferencePage impl
      * May be changed for testing purposes.
      */
     public static boolean deleteUnusedImportsForTests = true;
+
+    public static Optional<String> getISortExecutable(IAdaptable projectAdaptable) {
+        String locationOption = PyScopedPreferences.getString(ISORT_LOCATION_OPTION, projectAdaptable);
+        if (LOCATION_SPECIFY.equals(locationOption)) {
+            String isortFileLocation = PyScopedPreferences.getString(ISORT_FILE_LOCATION, projectAdaptable);
+            if (isortFileLocation != null && isortFileLocation.length() > 0) {
+                return Optional.of(isortFileLocation);
+            }
+        }
+        return Optional.empty();
+    }
+
+    public static String[] getISortArguments(IAdaptable projectAdaptable) {
+        String parameters = PyScopedPreferences.getString(ISORT_PARAMETERS, projectAdaptable);
+        if (parameters != null && parameters.length() > 0) {
+            return ProcessUtils.parseArguments(parameters);
+        }
+        return new String[0];
+    }
 
 }
