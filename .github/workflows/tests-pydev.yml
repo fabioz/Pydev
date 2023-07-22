@@ -43,7 +43,7 @@ jobs:
             which java
             which mvn
             echo ---- rt.jar should be listed below
-            find /opt/hostedtoolcache/Java_Adopt_jdk/11.0.19-7/x64/ -name "*.jar"
+            find /opt/hostedtoolcache/Java_Adopt_jdk/11.0.20-8/x64/ -name "*.jar"
             
       - name: xvfb
         shell: bash
