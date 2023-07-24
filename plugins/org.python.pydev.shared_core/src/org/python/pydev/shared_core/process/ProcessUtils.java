@@ -33,6 +33,12 @@ import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.PlatformUtils;
 
 public class ProcessUtils {
+    public static Tuple<String, String> getProcessOutput(Process process, String executionString,
+            IProgressMonitor monitor, String encoding) {
+        boolean closeOutput = true;
+        return getProcessOutput(process, executionString, monitor, encoding, closeOutput);
+    }
+
     /**
      * @param process process from where the output should be gotten
      * @param executionString string to execute (only for errors)
@@ -40,15 +46,17 @@ public class ProcessUtils {
      * @return a tuple with the output of stdout and stderr
      */
     public static Tuple<String, String> getProcessOutput(Process process, String executionString,
-            IProgressMonitor monitor, String encoding) {
+            IProgressMonitor monitor, String encoding, boolean closeOutput) {
         if (monitor == null) {
             monitor = new NullProgressMonitor();
         }
         if (process != null) {
 
-            try {
-                process.getOutputStream().close(); //we won't write to it...
-            } catch (IOException e2) {
+            if (closeOutput) {
+                try {
+                    process.getOutputStream().close(); //we won't write to it...
+                } catch (IOException e2) {
+                }
             }
 
             monitor.setTaskName("Reading output...");

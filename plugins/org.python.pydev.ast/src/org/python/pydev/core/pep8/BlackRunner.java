@@ -65,22 +65,8 @@ public class BlackRunner {
             if (pythonFileEncoding == null) {
                 pythonFileEncoding = "utf-8";
             }
-            boolean failedWrite = false;
-            try {
-                process.getOutputStream().write(doc.get().getBytes(pythonFileEncoding));
-            } catch (Exception e) {
-                failedWrite = true;
-            }
-            Tuple<String, String> processOutput = ProcessUtils.getProcessOutput(process, cmdarrayAsStr,
-                    new NullProgressMonitor(), pythonFileEncoding);
-
-            if (process.exitValue() != 0 || failedWrite) {
-                Log.log("Black formatter exited with: " + process.exitValue() + " failedWrite: " + failedWrite
-                        + "\nStdout:\n" + processOutput.o1
-                        + "\nStderr:\n" + processOutput.o2);
-                return null;
-            }
-            return processOutput.o1;
+            return RunnerCommon.writeContentsAndGetOutput(doc.get().getBytes(pythonFileEncoding), pythonFileEncoding,
+                    process, cmdarrayAsStr, "black");
         } catch (Exception e) {
             Log.log(e);
         }

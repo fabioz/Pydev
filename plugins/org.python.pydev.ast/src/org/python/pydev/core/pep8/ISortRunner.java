@@ -16,7 +16,6 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.nature.SystemPythonNature;
 import org.python.pydev.shared_core.io.FileUtils;
-import org.python.pydev.shared_core.process.ProcessUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.ArrayUtils;
 
@@ -61,28 +60,13 @@ public class ISortRunner {
                 final String[] args = ArrayUtils.concatArrays(pathArgs, isortArguments, known.toArray(new String[0]),
                         new String[] { "-d", "-" });
                 Tuple<Process, String> processInfo = pythonRunner.createProcessFromModuleName("isort",
-                        args,
-                        workingDir, new NullProgressMonitor());
+                        args, workingDir, new NullProgressMonitor());
                 process = processInfo.o1;
                 cmdarrayAsStr = processInfo.o2;
             }
 
-            boolean failedWrite = false;
-            try {
-                process.getOutputStream().write(fileContents.getBytes(encoding));
-            } catch (Exception e) {
-                failedWrite = true;
-            }
-            Tuple<String, String> processOutput = ProcessUtils.getProcessOutput(process, cmdarrayAsStr,
-                    new NullProgressMonitor(), encoding);
-
-            if (process.exitValue() != 0 || failedWrite) {
-                Log.log("isort exited with: " + process.exitValue() + " failedWrite: " + failedWrite
-                        + "\nStdout:\n" + processOutput.o1
-                        + "\nStderr:\n" + processOutput.o2);
-                return null;
-            }
-            return processOutput.o1;
+            return RunnerCommon.writeContentsAndGetOutput(fileContents.getBytes(encoding), encoding, process, cmdarrayAsStr,
+                    "isort");
         } catch (Exception e) {
             Log.log(e);
         }
