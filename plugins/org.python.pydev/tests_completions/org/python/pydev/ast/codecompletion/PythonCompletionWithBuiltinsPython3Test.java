@@ -544,6 +544,14 @@ public class PythonCompletionWithBuiltinsPython3Test extends CodeCompletionTests
         requestCompl(s, s.length(), -1, new String[] { "close()", "some_method()" });
     }
 
+    public void testPathlib() throws Exception {
+        String s = ""
+                + "import pathlib\n"
+                + "d = pathlib.Path('/home/foo') / 'bar' / 'foo'\n"
+                + "d.";
+        requestCompl(s, s.length(), -1, new String[] { "exists()", "absolute()", "expanduser()" });
+    }
+
     public void testPyQt5() throws Exception {
         if (TestDependent.PYTHON38_QT5_PACKAGES != null) { //we can only test what we have
             //check for builtins with reference..3

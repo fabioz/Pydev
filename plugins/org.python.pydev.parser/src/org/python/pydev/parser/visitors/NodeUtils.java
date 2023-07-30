@@ -447,10 +447,10 @@ public final class NodeUtils {
 
         if (node instanceof BinOp) {
             BinOp binOp = (BinOp) node;
-            if (binOp.left instanceof Str && binOp.op == BinOp.Mod) {
-                //It's something as 'aaa' % (1,2), so, we know it's a string.
-                return getRepresentationString(node, true);
-            }
+            // We consider that the path is kept in a bin op.
+            // Examples: 'a %s b' % ('foo',)
+            // Examples: Path('a') / 'b'
+            return getFullRepresentationString(binOp.left, fullOnSubscriptOrCall);
         }
 
         return getRepresentationString(node, true);
