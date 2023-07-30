@@ -18,6 +18,7 @@ import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.Suite;
+import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.comparator.DifferException;
 import org.python.pydev.parser.visitors.comparator.SimpleNodeComparator;
 import org.python.pydev.parser.visitors.comparator.SimpleNodeComparator.LineColComparator;
@@ -105,6 +106,15 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
 
     public void testGenCythonAstCases() throws Exception {
         String[] cases = new String[] {
+                "def method(a, *, b):pass",
+                "@dec1\n@dec2\ndef method():pass",
+                "@dec\ndef method():pass",
+                "assert 1, 'ra'",
+                "def method(a:int): return 1",
+                "import a.b as c",
+                "import a\n"
+                        + "\n"
+                        + "import b\n",
                 "def method(*args, **kwargs):\n"
                         + "    return f(*args, **modify(kwargs))",
                 "{tuple(call(n) for n in (1, 2) if n == 2)}",
@@ -118,9 +128,6 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
                         + "  yield from bar",
                 "a = lambda x:y",
                 "a = call(foo, foo=bar, **xx.yy)",
-                "import a\n"
-                        + "\n"
-                        + "import b\n",
 
                 "foo[:, b:c, d:e, f:g] = []",
                 "foo[:] = []",
@@ -183,14 +190,10 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
                 "from a import b",
                 "from a.b import d as f",
                 "from a import b as c",
-                "import a.b as c",
-                "import a.b",
                 "import a",
                 "1 | 2 == 0",
                 "1 & 2 == 0",
                 "1 ^ 2 == 0",
-                "def method(a:int): return 1",
-                "assert 1, 'ra'",
                 "a = a + b",
                 "a = a - b",
                 "a = a * b",
@@ -220,7 +223,6 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
                 "def method():\n    a=10\n    b=20",
                 "def method(a=None):pass",
                 "def method(a, *b, **c):pass",
-                "def method(a, *, b):pass",
                 "def method(a=1, *, b=2):pass",
                 "def method(a=1, *, b:int=2):pass",
                 "call()",
@@ -228,7 +230,6 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
                 "call(u'nth')",
                 "call(b'nth')",
                 "call('nth')",
-                "@dec\ndef method():pass",
                 "@dec()\ndef method():pass",
                 "class A:pass",
                 "class A(set, object):pass",
@@ -261,8 +262,10 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
     public ParseOutput compareCase(String expected, String cython) throws DifferException, Exception {
         try {
             return compareCase(expected, cython, false);
-        } catch (Exception e) {
-            throw new RuntimeException("Error with cython: " + cython, e);
+        } catch (Throwable e) {
+            final String msg = "Error with cython: " + cython;
+            System.err.println(msg);
+            throw new RuntimeException(msg, e);
         }
     }
 
@@ -302,7 +305,13 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
             throw new RuntimeException("Error parsing: " + cython);
         }
 
-        compareNodes(parseOutput.ast, cythonParseOutput.ast, lineColComparator);
+        try {
+            compareNodes(parseOutput.ast, cythonParseOutput.ast, lineColComparator);
+        } catch (Throwable e) {
+            System.err.println("Cython AST pretty-printed to: ");
+            System.err.println(NodeUtils.printAst(null, (SimpleNode) cythonParseOutput.ast));
+            throw e;
+        }
         return cythonParseOutput;
     }
 
@@ -334,6 +343,18 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
         assertEquals(expectedAst, cythonParseOutput.ast.toString());
     }
 
+    public void compareWithAst(String code, String[] expectedAstArray) throws MisconfigurationException {
+        ParserInfo parserInfo = new ParserInfo(new Document(code), grammarVersionProvider);
+        ParseOutput cythonParseOutput = new GenCythonAstImpl(parserInfo).genCythonAst();
+        String found = cythonParseOutput.ast.toString();
+        for (String s : expectedAstArray) {
+            if (s.equals(found)) {
+                return;
+            }
+        }
+        throw new AssertionError("Error: generated: " + found + "\n\nDoes not match any of the expected arrays.");
+    }
+
     public void testGenCythonAstCornerCase1() throws Exception {
         compareWithAst("(f'{a}{{}}nth')",
                 "Module[body=[Expr[value=Str[s=, type=SingleSingle, unicode=true, raw=false, binary=false, fstring=false, fstring_nodes=[Expr[value=Name[id=a, ctx=Load, reserved=false]], Expr[value=Str[s={}nth, type=SingleSingle, unicode=true, raw=false, binary=false, fstring=false, fstring_nodes=null]]]]]]]");
@@ -341,6 +362,7 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
 
     public void testGenCythonAstCornerCase2() throws Exception {
         compareCase("a = u'>'", "a = c'>'");
+        compareCase("import a.b", "import a.b as a");
 
         compareCase(
                 "\n"
@@ -407,7 +429,11 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
 
     public void testGenCythonAstCornerCase7() throws Exception {
         compareWithAst("print(10)",
-                "Module[body=[Print[dest=null, values=[Num[n=10, type=Int, num=10]], nl=true]]]");
+                new String[] {
+
+                        "Module[body=[Print[dest=null, values=[Num[n=10, type=Int, num=10]], nl=true]]]",
+                        "Module[body=[Expr[value=Call[func=Name[id=print, ctx=Load, reserved=false], args=[Num[n=10, type=Int, num=10]], keywords=[], starargs=null, kwargs=null]]]]"
+                });
 
     }
 
@@ -596,7 +622,33 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
         JsonValue value = JsonValue.readFrom(output);
 
         JsonValue body = value.asObject().get("ast").asObject().get("stats");
-        assertEquals(body, JsonValue.readFrom(
+        Object expect1 = JsonValue.readFrom(
+                "[                                      \n"
+                        + "    {                                  \n"
+                        + "        \"__node__\": \"SingleAssignment\",\n"
+                        + "        \"line\": 1,                     \n"
+                        + "        \"col\": 4,                      \n"
+                        + "        \"lhs\": {                       \n"
+                        + "            \"__node__\": \"Name\",        \n"
+                        + "            \"line\": 1,                 \n"
+                        + "            \"col\": 0,                  \n"
+                        + "            \"name\": \"a\"                \n"
+                        + "        },                             \n"
+                        + "        \"rhs\": {                       \n"
+                        + "            \"__node__\": \"Int\",         \n"
+                        + "            \"line\": 1,                 \n"
+                        + "            \"col\": 4,                  \n"
+                        + "            \"is_c_literal\": \"None\",    \n"
+                        + "            \"value\": \"10\",             \n"
+                        + "            \"unsigned\": \"\",            \n"
+                        + "            \"longness\": \"\",            \n"
+                        + "            \"constant_result\": \"10\",   \n"
+                        + "            \"type\": \"long\"             \n"
+                        + "        },                             \n"
+                        + "        \"first\": \"False\"               \n" // This is new in Cython 3.0
+                        + "    }                                  \n"
+                        + "]                                      ");
+        Object expect2 = JsonValue.readFrom(
                 "[\n" +
                         "        {\n" +
                         "            \"__node__\": \"SingleAssignment\",\n" +
@@ -621,7 +673,11 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
                         "            }\n" +
                         "        }\n" +
                         "    ]\n" +
-                        "\n"));
+                        "\n");
+
+        if (!body.equals(expect1) && !body.equals(expect2)) {
+            throw new AssertionError("The body json doesn't match what we expect:\n" + body);
+        }
 
         assertEquals(
                 "Module[body=[Assign[targets=[Name[id=a, ctx=Store, reserved=false]], value=Num[n=10, type=Int, num=10], type=null]]]",

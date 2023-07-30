@@ -166,6 +166,10 @@ public class GenCythonAstImpl {
                             node = createString(asObject);
                             break;
 
+                        case "Annotation":
+                            node = createAnnotation(asObject);
+                            break;
+
                         case "Tuple":
                             node = createTuple(asObject);
                             break;
@@ -1150,6 +1154,11 @@ public class GenCythonAstImpl {
             return str;
         }
 
+        private SimpleNode createAnnotation(JsonObject asObject) {
+            JsonValue value = asObject.get("expr");
+            return (SimpleNode) createNode(value);
+        }
+
         private SimpleNode createFString(JsonObject asObject) throws Exception {
             boolean raw = false;
             boolean unicode = true;
@@ -1829,7 +1838,7 @@ public class GenCythonAstImpl {
                 }
                 astFactory.setBody(classDef, nodes.toArray());
 
-                classDef.decs = createDecorators(asObject);
+                classDef.decs = createDecorators(asObject, classDef);
                 return classDef;
             }
             return null;
@@ -1847,7 +1856,7 @@ public class GenCythonAstImpl {
 
                 astFactory.setBody(classDef, extractStmts(asObject, "body").toArray());
 
-                classDef.decs = createDecorators(asObject);
+                classDef.decs = createDecorators(asObject, classDef);
                 return classDef;
             }
             return null;
@@ -1938,7 +1947,7 @@ public class GenCythonAstImpl {
 
                 astFactory.setBody(classDef, extractStmts(asObject, "attributes").toArray());
 
-                classDef.decs = createDecorators(asObject);
+                classDef.decs = createDecorators(asObject, classDef);
                 return classDef;
             }
             return null;
@@ -1956,7 +1965,7 @@ public class GenCythonAstImpl {
 
                 astFactory.setBody(classDef, extractStmts(asObject, "body").toArray());
 
-                classDef.decs = createDecorators(asObject);
+                classDef.decs = createDecorators(asObject, classDef);
                 return classDef;
             }
             return null;
@@ -1979,7 +1988,7 @@ public class GenCythonAstImpl {
                 funcDef.name.beginColumn = funcDef.beginColumn + 4;
 
                 funcDef.args = createArgs(asObject);
-                funcDef.decs = createDecorators(asObject);
+                funcDef.decs = createDecorators(asObject, funcDef);
 
                 JsonValue isAsyncDef = asObject.get("is_async_def");
                 if (isAsyncDef != null && isAsyncDef.asString().equals("True")) {
@@ -2011,7 +2020,7 @@ public class GenCythonAstImpl {
             if (declarator != null && declarator.isObject()) {
                 FunctionDef funcDef = createCFuncDeclarator(declarator.asObject());
                 if (funcDef != null) {
-                    funcDef.decs = createDecorators(asObject);
+                    funcDef.decs = createDecorators(asObject, funcDef);
                     setLine(funcDef, asObject);
                     setLine(funcDef.name, asObject);
                     astFactory.setBody(funcDef, extractStmts(asObject, "body").toArray());
@@ -2043,7 +2052,7 @@ public class GenCythonAstImpl {
             return lst;
         }
 
-        private decoratorsType[] createDecorators(JsonObject asObject) throws Exception {
+        private decoratorsType[] createDecorators(JsonObject asObject, SimpleNode defNode) throws Exception {
             List<decoratorsType> decs = new ArrayList<decoratorsType>();
             JsonValue jsonValue = asObject.get("decorators");
             if (jsonValue != null && jsonValue.isArray()) {
@@ -2056,6 +2065,25 @@ public class GenCythonAstImpl {
             }
             if (decs.size() == 0) {
                 return null;
+            }
+
+            // In cython 3 the dec line matches the first decorator line.
+            int maxDecLine = -1;
+            for (decoratorsType dec : decs) {
+                if (dec.beginLine > maxDecLine) {
+                    maxDecLine = dec.beginLine;
+                }
+            }
+
+            if (defNode.beginLine <= maxDecLine) {
+                defNode.beginLine = maxDecLine + 1;
+                if (defNode instanceof FunctionDef) {
+                    FunctionDef functionDef = (FunctionDef) defNode;
+                    functionDef.name.beginLine = defNode.beginLine;
+                } else if (defNode instanceof ClassDef) {
+                    ClassDef classDef = (ClassDef) defNode;
+                    classDef.name.beginLine = defNode.beginLine;
+                }
             }
             return decs.toArray(new decoratorsType[0]);
         }
@@ -2077,9 +2105,11 @@ public class GenCythonAstImpl {
                         decorator.starargs = call.starargs;
                         decorator.kwargs = call.kwargs;
                         decorator.isCall = true;
+                        decorator.beginLine = call.beginLine;
 
                     } else if (func instanceof exprType) {
                         decorator.func = (exprType) func;
+                        decorator.beginLine = decorator.func.beginLine;
 
                     } else {
                         if (func != null) {
@@ -2141,7 +2171,8 @@ public class GenCythonAstImpl {
                             boolean isKwOnly = false;
                             JsonValue kwOnlyValue = asObject.get("kw_only");
                             if (kwOnlyValue != null && kwOnlyValue.isString()) {
-                                if ("1".equals(kwOnlyValue.asString())) {
+                                final String asString = kwOnlyValue.asString();
+                                if ("1".equals(asString) || "True".equals(asString)) {
                                     isKwOnly = true;
                                 }
                             }
@@ -2381,10 +2412,20 @@ public class GenCythonAstImpl {
 
                     if (left instanceof Name) {
                         Name leftName = (Name) left;
-                        aliasType[] names = ((Import) right).names;
+                        Import importNode = ((Import) right);
+                        aliasType[] names = importNode.names;
                         aliasType aliasType = names[0];
 
-                        if (aliasType.asname != null) {
+                        if (aliasType.asname == null) {
+                            if (leftName != null && leftName.id != null) {
+                                if (((NameTok) aliasType.name).id == null
+                                        || !leftName.id.equals(((NameTok) aliasType.name).id)) {
+                                    aliasType.asname = new NameTok(leftName.id, NameTok.ImportName);
+                                    aliasType.asname.beginColumn = leftName.beginColumn;
+                                    aliasType.asname.beginLine = leftName.beginLine;
+                                }
+                            }
+                        } else {
                             aliasType.asname = new NameTok(leftName.id, NameTok.ImportName);
                             aliasType.asname.beginColumn = leftName.beginColumn;
                             aliasType.asname.beginLine = leftName.beginLine;
@@ -2538,7 +2579,11 @@ public class GenCythonAstImpl {
         }
 
         private Assert createAssert(JsonObject asObject) {
-            exprType cond = asExpr(createNode(asObject.get("cond")));
+            JsonValue condition = asObject.get("cond");
+            if (condition == null) {
+                condition = asObject.get("condition");
+            }
+            exprType cond = asExpr(createNode(condition));
             exprType value = asExpr(createNode(asObject.get("value")));
 
             Assert assertStmt = new Assert(cond, value);
@@ -2889,7 +2934,11 @@ public class GenCythonAstImpl {
             CythonShell serverShell = (CythonShell) AbstractShell.getServerShell(nature,
                     CompletionProposalFactory.get().getCythonShellId());
             String contents = parserInfo.document.get();
-            return serverShell.convertToJsonAst(StringUtils.replaceNewLines(contents, "\n"));
+            String ret = serverShell.convertToJsonAst(StringUtils.replaceNewLines(contents, "\n"));
+            System.out.println("---");
+            System.out.println(JsonValue.readFrom(ret).toPrettyString());
+            System.out.println("---");
+            return ret;
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
