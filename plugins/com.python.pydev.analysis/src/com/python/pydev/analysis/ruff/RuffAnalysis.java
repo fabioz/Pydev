@@ -268,7 +268,9 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
 
             jsonValue = JsonValue.readFrom(output);
         } catch (Exception e) {
-            Log.log("Expected ruff output to be with json format. i.e.: --format=json.", e);
+            Log.log(StringUtils.format(
+                    "Expected ruff output to be with json format. i.e.: --format=json.\nFile: %s\nOutput:\n%s",
+                    resource.getFullPath(), output), e);
             return;
         }
 
