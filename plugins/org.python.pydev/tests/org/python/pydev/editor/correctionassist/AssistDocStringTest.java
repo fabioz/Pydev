@@ -43,12 +43,14 @@ public class AssistDocStringTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         assist = new AssistDocString();
+        DocstringsPrefPage.GENERATE_TYPE_DOCSTRING_ON_TESTS = true;
         CompletionProposalFactory.set(new DefaultCompletionProposalFactory());
     }
 
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
+        DocstringsPrefPage.GENERATE_TYPE_DOCSTRING_ON_TESTS = true;
         CompletionProposalFactory.set(null);
     }
 
@@ -107,6 +109,35 @@ public class AssistDocStringTest extends TestCase {
             boolean isValid = assist.isValid(ps, sel, null, selectionOffset);
             assertEquals(StringUtils.format("Expected %s was %s sel: %s", expected, isValid, sel), expected, isValid);
         }
+    }
+
+    public void testApplyGoogle() throws Exception {
+        String expected;
+        expected = "def foo(a): #comment\r\n" +
+                "    '''\r\n" +
+                "    Args:\r\n" +
+                "        a:\r\n" +
+                "    '''";
+        checkGoogle(expected, "def foo(a): #comment", 1);
+    }
+
+    public void testApplyGoogle1() throws Exception {
+        String expected;
+        expected = "    def foo(a): #comment\r\n" +
+                "        '''\r\n" +
+                "        Args:\r\n" +
+                "            a:\r\n" +
+                "        '''";
+        checkGoogle(expected, "    def foo(a): #comment", 1);
+    }
+
+    public void testApplyGoogle2() throws Exception {
+        String expected;
+        expected = "    def foo(self): #comment\r\n" +
+                "        '''\r\n" +
+                "        \r\n" +
+                "        '''";
+        checkGoogle(expected, "    def foo(self): #comment", 1);
     }
 
     public void testApply() throws Exception {
@@ -224,6 +255,28 @@ public class AssistDocStringTest extends TestCase {
         Document doc = new Document(initial);
         PySelection ps = new PySelection(doc, 0, 0);
         AssistDocString assist = new AssistDocString("@");
+        List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null,
+                ps.getAbsoluteCursorOffset());
+        assertEquals(proposals, props.size());
+        if (props.size() > 0) {
+            props.get(0).apply(doc);
+            String expect = StringUtils.replaceNewLines(expected, "\n");
+            String obtained = StringUtils.replaceNewLines(doc.get(), "\n");
+            if (!expect.equals(obtained)) {
+                System.out.println("====Expected====");
+                System.out.println(expect);
+                System.out.println("====Obtained====");
+                System.out.println(obtained);
+                assertEquals(expect, obtained);
+            }
+        }
+    }
+
+    private void checkGoogle(String expected, String initial, int proposals) throws BadLocationException {
+        Document doc = new Document(initial);
+        PySelection ps = new PySelection(doc, 0, 0);
+        AssistDocString assist = new AssistDocString("G");
+        DocstringsPrefPage.GENERATE_TYPE_DOCSTRING_ON_TESTS = false;
         List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null,
                 ps.getAbsoluteCursorOffset());
         assertEquals(proposals, props.size());

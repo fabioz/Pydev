@@ -110,7 +110,8 @@ public class AssistDocString implements IAssistProps {
         }
 
         final String preferredDocstringStyle2 = preferredDocstringStyle;
-        if (preferredDocstringStyle.equals(DocstringsPrefPage.DOCSTRINGSTYLE_GOOGLE)) {
+        if (inFunctionLine && params.size() > 0
+                && preferredDocstringStyle.equals(DocstringsPrefPage.DOCSTRINGSTYLE_GOOGLE)) {
             buf.append("Args:");
         }
         l.add(CompletionProposalFactory.get().createAssistDocstringCompletionProposal("", offsetPosToAdd, 0,

@@ -513,7 +513,7 @@ public final class PySelection extends TextSelectionUtils {
                 for (int i = 0; i < len; i++) {
                     char c = insideParentesisTok.charAt(i);
                     if (c == ',') {
-                        addTrimmedBufToList(buf, params);
+                        addTrimmedBufToList(buf, params, addSelf);
                         buf.clear();
                     } else {
                         switch (c) {
@@ -537,15 +537,13 @@ public final class PySelection extends TextSelectionUtils {
                         }
                     }
                 }
-                addTrimmedBufToList(buf, params);
+                addTrimmedBufToList(buf, params, addSelf);
             } else {
                 boolean shouldAppendBuf = true;
                 for (int i = 0; i < len; i++) {
                     char c = insideParentesisTok.charAt(i);
                     if (c == ',') {
-                        if (addSelf || !"self".equals(buf.toString().trim())) {
-                            addTrimmedBufToList(buf, params);
-                        }
+                        addTrimmedBufToList(buf, params, addSelf);
                         buf.clear();
                         shouldAppendBuf = true;
                     } else {
@@ -572,7 +570,7 @@ public final class PySelection extends TextSelectionUtils {
                         }
                     }
                 }
-                addTrimmedBufToList(buf, params);
+                addTrimmedBufToList(buf, params, addSelf);
             }
         } catch (SyntaxErrorException e) {
             throw new RuntimeException(e);
@@ -581,11 +579,14 @@ public final class PySelection extends TextSelectionUtils {
         return new Tuple<List<String>, Integer>(params, j);
     }
 
-    private static final void addTrimmedBufToList(FastStringBuffer buf, List<String> list) {
-        String trimmed = buf.toString().trim();
-        if (trimmed.length() > 0) {
-            list.add(trimmed);
+    private static final void addTrimmedBufToList(FastStringBuffer buf, List<String> list, boolean addSelf) {
+        if (addSelf || !"self".equals(buf.toString().trim())) {
+            String trimmed = buf.toString().trim();
+            if (trimmed.length() > 0) {
+                list.add(trimmed);
+            }
         }
+
     }
 
     public static final String[] TOKENS_BEFORE_ELSE = new String[] { "if", "for", "except", "while", "elif" };
