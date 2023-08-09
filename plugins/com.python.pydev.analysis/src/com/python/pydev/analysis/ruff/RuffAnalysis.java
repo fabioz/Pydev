@@ -263,6 +263,9 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
             res = this.resource.getFullPath().toString().toLowerCase();
         }
 
+        if (output.isEmpty()) {
+            return;
+        }
         JsonValue jsonValue;
         try {
 
