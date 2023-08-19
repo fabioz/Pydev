@@ -894,7 +894,9 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
         }
 
         if (node.type != null) {
+            startScope(Scope.SCOPE_TYPE_ANNOTATION, node.type);
             node.type.accept(this);
+            endScope(node.type);
         }
 
         //in 'target1 = target2 = a', this is 'target1, target2'

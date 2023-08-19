@@ -125,6 +125,16 @@ public final class Scope implements Iterable<ScopeItems> {
 
     private AbstractScopeAnalyzerVisitor visitor;
 
+    /**
+     * If == 0 not visiting type annotation, otherwise we're in
+     * a type annotation.
+     */
+    private int visitingTypeAnnotation = 0;
+
+    public boolean isVisitingTypeAnnotation() {
+        return this.visitingTypeAnnotation > 0;
+    }
+
     private int getNewId() {
         scopeUnique++;
         return scopeUnique;
@@ -274,6 +284,9 @@ public final class Scope implements Iterable<ScopeItems> {
      * initializes a new scope
      */
     public void startScope(int scopeType) {
+        if (scopeType == SCOPE_TYPE_ANNOTATION) {
+            this.visitingTypeAnnotation += 1;
+        }
         int newId = getNewId();
         scope.push(new ScopeItems(newId, scopeType));
         scopeId.push(newId);
@@ -286,7 +299,11 @@ public final class Scope implements Iterable<ScopeItems> {
 
     public ScopeItems endScope() {
         scopeId.pop();
-        return scope.pop();
+        ScopeItems scopeItems = scope.pop();
+        if (scopeItems.getScopeType() == SCOPE_TYPE_ANNOTATION) {
+            this.visitingTypeAnnotation -= 1;
+        }
+        return scopeItems;
     }
 
     public int size() {

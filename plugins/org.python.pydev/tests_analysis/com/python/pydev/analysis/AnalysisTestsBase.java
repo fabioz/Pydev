@@ -9,6 +9,7 @@
  */
 package com.python.pydev.analysis;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -151,6 +152,24 @@ public class AnalysisTestsBase extends CodeCompletionTestsBase {
 
         printMessages(msgs, numberOfErrors);
         return msgs;
+    }
+
+    public interface IErrorFilter {
+        public boolean accept(String m);
+    }
+
+    protected IMessage[] checkErrorWithFilter(IErrorFilter filter) {
+        analyzer = new OccurrencesAnalyzer();
+        msgs = analyze();
+
+        List<IMessage> ret = new ArrayList<>();
+        for (IMessage msg : msgs) {
+            if (filter.accept(msg.getMessage().trim())) {
+                ret.add(msg);
+            }
+        }
+
+        return ret.toArray(new IMessage[0]);
     }
 
     /**

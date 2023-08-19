@@ -248,22 +248,37 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
 
     @Override
     public Object visitStr(Str node) throws Exception {
+        if (this.scope.isVisitingTypeAnnotation()) {
+            String s = node.s;
+            IGrammar grammar = PyParser.createGrammar(true, this.nature.getGrammarVersion(), s.toCharArray());
+            Throwable errorOnParsing = null;
+            int startInternalStrColOffset = getStrOffset(node);
+            try {
+                SimpleNode typingNode = grammar.file_input();
+                errorOnParsing = grammar.getErrorOnParsing();
+                if (errorOnParsing == null) {
+                    new FixLinesVisitor(node.beginLine - 1, node.beginColumn + startInternalStrColOffset - 1)
+                            .traverse(typingNode);
+                    this.traverse(typingNode);
+                }
+            } catch (Exception e) {
+                if (errorOnParsing == null) {
+                    errorOnParsing = e;
+                }
+            }
+            if (errorOnParsing != null) {
+                IDocument doc = new Document(s);
+                reportParserError(node, node.beginLine, node.beginColumn + startInternalStrColOffset, doc,
+                        errorOnParsing);
+            }
+        }
         if (node.fstring && (node.fstring_nodes == null || node.fstring_nodes.length == 0)) {
             // Note: if fstring_nodes have been pre-processed (i.e.: in cython parsing), we don't parse
             // it here and just visit those contents in super.visitStr.
             String s = node.s;
             @SuppressWarnings("rawtypes")
             List parseErrors = null;
-            int startInternalStrColOffset = 2; // +1 for 'f' and +1 for the quote.
-            if (node.raw) {
-                startInternalStrColOffset += 1;
-            }
-            if (node.unicode) {
-                startInternalStrColOffset += 1;
-            }
-            if (node.type == str_typeType.TripleDouble || node.type == str_typeType.TripleSingle) {
-                startInternalStrColOffset += 2;
-            }
+            int startInternalStrColOffset = getStrOffset(node);
             FStringsAST ast = null;
             if (s.trim().length() > 0) {
                 try {
@@ -291,6 +306,23 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
             }
         }
         return super.visitStr(node);
+    }
+
+    public static int getStrOffset(Str node) {
+        int startInternalStrColOffset = 1; // +1 for the quote.
+        if (node.raw) {
+            startInternalStrColOffset += 1;
+        }
+        if (node.unicode) {
+            startInternalStrColOffset += 1;
+        }
+        if (node.fstring) {
+            startInternalStrColOffset += 1;
+        }
+        if (node.type == str_typeType.TripleDouble || node.type == str_typeType.TripleSingle) {
+            startInternalStrColOffset += 2;
+        }
+        return startInternalStrColOffset;
     }
 
     private void analyzeFStringAst(Str node, int startInternalStrColOffset, FStringsAST ast, IDocument doc)
