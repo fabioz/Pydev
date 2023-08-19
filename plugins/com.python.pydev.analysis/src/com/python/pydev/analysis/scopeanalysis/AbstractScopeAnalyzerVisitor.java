@@ -137,6 +137,8 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
 
     private final Set<String> builtinTokens = new HashSet<String>();
 
+    protected int isInMatchScope = 0;
+
     public AbstractScopeAnalyzerVisitor(IPythonNature nature, String moduleName, IModule current, IDocument document,
             IProgressMonitor monitor) {
         this.monitor = monitor;
@@ -650,7 +652,10 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
                 || node.ctx == Name.KwOnlyParam
                 || (node.ctx == Name.AugStore && found)) { //if it was undefined on augstore, we do not go on to creating the token
             String rep = token.getRepresentation();
-            if (checkCurrentScopeForAssignmentsToBuiltins()) {
+            if (checkCurrentScopeForAssignmentsToBuiltins() &&
+            // In match scope we don't want to report assignment to builtin
+            // as something as: `match None:` is valid.
+                    this.isInMatchScope == 0) {
                 if (builtinTokens.contains(rep)) {
                     // Overriding builtin...
                     onAddAssignmentToBuiltinMessage(token, rep);

@@ -361,8 +361,8 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
     }
 
     public void testGenCythonAstCornerCase2() throws Exception {
+        compareCase("import a.b as a", "import a.b");
         compareCase("a = u'>'", "a = c'>'");
-        compareCase("import a.b", "import a.b as a");
 
         compareCase(
                 "\n"

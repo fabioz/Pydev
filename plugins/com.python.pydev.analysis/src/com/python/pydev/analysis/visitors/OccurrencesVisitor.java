@@ -137,6 +137,7 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
     public void traverse(match_caseType node) throws Exception {
         checkStop();
         isInTestScope += 1;
+        isInMatchScope += 1;
         if (node.pattern != null) {
             node.pattern.accept(this);
         }
@@ -144,6 +145,7 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
             node.guard.accept(this);
         }
         isInTestScope -= 1;
+        isInMatchScope -= 1;
         if (node.body != null) {
             for (SimpleNode n : node.body) {
                 if (n != null) {

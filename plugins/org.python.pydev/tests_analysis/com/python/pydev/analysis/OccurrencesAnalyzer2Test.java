@@ -59,77 +59,77 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
 
     public void testErrorNotShownOnDynamicClass() {
         doc = new Document("from extendable.noerr import importer\n" +
-                "print importer.getWithAttr.whatever\n");
+                "print(importer.getWithAttr.whatever)\n");
         checkNoError();
 
     }
 
     public void testErrorNotShownOnDynamicClass2() {
         doc = new Document("from extendable.noerr import importer\n" +
-                "print importer.getWithAttr.whatever.other\n");
+                "print(importer.getWithAttr.whatever.other)\n");
         checkNoError();
 
     }
 
     public void testErrorNotShownOnDynamicClass3() {
         doc = new Document("from extendable.noerr import importer\n" +
-                "print importer.childGetWithAttr.whatever\n"
+                "print(importer.childGetWithAttr.whatever)\n"
                 +
-                "print importer.childGetWithAttr.whatever.other\n");
+                "print(importer.childGetWithAttr.whatever.other)\n");
         checkNoError();
 
     }
 
     public void testErrorNotShownOnClassFromMethod() {
         doc = new Document("from extendable.noerr import importer\n" +
-                "print importer.logger.debug('10')\n");
+                "print(importer.logger.debug('10'))\n");
         checkNoError();
 
     }
 
     public void testErrorNotShownOnNoneClass() {
         doc = new Document("from extendable.noerr import importer\n" +
-                "print importer.initialNone.foo\n");
+                "print(importer.initialNone.foo)\n");
         checkNoError();
 
     }
 
     public void testErrorNotShownOnDynamicClass4() {
         doc = new Document("from extendable.noerr import importer\n" +
-                "print importer.globals_struct.bar\n");
+                "print(importer.globals_struct.bar)\n");
         checkNoError();
 
     }
 
     public void testErrorNotShownOnDynamicClass5() {
         doc = new Document("from extendable.noerr import importer\n" +
-                "print importer.Struct.bar\n");
+                "print(importer.Struct.bar)\n");
         checkNoError();
     }
 
     public void testErrorNotShownOnDynamicClass6() {
         doc = new Document("from extendable.noerr.importer import WithGetAttr2\n" +
-                "print WithGetAttr2.anything\n");
+                "print(WithGetAttr2.anything)\n");
         checkNoError();
     }
 
     public void testErrorNotShownOnDynamicClass7() {
         doc = new Document("from extendable.noerr.importer import Struct\n" +
-                "print Struct.anything\n");
+                "print(Struct.anything)\n");
         checkNoError();
     }
 
     public void testErrorNotShownOnDynamicClass8() {
         doc = new Document("from extendable.noerr.importer import StructSub\n" +
-                "print StructSub.anything\n");
+                "print(StructSub.anything)\n");
         checkNoError();
     }
 
     public void testErrorShownOnInitialSetClass() {
         doc = new Document("from extendable.noerr import importer\n" +
-                "print importer.initialSet.m1\n"
+                "print(importer.initialSet.m1)\n"
                 +
-                "print importer.initialSet.m2\n"//has error
+                "print(importer.initialSet.m2)\n"//has error
         );
         IMessage[] messages = checkError(1);
         assertEquals("Undefined variable from import: m2", messages[0].getMessage());
@@ -137,13 +137,13 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
 
     public void testNoErrorPathInPackage() {
         doc = new Document("import extendable\n" +
-                "print extendable.__path__\n");
+                "print(extendable.__path__)\n");
         checkNoError();
     }
 
     public void testErrorPathNotInModule() {
         doc = new Document("from extendable import static\n" +
-                "print static.__path__\n");
+                "print(static.__path__)\n");
         IMessage[] messages = checkError(1);
         assertEquals("Undefined variable from import: __path__", messages[0].getMessage());
     }
@@ -169,7 +169,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
 
     public void testNoEffectInGenExp() {
         doc = new Document("for val in (3 in (1, 2), 'something else'):\n" +
-                "    print 'val was', val\n");
+                "    print('val was', val)\n");
         checkNoError();
     }
 
@@ -200,7 +200,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
 
     public void testInitDef() throws IOException {
         doc = new Document("from extendable import help\n" +
-                "print help.about\n");
+                "print(help.about)\n");
         checkNoError();
 
     }
@@ -241,7 +241,7 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
         doc = new Document("def m1():\n" +
                 "    c = lambda: a\n" +
                 "    a = 10\n" +
-                "    print c\n" +
+                "    print(c)\n" +
                 "\n");
         checkNoError();
     }
@@ -256,19 +256,19 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
 
     public void testNoLeakageInGenerator() throws IOException {
         doc = new Document("(a for a in range(5))\n" +
-                "print a\n");
+                "print(a)\n");
         checkError(1);
     }
 
     public void testLeakageInListComp() throws IOException {
         doc = new Document("[b for b in range(5)]\n" +
-                "print b\n");
+                "print(b)\n");
         checkNoError();
     }
 
     public void testLeakageInListComp2() throws IOException {
         doc = new Document("[x for x in [y for y in range(3)]]\n" +
-                "print x, y\n");
+                "print(x, y)\n");
         checkNoError();
     }
 
@@ -855,9 +855,9 @@ public class OccurrencesAnalyzer2Test extends AnalysisTestsBase {
                 + "@implementer(I)\n"
                 + "class Ic:\n"
                 + "    def F(self):\n"
-                + "        print \"->\", self, \"Object\"\n"
+                + "        print(\"->\", self, \"Object\")\n"
                 + "c = Ic()\n"
-                + "print type(I), type(Ic), type(c), type(Ic.F), type(c.F)\n"
+                + "print(type(I), type(Ic), type(c), type(Ic.F), type(c.F))\n"
                 + "c.F()");
         checkError("Undefined variable: implementer");
     }

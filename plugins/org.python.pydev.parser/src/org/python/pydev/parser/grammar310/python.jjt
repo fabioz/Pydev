@@ -1169,9 +1169,9 @@ void literal_pattern() : {}
         | <MINUS> signed_number() #sub_2op(2)
     )?
     | String()
-    | <NONE>
-    | <TRUE>
-    | <FALSE>
+    | (<FALSE>)#False
+    | (<TRUE>)#True
+    | (<NONE>)#None
 }
 
 void signed_number() #void : {}

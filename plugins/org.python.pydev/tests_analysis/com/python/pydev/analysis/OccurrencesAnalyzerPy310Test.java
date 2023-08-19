@@ -520,6 +520,16 @@ public class OccurrencesAnalyzerPy310Test extends AnalysisTestsBase {
         checkNoError();
     }
 
+    public void testWithStmt4() {
+        doc = new Document("value = None\n"
+                + "\n"
+                + "match value:\n"
+                + "    case None:\n"
+                + "        print('matched none')\n"
+                + "");
+        checkNoError();
+    }
+
     public void testRestInMatch() {
         doc = new Document("def swallow_report(bird):\n"
                 + "    match bird:\n"
