@@ -261,7 +261,12 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
                 if (errorOnParsing == null) {
                     new FixLinesVisitor(node.beginLine - 1, node.beginColumn + startInternalStrColOffset - 1)
                             .traverse(typingNode);
-                    this.traverse(typingNode);
+                    this.scope.startScope(Scope.SCOPE_TYPE_ANNOTATION_STR);
+                    try {
+                        this.traverse(typingNode);
+                    } finally {
+                        this.scope.endScope();
+                    }
                 }
             } catch (Exception e) {
                 if (errorOnParsing == null) {

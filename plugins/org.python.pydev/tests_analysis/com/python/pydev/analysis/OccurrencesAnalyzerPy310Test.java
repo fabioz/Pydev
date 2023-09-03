@@ -561,6 +561,24 @@ public class OccurrencesAnalyzerPy310Test extends AnalysisTestsBase {
         checkNoError();
     }
 
+    public void testTypingInfoInStrOk() {
+        doc = new Document("class MyClass:\n"
+                + "    def method(self, a: \"MyClass\"):\n"
+                + "        pass");
+        checkNoError();
+    }
+
+    public void testTypingInfoInStrOk2() {
+        doc = new Document(""
+                + ""
+                + "def method(a: 'MyClass'):\n"
+                + "    pass\n"
+                + "class MyClass:\n"
+                + "    pass"
+                + "");
+        checkNoError();
+    }
+
     public void testTypingInfoInStrBad() {
         doc = new Document("\n"
                 + "a: 'Hashable'\n"

@@ -65,6 +65,11 @@ public final class Scope implements Iterable<ScopeItems> {
     public static final int SCOPE_TYPE_ANNOTATION = 32;
 
     /**
+     * the scope type is an annotation string
+     */
+    public static final int SCOPE_TYPE_ANNOTATION_STR = 64;
+
+    /**
      * when we are at method definition, not always is as expected...
      */
     public boolean isInMethodDefinition = false;
@@ -73,13 +78,13 @@ public final class Scope implements Iterable<ScopeItems> {
      * Constant defining the scopes that should be considered when we're in a method
      */
     public static final int ACCEPTED_METHOD_SCOPES = SCOPE_TYPE_GLOBAL | SCOPE_TYPE_METHOD | SCOPE_TYPE_LAMBDA
-            | SCOPE_TYPE_LIST_COMP | SCOPE_TYPE_ANNOTATION;
+            | SCOPE_TYPE_LIST_COMP | SCOPE_TYPE_ANNOTATION | SCOPE_TYPE_ANNOTATION_STR;
 
     /**
      * Constant defining all the available scopes
      */
     public static final int ACCEPTED_ALL_SCOPES = SCOPE_TYPE_GLOBAL | SCOPE_TYPE_METHOD | SCOPE_TYPE_LAMBDA
-            | SCOPE_TYPE_CLASS | SCOPE_TYPE_LIST_COMP | SCOPE_TYPE_ANNOTATION;
+            | SCOPE_TYPE_CLASS | SCOPE_TYPE_LIST_COMP | SCOPE_TYPE_ANNOTATION | SCOPE_TYPE_ANNOTATION_STR;
 
     /**
      * Constant defining that method and lambda are accepted.
@@ -109,6 +114,8 @@ public final class Scope implements Iterable<ScopeItems> {
                 return "List Comp Scope";
             case Scope.SCOPE_TYPE_ANNOTATION:
                 return "Annotation Scope";
+            case Scope.SCOPE_TYPE_ANNOTATION_STR:
+                return "Annotation Scope (str)";
         }
         return null;
     }
@@ -133,6 +140,15 @@ public final class Scope implements Iterable<ScopeItems> {
 
     public boolean isVisitingTypeAnnotation() {
         return this.visitingTypeAnnotation > 0;
+    }
+
+    /**
+     * Whether we're visiting a type annotation which is defined as a string.
+     */
+    private int visitingStrTypeAnnotation = 0;
+
+    public boolean isVisitingStrTypeAnnotation() {
+        return visitingStrTypeAnnotation > 0;
     }
 
     private int getNewId() {
@@ -286,6 +302,8 @@ public final class Scope implements Iterable<ScopeItems> {
     public void startScope(int scopeType) {
         if (scopeType == SCOPE_TYPE_ANNOTATION) {
             this.visitingTypeAnnotation += 1;
+        } else if (scopeType == SCOPE_TYPE_ANNOTATION_STR) {
+            this.visitingStrTypeAnnotation += 1;
         }
         int newId = getNewId();
         scope.push(new ScopeItems(newId, scopeType));
@@ -302,6 +320,8 @@ public final class Scope implements Iterable<ScopeItems> {
         ScopeItems scopeItems = scope.pop();
         if (scopeItems.getScopeType() == SCOPE_TYPE_ANNOTATION) {
             this.visitingTypeAnnotation -= 1;
+        } else if (scopeItems.getScopeType() == SCOPE_TYPE_ANNOTATION_STR) {
+            this.visitingStrTypeAnnotation -= 1;
         }
         return scopeItems;
     }

@@ -69,7 +69,9 @@ import org.python.pydev.parser.jython.ast.comprehensionType;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.string.FullRepIterable;
+import org.python.pydev.shared_core.structure.FastStack;
 import org.python.pydev.shared_core.structure.StringToIntCounterSmallSet;
 
 import com.python.pydev.analysis.visitors.Found;
@@ -335,6 +337,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
                 //found match in names to ignore...
 
                 if (finishClassScope && scope.getCurrScopeId() < single.scopeFound.getScopeId()
+                        && !(foundScopeType == Scope.SCOPE_TYPE_ANNOTATION_STR)
                         && (!futureAnnotationsImported && foundScopeType == Scope.SCOPE_TYPE_CLASS ||
                                 (!futureAnnotationsImported && foundScopeType == Scope.SCOPE_TYPE_ANNOTATION))) {
                     it.remove();
@@ -1213,6 +1216,20 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
             }
         }
 
+        if (!found) {
+            if (this.scope.isVisitingStrTypeAnnotation()) {
+                FastStack<ISimpleNode> scopeStack = this.currentLocalScope.getScopeStack();
+                for (ISimpleNode n : scopeStack) {
+                    if (n instanceof ClassDef) {
+                        ClassDef classDef = (ClassDef) n;
+                        if (rep.equals(((NameTok) classDef.name).id)) {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
         if (!found) {
             //this token might not be defined... (still, might be in names to ignore)
             int i;
