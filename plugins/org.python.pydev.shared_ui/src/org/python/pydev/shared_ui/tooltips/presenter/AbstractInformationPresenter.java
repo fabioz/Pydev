@@ -10,7 +10,6 @@ import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.TextPresentation;
 import org.eclipse.swt.graphics.Drawable;
 import org.eclipse.swt.widgets.Display;
-import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 
 /**
@@ -40,21 +39,7 @@ public abstract class AbstractInformationPresenter implements DefaultInformation
      * the ones existing and add the ones dependent on the platform
      */
     protected String correctLineDelimiters(String str) {
-        FastStringBuffer buf = new FastStringBuffer();
-        for (String s : StringUtils.splitInLines(str)) {
-
-            boolean found = false;
-            while (s.endsWith("\r") || s.endsWith("\n")) {
-                found = true;
-                s = s.substring(0, s.length() - 1);
-            }
-            buf.append(s);
-            if (found) {
-                buf.append(LINE_DELIM);
-            }
-        }
-        str = buf.toString();
-        return str;
+        return StringUtils.replaceNewLines(str, LINE_DELIM);
     }
 
     @Override

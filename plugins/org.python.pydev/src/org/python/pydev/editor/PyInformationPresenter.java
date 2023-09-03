@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.jface.resource.JFaceColors;
@@ -34,7 +33,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.TypedListener;
 import org.python.pydev.ast.item_pointer.ItemPointer;
-import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_ui.tooltips.presenter.AbstractInformationPresenter;
@@ -76,18 +74,7 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
         }
     }
 
-    private int fCounter;
-    private boolean fEnforceUpperLineLimit;
     private ControlListener resizeCallback;
-
-    public PyInformationPresenter(boolean enforceUpperLineLimit) {
-        super();
-        fEnforceUpperLineLimit = enforceUpperLineLimit;
-    }
-
-    public PyInformationPresenter() {
-        this(true);
-    }
 
     private TypedListener resizeListener = new TypedListener(new ControlListener() {
 
@@ -111,7 +98,7 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
      * Creates the reader and properly puts the presentation into place.
      */
     public Reader createReader(String hoverInfo, TextPresentation presentation) {
-        String str = PyStringUtils.removeWhitespaceColumnsToLeft(hoverInfo);
+        String str = hoverInfo;
 
         str = correctLineDelimiters(str);
 
@@ -192,63 +179,23 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
         return newString;
     }
 
-    protected void adaptTextPresentation(TextPresentation presentation, int offset, int insertLength) {
-
-        int yoursStart = offset;
-        int yoursEnd = offset + insertLength - 1;
-        yoursEnd = Math.max(yoursStart, yoursEnd);
-
-        Iterator<StyleRange> e = presentation.getAllStyleRangeIterator();
-        while (e.hasNext()) {
-
-            StyleRange range = e.next();
-
-            int myStart = range.start;
-            int myEnd = range.start + range.length - 1;
-            myEnd = Math.max(myStart, myEnd);
-
-            if (myEnd < yoursStart) {
-                continue;
-            }
-
-            if (myStart < yoursStart) {
-                range.length += insertLength;
-            } else {
-                range.start += insertLength;
-            }
-        }
-    }
-
-    private void append(FastStringBuffer buffer, String string, TextPresentation presentation) {
-
-        int length = string.length();
+    private void append(FastStringBuffer buffer, String string) {
         buffer.append(string);
-
-        if (presentation != null) {
-            adaptTextPresentation(presentation, fCounter, length);
-        }
-
-        fCounter += length;
-    }
-
-    private String getIndent(String line) {
-        int length = line.length();
-
-        int i = 0;
-        while (i < length && Character.isWhitespace(line.charAt(i))) {
-            ++i;
-        }
-
-        return (i == length ? line : line.substring(0, i)) + " "; //$NON-NLS-1$
     }
 
     /*
-     * @see IHoverInformationPresenterExtension#updatePresentation(Drawable drawable, String, TextPresentation, int, int)
+     * @see DefaultInformationControl.IHoverInformationPresenterExtension#updatePresentation(Drawable drawable, String, TextPresentation, int, int)
      * @since 3.2
      */
     @Override
     public String updatePresentation(Drawable drawable, String hoverInfo, TextPresentation presentation, int maxWidth,
             int maxHeight) {
+        // Note: we don't actually use nor respect maxWidth.
+        // In practice maxWidth could be used to clip/wrap based on the current viewport, but it's not really helpful
+        // as the current viewport can clip it already even if we send more information and spending compute
+        // time for the width can be slow (and when the user actually focuses the tooltip scrolls will be
+        // properly shown as it'll be requested with a big width/height).
+        // So, we just clip based on the height as that's faster/easier than calculating based on the width.
         if (drawable instanceof StyledText) {
             final StyledText styledText = (StyledText) drawable;
             styledText.addMouseListener(new MouseAdapter() {
@@ -257,7 +204,7 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
                 public void mouseDown(MouseEvent e) {
                     int offset;
                     try {
-                        offset = styledText.getOffsetAtLocation(new Point(e.x, e.y));
+                        offset = styledText.getOffsetAtPoint(new Point(e.x, e.y));
                     } catch (IllegalArgumentException e1) {
                         return; //invalid location
                     }
@@ -296,57 +243,35 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
             FastStringBuffer buffer = new FastStringBuffer();
             int maxNumberOfLines = Math.round((float) maxHeight / (float) gc.getFontMetrics().getHeight());
 
-            fCounter = 0;
-            PyLineBreakReader reader = new PyLineBreakReader(createReader(hoverInfo, presentation), gc, maxWidth);
-
-            boolean lastLineFormatted = false;
-            String lastLineIndent = null;
+            PyLineBreakReader reader = new PyLineBreakReader(createReader(hoverInfo, presentation));
 
             String line = reader.readLine();
-            boolean lineFormatted = reader.isFormattedLine();
             boolean firstLineProcessed = false;
 
             while (line != null) {
 
-                if (fEnforceUpperLineLimit && maxNumberOfLines <= 0) {
+                if (maxNumberOfLines <= 0) {
                     break;
                 }
 
                 if (firstLineProcessed) {
-                    if (!lastLineFormatted) {
-                        append(buffer, LINE_DELIM, null);
-                    } else {
-                        append(buffer, LINE_DELIM, presentation);
-                        if (lastLineIndent != null) {
-                            append(buffer, lastLineIndent, presentation);
-                        }
-                    }
+                    append(buffer, LINE_DELIM);
                 }
 
-                append(buffer, line, null);
+                append(buffer, line);
                 firstLineProcessed = true;
 
-                lastLineFormatted = lineFormatted;
-                if (!lineFormatted) {
-                    lastLineIndent = null;
-                } else if (lastLineIndent == null) {
-                    lastLineIndent = getIndent(line);
-                }
-
                 line = reader.readLine();
-                lineFormatted = reader.isFormattedLine();
 
                 maxNumberOfLines--;
             }
 
             if (line != null) {
-                append(buffer, LINE_DELIM, lineFormatted ? presentation : null);
+                append(buffer, LINE_DELIM);
             }
 
             return trim(buffer, presentation);
-
         } catch (IOException e) {
-
             // ignore TODO do something else?
             return null;
 
@@ -356,7 +281,6 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
     }
 
     private String trim(FastStringBuffer buffer, TextPresentation presentation) {
-
         int length = buffer.length();
 
         int end = length - 1;
