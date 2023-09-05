@@ -81,16 +81,18 @@ public final class ScopeItems {
     /**
      * Stack for names that should not generate warnings, such as builtins, method names, etc.
      */
-    public Map<String, Tuple<IToken, Found>> namesToIgnore = new HashMap<String, Tuple<IToken, Found>>();
+    public final Map<String, Tuple<IToken, Found>> namesToIgnore = new HashMap<String, Tuple<IToken, Found>>();
 
     public int ifSubScope = 0;
-    public FastStack<TryExceptInfo> tryExceptSubScope = new FastStack<TryExceptInfo>(10);
-    private int scopeId;
-    private int scopeType;
+    public final FastStack<TryExceptInfo> tryExceptSubScope = new FastStack<TryExceptInfo>(10);
+    private final int scopeId;
+    private final int scopeType;
+    public final int globalClassOrMethodScopeType;
 
-    public ScopeItems(int scopeId, int scopeType) {
+    public ScopeItems(int scopeId, int scopeType, int globalClassOrMethodScopeType) {
         this.scopeId = scopeId;
         this.scopeType = scopeType;
+        this.globalClassOrMethodScopeType = globalClassOrMethodScopeType;
     }
 
     public Found getLastAppearance(String rep) {

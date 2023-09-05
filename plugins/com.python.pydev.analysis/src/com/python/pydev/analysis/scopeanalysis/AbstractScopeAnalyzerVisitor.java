@@ -299,7 +299,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
      * used so that the token is added to the names to ignore...
      */
     protected void addToNamesToIgnore(SimpleNode node, boolean finishClassScope, boolean checkBuiltins) {
-        SourceToken token = AbstractVisitor.makeToken(node, "", nature, this.current);
+        final SourceToken token = AbstractVisitor.makeToken(node, "", nature, this.current);
 
         if (checkBuiltins) {
             if (checkCurrentScopeForAssignmentsToBuiltins()) {
@@ -311,9 +311,9 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
             }
         }
 
-        ScopeItems currScopeItems = scope.getCurrScopeItems();
+        final ScopeItems currScopeItems = scope.getCurrScopeItems();
 
-        Found found = new Found(token, token, scope.getCurrScopeId(), scope.getCurrScopeItems());
+        final Found found = new Found(token, token, scope.getCurrScopeId(), scope.getCurrScopeItems());
         org.python.pydev.shared_core.structure.Tuple<IToken, Found> tup = new org.python.pydev.shared_core.structure.Tuple<IToken, Found>(
                 token, found);
         addToNamesToIgnore(token, currScopeItems, tup);
@@ -324,22 +324,25 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
             Found n = it.next();
 
             GenAndTok single = n.getSingle();
-            int foundScopeType = single.scopeFound.getScopeType();
+            final ScopeItems scopeFound = single.scopeFound;
+            final int foundScopeType = scopeFound.getScopeType();
+            final int globalClassOrMethodScopeType = scopeFound.globalClassOrMethodScopeType;
             //ok, if we are in a scope method, we may not get things that were defined in a class scope.
-            if (((foundScopeType & Scope.ACCEPTED_METHOD_AND_LAMBDA) != 0)
+            if (((globalClassOrMethodScopeType & Scope.ACCEPTED_METHOD_AND_LAMBDA) != 0)
                     && scope.getCurrScopeItems().getScopeType() == Scope.SCOPE_TYPE_CLASS) {
                 continue;
             }
-            IToken tok = single.tok;
-            String firstPart = FullRepIterable.getFirstPart(tok.getRepresentation());
+            final IToken tok = single.tok;
+            final String firstPart = FullRepIterable.getFirstPart(tok.getRepresentation());
 
             if (firstPart.equals(token.getRepresentation())) {
                 //found match in names to ignore...
 
-                if (finishClassScope && scope.getCurrScopeId() < single.scopeFound.getScopeId()
+                if (finishClassScope && scope.getCurrScopeId() < scopeFound.getScopeId()
                         && !(foundScopeType == Scope.SCOPE_TYPE_ANNOTATION_STR)
-                        && (!futureAnnotationsImported && foundScopeType == Scope.SCOPE_TYPE_CLASS ||
-                                (!futureAnnotationsImported && foundScopeType == Scope.SCOPE_TYPE_ANNOTATION))) {
+                        && (!futureAnnotationsImported && (globalClassOrMethodScopeType == Scope.SCOPE_TYPE_CLASS
+                                || foundScopeType == Scope.SCOPE_TYPE_ANNOTATION)
+                                && (globalClassOrMethodScopeType & Scope.ACCEPTED_METHOD_AND_LAMBDA) == 0)) {
                     it.remove();
                     onAddUndefinedMessage(tok, found);
                 } else {

@@ -87,6 +87,14 @@ public final class Scope implements Iterable<ScopeItems> {
             | SCOPE_TYPE_CLASS | SCOPE_TYPE_LIST_COMP | SCOPE_TYPE_ANNOTATION | SCOPE_TYPE_ANNOTATION_STR;
 
     /**
+     * The scopes which may be considered a parent (because when we're in an annotation or list comp, etc
+     * we still want to know whether we're in the global/method/lamba/class scope).
+     */
+    public static final int ACCEPTED_GLOBAL_CLASS_OR_METHOD_SCOPE_TYPES = SCOPE_TYPE_GLOBAL | SCOPE_TYPE_METHOD
+            | SCOPE_TYPE_LAMBDA
+            | SCOPE_TYPE_CLASS;
+
+    /**
      * Constant defining that method and lambda are accepted.
      */
     public static final int ACCEPTED_METHOD_AND_LAMBDA = SCOPE_TYPE_METHOD | SCOPE_TYPE_LAMBDA;
@@ -306,9 +314,23 @@ public final class Scope implements Iterable<ScopeItems> {
             this.visitingStrTypeAnnotation += 1;
         }
         int newId = getNewId();
-        scope.push(new ScopeItems(newId, scopeType));
-        scopeId.push(newId);
 
+        int globalClassOrMethodScopeType = 0;
+        if ((scopeType & ACCEPTED_GLOBAL_CLASS_OR_METHOD_SCOPE_TYPES) != 0) {
+            globalClassOrMethodScopeType = scopeType;
+
+        } else {
+            for (int i = scope.size() - 1; i >= 0; i--) {
+                ScopeItems parent = scope.get(i);
+                int found = parent.getScopeType();
+                if ((found & ACCEPTED_GLOBAL_CLASS_OR_METHOD_SCOPE_TYPES) != 0) {
+                    globalClassOrMethodScopeType = found;
+                    break;
+                }
+            }
+        }
+        scope.push(new ScopeItems(newId, scopeType, globalClassOrMethodScopeType));
+        scopeId.push(newId);
     }
 
     public int getCurrScopeId() {

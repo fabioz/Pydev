@@ -568,6 +568,17 @@ public class OccurrencesAnalyzerPy310Test extends AnalysisTestsBase {
         checkNoError();
     }
 
+    public void testTypingInfoOk() {
+        doc = new Document(""
+                + "def method():   \n"
+                + "    a: SomeClass\n"
+                + "    print(a)\n"
+                + "class SomeClass:\n"
+                + "    pass        \n"
+                + "");
+        checkNoError();
+    }
+
     public void testTypingInfoInStrOk2() {
         doc = new Document(""
                 + ""
