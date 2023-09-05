@@ -45,7 +45,7 @@ public abstract class AbstractPyCodeCompletion implements IPyCodeCompletion {
      * tokens to actual completions as requested by the Eclipse infrastructure.
      * @param lookingForInstance if looking for instance, we should not add the 'self' as parameter.
      */
-    public static void changeItokenToCompletionPropostal(CompletionRequest request,
+    public static void changeItokenToCompletionProposal(CompletionRequest request,
             List<ICompletionProposalHandle> convertedProposals, TokensOrProposalsList iTokenList, boolean importsTip,
             ICompletionState state) {
 

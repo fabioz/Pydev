@@ -81,7 +81,7 @@ public class PyCodeCompletionsForTypedDict {
             tokensList.addAll(tokenCompletions);
 
             List<ICompletionProposalHandle> completionProposals = new ArrayList<>();
-            PyCodeCompletion.changeItokenToCompletionPropostal(request, completionProposals, tokensList, false, state);
+            PyCodeCompletion.changeItokenToCompletionProposal(request, completionProposals, tokensList, false, state);
             TokensOrProposalsList ret = new TokensOrProposalsList(completionProposals);
             return ret;
         }

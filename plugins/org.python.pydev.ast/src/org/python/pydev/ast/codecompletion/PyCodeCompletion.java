@@ -367,7 +367,7 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
                 tokensList = new TokensOrProposalsList(analyzedTokens.toArray(new Object[0]));
                 tokensList.addAll(new TokensListMixedLookingFor(alreadyChecked.values()));
             }
-            changeItokenToCompletionPropostal(request, ret, tokensList, importsTip, state);
+            changeItokenToCompletionProposal(request, ret, tokensList, importsTip, state);
         } catch (CompletionRecursionException e) {
             if (onCompletionRecursionException != null) {
                 onCompletionRecursionException.call(e);
