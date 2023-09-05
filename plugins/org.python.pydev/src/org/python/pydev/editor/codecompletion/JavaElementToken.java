@@ -43,7 +43,7 @@ public class JavaElementToken extends CompiledToken {
 
     private int completionProposalAdditionalFlags;
 
-    private char[] completionPropsoalSignature;
+    private char[] completionProposalSignature;
 
     /**
      * If not null, this image is returned (otherwise, the image is calculated)
@@ -67,13 +67,13 @@ public class JavaElementToken extends CompiledToken {
 
     protected JavaElementToken(String rep, String doc, String args, String parentPackage, int type,
             IJavaElement javaElement, int completionProposalKind, int completionProposalFlags,
-            int completionProposalAdditionalFlags, char[] completionPropsoalSignature) {
+            int completionProposalAdditionalFlags, char[] completionProposalSignature) {
         super(rep, doc, args, parentPackage, type, null);
         this.javaElement = javaElement;
         this.completionProposalKind = completionProposalKind;
         this.completionProposalFlags = completionProposalFlags;
         this.completionProposalAdditionalFlags = completionProposalAdditionalFlags;
-        this.completionPropsoalSignature = completionPropsoalSignature;
+        this.completionProposalSignature = completionProposalSignature;
     }
 
     public JavaElementToken(String rep, String doc, String args, String parentPackage, int type,
@@ -85,7 +85,7 @@ public class JavaElementToken extends CompiledToken {
         if (HAS_ADDITIONAL_FLAGS) {
             this.completionProposalAdditionalFlags = completionProposal.getAdditionalFlags();
         }
-        this.completionPropsoalSignature = completionProposal.getSignature();
+        this.completionProposalSignature = completionProposal.getSignature();
     }
 
     public JavaElementToken(String rep, String doc, String args, String parentPackage, int type,
@@ -106,8 +106,8 @@ public class JavaElementToken extends CompiledToken {
         if (HAS_ADDITIONAL_FLAGS) {
             generatedProposal.setAdditionalFlags(completionProposalAdditionalFlags);
         }
-        generatedProposal.setDeclarationSignature(completionPropsoalSignature);
-        generatedProposal.setSignature(completionPropsoalSignature);
+        generatedProposal.setDeclarationSignature(completionProposalSignature);
+        generatedProposal.setSignature(completionProposalSignature);
 
         //uses: kind, flags, signature to create an image.
         ImageDescriptor descriptor = provider.createImageDescriptor(generatedProposal);
