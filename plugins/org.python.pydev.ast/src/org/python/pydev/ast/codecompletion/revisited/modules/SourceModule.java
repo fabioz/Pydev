@@ -565,12 +565,12 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                     if (assign.targets.length == 1 && assign.targets[0] instanceof Name) {
                                         ClassDef classDef = (ClassDef) d.scope.getClassDef();
                                         if (NodeUtils.isEnum(classDef)) {
-                                            return new TokensList(new IToken[] {
-                                                    new ConcreteToken("name", "Enum name", "", "enum",
-                                                            ConcreteToken.TYPE_ATTR, manager.getNature()),
-                                                    new ConcreteToken("value", "Enum value", "", "enum",
-                                                            ConcreteToken.TYPE_ATTR, manager.getNature())
-                                            });
+                                            TokensList toks = ((SourceModule) d.module).getClassToks(
+                                                    initialState,
+                                                    manager,
+                                                    classDef);
+                                            toks.setLookingFor(LookingFor.LOOKING_FOR_INSTANCED_VARIABLE);
+                                            return toks;
                                         }
                                     }
 
@@ -604,12 +604,12 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                     ClassDef classDef = (ClassDef) d.scope.getClassDef();
                                     if (classDef != null) {
                                         if (NodeUtils.isEnum(classDef)) {
-                                            return new TokensList(new IToken[] {
-                                                    new ConcreteToken("name", "Enum name", "", "enum",
-                                                            ConcreteToken.TYPE_ATTR, manager.getNature()),
-                                                    new ConcreteToken("value", "Enum value", "", "enum",
-                                                            ConcreteToken.TYPE_ATTR, manager.getNature())
-                                            });
+                                            TokensList toks = ((SourceModule) d.module).getClassToks(
+                                                    initialState,
+                                                    manager,
+                                                    classDef);
+                                            toks.setLookingFor(LookingFor.LOOKING_FOR_INSTANCED_VARIABLE);
+                                            return toks;
                                         }
 
                                         FindDefinitionModelVisitor visitor = new FindDefinitionModelVisitor(

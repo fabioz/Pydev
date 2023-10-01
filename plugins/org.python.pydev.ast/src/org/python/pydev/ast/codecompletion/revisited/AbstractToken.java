@@ -408,7 +408,11 @@ public abstract class AbstractToken implements IToken {
                     for (int i = 0; i < decs.length; i++) {
                         decoratorsType dec = decs[i];
                         if (dec != null && dec.func != null) {
-                            if ("property".equals(NodeUtils.getRepresentationString(dec.func))) {
+                            final String representationString = NodeUtils.getRepresentationString(dec.func);
+                            if ("property".equals(representationString)
+                                    // The ones below are used for enums (depending on the python version).
+                                    || "DynamicClassAttribute".equals(representationString)
+                                    || "_magic_enum_attr".equals(representationString)) {
                                 return true;
                             }
                         }

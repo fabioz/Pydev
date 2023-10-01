@@ -3182,18 +3182,6 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals(1, comps.length);
     }
 
-    public void testEnum() throws Exception {
-        String s;
-        s = "" +
-                "from enum import Enum\n" +
-                "\n" +
-                "class Color(Enum):\n" +
-                "    Black = '#000000'\n" +
-                "    White = '#ffffff'\n" +
-                "Color.Black.";
-        requestCompl(s, s.length(), -1, new String[] { "name", "value" });
-    }
-
     public void testCallChain() throws Exception {
         String s;
         s = "" +
@@ -3523,6 +3511,51 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "                           \n" +
                 "a().";
         requestCompl(s, s.length(), -1, new String[] { "d()" });
+    }
+
+    public void testEnumNameVal() throws Exception {
+        String s;
+        s = "" +
+                "from enum import Enum\n" +
+                "\n" +
+                "class Color(Enum):\n" +
+                "    Black = '#000000'\n" +
+                "    White = '#ffffff'\n" +
+                "Color.Black.";
+        requestCompl(s, s.length(), -1, new String[] { "name", "value" });
+    }
+
+    public void testEnumCustom() throws Exception {
+        String s;
+        s = "" +
+                "from enum import Enum\n"
+                + "\n"
+                + "class Signal(Enum):\n"
+                + "    INITIALISE = 1\n"
+                + "\n"
+                + "    @property\n"
+                + "    def signal_type(self) -> str:\n"
+                + "        return \"some type\"\n"
+                + "\n"
+                + "Signal.INITIALISE.";
+        requestCompl(s, s.length(), -1, new String[] { "name", "value", "signal_type" });
+    }
+
+    public void testEnumCustom2() throws Exception {
+        String s;
+        s = "" +
+                "from enum import Enum\n"
+                + "\n"
+                + "class Signal(Enum):\n"
+                + "    INITIALISE = 1\n"
+                + "\n"
+                + "    @property\n"
+                + "    def signal_type(self) -> str:\n"
+                + "        return \"some type\"\n"
+                + "\n"
+                + "X = Signal.INITIALISE\n"
+                + "X.";
+        requestCompl(s, s.length(), -1, new String[] { "name", "value", "signal_type" });
     }
 
 }
