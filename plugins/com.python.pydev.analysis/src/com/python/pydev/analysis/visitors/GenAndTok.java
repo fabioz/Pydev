@@ -19,7 +19,7 @@ public final class GenAndTok {
 
     /**
      * This is the token that is from the current module that created the token (if on some wild import)
-     * 
+     *
      * May be equal to tok
      */
     public final IToken generator;
@@ -44,11 +44,17 @@ public final class GenAndTok {
      */
     public final ScopeItems scopeFound;
 
+    /**
+     * Determines whether it was in a typing.TYPE_CHECKING if when it was found.
+     */
+    public final boolean inTypeChecking;
+
     public GenAndTok(IToken generator, IToken tok, int scopeId, ScopeItems scopeFound) {
         this.generator = generator;
         this.tok = tok;
         this.scopeId = scopeId;
         this.scopeFound = scopeFound;
+        this.inTypeChecking = scopeFound.isInTypeChecking();
     }
 
     @Override

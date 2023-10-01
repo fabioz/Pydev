@@ -628,4 +628,75 @@ public class OccurrencesAnalyzerPy310Test extends AnalysisTestsBase {
         assertEquals(2, messages[0].getEndLine(doc));
         assertEquals(32, messages[0].getStartCol(doc));
     }
+
+    public void testTypingInTypeChecking() {
+        // i.e.: when an import is added when 'TYPE_CHECKING' it should not
+        // be considered a reimport afterwards.
+        doc = new Document(""
+                + "import typing\n"
+                + "if typing.TYPE_CHECKING:\n"
+                + "    import functools\n"
+                + "def method() -> 'functools.partial':\n"
+                + "    import functools\n"
+                + "    print(functools.partial)\n");
+        checkNoError();
+    }
+
+    public void testTypingInTypeCheckingUndefined() {
+        // i.e.: It's defined only when type-checking, so, it's an
+        // error to try to actually access it.
+        doc = new Document(""
+                + "import typing\n"
+                + "if typing.TYPE_CHECKING:\n"
+                + "    import functools\n"
+                + "def method() -> 'functools.partial':\n"
+                + "    print(functools.partial)\n");
+        IMessage[] messages = checkError("Undefined variable: functools\n");
+        assertEquals(1, messages.length);
+        assertEquals(5, messages[0].getStartLine(doc));
+    }
+
+    public void testTypingInTypeCheckingDefinedWithFutureImport() {
+        doc = new Document("from __future__ import annotations\n"
+                + "\n"
+                + "import typing\n"
+                + "\n"
+                + "if typing.TYPE_CHECKING:\n"
+                + "    import functools\n"
+                + "\n"
+                + "\n"
+                + "def method() -> functools.partial:\n"
+                + "    pass\n"
+                + "");
+        checkNoError();
+    }
+
+    public void testTypingInStrMarksAsUsed() {
+        doc = new Document("import typing\n"
+                + "\n"
+                + "if typing.TYPE_CHECKING:\n"
+                + "    import functools\n"
+                + "\n"
+                + "\n"
+                + "def method() -> 'functools.partial':\n"
+                + "    pass\n"
+                + "");
+        checkNoError();
+    }
+
+    public void testTypingInTypeCheckingUndefinedWithoutFutureImport() {
+        doc = new Document("import typing\n"
+                + "\n"
+                + "if typing.TYPE_CHECKING:\n"
+                + "    import functools\n"
+                + "\n"
+                + "\n"
+                + "def method() -> functools.partial:\n"
+                + "    pass\n"
+                + "");
+        // i.e.: it's only defined when type checking!
+        IMessage[] messages = checkError("Undefined variable: functools\n");
+        assertEquals(1, messages.length);
+        assertEquals(7, messages[0].getStartLine(doc));
+    }
 }

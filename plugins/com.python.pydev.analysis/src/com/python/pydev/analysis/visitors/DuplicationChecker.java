@@ -104,7 +104,7 @@ public final class DuplicationChecker {
      */
     private void checkDuplication(String name, SimpleNode node) {
         if (stack.size() > 0) {
-            if (!scope.getPrevScopeItems().getIsInSubSubScope()) {
+            if (!scope.getPrevScopeItems().getIsInStatementSubScope()) {
                 SimpleNode currNode = stack.peek().get(name);
                 if (currNode != null) {
                     if (hasTypingOverloadDecorator(currNode) || hasTypingOverloadDecorator(node)) {

@@ -415,7 +415,11 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
         if (args.annotation != null) {
             for (exprType expr : args.annotation) {
                 if (expr != null) {
-                    startScope(Scope.SCOPE_TYPE_ANNOTATION, expr);
+                    int scopeType = Scope.SCOPE_TYPE_ANNOTATION;
+                    if (futureAnnotationsImported) {
+                        scopeType = Scope.SCOPE_TYPE_ANNOTATION_STR;
+                    }
+                    startScope(scopeType, expr);
                     expr.accept(visitor);
                     endScope(expr);
                 }
@@ -424,7 +428,13 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
 
         //visit the return
         if (node.returns != null) {
+            int scopeType = Scope.SCOPE_TYPE_ANNOTATION;
+            if (futureAnnotationsImported) {
+                scopeType = Scope.SCOPE_TYPE_ANNOTATION_STR;
+            }
+            startScope(scopeType, node.returns);
             node.returns.accept(visitor);
+            endScope(node.returns);
         }
 
         //then the decorators (no, still not in method scope)
@@ -886,9 +896,9 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
 
     @Override
     public Object visitFor(For node) throws Exception {
-        scope.addIfSubScope();
+        scope.addStatementSubScope();
         Object ret = super.visitFor(node);
-        scope.removeIfSubScope();
+        scope.removeStatementSubScope();
         return ret;
     }
 
@@ -905,7 +915,11 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
         }
 
         if (node.type != null) {
-            startScope(Scope.SCOPE_TYPE_ANNOTATION, node.type);
+            int scopeType = Scope.SCOPE_TYPE_ANNOTATION;
+            if (futureAnnotationsImported) {
+                scopeType = Scope.SCOPE_TYPE_ANNOTATION_STR;
+            }
+            startScope(scopeType, node.type);
             node.type.accept(this);
             endScope(node.type);
         }
@@ -927,7 +941,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
      */
     @Override
     public Object visitIf(If node) throws Exception {
-        scope.addIfSubScope();
+        scope.addIfSubScope(node);
         Object r = super.visitIf(node);
         scope.removeIfSubScope();
         return r;
@@ -938,9 +952,9 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
      */
     @Override
     public Object visitWhile(While node) throws Exception {
-        scope.addIfSubScope();
+        scope.addStatementSubScope();
         Object r = super.visitWhile(node);
-        scope.removeIfSubScope();
+        scope.removeStatementSubScope();
         return r;
     }
 
@@ -954,9 +968,9 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
 
     @Override
     public Object visitTryFinally(TryFinally node) throws Exception {
-        scope.addIfSubScope();
+        scope.addStatementSubScope();
         Object r = super.visitTryFinally(node);
-        scope.removeIfSubScope();
+        scope.removeStatementSubScope();
         return r;
     }
 
@@ -1116,14 +1130,17 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
             for (Found found : foundItems) {
                 //the scope where it is defined must be an outer scope so that we can say it was defined later...
                 final GenAndTok foundItemFirst = found.getSingle();
-
                 //if something was not defined in a method, if we are in the class definition, it won't be found.
 
                 if ((probablyNotDefinedFirst.scopeFound.getScopeType() & Scope.ACCEPTED_METHOD_AND_LAMBDA) != 0
                         && m.getScopeType() != Scope.SCOPE_TYPE_CLASS) {
                     if (foundItemFirst.scopeId < probablyNotDefinedFirst.scopeId) {
-                        found.setUsed(true);
-                        setUsed = true;
+                        if (scope.typeCheckingDefinitionAndUsageOk(foundItemFirst,
+                                probablyNotDefinedFirst.inTypeChecking,
+                                probablyNotDefinedFirst.scopeFound.getScopeType())) {
+                            found.setUsed(true);
+                            setUsed = true;
+                        }
                     }
                 }
             }
@@ -1186,6 +1203,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
 
         int acceptedScopes = 0;
         ScopeItems currScopeItems = scope.getCurrScopeItems();
+        boolean inTypeChecking = currScopeItems.isInTypeChecking();
 
         if ((currScopeItems.getScopeType() & Scope.ACCEPTED_METHOD_AND_LAMBDA) != 0) {
             acceptedScopes = Scope.ACCEPTED_METHOD_SCOPES;
@@ -1210,7 +1228,8 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
         //search for it
         while (found == false && it.hasNext()) {
             String nextTokToSearch = it.next();
-            foundAs = scope.findFirst(nextTokToSearch, true, acceptedScopes);
+            foundAs = scope.findFirst(nextTokToSearch, true, acceptedScopes, inTypeChecking,
+                    currScopeItems.getScopeType());
             found = foundAs != null;
             if (found) {
                 foundAsStr = nextTokToSearch;

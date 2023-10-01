@@ -13,9 +13,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
 import org.python.pydev.core.IToken;
+import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.parser.jython.ast.excepthandlerType;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -83,7 +85,8 @@ public final class ScopeItems {
      */
     public final Map<String, Tuple<IToken, Found>> namesToIgnore = new HashMap<String, Tuple<IToken, Found>>();
 
-    public int ifSubScope = 0;
+    public final FastStack<If> ifNodes = new FastStack<>(10);
+    public int statementSubScope = 0;
     public final FastStack<TryExceptInfo> tryExceptSubScope = new FastStack<TryExceptInfo>(10);
     private final int scopeId;
     private final int scopeType;
@@ -140,32 +143,73 @@ public final class ScopeItems {
         foundItems.add(found);
     }
 
-    public void addIfSubScope() {
-        ifSubScope++;
+    // Cache on whether it's currently type-checking.
+    private Boolean inTypeChecking = null;
+
+    public boolean isInTypeChecking() {
+        if (statementSubScope == 0 || this.ifNodes.size() == 0) {
+            return false;
+        }
+
+        if (inTypeChecking != null) {
+            return inTypeChecking;
+        }
+
+        inTypeChecking = false;
+        for (ListIterator<If> it = this.ifNodes.iterator(); it.hasNext();) {
+            If ifStatement = it.next();
+            if (isTypeCheckingIfStatement(ifStatement)) {
+                inTypeChecking = true;
+                break;
+            }
+        }
+        return inTypeChecking;
+    }
+
+    private boolean isTypeCheckingIfStatement(If ifStatement) {
+        String rep = NodeUtils.getFullRepresentationString(ifStatement.test);
+        if (rep != null && (rep.equals("typing.TYPE_CHECKING") || rep.equals("TYPE_CHECKING"))) {
+            return true;
+        }
+        return false;
+    }
+
+    public void addIfSubScope(If node) {
+        this.ifNodes.push(node);
+        statementSubScope++;
+        inTypeChecking = null;
     }
 
     public void removeIfSubScope() {
-        ifSubScope--;
+        this.ifNodes.pop();
+        statementSubScope--;
+        inTypeChecking = null;
+    }
+
+    public void addStatementSubScope() {
+        statementSubScope++;
+    }
+
+    public void removeStatementSubScope() {
+        statementSubScope--;
     }
 
     public void addTryExceptSubScope(TryExcept node) {
         tryExceptSubScope.push(new TryExceptInfo(node));
+        statementSubScope++;
     }
 
     public void removeTryExceptSubScope() {
         tryExceptSubScope.pop();
+        statementSubScope--;
     }
 
     public FastStack<TryExceptInfo> getCurrTryExceptNodes() {
         return tryExceptSubScope;
     }
 
-    public boolean getIsInSubSubScope() {
-        return ifSubScope != 0 || tryExceptSubScope.size() != 0;
-    }
-
-    public boolean getIsInIfSubScope() {
-        return ifSubScope != 0;
+    public boolean getIsInStatementSubScope() {
+        return statementSubScope != 0;
     }
 
     /**

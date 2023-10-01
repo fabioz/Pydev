@@ -19,6 +19,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.IterTokenEntry;
 import org.python.pydev.core.TokensList;
+import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.FastStack;
@@ -176,7 +177,8 @@ public final class Scope implements Iterable<ScopeItems> {
      * - imports such as import os.path (one token is created for os and one for os.path)
      */
     public void addImportTokens(TokensList list, IToken generator, ICompletionCache completionCache) {
-        ScopeItems.TryExceptInfo withinExceptNode = scope.peek().getTryExceptImportError();
+        ScopeItems currScope = scope.peek();
+        ScopeItems.TryExceptInfo withinExceptNode = currScope.getTryExceptImportError();
 
         //only report undefined imports if we're not inside a try..except ImportError.
         boolean reportUndefinedImports = withinExceptNode == null;
@@ -197,11 +199,10 @@ public final class Scope implements Iterable<ScopeItems> {
             requireTokensToBeImports = true;
         }
 
-        ScopeItems m = scope.peek();
         for (IterTokenEntry entry : list) {
             IToken o = entry.getToken();
             //System.out.println("adding: "+o.getRepresentation());
-            Found found = addToken(generator, m, o, o.getRepresentation());
+            Found found = addToken(generator, currScope, o, o.getRepresentation());
             if (withinExceptNode != null) {
                 withinExceptNode.addFoundImportToTryExcept(found); //may mark previous as used...
             }
@@ -253,16 +254,18 @@ public final class Scope implements Iterable<ScopeItems> {
             generator = o;
         }
 
-        Found found = findFirst(rep, false);
+        Found found = findFirst(rep, false, m.isInTypeChecking(), m.getScopeType());
 
         boolean isReimport = false;
         if (!isInMethodDefinition && found != null) { //it will be removed from the scope
             if (found.isImport() && generator.isImport()) {
-                isReimport = true;
+                if (!found.getSingle().inTypeChecking) {
+                    isReimport = true;
+                }
                 //keep on going, as it still might be used or unused
 
             } else {
-                if (!found.isUsed() && !m.getIsInSubSubScope()) { // it was not used, and we're not in an if scope...
+                if (!found.isUsed() && !m.getIsInStatementSubScope()) { // it was not used, and we're not in an if scope...
 
                     //this kind of unused message should only happen if we are at the same scope...
                     if (found.getSingle().scopeFound.getScopeId() == getCurrScopeId()) {
@@ -290,6 +293,9 @@ public final class Scope implements Iterable<ScopeItems> {
         }
 
         Found newFound = new Found(o, generator, m.getScopeId(), m);
+        if (m.isInTypeChecking()) {
+            newFound.setUsed(true); // Don't report imports inside of typing.TYPE_CHECKING as unused.
+        }
         if (isReimport) {
             if (m.getTryExceptImportError() == null) {
                 //we don't want to add reimport messages if we're within a try..except
@@ -377,37 +383,59 @@ public final class Scope implements Iterable<ScopeItems> {
         return ret;
     }
 
-    public Found findFirst(String name, boolean setUsed) {
-        return findFirst(name, setUsed, ACCEPTED_ALL_SCOPES);
+    public Found findFirst(String name, boolean setUsed, boolean inTypeChecking, int currScopeType) {
+        return findFirst(name, setUsed, ACCEPTED_ALL_SCOPES, inTypeChecking, currScopeType);
     }
 
-    public Found findFirst(String name, boolean setUsed, int acceptedScopes) {
+    public boolean typeCheckingDefinitionAndUsageOk(GenAndTok definition, boolean usageTypeChecking,
+            int currScopeType) {
+        // This if is not needed because a SCOPE_TYPE_ANNOTATION_STR is used instead of a SCOPE_TYPE_ANNOTATION
+        // when visitor.futureAnnotationsImported == true.
+        // if (visitor.futureAnnotationsImported) {
+        // }
+        if ((currScopeType & SCOPE_TYPE_ANNOTATION_STR) != 0) {
+            return true;
+        }
+        if (definition.inTypeChecking && !usageTypeChecking) {
+            return false;
+        }
+        return true;
+    }
+
+    public Found findFirst(String name, boolean setUsed, int acceptedScopes, boolean inTypeChecking,
+            int currScopeType) {
         Iterator<ScopeItems> topDown = scope.topDownIterator();
         while (topDown.hasNext()) {
             ScopeItems m = topDown.next();
             if ((m.getScopeType() & acceptedScopes) != 0) {
                 Found f = m.getLastAppearance(name);
                 if (f != null) {
-                    if (setUsed) {
-                        f.setUsed(true);
+                    if (typeCheckingDefinitionAndUsageOk(f.getSingle(), inTypeChecking, currScopeType)) {
+                        if (setUsed) {
+                            f.setUsed(true);
+                        }
+                        return f;
                     }
-                    return f;
                 }
             }
         }
         return null;
     }
 
-    public void addIfSubScope() {
-        scope.peek().addIfSubScope();
-    }
-
-    public boolean getIsInIfSubScope() {
-        return scope.peek().getIsInIfSubScope();
+    public void addIfSubScope(If node) {
+        scope.peek().addIfSubScope(node);
     }
 
     public void removeIfSubScope() {
         scope.peek().removeIfSubScope();
+    }
+
+    public void addStatementSubScope() {
+        scope.peek().addStatementSubScope();
+    }
+
+    public void removeStatementSubScope() {
+        scope.peek().removeStatementSubScope();
     }
 
     public void addTryExceptSubScope(TryExcept node) {
