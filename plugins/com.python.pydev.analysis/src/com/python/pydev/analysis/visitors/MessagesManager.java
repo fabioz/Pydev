@@ -348,6 +348,13 @@ public final class MessagesManager {
                                 if (expr.value instanceof Str) {
                                     continue;
                                 }
+                                if (expr.value instanceof Name) {
+                                    Name name = (Name) expr.value;
+                                    if ("...".equals(name.id)) {
+                                        continue;
+                                    }
+
+                                }
                             }
                             addMessage = true;
                             break;

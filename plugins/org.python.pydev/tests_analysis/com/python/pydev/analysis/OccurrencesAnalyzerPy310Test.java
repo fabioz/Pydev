@@ -707,4 +707,21 @@ public class OccurrencesAnalyzerPy310Test extends AnalysisTestsBase {
                 + "");
         checkNoError();
     }
+
+    public void testOverload() {
+        doc = new Document("from typing import overload\n"
+                + "\n"
+                + "\n"
+                + "class C:\n"
+                + "    @overload\n"
+                + "    def foo(self, a: int) -> None: ...\n"
+                + "\n"
+                + "    @overload\n"
+                + "    def foo(self, a: str) -> None: ...\n"
+                + "\n"
+                + "    def foo(self, a: int | str) -> None:\n"
+                + "        print(a)  # dummy impl"
+                + "");
+        checkNoError();
+    }
 }
