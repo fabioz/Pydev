@@ -17,6 +17,7 @@ import java.util.ListIterator;
 import java.util.Map;
 
 import org.python.pydev.core.IToken;
+import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.parser.jython.ast.excepthandlerType;
@@ -91,11 +92,13 @@ public final class ScopeItems {
     private final int scopeId;
     private final int scopeType;
     public final int globalClassOrMethodScopeType;
+    public final SimpleNode scopeNode;
 
-    public ScopeItems(int scopeId, int scopeType, int globalClassOrMethodScopeType) {
+    public ScopeItems(int scopeId, int scopeType, int globalClassOrMethodScopeType, SimpleNode node) {
         this.scopeId = scopeId;
         this.scopeType = scopeType;
         this.globalClassOrMethodScopeType = globalClassOrMethodScopeType;
+        this.scopeNode = node;
     }
 
     public Found getLastAppearance(String rep) {

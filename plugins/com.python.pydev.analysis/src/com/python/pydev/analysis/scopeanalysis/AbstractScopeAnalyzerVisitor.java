@@ -1104,7 +1104,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
      * @param node
      */
     protected void startScope(int newScopeType, SimpleNode node) {
-        scope.startScope(newScopeType);
+        scope.startScope(newScopeType, node);
         onAfterStartScope(newScopeType, node);
     }
 

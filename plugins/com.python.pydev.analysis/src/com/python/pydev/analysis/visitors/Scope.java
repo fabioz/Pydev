@@ -19,6 +19,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.IterTokenEntry;
 import org.python.pydev.core.TokensList;
+import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.If;
 import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -312,8 +313,9 @@ public final class Scope implements Iterable<ScopeItems> {
 
     /**
      * initializes a new scope
+     * @param node
      */
-    public void startScope(int scopeType) {
+    public void startScope(int scopeType, SimpleNode node) {
         if (scopeType == SCOPE_TYPE_ANNOTATION) {
             this.visitingTypeAnnotation += 1;
         } else if (scopeType == SCOPE_TYPE_ANNOTATION_STR) {
@@ -335,7 +337,7 @@ public final class Scope implements Iterable<ScopeItems> {
                 }
             }
         }
-        scope.push(new ScopeItems(newId, scopeType, globalClassOrMethodScopeType));
+        scope.push(new ScopeItems(newId, scopeType, globalClassOrMethodScopeType, node));
         scopeId.push(newId);
     }
 

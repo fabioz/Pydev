@@ -58,6 +58,7 @@ import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.match_caseType;
 import org.python.pydev.parser.jython.ast.str_typeType;
+import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.callbacks.ICallbackListener;
 import org.python.pydev.shared_core.model.ErrorDescription;
 import org.python.pydev.shared_core.structure.FastStack;
@@ -251,32 +252,39 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
     @Override
     public Object visitStr(Str node) throws Exception {
         if (this.scope.isVisitingTypeAnnotation()) {
-            String s = node.s;
-            IGrammar grammar = PyParser.createGrammar(true, this.nature.getGrammarVersion(), s.toCharArray());
-            Throwable errorOnParsing = null;
-            int startInternalStrColOffset = getStrOffset(node);
-            try {
-                SimpleNode typingNode = grammar.file_input();
-                errorOnParsing = grammar.getErrorOnParsing();
-                if (errorOnParsing == null) {
-                    new FixLinesVisitor(node.beginLine - 1, node.beginColumn + startInternalStrColOffset - 1)
-                            .traverse(typingNode);
-                    this.scope.startScope(Scope.SCOPE_TYPE_ANNOTATION_STR);
-                    try {
-                        this.traverse(typingNode);
-                    } finally {
-                        this.scope.endScope();
+            String fullRepresentationString = NodeUtils.getFullRepresentationString(scope.currentScope().scopeNode);
+
+            // If a string is found inside a typing.Literal, don't parse it for type definitions
+            // (i.e.: those are considered constants in this case and not class references as in
+            // generic classes).
+            if (!"typing.Literal".equals(fullRepresentationString)) {
+                String s = node.s;
+                IGrammar grammar = PyParser.createGrammar(true, this.nature.getGrammarVersion(), s.toCharArray());
+                Throwable errorOnParsing = null;
+                int startInternalStrColOffset = getStrOffset(node);
+                try {
+                    SimpleNode typingNode = grammar.file_input();
+                    errorOnParsing = grammar.getErrorOnParsing();
+                    if (errorOnParsing == null) {
+                        new FixLinesVisitor(node.beginLine - 1, node.beginColumn + startInternalStrColOffset - 1)
+                                .traverse(typingNode);
+                        this.scope.startScope(Scope.SCOPE_TYPE_ANNOTATION_STR, node);
+                        try {
+                            this.traverse(typingNode);
+                        } finally {
+                            this.scope.endScope();
+                        }
+                    }
+                } catch (Exception e) {
+                    if (errorOnParsing == null) {
+                        errorOnParsing = e;
                     }
                 }
-            } catch (Exception e) {
-                if (errorOnParsing == null) {
-                    errorOnParsing = e;
+                if (errorOnParsing != null) {
+                    IDocument doc = new Document(s);
+                    reportParserError(node, node.beginLine, node.beginColumn + startInternalStrColOffset, doc,
+                            errorOnParsing);
                 }
-            }
-            if (errorOnParsing != null) {
-                IDocument doc = new Document(s);
-                reportParserError(node, node.beginLine, node.beginColumn + startInternalStrColOffset, doc,
-                        errorOnParsing);
             }
         }
         if (node.fstring && (node.fstring_nodes == null || node.fstring_nodes.length == 0)) {

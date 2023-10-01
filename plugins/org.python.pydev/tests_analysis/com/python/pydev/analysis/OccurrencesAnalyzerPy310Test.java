@@ -699,4 +699,12 @@ public class OccurrencesAnalyzerPy310Test extends AnalysisTestsBase {
         assertEquals(1, messages.length);
         assertEquals(7, messages[0].getStartLine(doc));
     }
+
+    public void testTypingWithLiterals() {
+        doc = new Document("import typing\n"
+                + "def method() -> typing.Literal['a', 'b']:\n"
+                + "    return 'a'\n"
+                + "");
+        checkNoError();
+    }
 }
