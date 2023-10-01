@@ -54,6 +54,7 @@ import org.python.pydev.parser.jython.ast.MatchValue;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.NonLocal;
 import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.jython.ast.Print;
@@ -855,6 +856,14 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
             n.accept(this);
         }
 
+        fixAfterNode(node);
+        return null;
+    }
+
+    @Override
+    public Object visitNonLocal(NonLocal node) throws Exception {
+        fixNode(node);
+        node.traverse(this);
         fixAfterNode(node);
         return null;
     }

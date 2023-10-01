@@ -51,6 +51,7 @@ import org.python.pydev.parser.jython.ast.MatchSequence;
 import org.python.pydev.parser.jython.ast.MatchValue;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.NonLocal;
 import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.jython.ast.Print;
@@ -878,20 +879,54 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
     }
 
     @Override
-    public Object visitGlobal(Global node) throws Exception {
+    public Object visitNonLocal(NonLocal node) throws Exception {
         beforeNode(node);
-        doc.addRequire("global", node);
-
+        int id = doc.pushRecordChanges();
+        doc.addRequire("nonlocal ", node);
         if (node.names != null) {
-            for (int i = 0; i < node.names.length; i++) {
-                if (i > 0) {
-                    doc.addRequire(",", lastNode);
-                }
-                if (node.names[i] != null) {
-                    node.names[i].accept(this);
+            if (node.names.length > 0) {
+                for (int i = 0; i < node.names.length; i++) {
+                    if (i > 0) {
+                        doc.addRequire(",", lastNode);
+                    }
+                    if (node.names[i] != null) {
+                        node.names[i].accept(this);
+                    }
                 }
             }
         }
+        java.util.List<ILinePart> recordedChanges = this.doc.popRecordChanges(id);
+        this.doc.replaceRecorded(recordedChanges, "nonlocal", "nonlocal ");
+
+        if (node.value != null) {
+            doc.addRequire("=", lastNode);
+            node.value.accept(this);
+        }
+
+        afterNode(node);
+        return null;
+    }
+
+    @Override
+    public Object visitGlobal(Global node) throws Exception {
+        beforeNode(node);
+        int id = doc.pushRecordChanges();
+        doc.addRequire("global ", node);
+        if (node.names != null) {
+            if (node.names.length > 0) {
+                for (int i = 0; i < node.names.length; i++) {
+                    if (i > 0) {
+                        doc.addRequire(",", lastNode);
+                    }
+                    if (node.names[i] != null) {
+                        node.names[i].accept(this);
+                    }
+                }
+            }
+        }
+        java.util.List<ILinePart> recordedChanges = this.doc.popRecordChanges(id);
+        this.doc.replaceRecorded(recordedChanges, "global", "global ");
+
         if (node.value != null) {
             doc.addRequire("=", lastNode);
             node.value.accept(this);

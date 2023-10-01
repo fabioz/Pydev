@@ -413,6 +413,25 @@ public class PrettyPrinter30Test extends AbstractPrettyPrinterTestBase {
         checkPrettyPrintEqual(s, expected);
     }
 
+    public void testNonlocal() throws Exception {
+        String s = ""
+                + "def another():\n"
+                + "    a,b,c = 3\n"
+                + "    def method():\n"
+                + "        nonlocal a\n"
+                + "        nonlocal b,c\n";
+
+        checkPrettyPrintEqual(s);
+    }
+
+    public void testGlobal() throws Exception {
+        String s = "def method():\n"
+                + "    global a\n"
+                + "    global b,c\n";
+
+        checkPrettyPrintEqual(s);
+    }
+
     public void testOthers2() throws Throwable {
         final String s = "" +
                 "def _format(node):\n" +
