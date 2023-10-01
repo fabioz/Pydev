@@ -38,6 +38,7 @@ public class UIConstants {
     public static final String MAGIC_OBJECT_ICON = "icons/magic_co.gif";
     public static final String STATIC_MEMBER_HIDE_ICON = "icons/static_co.gif";
     public static final String FIELDS_HIDE_ICON = "icons/fields_co.gif";
+    public static final String STATIC_MEMBER_HIDE_OVERLOADS = "icons/overload_co.gif";
 
     //Decorations
     public static final String PRIVATE_ICON = "icons/private_obj.gif"; //__XXX
@@ -46,6 +47,7 @@ public class UIConstants {
 
     public static final String DECORATION_CLASS = "icons/decoration_class_obj.png";
     public static final String DECORATION_STATIC = "icons/decoration_static_obj.png";
+    public static final String DECORATION_OVERLOAD = "icons/decoration_overload_obj.png";
 
     // Actions
     public static final String SYNC_WITH_EDITOR = "icons/sync_ed.gif";

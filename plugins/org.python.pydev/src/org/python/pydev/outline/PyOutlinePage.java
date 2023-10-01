@@ -7,7 +7,7 @@
 /*
  * Author: atotic
  * Author: fabioz
- * 
+ *
  * Created: Jul 10, 2003
  */
 package org.python.pydev.outline;
@@ -23,14 +23,14 @@ import org.python.pydev.shared_ui.utils.IViewWithControls;
 import org.python.pydev.ui.NotifyViewCreated;
 
 /**
- * Outline page, displays the structure of the document in the editor window. 
+ * Outline page, displays the structure of the document in the editor window.
  *
  * Partition outlining:<p>
  * PyDocumentProvider already partitions the document into strings/comments/other<p>
  * RawPartition is the simplest outline that shows this "raw" document partitioning<p>
  * raw partition was only used as an example, not useful in production<p>
- * 
- * @note: tests for the outline page are not directly for the outline page, but for its model, 
+ *
+ * @note: tests for the outline page are not directly for the outline page, but for its model,
  * based on ParsedItems.
  **/
 public class PyOutlinePage extends BaseOutlinePage implements IViewWithControls {
@@ -62,6 +62,7 @@ public class PyOutlinePage extends BaseOutlinePage implements IViewWithControls 
         menuManager.add(new OutlineHideFieldsAction(this, imageCache));
         menuManager.add(new OutlineHideNonPublicMembersAction(this, imageCache));
         menuManager.add(new OutlineHideStaticMethodsAction(this, imageCache));
+        menuManager.add(new OutlineHideOverloadsAction(this, imageCache));
     }
 
 }

@@ -187,6 +187,8 @@ public class ParsedItem extends BaseParsedItem {
                             decorationIcon = UIConstants.DECORATION_STATIC;
                         } else if (decoratorFuncName.id.equals("classmethod")) {
                             decorationIcon = UIConstants.DECORATION_CLASS;
+                        } else if (decoratorFuncName.id.equals("overload")) {
+                            decorationIcon = UIConstants.DECORATION_OVERLOAD;
                         }
                     }
                 }
