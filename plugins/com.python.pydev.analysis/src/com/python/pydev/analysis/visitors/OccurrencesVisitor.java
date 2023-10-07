@@ -257,7 +257,7 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
             // If a string is found inside a typing.Literal, don't parse it for type definitions
             // (i.e.: those are considered constants in this case and not class references as in
             // generic classes).
-            if (!"typing.Literal".equals(fullRepresentationString)) {
+            if (!"typing.Literal".equals(fullRepresentationString) && !"Literal".equals(fullRepresentationString)) {
                 String s = node.s;
                 IGrammar grammar = PyParser.createGrammar(true, this.nature.getGrammarVersion(), s.toCharArray());
                 Throwable errorOnParsing = null;
