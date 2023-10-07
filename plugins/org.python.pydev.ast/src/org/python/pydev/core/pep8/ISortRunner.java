@@ -53,10 +53,13 @@ public class ISortRunner {
                         : new String[0];
 
                 List<String> known = new ArrayList<>();
-                for (String s : knownThirdParty) {
-                    known.add("-o");
-                    known.add(s);
-                }
+                // This is no longer done (let isort itself manage it now).
+                // The issue in using it is that if you're developing a program with a namespace package,
+                // it's possible that it'll have one part in the env and another as the actual sources.
+                // for (String s : knownThirdParty) {
+                //     known.add("-o");
+                //     known.add(s);
+                // }
                 final String[] args = ArrayUtils.concatArrays(pathArgs, isortArguments, known.toArray(new String[0]),
                         new String[] { "-d", "-" });
                 Tuple<Process, String> processInfo = pythonRunner.createProcessFromModuleName("isort",
@@ -65,7 +68,8 @@ public class ISortRunner {
                 cmdarrayAsStr = processInfo.o2;
             }
 
-            return RunnerCommon.writeContentsAndGetOutput(fileContents.getBytes(encoding), encoding, process, cmdarrayAsStr,
+            return RunnerCommon.writeContentsAndGetOutput(fileContents.getBytes(encoding), encoding, process,
+                    cmdarrayAsStr,
                     "isort");
         } catch (Exception e) {
             Log.log(e);
