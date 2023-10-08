@@ -50,6 +50,7 @@ x:\liclipsews\liclipsews\Pydev\builders\org.python.pydev.build\build_cmd.bat
 		throws an exception (it cannot be installed in the environment)
 
 		Create tab in cmdermini:
+			activate py311_64
 			set FORCE_PYDEVD_VC_VARS=C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat
 			X:\liclipsews\liclipsews\Pydev\builders\org.python.pydev.build\build_cmd.bat
 
@@ -89,6 +90,9 @@ cd org.python.pydev.p2-repo-11.0.0-SNAPSHOT
 
 cdd X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-11.0.0-SNAPSHOT
 C:\Users\fabio\AppData\Roaming\npm\surge.cmd --domain pydev-11-0-0.surge.sh
+
+	Add update site to SourceForge (create directory with version and push it).
+
 "C:\Program Files\FileZilla FTP Client\filezilla.exe" sftp://fabioz,pydev@frs.sourceforge.net/home/project-web/pydev/htdocs/pydev_update_site --local="X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-11.0.0-SNAPSHOT"
 
 
