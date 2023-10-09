@@ -40,5 +40,5 @@ Export-Package: org.python.copiedfromeclipsesrc,
  org.python.pydev.json.eclipsesource,
  org.python.pydev.refactoring.core.base,
  org.python.pydev.shared_ui.search.replace
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: org.python.pydev.core

@@ -31,5 +31,5 @@ Require-Bundle: org.eclipse.ui,
  org.python.pydev.shared_interactive_console;bundle-version="[11.0.0,11.0.1)"
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: pydev_django.jar
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: org.python.pydev.django

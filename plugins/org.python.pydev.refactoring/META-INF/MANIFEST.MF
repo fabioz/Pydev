@@ -68,5 +68,5 @@ Export-Package: org.python.pydev.refactoring,
  org.python.pydev.refactoring.ui.actions,
  org.python.pydev.refactoring.ui.actions.internal,
  org.python.pydev.refactoring.ui.pages.core.eclipse
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: org.python.pydev.refactoring

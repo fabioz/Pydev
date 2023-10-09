@@ -135,5 +135,5 @@ Export-Package: org.apache.lucene,
  org.python.pydev.shared_core.utils,
  org.python.pydev.shared_core.yaml
 Bundle-Vendor: Brainwy Software Ltda
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: org.python.pydev.shared.core
