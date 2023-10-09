@@ -130,7 +130,7 @@
     <repository.url>https://download.eclipse.org/releases/2023-09/</repository.url>
   </properties>
   <prerequisites>
-    <maven>3.0</maven>
+    <maven>3.9.5</maven>
   </prerequisites>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.python.pydev</groupId>
