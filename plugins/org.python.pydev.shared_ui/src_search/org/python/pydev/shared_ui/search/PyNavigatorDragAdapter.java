@@ -29,7 +29,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
  * Implements drag behaviour when items are dragged out of the resource
  * navigator. Copied from deprecated org.eclipse.ui.views.navigator.NavigatorDragAdapter
  */
-public class NavigatorDragAdapter extends DragSourceAdapter {
+public class PyNavigatorDragAdapter extends DragSourceAdapter {
     private static final String CHECK_MOVE_TITLE = "Check Move";
 
     private static final String CHECK_DELETE_MESSAGE = "{0} is read-only. Do you still wish to delete it?";
@@ -43,7 +43,7 @@ public class NavigatorDragAdapter extends DragSourceAdapter {
      *
      * @param provider The selection provider
      */
-    public NavigatorDragAdapter(ISelectionProvider provider) {
+    public PyNavigatorDragAdapter(ISelectionProvider provider) {
         selectionProvider = provider;
     }
 

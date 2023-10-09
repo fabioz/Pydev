@@ -300,7 +300,7 @@ public abstract class AbstractSearchIndexResultPage extends AbstractTextSearchVi
     private void addDragAdapters(StructuredViewer viewer) {
         Transfer[] transfers = new Transfer[] { ResourceTransfer.getInstance() };
         int ops = DND.DROP_COPY | DND.DROP_LINK;
-        viewer.addDragSupport(ops, transfers, new NavigatorDragAdapter(viewer));
+        viewer.addDragSupport(ops, transfers, new PyNavigatorDragAdapter(viewer));
     }
 
     @Override
