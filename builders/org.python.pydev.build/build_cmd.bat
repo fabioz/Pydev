@@ -17,7 +17,7 @@ set DRIVE=x:
 set BASE_LOCAL_PYDEV_GIT=X:\liclipsews\liclipsews\Pydev
 set BUILD_DIR=X:\pydev_build\build_dir
 set DEPLOY_DIR=X:\pydev_build\deploy_dir
-set JAVA_HOME=D:\bin\jdk-11.0.17+8
+set JAVA_HOME=D:\bin\jdk-17.0.8.1+1
 set MAVEN_BIN=X:\liclipsews\maven\apache-maven-3.8.6\bin
 set GIT_EXECUTABLE="C:\Program Files\Git\bin\git.exe"
 @echo Expected in env var: SIGN_KEYPASS
