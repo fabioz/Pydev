@@ -20,7 +20,20 @@ jobs:
           java-version: '17'
           distribution: 'adopt'
           cache: 'maven'
+
+      - name: Installed Maven version
+        run:  echo "version=$(mvn -q -v)" >> $GITHUB_OUTPUT
+        shell: bash
+        
+      - name: Set up Maven
+        uses: stCarolas/setup-maven@v4.5
+        with:
+          maven-version: 3.9.5
           
+      - name: New Maven version
+        run:  echo "version=$(mvn -q -v)" >> $GITHUB_OUTPUT
+        shell: bash
+        
       - name: Set up Python 3.8
         uses: actions/setup-python@v2
         with:
