@@ -152,8 +152,8 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
         String userArgs = StringUtils.replaceNewLines(
                 RuffPreferences.getRuffArgs(resource), " ");
         List<String> userArgsAsList = new ArrayList<>(Arrays.asList(ProcessUtils.parseArguments(userArgs)));
-        if (!userArgsAsList.contains("--format=json")) {
-            userArgsAsList.add("--format=json");
+        if (!userArgsAsList.contains("--output-format=json")) {
+            userArgsAsList.add("--output-format=json");
         }
         // run ruff in project location
         IProject project = resource.getProject();
@@ -272,7 +272,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
             jsonValue = JsonValue.readFrom(output);
         } catch (Exception e) {
             Log.log(StringUtils.format(
-                    "Expected ruff output to be with json format. i.e.: --format=json.\nFile: %s\nOutput:\n%s",
+                    "Expected ruff output to be with json format. i.e.: --output-format=json.\nFile: %s\nOutput:\n%s",
                     resource.getFullPath(), output), e);
             return;
         }
