@@ -2935,9 +2935,9 @@ public class GenCythonAstImpl {
                     CompletionProposalFactory.get().getCythonShellId());
             String contents = parserInfo.document.get();
             String ret = serverShell.convertToJsonAst(StringUtils.replaceNewLines(contents, "\n"));
-            System.out.println("---");
-            System.out.println(JsonValue.readFrom(ret).toPrettyString());
-            System.out.println("---");
+            // System.out.println("---");
+            // System.out.println(JsonValue.readFrom(ret).toPrettyString());
+            // System.out.println("---");
             return ret;
         } catch (RuntimeException e) {
             throw e;
