@@ -285,27 +285,35 @@
   </build>
   <profiles>
     <profile>
-      <!-- We only sign the jars when the keystore has been provided in the environment -->
+      <!-- References to signing with hardware-based token -->
+      <!-- https://docs.digicert.com/en/software-trust-manager/ci-cd-integrations/script-integrations/maven-integration-with-pkcs11.html -->
+      <!-- https://stackoverflow.com/questions/44003975/ev-code-signing-extremely-slow/54928402#54928402 -->
+      <!-- https://stackoverflow.com/questions/43594938/maven-jnlp-creation-with-ev-code-signing -->
+      <!-- https://knowledge.digicert.com/tutorials/sign-java-jar-files-with-a-hardware-token-based-code-signing-certificate-in-windows.html -->
+      <!-- https://support.globalsign.com/code-signing/ev-code-signing-java-token-based -->
       <id>sign-jars</id>
       <activation>
-        <file>
-          <exists>${env.SIGN_KEYSTORE}</exists>
-        </file>
+	      <property>
+	        <!-- To use: mvn -Dsign-release=true -->
+	        <name>sign-release</name>
+	        <value>true</value>
+	      </property>
       </activation>
       <build>
         <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-jarsigner-plugin</artifactId>
-            <version>1.4</version>
+            <version>3.0.0</version>
             <configuration>
-              <!-- Note: to sign with a .pfx the alias can be seen with keytool -list -v -storetype pkcs12 -keystore code_sign.pfx -->
               <keystore>${env.SIGN_KEYSTORE}</keystore>
-              <storepass>${env.SIGN_STOREPASS}</storepass>
-              <alias>${env.SIGN_ALIAS}</alias>
-              <keypass>${env.SIGN_KEYPASS}</keypass>
               <storetype>${env.SIGN_STORETYPE}</storetype>
               <tsa>${env.SIGN_TSA}</tsa>
+              <providerClass>${env.SIGN_PROVIDER_CLASS}</providerClass>
+              <providerArg>${env.SIGN_PROVIDER_ARG}</providerArg>
+              <storepass>${env.SIGN_STOREPASS}</storepass>
+              <keypass>${env.SIGN_KEYPASS}</keypass>
+              <alias>${env.SIGN_ALIAS}</alias>
               <verbose>true</verbose>
             </configuration>
             <executions>

@@ -66,7 +66,7 @@ python %BUILD_DIR%/Pydev/plugins/org.python.pydev.core/pysrc/build_tools/build.p
 python %BUILD_DIR%/Pydev/plugins/org.python.pydev.core/pysrc/build_tools/build_binaries_windows.py
 
 @echo to clean after the build: -DcleanAfter.set=true
-mvn install
+mvn install -Dsign-release=true
 
 
 
