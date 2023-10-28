@@ -1,12 +1,13 @@
 import sys
 import os
 import re
+from pathlib import Path
 
 def compare_lines(lines_obtained, lines_expected):
     import textwrap
     if lines_obtained == lines_expected:
         return
-    
+
     msg = 'Lines differ.\n'
     diff_lines = []
     lines_obtained.insert(0, '=== Obtained ===')
@@ -30,7 +31,7 @@ def compare_lines(lines_obtained, lines_expected):
                 line2 = l2[j]
             except:
                 line2 = ''
-                
+
             if i == 0:
                 sep = '    '
             else:
@@ -71,7 +72,7 @@ def update_version(version):
 def fix_contents_version(contents, version):
     bugfixversion = int(re.sub(r'^\d+\.\d+\.(\d+)', r'\1', version))
     nextversion = re.sub(r'^(\d+\.\d+\.)\d+', r'\1', version) + str(bugfixversion + 1)
-    
+
     contents = re.sub(r'(bundle-version=")\[\d+\.\d+\.\d+,\d+\.\d+\.\d+\)"', r'\1[%s,%s)"' % (version, nextversion), contents)
     contents = re.sub(r'(version=)\"\d+\.\d+\.\d+(\.qualifier\")', r'\1"%s\2' % (version,), contents)
     contents = re.sub(r'(<version)>\d+\.\d+\.\d+(-SNAPSHOT</version>)', r'\1>%s\2' % (version,), contents)
@@ -82,7 +83,7 @@ def fix_contents_version(contents, version):
 def fix_liclipse_contents_version(contents, version):
     bugfixversion = int(re.sub(r'^\d+\.\d+\.(\d+)', r'\1', version))
     nextversion = re.sub(r'^(\d+\.\d+\.)\d+', r'\1', version) + str(bugfixversion + 1)
-    
+
     contents = re.sub(r'((com|org)\.python\.pydev(\.\w+)?;)(bundle-version=")\[\d+\.\d+\.\d+,\d+\.\d+\.\d+\)"', r'\1\4[%s,%s)"' % (version, nextversion), contents)
     contents = re.sub(r'(<feature id="org\.python\.pydev\.feature" version=")(\d+\.\d+\.\d+)(\.qualifier"/>)', r'\g<1>%s\3' % (version,), contents)
     return contents
@@ -129,7 +130,7 @@ def test_lines2():
  org.python.pydev.shared_core;bundle-version="[5.6.0,5.6.1)",
  org.python.pydev;bundle-version="[5.6.0,5.6.1)",
  com.python.pydev;bundle-version="[5.6.0,5.6.1)",
- 
+
  <feature id="org.python.pydev.feature" version="5.6.0.qualifier"/>
 ''', '6.7.1')
 
@@ -140,7 +141,7 @@ def test_lines2():
  org.python.pydev.shared_core;bundle-version="[6.7.1,6.7.2)",
  org.python.pydev;bundle-version="[6.7.1,6.7.2)",
  com.python.pydev;bundle-version="[6.7.1,6.7.2)",
- 
+
  <feature id="org.python.pydev.feature" version="6.7.1.qualifier"/>
 '''
     check_contents(contents, expected)
@@ -161,8 +162,6 @@ def update_version_in_liclipse(version):
             with open(f, 'w') as stream:
                 stream.write(new_contents)
 
-
-
 if __name__ == '__main__':
     if len(sys.argv) == 2:
         if sys.argv[1] == '--test':
@@ -172,5 +171,6 @@ if __name__ == '__main__':
             version = sys.argv[1]
             update_version(version)
             update_version_in_liclipse(version)
+            update_version_in_build_homepage(version)
     else:
         print('This script requires the new version (i.e.: 3.6.0)')
