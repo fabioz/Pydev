@@ -14,7 +14,7 @@
 * Contributors:
 *     Fabio Zadrozny <fabiofz@gmail.com> - initial implementation
 ******************************************************************************/
-/* 
+/*
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
  * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  */
@@ -41,6 +41,10 @@ public class ModuleAdapterTestCase extends AbstractIOTestCase {
 
         ModuleAdapterTestConfig config = null;
         XStream xstream = new XStream();
+        XStream.setupDefaultSecurity(xstream);
+        xstream.allowTypesByWildcard(new String[] {
+                "org.python.pydev.**"
+        });
         xstream.alias("config", ModuleAdapterTestConfig.class);
 
         ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(data.source),

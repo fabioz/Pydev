@@ -69,10 +69,10 @@ def main():
                     manifest = plugin_dir / 'META-INF' / 'MANIFEST.MF'
                     txt = manifest.read_text('utf-8')
                     assert txt.count('Bundle-ClassPath: refactoring.jar') == 1
-                    assert 'tests/lib/xstream-1.4.4.jar' not in txt
+                    assert 'tests/lib/xstream-1.4.20.jar' not in txt
                     txt = txt.replace('Bundle-ClassPath: refactoring.jar', '''Bundle-ClassPath: refactoring.jar,
  tests/lib/xpp3-1.1.3.4.O.jar,
- tests/lib/xstream-1.4.4.jar,
+ tests/lib/xstream-1.4.20.jar,
  contrib/ch/hsr/ukistler/astgraph/jgraph-5.8.3.1.jar''')
                     manifest.write_text(txt, 'utf-8')
                     print('Writing', manifest)
@@ -83,7 +83,7 @@ def main():
                     classpath.write_text(txt, 'utf-8')
                     print('Writing', classpath)
 
-                    properties['jars.extra.classpath'] = 'contrib/ch/hsr/ukistler/astgraph/jgraph-5.8.3.1.jar,tests/lib/xpp3-1.1.3.4.O.jar,tests/lib/xstream-1.4.4.jar'
+                    properties['jars.extra.classpath'] = 'contrib/ch/hsr/ukistler/astgraph/jgraph-5.8.3.1.jar,tests/lib/xpp3-1.1.3.4.O.jar,tests/lib/xstream-1.4.20.jar'
 
                 print('Updating', build_properties)
                 with build_properties.open('w') as fp:

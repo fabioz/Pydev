@@ -159,7 +159,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
         } catch (CompletionRecursionException e) {
             //that's ok... we're asking for it here...
         }
-        requestCompl(f, strDoc, strDoc.length(), -1, new String[] { "args", "with_traceback(tb)" });
+        requestCompl(f, strDoc, strDoc.length(), -1, new String[] { "args", "with_traceback(self, tb)" });
     }
 
     public void testCompleteImportBuiltin() throws BadLocationException, IOException, Exception {
@@ -236,12 +236,12 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
 
     public void testBuiltinsInNamespace2() throws BadLocationException, IOException, Exception {
         String s = "__builtins__.RuntimeError.";
-        requestCompl(s, s.length(), 2, new String[] { "args", "with_traceback(tb)" });
+        requestCompl(s, s.length(), 2, new String[] { "args", "with_traceback(self, tb)" });
     }
 
     public void testBuiltinsInNamespace2Underline() throws BadLocationException, IOException, Exception {
         String s = "__builtins__.RuntimeError._";
-        requestCompl(s, s.length(), -1, new String[] { "__doc__", "__init__()", "__str__()" });
+        requestCompl(s, s.length(), -1, new String[] { "__doc__", "__init__(self)", "__str__(self)" });
     }
 
     public void testPreferForcedBuiltin() throws BadLocationException, IOException, Exception {

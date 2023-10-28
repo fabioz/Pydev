@@ -108,6 +108,11 @@ public class SelectionExtensionTestCase extends AbstractIOTestCase {
     private MockupSelectionConfig initConfig() {
         MockupSelectionConfig config = null;
         XStream xstream = new XStream();
+        XStream.setupDefaultSecurity(xstream);
+        xstream.allowTypesByWildcard(new String[] {
+                "org.python.pydev.**"
+        });
+
         xstream.alias("config", MockupSelectionConfig.class);
 
         if (data.config.length() > 0) {

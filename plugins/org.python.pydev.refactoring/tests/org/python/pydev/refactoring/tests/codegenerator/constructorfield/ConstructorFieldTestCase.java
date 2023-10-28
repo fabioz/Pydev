@@ -76,6 +76,10 @@ public class ConstructorFieldTestCase extends AbstractIOTestCase {
     private MockupConstructorFieldConfig initConfig() {
         MockupConstructorFieldConfig config = null;
         XStream xstream = new XStream();
+        XStream.setupDefaultSecurity(xstream);
+        xstream.allowTypesByWildcard(new String[] {
+                "org.python.pydev.**"
+        });
         xstream.alias("config", MockupConstructorFieldConfig.class);
 
         if (data.config.length() > 0) {

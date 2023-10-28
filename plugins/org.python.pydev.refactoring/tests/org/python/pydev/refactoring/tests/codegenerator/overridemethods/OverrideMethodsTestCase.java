@@ -79,6 +79,10 @@ public class OverrideMethodsTestCase extends AbstractIOTestCase {
     private MockupOverrideMethodsConfig initConfig() {
         MockupOverrideMethodsConfig config = null;
         XStream xstream = new XStream();
+        XStream.setupDefaultSecurity(xstream);
+        xstream.allowTypesByWildcard(new String[] {
+                "org.python.pydev.**"
+        });
         xstream.alias("config", MockupOverrideMethodsConfig.class);
 
         if (data.config.length() > 0) {

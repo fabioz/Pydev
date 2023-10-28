@@ -54,3 +54,4 @@ plugins/org.python.pydev.core/pysrc/.settings
 **/v2_indexcache/**
 plugins/com.python.pydev.runalltests/fake_homedir*
 .cache
+/__pycache__/

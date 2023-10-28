@@ -26,11 +26,6 @@
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/.gitignore</locationURI>
 		</link>
 		<link>
-			<name>.travis.yml</name>
-			<type>1</type>
-			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/.travis.yml</locationURI>
-		</link>
-		<link>
 			<name>LICENSE.txt</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/LICENSE.txt</locationURI>
@@ -56,11 +51,6 @@
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/make_release.py</locationURI>
 		</link>
 		<link>
-			<name>make_s3cfg.sh</name>
-			<type>1</type>
-			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/make_s3cfg.sh</locationURI>
-		</link>
-		<link>
 			<name>pom.xml</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/pom.xml</locationURI>
@@ -69,31 +59,6 @@
 			<name>report</name>
 			<type>2</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/report</locationURI>
-		</link>
-		<link>
-			<name>test_with_tycho.patch</name>
-			<type>1</type>
-			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/test_with_tycho.patch</locationURI>
-		</link>
-		<link>
-			<name>travis.TODO</name>
-			<type>1</type>
-			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/travis.TODO</locationURI>
-		</link>
-		<link>
-			<name>travisdeps.sh</name>
-			<type>1</type>
-			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/travisdeps.sh</locationURI>
-		</link>
-		<link>
-			<name>travisgetkeystore.sh</name>
-			<type>1</type>
-			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/travisgetkeystore.sh</locationURI>
-		</link>
-		<link>
-			<name>travisupload.sh</name>
-			<type>1</type>
-			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/travisupload.sh</locationURI>
 		</link>
 		<link>
 			<name>update_version.py</name>

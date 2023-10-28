@@ -103,6 +103,10 @@ public class GeneratePropertiesTestCase extends AbstractIOTestCase {
     private MockupGeneratePropertiesConfig initConfig() {
         MockupGeneratePropertiesConfig config = null;
         XStream xstream = new XStream();
+        XStream.setupDefaultSecurity(xstream);
+        xstream.allowTypesByWildcard(new String[] {
+                "org.python.pydev.**"
+        });
         xstream.alias("config", MockupGeneratePropertiesConfig.class);
 
         if (data.config.length() > 0) {
