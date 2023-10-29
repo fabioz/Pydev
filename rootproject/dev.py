@@ -15,6 +15,7 @@ import os
 from typing import Sequence, Callable
 from pathlib import Path
 import sys
+import subprocess
 
 _VERSION = '11.0.2'
 
@@ -28,17 +29,21 @@ def _call(cmdline: str | Sequence[str]):
     subprocess.check_call(cmdline)
 
 
+def _create_temp(contents: str, suffix: str) -> str:
+    import tempfile
+    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as batch_file:
+        batch_file_path = batch_file.name
+        # Write batch commands to the temporary file
+        batch_file.write(contents.encode('utf-8'))
+    return batch_file_path
+
+
 def _cmd(batch_commands:str, cwd=None):
     import subprocess
-    import tempfile
 
+    batch_file_path = _create_temp(batch_commands, ".bat")
     try:
-        with tempfile.NamedTemporaryFile(suffix=".bat", delete=False) as batch_file:
-            batch_file_path = batch_file.name
-            # Write batch commands to the temporary file
-            batch_file.write(batch_commands.encode('utf-8'))
-
-        subprocess.check_call(['cmd', '/c', batch_file_path], cwd=cwd)
+        subprocess.run(['cmd', '/c', batch_file_path], input=b'\n', check=True, cwd=cwd)
     finally:
         os.remove(batch_file_path)
 
@@ -177,9 +182,9 @@ def copy_and_zips():
     # X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository
     # to
     # X:\pydev_build\update_site_dir\updates
-    _cmd('''
-copy X:/pydev_build/build_dir/pydev/features/org.python.pydev.p2-repo/target/repository/features/*.jar X:/pydev_build/update_site_dir/updates/features /Y
-copy X:/pydev_build/build_dir/pydev/features/org.python.pydev.p2-repo/target/repository/plugins/*.jar X:/pydev_build/update_site_dir/updates/plugins /Y
+    _cmd(r'''
+copy X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository\features\*.jar X:\pydev_build\update_site_dir\updates\features /Y
+copy X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\repository\plugins\*.jar X:\pydev_build\update_site_dir\updates\plugins /Y
 ''')
 
     _cmd(
@@ -191,6 +196,63 @@ copy X:/pydev_build/build_dir/pydev/features/org.python.pydev.p2-repo/target/rep
         f'git archive -o "X:/pydev_build/build_dir/pydev/features/org.python.pydev.p2-repo/target/runnable/PyDev {_VERSION}-sources.zip" origin/master',
         cwd='X:/pydev_build/build_dir/pydev'
     )
+
+
+def copy_zips_to_sf():
+    script = rf'''
+open sftp://fabioz%2Cpydev@frs.sourceforge.net/ -hostkey="ssh-ed25519 255 209BDmH3jsRyO9UeGPPgLWPSegKmYCBIya0nR/AWWCY="
+mkdir "/home/pfs/project/p/py/pydev/pydev/PyDev {_VERSION}/"
+put "X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable\PyDev {_VERSION}.zip" "/home/pfs/project/p/py/pydev/pydev/PyDev {_VERSION}/PyDev {_VERSION}.zip"
+put "X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable\PyDev {_VERSION}-sources.zip" "/home/pfs/project/p/py/pydev/pydev/PyDev {_VERSION}/PyDev {_VERSION}-sources.zip"
+exit
+'''
+    temp_file = _create_temp(script, '.txt')
+    try:
+        dirname = os.path.dirname(temp_file)
+        basename = os.path.basename(temp_file)
+        _cmd(f"winscp.com.exe /script={basename} /log=winscp_log.txt", cwd=dirname)
+    finally:
+        os.remove(temp_file)
+
+    import webbrowser
+    webbrowser.open(f'https://sourceforge.net/projects/pydev/files/pydev/{_VERSION}/')
+
+
+def add_to_update_site_mirror():
+    base = Path(r'X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target')
+    snapshot = base / rf'org.python.pydev.p2-repo-{_VERSION}-SNAPSHOT'
+    snapshot.mkdir(exist_ok=True)
+    print(f'Creating .zip of snapshot ({snapshot})')
+    _cmd(rf'"C:\Program Files\7-Zip\7z" x ..\org.python.pydev.p2-repo-{_VERSION}-SNAPSHOT.zip', cwd=snapshot)
+
+    print(f'Pushing to surge')
+    _cmd(rf'''C:\Users\fabio\AppData\Roaming\npm\surge.cmd --domain {_VERSION.replace('.', '-')}.surge.sh''', cwd=snapshot)
+
+    print(f'Pushing to sourceforge')
+    script = rf'''
+open sftp://fabioz%2Cpydev@frs.sourceforge.net/ -hostkey="ssh-ed25519 255 209BDmH3jsRyO9UeGPPgLWPSegKmYCBIya0nR/AWWCY="
+mkdir "/home/project-web/pydev/htdocs/pydev_update_site/{_VERSION}/"
+synchronize remote "X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-{_VERSION}-SNAPSHOT" "/home/project-web/pydev/htdocs/pydev_update_site/{_VERSION}"
+exit
+'''
+    temp_file = _create_temp(script, '.txt')
+    try:
+        dirname = os.path.dirname(temp_file)
+        basename = os.path.basename(temp_file)
+        _cmd(f"winscp.com.exe /script={basename} /log=winscp_log.txt", cwd=dirname)
+    finally:
+        os.remove(temp_file)
+
+
+def add_to_github():
+    env = {
+        'CONVERT_SOURCE':rf'X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\org.python.pydev.p2-repo-{_VERSION}-SNAPSHOT',
+        'CONVERT_FINAL_ZIP':rf'X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable\PyDev {_VERSION}.zip',
+        'CONVERT_TARGET_DIR':rf'X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\github',
+    }
+    subprocess.check_call([sys.executable, r'X:\release_tools\convert_to_github.py', _VERSION], env=env)
+    import webbrowser
+    webbrowser.open(rf'''https://github.com/fabioz/Pydev/releases/new?tag=pydev_{_VERSION.replace('.', '_')}''')
 
 
 def _gen_fire_args() -> dict[str, Callable]:
