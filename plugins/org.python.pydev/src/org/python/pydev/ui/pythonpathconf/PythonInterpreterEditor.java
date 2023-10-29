@@ -44,4 +44,9 @@ public class PythonInterpreterEditor extends AbstractInterpreterEditor {
         return true;
     }
 
+    @Override
+    protected boolean getShowVMArguments() {
+        return true;
+    }
+
 }

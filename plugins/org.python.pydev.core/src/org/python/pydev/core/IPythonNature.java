@@ -51,6 +51,8 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
         public static final String JYTHON_PREFIX = "jython";
         public static final String IRONYTHON_PREFIX = "ironpython";
 
+        public static final String LATEST_VERSION_NUMBER = "3.12";
+
         static {
             ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_3_0);
             ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_3_6);
@@ -169,8 +171,8 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
                         + " is no longer supported.\n\nPlease refer to: Need to use older Eclipse/Java/Python\n\nin https://www.pydev.org/download.html\n\n");
             }
             // It seems a version we don't directly support, let's check it...
-            Log.log("Unsupported version:" + version + " (falling back to 3.11)");
-            buf.append("3.11"); // latest 3
+            Log.log("Unsupported version:" + version + " (falling back to " + LATEST_VERSION_NUMBER + ")");
+            buf.append(LATEST_VERSION_NUMBER); // latest 3
             String fullVersion = buf.toString();
             if (ALL_VERSIONS_ANY_FLAVOR.contains(fullVersion)) {
                 return fullVersion;

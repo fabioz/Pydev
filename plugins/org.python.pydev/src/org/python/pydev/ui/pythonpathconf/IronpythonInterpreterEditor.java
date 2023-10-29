@@ -41,4 +41,8 @@ public class IronpythonInterpreterEditor extends AbstractInterpreterEditor {
         return false;
     }
 
+    @Override
+    protected boolean getShowVMArguments() {
+        return false;
+    }
 }

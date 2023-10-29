@@ -65,6 +65,7 @@ import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.PlatformUtils;
+import org.python.pydev.shared_core.version.Version;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -251,6 +252,10 @@ public class InterpreterInfo implements IInterpreterInfo {
             return false;
         }
 
+        if (info.vmArgs.equals(this.vmArgs) == false) {
+            return false;
+        }
+
         if (this.pipenvTargetDir != null) {
             if (info.pipenvTargetDir == null) {
                 return false;
@@ -354,6 +359,7 @@ public class InterpreterInfo implements IInterpreterInfo {
 
                     boolean fromPythonBackend = false;
                     String infoExecutable = null;
+                    String infoVmArgs = null;
                     String infoName = null;
                     String infoVersion = null;
                     String pipenvTargetDir = null;
@@ -379,6 +385,9 @@ public class InterpreterInfo implements IInterpreterInfo {
 
                         } else if ("executable".equals(name)) {
                             infoExecutable = data;
+
+                        } else if ("vmArgs".equals(name)) {
+                            infoVmArgs = data;
 
                         } else if ("pipenv_target_dir".equals(name)) {
                             pipenvTargetDir = data;
@@ -495,6 +504,17 @@ public class InterpreterInfo implements IInterpreterInfo {
                             new ArrayList<String>(), forcedLibs, envVars, stringSubstitutionVars);
                     info.setName(infoName);
                     info.setActivateCondaEnv(activateCondaEnv);
+                    if (infoVmArgs != null) {
+                        info.setVmArgs(infoVmArgs);
+                    } else {
+                        if (infoVersion != null) {
+                            Version foundVersion = new Version(infoVersion);
+                            if (foundVersion.isGreaterThanOrEqualTo(new Version("3.11"))) {
+                                info.setVmArgs("-Xfrozen_modules=off");
+                            }
+                        }
+                    }
+
                     info.pipenvTargetDir = pipenvTargetDir;
                     for (String s : predefinedPaths) {
                         info.addPredefinedCompletionsPath(s);
@@ -781,6 +801,11 @@ public class InterpreterInfo implements IInterpreterInfo {
             // is preserved).
             buffer.append("<activate_conda>" + activateCondaEnv + "</activate_conda>\n");
         }
+
+        // i.e.: We always save it, even if empty and on load we may set default values.
+        buffer.append("<vmArgs>");
+        buffer.append(escape(vmArgs));
+        buffer.append("</vmArgs>\n");
 
         if (pipenvTargetDir != null) {
             buffer.append("<pipenv_target_dir>");
@@ -2056,6 +2081,21 @@ public class InterpreterInfo implements IInterpreterInfo {
     private volatile boolean loadFinished = true;
 
     private boolean activateCondaEnv;
+
+    private String vmArgs = "";
+
+    @Override
+    public void setVmArgs(String vmArgs) {
+        if (vmArgs == null) {
+            throw new NullPointerException("vmArgs may not be null");
+        }
+        this.vmArgs = vmArgs;
+    }
+
+    @Override
+    public String getVmArgs() {
+        return this.vmArgs;
+    }
 
     private String pipenvTargetDir;
 

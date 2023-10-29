@@ -42,4 +42,9 @@ public class JythonInterpreterEditor extends AbstractInterpreterEditor {
         return false;
     }
 
+    @Override
+    protected boolean getShowVMArguments() {
+        return false;
+    }
+
 }

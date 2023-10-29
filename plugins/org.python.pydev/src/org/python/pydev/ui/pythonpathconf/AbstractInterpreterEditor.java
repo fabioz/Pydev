@@ -38,6 +38,9 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseEvent;
@@ -57,6 +60,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
@@ -148,6 +152,10 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
     private final Set<String> exeOrJarOfInterpretersWithBuiltinsChanged = new HashSet<String>();
     private final Set<String> exeOrJarOfInterpretersWithPredefinedChanged = new HashSet<String>();
     private final Set<String> exeOrJarOfInterpretersWithStringSubstitutionChanged = new HashSet<String>();
+
+    private Label vmArgsLabel;
+
+    private Text vmArgsText;
 
     private void clearInfos() {
         nameToInfo.clear();
@@ -283,7 +291,57 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
                 renameSelection();
             }
         });
+
+        if (getShowVMArguments()) {
+            vmArgsLabel = new Label(parent, SWT.LEFT);
+            vmArgsLabel.setFont(parent.getFont());
+            vmArgsLabel.setText("VM arguments");
+            vmArgsLabel.addDisposeListener(event -> vmArgsLabel = null);
+
+            vmArgsText = new Text(parent, SWT.SINGLE | SWT.BORDER);
+            vmArgsText.setFont(parent.getFont());
+            vmArgsText.addDisposeListener(event -> vmArgsText = null);
+
+            vmArgsText.addKeyListener(new KeyAdapter() {
+
+                @Override
+                public void keyReleased(KeyEvent e) {
+                    InterpreterInfo info = workingCopy.getInfo();
+                    if (info != null) {
+                        info.setVmArgs(vmArgsText.getText());
+                    }
+                }
+            });
+            vmArgsText.addFocusListener(new FocusAdapter() {
+                // Ensure that the value is checked on focus loss in case we
+                // missed a keyRelease or user hasn't released key.
+                // See https://bugs.eclipse.org/bugs/show_bug.cgi?id=214716
+                @Override
+                public void focusLost(FocusEvent e) {
+                    InterpreterInfo info = workingCopy.getInfo();
+                    if (info != null) {
+                        info.setVmArgs(vmArgsText.getText());
+                    }
+                }
+            });
+
+            GridData gd = new GridData();
+            gd.horizontalAlignment = SWT.FILL;
+            gd.verticalAlignment = SWT.FILL;
+            gd.grabExcessVerticalSpace = true;
+            gd.horizontalSpan = 2;
+            vmArgsLabel.setLayoutData(gd);
+
+            gd = new GridData();
+            gd.horizontalAlignment = SWT.FILL;
+            gd.grabExcessVerticalSpace = true;
+            gd.horizontalSpan = 2;
+            vmArgsText.setLayoutData(gd);
+        }
+
     }
+
+    protected abstract boolean getShowVMArguments();
 
     private void renameSelection() {
         int index = getSelectionIndex();
@@ -951,6 +1009,9 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
                 this.forcedBuiltins.update(info);
                 this.predefinedCompletions.update(info);
                 workingCopy.setInfo(info);
+            }
+            if (this.getShowVMArguments()) {
+                this.vmArgsText.setText(info.getVmArgs());
             }
             if (this.getShowPackageTab()) {
                 packageTab.setInfo(info);
