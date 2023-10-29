@@ -136,6 +136,10 @@ public interface IInterpreterInfo {
      */
     File searchExecutableForInterpreter(String executable, boolean recursive) throws UnableToFindExecutableException;
 
+    public String getVmArgs();
+
+    public void setVmArgs(String vmArgs);
+
     public boolean getActivateCondaEnv();
 
     void setActivateCondaEnv(boolean b);

@@ -48,6 +48,11 @@ public interface IInterpreterManager {
     public String IRONPYTHON_INTERNAL_SHELL_VM_ARGS = "IRONPYTHON_INTERNAL_SHELL_VM_ARGS";
 
     /**
+     * This is the constant from where we get the default vm args for Python
+     */
+    public String PYTHON_INTERNAL_SHELL_VM_ARGS = "PYTHON_INTERNAL_SHELL_VM_ARGS";
+
+    /**
      * Constant for the default values
      */
     public String IRONPYTHON_DEFAULT_INTERNAL_SHELL_VM_ARGS = "-X:Frames -X:ExceptionDetail -X:ShowClrExceptions";

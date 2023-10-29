@@ -15,6 +15,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -95,7 +96,7 @@ public class PythonRunnerConfig {
     public final IProject project;
     public final IPath[] resource;
     public final IPath interpreter;
-    public final IInterpreterInfo interpreterLocation;
+    public final IInterpreterInfo interpreterInfo;
     private final String arguments;
     public final File workingDirectory;
     public final String pythonpathUsed;
@@ -399,8 +400,8 @@ public class PythonRunnerConfig {
         acceptTimeout = PydevPrefs.getEclipsePreferences().getInt(PyDevEditorPreferences.CONNECT_TIMEOUT,
                 PyDevEditorPreferences.DEFAULT_CONNECT_TIMEOUT);
 
-        interpreterLocation = getInterpreterLocation(conf, pythonNature, this.getRelatedInterpreterManager());
-        interpreter = getInterpreter(interpreterLocation, conf, pythonNature);
+        interpreterInfo = getInterpreterLocation(conf, pythonNature, this.getRelatedInterpreterManager());
+        interpreter = getInterpreter(interpreterInfo, conf, pythonNature);
 
         //make the environment
         ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
@@ -418,14 +419,14 @@ public class PythonRunnerConfig {
 
         if (envp == null) {
             //ok, the user has done nothing to the environment, just get all the default environment which has the pythonpath in it
-            envp = SimpleRunner.getEnvironment(pythonNature, interpreterLocation, manager);
+            envp = SimpleRunner.getEnvironment(pythonNature, interpreterInfo, manager);
 
         } else {
             //ok, the user has done something to configure it, so, just add the pythonpath to the
             //current env (if he still didn't do so)
             Map envMap = conf.getAttribute(ILaunchManager.ATTR_ENVIRONMENT_VARIABLES, (Map) null);
 
-            String pythonpath = SimpleRunner.makePythonPathEnvString(pythonNature, interpreterLocation, manager);
+            String pythonpath = SimpleRunner.makePythonPathEnvString(pythonNature, interpreterInfo, manager);
             updateVar(pythonNature, manager, win32, envMap, "PYTHONPATH", pythonpath);
             if (isJython()) {
                 //Also update the classpath env variable.
@@ -440,7 +441,7 @@ public class PythonRunnerConfig {
             }
 
             //And we also must get the environment variables specified in the interpreter manager.
-            envp = interpreterLocation.updateEnv(envp, envMap.keySet());
+            envp = interpreterInfo.updateEnv(envp, envMap.keySet());
         }
 
         boolean hasDjangoNature = project.hasNature(PythonNature.DJANGO_NATURE_ID);
@@ -1011,15 +1012,18 @@ public class PythonRunnerConfig {
         }
     }
 
-    /**
-     * @param cmdArgs
-     * @throws CoreException
-     */
     private void addVmArgs(List<String> cmdArgs) throws CoreException {
-        String[] vmArguments = getVMArguments(configuration);
-        if (vmArguments != null) {
+        String[] vmArguments = getLaunchVMArguments(configuration);
+        if (vmArguments != null && vmArguments.length > 0) {
             for (int i = 0; i < vmArguments.length; i++) {
                 cmdArgs.add(vmArguments[i]);
+            }
+        } else {
+            // Use default VM arguments from the interpreter.
+            String vmArgs = interpreterInfo.getVmArgs();
+            if (vmArgs != null && vmArgs.length() > 0) {
+                String[] parsed = parseVmArguments(vmArgs);
+                cmdArgs.addAll(Arrays.asList(parsed));
             }
         }
     }
@@ -1028,14 +1032,18 @@ public class PythonRunnerConfig {
      * @return an array with the vm arguments in the given configuration.
      * @throws CoreException
      */
-    private String[] getVMArguments(ILaunchConfiguration configuration) throws CoreException {
+    private String[] getLaunchVMArguments(ILaunchConfiguration configuration) throws CoreException {
         String args = configuration.getAttribute(Constants.ATTR_VM_ARGUMENTS, (String) null);
         if (args != null && args.trim().length() > 0) {
-            String expanded = getStringSubstitution(PythonNature.getPythonNature(project)).performStringSubstitution(
-                    args);
-            return ProcessUtils.parseArguments(expanded);
+            return parseVmArguments(args);
         }
         return null;
+    }
+
+    private String[] parseVmArguments(String args) throws CoreException {
+        String expanded = getStringSubstitution(PythonNature.getPythonNature(project)).performStringSubstitution(
+                args);
+        return ProcessUtils.parseArguments(expanded);
     }
 
     /**

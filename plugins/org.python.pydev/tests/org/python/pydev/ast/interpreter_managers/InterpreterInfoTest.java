@@ -314,6 +314,24 @@ public class InterpreterInfoTest extends TestCase {
         assertEquals(i1, i2);
     }
 
+    public void testInterpreterInfoVMArgs() throws Exception {
+        InterpreterInfo info = new InterpreterInfo("2.4", "C:\\bin\\Python24\\python.exe", new ArrayList<>());
+        info.setVmArgs("-Xfoobar");
+
+        InterpreterInfo info2 = new InterpreterInfo("2.4", "C:\\bin\\Python24\\python.exe", new ArrayList<>());
+
+        assertNotEquals(info, info2);
+        info2.setVmArgs("-Xfoobar");
+        assertEquals(info, info2);
+        info2.setVmArgs("");
+        assertNotEquals(info, info2);
+
+        String s = info.toString();
+        InterpreterInfo withVMArgs = InterpreterInfo.fromString(s, false);
+        assertEquals("-Xfoobar", withVMArgs.getVmArgs());
+        assertEquals(info, withVMArgs);
+    }
+
     public void testInterpreterInfoOutputWithGarbageBeforeAfterXML() throws Exception {
         //To generate output:
 
