@@ -16,7 +16,7 @@ from typing import Sequence, Callable
 from pathlib import Path
 import sys
 
-_VERSION = '11.0.1'
+_VERSION = '11.0.2'
 
 _pydev_root = Path(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 

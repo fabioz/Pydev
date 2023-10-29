@@ -171,6 +171,5 @@ if __name__ == '__main__':
             version = sys.argv[1]
             update_version(version)
             update_version_in_liclipse(version)
-            update_version_in_build_homepage(version)
     else:
         print('This script requires the new version (i.e.: 3.6.0)')
