@@ -72,7 +72,7 @@ python deploy.py
 
 ## update version in eclipse marketplace: http://marketplace.eclipse.org/
 
-## Add news in forum (same as e-mail)
+## Add news in forum (same as e-mail): https://sourceforge.net/p/pydev/news/new
 
 ## Send e-mail (use contents from sf e-mail -- change title sizes)
 

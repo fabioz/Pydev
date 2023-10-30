@@ -1,25 +1,22 @@
-PyDev 8.3.0 Released
+PyDev 11.0.2 Released
 
-PyDev 8.3.0 Release Highlights
+PyDev 11.0.2 Release Highlights
 -------------------------------
 
-* **Java 11** is now required to run PyDev.
+Continuing with the updates to Python 3.12, the new release integrates
+the latest version of typeshed (so, **from typing import override** is
+now properly recognized).
 
-* **External linters**
-    * Configurations of the linters can be saved to the project or user settings.
-    * Flake8 has a more flexible UI for configuration.
-    
-* **Others**
-	* Option to add comments all at a single indent (note: this is now the default).
-	* LRU for context-insensitive completion/quick fix.
-	* Fixed some code-completion cases where **self** was wrongly added.
-	* Environment variables are now supported in **.pydevproject** (expected format: **${env_var:VAR_NAME}**).
+Also, it's now possible to specify vmargs in the python interpreter
+(and not just in the launch configuration).
 
+For Python 3.11 onwards, **-Xfrozen_modules=off** is now
+set in the vm arguments by default.
 
 About PyDev
 ---------------------------
 
-PyDev is an open-source Python IDE on top of Eclipse for Python, Jython and IronPython development, now also available for Python on Visual Studio Code.
+PyDev is an open-source Python IDE on top of Eclipse for Python (also available for Python on Visual Studio Code).
 
 It comes with goodies such as code completion, syntax highlighting, syntax analysis, code analysis, refactor, debug, interactive console, etc.
 
