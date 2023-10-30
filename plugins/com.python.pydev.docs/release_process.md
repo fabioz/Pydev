@@ -25,21 +25,19 @@ mu acp "PyDev release 11.0.3"
 
 ## Do build:
 
+Plugin token for signing
+
 python -m dev build_pydev_in_build_dir
 
 ## Put things in the proper places and create zips to distribute
-
-python -m dev copy_and_zips
-
 ## Submit feature and sources .zip in folder X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable to:
-
-python -m dev copy_zips_to_sf
-
 ## Add contents to the update site mirrors
 
-python -m dev add_to_udpate_site_mirror
+python -m dev copy_and_zips
+python -m dev copy_zips_to_sf
+python -m dev add_to_update_site_mirror
 
-## Tag repository:
+## Tag repository (needed so that GitHub can reference it later)
 
 git tag pydev_11_0_3 -a -m "PyDev 11.0.3"
 git push --tag origin pydev_11_0_3
