@@ -4,6 +4,7 @@
 2. Update version on dev.py
 
 cdd X:\liclipsews\liclipsews\Pydev\rootproject
+deactivate
 activate py311_64
 python -m dev update_version
 python -m dev update_typeshed
@@ -20,7 +21,7 @@ python x:\liclipsews\pydev.page\build_homepage.py
 
 ## Commit everything and merge with master (homepage at: x:\liclipsews\pydev.page and X:\liclipsews\liclipsews\Pydev repo)
 
-mu acp "PyDev release 11.0.2"
+mu acp "PyDev release 11.0.3"
 
 ## Do build:
 
@@ -40,8 +41,8 @@ python -m dev add_to_udpate_site_mirror
 
 ## Tag repository:
 
-git tag pydev_11_0_2 -a -m "PyDev 11.0.2"
-git push --tag origin pydev_11_0_2
+git tag pydev_11_0_3 -a -m "PyDev 11.0.3"
+git push --tag origin pydev_11_0_3
 
 ## Create release in Github Releases
 
@@ -50,19 +51,19 @@ python -m dev add_to_github
 Contents in: X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\github
 
 ### Title:
-PyDev 11.0.2
+PyDev 11.0.3
 
 ### Message:
 
-This release contains PyDev 11.0.2
+This release contains PyDev 11.0.3
 
 It's possible to add it as an Eclipse update site using the url:
 
-https://github.com/fabioz/Pydev/releases/download/pydev_11_0_2/
+https://github.com/fabioz/Pydev/releases/download/pydev_11_0_3/
 
 Or get a .zip to install manually by unzipping it in the dropins:
 
-https://github.com/fabioz/Pydev/releases/download/pydev_11_0_2/PyDev.11.0.2.zip
+https://github.com/fabioz/Pydev/releases/download/pydev_11_0_3/PyDev.11.0.3.zip
 
 
 ## Update homepage:
