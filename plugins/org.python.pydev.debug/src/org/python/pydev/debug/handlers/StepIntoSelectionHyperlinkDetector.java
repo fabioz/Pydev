@@ -46,9 +46,9 @@ public class StepIntoSelectionHyperlinkDetector extends AbstractHyperlinkDetecto
 
         /**
          * Constructor
-         * @param debugContext 
-         * @param pyEdit 
-         * @param selectedWord 
+         * @param debugContext
+         * @param pyEdit
+         * @param selectedWord
          * @param region
          */
         public StepIntoSelectionHyperlink(PyStackFrame debugContext, PyEdit pyEdit, IRegion selection, int line,
@@ -74,7 +74,7 @@ public class StepIntoSelectionHyperlinkDetector extends AbstractHyperlinkDetecto
          */
         @Override
         public String getHyperlinkText() {
-            return "Step Into Selection";
+            return "Step Into Selection: " + this.selectedWord;
         }
 
         /**
@@ -122,79 +122,134 @@ public class StepIntoSelectionHyperlinkDetector extends AbstractHyperlinkDetecto
                 Log.log("Unable to get Smart Step Into Targets.");
                 return null;
             }
+            if (stepIntoTargets.length == 0) {
+                Log.log("No Smart Step Into Targets found.");
+                return null;
+            }
 
-            int offset = region.getOffset();
+            ICoreTextSelection textSelection = pyEdit.getTextSelection();
+            final int line = textSelection.getStartLine();
+            final int offset = region.getOffset();
 
-            try {
+            boolean smartStepIntoHasOffset = false;
+            List<SmartStepIntoVariant> foundAtLine = new ArrayList<>();
+            for (SmartStepIntoVariant smartStepIntoVariant : stepIntoTargets) {
+                if (smartStepIntoVariant.endlineno >= 0 && smartStepIntoVariant.startcol >= 0
+                        && smartStepIntoVariant.endcol >= 0) {
+                    // Ok, new approach: use the offsets given by the backend when available (Python 3.11 onwards).
+                    smartStepIntoHasOffset = true;
+                    if (smartStepIntoVariant.line >= line) {
+                        foundAtLine.add(smartStepIntoVariant);
+                    }
+                }
+            }
 
-                IDocument document = pyEdit.getDocument();
-                //see if we can find a word there
-                IRegion wordRegion = TextSelectionUtils.findWord(document, offset);
-                if (wordRegion == null || wordRegion.getLength() == 0) {
+            List<SmartStepIntoVariant> found = new ArrayList<>();
+            IDocument document = pyEdit.getDocument();
+
+            if (smartStepIntoHasOffset) {
+                TextSelectionUtils ts = new TextSelectionUtils(document, offset);
+
+                List<StepIntoSelectionHyperlink> hyperlinks = new ArrayList<>();
+                for (SmartStepIntoVariant smartStepIntoVariant : stepIntoTargets) {
+                    try {
+                        int startOffset = ts.getAbsoluteCursorOffset(smartStepIntoVariant.line,
+                                smartStepIntoVariant.startcol);
+                        int endOffset = ts.getAbsoluteCursorOffset(smartStepIntoVariant.endlineno,
+                                smartStepIntoVariant.endcol);
+                        if (startOffset <= offset && endOffset >= offset) {
+                            IRegion wordRegion = new Region(startOffset, endOffset - startOffset);
+                            final StepIntoSelectionHyperlink link = new StepIntoSelectionHyperlink(
+                                    (PyStackFrame) debugContext, pyEdit,
+                                    wordRegion, line,
+                                    smartStepIntoVariant.name, smartStepIntoVariant);
+                            if (hyperlinks.size() == 0 || canShowMultipleHyperlinks) {
+                                hyperlinks.add(link);
+                            } else {
+                                // Just add it if its size is smaller than the existing one.
+                                StepIntoSelectionHyperlink curr = hyperlinks.get(0);
+                                if (curr.getHyperlinkRegion().getLength() > link.getHyperlinkRegion().getLength()) {
+                                    hyperlinks.set(0, link);
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+                        Log.log(e);
+                    }
+                }
+                if (hyperlinks.size() == 0) {
+                    // We can't return empty as it gives an IllegalArgumentException.
                     return null;
                 }
+                return hyperlinks.toArray(new StepIntoSelectionHyperlink[0]);
 
-                String selectedWord;
-                //don't highlight keywords
+            } else {
                 try {
-                    selectedWord = document.get(wordRegion.getOffset(), wordRegion.getLength());
-                    if (PythonLanguageUtils.isKeyword(selectedWord)) {
+                    //see if we can find a word there
+                    IRegion wordRegion = TextSelectionUtils.findWord(document, offset);
+                    if (wordRegion == null || wordRegion.getLength() == 0) {
                         return null;
                     }
-                } catch (BadLocationException e) {
+
+                    String selectedWord;
+                    //don't highlight keywords
+                    try {
+                        selectedWord = document.get(wordRegion.getOffset(), wordRegion.getLength());
+                        if (PythonLanguageUtils.isKeyword(selectedWord)) {
+                            return null;
+                        }
+                    } catch (BadLocationException e) {
+                        Log.log(e);
+                        return null;
+                    }
+
+                    for (SmartStepIntoVariant smartStepIntoVariant : stepIntoTargets) {
+                        if (line == smartStepIntoVariant.line && selectedWord.equals(smartStepIntoVariant.name)) {
+                            found.add(smartStepIntoVariant);
+                        }
+                    }
+                    if (found.size() == 0) {
+                        Log.log("Unable to find step into target with name: " + selectedWord + " at line: " + line
+                                + "\nAvailable: "
+                                + StringUtils.join("; ", stepIntoTargets));
+                        return null;
+                    }
+                    SmartStepIntoVariant target;
+                    if (found.size() > 1) {
+                        Collections.reverse(found); // i.e.: the target is backwards.
+                        Iterator<SmartStepIntoVariant> iterator = found.iterator();
+                        target = iterator.next();
+
+                        TextSelectionUtils ts = new TextSelectionUtils(document, textSelection);
+
+                        // Let's check if there's more than one occurrence of the same word in the given line.
+                        String lineContents = ts.getLine(line);
+                        List<Integer> wordOffsets = StringUtils.findWordOffsets(lineContents, selectedWord);
+                        if (wordOffsets.size() > 0) {
+                            int offsetInLine = wordRegion.getOffset() - ts.getStartLineOffset();
+                            for (Integer i : wordOffsets) {
+                                if (i >= offsetInLine) {
+                                    break;
+                                }
+                                target = iterator.next();
+                                if (!iterator.hasNext()) {
+                                    break;
+                                }
+                            }
+                        }
+                    } else {
+                        // size == 1
+                        target = found.get(0);
+                    }
+
+                    //return a hyperlink even without trying to find the definition (which may be costly)
+                    return new IHyperlink[] {
+                            new StepIntoSelectionHyperlink((PyStackFrame) debugContext, pyEdit, wordRegion, line,
+                                    selectedWord, target) };
+                } catch (Exception e) {
                     Log.log(e);
                     return null;
                 }
-                ICoreTextSelection textSelection = pyEdit.getTextSelection();
-                int line = textSelection.getStartLine();
-
-                List<SmartStepIntoVariant> found = new ArrayList<>();
-                for (SmartStepIntoVariant smartStepIntoVariant : stepIntoTargets) {
-                    if (line == smartStepIntoVariant.line && selectedWord.equals(smartStepIntoVariant.name)) {
-                        found.add(smartStepIntoVariant);
-                    }
-                }
-                if (found.size() == 0) {
-                    Log.log("Unable to find step into target with name: " + selectedWord + " at line: " + line
-                            + "\nAvailable: "
-                            + StringUtils.join("; ", stepIntoTargets));
-                    return null;
-                }
-                SmartStepIntoVariant target;
-                if (found.size() > 1) {
-                    Collections.reverse(found); // i.e.: the target is backwards.
-                    Iterator<SmartStepIntoVariant> iterator = found.iterator();
-                    target = iterator.next();
-
-                    TextSelectionUtils ts = new TextSelectionUtils(document, textSelection);
-
-                    // Let's check if there's more than one occurrence of the same word in the given line.
-                    String lineContents = ts.getLine(line);
-                    List<Integer> wordOffsets = StringUtils.findWordOffsets(lineContents, selectedWord);
-                    if (wordOffsets.size() > 0) {
-                        int offsetInLine = wordRegion.getOffset() - ts.getStartLineOffset();
-                        for (Integer i : wordOffsets) {
-                            if (i >= offsetInLine) {
-                                break;
-                            }
-                            target = iterator.next();
-                            if (!iterator.hasNext()) {
-                                break;
-                            }
-                        }
-                    }
-                } else {
-                    // size == 1
-                    target = found.get(0);
-                }
-
-                //return a hyperlink even without trying to find the definition (which may be costly)
-                return new IHyperlink[] {
-                        new StepIntoSelectionHyperlink((PyStackFrame) debugContext, pyEdit, wordRegion, line,
-                                selectedWord, target) };
-            } catch (Exception e) {
-                Log.log(e);
-                return null;
             }
 
         }

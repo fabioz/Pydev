@@ -677,11 +677,15 @@ public abstract class AbstractDebugTarget extends AbstractDebugTargetWithTransmi
             int resumeReason = DebugEvent.UNSPECIFIED;
             try {
                 int raw_reason = Integer.parseInt(threadIdAndReason.o2);
-                if (raw_reason == AbstractDebuggerCommand.CMD_STEP_OVER) {
+                if (raw_reason == AbstractDebuggerCommand.CMD_STEP_OVER
+                        || raw_reason == AbstractDebuggerCommand.CMD_STEP_OVER_MY_CODE) {
                     resumeReason = DebugEvent.STEP_OVER;
-                } else if (raw_reason == AbstractDebuggerCommand.CMD_STEP_RETURN) {
+                } else if (raw_reason == AbstractDebuggerCommand.CMD_STEP_RETURN
+                        || raw_reason == AbstractDebuggerCommand.CMD_STEP_RETURN_MY_CODE) {
                     resumeReason = DebugEvent.STEP_RETURN;
                 } else if (raw_reason == AbstractDebuggerCommand.CMD_STEP_INTO
+                        || raw_reason == AbstractDebuggerCommand.CMD_STEP_INTO_COROUTINE
+                        || raw_reason == AbstractDebuggerCommand.CMD_STEP_INTO_MY_CODE
                         || raw_reason == AbstractDebuggerCommand.CMD_SMART_STEP_INTO
                         || raw_reason == AbstractDebuggerCommand.CMD_STEP_CAUGHT_EXCEPTION) {
                     resumeReason = DebugEvent.STEP_INTO;

@@ -271,7 +271,7 @@ public class PyStackFrame extends PlatformObject
 
     public void stepIntoTarget(PyEdit pyEdit, int line, String selectedWord, SmartStepIntoVariant target)
             throws DebugException {
-        thread.stepIntoTarget(pyEdit, line, selectedWord, target);
+        thread.stepIntoTarget(pyEdit, line, "<unused>", target);
     }
 
     @Override

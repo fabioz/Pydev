@@ -130,6 +130,7 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         node.putBoolean(PyDevEditorPreferences.KILL_SUBPROCESSES_WHEN_TERMINATING_PROCESS,
                 PyDevEditorPreferences.DEFAULT_KILL_SUBPROCESSES_WHEN_TERMINATING_PROCESS);
         node.putBoolean(PyDevEditorPreferences.GEVENT_DEBUGGING, PyDevEditorPreferences.DEFAULT_GEVENT_DEBUGGING);
+        node.putBoolean(PyDevEditorPreferences.DEBUG_JUST_MY_CODE, PyDevEditorPreferences.DEFAULT_DEBUG_JUST_MY_CODE);
         node.putBoolean(PyDevEditorPreferences.TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS,
                 PyDevEditorPreferences.DEFAULT_TRACE_DJANGO_TEMPLATE_RENDER_EXCEPTIONS);
         node.putBoolean(PyDevEditorPreferences.TRACE_JINJA2_TEMPLATE_RENDER_EXCEPTIONS,

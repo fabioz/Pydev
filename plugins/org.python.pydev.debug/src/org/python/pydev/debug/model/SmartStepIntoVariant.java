@@ -9,9 +9,12 @@ public class SmartStepIntoVariant {
     public final int offset;
     public final int callOrder;
     public final int childOffset;
+    public final int endlineno;
+    public final int startcol;
+    public final int endcol;
 
     public SmartStepIntoVariant(AbstractDebugTarget target, String name, boolean isVisited, int line, int offset,
-            int childOffset, int callOrder) {
+            int childOffset, int callOrder, int endlineno, int startcol, int endcol) {
         this.target = target;
         this.name = name;
         this.isVisited = isVisited;
@@ -19,10 +22,14 @@ public class SmartStepIntoVariant {
         this.offset = offset;
         this.childOffset = childOffset;
         this.callOrder = callOrder;
+        this.endlineno = endlineno;
+        this.startcol = startcol;
+        this.endcol = endcol;
     }
 
     @Override
     public String toString() {
-        return "Step In: " + this.name + " line: " + this.line;
+        return "Step In: " + this.name + " line: " + this.line + " col: " + this.startcol + " endline: "
+                + this.endlineno + " endcol: " + this.endcol;
     }
 }

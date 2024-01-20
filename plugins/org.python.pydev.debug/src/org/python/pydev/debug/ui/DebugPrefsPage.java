@@ -104,6 +104,15 @@ public class DebugPrefsPage extends FieldEditorPreferencePage implements IWorkbe
         c.setToolTipText("When this option is turned on, the debugger will be able to debug GEvent programs.");
         addField(editor);
 
+        editor = new BooleanFieldEditor(PyDevEditorPreferences.DEBUG_JUST_MY_CODE,
+                "Debug just my code (i.e.: only source code in source folders in PyDev)?",
+                BooleanFieldEditor.SEPARATE_LABEL,
+                p);
+        c = editor.getDescriptionControl(p);
+        c.setToolTipText(
+                "When this option is turned on, the debugger will ignore any files which are not under a PyDev source folder.");
+        addField(editor);
+
         ComboFieldEditor comboEditor = new ComboFieldEditor(PyDevEditorPreferences.QT_THREADS_DEBUG_MODE, "Qt Threads:",
                 PyDevEditorPreferences.ENTRIES_VALUES_QT_THREADS_DEBUG_MODE, p);
         Label labelControl = comboEditor.getLabelControl(p);
@@ -134,6 +143,11 @@ public class DebugPrefsPage extends FieldEditorPreferencePage implements IWorkbe
     public static boolean getGeventDebugging() {
         return PydevPrefs.getEclipsePreferences().getBoolean(PyDevEditorPreferences.GEVENT_DEBUGGING,
                 PyDevEditorPreferences.DEFAULT_GEVENT_DEBUGGING);
+    }
+
+    public static boolean getJustMyCode() {
+        return PydevPrefs.getEclipsePreferences().getBoolean(PyDevEditorPreferences.DEBUG_JUST_MY_CODE,
+                PyDevEditorPreferences.DEFAULT_DEBUG_JUST_MY_CODE);
     }
 
     public static String getQtThreadsDebugMode() {

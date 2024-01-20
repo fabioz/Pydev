@@ -73,6 +73,7 @@ public abstract class AbstractDebuggerCommand {
     static public final int CMD_SIGNATURE_CALL_TRACE = 130;
 
     static public final int CMD_SET_PY_EXCEPTION = 131;
+    static public final int CMD_STEP_INTO_MY_CODE = 144;
     static public final int CMD_SET_PY_EXCEPTION_JSON = 161;
     static public final int CMD_SET_PATH_MAPPING_JSON = 162;
     static public final int CMD_GET_FILE_CONTENTS = 132;
@@ -90,8 +91,12 @@ public abstract class AbstractDebuggerCommand {
     static public final int CMD_INPUT_REQUESTED = 147;
     static public final int CMD_PROCESS_CREATED = 149;
 
+    static public final int CMD_STEP_OVER_MY_CODE = 159;
+    static public final int CMD_STEP_RETURN_MY_CODE = 160;
+
     static public final int CMD_GET_SMART_STEP_INTO_VARIANTS = 163;
 
+    static public final int CMD_STEP_INTO_COROUTINE = 206;
     static public final int CMD_LOAD_SOURCE_FROM_FRAME_ID = 207;
 
     static public final int CMD_ERROR = 901;

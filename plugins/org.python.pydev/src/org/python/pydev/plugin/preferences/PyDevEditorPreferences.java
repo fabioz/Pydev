@@ -146,6 +146,9 @@ public class PyDevEditorPreferences {
     public static final String GEVENT_DEBUGGING = "GEVENT_DEBUGGING";
     public static final boolean DEFAULT_GEVENT_DEBUGGING = false;
 
+    public static final String DEBUG_JUST_MY_CODE = "DEBUG_JUST_MY_CODE";
+    public static final boolean DEFAULT_DEBUG_JUST_MY_CODE = false;
+
     //font
     public static final String DECORATOR_STYLE = "DECORATOR_STYLE";
     public static final int DEFAULT_DECORATOR_STYLE = SWT.ITALIC;

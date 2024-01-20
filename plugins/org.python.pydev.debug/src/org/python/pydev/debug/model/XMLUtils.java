@@ -153,9 +153,28 @@ public class XMLUtils {
                     childOffset = Integer.parseInt(value);
                 }
                 int callOrder = Integer.parseInt(attributes.getValue("callOrder"));
+                int endlineno = -1;
+                int startcol = -1;
+                int endcol = -1;
+
+                // These are optional
+                try {
+                    endlineno = Integer.parseInt(attributes.getValue("endlineno"));
+                } catch (Exception e) {
+                }
+                try {
+                    final String startcolVal = attributes.getValue("startcol");
+                    startcol = Integer.parseInt(startcolVal);
+                } catch (Exception e) {
+                }
+                try {
+                    endcol = Integer.parseInt(attributes.getValue("endcol"));
+                } catch (Exception e) {
+                }
 
                 variants.add(
-                        new SmartStepIntoVariant(target, name, isVisited, line - 1, offset, childOffset, callOrder));
+                        new SmartStepIntoVariant(target, name, isVisited, line - 1, offset, childOffset, callOrder,
+                                endlineno - 1, startcol, endcol));
             }
         }
     }
