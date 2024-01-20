@@ -8,7 +8,7 @@ pip install bytecode --target .
 
 or from master (if needed for some early bugfix):
 
-python -m pip install https://github.com/MatthieuDartiailh/bytecode/archive/main.zip --target .
+python -m pip install git+https://github.com/MatthieuDartiailh/bytecode.git --target .
 
 Then run 'pydevd_fix_code.py' to fix the imports on the vendored file, run its tests (to see
 if things are still ok) and commit.

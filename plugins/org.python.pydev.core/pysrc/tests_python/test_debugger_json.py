@@ -20,7 +20,8 @@ from _pydevd_bundle.pydevd_comm_constants import file_system_encoding
 from _pydevd_bundle.pydevd_constants import (int_types, IS_64BIT_PROCESS,
     PY_VERSION_STR, PY_IMPL_VERSION_STR, PY_IMPL_NAME, IS_PY36_OR_GREATER,
     IS_PYPY, GENERATED_LEN_ATTR_NAME, IS_WINDOWS, IS_LINUX, IS_MAC, IS_PY38_OR_GREATER,
-    IS_PY311_OR_GREATER)
+    IS_PY311_OR_GREATER, PYDEVD_USE_SYS_MONITORING, IS_PY312_OR_GREATER,
+    SUPPORT_ATTACH_TO_PID)
 from tests_python import debugger_unittest
 from tests_python.debug_constants import TEST_CHERRYPY, TEST_DJANGO, TEST_FLASK, \
     IS_CPYTHON, TEST_GEVENT, TEST_CYTHON, TODO_PY311
@@ -1232,7 +1233,10 @@ def test_case_unhandled_exception_generator(case_setup_dap, target_file):
         if 'generator' in target_file:
             expected_frame_names = ['<genexpr>', 'f', '<module>']
         else:
-            expected_frame_names = ['<listcomp>', 'f', '<module>']
+            if IS_PY312_OR_GREATER:
+                expected_frame_names = ['f', '<module>']
+            else:
+                expected_frame_names = ['<listcomp>', 'f', '<module>']
 
         frame_names = [f['name'] for f in frames]
         assert frame_names == expected_frame_names
@@ -3666,7 +3670,12 @@ def test_source_mapping_base(case_setup_dap, target, jmc):
 
     case_setup_dap.check_non_ascii = True
 
-    with case_setup_dap.test_file(target) as writer:
+    def get_environ(self):
+        env = os.environ.copy()
+        env["IDE_PROJECT_ROOTS"] = os.path.dirname(self.TEST_FILE) + os.pathsep + os.path.abspath('.')
+        return env
+
+    with case_setup_dap.test_file(target, get_environ=get_environ) as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_launch(justMyCode=jmc)
@@ -3720,7 +3729,12 @@ def test_source_mapping_just_my_code(case_setup_dap):
 
     case_setup_dap.check_non_ascii = True
 
-    with case_setup_dap.test_file('_debugger_case_source_mapping_jmc.py') as writer:
+    def get_environ(self):
+        env = os.environ.copy()
+        env["IDE_PROJECT_ROOTS"] = os.path.dirname(self.TEST_FILE) + os.pathsep + os.path.abspath('.')
+        return env
+
+    with case_setup_dap.test_file('_debugger_case_source_mapping_jmc.py', get_environ=get_environ) as writer:
         json_facade = JsonFacade(writer)
 
         json_facade.write_launch(justMyCode=True)
@@ -4281,7 +4295,7 @@ def test_notify_gevent(case_setup_dap, pyfile):
             FORCE_KILL_PROCESS_WHEN_FINISHED_OK=True
         ) as writer:
         json_facade = JsonFacade(writer)
-        json_facade.write_launch()
+        json_facade.write_launch(justMyCode=False)
         json_facade.write_set_breakpoints(writer.get_line_index_with_content('Break here'))
         json_facade.write_make_initial_run()
         json_facade.wait_for_thread_stopped()
@@ -4896,6 +4910,7 @@ def _attach_to_writer_pid(writer):
 
 @pytest.mark.parametrize('reattach', [True, False])
 @pytest.mark.skipif(not IS_CPYTHON or IS_MAC, reason='Attach to pid only available in CPython (brittle on Mac).')
+@pytest.mark.skipif(not SUPPORT_ATTACH_TO_PID, reason='Attach to pid not supported.')
 def test_attach_to_pid(case_setup_remote, reattach):
     import threading
 
@@ -5240,7 +5255,7 @@ def test_pydevd_systeminfo(case_setup_dap):
         if use_cython is not None:
             using_cython = use_cython == 'YES'
             assert body['pydevd']['usingCython'] == using_cython
-            assert body['pydevd']['usingFrameEval'] == (using_cython and IS_PY36_OR_GREATER and not TODO_PY311)
+            assert body['pydevd']['usingFrameEval'] == (using_cython and IS_PY36_OR_GREATER and not IS_PY311_OR_GREATER)
 
         json_facade.write_continue()
 
@@ -6066,7 +6081,6 @@ def do_something():
         writer.finished_ok = True
 
 
-@pytest.mark.skipif(TODO_PY311, reason='Needs bytecode support in Python 3.11')
 def test_step_into_target_basic(case_setup_dap):
     with case_setup_dap.test_file('_debugger_case_smart_step_into.py') as writer:
         json_facade = JsonFacade(writer)
@@ -6081,8 +6095,13 @@ def test_step_into_target_basic(case_setup_dap):
         # : :type step_in_targets: List[StepInTarget]
         step_in_targets = json_facade.get_step_in_targets(hit.frame_id)
         label_to_id = dict((target['label'], target['id']) for target in step_in_targets)
-        assert set(label_to_id.keys()) == {'bar', 'foo', 'call_outer'}
-        json_facade.write_step_in(hit.thread_id, target_id=label_to_id['foo'])
+        if IS_PY311_OR_GREATER:
+            assert set(label_to_id.keys()) == {'call_outer(foo(bar()))', 'foo(bar())', 'bar()'}
+            target = 'foo(bar())'
+        else:
+            assert set(label_to_id.keys()) == {'bar', 'foo', 'call_outer'}
+            target = 'foo'
+        json_facade.write_step_in(hit.thread_id, target_id=label_to_id[target])
 
         on_foo_mark_line = writer.get_line_index_with_content('on foo mark')
         hit = json_facade.wait_for_thread_stopped(reason='step', line=on_foo_mark_line)
@@ -6091,7 +6110,6 @@ def test_step_into_target_basic(case_setup_dap):
         writer.finished_ok = True
 
 
-@pytest.mark.skipif(TODO_PY311, reason='Needs bytecode support in Python 3.11')
 def test_step_into_target_multiple(case_setup_dap):
     with case_setup_dap.test_file('_debugger_case_smart_step_into2.py') as writer:
         json_facade = JsonFacade(writer)
@@ -6106,8 +6124,13 @@ def test_step_into_target_multiple(case_setup_dap):
         # : :type step_in_targets: List[StepInTarget]
         step_in_targets = json_facade.get_step_in_targets(hit.frame_id)
         label_to_id = dict((target['label'], target['id']) for target in step_in_targets)
-        assert set(label_to_id.keys()) == {'foo', 'foo (call 2)', 'foo (call 3)', 'foo (call 4)'}
-        json_facade.write_step_in(hit.thread_id, target_id=label_to_id['foo (call 2)'])
+        if IS_PY311_OR_GREATER:
+            assert set(label_to_id.keys()) == {'foo(foo(foo(foo(1))))', 'foo(foo(foo(1)))', 'foo(foo(1))', 'foo(1)'}
+            target = 'foo(foo(1))'
+        else:
+            assert set(label_to_id.keys()) == {'foo', 'foo (call 2)', 'foo (call 3)', 'foo (call 4)'}
+            target = 'foo (call 2)'
+        json_facade.write_step_in(hit.thread_id, target_id=label_to_id[target])
 
         on_foo_mark_line = writer.get_line_index_with_content('on foo mark')
         hit = json_facade.wait_for_thread_stopped(reason='step', line=on_foo_mark_line)
@@ -6116,7 +6139,6 @@ def test_step_into_target_multiple(case_setup_dap):
         writer.finished_ok = True
 
 
-@pytest.mark.skipif(TODO_PY311, reason='Needs bytecode support in Python 3.11')
 def test_step_into_target_genexpr(case_setup_dap):
     with case_setup_dap.test_file('_debugger_case_smart_step_into3.py') as writer:
         json_facade = JsonFacade(writer)
@@ -6131,7 +6153,12 @@ def test_step_into_target_genexpr(case_setup_dap):
         # : :type step_in_targets: List[StepInTarget]
         step_in_targets = json_facade.get_step_in_targets(hit.frame_id)
         label_to_id = dict((target['label'], target['id']) for target in step_in_targets)
-        json_facade.write_step_in(hit.thread_id, target_id=label_to_id['foo'])
+        if IS_PY311_OR_GREATER:
+            assert set(label_to_id) == {'foo(arg)', 'list(gen)'}
+            json_facade.write_step_in(hit.thread_id, target_id=label_to_id['foo(arg)'])
+        else:
+            assert set(label_to_id) == {'foo', 'list'}
+            json_facade.write_step_in(hit.thread_id, target_id=label_to_id['foo'])
 
         on_foo_mark_line = writer.get_line_index_with_content('on foo mark')
         hit = json_facade.wait_for_thread_stopped(reason='step', line=on_foo_mark_line)
@@ -6595,6 +6622,9 @@ def test_logging_api(case_setup_multiprocessing_dap, tmpdir):
 
 @pytest.mark.parametrize('soft_kill', [False, True])
 def test_soft_terminate(case_setup_dap, pyfile, soft_kill):
+
+    if soft_kill and PYDEVD_USE_SYS_MONITORING:
+        pytest.skip('Right now when using sys.monitoring exceptions are be handled in callbacks.')
 
     @pyfile
     def target():
