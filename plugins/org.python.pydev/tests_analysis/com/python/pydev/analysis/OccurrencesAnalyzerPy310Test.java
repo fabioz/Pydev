@@ -708,6 +708,32 @@ public class OccurrencesAnalyzerPy310Test extends AnalysisTestsBase {
         checkNoError();
     }
 
+    public void testTypingWithLiteralsShowError() {
+        doc = new Document("def method() -> 'err':\n"
+                + "    return 'a'\n"
+                + "");
+        checkError("Undefined variable: err");
+    }
+
+    public void testTypingWithLiterals2() {
+        doc = new Document("from typing import Annotated, List\n"
+                + "class Param:\n"
+                + "    pass\n"
+                + "\n"
+                + "def method() -> Annotated[List[str],Param(description=\"\"\"Provides a list (i.e.: ['output.txt', 'gen/my.pdf'])\"\"\")]:\n"
+                + "    return 'a'\n"
+                + "");
+        checkNoError();
+    }
+
+    public void testTypingWithLiterals3() {
+        doc = new Document("from typing import Tuple, Literal\n"
+                + "def method() -> Tuple[Literal['line', 'call', 'return'], ...]:\n"
+                + "    return ()\n"
+                + "");
+        checkNoError();
+    }
+
     public void testOverload() {
         doc = new Document("from typing import overload\n"
                 + "\n"

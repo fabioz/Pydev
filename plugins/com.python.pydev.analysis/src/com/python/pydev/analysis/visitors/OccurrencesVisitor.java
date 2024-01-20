@@ -10,9 +10,11 @@
 package com.python.pydev.analysis.visitors;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.Document;
@@ -53,6 +55,7 @@ import org.python.pydev.parser.jython.ast.Print;
 import org.python.pydev.parser.jython.ast.Raise;
 import org.python.pydev.parser.jython.ast.Return;
 import org.python.pydev.parser.jython.ast.Str;
+import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.While;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.decoratorsType;
@@ -249,15 +252,34 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
         return r;
     }
 
+    private static Set<String> CONTAINER_CLASSES = new HashSet<String>();
+    static {
+        CONTAINER_CLASSES.add("list");
+        CONTAINER_CLASSES.add("List");
+        CONTAINER_CLASSES.add("typing.List");
+        CONTAINER_CLASSES.add("tuple");
+        CONTAINER_CLASSES.add("Tuple");
+        CONTAINER_CLASSES.add("typing.Tuple");
+        CONTAINER_CLASSES.add("set");
+        CONTAINER_CLASSES.add("Set");
+        CONTAINER_CLASSES.add("typing.Set");
+        // This means that it's just a str directly in the type annotation.
+        CONTAINER_CLASSES.add("str");
+    }
+
     @Override
     public Object visitStr(Str node) throws Exception {
         if (this.scope.isVisitingTypeAnnotation()) {
-            String fullRepresentationString = NodeUtils.getFullRepresentationString(scope.currentScope().scopeNode);
+            String fullRepresentationString = null;
 
             // If a string is found inside a typing.Literal, don't parse it for type definitions
             // (i.e.: those are considered constants in this case and not class references as in
             // generic classes).
-            if (!"typing.Literal".equals(fullRepresentationString) && !"Literal".equals(fullRepresentationString)) {
+            if (this.scope.subscripts.size() > 0) {
+                Subscript lastSubscript = this.scope.subscripts.peek();
+                fullRepresentationString = NodeUtils.getFullRepresentationString(lastSubscript.value);
+            }
+            if (fullRepresentationString == null || CONTAINER_CLASSES.contains(fullRepresentationString)) {
                 String s = node.s;
                 IGrammar grammar = PyParser.createGrammar(true, this.nature.getGrammarVersion(), s.toCharArray());
                 Throwable errorOnParsing = null;
@@ -451,6 +473,16 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
         Object ret = super.visitLambda(node);
         isInTestScope -= 1;
         return ret;
+    }
+
+    @Override
+    public Object visitSubscript(Subscript node) throws Exception {
+        this.scope.pushSubscript(node);
+        try {
+            return super.visitSubscript(node);
+        } finally {
+            this.scope.popSubscript(node);
+        }
     }
 
     @Override

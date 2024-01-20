@@ -21,6 +21,7 @@ import org.python.pydev.core.IterTokenEntry;
 import org.python.pydev.core.TokensList;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.If;
+import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.structure.FastStack;
@@ -520,6 +521,17 @@ public final class Scope implements Iterable<ScopeItems> {
             return null;
         }
         return scope.get(scope.size() - 2);
+    }
+
+    public final FastStack<Subscript> subscripts = new FastStack<>(3);
+
+    public void pushSubscript(Subscript node) {
+        subscripts.push(node);
+
+    }
+
+    public void popSubscript(Subscript node) {
+        subscripts.pop();
     }
 
 }

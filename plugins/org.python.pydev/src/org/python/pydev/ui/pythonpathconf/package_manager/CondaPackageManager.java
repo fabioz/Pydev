@@ -40,6 +40,10 @@ public class CondaPackageManager extends AbstractPackageManager {
                 null,
                 encoding);
         Log.logInfo(output.o1);
+        if (output.o2 != null && output.o2.length() > 0) {
+            Log.logInfo("STDERR when listing conda environments:\n" + output.o2);
+
+        }
         JsonObject jsonOutput = JsonValue.readFrom(output.o1).asObject();
         JsonArray envs = jsonOutput.get("envs").asArray();
         Set<File> set = new HashSet<>();
