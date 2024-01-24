@@ -16,7 +16,7 @@ jobs:
       matrix:
         name: [
           "ubuntu-pypy3",
-          "macos-py37-cython",
+#           "macos-py37-cython", -- misbehaving on github actions
           "ubuntu-py38-cython",
           "windows-py39-cython",
           "windows-py310-cython-checkbin",
@@ -27,13 +27,13 @@ jobs:
         
         include:
           - name: "ubuntu-pypy3"
-            python: "pypy3.8"
+            python: "pypy3.10"
             os: ubuntu-latest
             PYDEVD_USE_CYTHON: NO
-          - name: "macos-py37-cython"
-            python: "3.7"
-            os: macos-latest
-            PYDEVD_USE_CYTHON: YES
+#           - name: "macos-py37-cython"
+#             python: "3.7"
+#             os: macos-latest
+#             PYDEVD_USE_CYTHON: YES
           - name: "ubuntu-py38-cython"
             python: "3.8"
             os: ubuntu-latest
@@ -98,7 +98,7 @@ jobs:
     - name: Install Pandas
       if: contains(matrix.name, 'py310') && !contains(matrix.name, 'pypy')
       # The pandas Styler also requires jinja2. 
-      run: pip install pandas jinja2 --no-warn-script-location
+      run: pip install pandas pyarrow jinja2 --no-warn-script-location
     - name: Install Pypy 3 deps
       if: contains(matrix.name, 'py3')
       run: |

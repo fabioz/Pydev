@@ -24,7 +24,7 @@ from _pydevd_bundle.pydevd_constants import (int_types, IS_64BIT_PROCESS,
     SUPPORT_ATTACH_TO_PID)
 from tests_python import debugger_unittest
 from tests_python.debug_constants import TEST_CHERRYPY, TEST_DJANGO, TEST_FLASK, \
-    IS_CPYTHON, TEST_GEVENT, TEST_CYTHON, TODO_PY311
+    IS_CPYTHON, TEST_GEVENT, TEST_CYTHON, IS_PY311
 from tests_python.debugger_unittest import (IS_JYTHON, IS_APPVEYOR, overrides,
     get_free_port, wait_for_condition)
 from _pydevd_bundle.pydevd_utils import DAPGrouper
@@ -5994,7 +5994,8 @@ print('TEST SUCEEDED')
     not IS_PY36_OR_GREATER or
     not IS_CPYTHON or
     not TEST_CYTHON or
-    TODO_PY311,  # Requires frame-eval mode (still not available for Python 3.11).
+    IS_PY311,  # Requires frame-eval mode (not available for Python 3.11).
+    # Note that this works in Python 3.12 as it uses sys.monitoring.
     reason='Windows only test and only Python 3.6 onwards.')
 def test_native_threads(case_setup_dap, pyfile):
 
@@ -6231,7 +6232,7 @@ def test_pandas(case_setup_dap, pyfile):
         pd.set_option('display.max_rows', None)
 
         items = rows * cols
-        df = pd.DataFrame(np.arange(items).reshape(rows, cols)).applymap(lambda x: 'Test String')
+        df = pd.DataFrame(np.arange(items).reshape(rows, cols)).map(lambda x: 'Test String')
         series = df._series[0]
         styler = df.style
 

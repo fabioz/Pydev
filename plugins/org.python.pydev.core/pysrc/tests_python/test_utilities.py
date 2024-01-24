@@ -530,7 +530,7 @@ def test_threading_hide_pydevd():
     t1.start()
 
     # i.e.: the patching doesn't work for other implementations.
-    if IS_CPYTHON:
+    if IS_CPYTHON or IS_PYPY:
         assert threading.active_count() == current_count + 1
         assert t0 not in threading.enumerate()
     else:

@@ -12,7 +12,7 @@ pytest_plugins = [
     str('tests_python.debugger_fixtures'),
 ]
 
-# pytestmark = pytest.mark.skipif(not IS_CPYTHON or not TEST_CYTHON, reason='Requires binaries')
+pytestmark = pytest.mark.skipif(not IS_CPYTHON or not TEST_CYTHON, reason='Requires binaries')
 
 
 @pytest.fixture

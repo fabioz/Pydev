@@ -1915,6 +1915,8 @@ class PyDB(object):
             # Must set tracing after setting the state to suspend.
             frame = info.get_topmost_frame(thread)
             if frame is not None:
+                # Where suspend was requested
+                # traceback.print_stack(frame)
                 try:
                     self.set_trace_for_frame_and_parents(thread.ident, frame)
                 finally:
@@ -2053,12 +2055,14 @@ class PyDB(object):
 
         thread_id = get_current_thread_id(thread)
 
-        # pydev_log.info('do_wait_suspend %s %s %s %s %s %s (%s)' % (frame.f_lineno, frame.f_code.co_name, frame.f_code.co_filename, event, arg, constant_to_str(thread.additional_info.pydev_step_cmd), constant_to_str(thread.additional_info.pydev_original_step_cmd)))
-        # pydev_log.info('--- stack ---')
-        # f = io.StringIO()
-        # traceback.print_stack(file=f)
-        # pydev_log.info(f.getvalue())
-        # pydev_log.info('--- end stack ---')
+        # if DebugInfoHolder.DEBUG_TRACE_LEVEL >= 2:
+        #     pydev_log.debug('do_wait_suspend %s %s %s %s %s %s (%s)' % (frame.f_lineno, frame.f_code.co_name, frame.f_code.co_filename, event, arg, constant_to_str(thread.additional_info.pydev_step_cmd), constant_to_str(thread.additional_info.pydev_original_step_cmd)))
+        #     pydev_log.debug('--- internal stack ---')
+        #     _f = sys._getframe()
+        #     while _f is not None:
+        #         pydev_log.debug('  -> %s' % (_f))
+        #         _f = _f.f_back
+        #     pydev_log.debug('--- end internal stack ---')
 
         # Send the suspend message
         message = thread.additional_info.pydev_message

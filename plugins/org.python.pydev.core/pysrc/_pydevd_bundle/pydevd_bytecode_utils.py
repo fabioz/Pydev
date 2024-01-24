@@ -6,8 +6,7 @@ Note: not importable from Python 2.
 
 from _pydev_bundle import pydev_log
 from types import CodeType
-from _pydevd_frame_eval.vendored.bytecode.instr import _Variable, TryBegin, \
-    TryEnd, Label
+from _pydevd_frame_eval.vendored.bytecode.instr import _Variable, Label
 from _pydevd_frame_eval.vendored import bytecode
 from _pydevd_frame_eval.vendored.bytecode import cfg as bytecode_cfg
 import dis
@@ -739,8 +738,7 @@ def _get_smart_step_into_targets(code):
     :return list(Target)
     '''
     b = bytecode.Bytecode.from_code(code)
-    # cfg = bytecode_cfg.ControlFlowGraph.from_bytecode(b)
-    cfg = [b]
+    cfg = bytecode_cfg.ControlFlowGraph.from_bytecode(b)
 
     ret = []
 
@@ -749,7 +747,7 @@ def _get_smart_step_into_targets(code):
             print('\nStart block----')
         stack = _StackInterpreter(block)
         for instr in block:
-            if isinstance(instr, (TryBegin, TryEnd, Label)):
+            if isinstance(instr, (Label,)):
                 # No name for these
                 continue
             try:

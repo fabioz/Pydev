@@ -143,7 +143,11 @@ _set_additional_thread_info_lock = ForkSafeLock()
 _next_additional_info = [PyDBAdditionalThreadInfo()]
 
 
-def set_additional_thread_info(thread):
+# IFDEF CYTHON -- DONT EDIT THIS FILE (it is automatically generated)
+cpdef set_additional_thread_info(thread):
+# ELSE
+# def set_additional_thread_info(thread):
+# ENDIF
     try:
         additional_info = thread.additional_info
         if additional_info is None:
