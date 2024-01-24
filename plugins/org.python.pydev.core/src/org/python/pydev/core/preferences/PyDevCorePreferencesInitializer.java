@@ -68,6 +68,9 @@ public class PyDevCorePreferencesInitializer {
         node.put(PyFormatterPreferences.BLACK_FORMATTER_LOCATION_OPTION,
                 PyFormatterPreferences.DEFAULT_BLACK_FORMATTER_LOCATION_OPTION);
         node.put(PyFormatterPreferences.BLACK_PARAMETERS, PyFormatterPreferences.DEFAULT_BLACK_PARAMETERS);
+        node.put(PyFormatterPreferences.RUFF_FORMATTER_LOCATION_OPTION,
+                PyFormatterPreferences.DEFAULT_RUFF_FORMATTER_LOCATION_OPTION);
+        node.put(PyFormatterPreferences.RUFF_PARAMETERS, PyFormatterPreferences.DEFAULT_RUFF_PARAMETERS);
 
         //file types
         node.put(FileTypesPreferences.VALID_SOURCE_FILES, FileTypesPreferences.DEFAULT_VALID_SOURCE_FILES);

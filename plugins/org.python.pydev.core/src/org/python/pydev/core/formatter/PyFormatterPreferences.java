@@ -11,6 +11,9 @@ public class PyFormatterPreferences {
     public static final String BLACK_PARAMETERS = "BLACK_PARAMETERS";
     public static final String DEFAULT_BLACK_PARAMETERS = "--fast";
 
+    public static final String RUFF_PARAMETERS = "RUFF_PARAMETERS";
+    public static final String DEFAULT_RUFF_PARAMETERS = "";
+
     public static final String AUTOPEP8_PARAMETERS = "AUTOPEP8_PARAMETERS";
 
     public static final String FORMAT_ONLY_CHANGED_LINES = "FORMAT_ONLY_CHANGED_LINES";
@@ -66,6 +69,11 @@ public class PyFormatterPreferences {
 
     public static final String BLACK_FORMATTER_FILE_LOCATION = "BLACK_FORMATTER_FILE_LOCATION";
 
+    public static final String RUFF_FORMATTER_LOCATION_OPTION = "RUFF_FORMATTER_LOCATION_OPTION";
+    public static final String DEFAULT_RUFF_FORMATTER_LOCATION_OPTION = LOCATION_SEARCH;
+
+    public static final String RUFF_FORMATTER_FILE_LOCATION = "RUFF_FORMATTER_FILE_LOCATION";
+
     public static FormatterEnum getFormatterStyle(IAdaptable projectAdaptable) {
         String string = getString(FORMATTER_STYLE, projectAdaptable);
         if (string == null || string.isEmpty()) {
@@ -90,9 +98,13 @@ public class PyFormatterPreferences {
         return getString(BLACK_PARAMETERS, projectAdaptable);
     }
 
+    public static String getRuffParameters(IAdaptable projectAdaptable) {
+        return getString(RUFF_PARAMETERS, projectAdaptable);
+    }
+
     public static boolean getFormatOnlyChangedLines(IAdaptable projectAdaptable) {
         if (getFormatterStyle(projectAdaptable) != FormatterEnum.PYDEVF) {
-            return false; //i.e.: not available with autopep8 nor black.
+            return false; //i.e.: not available with autopep8 nor black nor ruff.
         }
         return getBoolean(FORMAT_ONLY_CHANGED_LINES, projectAdaptable);
     }
@@ -154,6 +166,15 @@ public class PyFormatterPreferences {
                 .equals(PyScopedPreferences.getString(BLACK_FORMATTER_LOCATION_OPTION, projectAdaptable));
     }
 
+    private static String getRuffExecutableLocation(IAdaptable projectAdaptable) {
+        return PyScopedPreferences.getString(RUFF_FORMATTER_FILE_LOCATION, projectAdaptable);
+    }
+
+    private static boolean getSearchRuffInInterpreter(IAdaptable projectAdaptable) {
+        return !PyFormatterPreferences.LOCATION_SPECIFY
+                .equals(PyScopedPreferences.getString(RUFF_FORMATTER_LOCATION_OPTION, projectAdaptable));
+    }
+
     /**
      * @return the format standard that should be used to do the formatting
      */
@@ -173,6 +194,9 @@ public class PyFormatterPreferences {
         formatStd.searchBlackInInterpreter = getSearchBlackInInterpreter(projectAdaptable);
         formatStd.blackExecutableLocation = getBlackExecutableLocation(projectAdaptable);
         formatStd.blackParameters = getBlackParameters(projectAdaptable);
+        formatStd.searchRuffInInterpreter = getSearchRuffInInterpreter(projectAdaptable);
+        formatStd.ruffExecutableLocation = getRuffExecutableLocation(projectAdaptable);
+        formatStd.ruffParameters = getRuffParameters(projectAdaptable);
         formatStd.manageBlankLines = getManageBlankLines(projectAdaptable);
         formatStd.blankLinesTopLevel = getBlankLinesTopLevel(projectAdaptable);
         formatStd.blankLinesInner = getBlankLinesInner(projectAdaptable);

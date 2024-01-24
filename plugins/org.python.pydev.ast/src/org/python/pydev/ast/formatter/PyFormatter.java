@@ -29,6 +29,7 @@ import org.python.pydev.core.formatter.PyFormatterPreferences;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.pep8.BlackRunner;
 import org.python.pydev.core.pep8.Pep8Runner;
+import org.python.pydev.core.pep8.RuffRunner;
 import org.python.pydev.parser.prettyprinterv2.IFormatter;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -799,6 +800,7 @@ public class PyFormatter {
                 }
                 return;
             case BLACK:
+            case RUFF:
                 try {
                     formatAll(filepath, doc, edit, true, formatStd, true, false);
                 } catch (SyntaxErrorException e1) {
@@ -941,6 +943,15 @@ public class PyFormatter {
                 formatted = StringUtils.replaceNewLines(formatted, delimiter);
 
                 return formatted;
+            case RUFF:
+                formatted = RuffRunner.formatWithRuff(filepath, nature, doc, std, workingDir);
+                if (formatted == null) {
+                    formatted = doc.get();
+                }
+
+                formatted = StringUtils.replaceNewLines(formatted, delimiter);
+
+                return formatted;
             default:
                 FastStringBuffer buf = formatStr(doc.get(), std, 0, delimiter, throwSyntaxError);
                 if (allowChangingBlankLines && std.manageBlankLines) {
@@ -976,7 +987,7 @@ public class PyFormatter {
     }
 
     /**
-     * @param nature may be null (used for formatting with black).
+     * @param nature may be null (used for formatting with black/ruff).
      * @param filepath may be null
      */
     public static String formatStrAutopep8OrPyDev(String filepath, IPythonNature nature, FormatStd formatStd,

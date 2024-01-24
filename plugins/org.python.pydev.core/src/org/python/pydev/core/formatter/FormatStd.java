@@ -8,12 +8,13 @@ package org.python.pydev.core.formatter;
 public class FormatStd {
 
     public enum FormatterEnum {
-        PYDEVF, AUTOPEP8, BLACK,
+        PYDEVF, AUTOPEP8, BLACK, RUFF
     }
 
     public static final String PYDEFV = "PYDEFV";
     public static final String AUTOPEP8 = "AUTOPEP8";
     public static final String BLACK = "BLACK";
+    public static final String RUFF = "RUFF";
 
     public static FormatterEnum getFormatterEnumFromStr(String formatterStyleStr) {
         switch (formatterStyleStr) {
@@ -21,13 +22,15 @@ public class FormatStd {
                 return FormatterEnum.AUTOPEP8;
             case BLACK:
                 return FormatterEnum.BLACK;
+            case RUFF:
+                return FormatterEnum.RUFF;
             default:
                 return FormatterEnum.PYDEVF;
         }
     }
 
     /**
-     * Format with pydevf,autopep8,black?
+     * Format with pydevf,autopep8,black,ruff?
      */
     public FormatterEnum formatterStyle = FormatterEnum.PYDEVF;
 
@@ -40,6 +43,11 @@ public class FormatStd {
      * Parameters for black.
      */
     public String blackParameters;
+
+    /**
+     * Parameters for ruff.
+     */
+    public String ruffParameters;
 
     /**
      * Defines whether spaces should be added after a comma
@@ -96,6 +104,11 @@ public class FormatStd {
 
     // Used to specify black/autopep8.
     public String blackExecutableLocation;
+
+    public boolean searchRuffInInterpreter = true;
+
+    // Used to specify ruff/autopep8.
+    public String ruffExecutableLocation;
 
     /**
      * This method should be called after all related attributes are set when autopep8 is set to true.

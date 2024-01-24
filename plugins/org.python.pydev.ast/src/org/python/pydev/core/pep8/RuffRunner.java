@@ -18,28 +18,28 @@ import org.python.pydev.shared_core.process.ProcessUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.utils.ArrayUtils;
 
-public class BlackRunner {
+public class RuffRunner {
 
     /**
      * @param filepath note that it may be null
      * @return
      */
-    public static String formatWithBlack(String filepath, IPythonNature nature, IDocument doc, FormatStd std,
+    public static String formatWithRuff(String filepath, IPythonNature nature, IDocument doc, FormatStd std,
             File workingDir) {
         try {
             Process process;
-            String[] parseArguments = ProcessUtils.parseArguments(std.blackParameters);
+            String[] parseArguments = ProcessUtils.parseArguments(std.ruffParameters);
             String cmdarrayAsStr;
 
             String[] pathArgs = filepath != null && filepath.length() > 0
                     ? new String[] { "--stdin-filename", filepath }
                     : new String[0];
 
-            String executableLocation = std.blackExecutableLocation;
-            if (!std.searchBlackInInterpreter && executableLocation != null && !executableLocation.isEmpty()
+            String executableLocation = std.ruffExecutableLocation;
+            if (!std.searchRuffInInterpreter && executableLocation != null && !executableLocation.isEmpty()
                     && FileUtils.enhancedIsFile(new File(executableLocation))) {
                 SimpleRunner simpleRunner = new SimpleRunner();
-                String[] args = ArrayUtils.concatArrays(new String[] { executableLocation, "-" }, pathArgs,
+                String[] args = ArrayUtils.concatArrays(new String[] { executableLocation, "format", "-" }, pathArgs,
                         parseArguments);
                 Tuple<Process, String> r = simpleRunner.run(args, workingDir, null, null);
                 process = r.o1;
@@ -55,8 +55,8 @@ public class BlackRunner {
                 }
                 PythonRunner pythonRunner = new PythonRunner(nature);
 
-                Tuple<Process, String> processInfo = pythonRunner.createProcessFromModuleName("black",
-                        ArrayUtils.concatArrays(new String[] { "-" }, pathArgs, parseArguments),
+                Tuple<Process, String> processInfo = pythonRunner.createProcessFromModuleName("ruff",
+                        ArrayUtils.concatArrays(new String[] { "format", "-" }, pathArgs, parseArguments),
                         workingDir, new NullProgressMonitor());
                 process = processInfo.o1;
                 cmdarrayAsStr = processInfo.o2;
@@ -67,7 +67,7 @@ public class BlackRunner {
                 pythonFileEncoding = "utf-8";
             }
             return RunnerCommon.writeContentsAndGetOutput(doc.get().getBytes(pythonFileEncoding), pythonFileEncoding,
-                    process, cmdarrayAsStr, "black");
+                    process, cmdarrayAsStr, "ruff");
         } catch (Exception e) {
             Log.log(e);
         }

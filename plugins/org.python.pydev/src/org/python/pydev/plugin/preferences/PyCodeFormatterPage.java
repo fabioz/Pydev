@@ -71,6 +71,7 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
     private Composite fieldParent;
     private CustomStringFieldEditor autopep8Parameters;
     private CustomStringFieldEditor blackParameters;
+    private CustomStringFieldEditor ruffParameters;
     private LinkFieldEditor interpreterLink;
     private boolean disposed = false;
     private TabFolder tabFolder;
@@ -101,6 +102,7 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
             { "PyDev.Formatter", FormatterEnum.PYDEVF.toString() },
             { "autopep8", FormatterEnum.AUTOPEP8.toString() },
             { "Black", FormatterEnum.BLACK.toString() },
+            { "ruff", FormatterEnum.RUFF.toString() },
     };
     private TabItem tabItemSpacing;
     private TabItem tabItemBlankLines;
@@ -113,6 +115,8 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
     private IntegerFieldEditor blankLinesInner;
     private RadioGroupFieldEditor blackFormatterLocation;
     private FileFieldEditorCustom blackFileField;
+    private RadioGroupFieldEditor ruffFormatterLocation;
+    private FileFieldEditorCustom ruffFileField;
 
     public static final String[][] SEARCH_FORMATTER_LOCATION_OPTIONS = new String[][] {
             { "Search in interpreter", PyFormatterPreferences.LOCATION_SEARCH },
@@ -146,6 +150,7 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
                 ENTRIES_AND_VALUES_FOR_FORMATTER, p);
         addField(formatterStyle);
 
+        // Black
         blackFormatterLocation = new RadioGroupFieldEditor(PyFormatterPreferences.BLACK_FORMATTER_LOCATION_OPTION,
                 "Black executable", 2, SEARCH_FORMATTER_LOCATION_OPTIONS, p);
 
@@ -164,8 +169,28 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
                 p, 1);
         addField(blackFileField);
 
+        // Ruff
+        ruffFormatterLocation = new RadioGroupFieldEditor(PyFormatterPreferences.RUFF_FORMATTER_LOCATION_OPTION,
+                "Ruff executable", 2, SEARCH_FORMATTER_LOCATION_OPTIONS, p);
+
+        for (Button b : ruffFormatterLocation.getRadioButtons()) {
+            b.addSelectionListener(new SelectionAdapter() {
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                    updateState();
+                }
+            });
+        }
+
+        addField(ruffFormatterLocation);
+        ruffFileField = new FileFieldEditorCustom(PyFormatterPreferences.RUFF_FORMATTER_FILE_LOCATION,
+                "Location of the ruff executable:",
+                p, 1);
+        addField(ruffFileField);
+
         interpreterLink = new LinkFieldEditor("link_autopep8_interpreter",
-                "Note: the default configured <a>Python Interpreter</a> will be used to execute autopep8.py/black", p,
+                "Note: the default configured <a>Python Interpreter</a> will be used to execute autopep8.py/black/ruff",
+                p,
                 new SelectionListener() {
 
                     @Override
@@ -181,6 +206,7 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
                 });
         addField(interpreterLink);
 
+        // Parameters
         autopep8Parameters = new CustomStringFieldEditor(PyFormatterPreferences.AUTOPEP8_PARAMETERS,
                 "Parameters for autopep8 (i.e.: -a for aggressive, --ignore E24)", p);
         addField(autopep8Parameters);
@@ -188,6 +214,10 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
         blackParameters = new CustomStringFieldEditor(PyFormatterPreferences.BLACK_PARAMETERS,
                 "Parameters for black (i.e.: -S don't convert single to double quotes)", p);
         addField(blackParameters);
+
+        ruffParameters = new CustomStringFieldEditor(PyFormatterPreferences.RUFF_PARAMETERS,
+                "Parameters for ruff format", p);
+        addField(ruffParameters);
 
         onlyChangedLines = createBooleanFieldEditorCustom(PyFormatterPreferences.FORMAT_ONLY_CHANGED_LINES,
                 "On save, only apply formatting in changed lines?", p);
@@ -344,15 +374,23 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
         FormatterEnum currFormatterStyle = getComboFormatterStyle();
         autopep8Parameters.setVisible(currFormatterStyle == FormatterEnum.AUTOPEP8, fieldParent);
         blackParameters.setVisible(currFormatterStyle == FormatterEnum.BLACK, fieldParent);
+        ruffParameters.setVisible(currFormatterStyle == FormatterEnum.RUFF, fieldParent);
 
         switch (currFormatterStyle) {
             case AUTOPEP8:
             case BLACK:
+            case RUFF:
                 blackFormatterLocation.setVisible(currFormatterStyle == FormatterEnum.BLACK, fieldParent);
-                boolean showFile = currFormatterStyle == FormatterEnum.BLACK && PyFormatterPreferences.LOCATION_SPECIFY
-                        .equals(blackFormatterLocation.getRadioValue());
-                blackFileField.setVisible(showFile);
-                interpreterLink.setVisible(!showFile);
+                ruffFormatterLocation.setVisible(currFormatterStyle == FormatterEnum.RUFF, fieldParent);
+                boolean showFileBlack = currFormatterStyle == FormatterEnum.BLACK
+                        && PyFormatterPreferences.LOCATION_SPECIFY
+                                .equals(blackFormatterLocation.getRadioValue());
+                boolean showFileRuff = currFormatterStyle == FormatterEnum.RUFF
+                        && PyFormatterPreferences.LOCATION_SPECIFY
+                                .equals(ruffFormatterLocation.getRadioValue());
+                blackFileField.setVisible(showFileBlack);
+                ruffFileField.setVisible(showFileRuff);
+                interpreterLink.setVisible(!showFileBlack && !showFileRuff);
 
                 assignWithSpaceInsideParentesis.setVisible(false, spacingParent);
                 operatorsWithSpace.setVisible(false, spacingParent);
@@ -375,7 +413,9 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
 
             default:
                 blackFormatterLocation.setVisible(false, fieldParent);
+                ruffFormatterLocation.setVisible(false, fieldParent);
                 blackFileField.setVisible(false);
+                ruffFileField.setVisible(false);
                 interpreterLink.setVisible(false);
 
                 assignWithSpaceInsideParentesis.setVisible(true, spacingParent);
@@ -505,9 +545,13 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
         formatStd.formatterStyle = getComboFormatterStyle();
         formatStd.autopep8Parameters = this.autopep8Parameters.getStringValue();
         formatStd.blackParameters = this.blackParameters.getStringValue();
+        formatStd.ruffParameters = this.ruffParameters.getStringValue();
         formatStd.searchBlackInInterpreter = !PyFormatterPreferences.LOCATION_SPECIFY
                 .equals(this.blackFormatterLocation.getRadioValue());
+        formatStd.searchRuffInInterpreter = !PyFormatterPreferences.LOCATION_SPECIFY
+                .equals(this.ruffFormatterLocation.getRadioValue());
         formatStd.blackExecutableLocation = this.blackFileField.getStringValue();
+        formatStd.ruffExecutableLocation = this.ruffFileField.getStringValue();
         formatStd.updateFormatterStyle();
         return formatStd;
     }
