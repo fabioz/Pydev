@@ -31,14 +31,12 @@ from _pydevd_bundle.pydevd_constants import EXCEPTION_TYPE_HANDLED
 from _pydevd_bundle.pydevd_trace_dispatch import is_unhandled_exception
 from _pydevd_bundle.pydevd_breakpoints import stop_on_unhandled_exception
 from _pydevd_bundle.pydevd_utils import get_clsname_for_code
-import weakref
-from functools import partial
 
 # IFDEF CYTHON -- DONT EDIT THIS FILE (it is automatically generated)
 import cython
-from _pydevd_bundle.pydevd_cython cimport set_additional_thread_info, PyDBAdditionalThreadInfo
+from _pydevd_bundle.pydevd_cython cimport set_additional_thread_info, any_thread_stepping, PyDBAdditionalThreadInfo
 # ELSE
-# from _pydevd_bundle.pydevd_additional_thread_info import set_additional_thread_info, PyDBAdditionalThreadInfo
+# from _pydevd_bundle.pydevd_additional_thread_info import set_additional_thread_info, any_thread_stepping, PyDBAdditionalThreadInfo
 # ENDIF
 
 try:
@@ -206,7 +204,7 @@ cdef _get_unhandled_exception_frame(int depth):
 
 # IFDEF CYTHON -- DONT EDIT THIS FILE (it is automatically generated)
 cdef class ThreadInfo:
-    cdef int thread_ident
+    cdef unsigned long thread_ident
     cdef PyDBAdditionalThreadInfo additional_info
     thread: threading.Thread
     trace: bool
@@ -219,7 +217,7 @@ cdef class ThreadInfo:
 # ENDIF
 
 # IFDEF CYTHON -- DONT EDIT THIS FILE (it is automatically generated)
-    def __init__(self, thread, int thread_ident, bint trace, PyDBAdditionalThreadInfo additional_info):
+    def __init__(self, thread, unsigned long thread_ident, bint trace, PyDBAdditionalThreadInfo additional_info):
 # ELSE
 #     def __init__(self, thread: threading.Thread, thread_ident: int, trace: bool, additional_info: PyDBAdditionalThreadInfo):
 # ENDIF
@@ -229,20 +227,31 @@ cdef class ThreadInfo:
         self.trace = trace
 
 
-def _remove_dummy_from_thread_active(ref, thread, tident):
-    with threading._active_limbo_lock:
-        if _thread_active.get(tident) is thread:
-            _thread_active.pop(tident, None)
-
-
-class _TrackRef:
+class _DeleteDummyThreadOnDel:
     '''
-    A helper class to track when a thread dies.
+    Helper class to remove a dummy thread from threading._active on __del__.
     '''
+
+    def __init__(self, dummy_thread):
+        self._dummy_thread = dummy_thread
+        self._tident = dummy_thread.ident
+        # Put the thread on a thread local variable so that when
+        # the related thread finishes this instance is collected.
+        #
+        # Note: no other references to this instance may be created.
+        # If any client code creates a reference to this instance,
+        # the related _DummyThread will be kept forever!
+        _thread_local_info._track_dummy_thread_ref = self
+
+    def __del__(self):
+        with threading._active_limbo_lock:
+            if _thread_active.get(self._tident) is self._dummy_thread:
+                _thread_active.pop(self._tident, None)
 
 
 # IFDEF CYTHON -- DONT EDIT THIS FILE (it is automatically generated)
 cdef _create_thread_info(depth):
+    cdef unsigned long thread_ident
 # ELSE
 # def _create_thread_info(depth):
 # ENDIF
@@ -274,12 +283,11 @@ cdef _create_thread_info(depth):
         # a dummy thread is ok in this use-case.
         t = threading.current_thread()
 
-    if isinstance(t, threading._DummyThread):
-        _thread_local_info._ref = _TrackRef()
-        _thread_local_info._on_die_ref = weakref.ref(_thread_local_info._ref, partial(_remove_dummy_from_thread_active, thread=t, tident=t.ident))
-
     if t is None:
         t = _thread_active.get(thread_ident)
+
+    if isinstance(t, threading._DummyThread):
+        _thread_local_info._ref = _DeleteDummyThreadOnDel(t)
 
     if t is None:
         return None
@@ -449,12 +457,24 @@ cpdef FuncCodeInfo _get_func_code_info(code_obj, frame_or_depth):
             # print('_get_func_code_info: matched mtime', key, code_obj)
             return func_code_info
 
-    # print('_get_func_code_info: new (mtime did not match)', key, code_obj)
+# IFDEF CYTHON -- DONT EDIT THIS FILE (it is automatically generated)
+    cdef dict cache_file_type
+    cdef tuple cache_file_type_key
+    cdef PyCodeObject * code
+    cdef str co_filename
+    cdef str co_name
+    code = <PyCodeObject *> code_obj
+    co_filename = <str> code.co_filename
+    co_name = <str> code.co_name
+# ELSE
+#     cache_file_type: dict
+#     cache_file_type_key: tuple
+#     code = code_obj
+#     co_filename: str = code.co_filename
+#     co_name: str = code.co_name
+# ENDIF
 
-    co_filename: str = code_obj.co_filename
-    co_name: str = code_obj.co_name
-    cache_file_type: dict
-    cache_file_type_key: tuple
+    # print('_get_func_code_info: new (mtime did not match)', key, code_obj)
 
     func_code_info = FuncCodeInfo()
     func_code_info.code_obj = code_obj
@@ -478,7 +498,7 @@ cpdef FuncCodeInfo _get_func_code_info(code_obj, frame_or_depth):
     cache_file_type = py_db.get_cache_file_type()
     # Note: this cache key must be the same from PyDB.get_file_type() -- see it for comments
     # on the cache.
-    cache_file_type_key = (code_obj.co_firstlineno, abs_path_real_path_and_base[0], code_obj)
+    cache_file_type_key = (code.co_firstlineno, abs_path_real_path_and_base[0], code_obj)
     try:
         file_type = cache_file_type[cache_file_type_key]  # Make it faster
     except:
@@ -605,48 +625,57 @@ cpdef disable_code_tracing(code):
 
 
 # IFDEF CYTHON -- DONT EDIT THIS FILE (it is automatically generated)
-cpdef enable_code_tracing(thread_ident, code, frame):
+cpdef enable_code_tracing(unsigned long thread_ident, code, frame):
 # ELSE
-# def enable_code_tracing(thread_ident: Optional[int], code, frame):
+# def enable_code_tracing(thread_ident: Optional[int], code, frame) -> bool:
 # ENDIF
     '''
     Note: this must enable code tracing for the given code/frame.
 
     The frame can be from any thread!
+
+    :return: Whether code tracing was added in this function to the given code.
     '''
     # DEBUG = False  # 'my_code.py' in code.co_filename or 'other.py' in code.co_filename
     # if DEBUG:
     #     print('==== enable code tracing', code.co_filename[-30:], code.co_name)
     py_db: object = GlobalDebuggerHolder.global_dbg
     if py_db is None or py_db.pydb_disposed:
-        return monitor.DISABLE
+        return False
 
     func_code_info: FuncCodeInfo = _get_func_code_info(code, frame)
     if func_code_info.always_skip_code:
         # if DEBUG:
         #     print('disable (always skip)')
-        return monitor.DISABLE
+        return False
 
     try:
         thread = threading._active.get(thread_ident)
         if thread is None:
-            return
+            return False
         additional_info = set_additional_thread_info(thread)
     except:
         # Cannot set based on stepping
-        return
+        return False
 
     return _enable_code_tracing(py_db, additional_info, func_code_info, code, frame, False)
 
 
 # IFDEF CYTHON -- DONT EDIT THIS FILE (it is automatically generated)
-cdef _enable_code_tracing(py_db, additional_info, FuncCodeInfo func_code_info, code, frame, warn_on_filtered_out):
+cdef bint _enable_code_tracing(py_db, PyDBAdditionalThreadInfo additional_info, FuncCodeInfo func_code_info, code, frame, bint warn_on_filtered_out):
+    cdef int step_cmd
+    cdef bint is_stepping
+    cdef bint code_tracing_added
 # ELSE
-# def _enable_code_tracing(py_db, additional_info, func_code_info: FuncCodeInfo, code, frame, warn_on_filtered_out) -> None:
+# def _enable_code_tracing(py_db, additional_info, func_code_info: FuncCodeInfo, code, frame, warn_on_filtered_out) -> bool:
 # ENDIF
+    '''
+    :return: Whether code tracing was added in this function to the given code.
+    '''
     # DEBUG = False  # 'my_code.py' in code.co_filename or 'other.py' in code.co_filename
     step_cmd = additional_info.pydev_step_cmd
     is_stepping = step_cmd != -1
+    code_tracing_added = False
 
     if func_code_info.always_filtered_out:
         # if DEBUG:
@@ -654,14 +683,21 @@ cdef _enable_code_tracing(py_db, additional_info, FuncCodeInfo func_code_info, c
         if warn_on_filtered_out and is_stepping and additional_info.pydev_original_step_cmd in (CMD_STEP_INTO, CMD_STEP_INTO_MY_CODE) and not _global_notify_skipped_step_in:
             _notify_skipped_step_in_because_of_filters(py_db, frame)
 
-        _enable_step_tracing(py_db, code, step_cmd, additional_info, frame)
-        return  # We can't always disable as we may need to track it when stepping.
+        if is_stepping:
+            # Tracing may be needed for return value
+            _enable_step_tracing(py_db, code, step_cmd, additional_info, frame)
+            code_tracing_added = True
+        return code_tracing_added
 
     if func_code_info.breakpoint_found or func_code_info.plugin_line_breakpoint_found:
         _enable_line_tracing(code)
+        code_tracing_added = True
 
     if is_stepping:
         _enable_step_tracing(py_db, code, step_cmd, additional_info, frame)
+        code_tracing_added = True
+
+    return code_tracing_added
 
 
 # IFDEF CYTHON -- DONT EDIT THIS FILE (it is automatically generated)
@@ -689,12 +725,24 @@ cdef _enable_step_tracing(py_db, code, step_cmd, PyDBAdditionalThreadInfo info, 
             _enable_return_tracing(code)
 
 
-class _TryExceptContainerObj(object):
+# IFDEF CYTHON -- DONT EDIT THIS FILE (it is automatically generated)
+cdef class _TryExceptContainerObj:
+    cdef list try_except_infos
+# ELSE
+# class _TryExceptContainerObj:
+# ENDIF
     '''
     A dumb container object just to contain the try..except info when needed. Meant to be
     persistent among multiple PyDBFrames to the same code object.
     '''
-    try_except_infos = None
+
+    # IFDEF CYTHON -- DONT EDIT THIS FILE (it is automatically generated)
+    def __init__(self, list try_except_infos):
+        self.try_except_infos = try_except_infos
+    # ELSE
+#     def __init__(self, try_except_infos):
+#         self.try_except_infos = try_except_infos
+    # ENDIF
 
 
 # IFDEF CYTHON -- DONT EDIT THIS FILE (it is automatically generated)
@@ -739,8 +787,7 @@ cdef _unwind_event(code, instruction, exc):
             # TODO: Check: this may no longer be needed as in the unwind we know it's
             # an exception bubbling up (wait for all tests to pass to check it).
             if func_code_info.try_except_container_obj is None:
-                container_obj = _TryExceptContainerObj()
-                container_obj.try_except_infos = py_db.collect_try_except_info(frame.f_code)
+                container_obj = _TryExceptContainerObj(py_db.collect_try_except_info(frame.f_code))
                 func_code_info.try_except_container_obj = container_obj
 
             if is_unhandled_exception(func_code_info.try_except_container_obj, py_db, frame, user_uncaught_exc_info[1], user_uncaught_exc_info[2]):
@@ -804,7 +851,7 @@ cdef _raise_event(code, instruction, exc):
 
 
 # IFDEF CYTHON -- DONT EDIT THIS FILE (it is automatically generated)
-cdef get_func_name(frame):
+cdef str get_func_name(frame):
     cdef str func_name
 # ELSE
 # def get_func_name(frame):
@@ -868,6 +915,7 @@ cdef _return_event(code, instruction, retval):
     cdef ThreadInfo thread_info
     cdef FuncCodeInfo func_code_info
     cdef PyDBAdditionalThreadInfo info
+    cdef int step_cmd
 # ELSE
 # def _return_event(code, instruction, retval):
 # ENDIF
@@ -996,16 +1044,26 @@ cdef _return_event(code, instruction, retval):
 
 # IFDEF CYTHON -- DONT EDIT THIS FILE (it is automatically generated)
 cdef _enable_code_tracing_for_frame_and_parents(ThreadInfo thread_info, frame):
+    cdef FuncCodeInfo func_code_info
 # ELSE
 # def _enable_code_tracing_for_frame_and_parents(thread_info, frame):
 # ENDIF
+    py_db: object = GlobalDebuggerHolder.global_dbg
+    if py_db is None or py_db.pydb_disposed:
+        return
+
     while frame is not None:
-        enable_code_tracing(thread_info.thread, frame.f_code, frame)
+        func_code_info: FuncCodeInfo = _get_func_code_info(frame.f_code, frame)
+        if func_code_info.always_skip_code:
+            frame = frame.f_back
+            continue
+
+        _enable_code_tracing(py_db, thread_info.additional_info, func_code_info, frame.f_code, frame, False)
         frame = frame.f_back
 
 
 # IFDEF CYTHON -- DONT EDIT THIS FILE (it is automatically generated)
-cdef _stop_on_return(py_db, ThreadInfo thread_info, info, step_cmd, frame, retval):
+cdef _stop_on_return(py_db, ThreadInfo thread_info, PyDBAdditionalThreadInfo info, int step_cmd, frame, retval):
 # ELSE
 # def _stop_on_return(py_db, thread_info, info, step_cmd, frame, retval):
 # ENDIF
@@ -1043,19 +1101,16 @@ cdef _stop_on_return(py_db, ThreadInfo thread_info, info, step_cmd, frame, retva
         info.pydev_original_step_cmd = -1
         info.pydev_step_cmd = -1
         info.pydev_state = STATE_RUN
+        info.update_stepping_info()
 
 
 # IFDEF CYTHON -- DONT EDIT THIS FILE (it is automatically generated)
-cdef _stop_on_breakpoint(py_db, ThreadInfo thread_info, stop_reason, bp, frame, new_frame, bint stop, bint stop_on_plugin_breakpoint, str bp_type):
+cdef _stop_on_breakpoint(py_db, ThreadInfo thread_info, int stop_reason, bp, frame, new_frame, bint stop, bint stop_on_plugin_breakpoint, str bp_type):
     cdef PyDBAdditionalThreadInfo additional_info
 # ELSE
-# def _stop_on_breakpoint(py_db, thread_info: ThreadInfo, stop_reason, bp, frame, new_frame, stop: bool, stop_on_plugin_breakpoint: bool, bp_type:str):
+# def _stop_on_breakpoint(py_db, thread_info: ThreadInfo, stop_reason: int, bp, frame, new_frame, stop: bool, stop_on_plugin_breakpoint: bool, bp_type:str):
 # ENDIF
     '''
-    :param py_db:
-    :param thread_info:
-    :param stop_reason:
-    :param additional_info:
     :param bp: the breakpoint hit (additional conditions will be checked now).
     :param frame: the actual frame
     :param new_frame: either the actual frame or the frame provided by the plugins.
@@ -1109,7 +1164,9 @@ cdef _stop_on_breakpoint(py_db, ThreadInfo thread_info, stop_reason, bp, frame, 
 
 
 # IFDEF CYTHON -- DONT EDIT THIS FILE (it is automatically generated)
-cdef _plugin_stepping(py_db, step_cmd, event, frame, ThreadInfo thread_info):
+cdef _plugin_stepping(py_db, int step_cmd, event, frame, ThreadInfo thread_info):
+    cdef bint stop
+    cdef dict stop_info
 # ELSE
 # def _plugin_stepping(py_db, step_cmd, event, frame, thread_info):
 # ENDIF
@@ -1138,9 +1195,11 @@ cdef _plugin_stepping(py_db, step_cmd, event, frame, ThreadInfo thread_info):
 
 
 # IFDEF CYTHON -- DONT EDIT THIS FILE (it is automatically generated)
-cdef _jump_event(code, from_offset, to_offset):
+cdef _jump_event(code, int from_offset, int to_offset):
     cdef ThreadInfo thread_info
     cdef FuncCodeInfo func_code_info
+    cdef int from_line
+    cdef int to_line
 # ELSE
 # def _jump_event(code, from_offset, to_offset):
 # ENDIF
@@ -1228,6 +1287,12 @@ cdef _line_event(code, int line):
 # IFDEF CYTHON -- DONT EDIT THIS FILE (it is automatically generated)
 cdef _internal_line_event(FuncCodeInfo func_code_info, frame, int line):
     cdef ThreadInfo thread_info
+    cdef PyDBAdditionalThreadInfo info
+    cdef int step_cmd
+    cdef bint stop
+    cdef bint stop_on_plugin_breakpoint
+    cdef int stop_reason
+    cdef bint force_check_project_scope
 # ELSE
 # def _internal_line_event(func_code_info, frame, line):
 # ENDIF
@@ -1278,7 +1343,10 @@ cdef _internal_line_event(FuncCodeInfo func_code_info, frame, int line):
     # Ok, did not suspend due to a breakpoint, let's see if we're stepping.
     stop_frame = info.pydev_step_stop
     if step_cmd == -1:
-        return
+        if func_code_info.breakpoint_found or func_code_info.plugin_line_breakpoint_found or any_thread_stepping():
+            return None
+
+        return monitor.DISABLE
 
     if info.suspend_type != PYTHON_SUSPEND:
         # Plugin stepping
@@ -1412,6 +1480,12 @@ cdef _internal_line_event(FuncCodeInfo func_code_info, frame, int line):
 cdef _start_method_event(code, instruction_offset):
     cdef ThreadInfo thread_info
     cdef FuncCodeInfo func_code_info
+    cdef bint stop
+    cdef int stop_reason
+    cdef bint stop_on_plugin_breakpoint
+    cdef PyDBAdditionalThreadInfo info
+    cdef int step_cmd
+    cdef bint code_tracing_added
 # ELSE
 # def _start_method_event(code, instruction_offset):
 # ENDIF
@@ -1438,7 +1512,7 @@ cdef _start_method_event(code, instruction_offset):
         #     print('disable (always skip)')
         return monitor.DISABLE
 
-    _enable_code_tracing(py_db, thread_info.additional_info, func_code_info, code, frame, True)
+    keep_enabled: bool = _enable_code_tracing(py_db, thread_info.additional_info, func_code_info, code, frame, True)
 
     if func_code_info.function_breakpoint_found:
         bp = func_code_info.function_breakpoint
@@ -1465,42 +1539,18 @@ cdef _start_method_event(code, instruction_offset):
                 _stop_on_breakpoint(py_db, thread_info, stop_reason, bp, frame, new_frame, stop, stop_on_plugin_breakpoint, bp_type)
                 return
 
+            keep_enabled = True
+
         # Check breaking on line stepping in a 'call'
         step_cmd = info.pydev_step_cmd
         if step_cmd != -1 and func_code_info.plugin_call_stepping and info.suspend_type != PYTHON_SUSPEND:
             _plugin_stepping(py_db, step_cmd, 'call', frame, thread_info)
             return
 
-# Unlike on sys.tracing, we do not have to redo the f_trace setup because the
-# tracing in sys.monitoring is bound to the code, not the frame, so, this is
-# not needed.
-# def _resume_method_event(code, instruction_offset):
-#     # Same thing as _start_method_event but without checking function breakpoint
-#     try:
-#         thread_info = _thread_local_info.thread_info
-#     except:
-#         thread_info = _get_thread_info(True, 1)
-#         if thread_info is None:
-#             return
-#
-#     py_db: object = GlobalDebuggerHolder.global_dbg
-#     if py_db is None or py_db.pydb_disposed:
-#         return monitor.DISABLE
-#
-#     if not thread_info.trace or thread_info.thread._is_stopped:
-#         # For thread-related stuff we can't disable the code tracing because other
-#         # threads may still want it...
-#         return
-#
-#     frame = _getframe(1)
-#
-#     func_code_info: FuncCodeInfo = _get_func_code_info(code, frame)
-#     if func_code_info.always_skip_code:
-#         # if DEBUG:
-#         #     print('disable (always skip)')
-#         return monitor.DISABLE
-#
-#     _enable_code_tracing(py_db, thread_info.additional_info, func_code_info, code, frame, True)
+    if keep_enabled or any_thread_stepping():
+        return None
+
+    return monitor.DISABLE
 
 
 # IFDEF CYTHON -- DONT EDIT THIS FILE (it is automatically generated)
@@ -1650,7 +1700,11 @@ def restart_events() -> None:
     monitor.restart_events()
 
 
-def _is_same_frame(info, target_frame, current_frame):
+# IFDEF CYTHON -- DONT EDIT THIS FILE (it is automatically generated)
+cdef _is_same_frame(PyDBAdditionalThreadInfo info, target_frame, current_frame):
+# ELSE
+# def _is_same_frame(info, target_frame, current_frame):
+# ENDIF
     if target_frame is current_frame:
         return True
 

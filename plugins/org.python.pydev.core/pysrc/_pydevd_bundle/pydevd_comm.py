@@ -67,8 +67,7 @@ import linecache
 import os
 
 from _pydev_bundle.pydev_imports import _queue
-from _pydev_bundle._pydev_saved_modules import time
-from _pydev_bundle._pydev_saved_modules import threading
+from _pydev_bundle._pydev_saved_modules import time, ThreadingEvent
 from _pydev_bundle._pydev_saved_modules import socket as socket_module
 from _pydevd_bundle.pydevd_constants import (DebugInfoHolder, IS_WINDOWS, IS_JYTHON, IS_WASM,
     IS_PY36_OR_GREATER, STATE_RUN, ASYNC_EVAL_TIMEOUT_SEC,
@@ -98,7 +97,8 @@ from _pydevd_bundle import pydevd_vm_type
 import sys
 import traceback
 from _pydevd_bundle.pydevd_utils import quote_smart as quote, compare_object_attrs_key, \
-    notify_about_gevent_if_needed, isinstance_checked, ScopeRequest, getattr_checked, Timer
+    notify_about_gevent_if_needed, isinstance_checked, ScopeRequest, getattr_checked, Timer, \
+    is_current_thread_main_thread
 from _pydev_bundle import pydev_log, fsnotify
 from _pydev_bundle.pydev_log import exception as pydev_log_exception
 from _pydev_bundle import _pydev_completer
@@ -675,6 +675,7 @@ def internal_step_in_thread(py_db, thread_id, cmd_id, set_additional_thread_info
         info.pydev_step_cmd = cmd_id
         info.pydev_step_stop = None
         info.pydev_state = STATE_RUN
+        info.update_stepping_info()
 
     if py_db.stepping_resumes_all_threads:
         resume_threads('*', except_thread=thread_to_step)
@@ -690,6 +691,7 @@ def internal_smart_step_into(py_db, thread_id, offset, child_offset, set_additio
         info.pydev_smart_parent_offset = int(offset)
         info.pydev_smart_child_offset = int(child_offset)
         info.pydev_state = STATE_RUN
+        info.update_stepping_info()
 
     if py_db.stepping_resumes_all_threads:
         resume_threads('*', except_thread=thread_to_step)
@@ -725,6 +727,7 @@ class InternalSetNextStatementThread(InternalThreadCommand):
             info.pydev_smart_parent_offset = -1
             info.pydev_smart_child_offset = -1
             info.pydev_state = STATE_RUN
+            info.update_stepping_info()
 
 
 @silence_warnings_decorator
@@ -1737,24 +1740,39 @@ class InternalConsoleExec(InternalThreadCommand):
         self.frame_id = frame_id
         self.expression = expression
 
-    def do_it(self, dbg):
-        ''' Converts request into python variable '''
+    def init_matplotlib_in_debug_console(self, py_db):
+        # import hook and patches for matplotlib support in debug console
+        from _pydev_bundle.pydev_import_hook import import_hook_manager
+        if is_current_thread_main_thread():
+            for module in list(py_db.mpl_modules_for_patching):
+                import_hook_manager.add_module_name(module, py_db.mpl_modules_for_patching.pop(module))
+
+    def do_it(self, py_db):
+        if not py_db.mpl_hooks_in_debug_console and not py_db.gui_in_use:
+            # add import hooks for matplotlib patches if only debug console was started
+            try:
+                self.init_matplotlib_in_debug_console(py_db)
+                py_db.gui_in_use = True
+            except:
+                pydev_log.debug("Matplotlib support in debug console failed", traceback.format_exc())
+            py_db.mpl_hooks_in_debug_console = True
+
         try:
             try:
-                # don't trace new threads created by console command
+                # Don't trace new threads created by console command.
                 disable_trace_thread_modules()
 
-                result = pydevconsole.console_exec(self.thread_id, self.frame_id, self.expression, dbg)
+                result = pydevconsole.console_exec(self.thread_id, self.frame_id, self.expression, py_db)
                 xml = "<xml>"
                 xml += pydevd_xml.var_to_xml(result, "")
                 xml += "</xml>"
-                cmd = dbg.cmd_factory.make_evaluate_expression_message(self.sequence, xml)
-                dbg.writer.add_command(cmd)
+                cmd = py_db.cmd_factory.make_evaluate_expression_message(self.sequence, xml)
+                py_db.writer.add_command(cmd)
             except:
                 exc = get_exception_traceback_str()
                 sys.stderr.write('%s\n' % (exc,))
-                cmd = dbg.cmd_factory.make_error_message(self.sequence, "Error evaluating console expression " + exc)
-                dbg.writer.add_command(cmd)
+                cmd = py_db.cmd_factory.make_error_message(self.sequence, "Error evaluating console expression " + exc)
+                py_db.writer.add_command(cmd)
         finally:
             enable_trace_thread_modules()
 
@@ -1809,7 +1827,7 @@ class AbstractGetValueAsyncThread(PyDBDaemonThread):
         self.frame_accessor = frame_accessor
         self.seq = seq
         self.var_objs = var_objects
-        self.cancel_event = threading.Event()
+        self.cancel_event = ThreadingEvent()
 
     def send_result(self, xml):
         raise NotImplementedError()

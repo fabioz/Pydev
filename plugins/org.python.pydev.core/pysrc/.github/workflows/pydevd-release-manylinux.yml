@@ -32,7 +32,7 @@ jobs:
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
-          CIBW_SKIP: pp*
+          CIBW_SKIP: pp* cp36-* cp37-*
           CIBW_BUILD_VERBOSITY: 1
 
       - uses: actions/upload-artifact@v3

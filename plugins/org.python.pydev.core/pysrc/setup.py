@@ -73,6 +73,7 @@ args = dict(
         '_pydevd_bundle._debug_adapter',
         '_pydevd_bundle.pydevd_concurrency_analyser',
         '_pydevd_frame_eval',
+        '_pydevd_sys_monitoring',
         '_pydevd_frame_eval.vendored',
         '_pydevd_frame_eval.vendored.bytecode',
         'pydev_ipython',
@@ -112,8 +113,6 @@ args = dict(
         'Operating System :: POSIX',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
@@ -165,10 +164,7 @@ try:
     if extra_compile_args:
         kwargs['extra_compile_args'] = extra_compile_args
 
-    args_with_binaries = args.copy()
-    args_with_binaries.update(dict(
-        distclass=BinaryDistribution,
-        ext_modules=[
+    ext_modules = [
             # In this setup, don't even try to compile with cython, just go with the .c file which should've
             # been properly generated from a tested version.
             Extension(
@@ -178,6 +174,34 @@ try:
                 **kwargs
             )
         ]
+
+    py_version = sys.version_info[:2]
+    if (3, 6) <= py_version <= (3, 10):
+        ext_modules.append(
+            Extension(
+                '_pydevd_frame_eval.pydevd_frame_evaluator',
+                ["_pydevd_frame_eval/pydevd_frame_evaluator.c", ],
+                define_macros=[('Py_BUILD_CORE_MODULE', '1')],
+                **kwargs
+            )
+        )
+
+    # Note: 3.11 does not have frame eval implemented (nor sys.monitoring)
+
+    if py_version >= (3, 12):
+        ext_modules.append(
+            Extension(
+                '_pydevd_sys_monitoring._pydevd_sys_monitoring_cython',
+                ["_pydevd_sys_monitoring/_pydevd_sys_monitoring_cython.c", ],
+                define_macros=[('Py_BUILD_CORE_MODULE', '1')],
+                **kwargs
+            )
+        )
+
+    args_with_binaries = args.copy()
+    args_with_binaries.update(dict(
+        distclass=BinaryDistribution,
+        ext_modules=ext_modules
     ))
     setup(**args_with_binaries)
 except:
