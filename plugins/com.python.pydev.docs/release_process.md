@@ -27,6 +27,9 @@ mu acp "PyDev release 12.0.0"
 
 Plugin token for signing
 
+Check that `SIGN_STOREPASS` is correct.
+Check that `SIGN_KEYPASS` is correct.
+
 python -m dev build_pydev_in_build_dir
 
 ## Put things in the proper places and create zips to distribute
