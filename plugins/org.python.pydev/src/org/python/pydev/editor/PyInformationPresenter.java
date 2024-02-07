@@ -202,11 +202,10 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
 
                 @Override
                 public void mouseDown(MouseEvent e) {
-                    int offset;
-                    try {
-                        offset = styledText.getOffsetAtPoint(new Point(e.x, e.y));
-                    } catch (IllegalArgumentException e1) {
-                        return; //invalid location
+                    int offset = styledText.getOffsetAtPoint(new Point(e.x, e.y));
+                    if (offset == -1) {
+                        // invalid location
+                        return;
                     }
                     StyleRange r = styledText.getStyleRangeAtOffset(offset);
                     if (r instanceof PyStyleRange) {
