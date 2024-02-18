@@ -1,17 +1,23 @@
-PyDev 11.0.2 Released
+PyDev 12.0.0 Released
 
-PyDev 11.0.2 Release Highlights
+PyDev 12.0.0 Release Highlights
 -------------------------------
 
-Continuing with the updates to Python 3.12, the new release integrates
-the latest version of typeshed (so, **from typing import override** is
-now properly recognized).
+* **Debugger**
+	* **sys.monitoring** is now used in Python 3.12 (and it's **much** faster than any previous version).
+	* A new setting was added in the **Preferences > PyDev > Debug** to debug **just my code** (meaning that when stepping it will just step into files under PyDev source folders).
+	* Improved the step into function (activated with **Ctrl+Alt** then **Click function** to step into).
+	* Support for Python 3.6 and 3.7 was dropped (only Python 3.8 onwards is now supported).
 
-Also, it's now possible to specify vmargs in the python interpreter
-(and not just in the launch configuration).
+* **Ruff**
+	* Ruff can now be used as a code formatter.
+	* The latest ruff (**0.1.x**) is now supported (as it broke backward compatibility in its **0.1.0** version).
 
-For Python 3.11 onwards, **-Xfrozen_modules=off** is now
-set in the vm arguments by default.
+* **Code Analysis**
+	* Fixes in semantic analysis to better determine if strings in annotations should be checked for symbols or not.
+
+Note: **Only Python 3.8 onwards is now supported**
+	* **Python 3.6** and **3.7** support is now **dropped** (please use **PyDev 11.0.3** if you still use it).
 
 About PyDev
 ---------------------------

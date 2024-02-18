@@ -112,8 +112,9 @@ from io import StringIO
 from _pydevd_bundle.pydevd_comm_constants import *  # @UnusedWildImport
 
 # Socket import aliases:
-AF_INET, SOCK_STREAM, SHUT_WR, SOL_SOCKET, IPPROTO_TCP, socket = (
+AF_INET, AF_INET6, SOCK_STREAM, SHUT_WR, SOL_SOCKET, IPPROTO_TCP, socket = (
     socket_module.AF_INET,
+    socket_module.AF_INET6,
     socket_module.SOCK_STREAM,
     socket_module.SHUT_WR,
     socket_module.SOL_SOCKET,
@@ -449,6 +450,9 @@ def start_server(port):
 
     try:
         s.listen(1)
+        # Let the user know it's halted waiting for the connection.
+        pydev_log.critical("pydevd: waiting for connection at: %s:%s\n", *s.getsockname())
+            
         new_socket, _addr = s.accept()
         pydev_log.info("Connection accepted")
         # closing server socket is not necessary but we don't need it
@@ -463,7 +467,17 @@ def start_client(host, port):
     ''' connects to a host/port '''
     pydev_log.info("Connecting to %s:%s", host, port)
 
-    s = socket(AF_INET, SOCK_STREAM)
+    address_family = AF_INET
+    for res in socket_module.getaddrinfo(host, port, 0, SOCK_STREAM):
+        if res[0] == AF_INET:
+            address_family = res[0]
+            # Prefer IPv4 addresses for backward compat.
+            break
+        if res[0] == AF_INET6:
+            # Don't break after this - if the socket is dual-stack prefer IPv4.
+            address_family = res[0]
+
+    s = socket(address_family, SOCK_STREAM)
 
     #  Set TCP keepalive on an open socket.
     #  It activates after 1 second (TCP_KEEPIDLE,) of idleness,
