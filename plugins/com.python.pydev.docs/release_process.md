@@ -30,7 +30,7 @@ Plugin token for signing
 Check that `SIGN_STOREPASS` is correct.
 Check that `SIGN_KEYPASS` is correct.
 
-python -m dev build_pydev_in_build_dir
+python -m dev build_pydev_in_build_dir pydevd_binaries=true
 
 ## Put things in the proper places and create zips to distribute
 ## Submit feature and sources .zip in folder X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\runnable to:

@@ -130,7 +130,8 @@ def write_and_exit(msg):
     sys.exit(1)
 
 
-def build_pydev_in_build_dir():
+def build_pydev_in_build_dir(pydevd_binaries='true'):
+    pydevd_binaries = 0 if str(pydevd_binaries).lower() in ('0', 'false', 'f') else 1
     if 'SIGN_KEYSTORE' not in os.environ:
         write_and_exit('SIGN_KEYSTORE not defined in the os.environ.')
 
@@ -138,6 +139,15 @@ def build_pydev_in_build_dir():
     BASE_LOCAL_PYDEV_GIT = 'X:/liclipsews/liclipsews/Pydev'  # git://github.com/fabioz/Pydev.git could be used to build with the repo.
     JAVA_HOME = 'D:/bin/jdk-17.0.8.1+1'
     MAVEN_BIN = 'X:/liclipsews/maven/apache-maven-3.9.5/bin'
+
+    build_binaries_instructions = ''
+    if pydevd_binaries:
+        build_binaries_instructions = '''
+set PYTHONPATH=%BUILD_DIR%/Pydev/plugins/org.python.pydev.core/pysrc
+set FORCE_PYDEVD_VC_VARS=C:/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/VC/Auxiliary/Build/vcvars64.bat
+python %BUILD_DIR%/Pydev/plugins/org.python.pydev.core/pysrc/build_tools/build.py
+python %BUILD_DIR%/Pydev/plugins/org.python.pydev.core/pysrc/build_tools/build_binaries_windows.py
+'''
 
     os.makedirs(BUILD_DIR, exist_ok=True)
     _cmd(rf'''
@@ -162,15 +172,13 @@ git checkout -f
 git remote update
 git fetch
 git checkout %BRANCH%
-git pull origin %BRANCH%
+git fetch origin %BRANCH%
+git reset --hard origin/%BRANCH%
 git submodule foreach --recursive git reset --hard
 git submodule foreach --recursive git clean -f -d -x
 git submodule update --init --recursive
 
-set PYTHONPATH=%BUILD_DIR%/Pydev/plugins/org.python.pydev.core/pysrc
-set FORCE_PYDEVD_VC_VARS=C:/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/VC/Auxiliary/Build/vcvars64.bat
-python %BUILD_DIR%/Pydev/plugins/org.python.pydev.core/pysrc/build_tools/build.py
-python %BUILD_DIR%/Pydev/plugins/org.python.pydev.core/pysrc/build_tools/build_binaries_windows.py
+{build_binaries_instructions}
 
 mvn install -Dsign-release=true
 ''', cwd=BUILD_DIR)

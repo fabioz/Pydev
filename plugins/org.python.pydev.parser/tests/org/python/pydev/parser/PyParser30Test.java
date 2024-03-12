@@ -774,22 +774,6 @@ public class PyParser30Test extends PyParserTestBase {
         parseLegalDocStrWithoutTree(s);
     }
 
-    public void testAsyncNotKeyword() throws Exception {
-        String s = ""
-                + "class async(object):\n"
-                + "    pass";
-        parseLegalDocStr(s);
-        parseLegalDocStrWithoutTree(s);
-    }
-
-    public void testAwaitNotKeyword() throws Exception {
-        String s = ""
-                + "class await(object):\n"
-                + "    pass";
-        parseLegalDocStr(s);
-        parseLegalDocStrWithoutTree(s);
-    }
-
     public void testUnpacking3() throws Exception {
         String s = ""
                 + "def test():\n" +
@@ -848,24 +832,6 @@ public class PyParser30Test extends PyParserTestBase {
                 "";
         parseLegalDocStrWithoutTree(s);
         parseLegalDocStr(s);
-    }
-
-    public void testAsyncBackwardCompatibility() throws Exception {
-        String s = "async = 10\n" +
-                "print(async)\n" +
-                "";
-        parseLegalDocStrWithoutTree(s);
-        parseLegalDocStr(s);
-
-    }
-
-    public void testAwaitBackwardCompatibility() throws Exception {
-        String s = "await = 10\n" +
-                "\n" +
-                "";
-        parseLegalDocStrWithoutTree(s);
-        parseLegalDocStr(s);
-
     }
 
     public void testTestGrammar35() {

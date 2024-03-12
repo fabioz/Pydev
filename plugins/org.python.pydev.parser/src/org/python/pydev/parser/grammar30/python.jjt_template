@@ -985,16 +985,11 @@ void power() #void: {}
 //atom_expr: [AWAIT] atom trailer*
 void atom_expr() #void: {}
 {
-    {
-        // getToken(1) just peeks the next token without consuming it.
-        Token t = getToken(1);
-        if(insideAsync != 0 && t != null && t.kind == AWAIT){
-            // The await statement is only valid inside an async block!
-            await_atom_expr();
-            return;
-        }
-    }
-    atom() (trailer())*
+    (
+    await_atom_expr()
+    )
+    |
+    (atom() (trailer())*)
 }
 
 void await_atom_expr(): {Token spStr;}
@@ -1302,10 +1297,6 @@ Token Name() #Name:
     try{
         (
             t = <NAME>
-         |
-            t = <ASYNC>
-         |
-            t = <AWAIT>
         )
     }catch(ParseException e){
         t = handleErrorInName(e);

@@ -38,6 +38,18 @@ public class PyParser310Test extends PyParserTestBase {
         });
     }
 
+    public void testMatchAndAsync() throws Throwable {
+        checkWithAllGrammars310Onwards((grammarVersion) -> {
+            String s = "async def foo():\n"
+                    + "    match data:\n"
+                    + "        case _:\n"
+                    + "            await bar()\n"
+                    + "";
+            parseLegalDocStr(s);
+            return true;
+        });
+    }
+
     public void testMatchStmtSpecificValues() {
         checkWithAllGrammars310Onwards((grammarVersion) -> {
             String s = "match command.split():\n"

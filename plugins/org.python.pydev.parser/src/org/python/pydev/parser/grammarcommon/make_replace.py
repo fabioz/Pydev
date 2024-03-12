@@ -754,6 +754,7 @@ void slice() #void: {}
         (os.path.join(parent_dir, 'grammar38', 'python.jjt_template'), 38),
         (os.path.join(parent_dir, 'grammar310', 'python.jjt_template'), 310),
         (os.path.join(parent_dir, 'grammar311', 'python.jjt_template'), 311),
+        (os.path.join(parent_dir, 'grammar312', 'python.jjt_template'), 312),
     ]
 
     for file, version in files:

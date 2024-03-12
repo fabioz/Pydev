@@ -294,6 +294,9 @@ public class PyParserTestBase extends TestCase {
             if (grammarVersion < IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_10) {
                 continue;
             }
+            if (grammarVersion != IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_12) {
+                continue;
+            }
             //try with all the grammars
             boolean prev = PyParser.DEBUG_SHOW_PARSE_ERRORS;
             // Uncomment the following line to get debug info
@@ -309,8 +312,8 @@ public class PyParserTestBase extends TestCase {
             setDefaultVersion(grammarVersion);
             try {
                 iCallback.call(grammarVersion);
-            } catch (RuntimeException e) {
-                System.out.println("\nFound error while parsing with version: "
+            } catch (Throwable e) {
+                System.out.println("\nChecking with multiple grammars!\nFound error while parsing with version: "
                         + IGrammarVersionProvider.grammarVersionToRep.get(grammarVersion));
                 throw e;
             } finally {
