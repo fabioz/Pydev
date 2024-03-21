@@ -29,6 +29,7 @@ public class ProcessServer extends Process {
     private PipedInputStream errorStream;
     private OutputStream outputStream;
     private Object lock;
+    private boolean exited = false;
 
     public ProcessServer() {
         super();
@@ -73,6 +74,9 @@ public class ProcessServer extends Process {
 
     @Override
     public int exitValue() {
+        if (exited) {
+            return 0;
+        }
         throw new IllegalThreadStateException();
     }
 
@@ -111,6 +115,8 @@ public class ProcessServer extends Process {
         } catch (Exception e) {
             Log.log(e);
         }
+
+        exited = true;
     }
 
     /**
