@@ -6,8 +6,6 @@
  */
 package org.python.pydev.debug.ui.propertypages;
 
-import java.util.Map;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.jface.resource.JFaceResources;
@@ -18,21 +16,11 @@ import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.IUndoManager;
 import org.eclipse.jface.text.TextViewerUndoManager;
-import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.commands.AbstractHandler;
-import org.eclipse.ui.commands.ExecutionException;
-import org.eclipse.ui.commands.HandlerSubmission;
-import org.eclipse.ui.commands.IHandler;
-import org.eclipse.ui.commands.IWorkbenchCommandSupport;
-import org.eclipse.ui.commands.Priority;
-import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.partition.PyPartitionScanner;
 import org.python.pydev.core.partition.PyPartitioner;
@@ -47,7 +35,6 @@ public class BreakpointConditionEditor {
     private String fOldValue;
     private String fErrorMessage;
 
-    private HandlerSubmission submission;
     private IDocumentListener fDocumentListener;
 
     private PythonBreakpointPage fPage;
@@ -77,12 +64,6 @@ public class BreakpointConditionEditor {
         IDocumentPartitioner partitioner = new PyPartitioner(new PyPartitionScanner(), IPythonPartitions.types);
         document.setDocumentPartitioner(partitioner);
         partitioner.connect(document);
-        /*
-        fViewer.configure(new DisplayViewerConfiguration() {
-            public IContentAssistProcessor getContentAssistantProcessor() {
-                    return getCompletionProcessor();
-            }
-        });*/
         fViewer.setEditable(true);
         fViewer.setDocument(document);
         final IUndoManager undoManager = new TextViewerUndoManager(100);
@@ -108,47 +89,12 @@ public class BreakpointConditionEditor {
         };
         fViewer.getDocument().addDocumentListener(fDocumentListener);
 
-        // we can only do code assist if there is an associated type
-        /*
-        try {
-            //getCompletionProcessor().setType(type);            
-            String source= null;
-            ICompilationUnit compilationUnit= type.getCompilationUnit();
-            if (compilationUnit != null) {
-                source= compilationUnit.getSource();
-            } else {
-                IClassFile classFile= type.getClassFile();
-                if (classFile != null) {
-                    source= classFile.getSource();
-                }
-            }
-            int lineNumber= fBreakpoint.getMarker().getAttribute(IMarker.LINE_NUMBER, -1);
-            int position= -1;
-            if (source != null && lineNumber != -1) {
-                try {
-                    position= new Document(source).getLineOffset(lineNumber - 1);
-                } catch (BadLocationException e) {
-                }
-            }
-            //getCompletionProcessor().setPosition(position);
-        } catch (CoreException e) {
-        }*/
-
         gd = (GridData) fViewer.getControl().getLayoutData();
         gd.heightHint = fPage.convertHeightInCharsToPixels(10);
         gd.widthHint = fPage.convertWidthInCharsToPixels(40);
         document.set(condition);
         valueChanged();
 
-        IHandler handler = new AbstractHandler() {
-            @Override
-            public Object execute(Map parameter) throws ExecutionException {
-                fViewer.doOperation(ISourceViewer.CONTENTASSIST_PROPOSALS);
-                return null;
-            }
-        };
-        submission = new HandlerSubmission(null, parent.getShell(), null,
-                ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS, handler, Priority.MEDIUM);
     }
 
     /**
@@ -179,18 +125,6 @@ public class BreakpointConditionEditor {
     }
 
     /**
-     * Return the completion processor associated with this viewer.
-     * @return BreakPointConditionCompletionProcessor
-     */
-    /*
-    protected BreakpointConditionCompletionProcessor getCompletionProcessor() {
-     if (fCompletionProcessor == null) {
-         fCompletionProcessor= new BreakpointConditionCompletionProcessor(null);
-     }
-     return fCompletionProcessor;
-    }*/
-
-    /**
      * @see org.eclipse.jface.preference.FieldEditor#setEnabled(boolean, org.eclipse.swt.widgets.Composite)
      */
     public void setEnabled(boolean enabled) {
@@ -199,16 +133,9 @@ public class BreakpointConditionEditor {
         if (enabled) {
             fViewer.updateViewerColors();
             fViewer.getTextWidget().setFocus();
-
-            IWorkbench workbench = PlatformUI.getWorkbench();
-            IWorkbenchCommandSupport commandSupport = workbench.getCommandSupport();
-            commandSupport.addHandlerSubmission(submission);
         } else {
             Color color = fViewer.getControl().getDisplay().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND);
             fViewer.getTextWidget().setBackground(color);
-            IWorkbench workbench = PlatformUI.getWorkbench();
-            IWorkbenchCommandSupport commandSupport = workbench.getCommandSupport();
-            commandSupport.removeHandlerSubmission(submission);
         }
         valueChanged();
     }
@@ -223,11 +150,6 @@ public class BreakpointConditionEditor {
     }
 
     public void dispose() {
-        if (fViewer.isEditable()) {
-            IWorkbench workbench = PlatformUI.getWorkbench();
-            IWorkbenchCommandSupport commandSupport = workbench.getCommandSupport();
-            commandSupport.removeHandlerSubmission(submission);
-        }
         fViewer.getDocument().removeDocumentListener(fDocumentListener);
         fViewer.dispose();
     }
