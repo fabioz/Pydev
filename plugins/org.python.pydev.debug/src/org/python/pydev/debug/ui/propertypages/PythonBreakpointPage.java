@@ -29,10 +29,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.commands.ICommand;
-import org.eclipse.ui.commands.ICommandManager;
-import org.eclipse.ui.commands.IKeySequenceBinding;
 import org.eclipse.ui.dialogs.PropertyPage;
 import org.eclipse.ui.model.IWorkbenchAdapter;
 import org.python.pydev.debug.core.PydevDebugPlugin;
@@ -350,20 +346,7 @@ public class PythonBreakpointPage extends PropertyPage {
     private void createConditionEditor(Composite parent) throws CoreException {
         PyBreakpoint breakpoint = getBreakpoint();
 
-        String label = null;
-        ICommandManager commandManager = PlatformUI.getWorkbench().getCommandSupport().getCommandManager();
-        ICommand command = commandManager.getCommand("org.eclipse.ui.edit.text.contentAssist.proposals"); //$NON-NLS-1$
-        if (command != null) {
-            List keyBindings = command.getKeySequenceBindings();
-            if (keyBindings != null && keyBindings.size() > 0) {
-                IKeySequenceBinding binding = (IKeySequenceBinding) keyBindings.get(0);
-                label = StringUtils.format("E&nable Condition %s", binding.getKeySequence().format()); //$NON-NLS-1$
-            }
-        }
-
-        if (label == null) {
-            label = "E&nable Condition (code assist not available)"; //$NON-NLS-1$
-        }
+        String label = "E&nable Condition (code assist not available)";
         Composite conditionComposite = new Group(parent, SWT.NONE);
         conditionComposite.setFont(parent.getFont());
         conditionComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
