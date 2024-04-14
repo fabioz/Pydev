@@ -748,6 +748,11 @@ class PydevTestRunner(object):
             sys.stdout.write("done.\n")
         sys.stdout.write("Importing test modules ... ")
 
+        if self.configuration.django:
+            import django
+            if hasattr(django, 'setup'):
+                django.setup()
+
         if handle_coverage:
             coverage_files, coverage = start_coverage_support(self.configuration)
 
