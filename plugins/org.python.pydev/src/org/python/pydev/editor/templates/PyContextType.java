@@ -36,7 +36,7 @@ public class PyContextType extends TemplateContextType {
     private IPythonInterpreter interpreter;
 
     /**
-     * Creates a new XML context type. 
+     * Creates a new XML context type.
      */
     public PyContextType() {
         //Note: created twice because we have 2 registries:
@@ -57,6 +57,11 @@ public class PyContextType extends TemplateContextType {
         addResolver(new GlobalTemplateVariables.Year());
         addResolver(new GlobalTemplateVariables.Time());
         addResolver(new GlobalTemplateVariables.User());
+        addResolver(PyTemplatesDefault.IsoDate());
+        addResolver(PyTemplatesDefault.IsoDate1());
+        addResolver(PyTemplatesDefault.IsoDate2());
+        addResolver(PyTemplatesDefault.ModuleName());
+        addResolver(PyTemplatesDefault.QualifiedNameScope());
 
         PyContextTypeVariables.addResolvers(this);
         HashMap<String, Object> locals = new HashMap<String, Object>();

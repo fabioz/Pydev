@@ -59,26 +59,17 @@ def _IsGrammar3(context):
 def GetISODate(context):
     return time.strftime("%Y-%m-%d")
 
-template_helper.AddTemplateVariable(py_context_type, 'isodate', 'ISO-8601 Ymd date', GetISODate)
-
 def GetISODateString1(context):
     return time.strftime("%Y-%m-%d %H:%M")
 
-template_helper.AddTemplateVariable(py_context_type, 'isodatestr', 'ISO-8601 Ymd HM date', GetISODateString1)
-
 def GetISODateString2(context):
     return time.strftime("%Y-%m-%d %H:%M:%S")
-
-template_helper.AddTemplateVariable(py_context_type, 'isodatestr2', 'ISO-8601 Ymd HMS date', GetISODateString2)
-
 
 #===================================================================================================
 # GetModuleName
 #===================================================================================================
 def GetModuleName(context):
     return context.getModuleName()
-
-template_helper.AddTemplateVariable(py_context_type, 'module', 'Current module', GetModuleName)
 
 
 #===================================================================================================
@@ -111,11 +102,6 @@ def GetQualifiedNameScope(context):
             ret += '.'
         ret += NodeUtils.getRepresentationString(stmt)
     return ret
-
-
-template_helper.AddTemplateVariable(
-    py_context_type, 'current_qualified_scope', 'Current qualified scope.', GetQualifiedNameScope)
-
 
 
 #===================================================================================================
@@ -153,18 +139,18 @@ template_helper.AddTemplateVariable(py_context_type, 'current_class', 'Current c
 #===================================================================================================
 def GetSelfOrCls(context):
     FunctionDef = context.getFunctionDefClass()  # from org.python.pydev.parser.jython.ast import ClassDef
-    
+
     FastParser = context.getFastParserClass()  # from org.python.pydev.parser.fastparser import FastParser
     selection = _CreateSelection(context)
-    
+
     node = FastParser.firstClassOrFunction(context.getDocument(), selection.getStartLineIndex(), False, False)
     if isinstance(node, FunctionDef):
         firstToken = selection.getFirstInsideParentesisTok(node.beginLine-1)
         if firstToken == 'cls':
             return 'cls'
-    
+
     return 'self'
-    
+
 template_helper.AddTemplateVariable(py_context_type, 'self_or_cls', 'Get `self` or `cls`', GetSelfOrCls)
 
 
