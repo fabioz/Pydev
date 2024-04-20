@@ -4,15 +4,13 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.editor.codecompletion.templates;
+package org.python.pydev.core.templates;
 
 import java.io.File;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.ITextSelection;
-import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.templates.TemplateContextType;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IIndentPrefs;
@@ -28,6 +26,7 @@ import org.python.pydev.parser.fastparser.FastParser;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.visitors.NodeUtils;
+import org.python.pydev.shared_core.string.ICoreTextSelection;
 
 /**
  * Makes a custom evaluation of the template buffer to be created (to put it in the correct indentation and
@@ -37,18 +36,18 @@ import org.python.pydev.parser.visitors.NodeUtils;
  */
 public final class PyDocumentTemplateContext extends DocumentTemplateContextWithIndent {
 
-    public ITextViewer viewer; //May be null
+    public IPyEdit viewer; //May be null
 
     /**
-     * Note that it's in the default context because it should be used on subclasses.
+     * This constructor is meant for tests!
      */
-    /*default*/ PyDocumentTemplateContext(TemplateContextType type, IDocument document, int offset, int length,
+    public PyDocumentTemplateContext(TemplateContextType type, IDocument document, int offset, int length,
             String indentTo, IIndentPrefs indentPrefs) {
         super(type, document, offset, length, indentTo, indentPrefs);
     }
 
     public PyDocumentTemplateContext(TemplateContextType type, IDocument document, int offset, int length,
-            String indentTo, ITextViewer viewer) {
+            String indentTo, IPyEdit viewer) {
         this(type, document, offset, length, indentTo, getIndentPrefs(viewer));
         this.viewer = viewer;
     }
@@ -145,7 +144,7 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContextWith
      * @return a template context that can handle template insertion at the given location, or <code>null</code>
      */
     public static PyDocumentTemplateContext createContext(final TemplateContextType contextType,
-            final ITextViewer viewer, final IRegion region, String indent) {
+            final IPyEdit viewer, final IRegion region, String indent) {
         if (contextType != null) {
             IDocument document = viewer.getDocument();
             final String indentTo = indent;
@@ -156,11 +155,11 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContextWith
     }
 
     public static PyDocumentTemplateContext createContext(final TemplateContextType contextType,
-            final ITextViewer viewer, final IRegion region) {
+            final IPyEdit viewer, final IRegion region) {
         if (contextType != null) {
             IDocument document = viewer.getDocument();
-            PySelection selection = new PySelection(document,
-                    ((ITextSelection) viewer.getSelectionProvider().getSelection()).getOffset());
+            ICoreTextSelection textSelection = viewer.getTextSelection();
+            PySelection selection = new PySelection(document, textSelection);
             String indent = selection.getIndentationFromLine();
             return PyDocumentTemplateContext.createContext(contextType, viewer, region, indent);
         }
@@ -170,7 +169,7 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContextWith
     /**
      * @return the indent preferences to be used.
      */
-    private static IIndentPrefs getIndentPrefs(ITextViewer viewer) {
+    private static IIndentPrefs getIndentPrefs(IPyEdit viewer) {
         if (viewer instanceof IPySourceViewer) {
             IPySourceViewer pyViewer = (IPySourceViewer) viewer;
             return pyViewer.getEdit().getIndentPrefs();

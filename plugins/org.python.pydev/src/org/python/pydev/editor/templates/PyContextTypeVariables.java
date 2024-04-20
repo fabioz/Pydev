@@ -2,7 +2,7 @@ package org.python.pydev.editor.templates;
 
 import org.eclipse.jface.text.templates.TemplateContext;
 import org.python.pydev.core.IGrammarVersionProvider;
-import org.python.pydev.editor.codecompletion.templates.PyDocumentTemplateContext;
+import org.python.pydev.core.templates.PyDocumentTemplateContext;
 import org.python.pydev.shared_core.callbacks.ICallback;
 
 class CallableTemplateVariableResolver extends PyTemplateVariableResolver {

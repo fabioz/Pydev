@@ -21,18 +21,18 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorPart;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.preferences.FileTypesPreferences;
+import org.python.pydev.core.templates.PyDocumentTemplateContext;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.codecompletion.templates.PyDocumentTemplateContext;
 import org.python.pydev.editor.templates.PyContextType;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 /**
  * Python module creation wizard
- * 
+ *
  * TODO: Create initial file content from a comment templates
- * 
+ *
  * @author Mikko Ohtamaa
- * 
+ *
  */
 public class PythonModuleWizard extends AbstractPythonWizard {
 
@@ -70,9 +70,9 @@ public class PythonModuleWizard extends AbstractPythonWizard {
 
     /**
      * We will create a new module (file) here given the source folder and the package specified (which
-     * are currently validated in the page) 
-     * @param monitor 
-     * @throws CoreException 
+     * are currently validated in the page)
+     * @param monitor
+     * @throws CoreException
      */
     @Override
     protected IFile doCreateNew(IProgressMonitor monitor) throws CoreException {
@@ -133,7 +133,7 @@ public class PythonModuleWizard extends AbstractPythonWizard {
 
                 Region region = new Region(0, 0);
                 PyDocumentTemplateContext context = PyDocumentTemplateContext.createContext(new PyContextType(),
-                        pyEdit.getPySourceViewer(), region);
+                        pyEdit, region);
 
                 TemplateProposal templateProposal = new TemplateProposal(template, context, region, null);
                 templateProposal.apply(pyEdit.getPySourceViewer(), '\n', 0, 0);

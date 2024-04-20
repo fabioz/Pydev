@@ -9,7 +9,7 @@
 * Contributors:
 *     Fabio Zadrozny <fabiofz@gmail.com> - initial API and implementation
 ******************************************************************************/
-package org.python.pydev.shared_ui.templates;
+package org.python.pydev.core.templates;
 
 import java.util.List;
 

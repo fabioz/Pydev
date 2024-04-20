@@ -22,8 +22,8 @@ import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
+import org.python.pydev.core.templates.PyDocumentTemplateContext;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.codecompletion.templates.PyDocumentTemplateContext;
 import org.python.pydev.editor.correctionassist.heuristics.AssistAssign;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Pass;
@@ -179,7 +179,7 @@ public abstract class AbstractPyCreateClassOrMethodOrField extends AbstractPyCre
             TemplateContextType contextType = new TemplateContextType();
             contextType.addResolver(new GlobalTemplateVariables.Cursor()); //We do want the cursor thought.
             PyDocumentTemplateContext context = PyDocumentTemplateContext.createContext(contextType,
-                    ((PyEdit) targetEditor).getPySourceViewer(), region, indent);
+                    targetEditor, region, indent);
 
             Template template = new Template("Create " + creationStr, "Create " + creationStr, "", source, true);
             ICompletionProposalHandle templateProposal = CompletionProposalFactory.get()

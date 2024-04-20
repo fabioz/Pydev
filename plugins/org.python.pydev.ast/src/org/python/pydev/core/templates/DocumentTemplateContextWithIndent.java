@@ -4,12 +4,11 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.editor.codecompletion.templates;
+package org.python.pydev.core.templates;
 
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.templates.TemplateContextType;
 import org.python.pydev.core.IIndentPrefs;
-import org.python.pydev.shared_ui.templates.AbstractDocumentTemplateContextWithIndent;
 
 public class DocumentTemplateContextWithIndent extends AbstractDocumentTemplateContextWithIndent {
 

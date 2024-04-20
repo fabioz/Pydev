@@ -33,6 +33,7 @@ Export-Package: org.python.pydev.ast,
  org.python.pydev.ast.runners,
  org.python.pydev.ast.simpleassist,
  org.python.pydev.core.pep8,
+ org.python.pydev.core.templates,
  org.python.pydev.plugin,
  org.python.pydev.plugin.nature
 Bundle-Vendor: Brainwy Software Ltda

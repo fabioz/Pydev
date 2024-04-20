@@ -11,8 +11,11 @@ import org.eclipse.jface.text.templates.TemplateCompletionProcessor;
 import org.eclipse.jface.text.templates.TemplateContext;
 import org.eclipse.jface.text.templates.TemplateContextType;
 import org.eclipse.swt.graphics.Image;
+import org.python.pydev.core.IPySourceViewer;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
-import org.python.pydev.editor.codecompletion.templates.PyDocumentTemplateContext;
+import org.python.pydev.core.templates.PyDocumentTemplateContext;
+import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.editor.templates.PyContextType;
 import org.python.pydev.editor.templates.TemplateHelper;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
@@ -105,7 +108,14 @@ public class PyTemplateCompletionProcessor extends TemplateCompletionProcessor
     @Override
     protected TemplateContext createContext(final ITextViewer viewer, final IRegion region) {
         TemplateContextType contextType = getContextType(viewer, region);
-        return PyDocumentTemplateContext.createContext(contextType, viewer, region);
+        if (viewer instanceof IPySourceViewer) {
+            PySourceViewer pySourceViewer = (PySourceViewer) viewer;
+
+            return PyDocumentTemplateContext.createContext(contextType, pySourceViewer.getEdit(), region);
+        }
+        Log.log("Expected an IPySourceViewer. Found: " + viewer);
+        return PyDocumentTemplateContext.createContext(contextType, null, region);
+
     }
 
 }
