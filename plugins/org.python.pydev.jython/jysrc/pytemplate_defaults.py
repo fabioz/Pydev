@@ -57,18 +57,22 @@ def _IsGrammar3(context):
 # ISO-8601 Dates
 #===============================================================================
 def GetISODate(context):
+    # Migrated to java
     return time.strftime("%Y-%m-%d")
 
 def GetISODateString1(context):
+    # Migrated to java
     return time.strftime("%Y-%m-%d %H:%M")
 
 def GetISODateString2(context):
+    # Migrated to java
     return time.strftime("%Y-%m-%d %H:%M:%S")
 
 #===================================================================================================
 # GetModuleName
 #===================================================================================================
 def GetModuleName(context):
+    # Migrated to java
     return context.getModuleName()
 
 
@@ -79,6 +83,7 @@ def _GetCurrentASTPath(context, reverse=False):
     '''
     @return: ArrayList(SimpleNode)
     '''
+    # Migrated to java
     FastParser = context.getFastParserClass()  # from org.python.pydev.parser.fastparser import FastParser
     selection = _CreateSelection(context)
     ret = FastParser.parseToKnowGloballyAccessiblePath(
@@ -94,6 +99,7 @@ def _GetCurrentASTPath(context, reverse=False):
 # GetQualifiedNameScope
 #===================================================================================================
 def GetQualifiedNameScope(context):
+    # Migrated to java
     NodeUtils = context.getNodeUtilsClass()  # from org.python.pydev.parser.visitors import NodeUtils
 
     ret = ''
@@ -108,6 +114,7 @@ def GetQualifiedNameScope(context):
 # _GetCurrentClassStmt
 #===================================================================================================
 def _GetCurrentClassStmt(context):
+    # Migrated to java
     NodeUtils = context.getNodeUtilsClass()  #from org.python.pydev.parser.visitors import NodeUtils
     ClassDef = context.getClassDefClass()  # from org.python.pydev.parser.jython.ast import ClassDef
 
@@ -116,11 +123,11 @@ def _GetCurrentClassStmt(context):
             return stmt
     return None
 
-
 #===================================================================================================
 # GetCurrentClass
 #===================================================================================================
 def GetCurrentClass(context):
+    # Migrated to java
     NodeUtils = context.getNodeUtilsClass()  #from org.python.pydev.parser.visitors import NodeUtils
     ClassDef = context.getClassDefClass()  # from org.python.pydev.parser.jython.ast import ClassDef
 
@@ -130,14 +137,11 @@ def GetCurrentClass(context):
 
     return ''
 
-
-template_helper.AddTemplateVariable(py_context_type, 'current_class', 'Current class', GetCurrentClass)
-
-
 #===================================================================================================
 # GetSelfOrCls
 #===================================================================================================
 def GetSelfOrCls(context):
+    # Migrated to java
     FunctionDef = context.getFunctionDefClass()  # from org.python.pydev.parser.jython.ast import ClassDef
 
     FastParser = context.getFastParserClass()  # from org.python.pydev.parser.fastparser import FastParser
@@ -151,36 +155,28 @@ def GetSelfOrCls(context):
 
     return 'self'
 
-template_helper.AddTemplateVariable(py_context_type, 'self_or_cls', 'Get `self` or `cls`', GetSelfOrCls)
-
-
 #===================================================================================================
 # GetPydevdFileLocation
 #===================================================================================================
 def GetPydevdFileLocation(context):
+    # Migrated to java
     from org.python.pydev.debug.ui.launching import PythonRunnerConfig  # @UnresolvedImport
     return PythonRunnerConfig.getDebugScript()
-
-template_helper.AddTemplateVariable(
-    py_context_type, 'pydevd_file_location', 'pydevd.py File Location', GetPydevdFileLocation)
 
 #===================================================================================================
 # GetPydevdDirLocation
 #===================================================================================================
 def GetPydevdDirLocation(context):
+    # Migrated to java
     from org.python.pydev.debug.ui.launching import PythonRunnerConfig  # @UnresolvedImport
     import os
     return os.path.split(PythonRunnerConfig.getDebugScript())[0]
-
-template_helper.AddTemplateVariable(
-    py_context_type, 'pydevd_dir_location', 'pydevd.py Directory Location', GetPydevdDirLocation)
-
-
 
 #===================================================================================================
 # GetCurrentMethod
 #===================================================================================================
 def GetCurrentMethod(context):
+    # Migrated to java
     NodeUtils = context.getNodeUtilsClass()  #from org.python.pydev.parser.visitors import NodeUtils
     FunctionDef = context.getFunctionDefClass()  # from org.python.pydev.parser.jython.ast import FunctionDef
 
@@ -189,15 +185,11 @@ def GetCurrentMethod(context):
             return NodeUtils.getRepresentationString(stmt)
     return ''
 
-
-
-template_helper.AddTemplateVariable(py_context_type, 'current_method', 'Current method', GetCurrentMethod)
-
-
 #===================================================================================================
 # _GetPreviousOrNextClassOrMethod
 #===================================================================================================
 def _GetPreviousOrNextClassOrMethod(context, searchForward):
+    # Migrated to java
     NodeUtils = context.getNodeUtilsClass()  #from org.python.pydev.parser.visitors import NodeUtils
     FastParser = context.getFastParserClass()  #from org.python.pydev.parser.fastparser import FastParser
     doc = context.getDocument()
@@ -215,26 +207,22 @@ def _GetPreviousOrNextClassOrMethod(context, searchForward):
 # GetPreviousClassOrMethod
 #===================================================================================================
 def GetPreviousClassOrMethod(context):
+    # Migrated to java
     return _GetPreviousOrNextClassOrMethod(context, False)
-
-template_helper.AddTemplateVariable(
-    py_context_type, 'prev_class_or_method', 'Previous class or method', GetPreviousClassOrMethod)
 
 #===================================================================================================
 # GetNextClassOrMethod
 #===================================================================================================
 def GetNextClassOrMethod(context):
+    # Migrated to java
     return _GetPreviousOrNextClassOrMethod(context, True)
-
-template_helper.AddTemplateVariable(
-    py_context_type, 'next_class_or_method', 'Next class or method', GetNextClassOrMethod)
-
-
 
 #===================================================================================================
 # GetSuperclass
 #===================================================================================================
 def GetSuperclass(context):
+    # Migrated to java
+
     selection = _CreateSelection(context)
     stmt = _GetCurrentClassStmt(context)
     BadLocationException = context.getBadLocationExceptionClass()  # from org.eclipse.jface.text import BadLocationException
@@ -283,6 +271,3 @@ def GetSuperclass(context):
         return contents.strip()
 
     return ''
-
-template_helper.AddTemplateVariable(
-    py_context_type, 'superclass', 'Superclass of the current class', GetSuperclass)

@@ -62,6 +62,14 @@ public class PyContextType extends TemplateContextType {
         addResolver(PyTemplatesDefault.IsoDate2());
         addResolver(PyTemplatesDefault.ModuleName());
         addResolver(PyTemplatesDefault.QualifiedNameScope());
+        addResolver(PyTemplatesDefault.CurrentClass());
+        addResolver(PyTemplatesDefault.SelfOrCls());
+        addResolver(PyTemplatesDefault.PydevdFileLocation());
+        addResolver(PyTemplatesDefault.PydevdDirLocation());
+        addResolver(PyTemplatesDefault.CurrentMethod());
+        addResolver(PyTemplatesDefault.PreviousClassOrMethod());
+        addResolver(PyTemplatesDefault.NextClassOrMethod());
+        addResolver(PyTemplatesDefault.Superclass());
 
         PyContextTypeVariables.addResolvers(this);
         HashMap<String, Object> locals = new HashMap<String, Object>();
