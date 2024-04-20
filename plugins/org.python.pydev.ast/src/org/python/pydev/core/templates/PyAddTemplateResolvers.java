@@ -1,9 +1,39 @@
-package org.python.pydev.editor.templates;
+package org.python.pydev.core.templates;
 
+import org.eclipse.jface.text.templates.GlobalTemplateVariables;
 import org.eclipse.jface.text.templates.TemplateContext;
+import org.eclipse.jface.text.templates.TemplateContextType;
 import org.python.pydev.core.IGrammarVersionProvider;
-import org.python.pydev.core.templates.PyDocumentTemplateContext;
 import org.python.pydev.shared_core.callbacks.ICallback;
+
+public class PyAddTemplateResolvers {
+
+    public static void addDefaultResolvers(TemplateContextType ctx) {
+        ctx.addResolver(new GlobalTemplateVariables.Cursor());
+        ctx.addResolver(new GlobalTemplateVariables.WordSelection());
+        ctx.addResolver(new GlobalTemplateVariables.LineSelection());
+        ctx.addResolver(new GlobalTemplateVariables.Dollar());
+        ctx.addResolver(new GlobalTemplateVariables.Date());
+        ctx.addResolver(new GlobalTemplateVariables.Year());
+        ctx.addResolver(new GlobalTemplateVariables.Time());
+        ctx.addResolver(new GlobalTemplateVariables.User());
+        ctx.addResolver(PyTemplatesDefault.IsoDate());
+        ctx.addResolver(PyTemplatesDefault.IsoDate1());
+        ctx.addResolver(PyTemplatesDefault.IsoDate2());
+        ctx.addResolver(PyTemplatesDefault.ModuleName());
+        ctx.addResolver(PyTemplatesDefault.QualifiedNameScope());
+        ctx.addResolver(PyTemplatesDefault.CurrentClass());
+        ctx.addResolver(PyTemplatesDefault.SelfOrCls());
+        ctx.addResolver(PyTemplatesDefault.PydevdFileLocation());
+        ctx.addResolver(PyTemplatesDefault.PydevdDirLocation());
+        ctx.addResolver(PyTemplatesDefault.CurrentMethod());
+        ctx.addResolver(PyTemplatesDefault.PreviousClassOrMethod());
+        ctx.addResolver(PyTemplatesDefault.NextClassOrMethod());
+        ctx.addResolver(PyTemplatesDefault.Superclass());
+
+        PyContextTypeVariables.addResolvers(ctx);
+    }
+}
 
 class CallableTemplateVariableResolver extends PyTemplateVariableResolver {
 
@@ -25,7 +55,7 @@ class CallableTemplateVariableResolver extends PyTemplateVariableResolver {
     }
 };
 
-public class PyContextTypeVariables {
+class PyContextTypeVariables {
 
     private static boolean isGrammar3(PyDocumentTemplateContext context) {
         if (context == null) {
@@ -34,7 +64,7 @@ public class PyContextTypeVariables {
         return context.getGrammarVersion() >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5;
     }
 
-    public static void addResolvers(PyContextType pyContextType) {
+    public static void addResolvers(TemplateContextType pyContextType) {
 
         pyContextType.addResolver(new CallableTemplateVariableResolver("file", "Full path for file", (context) -> {
             return context.getEditorFile().toString().replace("\\", "/");

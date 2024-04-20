@@ -1,4 +1,4 @@
-package org.python.pydev.editor.templates;
+package org.python.pydev.core.templates;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -14,7 +14,6 @@ import org.eclipse.jface.text.templates.TemplateVariableResolver;
 import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.templates.PyDocumentTemplateContext;
 import org.python.pydev.parser.fastparser.FastParser;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;

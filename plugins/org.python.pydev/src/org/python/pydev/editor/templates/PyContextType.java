@@ -13,8 +13,8 @@ package org.python.pydev.editor.templates;
 
 import java.util.HashMap;
 
-import org.eclipse.jface.text.templates.GlobalTemplateVariables;
 import org.eclipse.jface.text.templates.TemplateContextType;
+import org.python.pydev.core.templates.PyAddTemplateResolvers;
 import org.python.pydev.jython.JythonPlugin;
 import org.python.pydev.shared_core.jython.IPythonInterpreter;
 
@@ -44,37 +44,10 @@ public class PyContextType extends TemplateContextType {
         //fRegistry.addContextType(PyContextType.PY_MODULES_CONTEXT_TYPE);
 
         interpreter = JythonPlugin.newPythonInterpreter();
-        addGlobalResolvers();
-
-    }
-
-    private void addGlobalResolvers() {
-        addResolver(new GlobalTemplateVariables.Cursor());
-        addResolver(new GlobalTemplateVariables.WordSelection());
-        addResolver(new GlobalTemplateVariables.LineSelection());
-        addResolver(new GlobalTemplateVariables.Dollar());
-        addResolver(new GlobalTemplateVariables.Date());
-        addResolver(new GlobalTemplateVariables.Year());
-        addResolver(new GlobalTemplateVariables.Time());
-        addResolver(new GlobalTemplateVariables.User());
-        addResolver(PyTemplatesDefault.IsoDate());
-        addResolver(PyTemplatesDefault.IsoDate1());
-        addResolver(PyTemplatesDefault.IsoDate2());
-        addResolver(PyTemplatesDefault.ModuleName());
-        addResolver(PyTemplatesDefault.QualifiedNameScope());
-        addResolver(PyTemplatesDefault.CurrentClass());
-        addResolver(PyTemplatesDefault.SelfOrCls());
-        addResolver(PyTemplatesDefault.PydevdFileLocation());
-        addResolver(PyTemplatesDefault.PydevdDirLocation());
-        addResolver(PyTemplatesDefault.CurrentMethod());
-        addResolver(PyTemplatesDefault.PreviousClassOrMethod());
-        addResolver(PyTemplatesDefault.NextClassOrMethod());
-        addResolver(PyTemplatesDefault.Superclass());
-
-        PyContextTypeVariables.addResolvers(this);
+        PyAddTemplateResolvers.addDefaultResolvers(this);
         HashMap<String, Object> locals = new HashMap<String, Object>();
         locals.put("py_context_type", this);
-
+        
         //execute all the files that start with 'pytemplate' that are located beneath
         //the org.python.pydev.jython/jysrc directory and some user specified dir (if any).
         JythonPlugin.execAll(locals, "pytemplate", interpreter);
