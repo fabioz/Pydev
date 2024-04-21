@@ -18,8 +18,8 @@ import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPySourceViewer;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.ISourceViewerForTemplates;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.autoedit.DefaultIndentPrefs;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.interactive_console.IScriptConsoleViewer;
 import org.python.pydev.parser.fastparser.FastParser;
@@ -36,7 +36,7 @@ import org.python.pydev.shared_core.string.ICoreTextSelection;
  */
 public final class PyDocumentTemplateContext extends DocumentTemplateContextWithIndent {
 
-    public IPyEdit viewer; //May be null
+    public ISourceViewerForTemplates edit; //May be null
 
     /**
      * This constructor is meant for tests!
@@ -47,9 +47,9 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContextWith
     }
 
     public PyDocumentTemplateContext(TemplateContextType type, IDocument document, int offset, int length,
-            String indentTo, IPyEdit viewer) {
-        this(type, document, offset, length, indentTo, getIndentPrefs(viewer));
-        this.viewer = viewer;
+            String indentTo, ISourceViewerForTemplates viewer) {
+        this(type, document, offset, length, indentTo, viewer.getIndentPrefs());
+        this.edit = viewer;
     }
 
     // Methods below are Used in scripting
@@ -79,15 +79,15 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContextWith
     }
 
     public boolean isCythonFile() {
-        if (this.viewer instanceof IPySourceViewer) {
-            return ((IPySourceViewer) this.viewer).getEdit().isCythonFile();
+        if (this.edit != null) {
+            return edit.isCythonFile();
         }
         return false;
     }
 
     public File getEditorFile() {
-        if (this.viewer instanceof IPySourceViewer) {
-            return ((IPySourceViewer) this.viewer).getEdit().getEditorFile();
+        if (this.edit != null) {
+            return this.edit.getEditorFile();
         }
         return new File("");
     }
@@ -96,9 +96,9 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContextWith
         //Other possibilities
         //org.eclipse.jface.text.source.SourceViewer (in compare)
 
-        if (this.viewer instanceof IPySourceViewer) {
+        if (this.edit instanceof IPySourceViewer) {
             try {
-                IPythonNature nature = ((IPySourceViewer) this.viewer).getEdit().getPythonNature();
+                IPythonNature nature = ((IPySourceViewer) this.edit).getEdit().getPythonNature();
                 if (nature != null) {
                     return nature.getGrammarVersion();
                 }
@@ -106,9 +106,9 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContextWith
             }
         }
 
-        if (this.viewer instanceof IScriptConsoleViewer) {
+        if (this.edit instanceof IScriptConsoleViewer) {
             //interactive console
-            IScriptConsoleViewer v = (IScriptConsoleViewer) this.viewer;
+            IScriptConsoleViewer v = (IScriptConsoleViewer) this.edit;
             IInterpreterInfo interpreterInfo = (IInterpreterInfo) v.getInterpreterInfo();
             if (interpreterInfo != null) {
                 return interpreterInfo.getGrammarVersion();
@@ -119,9 +119,9 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContextWith
     }
 
     public String getModuleName() {
-        if (this.viewer instanceof IPySourceViewer) {
+        if (this.edit instanceof IPySourceViewer) {
             try {
-                IPySourceViewer pyViewer = (IPySourceViewer) this.viewer;
+                IPySourceViewer pyViewer = (IPySourceViewer) this.edit;
                 IPyEdit edit = pyViewer.getEdit();
                 IPythonNature nature = edit.getPythonNature();
                 if (nature != null) {
@@ -139,43 +139,31 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContextWith
      * returns a <code>DocumentTemplateContext</code> for the context type at the given location.
      *
      * @param contextType the context type for the template.
-     * @param viewer the viewer for which the context is created
+     * @param edit the viewer for which the context is created
      * @param region the region into <code>document</code> for which the context is created
      * @return a template context that can handle template insertion at the given location, or <code>null</code>
      */
     public static PyDocumentTemplateContext createContext(final TemplateContextType contextType,
-            final IPyEdit viewer, final IRegion region, String indent) {
+            final ISourceViewerForTemplates edit, final IRegion region, String indent) {
         if (contextType != null) {
-            IDocument document = viewer.getDocument();
+            IDocument document = edit.getDocument();
             final String indentTo = indent;
             return new PyDocumentTemplateContext(contextType, document, region.getOffset(), region.getLength(),
-                    indentTo, viewer);
+                    indentTo, edit);
         }
         return null;
     }
 
     public static PyDocumentTemplateContext createContext(final TemplateContextType contextType,
-            final IPyEdit viewer, final IRegion region) {
+            final ISourceViewerForTemplates edit, final IRegion region) {
         if (contextType != null) {
-            IDocument document = viewer.getDocument();
-            ICoreTextSelection textSelection = viewer.getTextSelection();
+            IDocument document = edit.getDocument();
+            ICoreTextSelection textSelection = edit.getTextSelection();
             PySelection selection = new PySelection(document, textSelection);
             String indent = selection.getIndentationFromLine();
-            return PyDocumentTemplateContext.createContext(contextType, viewer, region, indent);
+            return PyDocumentTemplateContext.createContext(contextType, edit, region, indent);
         }
         return null;
-    }
-
-    /**
-     * @return the indent preferences to be used.
-     */
-    private static IIndentPrefs getIndentPrefs(IPyEdit viewer) {
-        if (viewer instanceof IPySourceViewer) {
-            IPySourceViewer pyViewer = (IPySourceViewer) viewer;
-            return pyViewer.getEdit().getIndentPrefs();
-        } else {
-            return DefaultIndentPrefs.get(null);
-        }
     }
 
 }

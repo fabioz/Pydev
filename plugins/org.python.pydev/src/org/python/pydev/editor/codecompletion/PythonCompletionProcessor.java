@@ -214,7 +214,6 @@ public class PythonCompletionProcessor extends AbstractCompletionProcessorWithCy
      * Returns the python proposals as a list.
      * First parameter of tuple is a list and second is a Boolean object indicating whether the templates
      * should be also shown or not.
-     * @param viewer
      * @throws CoreException
      * @throws BadLocationException
      * @throws MisconfigurationException

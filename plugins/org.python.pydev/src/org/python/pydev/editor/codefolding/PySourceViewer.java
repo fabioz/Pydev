@@ -11,6 +11,7 @@
  */
 package org.python.pydev.editor.codefolding;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -33,10 +34,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.MarkerAnnotation;
+import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.IPySourceViewer;
 import org.python.pydev.core.autoedit.PyAutoIndentStrategy;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyShiftLeft;
+import org.python.pydev.shared_core.string.ICoreTextSelection;
 import org.python.pydev.shared_ui.editor.BaseSourceViewer;
 import org.python.pydev.shared_ui.editor.ITextViewerExtensionAutoEditions;
 
@@ -271,6 +274,26 @@ public class PySourceViewer extends BaseSourceViewer implements IAdaptable,
             return (T) pyEdit.getAdapter(adapter);
         }
         return null;
+    }
+
+    @Override
+    public boolean isCythonFile() {
+        return getEdit().isCythonFile();
+    }
+
+    @Override
+    public File getEditorFile() {
+        return getEdit().getEditorFile();
+    }
+
+    @Override
+    public IIndentPrefs getIndentPrefs() {
+        return getEdit().getIndentPrefs();
+    }
+
+    @Override
+    public ICoreTextSelection getTextSelection() {
+        return getEdit().getTextSelection();
     }
 
 }

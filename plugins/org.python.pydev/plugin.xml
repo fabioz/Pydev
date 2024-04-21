@@ -1925,11 +1925,11 @@
             autoinsert="false"
             name="super"
             icon="platform:/plugin/org.python.pydev.shared_ui/icons/template.gif"
-            description="Call super(current_class, self).current_method()"
+            description="Call super().current_method()"
             contextTypeId="org.python.pydev.editor.templates.python"
             id="org.python.pydev.editor.templates.python.super">
 <pattern>
-super(${current_class}, ${self_or_cls}).${current_method}(${cursor})
+super().${current_method}(${cursor})
 </pattern>
       </template>
 

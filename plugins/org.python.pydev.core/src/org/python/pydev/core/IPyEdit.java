@@ -9,19 +9,16 @@
  */
 package org.python.pydev.core;
 
-import java.io.File;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.python.pydev.shared_core.editor.IBaseEditor;
 import org.python.pydev.shared_core.parsing.IParserObserver;
-import org.python.pydev.shared_core.string.ICoreTextSelection;
 
 /**
  * @author Fabio
  */
 public interface IPyEdit extends IParserObserver, IBaseEditor, IPyFormatStdProvider, IGrammarVersionProvider,
-        IPyEditOfflineActionListener {
+        IPyEditOfflineActionListener, IPyEditCore, ISourceViewerForTemplates {
 
     static public final String EDITOR_ID = "org.python.pydev.editor.PythonEditor";
 
@@ -42,16 +39,10 @@ public interface IPyEdit extends IParserObserver, IBaseEditor, IPyFormatStdProvi
 
     /* SimpleNode*/ Object getAST();
 
-    File getEditorFile();
-
     long getAstModificationTimeStamp();
 
     IFile getIFile();
 
-    boolean isCythonFile();
-
     /* PyParser */ Object getParser();
-
-    ICoreTextSelection getTextSelection();
 
 }

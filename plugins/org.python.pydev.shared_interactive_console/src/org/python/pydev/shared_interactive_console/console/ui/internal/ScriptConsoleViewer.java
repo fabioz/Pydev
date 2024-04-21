@@ -9,6 +9,7 @@
  *******************************************************************************/
 package org.python.pydev.shared_interactive_console.console.ui.internal;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -53,9 +54,13 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.TextConsoleViewer;
+import org.python.pydev.core.IIndentPrefs;
+import org.python.pydev.core.autoedit.DefaultIndentPrefs;
 import org.python.pydev.core.autoedit.IHandleScriptAutoEditStrategy;
 import org.python.pydev.core.interactive_console.IScriptConsoleViewer;
 import org.python.pydev.shared_core.log.Log;
+import org.python.pydev.shared_core.string.CoreTextSelection;
+import org.python.pydev.shared_core.string.ICoreTextSelection;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_interactive_console.console.ScriptConsoleHistory;
 import org.python.pydev.shared_interactive_console.console.codegen.IScriptConsoleCodeGenerator;
@@ -983,5 +988,26 @@ public class ScriptConsoleViewer extends TextConsoleViewer implements IScriptCon
 
     public boolean getScrollLock() {
         return listener.getScrollLock();
+    }
+
+    @Override
+    public boolean isCythonFile() {
+        return false;
+    }
+
+    @Override
+    public File getEditorFile() {
+        return new File("");
+    }
+
+    @Override
+    public IIndentPrefs getIndentPrefs() {
+        return DefaultIndentPrefs.get(null);
+    }
+
+    @Override
+    public ICoreTextSelection getTextSelection() {
+        ITextSelection selection = (ITextSelection) getSelectionProvider().getSelection();
+        return new CoreTextSelection(selection.getOffset(), selection.getLength());
     }
 }

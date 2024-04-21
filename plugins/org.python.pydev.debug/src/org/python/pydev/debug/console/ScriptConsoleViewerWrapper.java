@@ -6,6 +6,8 @@
  */
 package org.python.pydev.debug.console;
 
+import java.io.File;
+
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IAutoIndentStrategy;
 import org.eclipse.jface.text.IDocument;
@@ -55,10 +57,14 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Item;
 import org.eclipse.ui.console.IHyperlink;
 import org.eclipse.ui.console.TextConsoleViewer;
+import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.IInterpreterInfo;
+import org.python.pydev.core.autoedit.DefaultIndentPrefs;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.interactive_console.IScriptConsoleViewer;
 import org.python.pydev.editor.PySelectionFromEditor;
+import org.python.pydev.shared_core.string.CoreTextSelection;
+import org.python.pydev.shared_core.string.ICoreTextSelection;
 
 public class ScriptConsoleViewerWrapper implements ITextViewer, IScriptConsoleViewer {
 
@@ -696,6 +702,27 @@ public class ScriptConsoleViewerWrapper implements ITextViewer, IScriptConsoleVi
 
     public void setTabsToSpacesConverter(IAutoEditStrategy converter) {
         viewer.setTabsToSpacesConverter(converter);
+    }
+
+    @Override
+    public boolean isCythonFile() {
+        return false;
+    }
+
+    @Override
+    public File getEditorFile() {
+        return new File("");
+    }
+
+    @Override
+    public IIndentPrefs getIndentPrefs() {
+        return DefaultIndentPrefs.get(null);
+    }
+
+    @Override
+    public ICoreTextSelection getTextSelection() {
+        ITextSelection selection = (ITextSelection) viewer.getSelectionProvider().getSelection();
+        return new CoreTextSelection(selection.getOffset(), selection.getLength());
     }
 
 }
