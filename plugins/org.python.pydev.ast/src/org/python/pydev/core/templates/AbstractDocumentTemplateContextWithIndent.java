@@ -50,7 +50,7 @@ public abstract class AbstractDocumentTemplateContextWithIndent extends Document
         String spacesIndentString = StringUtils.createSpaceString(getTabWidth());
 
         //indent to needed level and
-        //replace any \t for the indentation string 
+        //replace any \t for the indentation string
         String pattern = template.getPattern();
         List<String> splitted = StringUtils.splitInLines(pattern);
 
@@ -94,7 +94,7 @@ public abstract class AbstractDocumentTemplateContextWithIndent extends Document
             }
         }
 
-        //recreate it (if needed). 
+        //recreate it (if needed).
         if (changed) {
             pattern = template.getPattern();
             splitted = StringUtils.splitInLines(pattern);

@@ -144,10 +144,9 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContextWith
      * @return a template context that can handle template insertion at the given location, or <code>null</code>
      */
     public static PyDocumentTemplateContext createContext(final TemplateContextType contextType,
-            final ISourceViewerForTemplates edit, final IRegion region, String indent) {
+            final ISourceViewerForTemplates edit, final IRegion region, String indentTo) {
         if (contextType != null) {
             IDocument document = edit.getDocument();
-            final String indentTo = indent;
             return new PyDocumentTemplateContext(contextType, document, region.getOffset(), region.getLength(),
                     indentTo, edit);
         }
