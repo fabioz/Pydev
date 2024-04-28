@@ -12,7 +12,7 @@ import org.python.pydev.shared_core.structure.Tuple3;
 
 public class DocumentChanged {
 
-    public static final Map<IFile, Tuple3<Long, Long, WeakReference<IDocument>>> fileToSavedTime = new LRUMap<>(20);
+    public static final Map<IFile, Tuple3<Long, Long, WeakReference<IDocument>>> fileToSavedTime = new LRUMap<>(30);
 
     public static void markSavedTimes(IFile file, IDocument document) {
         fileToSavedTime.put(file, new Tuple3<Long, Long, WeakReference<IDocument>>(

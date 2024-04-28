@@ -181,14 +181,14 @@ public class AnalysisBuilderRunnableFactory {
     /**
      * Creates a thread for analyzing some module (and stopping analysis of some other thread if there is one
      * already running).
-     * @param externalVisitors 
+     * @param externalVisitors
      *
      * @return The new runnable or null if there's one there already that has a higher document version.
      */
     /*Default*/static IAnalysisBuilderRunnable createRunnable(IDocument document, IResource resource,
             ICallback<IModule, Integer> module, boolean isFullBuild, String moduleName, boolean forceAnalysis,
             int analysisCause, IPythonNature nature, long documentTime, long resourceModificationStamp,
-            List<IExternalCodeAnalysisVisitor> externalVisitors) {
+            List<IExternalCodeAnalysisVisitor> externalVisitors, IMarkerHandler markerHandler) {
 
         synchronized (lock) {
             Map<KeyForAnalysisRunnable, IAnalysisBuilderRunnable> available = getAvailableThreads();
@@ -226,7 +226,7 @@ public class AnalysisBuilderRunnableFactory {
             }
             IAnalysisBuilderRunnable analysisBuilderThread = new AnalysisBuilderRunnable(document, resource, module,
                     isFullBuild, moduleName, forceAnalysis, analysisCause, oldAnalysisBuilderThread, nature,
-                    documentTime, analysisKey, resourceModificationStamp, externalVisitors);
+                    documentTime, analysisKey, resourceModificationStamp, externalVisitors, markerHandler);
 
             logCreate(moduleName, analysisBuilderThread, "Factory: changed");
 

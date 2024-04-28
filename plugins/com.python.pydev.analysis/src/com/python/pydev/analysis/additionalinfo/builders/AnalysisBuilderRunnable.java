@@ -34,7 +34,6 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.core.logging.DebugSettings;
 import org.python.pydev.parser.preferences.PyDevBuilderPreferences;
 import org.python.pydev.shared_core.callbacks.ICallback;
-import org.python.pydev.shared_core.markers.PyMarkerUtils;
 import org.python.pydev.shared_core.markers.PyMarkerUtils.MarkerInfo;
 import org.python.pydev.shared_core.resources.DocumentChanged;
 
@@ -68,6 +67,8 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
      * These are the callbacks called whenever there's a run to be done in this class.
      */
     public static final List<ICallback<Object, IResource>> analysisBuilderListeners = new ArrayList<ICallback<Object, IResource>>();
+
+    private IMarkerHandler markerHandler = new DefaultMarkerHandler();
 
     // -------------------------------------------------------------------------------------------- ATTRIBUTES
 
@@ -106,7 +107,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
             boolean isFullBuild, String moduleName, boolean forceAnalysis, int analysisCause,
             IAnalysisBuilderRunnable oldAnalysisBuilderThread, IPythonNature nature, long documentTime,
             KeyForAnalysisRunnable key, long resourceModificationStamp,
-            List<IExternalCodeAnalysisVisitor> externalVisitors) {
+            List<IExternalCodeAnalysisVisitor> externalVisitors, IMarkerHandler markerHandler) {
         super(isFullBuild, moduleName, forceAnalysis, analysisCause, oldAnalysisBuilderThread, nature, documentTime,
                 key, resourceModificationStamp);
 
@@ -117,6 +118,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
         this.document = document;
         this.resource = resource;
         this.module = module;
+        this.markerHandler = markerHandler;
 
         if (externalVisitors.size() > 0) {
             this.allVisitors = externalVisitors.toArray(new IExternalCodeAnalysisVisitor[0]);
@@ -141,6 +143,10 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
             this.ruffVisitor = RuffVisitorFactory.create(resource, document, module, internalCancelMonitor);
             this.allVisitors = new IExternalCodeAnalysisVisitor[] { this.pyLintVisitor, this.mypyVisitor,
                     this.flake8Visitor, this.ruffVisitor };
+        }
+
+        for (IExternalCodeAnalysisVisitor visitor : allVisitors) {
+            visitor.setMarkerHandler(markerHandler);
         }
 
         // Important: we can only update the index if it was a builder... if it was the parser,
@@ -246,12 +252,11 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
                             "Skipping: !makeAnalysis -- " + moduleName);
                 }
                 if (!anotherVisitorRequiresAnalysis) {
-                    AnalysisRunner.deleteMarkers(r);
+                    markerHandler.deleteAnalysisMarkers(r);
                     return;
                 } else {
                     // Only delete pydev markers (others will be deleted by the respective visitors later on).
-                    boolean onlyPydevAnalysisMarkers = true;
-                    AnalysisRunner.deleteMarkers(r, onlyPydevAnalysisMarkers);
+                    markerHandler.deleteOnlyPydevAnalysisMarkers(r);
                 }
             }
 
@@ -291,7 +296,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
                 //We don't want to check derived resources (but we want to remove any analysis messages that
                 //might be already there)
                 if (r != null) {
-                    AnalysisRunner.deleteMarkers(r);
+                    markerHandler.deleteAnalysisMarkers(r);
                 }
                 return;
             }
@@ -340,7 +345,8 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
                             || (analyzeOnlyActiveEditor
                                     && (!PyDevBuilderPreferences.getRemoveErrorsWhenEditorIsClosed() || OpenEditors
                                             .isEditorOpenForResource(r)))) {
-                        markersFromCodeAnalysis = runner.setMarkers(r, document, messages, this.internalCancelMonitor);
+                        markersFromCodeAnalysis = runner.setMarkers(r, document, messages, this.internalCancelMonitor,
+                                markerHandler);
                     } else {
                         if (DebugSettings.DEBUG_ANALYSIS_REQUESTS) {
                             org.python.pydev.shared_core.log.ToLogFile.toLogFile(this,
@@ -419,8 +425,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
                                 }
                             }
                         }
-                        PyMarkerUtils.replaceMarkers(markersFromVisitor, resource, problemMarker,
-                                true, this.internalCancelMonitor);
+                        replaceMarkers(problemMarker, markersFromVisitor);
                     } else {
                         visitor.deleteMarkers();
                     }
@@ -446,6 +451,11 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
 
             dispose();
         }
+    }
+
+    private void replaceMarkers(String problemMarker, List<MarkerInfo> markersFromVisitor) {
+        markerHandler.replaceMarkers(markersFromVisitor, resource, problemMarker,
+                true, this.internalCancelMonitor);
     }
 
     /**

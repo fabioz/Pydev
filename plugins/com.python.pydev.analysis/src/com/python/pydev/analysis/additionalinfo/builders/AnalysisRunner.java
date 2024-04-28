@@ -146,12 +146,13 @@ public class AnalysisRunner {
      * @param document the document
      * @param messages the messages to add
      * @param monitor monitor to check if we should stop the process.
+     * @param markerHandler
      * @param existing these are the existing markers. After this method, the list will contain only the ones that
      * should be removed.
      * @return
      */
     public List<MarkerInfo> setMarkers(IResource resource, IDocument document, IMessage[] messages,
-            IProgressMonitor monitor) {
+            IProgressMonitor monitor, IMarkerHandler markerHandler) {
         if (resource == null) {
             return null;
         }
@@ -164,7 +165,7 @@ public class AnalysisRunner {
                 return null;
             }
 
-            PyMarkerUtils.replaceMarkers(lst, resource, AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER, true, monitor);
+            markerHandler.replaceMarkers(lst, resource, AnalysisRunner.PYDEV_ANALYSIS_PROBLEM_MARKER, true, monitor);
             //timer.printDiff("Time to put markers: "+lst.size());
             return lst;
         } catch (Exception e) {

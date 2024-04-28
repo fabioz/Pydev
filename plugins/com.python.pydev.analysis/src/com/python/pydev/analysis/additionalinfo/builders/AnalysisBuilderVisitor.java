@@ -38,6 +38,12 @@ import com.python.pydev.analysis.external.IExternalCodeAnalysisVisitor;
 
 public class AnalysisBuilderVisitor extends PyDevBuilderVisitor {
 
+    private IMarkerHandler markerHandler = new DefaultMarkerHandler();
+
+    public void setMarkerHandler(IMarkerHandler markerHandler) {
+        this.markerHandler = markerHandler;
+    }
+
     @Override
     protected int getPriority() {
         return PyCodeCompletionVisitor.PRIORITY_CODE_COMPLETION + 1; //just after the code-completion priority
@@ -247,7 +253,7 @@ public class AnalysisBuilderVisitor extends PyDevBuilderVisitor {
 
         final IAnalysisBuilderRunnable runnable = AnalysisBuilderRunnableFactory.createRunnable(document, resource,
                 moduleCallback, isFullBuild(), moduleName, forceAnalysis, analysisCause, nature, documentTime,
-                resource.getModificationStamp(), externalVisitors);
+                resource.getModificationStamp(), externalVisitors, markerHandler);
 
         if (runnable == null) {
             //It may be null if the document version of the new one is lower than one already active.

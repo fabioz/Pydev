@@ -11,6 +11,8 @@ import java.util.List;
 import org.eclipse.core.resources.IResource;
 import org.python.pydev.shared_core.markers.PyMarkerUtils;
 
+import com.python.pydev.analysis.additionalinfo.builders.IMarkerHandler;
+
 /**
  * See: org.python.pydev.ast.builder.pylint.PyLintVisitorFactory to create PyLint visitors.
  */
@@ -44,5 +46,7 @@ public interface IExternalCodeAnalysisVisitor {
     String getProblemMarkerId();
 
     String getMessageId();
+
+    void setMarkerHandler(IMarkerHandler markerHandler);
 
 }
