@@ -53,14 +53,19 @@ public class AddTokenAndImportStatement {
         public List<ReplaceEdit> replaceEdit = new ArrayList<ReplaceEdit>(2);
 
         public void replace(int offset, int length, String text) {
-            replaceEdit.add(new ReplaceEdit(offset, length, text));
+            try {
+                replaceEdit.add(new ReplaceEdit(offset, length, text));
+            } catch (Exception e) {
+                Log.log("Error trying to create ReplaceEdit with offset: " + offset + " len: " + length + " text: "
+                        + text, e);
+            }
         }
 
     }
 
     private IDocument document;
     private char trigger;
-    private int offset;
+    private final int offset;
     private boolean addLocalImport;
     private boolean addLocalImportsOnTopOfMethod;
     private boolean groupImports;
@@ -234,12 +239,12 @@ public class AddTokenAndImportStatement {
                     lastImportLineBuf.deleteLast();
                 }
 
-                offset = TextSelectionUtils.getAbsoluteCursorOffset(document, lastImportLineNum,
+                int replaceOffset = TextSelectionUtils.getAbsoluteCursorOffset(document, lastImportLineNum,
                         lastImportLineBuf.length());
-                offset -= lastImportLineBuf.length() - lastImportLineBuf.rightTrim().length();
+                replaceOffset -= lastImportLineBuf.length() - lastImportLineBuf.rightTrim().length();
 
                 while (lastImportLineBuf.endsWith(',')) {
-                    offset--;
+                    replaceOffset--;
                     lastImportLineBuf.deleteLast();
                 }
 
@@ -254,12 +259,12 @@ public class AddTokenAndImportStatement {
                                 + realImportHandleInfo.getImportedStr().get(0);
                     }
                     computedInfo.importLen = strToAdd.length();
-                    computedInfo.replace(offset, 0, strToAdd);
+                    computedInfo.replace(replaceOffset, 0, strToAdd);
                     return;
                 } else {
                     //regular addition (it won't pass the number of columns expected).
                     computedInfo.importLen = strToAdd.length();
-                    computedInfo.replace(offset, 0, strToAdd);
+                    computedInfo.replace(replaceOffset, 0, strToAdd);
                     return;
                 }
             }
