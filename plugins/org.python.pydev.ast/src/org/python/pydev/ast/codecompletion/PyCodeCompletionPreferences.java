@@ -155,10 +155,7 @@ public class PyCodeCompletionPreferences {
     public static final boolean DEFAULT_ADD_SPACES_WHEN_NEEDED = false; //Keep current behavior by default
 
     public static final String ADD_SPACE_AND_COLON_WHEN_NEEDED = "ADD_SPACE_AND_COLON_WHEN_NEEDED";
-
     public static final boolean DEFAULT_ADD_SPACES_AND_COLON_WHEN_NEEDED = false; //Keep current behavior by default
-    public static final String FORCE_PY3K_PRINT_ON_PY2 = "FORCE_PY3K_PRINT_ON_PY2";
-    public static final boolean DEFAULT_FORCE_PY3K_PRINT_ON_PY2 = false;
 
     public static final String KEYWORDS_CODE_COMPLETION = "KEYWORDS_CODE_COMPLETION";
     public static final String DEFAULT_KEYWORDS_CODE_COMPLETION = defaultKeywordsAsString();
@@ -199,11 +196,6 @@ public class PyCodeCompletionPreferences {
     public static boolean addSpaceAndColonWhenNeeded() {
         return PydevPrefs.getEclipsePreferences()
                 .getBoolean(ADD_SPACE_AND_COLON_WHEN_NEEDED, DEFAULT_ADD_SPACES_AND_COLON_WHEN_NEEDED);
-    }
-
-    public static boolean forcePy3kPrintOnPy2() {
-        return PydevPrefs.getEclipsePreferences()
-                .getBoolean(FORCE_PY3K_PRINT_ON_PY2, DEFAULT_FORCE_PY3K_PRINT_ON_PY2);
     }
 
     public static String[] getKeywords() {

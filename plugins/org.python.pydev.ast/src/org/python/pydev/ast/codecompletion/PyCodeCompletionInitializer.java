@@ -74,8 +74,6 @@ public class PyCodeCompletionInitializer extends AbstractPreferenceInitializer {
                 PyCodeCompletionPreferences.DEFAULT_ADD_SPACES_WHEN_NEEDED);
         node.putBoolean(PyCodeCompletionPreferences.ADD_SPACE_AND_COLON_WHEN_NEEDED,
                 PyCodeCompletionPreferences.DEFAULT_ADD_SPACES_AND_COLON_WHEN_NEEDED);
-        node.putBoolean(PyCodeCompletionPreferences.FORCE_PY3K_PRINT_ON_PY2,
-                PyCodeCompletionPreferences.DEFAULT_FORCE_PY3K_PRINT_ON_PY2);
         node.put(PyCodeCompletionPreferences.KEYWORDS_CODE_COMPLETION,
                 PyCodeCompletionPreferences.DEFAULT_KEYWORDS_CODE_COMPLETION);
         node.putInt(PyCodeCompletionPreferences.CHARS_FOR_CTX_INSENSITIVE_MODULES_COMPLETION,

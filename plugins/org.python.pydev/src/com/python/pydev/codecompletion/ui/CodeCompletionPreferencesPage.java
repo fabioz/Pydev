@@ -62,10 +62,6 @@ public class CodeCompletionPreferencesPage extends FieldEditorPreferencePage imp
                 "Add <SPACE><COLON> for common cases (e.g.: \"class :\", \"if :\", etc.)?", p));
         addField(new LabelFieldEditor("LabelFieldEditor", "", p));
 
-        addField(new BooleanFieldEditor(PyCodeCompletionPreferences.FORCE_PY3K_PRINT_ON_PY2,
-                "Force print() function on Python 2.x projects?", p));
-        addField(new LabelFieldEditor("LabelFieldEditor", "", p));
-
         addField(new ListEditor(PyCodeCompletionPreferences.KEYWORDS_CODE_COMPLETION, "Tokens to use:", p) {
 
             @Override
