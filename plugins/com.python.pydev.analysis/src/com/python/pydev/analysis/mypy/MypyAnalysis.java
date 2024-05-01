@@ -303,12 +303,12 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
             WriteToStreamHelper.write("Mypy: The stderr of the command line is:\n", out, errors);
         }
 
-        if (output.indexOf("Traceback (most recent call last):") != -1) {
+        if (logStream(output)) {
             Throwable e = new RuntimeException("Mypy ERROR: \n" + output);
             Log.log(e);
             return;
         }
-        if (errors.indexOf("Traceback (most recent call last):") != -1) {
+        if (logStream(errors)) {
             Throwable e = new RuntimeException("Mypy ERROR: \n" + errors);
             Log.log(e);
             return;
@@ -436,6 +436,12 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                     messageInfo.column,
                     messageInfo.docLineContents, messageInfo.moduleFile, messageInfo.document);
         }
+    }
+
+    private boolean logStream(String output) {
+        // usage: mypy [-h] [-v] [-V] [more options; see below]
+        return output.contains("Traceback (most recent call last):")
+                || (output.contains("mypy: error: unrecognized arguments:") && output.contains("usage:"));
     }
 
     private static Pattern MYPY_MATCH_PATTERN1 = Pattern

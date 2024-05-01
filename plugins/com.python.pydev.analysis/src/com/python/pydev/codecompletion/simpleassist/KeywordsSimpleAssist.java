@@ -16,10 +16,7 @@ import java.util.List;
 import org.python.pydev.ast.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.ast.simpleassist.ISimpleAssistParticipant;
 import org.python.pydev.ast.simpleassist.ISimpleAssistParticipant2;
-import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IPySyntaxHighlightingAndCodeCompletionEditor;
-import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
@@ -69,19 +66,7 @@ public class KeywordsSimpleAssist implements ISimpleAssistParticipant, ISimpleAs
     @Override
     public Collection<ICompletionProposalHandle> computeCompletionProposals(String activationToken, String qualifier,
             PySelection ps, IPySyntaxHighlightingAndCodeCompletionEditor edit, int offset) {
-        boolean isPy3Syntax = false;
-        if (PyCodeCompletionPreferences.forcePy3kPrintOnPy2()) {
-            isPy3Syntax = true;
-
-        } else {
-            try {
-                IPythonNature nature = edit.getPythonNature();
-                if (nature != null) {
-                    isPy3Syntax = nature.getGrammarVersion() >= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5;
-                }
-            } catch (MisconfigurationException e) {
-            }
-        }
+        boolean isPy3Syntax = true;
         return innerComputeProposals(activationToken, qualifier, offset, false, isPy3Syntax);
     }
 

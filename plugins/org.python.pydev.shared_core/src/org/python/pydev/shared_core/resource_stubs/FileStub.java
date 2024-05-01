@@ -11,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.attribute.FileTime;
 import java.util.List;
@@ -40,6 +41,16 @@ public class FileStub extends AbstractIFileStub implements IFile {
     @Override
     public boolean exists() {
         return file.isFile();
+    }
+
+    @Override
+    public URI getLocationURI() {
+        return file.toURI();
+    }
+
+    @Override
+    public IPath getLocation() {
+        return Path.fromOSString(file.toString());
     }
 
     @Override
