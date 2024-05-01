@@ -5,7 +5,7 @@ package org.python.pydev.core.formatter;
  *
  * @author Fabio
  */
-public class FormatStd {
+public class FormatStd implements Cloneable {
 
     public enum FormatterEnum {
         PYDEVF, AUTOPEP8, BLACK, RUFF
@@ -17,7 +17,7 @@ public class FormatStd {
     public static final String RUFF = "RUFF";
 
     public static FormatterEnum getFormatterEnumFromStr(String formatterStyleStr) {
-        switch (formatterStyleStr) {
+        switch (formatterStyleStr.toUpperCase()) {
             case AUTOPEP8:
                 return FormatterEnum.AUTOPEP8;
             case BLACK:
@@ -128,6 +128,15 @@ public class FormatStd {
             manageBlankLines = true;
             blankLinesTopLevel = 2;
             blankLinesInner = 1;
+        }
+    }
+
+    @Override
+    public FormatStd clone() {
+        try {
+            return (FormatStd) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
         }
     }
 
