@@ -49,6 +49,11 @@ public class FileStub extends AbstractIFileStub implements IFile {
     }
 
     @Override
+    public boolean isAccessible() {
+        return file.exists();
+    }
+
+    @Override
     public IPath getLocation() {
         return Path.fromOSString(file.toString());
     }

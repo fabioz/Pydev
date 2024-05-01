@@ -41,6 +41,11 @@ public class FolderStub extends AbstractIFolderStub implements IFolder {
     }
 
     @Override
+    public boolean isAccessible() {
+        return this.folder.exists();
+    }
+
+    @Override
     public IContainer getParent() {
         if (parent != null) {
             return parent;

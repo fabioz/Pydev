@@ -109,6 +109,11 @@ public class ProjectStub extends AbstractIProjectStub implements IProjectStub {
     }
 
     @Override
+    public boolean isAccessible() {
+        return this.projectRoot.exists();
+    }
+
+    @Override
     public void deleteMarkers(String type, boolean includeSubtypes, int depth) throws CoreException {
 
     }
