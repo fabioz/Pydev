@@ -127,7 +127,7 @@
     <tycho-version>4.0.3</tycho-version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <repository.id>eclipse-2023-12</repository.id>
-    <repository.url>https://download.eclipse.org/releases/2023-12/</repository.url>
+    <repository.url>https://download.eclipse.org/releases/2024-03/</repository.url>
   </properties>
   <prerequisites>
     <maven>3.9.5</maven>

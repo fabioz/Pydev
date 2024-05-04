@@ -204,7 +204,10 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                     }
                 }
             }
+
+            String mypyPath = StringUtils.join(SimpleRunner.getPythonPathSeparator(), addToMypyPath);
             if (addToMypyPath.size() > 0) {
+                WriteToStreamHelper.write("MyPy: Using MYPYPATH:", out, mypyPath);
                 updateEnv = new ICallback<String[], String[]>() {
 
                     @Override
@@ -213,14 +216,14 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                             // Update var
                             if (arg[i].startsWith("MYPYPATH=")) {
                                 arg[i] = arg[i] + SimpleRunner.getPythonPathSeparator()
-                                        + StringUtils.join(SimpleRunner.getPythonPathSeparator(), addToMypyPath);
+                                        + mypyPath;
                                 return arg;
                             }
                         }
 
                         // Create new var.
                         return ArrayUtils.concatArrays(arg, new String[] {
-                                "MYPYPATH=" + StringUtils.join(SimpleRunner.getPythonPathSeparator(), addToMypyPath) });
+                                "MYPYPATH=" + mypyPath });
                     }
                 };
             }
@@ -241,9 +244,9 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                 }
                 cmdList.add(0, "mypy");
                 String[] args = cmdList.toArray(new String[0]);
-                WriteToStreamHelper.write("MyPy: Executing command line:", out, "python", "-m", args);
                 SimplePythonRunner runner = new SimplePythonRunner();
                 String[] parameters = SimplePythonRunner.preparePythonCallParameters(interpreter, "-m", args);
+                WriteToStreamHelper.write("MyPy: Executing command line:", out, StringUtils.join(" ", parameters));
 
                 Tuple<Process, String> r = runner.run(parameters, workingDir, nature, monitor, finalUpdateEnv);
                 return r.o1;
