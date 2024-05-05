@@ -490,7 +490,11 @@ public class PydevPlugin extends AbstractUIPlugin {
         this.isAlive = false;
         try {
             //stop the running shells
-            AbstractShell.shutdownAllShells();
+            try {
+                AbstractShell.shutdownAllShells();
+            } catch (Exception e) {
+                Log.log(e);
+            }
 
             //save the natures (code completion stuff) -- and only the ones initialized
             //(no point in getting the ones not initialized)
