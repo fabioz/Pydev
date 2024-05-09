@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.editor.actions.organize_imports;
+package org.python.pydev.ast.sort_imports;
 
 import java.io.File;
 import java.util.Collections;
@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -27,13 +26,12 @@ import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.docutils.ImportHandle;
+import org.python.pydev.core.imports.ImportPreferences;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple3;
-import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 
 public class Pep8ImportArranger extends ImportArranger {
 
@@ -103,8 +101,8 @@ public class Pep8ImportArranger extends ImportArranger {
 
         private Map<Object, Integer> mapToClassification = new HashMap<Object, Integer>();
 
-        PathImportClassifier(IProject project) throws MisconfigurationException, PythonNatureWithoutProjectException {
-            PythonNature nature = PythonNature.getPythonNature(project);
+        PathImportClassifier(IPythonNature nature)
+                throws MisconfigurationException, PythonNatureWithoutProjectException {
             if (nature != null) {
                 try {
                     String externalProjectSourcePath = nature.getPythonPathNature().getProjectExternalSourcePath(true);
@@ -178,16 +176,16 @@ public class Pep8ImportArranger extends ImportArranger {
 
     final ImportClassifier classifier;
 
-    public Pep8ImportArranger(IDocument doc, boolean removeUnusedImports, String endLineDelim, IProject prj,
-            String indentStr, boolean automatic, IPyFormatStdProvider edit) {
-        super(doc, removeUnusedImports, endLineDelim, indentStr, automatic, edit);
-        classifier = getClassifier(prj);
+    public Pep8ImportArranger(IDocument doc, boolean removeUnusedImports, String endLineDelim, IPythonNature nature,
+            String indentStr, boolean automatic, IPyFormatStdProvider edit, int maxCols) {
+        super(doc, removeUnusedImports, endLineDelim, indentStr, automatic, edit, maxCols);
+        classifier = getClassifier(nature);
     }
 
-    private ImportClassifier getClassifier(IProject p) {
-        if (p != null) {
+    private ImportClassifier getClassifier(IPythonNature nature) {
+        if (nature != null) {
             try {
-                return new PathImportClassifier(p);
+                return new PathImportClassifier(nature);
             } catch (MisconfigurationException e) {
             } catch (PythonNatureWithoutProjectException e) {
             }
@@ -218,7 +216,7 @@ public class Pep8ImportArranger extends ImportArranger {
                     return class1 - class2;
                 }
 
-                if (ImportsPreferencesPage.getSortFromImportsFirst(edit)) {
+                if (ImportPreferences.getSortFromImportsFirst(edit)) {
                     int type1 = getImportType(o1.o3);
                     int type2 = getImportType(o2.o3);
                     if (type1 != type2) {
@@ -278,7 +276,7 @@ public class Pep8ImportArranger extends ImportArranger {
     }
 
     /**
-     * 
+     *
      * This enum encapsulates the logic of the {@link ImportArranger#skipOverDocComment} method.
      * The order is significant, the matches method is called in order on
      * each value, until the value for the line in consideration is found.

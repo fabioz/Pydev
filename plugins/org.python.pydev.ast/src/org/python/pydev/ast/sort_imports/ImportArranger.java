@@ -4,8 +4,9 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package org.python.pydev.editor.actions.organize_imports;
+package org.python.pydev.ast.sort_imports;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -15,25 +16,22 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.viewers.ISelectionProvider;
-import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
+import org.python.pydev.ast.formatter.PyFormatter;
 import org.python.pydev.core.IPyFormatStdProvider;
 import org.python.pydev.core.docutils.ImportHandle;
 import org.python.pydev.core.docutils.ImportHandle.ImportHandleInfo;
 import org.python.pydev.core.docutils.PyImportsHandling;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.formatter.FormatStd;
+import org.python.pydev.core.imports.ImportPreferences;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.actions.PyFormatAction;
-import org.python.pydev.plugin.PyDevUiPrefs;
-import org.python.pydev.shared_core.SharedCorePlugin;
+import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_core.structure.Tuple3;
-import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 
 public class ImportArranger {
 
@@ -182,31 +180,12 @@ public class ImportArranger {
     }
 
     /**
-     * @return the maximum number of columns that may be available in a line.
-     */
-    private static int getMaxCols(boolean multilineImports) {
-        final int maxCols;
-        if (multilineImports) {
-            if (SharedCorePlugin.inTestMode()) {
-                maxCols = 80;
-            } else {
-                IPreferenceStore chainedPrefStore = PyDevUiPrefs.getChainedPrefStore();
-                maxCols = chainedPrefStore
-                        .getInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_PRINT_MARGIN_COLUMN);
-            }
-        } else {
-            maxCols = Integer.MAX_VALUE;
-        }
-        return maxCols;
-    }
-
-    /**
      * @return true if the imports should be split with parenthesis (instead of escaping)
      */
     private static boolean getBreakImportsWithParenthesis(IPyFormatStdProvider edit) {
-        String breakIportMode = ImportsPreferencesPage.getBreakIportMode(edit);
+        String breakIportMode = ImportPreferences.getBreakImportMode(edit);
         boolean breakWithParenthesis = true;
-        if (!breakIportMode.equals(ImportsPreferencesPage.BREAK_IMPORTS_MODE_PARENTHESIS)) {
+        if (!breakIportMode.equals(ImportPreferences.BREAK_IMPORTS_MODE_PARENTHESIS)) {
             breakWithParenthesis = false;
         }
         return breakWithParenthesis;
@@ -225,21 +204,20 @@ public class ImportArranger {
     protected final IPyFormatStdProvider edit;
 
     public ImportArranger(IDocument doc, boolean removeUnusedImports, String endLineDelim, String indentStr,
-            boolean automatic, IPyFormatStdProvider edit) {
+            boolean automatic, IPyFormatStdProvider edit, int maxCols) {
         this.doc = doc;
         this.endLineDelim = endLineDelim;
         this.indentStr = indentStr;
         this.removeUnusedImports = removeUnusedImports;
         this.automatic = automatic;
         this.edit = edit;
-        multilineImports = ImportsPreferencesPage.getMultilineImports(edit);
-        sortNamesGrouped = ImportsPreferencesPage.getSortNamesGrouped(edit);
+        multilineImports = ImportPreferences.getMultilineImports(edit);
+        sortNamesGrouped = ImportPreferences.getSortNamesGrouped(edit);
         breakWithParenthesis = getBreakImportsWithParenthesis(edit);
-        maxCols = getMaxCols(multilineImports);
     }
 
     public void perform() {
-        perform(ImportsPreferencesPage.getGroupImports(edit), edit);
+        perform(ImportPreferences.getGroupImports(edit), edit);
     }
 
     protected void perform(boolean groupFromImports, IPyFormatStdProvider edit) {
@@ -301,13 +279,19 @@ public class ImportArranger {
         }
 
         try {
-            PyFormatAction std = new PyFormatAction();
-            boolean throwSyntaxError = false;
-            ISelectionProvider selectionProvider = null;
-            int[] regionsToFormat = null;
+            FormatStd formatStd = (FormatStd) edit.getFormatStd();
+            File editorFile = edit.getEditorFile();
+            String filepath = null;
+            if (editorFile != null) {
+                filepath = FileUtils.getFileAbsolutePath(editorFile);
+            }
+
             IDocument psDoc = new Document(finalStr);
-            PySelection ps = new PySelection(psDoc);
-            std.applyFormatAction(edit, ps, regionsToFormat, throwSyntaxError, selectionProvider);
+
+            boolean isOpenedFile = false;
+            boolean throwSyntaxError = false;
+            PyFormatter.formatAll(filepath, psDoc, edit, isOpenedFile, formatStd, throwSyntaxError, true);
+
             finalStr = psDoc.get();
             if (addNewLinesToImports) {
                 // Leave 2 empty new lines separating imports from code

@@ -26,13 +26,13 @@ import org.python.pydev.ast.codecompletion.PyCodeCompletionPreferences;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPySourceViewer;
 import org.python.pydev.core.autoedit.DefaultIndentPrefs;
+import org.python.pydev.core.imports.ImportPreferences;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
 import org.python.pydev.shared_ui.ImageCache;
-import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 
 import com.python.pydev.analysis.refactoring.quick_fixes.AddTokenAndImportStatement;
 
@@ -217,7 +217,7 @@ public class CtxInsensitiveImportComplProposal extends AbstractPyCompletionPropo
                 realImportRep, fReplacementOffset, fLen, indentString,
                 fReplacementString, appliedWithTrigger, importLen, document);
         new AddTokenAndImportStatement(document, trigger, offset, addLocalImport, getAddLocalImportsOnTopOfMethod(),
-                ImportsPreferencesPage.getGroupImports(projectAdaptable), maxCols).createTextEdit(computedInfo);
+                ImportPreferences.getGroupImports(projectAdaptable), maxCols).createTextEdit(computedInfo);
         this.fReplacementString = computedInfo.fReplacementString;
         this.appliedWithTrigger = computedInfo.appliedWithTrigger;
         this.importLen = computedInfo.importLen;

@@ -19,6 +19,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.imports.ImportPreferences;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.correctionassist.IAssistProps;
@@ -26,7 +27,6 @@ import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.image.UIConstants;
-import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 
 /**
  * @author Fabio Zadrozny
@@ -71,10 +71,10 @@ public class AssistImport implements IAssistProps {
 
         if (i >= 0) {
             String cursorLineContents = ps.getCursorLineContents();
-            String importEngine = ImportsPreferencesPage.getImportEngine(edit);
+            String importEngine = ImportPreferences.getImportEngine(edit);
             String messageToIgnore = "@NoMove";
             String caption = messageToIgnore.substring(1);
-            if (ImportsPreferencesPage.IMPORT_ENGINE_ISORT.equals(importEngine)) {
+            if (ImportPreferences.IMPORT_ENGINE_ISORT.equals(importEngine)) {
                 caption = messageToIgnore = "isort:skip";
             }
             if (!cursorLineContents.contains(messageToIgnore)) {

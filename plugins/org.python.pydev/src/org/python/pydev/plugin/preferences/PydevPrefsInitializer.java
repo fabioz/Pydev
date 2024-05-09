@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.jface.resource.StringConverter;
 import org.osgi.service.prefs.Preferences;
 import org.python.pydev.builder.todo.PyTodoPrefPage;
+import org.python.pydev.core.imports.ImportPreferences;
 import org.python.pydev.editor.codefolding.PyDevCodeFoldingPrefPage;
 import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
 import org.python.pydev.editor.correctionassist.docstrings.DocstringsPrefPage;
@@ -26,7 +27,6 @@ import org.python.pydev.pyunit.preferences.PyUnitPrefsPage2;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.actions.LineCommentOption;
 import org.python.pydev.shared_ui.word_boundaries.SubWordPreferences;
-import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 import org.python.pydev.ui.wizards.project.IWizardNewProjectNameAndLocationPage;
 
 public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
@@ -238,15 +238,15 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
                 PyTitlePreferencesPage.DEFAULT_TITLE_EDITOR_DJANGO_MODULES_HANDLING);
 
         //imports
-        node.putBoolean(ImportsPreferencesPage.GROUP_IMPORTS, ImportsPreferencesPage.DEFAULT_GROUP_IMPORTS);
-        node.putBoolean(ImportsPreferencesPage.MULTILINE_IMPORTS, ImportsPreferencesPage.DEFAULT_MULTILINE_IMPORTS);
-        node.put(ImportsPreferencesPage.ISORT_LOCATION_OPTION, ImportsPreferencesPage.DEFAULT_ISORT_LOCATION_OPTION);
-        node.put(ImportsPreferencesPage.BREAK_IMPORTS_MODE, ImportsPreferencesPage.DEFAULT_BREAK_IMPORTS_MODE);
-        node.put(ImportsPreferencesPage.IMPORT_ENGINE, ImportsPreferencesPage.DEFAULT_IMPORT_ENGINE);
-        node.putBoolean(ImportsPreferencesPage.DELETE_UNUSED_IMPORTS,
-                ImportsPreferencesPage.DEFAULT_DELETE_UNUSED_IMPORTS);
-        node.putBoolean(ImportsPreferencesPage.FROM_IMPORTS_FIRST, ImportsPreferencesPage.DEFAULT_FROM_IMPORTS_FIRST);
-        node.putBoolean(ImportsPreferencesPage.SORT_NAMES_GROUPED, ImportsPreferencesPage.DEFAULT_SORT_NAMES_GROUPED);
+        node.putBoolean(ImportPreferences.GROUP_IMPORTS, ImportPreferences.DEFAULT_GROUP_IMPORTS);
+        node.putBoolean(ImportPreferences.MULTILINE_IMPORTS, ImportPreferences.DEFAULT_MULTILINE_IMPORTS);
+        node.put(ImportPreferences.ISORT_LOCATION_OPTION, ImportPreferences.DEFAULT_ISORT_LOCATION_OPTION);
+        node.put(ImportPreferences.BREAK_IMPORTS_MODE, ImportPreferences.DEFAULT_BREAK_IMPORTS_MODE);
+        node.put(ImportPreferences.IMPORT_ENGINE, ImportPreferences.DEFAULT_IMPORT_ENGINE);
+        node.putBoolean(ImportPreferences.DELETE_UNUSED_IMPORTS,
+                ImportPreferences.DEFAULT_DELETE_UNUSED_IMPORTS);
+        node.putBoolean(ImportPreferences.FROM_IMPORTS_FIRST, ImportPreferences.DEFAULT_FROM_IMPORTS_FIRST);
+        node.putBoolean(ImportPreferences.SORT_NAMES_GROUPED, ImportPreferences.DEFAULT_SORT_NAMES_GROUPED);
 
         //hover
         node.putBoolean(PyHoverPreferencesPage.COMBINE_HOVER_INFO,

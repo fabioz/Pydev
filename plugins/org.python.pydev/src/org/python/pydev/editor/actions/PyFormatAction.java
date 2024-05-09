@@ -166,7 +166,6 @@ public class PyFormatAction extends PyAction implements IFormatter {
             filepath = path.toOSString();
         }
         PyFormatter.formatAll(filepath, doc, edit, isOpenedFile, formatStd, throwSyntaxError, true);
-
     }
 
 }

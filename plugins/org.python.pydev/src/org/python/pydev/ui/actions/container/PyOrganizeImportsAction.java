@@ -8,8 +8,8 @@
 package org.python.pydev.ui.actions.container;
 
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.python.pydev.core.imports.ImportPreferences;
 import org.python.pydev.editor.actions.PyOrganizeImports;
-import org.python.pydev.ui.importsconf.ImportsPreferencesPage;
 
 /**
  * Action used to organize imports to all the available python files.
@@ -33,7 +33,7 @@ public class PyOrganizeImportsAction extends PyContainerFormatterAction {
 
         super.confirmRun()
                 //Note: ask for the platform, but preferences will follow settings in each project.
-                && ((!ImportsPreferencesPage.getDeleteUnusedImports(null))
+                && ((!ImportPreferences.getDeleteUnusedImports(null))
                 ||
                 MessageDialog
                         .openConfirm(
