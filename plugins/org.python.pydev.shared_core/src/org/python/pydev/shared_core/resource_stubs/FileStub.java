@@ -30,10 +30,10 @@ import org.python.pydev.shared_core.string.StringUtils;
 
 public class FileStub extends AbstractIFileStub implements IFile {
 
-    private IProjectStub project;
+    private IProject project;
     protected File file;
 
-    public FileStub(IProjectStub project, File file) {
+    public FileStub(IProject project, File file) {
         this.project = project;
         this.file = file;
     }
@@ -75,7 +75,7 @@ public class FileStub extends AbstractIFileStub implements IFile {
 
     @Override
     public IContainer getParent() {
-        return project.getFolder(this.file.getParentFile());
+        return new FolderStub(project, file.getParentFile());
     }
 
     @Override
@@ -115,7 +115,7 @@ public class FileStub extends AbstractIFileStub implements IFile {
 
     @Override
     public IPath getFullPath() {
-        IPath projectPath = Path.fromOSString(FileUtils.getFileAbsolutePath(project.getProjectRoot()));
+        IPath projectPath = project.getLocation();
         IPath filePath = Path.fromOSString(FileUtils.getFileAbsolutePath(file));
         return filePath.makeRelativeTo(projectPath);
     }
