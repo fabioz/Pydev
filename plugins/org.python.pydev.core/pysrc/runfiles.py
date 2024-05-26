@@ -209,7 +209,7 @@ def main():
 
             curdir_abs = os.path.abspath(os.curdir)
             while True:
-                if os.path.exists(os.path.join(curdir_abs, 'conftest.py')):
+                if os.path.exists(os.path.join(curdir_abs, "conftest.py")):
                     os.chdir(curdir_abs)
                     found_conftest = True
                     break
