@@ -84,7 +84,7 @@ public class FileStub extends AbstractIFileStub implements IFile {
             FileTime ret = Files.getLastModifiedTime(this.file.toPath());
             return ret.to(TimeUnit.NANOSECONDS);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            return -1; // File does not exist.
         }
     }
 
