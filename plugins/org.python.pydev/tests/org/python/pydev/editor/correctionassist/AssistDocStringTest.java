@@ -12,12 +12,12 @@ import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
+import org.python.pydev.core.docstrings.DocstringPreferences;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.proposals.DefaultCompletionProposalFactory;
 import org.python.pydev.editor.correctionassist.docstrings.AssistDocString;
-import org.python.pydev.editor.correctionassist.docstrings.DocstringsPrefPage;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.StringUtils;
 
@@ -43,14 +43,14 @@ public class AssistDocStringTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         assist = new AssistDocString();
-        DocstringsPrefPage.GENERATE_TYPE_DOCSTRING_ON_TESTS = true;
+        DocstringPreferences.GENERATE_TYPE_DOCSTRING_ON_TESTS = true;
         CompletionProposalFactory.set(new DefaultCompletionProposalFactory());
     }
 
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
-        DocstringsPrefPage.GENERATE_TYPE_DOCSTRING_ON_TESTS = true;
+        DocstringPreferences.GENERATE_TYPE_DOCSTRING_ON_TESTS = true;
         CompletionProposalFactory.set(null);
     }
 
@@ -276,7 +276,7 @@ public class AssistDocStringTest extends TestCase {
         Document doc = new Document(initial);
         PySelection ps = new PySelection(doc, 0, 0);
         AssistDocString assist = new AssistDocString("G");
-        DocstringsPrefPage.GENERATE_TYPE_DOCSTRING_ON_TESTS = false;
+        DocstringPreferences.GENERATE_TYPE_DOCSTRING_ON_TESTS = false;
         List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null,
                 ps.getAbsoluteCursorOffset());
         assertEquals(proposals, props.size());
@@ -436,9 +436,9 @@ public class AssistDocStringTest extends TestCase {
 
     public void testUpdateDocstringSphinx() {
 
-        boolean curr = DocstringsPrefPage.GENERATE_TYPE_DOCSTRING_ON_TESTS;
+        boolean curr = DocstringPreferences.GENERATE_TYPE_DOCSTRING_ON_TESTS;
         try {
-            DocstringsPrefPage.GENERATE_TYPE_DOCSTRING_ON_TESTS = false;
+            DocstringPreferences.GENERATE_TYPE_DOCSTRING_ON_TESTS = false;
             assertEquals("'''\n"
                     + "    :param str a: var a\n"
                     + "    :param b: var b\n"
@@ -450,7 +450,7 @@ public class AssistDocStringTest extends TestCase {
                             + "    :param test:\n"
                             + "'''", Arrays.asList("a", "b"), "\n", "    ", ":"));
         } finally {
-            DocstringsPrefPage.GENERATE_TYPE_DOCSTRING_ON_TESTS = curr;
+            DocstringPreferences.GENERATE_TYPE_DOCSTRING_ON_TESTS = curr;
         }
     }
 

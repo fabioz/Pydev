@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.IContextInformation;
+import org.python.pydev.core.docstrings.DocstringPreferences;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.DocstringInfo;
 import org.python.pydev.editor.codecompletion.proposals.PyCompletionProposal;
@@ -77,7 +78,7 @@ public class AssistDocstringCompletionProposal extends PyCompletionProposal {
                                 .append(paramName)
                                 .append(":");
                     }
-                    if (DocstringsPrefPage.getTypeTagShouldBeGenerated(paramName)) {
+                    if (DocstringPreferences.getTypeTagShouldBeGenerated(paramName)) {
                         buf.append(delimiterAndIndent).append(preferredDocstringStyle2).append("type ")
                                 .append(paramName)
                                 .append(":");

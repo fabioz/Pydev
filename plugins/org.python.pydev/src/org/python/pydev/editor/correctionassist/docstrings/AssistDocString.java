@@ -27,6 +27,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.autoedit.DefaultIndentPrefs;
+import org.python.pydev.core.docstrings.DocstringPreferences;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.DocstringInfo;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
@@ -86,7 +87,7 @@ public class AssistDocString implements IAssistProps {
         String delimiterAndIndent = delimiter + initial + indentation;
 
         FastStringBuffer buf = new FastStringBuffer();
-        String docStringMarker = DocstringsPrefPage.getDocstringMarker();
+        String docStringMarker = DocstringPreferences.getDocstringMarker();
         buf.append(delimiterAndIndent + docStringMarker);
         buf.append(delimiterAndIndent);
 
@@ -106,12 +107,12 @@ public class AssistDocString implements IAssistProps {
         final DocstringInfo finalDocstringFromFunction = docstringFromFunction;
         String preferredDocstringStyle = AssistDocString.this.docStringStyle;
         if (preferredDocstringStyle == null) {
-            preferredDocstringStyle = DocstringsPrefPage.getPreferredDocstringStyle();
+            preferredDocstringStyle = DocstringPreferences.getPreferredDocstringStyle();
         }
 
         final String preferredDocstringStyle2 = preferredDocstringStyle;
         if (inFunctionLine && params.size() > 0
-                && preferredDocstringStyle.equals(DocstringsPrefPage.DOCSTRINGSTYLE_GOOGLE)) {
+                && preferredDocstringStyle.equals(DocstringPreferences.DOCSTRING_STYLE_GOOGLE)) {
             buf.append("Args:");
         }
         l.add(CompletionProposalFactory.get().createAssistDocstringCompletionProposal("", offsetPosToAdd, 0,
@@ -254,7 +255,7 @@ public class AssistDocString implements IAssistProps {
 
             ParamInfo existingInfo = paramInfos.get(paramName);
             boolean hasParam = existingInfo != null && existingInfo.paramLine != -1;
-            boolean addTypeForParam = DocstringsPrefPage.getTypeTagShouldBeGenerated(paramName);
+            boolean addTypeForParam = DocstringPreferences.getTypeTagShouldBeGenerated(paramName);
             if (addTypeForParam) {
                 if (paramsWithTypeInline.contains(paramName)) {
                     addTypeForParam = false;

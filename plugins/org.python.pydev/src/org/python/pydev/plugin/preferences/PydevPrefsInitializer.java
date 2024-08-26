@@ -14,10 +14,10 @@ import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.jface.resource.StringConverter;
 import org.osgi.service.prefs.Preferences;
 import org.python.pydev.builder.todo.PyTodoPrefPage;
+import org.python.pydev.core.docstrings.DocstringPreferences;
 import org.python.pydev.core.imports.ImportPreferences;
 import org.python.pydev.editor.codefolding.PyDevCodeFoldingPrefPage;
 import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
-import org.python.pydev.editor.correctionassist.docstrings.DocstringsPrefPage;
 import org.python.pydev.editor.hover.PyHoverPreferencesPage;
 import org.python.pydev.editor.saveactions.PydevSaveActionsPrefPage;
 import org.python.pydev.editorinput.PySourceLocatorPrefs;
@@ -268,10 +268,10 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
                 PyUnitPrefsPage2.DEFAULT_TEST_RUNNER_DEFAULT_PARAMETERS);
 
         // Docstrings
-        node.put(DocstringsPrefPage.P_DOCSTRINGCHARACTER, DocstringsPrefPage.DEFAULT_P_DOCSTRINGCHARACTER);
-        node.put(DocstringsPrefPage.P_DOCSTRINGSTYLE, DocstringsPrefPage.DEFAULT_P_DOCSTRINGSTYLE);
-        node.put(DocstringsPrefPage.P_TYPETAGGENERATION, DocstringsPrefPage.DEFAULT_P_TYPETAGGENERATION);
-        node.put(DocstringsPrefPage.P_DONT_GENERATE_TYPETAGS, DocstringsPrefPage.DEFAULT_P_DONT_GENERATE_TYPETAGS);
+        node.put(DocstringPreferences.DOCSTRING_CHARACTER, DocstringPreferences.DEFAULT_DOCSTRING_CHARACTER);
+        node.put(DocstringPreferences.DOCSTRING_STYLE, DocstringPreferences.DEFAULT_DOCSTRING_STYLE);
+        node.put(DocstringPreferences.TYPETAG_GENERATION, DocstringPreferences.DEFAULT_TYPETAG_GENERATION);
+        node.put(DocstringPreferences.DONT_GENERATE_TYPETAGS, DocstringPreferences.DEFAULT_DONT_GENERATE_TYPETAGS);
 
         //save actions
         node.putBoolean(PydevSaveActionsPrefPage.SORT_IMPORTS_ON_SAVE,
