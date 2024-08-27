@@ -28,7 +28,6 @@ import org.python.pydev.core.TokensOrProposalsList;
 import org.python.pydev.core.autoedit.DefaultIndentPrefs;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
-import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.PyTemplateProposal;
 import org.python.pydev.editor.correctionassist.IAssistProps;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
@@ -95,7 +94,7 @@ public class AssistSurroundWith extends AbstractTemplateCodeCompletion implement
         }
 
         //delimiter to use
-        String delimiter = PyAction.getDelimiter(ps.getDoc());
+        String delimiter = ps.getEndLineDelim();
 
         //get the 1st char (determines indent)
         FastStringBuffer startIndentBuffer = new FastStringBuffer(firstCharPosition + 1);

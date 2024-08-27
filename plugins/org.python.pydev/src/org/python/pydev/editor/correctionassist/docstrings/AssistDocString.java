@@ -31,7 +31,6 @@ import org.python.pydev.core.docstrings.DocstringPreferences;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.DocstringInfo;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
-import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.correctionassist.IAssistProps;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
@@ -80,7 +79,7 @@ public class AssistDocString implements IAssistProps {
 
         // Calculate only the initial part of the docstring here (everything else should be lazily computed on apply).
         String initial = PySelection.getIndentationFromLine(ps.getCursorLineContents());
-        String delimiter = PyAction.getDelimiter(ps.getDoc());
+        String delimiter = ps.getEndLineDelim();
         String indentation = edit != null ? edit.getIndentPrefs().getIndentationString()
                 : DefaultIndentPrefs.get(
                         nature).getIndentationString();

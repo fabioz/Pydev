@@ -11,9 +11,9 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Point;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.interactive_console.IScriptConsoleViewer;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.actions.PyAction;
 
 /**
  * Extends the basic completion proposal to add a line with an import in the console.
@@ -78,7 +78,7 @@ public class PyConsoleCompletion extends CtxInsensitiveImportComplProposal {
             document.replace(commandLineOffset, document.getLength() - commandLineOffset, "");
 
             boolean addImport = realImportRep.length() > 0;
-            String delimiter = PyAction.getDelimiter(document);
+            String delimiter = PySelection.getDelimiter(document);
 
             //now, add the import if that should be done...
 

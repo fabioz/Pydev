@@ -38,13 +38,13 @@ import org.eclipse.ui.actions.SelectionListenerAction;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.ResourceTransfer;
 import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
+import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.shared_core.string.StringUtils;
 
 /**
  * Copied to extend.
- * 
+ *
  * @since 2.0
  */
 public abstract class PasteAction extends SelectionListenerAction {
@@ -85,7 +85,7 @@ public abstract class PasteAction extends SelectionListenerAction {
     /**
      * Returns the actual target of the paste action. Returns null
      * if no valid target is selected.
-     * 
+     *
      * @return the actual target of the paste action
      */
     private IResource getTarget() {
@@ -109,9 +109,9 @@ public abstract class PasteAction extends SelectionListenerAction {
 
     /**
      * Returns whether any of the given resources are linked resources.
-     * 
+     *
      * @param resources resource to check for linked type. may be null
-     * @return true=one or more resources are linked. false=none of the 
+     * @return true=one or more resources are linked. false=none of the
      *  resources are linked
      */
     private boolean isLinked(IResource[] resources) {
@@ -176,7 +176,7 @@ public abstract class PasteAction extends SelectionListenerAction {
             if (name == null) {
                 return;
             }
-            String delimiter = PyAction.getDelimiter(new Document());
+            String delimiter = PySelection.getDelimiter(new Document());
             if (delimiter != null) {
                 contents = StringUtils.replaceNewLines(contents, delimiter);
             }
@@ -281,14 +281,14 @@ public abstract class PasteAction extends SelectionListenerAction {
 
     /**
      * The <code>PasteAction</code> implementation of this
-     * <code>SelectionListenerAction</code> method enables this action if 
+     * <code>SelectionListenerAction</code> method enables this action if
      * a resource compatible with what is on the clipboard is selected.
-     * 
+     *
      * -Clipboard must have IResource or java.io.File
      * -Projects can always be pasted if they are open
      * -Workspace folder may not be copied into itself
-     * -Files and folders may be pasted to a single selected folder in open 
-     *  project or multiple selected files in the same folder 
+     * -Files and folders may be pasted to a single selected folder in open
+     *  project or multiple selected files in the same folder
      */
     @Override
     protected boolean updateSelection(IStructuredSelection selection) {
@@ -325,13 +325,13 @@ public abstract class PasteAction extends SelectionListenerAction {
         }
 
         IResource targetResource = getTarget();
-        // targetResource is null if no valid target is selected (e.g., open project) 
-        // or selection is empty    
+        // targetResource is null if no valid target is selected (e.g., open project)
+        // or selection is empty
         if (targetResource == null) {
             return false;
         }
 
-        // can paste files and folders to a single selection (file, folder, 
+        // can paste files and folders to a single selection (file, folder,
         // open project) or multiple file selection with the same parent
         List<? extends IResource> selectedResources = getSelectedResources();
         if (selectedResources.size() > 1) {

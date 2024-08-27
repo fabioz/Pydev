@@ -48,7 +48,7 @@ public class AssistImport implements IAssistProps {
             return l;
         }
 
-        String delimiter = PyAction.getDelimiter(ps.getDoc());
+        String delimiter = ps.getEndLineDelim();
         boolean isFuture = PySelection.isFutureImportLine(sel.trim());
 
         int lineToMoveImport = ps.getLineAvailableForImport(isFuture);
