@@ -81,7 +81,9 @@ public class FolderStub extends AbstractIFolderStub implements IFolder {
         for (String s : segments) {
             f = new File(f, s);
         }
-        return new FolderStub(project, f);
+        // At this point it doesn't need to exist!
+        boolean mustExist = false;
+        return new FolderStub(project, null, f, mustExist);
     }
 
     @Override
