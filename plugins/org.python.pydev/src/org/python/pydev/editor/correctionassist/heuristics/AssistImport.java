@@ -21,12 +21,12 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.imports.ImportPreferences;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
-import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.correctionassist.IAssistProps;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.image.UIConstants;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
 
 /**
  * @author Fabio Zadrozny
@@ -41,7 +41,7 @@ public class AssistImport implements IAssistProps {
             IPythonNature nature,
             IPyEdit edit, int offset) throws BadLocationException {
         ArrayList<ICompletionProposalHandle> l = new ArrayList<>();
-        String sel = PyAction.getLineWithoutComments(ps);
+        String sel = TextSelectionUtils.getLineWithoutComments(ps);
 
         int i = sel.indexOf("import");
         if (ps.getStartLineIndex() != ps.getEndLineIndex()) {

@@ -1213,6 +1213,38 @@ public class TextSelectionUtils {
     }
 
     /**
+     * @param string
+     * @param j
+     * @return
+     */
+    public static boolean stillInTok(String string, int j) {
+        char c = string.charAt(j);
+    
+        return c != '\n' && c != '\r' && c != ' ' && c != '.' && c != '(' && c != ')' && c != ',' && c != ']'
+                && c != '[' && c != '#' && c != '\'' && c != '"';
+    }
+
+    public static String lowerChar(String s, int pos) {
+        char[] ds = s.toCharArray();
+        ds[pos] = Character.toLowerCase(ds[pos]);
+        return new String(ds);
+    }
+
+    /**
+     *
+     */
+    public static String getLineWithoutComments(TextSelectionUtils ps) {
+        return getLineWithoutComments(ps.getCursorLineContents());
+    }
+
+    /**
+     *
+     */
+    public static String getLineWithoutComments(String sel) {
+        return sel.replaceAll("#.*", "");
+    }
+
+    /**
      * Just see if we can find a word at a given position in the document (same as JavaWordFinder)
      */
     public static IRegion findWord(IDocument document, int offset) {

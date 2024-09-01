@@ -13,9 +13,9 @@ import org.eclipse.jface.text.Document;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
-import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.proposals.DefaultCompletionProposalFactory;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
 
 import junit.framework.TestCase;
 
@@ -56,7 +56,7 @@ public class AssistFStringTest extends TestCase {
             throws BadLocationException, MisconfigurationException {
         Document doc = new Document(docContents);
         PySelection ps = new PySelection(doc, offset);
-        String sel = PyAction.getLineWithoutComments(ps);
+        String sel = TextSelectionUtils.getLineWithoutComments(ps);
         assertEquals(true, assist.isValid(ps, sel, null, offset));
         List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, offset);
         assertEquals(1, props.size());
@@ -68,7 +68,7 @@ public class AssistFStringTest extends TestCase {
     void checkNoCompletions(String docContents, int offset) throws BadLocationException, MisconfigurationException {
         Document doc = new Document(docContents);
         PySelection ps = new PySelection(doc, offset);
-        String sel = PyAction.getLineWithoutComments(ps);
+        String sel = TextSelectionUtils.getLineWithoutComments(ps);
         assertEquals(true, assist.isValid(ps, sel, null, offset));
         List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, offset);
         assertEquals(0, props.size());

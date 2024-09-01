@@ -15,11 +15,11 @@ import org.eclipse.jface.text.Document;
 import org.python.pydev.core.docstrings.DocstringPreferences;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
-import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.proposals.DefaultCompletionProposalFactory;
 import org.python.pydev.editor.correctionassist.docstrings.AssistDocString;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
 
 import junit.framework.TestCase;
 
@@ -104,7 +104,7 @@ public class AssistDocStringTest extends TestCase {
             }
 
             PySelection ps = new PySelection(d, selectionOffset);
-            String sel = PyAction.getLineWithoutComments(ps);
+            String sel = TextSelectionUtils.getLineWithoutComments(ps);
             boolean expected = testEntry.expectedResult;
             boolean isValid = assist.isValid(ps, sel, null, selectionOffset);
             assertEquals(StringUtils.format("Expected %s was %s sel: %s", expected, isValid, sel), expected, isValid);

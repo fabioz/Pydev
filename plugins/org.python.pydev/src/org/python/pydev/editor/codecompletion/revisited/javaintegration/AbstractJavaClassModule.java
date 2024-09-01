@@ -34,11 +34,11 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.TokensList;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.JavaElementToken;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
 /**
@@ -142,7 +142,7 @@ public abstract class AbstractJavaClassModule extends AbstractModule implements 
                         //now, let's make the parameter 'pretty'
                         String lastPart = FullRepIterable.getLastPart(param);
                         if (lastPart.length() > 0) {
-                            lastPart = PyAction.lowerChar(lastPart, 0);
+                            lastPart = TextSelectionUtils.lowerChar(lastPart, 0);
                             if (lastPart.charAt(lastPart.length() - 1) == ';') {
                                 lastPart = lastPart.substring(0, lastPart.length() - 1);
                             }

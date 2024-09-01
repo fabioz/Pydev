@@ -18,9 +18,9 @@ import org.eclipse.jface.text.Document;
 import org.python.pydev.codingstd.ICodingStd;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
-import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codecompletion.proposals.DefaultCompletionProposalFactory;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
 
 import junit.framework.TestCase;
 
@@ -89,7 +89,7 @@ public class AssistAssignTest extends TestCase {
         Document doc = new Document(d);
 
         PySelection ps = new PySelection(doc, d.length());
-        String sel = PyAction.getLineWithoutComments(ps);
+        String sel = TextSelectionUtils.getLineWithoutComments(ps);
 
         assertEquals(true, assist.isValid(ps, sel, null, d.length()));
         List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, d.length());
@@ -105,7 +105,7 @@ public class AssistAssignTest extends TestCase {
         Document doc = new Document(d);
 
         PySelection ps = new PySelection(doc, d.length());
-        String sel = PyAction.getLineWithoutComments(ps);
+        String sel = TextSelectionUtils.getLineWithoutComments(ps);
 
         assertEquals(true, assist.isValid(ps, sel, null, d.length()));
         List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, d.length());
@@ -121,7 +121,7 @@ public class AssistAssignTest extends TestCase {
         Document doc = new Document(d);
 
         PySelection ps = new PySelection(doc, d.length());
-        String sel = PyAction.getLineWithoutComments(ps);
+        String sel = TextSelectionUtils.getLineWithoutComments(ps);
 
         assertEquals(true, assist.isValid(ps, sel, null, d.length()));
         List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, d.length());
@@ -137,7 +137,7 @@ public class AssistAssignTest extends TestCase {
         Document doc = new Document(d);
 
         PySelection ps = new PySelection(doc, d.length());
-        String sel = PyAction.getLineWithoutComments(ps);
+        String sel = TextSelectionUtils.getLineWithoutComments(ps);
 
         assertEquals(false, assist.isValid(ps, sel, null, d.length()));
 
@@ -152,7 +152,7 @@ public class AssistAssignTest extends TestCase {
         Document doc = new Document(d);
 
         PySelection ps = new PySelection(doc, d.length());
-        String sel = PyAction.getLineWithoutComments(ps);
+        String sel = TextSelectionUtils.getLineWithoutComments(ps);
 
         assertEquals(true, assist.isValid(ps, sel, null, d.length()));
         List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, d.length());
@@ -169,7 +169,7 @@ public class AssistAssignTest extends TestCase {
         Document doc = new Document(d);
 
         PySelection ps = new PySelection(doc, d.length());
-        String sel = PyAction.getLineWithoutComments(ps);
+        String sel = TextSelectionUtils.getLineWithoutComments(ps);
 
         assertEquals(true, assist.isValid(ps, sel, null, d.length()));
         List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, d.length());
@@ -202,7 +202,7 @@ public class AssistAssignTest extends TestCase {
         Document doc = new Document(d);
 
         PySelection ps = new PySelection(doc, d.length());
-        String sel = PyAction.getLineWithoutComments(ps);
+        String sel = TextSelectionUtils.getLineWithoutComments(ps);
 
         assertEquals(true, assist.isValid(ps, sel, null, d.length()));
         List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, d.length());
@@ -218,7 +218,7 @@ public class AssistAssignTest extends TestCase {
         Document doc = new Document(d);
 
         PySelection ps = new PySelection(doc, d.length());
-        String sel = PyAction.getLineWithoutComments(ps);
+        String sel = TextSelectionUtils.getLineWithoutComments(ps);
 
         assertEquals(true, assist.isValid(ps, sel, null, d.length()));
         List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, d.length());
@@ -234,7 +234,7 @@ public class AssistAssignTest extends TestCase {
         Document doc = new Document(d);
 
         PySelection ps = new PySelection(doc, d.length());
-        String sel = PyAction.getLineWithoutComments(ps);
+        String sel = TextSelectionUtils.getLineWithoutComments(ps);
 
         assertEquals(false, assist.isValid(ps, sel, null, d.length()));
     }
@@ -247,7 +247,7 @@ public class AssistAssignTest extends TestCase {
         Document doc = new Document(d);
 
         PySelection ps = new PySelection(doc, d.length());
-        String sel = PyAction.getLineWithoutComments(ps);
+        String sel = TextSelectionUtils.getLineWithoutComments(ps);
 
         assertEquals(true, assist.isValid(ps, sel, null, d.length()));
         List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, d.length());
@@ -264,7 +264,7 @@ public class AssistAssignTest extends TestCase {
 
         Document doc = new Document(d);
         PySelection ps = new PySelection(doc, d.length());
-        String sel = PyAction.getLineWithoutComments(ps);
+        String sel = TextSelectionUtils.getLineWithoutComments(ps);
 
         assertEquals(true, assist.isValid(ps, sel, null, d.length()));
         List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, d.length());
@@ -281,7 +281,7 @@ public class AssistAssignTest extends TestCase {
 
         Document doc = new Document(d);
         PySelection ps = new PySelection(doc, d.length());
-        String sel = PyAction.getLineWithoutComments(ps);
+        String sel = TextSelectionUtils.getLineWithoutComments(ps);
 
         assertEquals(true, assist.isValid(ps, sel, null, d.length()));
         List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, d.length());
@@ -298,7 +298,7 @@ public class AssistAssignTest extends TestCase {
 
         Document doc = new Document(d);
         PySelection ps = new PySelection(doc, d.length());
-        String sel = PyAction.getLineWithoutComments(ps);
+        String sel = TextSelectionUtils.getLineWithoutComments(ps);
 
         assertEquals(true, assist.isValid(ps, sel, null, d.length()));
         List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, d.length());
@@ -314,7 +314,7 @@ public class AssistAssignTest extends TestCase {
 
         Document doc = new Document(d);
         PySelection ps = new PySelection(doc, d.length());
-        String sel = PyAction.getLineWithoutComments(ps);
+        String sel = TextSelectionUtils.getLineWithoutComments(ps);
 
         assertEquals(true, assist.isValid(ps, sel, null, d.length()));
         List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, d.length());
@@ -330,7 +330,7 @@ public class AssistAssignTest extends TestCase {
 
         Document doc = new Document(d);
         PySelection ps = new PySelection(doc, d.length());
-        String sel = PyAction.getLineWithoutComments(ps);
+        String sel = TextSelectionUtils.getLineWithoutComments(ps);
 
         assertEquals(true, assist.isValid(ps, sel, null, d.length()));
         List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, d.length());
@@ -346,7 +346,7 @@ public class AssistAssignTest extends TestCase {
 
         Document doc = new Document(d);
         PySelection ps = new PySelection(doc, d.length());
-        String sel = PyAction.getLineWithoutComments(ps);
+        String sel = TextSelectionUtils.getLineWithoutComments(ps);
 
         assertEquals(true, assist.isValid(ps, sel, null, d.length()));
         List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, d.length());
@@ -362,7 +362,7 @@ public class AssistAssignTest extends TestCase {
 
         Document doc = new Document(d);
         PySelection ps = new PySelection(doc, d.length());
-        String sel = PyAction.getLineWithoutComments(ps);
+        String sel = TextSelectionUtils.getLineWithoutComments(ps);
 
         assertEquals(true, assist.isValid(ps, sel, null, d.length()));
         List<ICompletionProposalHandle> props = assist.getProps(ps, null, null, null, null, d.length());

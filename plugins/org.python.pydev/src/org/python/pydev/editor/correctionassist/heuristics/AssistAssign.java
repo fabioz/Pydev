@@ -27,7 +27,6 @@ import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.actions.PyAction;
 import org.python.pydev.editor.codefolding.PySourceViewer;
 import org.python.pydev.editor.correctionassist.IAssistProps;
 import org.python.pydev.plugin.preferences.PyCodeStylePreferencesPage;
@@ -38,6 +37,7 @@ import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.string.TextSelectionUtils;
 
 /**
  * @author Fabio Zadrozny
@@ -80,7 +80,7 @@ public class AssistAssign implements IAssistProps {
             viewer = ((PyEdit) edit).getPySourceViewer();
         }
 
-        return this.getProps(ps, imageCache, viewer, offset, PyAction.getLineWithoutComments(ps),
+        return this.getProps(ps, imageCache, viewer, offset, TextSelectionUtils.getLineWithoutComments(ps),
                 PySelection.getFirstCharPosition(ps.getDoc(), ps.getAbsoluteCursorOffset()));
     }
 
@@ -131,7 +131,7 @@ public class AssistAssign implements IAssistProps {
             for (int i = 0; i < callName.length(); i++) {
                 char c = callName.charAt(i);
                 if (c != '_') {
-                    callName = PyAction.lowerChar(callName, i);
+                    callName = TextSelectionUtils.lowerChar(callName, i);
                     break;
                 }
             }
@@ -219,7 +219,7 @@ public class AssistAssign implements IAssistProps {
             Log.log(e);
         }
         if (string == null) {
-            string = PyAction.getLineWithoutComments(ps);
+            string = TextSelectionUtils.getLineWithoutComments(ps);
         }
         return string.trim();
     }
@@ -235,7 +235,7 @@ public class AssistAssign implements IAssistProps {
         if ((i = string.lastIndexOf("(")) != -1) {
             callName = "";
 
-            for (int j = i - 1; j >= 0 && PyAction.stillInTok(string, j); j--) {
+            for (int j = i - 1; j >= 0 && TextSelectionUtils.stillInTok(string, j); j--) {
                 callName = string.charAt(j) + callName;
             }
 
@@ -276,7 +276,7 @@ public class AssistAssign implements IAssistProps {
             if ((i = string.lastIndexOf(".")) != -1) {
                 callName = "";
 
-                for (int j = i + 1; j < string.length() && PyAction.stillInTok(string, j); j++) {
+                for (int j = i + 1; j < string.length() && TextSelectionUtils.stillInTok(string, j); j++) {
                     callName += string.charAt(j);
                 }
             }
@@ -302,7 +302,7 @@ public class AssistAssign implements IAssistProps {
             for (int i = 0; i < callName.length(); i++) {
                 char c = callName.charAt(i);
                 if (c != '_') {
-                    callName = PyAction.lowerChar(callName, i);
+                    callName = TextSelectionUtils.lowerChar(callName, i);
                     break;
                 }
             }
