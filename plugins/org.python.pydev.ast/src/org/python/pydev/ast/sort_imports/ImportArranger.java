@@ -211,6 +211,7 @@ public class ImportArranger {
         this.removeUnusedImports = removeUnusedImports;
         this.automatic = automatic;
         this.edit = edit;
+        this.maxCols = maxCols;
         multilineImports = ImportPreferences.getMultilineImports(edit);
         sortNamesGrouped = ImportPreferences.getSortNamesGrouped(edit);
         breakWithParenthesis = getBreakImportsWithParenthesis(edit);
