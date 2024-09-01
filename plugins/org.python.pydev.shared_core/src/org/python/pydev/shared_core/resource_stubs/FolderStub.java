@@ -50,7 +50,15 @@ public class FolderStub extends AbstractIFolderStub implements IFolder {
         if (parent != null) {
             return parent;
         }
-        return new FolderStub(this.project, this.folder.getParentFile());
+        File parentFile = this.folder.getParentFile();
+        if (parentFile == null) {
+            return null;
+        }
+        if (Path.fromOSString(FileUtils.getFileAbsolutePath(parentFile)).equals(project.getLocation())) {
+            return project;
+        }
+
+        return new FolderStub(this.project, parentFile);
     }
 
     @Override
@@ -122,8 +130,13 @@ public class FolderStub extends AbstractIFolderStub implements IFolder {
         String fileAbsolutePath = FileUtils.getFileAbsolutePath(this.folder);
 
         IPath fromOSString = Path.fromOSString(fileAbsolutePath);
-        IPath workspace = this.project.getLocation();
-        return fromOSString.makeRelativeTo(workspace);
+        IPath project = this.project.getLocation();
+        IPath relativeToProject = fromOSString.makeRelativeTo(project);
+
+        // Important: the full path is relative to the workspace, so, we need to
+        // add the project there too.
+        return new Path(this.project.getName()).append(relativeToProject);
+
     }
 
     @Override

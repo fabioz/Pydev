@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -80,6 +81,26 @@ public class ProjectStub extends AbstractIProjectStub implements IWorkbenchAdapt
             cache.put(parentFile, r);
         }
         return r;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(projectRoot);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        ProjectStub other = (ProjectStub) obj;
+        return Objects.equals(projectRoot, other.projectRoot);
     }
 
     public IContainer getFolder(File parentFile) {

@@ -117,7 +117,10 @@ public class FileStub extends AbstractIFileStub implements IFile {
     public IPath getFullPath() {
         IPath projectPath = project.getLocation();
         IPath filePath = Path.fromOSString(FileUtils.getFileAbsolutePath(file));
-        return filePath.makeRelativeTo(projectPath);
+        IPath relativeToProject = filePath.makeRelativeTo(projectPath);
+        // Important: the full path is relative to the workspace, so, we need to
+        // add the project there too.
+        return new Path(this.project.getName()).append(relativeToProject);
     }
 
     @Override

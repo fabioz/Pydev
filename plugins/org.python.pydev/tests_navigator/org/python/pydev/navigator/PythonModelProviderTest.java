@@ -76,12 +76,17 @@ public class PythonModelProviderTest extends TestCase {
      * from the python model.
      */
     public void testInterceptAdd() throws Exception {
-        PythonNature nature = createNature(TestDependent.TEST_PYSRC_NAVIGATOR_LOC + "projroot/source/python");
+        String pythonpathLoc = TestDependent.TEST_PYSRC_NAVIGATOR_LOC + "projroot/source/python";
+        final HashSet<String> pythonPathSet = new HashSet<String>();
+        pythonPathSet.add(pythonpathLoc);
+
+        PythonNature nature = createNature(pythonpathLoc);
 
         project = new ProjectStub(new File(TestDependent.TEST_PYSRC_NAVIGATOR_LOC + "projroot"), nature);
         file = new FileStub(project, new File(TestDependent.TEST_PYSRC_NAVIGATOR_LOC
                 + "projroot/source/python/pack1/pack2/mod2.py"));
         provider = new PythonModelProvider();
+        provider.internalDoNotifyPythonPathRebuilt(project, new ArrayList<String>(pythonPathSet));
 
         HashSet<Object> files = new HashSet<Object>();
         files.add(file);
@@ -99,10 +104,15 @@ public class PythonModelProviderTest extends TestCase {
      * Test if intercepting an object that does not have a parent works.
      */
     public void testInterceptRefresh() throws Exception {
-        PythonNature nature = createNature(TestDependent.TEST_PYSRC_NAVIGATOR_LOC + "projroot/source/python");
+        String pythonpathLoc = TestDependent.TEST_PYSRC_NAVIGATOR_LOC + "projroot/source/python";
+        final HashSet<String> pythonPathSet = new HashSet<String>();
+        pythonPathSet.add(pythonpathLoc);
+
+        PythonNature nature = createNature(pythonpathLoc);
 
         project = new ProjectStub(new File(TestDependent.TEST_PYSRC_NAVIGATOR_LOC + "projroot"), nature);
         provider = new PythonModelProvider();
+        provider.internalDoNotifyPythonPathRebuilt(project, new ArrayList<String>(pythonPathSet));
 
         PipelinedViewerUpdate update = new PipelinedViewerUpdate();
         Set<Object> refreshTargets = update.getRefreshTargets();
@@ -129,6 +139,8 @@ public class PythonModelProviderTest extends TestCase {
         WorkspaceRootStub workspaceRootStub = new WorkspaceRootStub();
         project = new ProjectStub(new File(pythonpathLoc), nature);
         provider = new PythonModelProvider();
+        provider.internalDoNotifyPythonPathRebuilt(project, new ArrayList<String>(pythonPathSet));
+
         FolderStub folder = new FolderStub(project,
                 new File(TestDependent.TEST_PYSRC_NAVIGATOR_LOC + "projroot/source"));
 
@@ -159,6 +171,7 @@ public class PythonModelProviderTest extends TestCase {
         WorkspaceRootStub workspaceRootStub = new WorkspaceRootStub();
         project = new ProjectStub(new File(pythonpathLoc), nature);
         provider = new PythonModelProvider();
+        provider.internalDoNotifyPythonPathRebuilt(project, new ArrayList<String>(pythonPathSet));
 
         workspaceRootStub.addChild(project);
         workspaceRootStub.addChild(null);
@@ -264,6 +277,8 @@ public class PythonModelProviderTest extends TestCase {
 
         project = new ProjectStub(new File(TestDependent.TEST_PYSRC_NAVIGATOR_LOC + "projroot"), nature, true);
         provider = new PythonModelProvider();
+        provider.internalDoNotifyPythonPathRebuilt(project, new ArrayList<String>(pythonPathSet));
+
         Object[] children1 = provider.getChildren(project);
         assertTrue(children1[0] instanceof PythonSourceFolder);
 
@@ -296,6 +311,7 @@ public class PythonModelProviderTest extends TestCase {
 
         project = new ProjectStub(new File(TestDependent.TEST_PYSRC_NAVIGATOR_LOC + "projroot"), nature);
         provider = new PythonModelProvider();
+        provider.internalDoNotifyPythonPathRebuilt(project, new ArrayList<String>(pythonPathSet));
 
         HashSet<Object> currentChildren = new HashSet<Object>();
         currentChildren.add("Test");
@@ -336,6 +352,7 @@ public class PythonModelProviderTest extends TestCase {
         project.setParent(workspaceRootStub);
 
         provider = new PythonModelProvider();
+        provider.internalDoNotifyPythonPathRebuilt(project, new ArrayList<String>(pythonPathSet));
 
         HashSet<Object> currentChildren = new HashSet<Object>();
         currentChildren.add(project);
@@ -363,6 +380,7 @@ public class PythonModelProviderTest extends TestCase {
         project.setParent(workspaceRootStub);
 
         provider = new PythonModelProvider();
+        provider.internalDoNotifyPythonPathRebuilt(project, new ArrayList<String>(pythonPathSet));
 
         HashSet<Object> currentChildren = new HashSet<Object>();
         currentChildren.add(project);
@@ -395,6 +413,7 @@ public class PythonModelProviderTest extends TestCase {
 
         project = new ProjectStub(new File(TestDependent.TEST_PYSRC_NAVIGATOR_LOC + "projroot"), nature, false);
         provider = new PythonModelProvider();
+        provider.internalDoNotifyPythonPathRebuilt(project, new ArrayList<String>(pythonPathSet));
         Object[] children1 = provider.getChildren(project);
         assertEquals(1, children1.length);
         assertTrue(children1[0] instanceof PythonSourceFolder);
@@ -434,6 +453,8 @@ public class PythonModelProviderTest extends TestCase {
 
         project = new ProjectStub(new File(TestDependent.TEST_PYSRC_NAVIGATOR_LOC + "projroot"), nature, false);
         provider = new PythonModelProvider();
+        provider.internalDoNotifyPythonPathRebuilt(project, new ArrayList<String>(pythonPathSet));
+
         Object[] children1 = provider.getChildren(project);
         assertEquals(1, children1.length);
         assertTrue("Found: " + children1[0], children1[0] instanceof PythonSourceFolder);
@@ -491,6 +512,8 @@ public class PythonModelProviderTest extends TestCase {
 
         project = new ProjectStub(new File(TestDependent.TEST_PYSRC_NAVIGATOR_LOC + "projroot"), nature, false);
         provider = new PythonModelProvider();
+        provider.internalDoNotifyPythonPathRebuilt(project, new ArrayList<String>(pythonPathSet));
+
         Object[] children1 = provider.getChildren(project);
         assertEquals(1, children1.length);
         assertTrue("Expected source folder. Received: " + children1[0], children1[0] instanceof PythonSourceFolder);
@@ -567,6 +590,8 @@ public class PythonModelProviderTest extends TestCase {
             };
 
             provider = new PythonModelProvider();
+            provider.internalDoNotifyPythonPathRebuilt(project, new ArrayList<String>(pythonPathSet));
+
             provider.topLevelChoice.rootMode = TopLevelProjectsOrWorkingSetChoice.WORKING_SETS;
 
             //--- check children for the workspace (projects changed for working sets)
