@@ -20,7 +20,7 @@ public final class LRUMap<Key, Val> extends LinkedHashMap<Key, Val> {
     private int maxSize;
 
     public LRUMap(int maxSize) {
-        super(maxSize < 8 ? maxSize : 8); //initial capacity = max size or 8 if max size is big.
+        super(maxSize + 1);
         if (maxSize <= 0) {
             throw new AssertionError("Max size must be > 0.");
         }
@@ -29,7 +29,7 @@ public final class LRUMap<Key, Val> extends LinkedHashMap<Key, Val> {
 
     // This method is called just after a new entry has been added
     @Override
-    public boolean removeEldestEntry(Map.Entry eldest) {
+    public boolean removeEldestEntry(Map.Entry<Key, Val> eldest) {
         return size() > this.maxSize;
     }
 
