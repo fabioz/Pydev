@@ -22,6 +22,7 @@ import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateContext;
 import org.python.pydev.ast.codecompletion.AbstractTemplateCodeCompletion;
 import org.python.pydev.ast.codecompletion.CompletionRequest;
+import org.python.pydev.core.IAssistProps;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.TokensOrProposalsList;
@@ -29,7 +30,6 @@ import org.python.pydev.core.autoedit.DefaultIndentPrefs;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.editor.codecompletion.PyTemplateProposal;
-import org.python.pydev.editor.correctionassist.IAssistProps;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.image.UIConstants;
@@ -44,7 +44,7 @@ public class AssistSurroundWith extends AbstractTemplateCodeCompletion implement
 
     /**
      * @throws BadLocationException
-     * @see org.python.pydev.editor.correctionassist.IAssistProps#getProps(org.python.pydev.core.docutils.PySelection, org.python.pydev.shared_ui.ImageCache)
+     * @see org.python.pydev.core.IAssistProps#getProps(org.python.pydev.core.docutils.PySelection, org.python.pydev.shared_ui.ImageCache)
      */
     @Override
     public List<ICompletionProposalHandle> getProps(PySelection ps, IImageCache imageCache, File f,
@@ -171,7 +171,7 @@ public class AssistSurroundWith extends AbstractTemplateCodeCompletion implement
             "%sif ${True}:%s%s%s%s%s${cursor}", "if", "%swith ${var}:%s%s%s%s%s${cursor}", "with", };
 
     /**
-     * @see org.python.pydev.editor.correctionassist.IAssistProps#isValid(org.python.pydev.core.docutils.PySelection)
+     * @see org.python.pydev.core.IAssistProps#isValid(org.python.pydev.core.docutils.PySelection)
      */
     @Override
     public boolean isValid(PySelection ps, String sel, IPyEdit edit, int offset) {

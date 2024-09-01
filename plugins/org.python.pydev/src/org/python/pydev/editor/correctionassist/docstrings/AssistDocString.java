@@ -24,6 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.jface.text.BadLocationException;
+import org.python.pydev.core.IAssistProps;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.autoedit.DefaultIndentPrefs;
@@ -31,7 +32,6 @@ import org.python.pydev.core.docstrings.DocstringPreferences;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.DocstringInfo;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
-import org.python.pydev.editor.correctionassist.IAssistProps;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
 import org.python.pydev.shared_core.image.IImageCache;
@@ -57,7 +57,7 @@ public class AssistDocString implements IAssistProps {
     }
 
     /**
-     * @see org.python.pydev.editor.correctionassist.IAssistProps#getProps(org.python.pydev.core.docutils.PySelection,
+     * @see org.python.pydev.core.IAssistProps#getProps(org.python.pydev.core.docutils.PySelection,
      *      org.python.pydev.shared_ui.ImageCache)
      */
     @Override
@@ -135,7 +135,7 @@ public class AssistDocString implements IAssistProps {
     }
 
     /**
-     * @see org.python.pydev.editor.correctionassist.IAssistProps#isValid(org.python.pydev.core.docutils.PySelection,
+     * @see org.python.pydev.core.IAssistProps#isValid(org.python.pydev.core.docutils.PySelection,
      *      java.lang.String)
      */
     @Override

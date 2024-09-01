@@ -9,15 +9,12 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.editor.correctionassist;
+package org.python.pydev.core;
 
 import java.io.File;
 import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.python.pydev.core.IPyEdit;
-import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.image.IImageCache;

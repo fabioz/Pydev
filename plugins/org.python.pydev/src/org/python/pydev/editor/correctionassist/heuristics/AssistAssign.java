@@ -18,6 +18,7 @@ import java.util.List;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.python.pydev.codingstd.ICodingStd;
+import org.python.pydev.core.IAssistProps;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.ParsingUtils;
@@ -28,7 +29,6 @@ import org.python.pydev.core.log.Log;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codefolding.PySourceViewer;
-import org.python.pydev.editor.correctionassist.IAssistProps;
 import org.python.pydev.plugin.preferences.PyCodeStylePreferencesPage;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
@@ -69,7 +69,7 @@ public class AssistAssign implements IAssistProps {
     }
 
     /**
-     * @see org.python.pydev.editor.correctionassist.IAssistProps#getProps
+     * @see org.python.pydev.core.IAssistProps#getProps
      */
     @Override
     public List<ICompletionProposalHandle> getProps(PySelection ps, IImageCache imageCache, File f,
@@ -87,7 +87,7 @@ public class AssistAssign implements IAssistProps {
     /**
      * Actual implementation (receiving a source viewer and only the actually used parameters).
      *
-     * @see org.python.pydev.editor.correctionassist.IAssistProps#getProps
+     * @see org.python.pydev.core.IAssistProps#getProps
      *
      * @param lineWithoutComments the line that should be checked (without any comments)
      */
@@ -167,7 +167,7 @@ public class AssistAssign implements IAssistProps {
     }
 
     /**
-     * @see org.python.pydev.editor.correctionassist.IAssistProps#isValid
+     * @see org.python.pydev.core.IAssistProps#isValid
      */
     @Override
     public boolean isValid(PySelection ps, String sel, IPyEdit edit, int offset) {

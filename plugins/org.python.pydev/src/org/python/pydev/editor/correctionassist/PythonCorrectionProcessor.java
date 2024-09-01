@@ -30,6 +30,7 @@ import org.eclipse.ui.texteditor.spelling.SpellingCorrectionProcessor;
 import org.eclipse.ui.texteditor.spelling.SpellingProblem;
 import org.python.pydev.ast.codecompletion.ProposalsComparator;
 import org.python.pydev.core.ExtensionHelper;
+import org.python.pydev.core.IAssistProps;
 import org.python.pydev.core.IPySyntaxHighlightingAndCodeCompletionEditor;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
