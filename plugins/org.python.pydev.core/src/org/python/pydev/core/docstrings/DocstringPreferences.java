@@ -90,6 +90,10 @@ public class DocstringPreferences {
         IEclipsePreferences preferences = PydevPrefs.getEclipsePreferences();
         String preference = preferences.get(TYPETAG_GENERATION, DEFAULT_TYPETAG_GENERATION).toLowerCase().strip();
 
+        if (DOCSTRING_STYLE_GOOGLE.equals(getPreferredDocstringStyle())) {
+            // For google there's no separate tag.
+            return false;
+        }
         if (preference.equals(TYPETAG_GENERATION_NEVER.toLowerCase())) {
             return false;
         } else if (preference.equals(TYPETAG_GENERATION_ALWAYS.toLowerCase())) {

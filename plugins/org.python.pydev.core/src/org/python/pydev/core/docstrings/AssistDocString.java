@@ -152,6 +152,7 @@ public class AssistDocString implements IAssistProps {
     public static String updatedDocstring(String baseDocstring, List<String> params, String delimiter, String indent,
             String docstringStyle) {
 
+        final String initialIndent = indent;
         String docStringStartEnd;
         if (baseDocstring.startsWith("\"\"\"") && baseDocstring.endsWith("\"\"\"")) {
             docStringStartEnd = "\"\"\"";
@@ -188,11 +189,21 @@ public class AssistDocString implements IAssistProps {
                 .compile("\\s*" + Pattern.quote(docstringStyle) + "(\\w)+(\\b)");
 
         // Google docstring .compile("\\s*(\\w)*:");
-        Pattern googlePattern = Pattern.compile("\\s*(\\w)*:");
+        Pattern googlePattern = Pattern.compile("\\s*(\\w+)*:");
 
         Map<String, ParamInfo> paramInfos = new HashMap<>();
 
         List<String> splitted = StringUtils.splitInLines(baseDocstring, false);
+        String lastIndent = "";
+        if (splitted.size() == 0) {
+            splitted.add("");
+        } else {
+            String last = splitted.get(splitted.size() - 1);
+            if (last.strip().length() == 0) {
+                lastIndent = last;
+            }
+        }
+
         String firstLine = splitted.get(0).trim();
         if (firstLine.length() > 0) {
             // First line must have only the delimiter.
@@ -242,14 +253,54 @@ public class AssistDocString implements IAssistProps {
             }
         }
 
-        // Now, actually go on and insert the new strings.
-        FastStringBuffer buf = new FastStringBuffer();
+        final FastStringBuffer buf = new FastStringBuffer();
+        final boolean isGoogleStyle = docstringStyle.equals(Character.toString('G'));
         int paramsSize = params.size();
+        if (isGoogleStyle) {
+            String useIndent = null;
+            for (int paramI = 0; paramI < paramsSize; paramI++) {
+                String paramName = params.get(paramI);
+                if (!PySelection.isIdentifier(paramName)) {
+                    continue;
+                }
+                ParamInfo foundInfo = paramInfos.get(paramName);
+                if (foundInfo != null && foundInfo.paramLine >= 0) {
+                    String lineContents = splitted.get(foundInfo.paramLine);
+                    useIndent = PySelection.getIndentationFromLine(lineContents);
+                    break;
+                }
+            }
+
+            if (useIndent == null) {
+                // If not found, try to get based on `Args:`
+                ParamInfo foundInfo = paramInfos.get("Args");
+                if (foundInfo == null) {
+                    foundInfo = paramInfos.get("Returns");
+                }
+                if (foundInfo != null && foundInfo.paramLine >= 0) {
+                    String lineContents = splitted.get(foundInfo.paramLine);
+                    useIndent = PySelection.getIndentationFromLine(lineContents) + "    ";
+                }
+            }
+
+            if (useIndent != null) {
+                indent = useIndent;
+            } else {
+                buf.clear();
+                // If there are no matches, we need to put the `Args:` in the end and use the new indent based on it.
+                splitted.add(buf.append(indent).append("Args:").toString());
+                indent = indent + "    ";
+            }
+
+        }
+
+        // Now, actually go on and insert the new strings.
         for (int paramI = 0; paramI < paramsSize; paramI++) {
             String paramName = params.get(paramI);
             if (!PySelection.isIdentifier(paramName)) {
                 continue;
             }
+            buf.clear();
 
             ParamInfo existingInfo = paramInfos.get(paramName);
             boolean hasParam = existingInfo != null && existingInfo.paramLine != -1;
@@ -271,9 +322,9 @@ public class AssistDocString implements IAssistProps {
 
                 int addIndex = getAddIndex(paramName, params, paramI, paramInfos, otherMatches, splitted);
                 // neither is present, so, add both at a given location (if needed).
-                if (docstringStyle.equals(Character.toString('G'))) {
+                if (isGoogleStyle) {
                     splitted.add(addIndex,
-                            buf.append(indent).append(indent).append(paramName).append(":").toString());
+                            buf.append(indent).append(paramName).append(":").toString());
                 } else {
                     splitted.add(addIndex, buf.append(indent).append(docstringStyle).append("param ")
                             .append(paramName).append(":").toString());
@@ -300,8 +351,8 @@ public class AssistDocString implements IAssistProps {
                     // Add only the type after the existing param (if it has to be added)
                     if (addTypeForParam) {
                         int addIndex = existingInfo.paramLine + 1;
-                        if (docstringStyle.equals(Character.toString('G'))) {
-                            splitted.add(addIndex, buf.append(indent).append(paramName).append(":").toString());
+                        if (isGoogleStyle) {
+                            // splitted.add(addIndex, buf.append(indent).append(paramName).append(":").toString());
                         } else {
                             splitted.add(addIndex, buf.append(indent).append(docstringStyle).append("type ")
                                     .append(paramName).append(":").toString());
@@ -321,12 +372,13 @@ public class AssistDocString implements IAssistProps {
                 }
             }
         }
-        String lastLine = splitted.get(splitted.size() - 1).trim();
-        if (lastLine.length() > 0) {
-            // Last line must have only the indentation (compute after all new tags are added).
-            splitted.add(indent);
+        buf.append(docStringStartEnd);
+        buf.append(StringUtils.join(delimiter, splitted));
+        String lastLine = splitted.get(splitted.size() - 1);
+        if (!lastIndent.equals(lastLine)) {
+            buf.append(delimiter).append(lastIndent);
         }
-        buf.append(docStringStartEnd).append(StringUtils.join(delimiter, splitted)).append(docStringStartEnd);
+        buf.append(docStringStartEnd);
         return buf.toString();
     }
 
