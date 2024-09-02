@@ -27,7 +27,9 @@ public class DocstringPreferences {
     public static final String DEFAULT_TYPETAG_GENERATION = TYPETAG_GENERATION_NEVER;
 
     public static final String DONT_GENERATE_TYPETAGS = "DONT_GENERATE_TYPETAGS_PREFIXES";
-    public static final String DEFAULT_DONT_GENERATE_TYPETAGS = "sz\0n\0f";
+    public static final String DEFAULT_DONT_GENERATE_TYPETAGS = "sz,n,f";
+
+    public static final String TYPETAG_SEPARATORS = ",; \n";
 
     /**
      * Getter for the preferred docstring character. Only a shortcut.
@@ -86,16 +88,15 @@ public class DocstringPreferences {
             return GENERATE_TYPE_DOCSTRING_ON_TESTS;
         }
         IEclipsePreferences preferences = PydevPrefs.getEclipsePreferences();
-        String preference = preferences.get(TYPETAG_GENERATION,
-                DEFAULT_TYPETAG_GENERATION);
-        if (preference.equals(TYPETAG_GENERATION_NEVER)) {
+        String preference = preferences.get(TYPETAG_GENERATION, DEFAULT_TYPETAG_GENERATION).toLowerCase().strip();
+
+        if (preference.equals(TYPETAG_GENERATION_NEVER.toLowerCase())) {
             return false;
-        } else if (preference.equals(TYPETAG_GENERATION_ALWAYS)) {
+        } else if (preference.equals(TYPETAG_GENERATION_ALWAYS.toLowerCase())) {
             return true;
         } else {// TYPETAG_GENERATION_CUSTOM - check prefix.
-            String prefixesString = preferences.get(DONT_GENERATE_TYPETAGS,
-                    DEFAULT_DONT_GENERATE_TYPETAGS);
-            StringTokenizer st = new StringTokenizer(prefixesString, "\0"); // "\0" is the separator
+            String prefixesString = preferences.get(DONT_GENERATE_TYPETAGS, DEFAULT_DONT_GENERATE_TYPETAGS);
+            StringTokenizer st = new StringTokenizer(prefixesString, DocstringPreferences.TYPETAG_SEPARATORS);
 
             while (st.hasMoreTokens()) {
                 if (parameterName.startsWith(st.nextToken())) {

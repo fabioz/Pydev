@@ -12,6 +12,7 @@ import java.util.StringTokenizer;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.preference.ListEditor;
 import org.eclipse.swt.widgets.Composite;
+import org.python.pydev.core.docstrings.DocstringPreferences;
 import org.python.pydev.shared_core.structure.LinkedListWarningOnSlowOperations;
 
 /**
@@ -29,7 +30,7 @@ public class ParameterNamePrefixListEditor extends ListEditor {
         StringBuilder sb = new StringBuilder();
         for (String item : items) {
             sb.append(item);
-            sb.append("\0");
+            sb.append(",");
         }
         return sb.toString();
     }
@@ -44,7 +45,7 @@ public class ParameterNamePrefixListEditor extends ListEditor {
     @Override
     protected String[] parseString(String stringList) {
         List<String> items = new LinkedListWarningOnSlowOperations<String>();
-        StringTokenizer st = new StringTokenizer(stringList, "\0");
+        StringTokenizer st = new StringTokenizer(stringList, DocstringPreferences.TYPETAG_SEPARATORS);
 
         while (st.hasMoreTokens()) {
             items.add(st.nextToken());
