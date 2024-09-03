@@ -1,46 +1,45 @@
 /**
- * Copyright (c) 2005-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2024 by Brainwy Software Ltda. All Rights Reserved.
  * Licensed under the terms of the Eclipse Public License (EPL).
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-/*
- * Created on Apr 12, 2005
- *
- * @author Fabio Zadrozny
- */
-package org.python.pydev.editor.correctionassist.heuristics;
+package org.python.pydev.ast.surround_with;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.templates.DocumentTemplateContext;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateContext;
-import org.python.pydev.ast.codecompletion.AbstractTemplateCodeCompletion;
-import org.python.pydev.ast.codecompletion.CompletionRequest;
+import org.eclipse.jface.text.templates.TemplateContextType;
 import org.python.pydev.core.IAssistProps;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.core.TokensOrProposalsList;
 import org.python.pydev.core.autoedit.DefaultIndentPrefs;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
-import org.python.pydev.editor.codecompletion.PyTemplateProposal;
+import org.python.pydev.core.templates.PyAddTemplateResolvers;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
-import org.python.pydev.shared_ui.ImageCache;
 
 /**
  * @author Fabio Zadrozny
  */
-public class AssistSurroundWith extends AbstractTemplateCodeCompletion implements IAssistProps {
+public class AssistSurroundWith implements IAssistProps {
+
+    protected TemplateContext createContext(IRegion region, IDocument document) {
+        TemplateContextType contextType = new TemplateContextType();
+        PyAddTemplateResolvers.addDefaultResolvers(contextType);
+        return new DocumentTemplateContext(contextType, document, region.getOffset(), region.getLength());
+    }
 
     /**
      * @throws BadLocationException
@@ -107,10 +106,7 @@ public class AssistSurroundWith extends AbstractTemplateCodeCompletion implement
 
         //region
         IRegion region = ps.getRegion();
-        TemplateContext context = null;
-        if (edit != null) {
-            context = createContext(region, ps.getDoc());
-        }
+        TemplateContext context = createContext(region, ps.getDoc());
 
         //not static because we need the actual code.
         String[] replace0to3 = new String[] { startIndent, delimiter, surroundedCode, delimiter, startIndent,
@@ -136,20 +132,8 @@ public class AssistSurroundWith extends AbstractTemplateCodeCompletion implement
     private ICompletionProposalHandle createProposal(PySelection ps, IImageCache imageCache, IPyEdit edit,
             final String startIndent, IRegion region, int iComp, String comp, TemplateContext context) {
         Template t = new Template("Surround with", SURROUND_WITH_COMPLETIONS[iComp + 1], "", comp, false);
-        if (context != null) {
-            PyTemplateProposal proposal = new PyTemplateProposal(t, context, region,
-                    ImageCache.asImage(imageCache.get(UIConstants.COMPLETION_TEMPLATE)), 5) {
-                @Override
-                public String getAdditionalProposalInfo() {
-                    return startIndent + super.getAdditionalProposalInfo();
-                }
-            };
-            return proposal;
-        } else {
-            //In tests
-            return CompletionProposalFactory.get().createPyCompletionProposal(comp, region.getOffset(),
-                    region.getLength(), 0, 0);
-        }
+        return CompletionProposalFactory.get().createPyTemplateProposal(t, context, region,
+                imageCache == null ? null : imageCache.get(UIConstants.COMPLETION_TEMPLATE), 0);
     }
 
     /**
@@ -163,7 +147,7 @@ public class AssistSurroundWith extends AbstractTemplateCodeCompletion implement
      */
     public static final String[] SURROUND_WITH_COMPLETIONS = new String[] {
             "%stry:%s%s%s%sexcept${cursor}:%s%s%sraise", "try..except",
-            "%stry:%s%s%s%sexcept (${RuntimeError}, ), e:%s%s%s${raise}${cursor}", "try..except (RuntimeError, ), e",
+            "%stry:%s%s%s%sexcept ${Exception} as e:%s%s%s${raise}${cursor}", "try..except Exception as e",
             "%stry:%s%s%s%sfinally:%s%s%s${pass}", "try..finally", "%sif ${True}:%s%s%s%selse:%s%s%s${pass}",
             "if..else",
 
@@ -176,13 +160,6 @@ public class AssistSurroundWith extends AbstractTemplateCodeCompletion implement
     @Override
     public boolean isValid(PySelection ps, String sel, IPyEdit edit, int offset) {
         return ps.getTextSelection().getLength() > 0;
-    }
-
-    @Override
-    public TokensOrProposalsList getCodeCompletionProposals(CompletionRequest request)
-            throws CoreException,
-            BadLocationException {
-        throw new RuntimeException("Not implemented: completions should be gotten from the IAssistProps interface.");
     }
 
 }

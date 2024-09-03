@@ -298,7 +298,7 @@ public class PyInformationPresenter extends AbstractInformationPresenter {
         }
 
         int start = 0;
-        while (start < end && Character.isWhitespace(buffer.charAt(start))) {
+        while (start < end && (buffer.charAt(start) == '\n' || buffer.charAt(start) == '\r')) {
             ++start;
         }
 
