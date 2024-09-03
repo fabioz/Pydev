@@ -52,7 +52,7 @@ def find_files(top):
                   dirs.remove(d)
 
         for file in files:
-            if file.lower() in ('feature.xml', 'pom.xml', 'manifest.mf', 'liclipse.product', 'com.brainwy.liclipse.prod.product'):
+            if file.lower() in ('feature.xml', 'pom.xml', 'manifest.mf', 'liclipse.product', 'com.brainwy.liclipse.prod.product', 'org.python.pydev.pydev_lsp.prod.product'):
                 yield os.path.join(root, file)
 
 def update_version(version):
@@ -84,8 +84,20 @@ def fix_liclipse_contents_version(contents, version):
     bugfixversion = int(re.sub(r'^\d+\.\d+\.(\d+)', r'\1', version))
     nextversion = re.sub(r'^(\d+\.\d+\.)\d+', r'\1', version) + str(bugfixversion + 1)
 
+    contents = re.sub(r'(bundle-version=")\[\d+\.\d+\.\d+,\d+\.\d+\.\d+\)"', r'\1[%s,%s)"' % (version, nextversion), contents)
     contents = re.sub(r'((com|org)\.python\.pydev(\.\w+)?;)(bundle-version=")\[\d+\.\d+\.\d+,\d+\.\d+\.\d+\)"', r'\1\4[%s,%s)"' % (version, nextversion), contents)
     contents = re.sub(r'(<feature id="org\.python\.pydev\.feature" version=")(\d+\.\d+\.\d+)(\.qualifier"/>)', r'\g<1>%s\3' % (version,), contents)
+    return contents
+
+def fix_pydev_for_vscode_contents_version(contents, version):
+    bugfixversion = int(re.sub(r'^\d+\.\d+\.(\d+)', r'\1', version))
+    nextversion = re.sub(r'^(\d+\.\d+\.)\d+', r'\1', version) + str(bugfixversion + 1)
+
+    contents = re.sub(r'((com|org)\.python\.pydev(\.\w+)?;)(bundle-version=")\[\d+\.\d+\.\d+,\d+\.\d+\.\d+\)"', r'\1\4[%s,%s)"' % (version, nextversion), contents)
+
+    # (core|ast|shared_core|parser|analysis)
+    # <plugin id="org.python.pydev.core" version="12.1.0.qualifier"/>
+    contents = re.sub(r'(<plugin id="org\.python\.pydev\.\w+" version=")(\d+\.\d+\.\d+)(\.qualifier"/>)', r'\g<1>%s\3' % (version,), contents)
     return contents
 
 
@@ -162,6 +174,20 @@ def update_version_in_liclipse(version):
             with open(f, 'w') as stream:
                 stream.write(new_contents)
 
+def update_version_in_pydev_for_vscode(version):
+    pydev_for_vscode_dir = r'X:\pydevlspws\pydev_lsp'
+    assert os.path.exists(pydev_for_vscode_dir), f'{pydev_for_vscode_dir} does not exist.'
+    for f in find_files(pydev_for_vscode_dir):
+        with open(f, 'r') as stream:
+            contents = stream.read()
+
+        new_contents = fix_pydev_for_vscode_contents_version(contents, version)
+        print('PyDev for VSCode File to update', f)
+        if contents != new_contents:
+            print('CHANGED', f)
+            with open(f, 'w') as stream:
+                stream.write(new_contents)
+
 if __name__ == '__main__':
     if len(sys.argv) == 2:
         if sys.argv[1] == '--test':
@@ -171,5 +197,6 @@ if __name__ == '__main__':
             version = sys.argv[1]
             update_version(version)
             update_version_in_liclipse(version)
+            update_version_in_pydev_for_vscode(version)
     else:
         print('This script requires the new version (i.e.: 3.6.0)')
