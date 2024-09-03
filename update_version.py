@@ -84,7 +84,6 @@ def fix_liclipse_contents_version(contents, version):
     bugfixversion = int(re.sub(r'^\d+\.\d+\.(\d+)', r'\1', version))
     nextversion = re.sub(r'^(\d+\.\d+\.)\d+', r'\1', version) + str(bugfixversion + 1)
 
-    contents = re.sub(r'(bundle-version=")\[\d+\.\d+\.\d+,\d+\.\d+\.\d+\)"', r'\1[%s,%s)"' % (version, nextversion), contents)
     contents = re.sub(r'((com|org)\.python\.pydev(\.\w+)?;)(bundle-version=")\[\d+\.\d+\.\d+,\d+\.\d+\.\d+\)"', r'\1\4[%s,%s)"' % (version, nextversion), contents)
     contents = re.sub(r'(<feature id="org\.python\.pydev\.feature" version=")(\d+\.\d+\.\d+)(\.qualifier"/>)', r'\g<1>%s\3' % (version,), contents)
     return contents
@@ -93,7 +92,7 @@ def fix_pydev_for_vscode_contents_version(contents, version):
     bugfixversion = int(re.sub(r'^\d+\.\d+\.(\d+)', r'\1', version))
     nextversion = re.sub(r'^(\d+\.\d+\.)\d+', r'\1', version) + str(bugfixversion + 1)
 
-    contents = re.sub(r'((com|org)\.python\.pydev(\.\w+)?;)(bundle-version=")\[\d+\.\d+\.\d+,\d+\.\d+\.\d+\)"', r'\1\4[%s,%s)"' % (version, nextversion), contents)
+    contents = re.sub(r'((com|org)\.python\.pydev(\.\w+)?;)(bundle-version=")\[\d+\.\d+\.\d+,\s?\d+\.\d+\.\d+\)"', r'\1\4[%s,%s)"' % (version, nextversion), contents)
 
     # (core|ast|shared_core|parser|analysis)
     # <plugin id="org.python.pydev.core" version="12.1.0.qualifier"/>
