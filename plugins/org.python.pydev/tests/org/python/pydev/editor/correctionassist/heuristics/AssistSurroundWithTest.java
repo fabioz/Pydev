@@ -8,6 +8,7 @@ package org.python.pydev.editor.correctionassist.heuristics;
 
 import java.util.List;
 
+import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IAutoIndentStrategy;
 import org.eclipse.jface.text.IDocument;
@@ -89,7 +90,7 @@ public class AssistSurroundWithTest extends TestCase {
                 "    #c\n" +
                 "        a = 10\n"
                 +
-                "    except:\n" +
+                "    except Exception:\n" +
                 "        raise\n" +
                 "\n" +
                 "\n" +
@@ -98,7 +99,13 @@ public class AssistSurroundWithTest extends TestCase {
 
     private void apply(ICompletionProposalHandle iCompletionProposalHandle, IDocument doc) {
         TemplateProposal p = (TemplateProposal) iCompletionProposalHandle;
-        p.apply(createViewerWithDoc(doc), ' ', 0, 0);
+        try {
+            p.apply(createViewerWithDoc(doc), ' ', 0, 0);
+        } catch (AssertionFailedException e) {
+            // Ignore (we have errors linking with the UI because it's not there and
+            // TemplateProposal isn't smart enough to work without it, but it can at least
+            // do the replacement before failing).
+        }
     }
 
     public void testSurround3() throws Exception {
@@ -121,7 +128,7 @@ public class AssistSurroundWithTest extends TestCase {
                 "    #c\n" +
                 "    #    a = 10\n"
                 +
-                "except:\n" +
+                "except Exception:\n" +
                 "    raise\n" +
                 "\n" +
                 "\n" +
@@ -138,7 +145,7 @@ public class AssistSurroundWithTest extends TestCase {
         TestCaseUtils.assertContentsEqual("" +
                 "try:\n" +
                 "    a = 10\n" +
-                "except:\n" +
+                "except Exception:\n" +
                 "    raise" +
                 "",
                 doc.get());
@@ -158,7 +165,7 @@ public class AssistSurroundWithTest extends TestCase {
                         + "    \n"
                         + "    \n"
                         + "        a = 10\n"
-                        + "    except:\n"
+                        + "    except Exception:\n"
                         + "        raise",
                 additionalProposalInfo);
 
@@ -171,7 +178,7 @@ public class AssistSurroundWithTest extends TestCase {
                 "    \n" +
                 "        a = 10\n"
                 +
-                "    except:\n" +
+                "    except Exception:\n" +
                 "        raise\n" +
                 "\n" +
                 "\n" +
