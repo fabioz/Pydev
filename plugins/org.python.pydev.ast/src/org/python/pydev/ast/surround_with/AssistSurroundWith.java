@@ -137,7 +137,7 @@ public class AssistSurroundWith implements IAssistProps {
     }
 
     /**
-     * Template completions available for surround with... They %s will be replaced later for the actual code/indentation.
+     * Template completions available for surround with... The %s will be replaced later for the actual code/indentation.
      *
      * Could be refactored so that we don't have to put the actual indent here (creating a subclass of PyDocumentTemplateContext)
      * Also, if that refactoring was done, we could give an interface for the user to configure those templates better.
@@ -146,7 +146,7 @@ public class AssistSurroundWith implements IAssistProps {
      * for item in collection could have 'good' choices for the collection variable based on the local variables.
      */
     public static final String[] SURROUND_WITH_COMPLETIONS = new String[] {
-            "%stry:%s%s%s%sexcept${cursor}:%s%s%sraise", "try..except",
+            "%stry:%s%s%s%sexcept ${Exception}${cursor}:%s%s%sraise", "try..except Exception",
             "%stry:%s%s%s%sexcept ${Exception} as e:%s%s%s${raise}${cursor}", "try..except Exception as e",
             "%stry:%s%s%s%sfinally:%s%s%s${pass}", "try..finally", "%sif ${True}:%s%s%s%selse:%s%s%s${pass}",
             "if..else",
