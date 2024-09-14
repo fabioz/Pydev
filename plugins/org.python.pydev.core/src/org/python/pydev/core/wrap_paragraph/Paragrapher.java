@@ -100,6 +100,12 @@ public class Paragrapher {
 
     public boolean nextLineIsInParagraph() {
         if (currentLineNo + 1 == numberOfLinesInDocument) {
+            try {
+                lengthOfOriginalParagraph = selection.getEndLineOffset(currentLineNo) - offsetOfOriginalParagraph;
+            } catch (BadLocationException e) {
+                return false;
+            }
+
             return false;
         }
 
