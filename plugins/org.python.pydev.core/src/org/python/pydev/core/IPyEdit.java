@@ -45,4 +45,6 @@ public interface IPyEdit extends IParserObserver, IBaseEditor, IPyFormatStdProvi
 
     /* PyParser */ Object getParser();
 
+    int getPrintMarginColums();
+
 }

@@ -40,6 +40,7 @@ Export-Package: org.python.copiedfromeclipsesrc,
  org.python.pydev.core.preferences,
  org.python.pydev.core.proposals,
  org.python.pydev.core.structure,
+ org.python.pydev.core.wrap_paragraph,
  org.python.pydev.json.eclipsesource,
  org.python.pydev.refactoring.core.base,
  org.python.pydev.shared_ui.search.replace

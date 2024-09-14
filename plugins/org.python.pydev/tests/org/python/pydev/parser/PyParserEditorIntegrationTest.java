@@ -187,6 +187,11 @@ public class PyParserEditorIntegrationTest extends TestCase {
         public ICoreTextSelection getTextSelection() {
             throw new RuntimeException("Not implemented");
         }
+
+        @Override
+        public int getPrintMarginColums() {
+            throw new RuntimeException("Not implemented");
+        }
     }
 
     public static void main(String[] args) {
