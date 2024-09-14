@@ -1,4 +1,4 @@
-package org.python.pydev.editor.correctionassist.heuristics;
+package org.python.pydev.core.assist_fstring;
 
 import java.io.File;
 import java.util.ArrayList;
