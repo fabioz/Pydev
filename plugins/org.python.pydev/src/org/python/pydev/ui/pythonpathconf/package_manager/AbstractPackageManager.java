@@ -29,7 +29,12 @@ public abstract class AbstractPackageManager {
         return new PipPackageManager(interpreterInfo);
     }
 
-    public abstract List<String[]> list();
+    /**
+     * Provides the details to fill in the tree for the conda libraries
+     * (list of string[name, version, build info])
+     * To be called from any thread.
+     */
+    public abstract List<String[]> listLibrariesInEnv();
 
     public List<String[]> errorToList(List<String[]> listed, UnableToFindExecutableException e) {
         String message = e.getMessage();

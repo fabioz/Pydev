@@ -37,6 +37,7 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
+import org.python.pydev.ast.package_managers.NameAndExecutable;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.log.Log;
@@ -44,7 +45,6 @@ import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 import org.python.pydev.ui.pythonpathconf.InterpreterConfigHelpers;
-import org.python.pydev.ui.pythonpathconf.NameAndExecutable;
 import org.python.pydev.ui.pythonpathconf.conda.CondaConfigDialog;
 
 /**
@@ -158,9 +158,9 @@ public abstract class PythonListEditor extends FieldEditor {
     public void addPressed(int configType) {
         NameAndExecutable input = getNewInputObject(configType);
         if (input != null) {
-            if (input.o1 != null && input.o2 != null) {
+            if (input.name != null && input.executable != null) {
                 setPresentsDefaultValue(false);
-                TreeItem item = createInterpreterItem(input.o1, input.o2);
+                TreeItem item = createInterpreterItem(input.name, input.executable);
                 try {
                     treeWithInterpreters.setSelection(item);
                 } catch (Exception e) {

@@ -7,7 +7,6 @@
 package org.python.pydev.ui.dialogs;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -36,15 +35,15 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ListDialog;
 import org.python.pydev.ast.interpreter_managers.AbstractInterpreterManager;
 import org.python.pydev.ast.interpreter_managers.PyDevCondaPreferences;
+import org.python.pydev.ast.package_managers.CondaCore;
+import org.python.pydev.ast.package_managers.NameAndExecutable;
 import org.python.pydev.core.IInterpreterInfo.UnableToFindExecutableException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.preferences.InterpreterGeneralPreferences;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.shared_core.image.UIConstants;
-import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.utils.ArrayUtils;
-import org.python.pydev.shared_core.utils.PlatformUtils;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.ImageCache;
 import org.python.pydev.shared_ui.SharedUiPlugin;
@@ -52,7 +51,6 @@ import org.python.pydev.shared_ui.dialogs.DialogHelpers;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
 import org.python.pydev.shared_ui.utils.UIUtils;
 import org.python.pydev.ui.pythonpathconf.InterpreterConfigHelpers;
-import org.python.pydev.ui.pythonpathconf.NameAndExecutable;
 import org.python.pydev.ui.pythonpathconf.conda.CondaConfigDialog;
 import org.python.pydev.ui.pythonpathconf.package_manager.CondaPackageManager;
 
@@ -193,6 +191,9 @@ public class PyDialogHelpers {
     public static NameAndExecutable openCondaInterpreterSelection(Shell parentShell) {
         File condaExe = PyDevCondaPreferences.getExecutable();
         if (condaExe == null) {
+            condaExe = CondaCore.findCondaExecutableInSystem();
+        }
+        if (condaExe == null) {
             new CondaConfigDialog(parentShell).open();
             condaExe = PyDevCondaPreferences.getExecutable();
             if (condaExe == null) {
@@ -201,7 +202,7 @@ public class PyDialogHelpers {
         }
 
         List<File> envs = CondaPackageManager.listCondaEnvironments(condaExe);
-        List<NameAndExecutable> nameAndExecutableList = getAsNameAndExecutable(envs);
+        List<NameAndExecutable> nameAndExecutableList = CondaCore.getCondaEnvsAsNameAndExecutable(envs);
         if (nameAndExecutableList.size() == 0) {
             openWarning("Error", "Could not find any Conda environment to choose from.");
             return null;
@@ -211,7 +212,7 @@ public class PyDialogHelpers {
 
             @Override
             public int compare(NameAndExecutable o1, NameAndExecutable o2) {
-                return o1.o1.compareToIgnoreCase(o2.o1);
+                return o1.name.compareToIgnoreCase(o2.name);
             }
         });
 
@@ -227,12 +228,12 @@ public class PyDialogHelpers {
             public String getText(Object element) {
                 if (element != null && element instanceof NameAndExecutable) {
                     NameAndExecutable nameAndExecutable = (NameAndExecutable) element;
-                    String name = nameAndExecutable.o1;
+                    String name = nameAndExecutable.name;
                     name = StringUtils.truncateIfNeeded(name, 30);
 
                     return name
                             + StringUtils.createSpaceString(35 - name.length())
-                            + nameAndExecutable.o2;
+                            + nameAndExecutable.executable;
                 }
                 return super.getText(element);
             }
@@ -281,30 +282,6 @@ public class PyDialogHelpers {
             }
         }
         return null;
-    }
-
-    private static List<NameAndExecutable> getAsNameAndExecutable(List<File> envs) {
-        List<NameAndExecutable> ret = new ArrayList<NameAndExecutable>();
-        if (PlatformUtils.isWindowsPlatform()) {
-            for (File env : envs) {
-                File exec = new File(env, "python.exe");
-                if (FileUtils.enhancedIsFile(exec)) {
-                    ret.add(new NameAndExecutable(env.getName(), exec.getPath()));
-                } else {
-                    Log.logInfo("Did not find: " + exec + " in conda environment.");
-                }
-            }
-        } else {
-            for (File env : envs) {
-                File exec = new File(new File(env, "bin"), "python");
-                if (FileUtils.enhancedIsFile(exec)) {
-                    ret.add(new NameAndExecutable(env.getName(), exec.getPath()));
-                } else {
-                    Log.logInfo("Did not find: " + exec + " in conda environment.");
-                }
-            }
-        }
-        return ret;
     }
 
     /**

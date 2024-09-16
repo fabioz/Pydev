@@ -39,6 +39,7 @@ import org.python.pydev.ast.interpreter_managers.IInterpreterProvider;
 import org.python.pydev.ast.interpreter_managers.IInterpreterProviderFactory;
 import org.python.pydev.ast.interpreter_managers.IInterpreterProviderFactory.InterpreterType;
 import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
+import org.python.pydev.ast.package_managers.NameAndExecutable;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
@@ -262,7 +263,7 @@ public class AutoConfigMaker {
             // Try a quick config of the provider.
             // If getNameAndExecutable is successful, the interpreter won't be null & will have a unique name,
             // but it may a duplicate of something already configured.
-            if (InterpreterConfigHelpers.getDuplicatedMessageError(null, getNameAndExecutable().o2,
+            if (InterpreterConfigHelpers.getDuplicatedMessageError(null, getNameAndExecutable().executable,
                     nameToInfo) != null) {
                 return false;
             }

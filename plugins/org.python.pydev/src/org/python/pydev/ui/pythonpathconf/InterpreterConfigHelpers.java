@@ -28,6 +28,7 @@ import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.python.copiedfromeclipsesrc.JDTNotAvailableException;
+import org.python.pydev.ast.package_managers.NameAndExecutable;
 import org.python.pydev.ast.runners.SimpleJythonRunner;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
@@ -100,13 +101,13 @@ public class InterpreterConfigHelpers {
     static ObtainInterpreterInfoOperation tryInterpreter(NameAndExecutable interpreterNameAndExecutable,
             IInterpreterManager interpreterManager, boolean autoSelectFolders, boolean displayErrors,
             PrintWriter logger, Shell shell, boolean isConda) throws Exception {
-        String executable = interpreterNameAndExecutable.o2;
+        String executable = interpreterNameAndExecutable.executable;
         logger.println("- Ok, file is non-null. Getting info on:" + executable);
         ProgressMonitorDialog monitorDialog = new AsynchronousProgressMonitorDialog(shell);
         monitorDialog.setBlockOnOpen(false);
         ObtainInterpreterInfoOperation operation;
         while (true) {
-            operation = new ObtainInterpreterInfoOperation(interpreterNameAndExecutable.o2, logger,
+            operation = new ObtainInterpreterInfoOperation(interpreterNameAndExecutable.executable, logger,
                     interpreterManager, autoSelectFolders, isConda);
             monitorDialog.run(true, false, operation);
             if (operation.e != null) {
@@ -235,7 +236,7 @@ public class InterpreterConfigHelpers {
                     throw new Exception(ERMSG_NOLIBS + executable);
                 }
             }
-            operation.result.setName(interpreterNameAndExecutable.o1);
+            operation.result.setName(interpreterNameAndExecutable.name);
             logger.println("- Success getting the info. Result:" + operation.result);
             return operation;
         }
@@ -267,7 +268,7 @@ public class InterpreterConfigHelpers {
             foundError = true;
         }
         if (!foundError) {
-            if (interpreterNameAndExecutable.o2.trim().length() == 0) {
+            if (interpreterNameAndExecutable.executable.trim().length() == 0) {
                 logger.println("- When trimmed, the chosen file was empty (returning null).");
 
                 if (shell != null) {
@@ -279,7 +280,8 @@ public class InterpreterConfigHelpers {
             }
         }
         if (!foundError && nameToInfo != null) {
-            String error = getDuplicatedMessageError(interpreterNameAndExecutable.o1, interpreterNameAndExecutable.o2,
+            String error = getDuplicatedMessageError(interpreterNameAndExecutable.name,
+                    interpreterNameAndExecutable.executable,
                     nameToInfo);
             if (error != null) {
                 logger.println("- Duplicated interpreter found.");
@@ -340,8 +342,8 @@ public class InterpreterConfigHelpers {
 
     public static boolean canAddNameAndExecutable(PrintWriter logger, NameAndExecutable interpreterNameAndExecutable,
             Map<String, IInterpreterInfo> nameToInfo, Shell shell) {
-        interpreterNameAndExecutable.o1 = getUniqueInterpreterName(
-                interpreterNameAndExecutable.o1, nameToInfo);
+        interpreterNameAndExecutable.name = getUniqueInterpreterName(
+                interpreterNameAndExecutable.name, nameToInfo);
         boolean foundError = checkInterpreterNameAndExecutable(
                 interpreterNameAndExecutable, logger, "Error getting info on interpreter",
                 nameToInfo, shell);
@@ -388,7 +390,7 @@ public class InterpreterConfigHelpers {
 
                 logger.println("- Chosen interpreter (name and file):'" + interpreterNameAndExecutable);
 
-                if (interpreterNameAndExecutable != null && interpreterNameAndExecutable.o2 != null) {
+                if (interpreterNameAndExecutable != null && interpreterNameAndExecutable.executable != null) {
                     //ok, now that we got the file, let's see if it is valid and get the library info.
                     ObtainInterpreterInfoOperation ret = tryInterpreter(
                             interpreterNameAndExecutable, interpreterManager,

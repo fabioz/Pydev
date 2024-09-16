@@ -94,7 +94,7 @@ public class PipenvPackageManager extends AbstractPackageManager {
     }
 
     @Override
-    public List<String[]> list() {
+    public List<String[]> listLibrariesInEnv() {
         return null;
     }
 

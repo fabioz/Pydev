@@ -238,7 +238,7 @@ public class PackageTab {
             if (initialInfo != interpreterInfo || monitor.isCanceled() || tree.isDisposed()) {
                 return Status.OK_STATUS;
             }
-            final List<String[]> list = packageManager.list();
+            final List<String[]> list = packageManager.listLibrariesInEnv();
 
             RunInUiThread.async(() -> {
                 // Update tree only in UI thread!

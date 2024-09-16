@@ -3,13 +3,12 @@ package org.python.pydev.ui.pythonpathconf.package_manager;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.swt.widgets.Shell;
 import org.python.pydev.ast.codecompletion.shell.AbstractShell;
 import org.python.pydev.ast.interpreter_managers.PyDevCondaPreferences;
+import org.python.pydev.ast.package_managers.CondaCore;
 import org.python.pydev.ast.runners.SimpleRunner;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterInfo.UnableToFindExecutableException;
@@ -34,27 +33,16 @@ public class CondaPackageManager extends AbstractPackageManager {
     }
 
     public static List<File> listCondaEnvironments(File condaExecutable) {
-        String encoding = "utf-8";
-        Tuple<String, String> output = new SimpleRunner().runAndGetOutput(
-                new String[] { condaExecutable.toString(), "env", "list", "--json" }, null, null,
-                null,
-                encoding);
-        Log.logInfo(output.o1);
-        if (output.o2 != null && output.o2.length() > 0) {
-            Log.logInfo("STDERR when listing conda environments:\n" + output.o2);
-
-        }
-        JsonObject jsonOutput = JsonValue.readFrom(output.o1).asObject();
-        JsonArray envs = jsonOutput.get("envs").asArray();
-        Set<File> set = new HashSet<>();
-        for (JsonValue env : envs.values()) {
-            set.add(new File(env.asString()));
-        }
-        return new ArrayList<File>(set);
+        return CondaCore.listCondaEnvironments(condaExecutable);
     }
 
+    /**
+     * Provides the details to fill in the tree for the conda libraries
+     * (list of string[name, version, build info])
+     * To be called from any thread.
+     */
     @Override
-    public List<String[]> list() {
+    public List<String[]> listLibrariesInEnv() {
         List<String[]> listed = new ArrayList<String[]>();
         File condaExecutable;
         try {

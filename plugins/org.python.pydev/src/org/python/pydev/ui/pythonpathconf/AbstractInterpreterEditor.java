@@ -71,6 +71,7 @@ import org.eclipse.ui.dialogs.SelectionDialog;
 import org.python.copiedfromeclipsesrc.PythonListEditor;
 import org.python.pydev.ast.interpreter_managers.IInterpreterProviderFactory;
 import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
+import org.python.pydev.ast.package_managers.NameAndExecutable;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IInterpreterManagerListener;
@@ -1064,7 +1065,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
             } else if (configType == InterpreterConfigHelpers.CONFIG_CONDA) {
                 NameAndExecutable interpreterNameAndExecutable = PyDialogHelpers
                         .openCondaInterpreterSelection(getShell());
-                if (interpreterNameAndExecutable != null && interpreterNameAndExecutable.o2 != null) {
+                if (interpreterNameAndExecutable != null && interpreterNameAndExecutable.executable != null) {
                     operation = InterpreterConfigHelpers.tryInterpreter(
                             interpreterNameAndExecutable, interpreterManager,
                             false, true, logger, this.getShell(), true);
@@ -1086,7 +1087,7 @@ public abstract class AbstractInterpreterEditor extends PythonListEditor impleme
 
                 logger.println("- Chosen interpreter (name and file):'" + interpreterNameAndExecutable);
 
-                if (interpreterNameAndExecutable != null && interpreterNameAndExecutable.o2 != null) {
+                if (interpreterNameAndExecutable != null && interpreterNameAndExecutable.executable != null) {
                     //ok, now that we got the file, let's see if it is valid and get the library info.
                     operation = InterpreterConfigHelpers.tryInterpreter(
                             interpreterNameAndExecutable, interpreterManager,

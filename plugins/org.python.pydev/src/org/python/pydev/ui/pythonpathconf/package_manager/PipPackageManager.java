@@ -28,10 +28,12 @@ public class PipPackageManager extends AbstractPackageManager {
     }
 
     /**
-     * To be called from any thread
+     * Provides the details to fill in the tree for the conda libraries
+     * (list of string[name, version, build info]).
+     * To be called from any thread.
      */
     @Override
-    public List<String[]> list() {
+    public List<String[]> listLibrariesInEnv() {
         List<String[]> listed = new ArrayList<String[]>();
         File pipExecutable;
         Tuple<String, String> output;

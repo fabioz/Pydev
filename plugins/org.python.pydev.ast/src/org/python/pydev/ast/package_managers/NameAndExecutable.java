@@ -1,23 +1,23 @@
-package org.python.pydev.ui.pythonpathconf;
+package org.python.pydev.ast.package_managers;
 
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
 public final class NameAndExecutable {
 
-    public String o1;
-    public final String o2;
+    public String name;
+    public final String executable;
 
     public NameAndExecutable(String name, String executableOrJar) {
-        this.o1 = name;
-        this.o2 = executableOrJar;
+        this.name = name;
+        this.executable = executableOrJar;
     }
 
     public String getName() {
-        return this.o1;
+        return this.name;
     }
 
     public String getExecutableOrJar() {
-        return this.o2;
+        return this.executable;
     }
 
     @Override
@@ -34,9 +34,9 @@ public final class NameAndExecutable {
     public String toString() {
         FastStringBuffer buffer = new FastStringBuffer();
         buffer.append("NameAndExecutable [");
-        buffer.appendObject(o1);
+        buffer.appendObject(name);
         buffer.append(" -- ");
-        buffer.appendObject(o2);
+        buffer.appendObject(executable);
         buffer.append("]");
         return buffer.toString();
     }
