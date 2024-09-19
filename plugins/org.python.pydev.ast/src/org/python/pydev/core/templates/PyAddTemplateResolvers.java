@@ -30,6 +30,7 @@ public class PyAddTemplateResolvers {
         ctx.addResolver(PyTemplatesDefault.PreviousClassOrMethod());
         ctx.addResolver(PyTemplatesDefault.NextClassOrMethod());
         ctx.addResolver(PyTemplatesDefault.Superclass());
+        ctx.addResolver(PyTemplatesDefault.Condition());
 
         PyContextTypeVariables.addResolvers(ctx);
     }

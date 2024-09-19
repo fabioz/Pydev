@@ -13,7 +13,6 @@ import java.util.List;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.templates.DocumentTemplateContext;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateContext;
 import org.eclipse.jface.text.templates.TemplateContextType;
@@ -24,6 +23,7 @@ import org.python.pydev.core.autoedit.DefaultIndentPrefs;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.core.templates.PyAddTemplateResolvers;
+import org.python.pydev.core.templates.PyDocumentTemplateContext;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.image.UIConstants;
@@ -35,10 +35,12 @@ import org.python.pydev.shared_core.string.StringUtils;
  */
 public class AssistSurroundWith implements IAssistProps {
 
-    protected TemplateContext createContext(IRegion region, IDocument document) {
+    protected TemplateContext createContext(IRegion region, IDocument document, IPythonNature nature) {
         TemplateContextType contextType = new TemplateContextType();
         PyAddTemplateResolvers.addDefaultResolvers(contextType);
-        return new DocumentTemplateContext(contextType, document, region.getOffset(), region.getLength());
+        return new PyDocumentTemplateContext(contextType, document, region.getOffset(), region.getLength(), "",
+                DefaultIndentPrefs.get(
+                        nature));
     }
 
     /**
@@ -106,7 +108,7 @@ public class AssistSurroundWith implements IAssistProps {
 
         //region
         IRegion region = ps.getRegion();
-        TemplateContext context = createContext(region, ps.getDoc());
+        TemplateContext context = createContext(region, ps.getDoc(), nature);
 
         //not static because we need the actual code.
         String[] replace0to3 = new String[] { startIndent, delimiter, surroundedCode, delimiter, startIndent,
@@ -148,11 +150,11 @@ public class AssistSurroundWith implements IAssistProps {
     public static final String[] SURROUND_WITH_COMPLETIONS = new String[] {
             "%stry:%s%s%s%sexcept ${Exception}${cursor}:%s%s%sraise", "try..except Exception",
             "%stry:%s%s%s%sexcept ${Exception} as e:%s%s%s${raise}${cursor}", "try..except Exception as e",
-            "%stry:%s%s%s%sfinally:%s%s%s${pass}", "try..finally", "%sif ${True}:%s%s%s%selse:%s%s%s${pass}",
+            "%stry:%s%s%s%sfinally:%s%s%s${pass}", "try..finally", "%sif ${condition}:%s%s%s%selse:%s%s%s${pass}",
             "if..else",
 
-            "%swhile ${True}:%s%s%s%s%s", "while", "%sfor ${item} in ${collection}:%s%s%s%s%s${cursor}", "for",
-            "%sif ${True}:%s%s%s%s%s${cursor}", "if", "%swith ${var}:%s%s%s%s%s${cursor}", "with", };
+            "%swhile ${condition}:%s%s%s%s%s", "while", "%sfor ${item} in ${collection}:%s%s%s%s%s${cursor}", "for",
+            "%sif ${condition}:%s%s%s%s%s${cursor}", "if", "%swith ${var}:%s%s%s%s%s${cursor}", "with", };
 
     /**
      * @see org.python.pydev.core.IAssistProps#isValid(org.python.pydev.core.docutils.PySelection)

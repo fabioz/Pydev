@@ -2,6 +2,7 @@ package org.python.pydev.core.templates;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -283,6 +284,13 @@ public class PyTemplatesDefault {
                     }
 
                     return contents.toString().trim();
+                });
+    }
+
+    public static TemplateVariableResolver Condition() {
+        return new PyTemplatesDefault.CallableTemplateVariableResolver("condition", "Condition to be matched",
+                (context) -> {
+                    return Arrays.asList("True", "False");
                 });
     }
 
