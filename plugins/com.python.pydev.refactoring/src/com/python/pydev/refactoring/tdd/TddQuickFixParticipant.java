@@ -271,8 +271,7 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant {
                     //Discover the source folder where we should create the structure.
 
                     File editorFile = edit.getEditorFile();
-                    String onlyProjectPythonPathStr = nature.getPythonPathNature().getOnlyProjectPythonPathStr(false);
-                    List<String> split = StringUtils.splitAndRemoveEmptyTrimmed(onlyProjectPythonPathStr, '|');
+                    List<String> split = nature.getPythonPathNature().getOnlyProjectPythonPathStr(false);
                     for (int i = 0; i < split.size(); i++) {
                         String fullPath = FileUtils.getFileAbsolutePath(split.get(i));
                         fullPath = PythonPathHelper.getDefaultPathStr(fullPath);

@@ -11,6 +11,7 @@
  */
 package org.python.pydev.plugin.nature;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -25,6 +26,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.QualifiedName;
+import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.IInterpreterInfo;
@@ -33,6 +35,7 @@ import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.ProjectMisconfiguredException;
 import org.python.pydev.core.PropertiesHelper;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.docutils.StringSubstitution;
@@ -151,7 +154,7 @@ public class PythonPathNature implements IPythonPathNature {
      * @return the project pythonpath with complete paths in the filesystem.
      */
     @Override
-    public String getOnlyProjectPythonPathStr(boolean addExternal) throws CoreException {
+    public List<String> getOnlyProjectPythonPathStr(boolean addExternal) throws CoreException {
         String source = null;
         String external = null;
         String contributed = null;
@@ -159,7 +162,7 @@ public class PythonPathNature implements IPythonPathNature {
         PythonNature nature = fNature;
 
         if (project == null || nature == null) {
-            return "";
+            return new ArrayList<>();
         }
 
         //Substitute with variables!
@@ -215,7 +218,8 @@ public class PythonPathNature implements IPythonPathNature {
         if (external == null) {
             external = "";
         }
-        return buf.append("|").append(external).append("|").append(contributed).toString();
+        return PythonPathHelper.parsePythonPathFromStr(
+                buf.append("|").append(external).append("|").append(contributed).toString(), null);
     }
 
     /**
@@ -517,12 +521,19 @@ public class PythonPathNature implements IPythonPathNature {
         Map<String, String> variableSubstitution;
         if (addInterpreterInfoSubstitutions) {
 
-            IInterpreterInfo info = nature.getProjectInterpreter();
-            Properties stringSubstitutionVariables = info.getStringSubstitutionVariables(true);
-            if (stringSubstitutionVariables == null) {
+            try {
+                IInterpreterInfo info = nature.getProjectInterpreter();
+                Properties stringSubstitutionVariables = info.getStringSubstitutionVariables(true);
+                if (stringSubstitutionVariables == null) {
+                    variableSubstitution = new HashMap<String, String>();
+                } else {
+                    variableSubstitution = PropertiesHelper.createMapFromProperties(stringSubstitutionVariables);
+                }
+            } catch (ProjectMisconfiguredException e) {
+                Log.logInfo(
+                        "Interpreter info still not fully configured (interpreter substitutions won't be available).",
+                        e);
                 variableSubstitution = new HashMap<String, String>();
-            } else {
-                variableSubstitution = PropertiesHelper.createMapFromProperties(stringSubstitutionVariables);
             }
         } else {
             variableSubstitution = new HashMap<String, String>();

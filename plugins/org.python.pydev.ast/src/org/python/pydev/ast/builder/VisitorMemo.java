@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.python.pydev.core.IPythonNature;
-import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple3;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -46,9 +45,8 @@ public class VisitorMemo extends HashMap<String, Object> {
             lst = onlyProjectPythonPathStrNonExternal;
         }
         if (lst == null) {
-            String onlyProjectPythonPathStr = nature.getPythonPathNature().getOnlyProjectPythonPathStr(addExternal);
-            HashSet<String> projectSourcePath = new HashSet<String>(StringUtils.splitAndRemoveEmptyTrimmed(
-                    onlyProjectPythonPathStr, '|'));
+            HashSet<String> projectSourcePath = new HashSet<String>(
+                    nature.getPythonPathNature().getOnlyProjectPythonPathStr(addExternal));
             lst = new ArrayList<String>(projectSourcePath);
             if (addExternal) {
                 onlyProjectPythonPathStrExternal = lst;

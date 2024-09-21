@@ -58,62 +58,69 @@ public class StringSubstitution {
             try {
                 IPythonPathNature pythonPathNature = nature.getPythonPathNature();
                 IProject project = nature.getProject(); //note: project can be null when creating a new project and receiving a system nature.
-                variableSubstitution = pythonPathNature.getVariableSubstitution();
-
-                try {
-                    IPathVariableManager projectPathVarManager = null;
-                    try {
-                        if (project != null) {
-                            projectPathVarManager = project.getPathVariableManager();
-                        }
-                    } catch (Throwable e1) {
-                        //Ignore: getPathVariableManager not available on earlier Eclipse versions.
-                    }
-                    String[] pathVarNames = null;
-                    if (projectPathVarManager != null) {
-                        pathVarNames = projectPathVarManager.getPathVariableNames();
-                    }
-                    //The usual path var names are:
-
-                    //ECLIPSE_HOME, PARENT_LOC, WORKSPACE_LOC, PROJECT_LOC
-                    //Other possible variables may be defined in General > Workspace > Linked Resources.
-
-                    //We also add PROJECT_DIR_NAME (so, we can define a source folder with /${PROJECT_DIR_NAME}
-                    if (project != null && !variableSubstitution.containsKey("PROJECT_DIR_NAME")) {
-                        IPath location = project.getFullPath();
-                        if (location != null) {
-                            variableSubstitution.put("PROJECT_DIR_NAME", location.lastSegment());
-                        }
-                    }
-
-                    if (pathVarNames != null) {
-                        URI uri = null;
-                        String var = null;
-                        String path = null;
-                        for (int i = 0; i < pathVarNames.length; i++) {
-                            try {
-                                var = pathVarNames[i];
-                                uri = projectPathVarManager.getURIValue(var);
-                                if (uri != null) {
-                                    String scheme = uri.getScheme();
-                                    if (scheme != null && scheme.equalsIgnoreCase("file")) {
-                                        path = uri.getPath();
-                                        if (path != null && !variableSubstitution.containsKey(var)) {
-                                            variableSubstitution.put(var, new File(uri).toString());
-                                        }
-                                    }
-                                }
-                            } catch (Exception e) {
-                                Log.log(e);
-                            }
-                        }
-                    }
-                } catch (Throwable e) {
-                    Log.log(e);
-                }
+                initialize(pythonPathNature, project);
             } catch (Exception e) {
                 Log.log(e);
             }
+        }
+    }
+
+    public void initialize(IPythonPathNature pythonPathNature, IProject project) {
+        try {
+            try {
+                variableSubstitution = pythonPathNature.getVariableSubstitution();
+                IPathVariableManager projectPathVarManager = null;
+                try {
+                    if (project != null) {
+                        projectPathVarManager = project.getPathVariableManager();
+                    }
+                } catch (Throwable e1) {
+                    //Ignore: getPathVariableManager not available on earlier Eclipse versions.
+                }
+                String[] pathVarNames = null;
+                if (projectPathVarManager != null) {
+                    pathVarNames = projectPathVarManager.getPathVariableNames();
+                }
+                //The usual path var names are:
+
+                //ECLIPSE_HOME, PARENT_LOC, WORKSPACE_LOC, PROJECT_LOC
+                //Other possible variables may be defined in General > Workspace > Linked Resources.
+
+                //We also add PROJECT_DIR_NAME (so, we can define a source folder with /${PROJECT_DIR_NAME}
+                if (project != null && !variableSubstitution.containsKey("PROJECT_DIR_NAME")) {
+                    IPath location = project.getFullPath();
+                    if (location != null) {
+                        variableSubstitution.put("PROJECT_DIR_NAME", location.lastSegment());
+                    }
+                }
+
+                if (pathVarNames != null) {
+                    URI uri = null;
+                    String var = null;
+                    String path = null;
+                    for (int i = 0; i < pathVarNames.length; i++) {
+                        try {
+                            var = pathVarNames[i];
+                            uri = projectPathVarManager.getURIValue(var);
+                            if (uri != null) {
+                                String scheme = uri.getScheme();
+                                if (scheme != null && scheme.equalsIgnoreCase("file")) {
+                                    path = uri.getPath();
+                                    if (path != null && !variableSubstitution.containsKey(var)) {
+                                        variableSubstitution.put(var, new File(uri).toString());
+                                    }
+                                }
+                            }
+                        } catch (Exception e) {
+                            Log.log(e);
+                        }
+                    }
+                }
+            } catch (Throwable e) {
+                Log.log(e);
+            }
+        } catch (Exception e) {
+            Log.log(e);
         }
     }
 

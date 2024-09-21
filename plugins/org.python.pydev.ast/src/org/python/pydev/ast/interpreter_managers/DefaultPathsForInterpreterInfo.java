@@ -12,14 +12,20 @@
 package org.python.pydev.ast.interpreter_managers;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.python.pydev.core.log.Log;
+import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.io.FileUtils;
 
@@ -48,9 +54,18 @@ public class DefaultPathsForInterpreterInfo {
      */
     public static boolean isChildOfRootPath(String data, Set<IPath> rootPaths) {
         IPath path = Path.fromOSString(data);
+        java.nio.file.Path nativePath = new File(data).toPath();
+
         for (IPath p : rootPaths) {
             if (FileUtils.isPrefixOf(p, path)) {
                 return true;
+            }
+            try {
+                if (Files.isSameFile(nativePath, p.toFile().toPath())) {
+                    return true;
+                }
+            } catch (IOException e) {
+                Log.log(e);
             }
         }
         return false;
@@ -75,8 +90,22 @@ public class DefaultPathsForInterpreterInfo {
             IPath location = iProject.getLocation();
             if (location != null) {
                 IPath abs = location.makeAbsolute();
-                if (!FileUtils.isPrefixOf(rootLocation, abs)) {
-                    rootPaths.add(abs);
+                rootPaths.add(abs);
+            }
+
+            PythonNature nature = PythonNature.getPythonNature(iProject);
+            if (nature != null) {
+                try {
+                    List<String> splitted = nature.getPythonPathNature().getOnlyProjectPythonPathStr(true);
+                    for (String s : splitted) {
+                        try {
+                            rootPaths.add(Path.fromOSString(FileUtils.getFileAbsolutePath(s)));
+                        } catch (Exception e) {
+                            Log.log(e);
+                        }
+                    }
+                } catch (CoreException e) {
+                    Log.log(e);
                 }
             }
         }

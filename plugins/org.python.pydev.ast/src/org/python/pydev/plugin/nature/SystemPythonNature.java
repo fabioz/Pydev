@@ -107,7 +107,7 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
         }
 
         @Override
-        public String getOnlyProjectPythonPathStr(boolean addExternal) throws CoreException {
+        public List<String> getOnlyProjectPythonPathStr(boolean addExternal) throws CoreException {
             throw new RuntimeException("Not implemented");
         }
 

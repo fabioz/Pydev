@@ -125,7 +125,7 @@ public class AdditionalProjectInterpreterInfo extends AbstractAdditionalInfoWith
         IPythonPathNature pythonPathNature = pythonNature.getPythonPathNature();
         Set<String> ret = new HashSet<>();
         try {
-            ret.addAll(StringUtils.split(pythonPathNature.getOnlyProjectPythonPathStr(true), "|"));
+            ret.addAll(pythonPathNature.getOnlyProjectPythonPathStr(true));
         } catch (CoreException e) {
             Log.log(e);
         }

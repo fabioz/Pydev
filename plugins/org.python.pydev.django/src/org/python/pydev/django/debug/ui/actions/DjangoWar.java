@@ -23,9 +23,8 @@ public class DjangoWar extends DjangoAction {
                         "Creation of WAR packages is only supported on Jython");
                 return;
             }
-            String projectPythonPath = nature.getPythonPathNature().getOnlyProjectPythonPathStr(true);
             String javaLibs = null;
-            for (String path : projectPythonPath.split("\\|")) {
+            for (String path : nature.getPythonPathNature().getOnlyProjectPythonPathStr(true)) {
                 if (path.endsWith(".jar")) {
                     if (javaLibs == null) {
                         javaLibs = path;
