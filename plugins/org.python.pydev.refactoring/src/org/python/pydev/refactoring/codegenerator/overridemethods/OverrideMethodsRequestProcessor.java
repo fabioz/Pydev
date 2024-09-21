@@ -27,10 +27,10 @@ package org.python.pydev.refactoring.codegenerator.overridemethods;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.python.pydev.ast.adapters.FunctionDefAdapter;
+import org.python.pydev.ast.adapters.IClassDefAdapter;
+import org.python.pydev.ast.adapters.offsetstrategy.IOffsetStrategy;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
-import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
-import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
-import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
 import org.python.pydev.refactoring.codegenerator.overridemethods.request.OverrideMethodsRequest;
 import org.python.pydev.refactoring.core.model.overridemethods.ClassTreeNode;
 import org.python.pydev.refactoring.core.model.overridemethods.FunctionTreeNode;

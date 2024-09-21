@@ -21,7 +21,7 @@
 
 package org.python.pydev.refactoring.core.model.overridemethods;
 
-import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
+import org.python.pydev.ast.adapters.FunctionDefAdapter;
 import org.python.pydev.refactoring.core.model.tree.ITreeNode;
 import org.python.pydev.refactoring.core.model.tree.TreeNodeSimple;
 

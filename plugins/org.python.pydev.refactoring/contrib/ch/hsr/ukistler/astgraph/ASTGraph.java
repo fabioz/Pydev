@@ -56,7 +56,7 @@ public class ASTGraph {
         }
 
         IDocument doc = new Document(source.toString());
-        ParseOutput objects = PyParser.reparseDocument(new PyParser.ParserInfo(doc,
+        ParseOutput objects = PyParser.parseFull(new PyParser.ParserInfo(doc,
                 IPythonNature.LATEST_GRAMMAR_PY3_VERSION, null));
         if (objects.error != null) {
             throw objects.error;

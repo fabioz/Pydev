@@ -22,13 +22,13 @@ package org.python.pydev.refactoring.tests.codegenerator.overridemethods;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.python.pydev.ast.adapters.ClassDefAdapter;
+import org.python.pydev.ast.adapters.FunctionDefAdapter;
+import org.python.pydev.ast.adapters.IClassDefAdapter;
+import org.python.pydev.ast.adapters.ModuleAdapter;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
-import org.python.pydev.refactoring.ast.adapters.ClassDefAdapter;
-import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
-import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
-import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.codegenerator.overridemethods.request.OverrideMethodsRequest;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
 import org.python.pydev.shared_core.string.StringUtils;

@@ -77,7 +77,7 @@ public class PyParserTest extends PyParserTestBase {
         }
 
         PyParser.ParserInfo parserInfo = new PyParser.ParserInfo(doc, IPythonNature.LATEST_GRAMMAR_PY2_VERSION, null);
-        ParseOutput reparseDocument = PyParser.reparseDocument(parserInfo);
+        ParseOutput reparseDocument = PyParser.parseFull(parserInfo);
         assertTrue(reparseDocument.ast == null);
         assertTrue(reparseDocument.error != null);
     }

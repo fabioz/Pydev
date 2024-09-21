@@ -19,11 +19,11 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.ast.analysis.IAnalysisPreferences;
 import org.python.pydev.core.CheckAnalysisErrors;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.formatter.FormatStd;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
-import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
@@ -50,13 +50,9 @@ public class IgnoreErrorParticipant implements IAnalysisMarkersParticipant {
         this.format = format;
     }
 
-    /**
-     * @throws CoreException
-     * @see org.python.pydev.ast.analysis.ctrl_1.IAnalysisMarkersParticipant#addProps(org.eclipse.core.resources.IMarker, org.python.pydev.ast.analysis.IAnalysisPreferences, java.lang.String, org.python.pydev.core.docutils.PySelection, int, org.python.pydev.editor.PyEdit, java.util.List)
-     */
     @Override
     public void addProps(MarkerAnnotationAndPosition marker, IAnalysisPreferences analysisPreferences,
-            final String line, final PySelection ps, int offset, IPythonNature nature, final PyEdit edit,
+            final String line, final PySelection ps, int offset, IPythonNature nature, final IPyEdit edit,
             List<ICompletionProposalHandle> props)
             throws BadLocationException, CoreException {
         Integer id = (Integer) marker.markerAnnotation.getMarker().getAttribute(AnalysisRunner.PYDEV_ANALYSIS_TYPE);

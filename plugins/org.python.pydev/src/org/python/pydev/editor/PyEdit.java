@@ -965,7 +965,7 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
      * Note: This function will actually do a parse operation when called (so, it should be called with care).
      */
     public boolean hasSyntaxError(IDocument doc) throws MisconfigurationException {
-        ParseOutput reparse = PyParser.reparseDocument(new PyParser.ParserInfo(doc, this, false));
+        ParseOutput reparse = PyParser.parseFull(new PyParser.ParserInfo(doc, this, false));
         if (reparse.error != null) {
             this.getStatusLineManager().setErrorMessage(reparse.error.getMessage());
             return true;

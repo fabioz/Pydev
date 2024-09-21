@@ -31,6 +31,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.python.pydev.ast.adapters.AbstractScopeNode;
+import org.python.pydev.ast.adapters.ModuleAdapter;
+import org.python.pydev.ast.adapters.SimpleAdapter;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
@@ -38,9 +41,6 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.NameTokType;
 import org.python.pydev.parser.jython.ast.aliasType;
-import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
-import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
-import org.python.pydev.refactoring.ast.adapters.SimpleAdapter;
 import org.python.pydev.shared_core.string.ICoreTextSelection;
 
 public class ParameterReturnDeduce {

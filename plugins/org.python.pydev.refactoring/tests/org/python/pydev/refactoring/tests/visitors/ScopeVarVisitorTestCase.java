@@ -12,8 +12,8 @@
 * Contributors:
 *     Fabio Zadrozny <fabiofz@gmail.com> - initial implementation
 ******************************************************************************/
-/* 
- * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler 
+/*
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
  */
 
 package org.python.pydev.refactoring.tests.visitors;
@@ -21,13 +21,12 @@ package org.python.pydev.refactoring.tests.visitors;
 import java.util.Iterator;
 
 import org.eclipse.jface.text.Document;
-import org.python.pydev.refactoring.ast.adapters.ClassDefAdapter;
-import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
-import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
-import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
-import org.python.pydev.refactoring.ast.adapters.SimpleAdapter;
-import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
-import org.python.pydev.refactoring.ast.visitors.context.ScopeVariablesVisitor;
+import org.python.pydev.ast.adapters.ClassDefAdapter;
+import org.python.pydev.ast.adapters.FunctionDefAdapter;
+import org.python.pydev.ast.adapters.IClassDefAdapter;
+import org.python.pydev.ast.adapters.ModuleAdapter;
+import org.python.pydev.ast.adapters.SimpleAdapter;
+import org.python.pydev.ast.adapters.context.ScopeVariablesVisitor;
 import org.python.pydev.refactoring.tests.adapter.PythonNatureStub;
 import org.python.pydev.refactoring.tests.core.AbstractIOTestCase;
 
@@ -40,19 +39,22 @@ public class ScopeVarVisitorTestCase extends AbstractIOTestCase {
     @Override
     public void runTest() throws Throwable {
         StringBuffer buffer = new StringBuffer();
-        ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(data.source),
+        ModuleAdapter module = org.python.pydev.ast.adapters.visitors.VisitorFactory.createModuleAdapter(null, null,
+                new Document(data.source),
                 new PythonNatureStub(), createVersionProvider());
 
         for (FunctionDefAdapter func : module.getFunctions()) {
 
-            ScopeVariablesVisitor visitor = VisitorFactory.createContextVisitor(ScopeVariablesVisitor.class,
+            ScopeVariablesVisitor visitor = org.python.pydev.ast.adapters.visitors.VisitorFactory.createContextVisitor(
+                    ScopeVariablesVisitor.class,
                     func.getASTNode(), module, func);
 
             printAttributes(buffer, visitor, func.getName());
         }
         for (IClassDefAdapter clazz : module.getClasses()) {
             ClassDefAdapter c = (ClassDefAdapter) clazz;
-            ScopeVariablesVisitor visitor = VisitorFactory.createContextVisitor(ScopeVariablesVisitor.class,
+            ScopeVariablesVisitor visitor = org.python.pydev.ast.adapters.visitors.VisitorFactory.createContextVisitor(
+                    ScopeVariablesVisitor.class,
                     c.getASTNode(), module, c);
 
             printAttributes(buffer, visitor, clazz.getName());

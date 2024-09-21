@@ -9,6 +9,7 @@ package com.python.pydev.refactoring.tdd;
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension2;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.python.pydev.ast.codecompletion.ProposalsComparator;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codecompletion.proposals.PyCompletionProposal;
 import org.python.pydev.parser.PyParser;
@@ -24,22 +25,22 @@ import org.python.pydev.shared_core.structure.Tuple;
 public abstract class AbstractTddRefactorCompletion extends PyCompletionProposal implements
         ICompletionProposalExtension2 {
 
-    protected PyEdit edit;
+    protected IPyEdit edit;
 
-    public AbstractTddRefactorCompletion(PyEdit edit, String replacementString, int replacementOffset,
+    public AbstractTddRefactorCompletion(IPyEdit edit, String replacementString, int replacementOffset,
             int replacementLength, int cursorPosition, int priority) {
         this(edit, replacementString, replacementOffset, replacementLength, cursorPosition, null, null, null, null,
                 priority);
     }
 
-    public AbstractTddRefactorCompletion(PyEdit edit, String replacementString, int replacementOffset,
+    public AbstractTddRefactorCompletion(IPyEdit edit, String replacementString, int replacementOffset,
             int replacementLength, int cursorPosition, IImageHandle image, String displayString,
             IContextInformation contextInformation, String additionalProposalInfo, int priority) {
         this(edit, replacementString, replacementOffset, replacementLength, cursorPosition, image, displayString,
                 contextInformation, additionalProposalInfo, priority, IPyCompletionProposal.ON_APPLY_DEFAULT, "");
     }
 
-    public AbstractTddRefactorCompletion(PyEdit edit, String replacementString, int replacementOffset,
+    public AbstractTddRefactorCompletion(IPyEdit edit, String replacementString, int replacementOffset,
             int replacementLength, int cursorPosition, IImageHandle image, String displayString,
             IContextInformation contextInformation, String additionalProposalInfo, int priority, int onApplyAction,
             String args) {
@@ -50,13 +51,13 @@ public abstract class AbstractTddRefactorCompletion extends PyCompletionProposal
 
     protected void forceReparseInBaseEditorAnd(PyEdit... others) {
         if (edit != null) {
-            PyParser parser = edit.getParser();
+            PyParser parser = (PyParser) edit.getParser();
             parser.forceReparse(
                     new Tuple<String, Boolean>(IMiscConstants.ANALYSIS_PARSER_OBSERVER_FORCE, true));
         }
 
-        for (PyEdit e : others) {
-            PyParser parser = e.getParser();
+        for (IPyEdit e : others) {
+            PyParser parser = (PyParser) e.getParser();
             parser.forceReparse(
                     new Tuple<String, Boolean>(IMiscConstants.ANALYSIS_PARSER_OBSERVER_FORCE, true));
         }

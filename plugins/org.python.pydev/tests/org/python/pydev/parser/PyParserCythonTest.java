@@ -52,7 +52,7 @@ public class PyParserCythonTest extends CodeCompletionTestsBase {
                 "";
         Document doc = new Document(str);
         ParseOutput parseOutput = PyParser
-                .reparseDocument(new ParserInfo(doc, IPythonNature.GRAMMAR_PYTHON_VERSION_CYTHON,
+                .parseFull(new ParserInfo(doc, IPythonNature.GRAMMAR_PYTHON_VERSION_CYTHON,
                         true, null));
         assertTrue(parseOutput.isCython);
         assertNull(parseOutput.error);

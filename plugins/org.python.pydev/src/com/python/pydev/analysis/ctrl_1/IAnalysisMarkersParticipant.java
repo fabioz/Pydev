@@ -14,9 +14,9 @@ import java.util.List;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.ast.analysis.IAnalysisPreferences;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 
@@ -39,7 +39,7 @@ public interface IAnalysisMarkersParticipant {
      * @throws CoreException
      */
     public abstract void addProps(MarkerAnnotationAndPosition marker, IAnalysisPreferences analysisPreferences,
-            String line, PySelection ps, int offset, IPythonNature nature, PyEdit edit,
+            String line, PySelection ps, int offset, IPythonNature nature, IPyEdit edit,
             List<ICompletionProposalHandle> props)
             throws BadLocationException, CoreException;
 

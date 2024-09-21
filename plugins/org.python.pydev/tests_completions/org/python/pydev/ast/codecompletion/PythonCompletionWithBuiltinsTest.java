@@ -44,6 +44,7 @@ import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.StringUtils;
+import org.python.pydev.shared_core.testutils.TestUtils;
 
 import junit.framework.AssertionFailedError;
 
@@ -631,15 +632,20 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
     }
 
     public void testBuiltinCached() throws Exception {
-        IModule module = nature.getAstManager().getModule("_bisect", nature, true, new BaseModuleRequest(false));
-        assertTrue("Expected CompiledModule. Found: " + module, module instanceof CompiledModule);
+        final IModule moduleBisect = nature.getAstManager().getModule("_bisect", nature, true,
+                new BaseModuleRequest(false));
+        assertTrue("Expected CompiledModule. Found: " + moduleBisect, moduleBisect instanceof CompiledModule);
+
         ISystemModulesManager systemModulesManager = nature.getAstManager().getModulesManager()
                 .getSystemModulesManager();
         RunnableAsJobsPoolThread.getSingleton().waitToFinishCurrent();
-        File file = systemModulesManager.getCompiledModuleCacheFile(module.getName());
-        assertTrue(file.exists());
 
-        module = nature.getAstManager().getModule("_bisect.foo", nature, true, new BaseModuleRequest(false));
+        TestUtils.waitForCondition(() -> {
+            File file = systemModulesManager.getCompiledModuleCacheFile(moduleBisect.getName());
+            return file.exists() ? null : "File: " + file + " does not exist.";
+        });
+
+        IModule module = nature.getAstManager().getModule("_bisect.foo", nature, true, new BaseModuleRequest(false));
         assertNull(module);
 
         module = nature.getAstManager().getModule("os", nature, true, new BaseModuleRequest(false));

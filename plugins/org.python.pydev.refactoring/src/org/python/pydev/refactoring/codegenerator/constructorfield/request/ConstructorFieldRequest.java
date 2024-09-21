@@ -26,11 +26,11 @@ package org.python.pydev.refactoring.codegenerator.constructorfield.request;
 
 import java.util.List;
 
+import org.python.pydev.ast.adapters.IASTNodeAdapter;
+import org.python.pydev.ast.adapters.IClassDefAdapter;
+import org.python.pydev.ast.adapters.INodeAdapter;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
-import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
-import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
-import org.python.pydev.refactoring.ast.adapters.INodeAdapter;
 import org.python.pydev.refactoring.core.request.IRefactoringRequest;
 
 public class ConstructorFieldRequest implements IRefactoringRequest {

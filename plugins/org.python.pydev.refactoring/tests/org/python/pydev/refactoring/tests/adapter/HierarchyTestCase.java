@@ -26,6 +26,9 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.ast.adapters.IClassDefAdapter;
+import org.python.pydev.ast.adapters.ModuleAdapter;
+import org.python.pydev.ast.adapters.PythonModuleManager;
 import org.python.pydev.ast.codecompletion.PyCodeCompletion;
 import org.python.pydev.ast.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.ast.codecompletion.revisited.modules.CompiledModule;
@@ -34,10 +37,6 @@ import org.python.pydev.ast.codecompletion.shell.PythonShell;
 import org.python.pydev.ast.codecompletion.shell.PythonShellTest;
 import org.python.pydev.core.ShellId;
 import org.python.pydev.core.TestDependent;
-import org.python.pydev.refactoring.ast.PythonModuleManager;
-import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
-import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
-import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.shared_core.io.FileUtils;
 
 public class HierarchyTestCase extends CodeCompletionTestsBase {
@@ -84,8 +83,9 @@ public class HierarchyTestCase extends CodeCompletionTestsBase {
 
     public void testHierarchyWithBuiltins() throws Throwable {
 
-        ModuleAdapter module = VisitorFactory.createModuleAdapter(new PythonModuleManager(nature), file, new Document(
-                FileUtils.getFileContents(file)), nature, nature);
+        ModuleAdapter module = org.python.pydev.ast.adapters.visitors.VisitorFactory
+                .createModuleAdapter(new PythonModuleManager(nature), file, new Document(
+                        FileUtils.getFileContents(file)), nature, nature);
 
         List<IClassDefAdapter> classes = module.getClasses();
         assertEquals(1, classes.size());

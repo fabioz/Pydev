@@ -19,7 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.callbacks.ListenerList;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -291,10 +291,10 @@ public class PathWatchTest extends TestCase {
             fail("Not expecting any addition (we don't track changes recursively).");
         }
 
-        // waitUntilCondition(new ICallback<String, Object>() {
+        // waitUntilCondition(new ICallback0<String>() {
         //
         //     @Override
-        //     public String call(Object arg) {
+        //     public String call() {
         //         if (getChangeHappened()) {
         //             return null;
         //         }
@@ -344,10 +344,10 @@ public class PathWatchTest extends TestCase {
             FileUtils.writeStrToFile("FILE1", new File(baseDir, "f" + i + ".txt"));
         }
 
-        waitUntilCondition(new ICallback<String, Object>() {
+        waitUntilCondition(new ICallback0<String>() {
 
             @Override
-            public String call(Object arg) {
+            public String call() {
                 Tuple<String, File>[] array = createChangesArray(changes);
 
                 HashSet<Tuple<String, File>> set = new HashSet<>(Arrays.asList(array));
@@ -374,10 +374,10 @@ public class PathWatchTest extends TestCase {
                 f.delete();
             }
         }
-        waitUntilCondition(new ICallback<String, Object>() {
+        waitUntilCondition(new ICallback0<String>() {
 
             @Override
-            public String call(Object arg) {
+            public String call() {
 
                 int foundRemovals = 0;
                 Tuple<String, File>[] array = createChangesArray(changes);
@@ -399,10 +399,10 @@ public class PathWatchTest extends TestCase {
         pathWatch.log.append("--- Will delete base dir ---\n");
         assertTrue(baseDir.delete());
 
-        waitUntilCondition(new ICallback<String, Object>() {
+        waitUntilCondition(new ICallback0<String>() {
 
             @Override
-            public String call(Object arg) {
+            public String call() {
 
                 Tuple<String, File>[] array = createChangesArray(changes);
 
@@ -457,7 +457,7 @@ public class PathWatchTest extends TestCase {
         assertEquals(0, changes.size());
     }
 
-    private void waitUntilCondition(ICallback<String, Object> call) {
+    private void waitUntilCondition(ICallback0<String> call) {
         try {
             TestUtils.waitUntilCondition(call);
         } catch (AssertionError e1) {

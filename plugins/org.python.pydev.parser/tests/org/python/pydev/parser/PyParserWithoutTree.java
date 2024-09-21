@@ -37,12 +37,12 @@ public class PyParserWithoutTree extends TestCase {
                 return null;
             }
         };
-        ParseOutput tuple = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(contents),
+        ParseOutput tuple = PyParser.parseFull(new PyParser.ParserInfo(new Document(contents),
                 grammarProvider, false));
 
         assertTrue("Found: " + tuple.error, tuple.error instanceof ParseException);
 
-        tuple = PyParser.reparseDocument(new PyParser.ParserInfo(new Document("a = 10"), grammarProvider, false));
+        tuple = PyParser.parseFull(new PyParser.ParserInfo(new Document("a = 10"), grammarProvider, false));
 
         assertTrue("Found: " + tuple.error, tuple.error == null);
     }

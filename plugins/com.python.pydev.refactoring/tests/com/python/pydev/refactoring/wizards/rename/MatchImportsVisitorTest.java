@@ -27,7 +27,7 @@ public class MatchImportsVisitorTest extends TestCase {
                 + "from a.b.c.d import *\n" //rename a.b.c with wild import
                 + "");
         IPythonNature nature = new PythonNatureStub();
-        ParseOutput obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, nature));
+        ParseOutput obj = PyParser.parseFull(new PyParser.ParserInfo(doc, nature));
         SourceModule module = (SourceModule) AbstractModule.createModule((SimpleNode) obj.ast, null, "z", null);
 
         MatchImportsVisitor visitor = new MatchImportsVisitor(nature, "a.b.c", module, null);
@@ -44,7 +44,7 @@ public class MatchImportsVisitorTest extends TestCase {
                 + "import a.b\n"
                 + "");
         IPythonNature nature = new PythonNatureStub();
-        ParseOutput obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, nature));
+        ParseOutput obj = PyParser.parseFull(new PyParser.ParserInfo(doc, nature));
         SourceModule module = (SourceModule) AbstractModule.createModule((SimpleNode) obj.ast, null, "z", null);
 
         MatchImportsVisitor visitor = new MatchImportsVisitor(nature, "a.b.c", module, null);
@@ -68,7 +68,7 @@ public class MatchImportsVisitorTest extends TestCase {
                 return IPythonNature.GRAMMAR_PYTHON_VERSION_3_5;
             }
         };
-        ParseOutput obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, nature));
+        ParseOutput obj = PyParser.parseFull(new PyParser.ParserInfo(doc, nature));
         SourceModule module = (SourceModule) AbstractModule.createModule((SimpleNode) obj.ast, null, "a.g", null);
 
         MatchImportsVisitor visitor = new MatchImportsVisitor(nature, "a.b.c", module, null);

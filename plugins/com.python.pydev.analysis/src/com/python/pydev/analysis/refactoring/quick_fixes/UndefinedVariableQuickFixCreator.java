@@ -28,10 +28,15 @@ import com.python.pydev.analysis.additionalinfo.AdditionalProjectInterpreterInfo
 
 public class UndefinedVariableQuickFixCreator {
 
-    public static void createImportQuickProposalsFromMarkerSelectedText(IAdaptable projectAdaptable, PySelection ps,
+    public static void createImportQuickProposalsFromMarkerSelectedText(
+            IAdaptable projectAdaptable,
+            PySelection ps,
             int offset,
             IPythonNature initialNature,
-            List<ICompletionProposalHandle> props, ICodeCompletionASTManager astManager, int start, int end,
+            List<ICompletionProposalHandle> props,
+            ICodeCompletionASTManager astManager,
+            int start,
+            int end,
             boolean forceReparseOnApply)
             throws BadLocationException {
         ps.setSelection(start, end);

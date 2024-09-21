@@ -14,10 +14,11 @@ import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.templates.TemplateProposal;
 import org.eclipse.swt.graphics.Point;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.editor.PyEdit;
+import org.python.pydev.parser.PyParser;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.shared_core.image.IImageHandle;
 
@@ -33,7 +34,7 @@ public final class TddRefactorCompletion extends AbstractTddRefactorCompletion {
     private PySelection ps;
 
     TddRefactorCompletion(String replacementString, IImageHandle image, String displayString,
-            IContextInformation contextInformation, String additionalProposalInfo, int priority, PyEdit edit,
+            IContextInformation contextInformation, String additionalProposalInfo, int priority, IPyEdit edit,
             int locationStrategy, List<String> parametersAfterCall, AbstractPyCreateAction pyCreateAction,
             PySelection ps) {
 
@@ -57,7 +58,7 @@ public final class TddRefactorCompletion extends AbstractTddRefactorCompletion {
 
     @Override
     public Point getSelection(IDocument document) {
-        TemplateProposal executed2 = getExecuted();
+        TemplateProposal executed2 = getAsTemplateProposal();
         if (executed2 != null) {
             return executed2.getSelection(document);
         }
@@ -68,16 +69,17 @@ public final class TddRefactorCompletion extends AbstractTddRefactorCompletion {
     public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
         if (edit != null) {
             //We have to reparse to make sure that we'll have an accurate AST.
-            edit.getParser().reparseDocument();
+            PyParser parser = (PyParser) edit.getParser();
+            parser.reparseDocument();
         }
-        TemplateProposal executed2 = getExecuted();
+        TemplateProposal executed2 = getAsTemplateProposal();
         if (executed2 != null) {
             executed2.apply(viewer, trigger, stateMask, 0);
             forceReparseInBaseEditorAnd();
         }
     }
 
-    private TemplateProposal getExecuted() {
+    public TemplateProposal getAsTemplateProposal() {
         if (executed == null) {
             pyCreateAction.setActiveEditor(null, edit);
             try {

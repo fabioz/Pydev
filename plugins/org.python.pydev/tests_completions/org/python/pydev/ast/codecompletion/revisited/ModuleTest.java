@@ -49,7 +49,7 @@ public class ModuleTest extends TestCase {
     }
 
     public void testMod1() {
-        ParseOutput obj = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(getDoc1()),
+        ParseOutput obj = PyParser.parseFull(new PyParser.ParserInfo(new Document(getDoc1()),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_3_5, null));
         SimpleNode n = (SimpleNode) obj.ast;
         IModule module = AbstractModule.createModule(n, null);
@@ -76,7 +76,7 @@ public class ModuleTest extends TestCase {
                 "    pass\n" +
                 "other = method\n" +
                 "";
-        ParseOutput obj = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(doc),
+        ParseOutput obj = PyParser.parseFull(new PyParser.ParserInfo(new Document(doc),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_3_5, null));
         SimpleNode n = (SimpleNode) obj.ast;
         IModule module = AbstractModule.createModule(n, null);
@@ -101,7 +101,7 @@ public class ModuleTest extends TestCase {
                 "    pass\n" +
                 "other = another = method\n" +
                 "";
-        ParseOutput obj = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(doc),
+        ParseOutput obj = PyParser.parseFull(new PyParser.ParserInfo(new Document(doc),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_3_5, null));
         SimpleNode n = (SimpleNode) obj.ast;
         IModule module = AbstractModule.createModule(n, null);

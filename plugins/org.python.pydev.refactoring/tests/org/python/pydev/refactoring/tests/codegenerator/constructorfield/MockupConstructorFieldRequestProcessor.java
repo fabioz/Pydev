@@ -21,12 +21,12 @@ package org.python.pydev.refactoring.tests.codegenerator.constructorfield;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.python.pydev.ast.adapters.IClassDefAdapter;
+import org.python.pydev.ast.adapters.INodeAdapter;
+import org.python.pydev.ast.adapters.ModuleAdapter;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
-import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
-import org.python.pydev.refactoring.ast.adapters.INodeAdapter;
-import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.codegenerator.constructorfield.request.ConstructorFieldRequest;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
 

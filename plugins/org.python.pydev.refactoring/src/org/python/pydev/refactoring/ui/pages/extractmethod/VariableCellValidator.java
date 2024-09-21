@@ -27,7 +27,7 @@ package org.python.pydev.refactoring.ui.pages.extractmethod;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
-import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
+import org.python.pydev.ast.adapters.AbstractScopeNode;
 import org.python.pydev.refactoring.core.validator.NameValidator;
 import org.python.pydev.refactoring.ui.pages.core.SimpleTableItem;
 import org.python.pydev.refactoring.ui.pages.listener.IValidationPage;

@@ -27,7 +27,7 @@ package org.python.pydev.refactoring.core.edit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.refactoring.ast.visitors.rewriter.Rewriter;
+import org.python.pydev.parser.prettyprinterv2.Rewriter;
 import org.python.pydev.refactoring.core.request.IRefactoringRequest;
 
 public abstract class AbstractReplaceEdit extends AbstractTextEdit {

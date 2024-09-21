@@ -44,7 +44,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.dialogs.ContainerCheckedTreeViewer;
-import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
+import org.python.pydev.ast.adapters.offsetstrategy.IOffsetStrategy;
 import org.python.pydev.refactoring.codegenerator.overridemethods.OverrideMethodsRefactoring;
 import org.python.pydev.refactoring.codegenerator.overridemethods.OverrideMethodsRequestProcessor;
 import org.python.pydev.refactoring.core.model.OffsetStrategyModel;

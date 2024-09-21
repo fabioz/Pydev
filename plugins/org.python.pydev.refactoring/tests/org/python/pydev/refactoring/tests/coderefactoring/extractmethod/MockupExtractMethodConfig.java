@@ -21,7 +21,7 @@ package org.python.pydev.refactoring.tests.coderefactoring.extractmethod;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
+import org.python.pydev.ast.adapters.offsetstrategy.IOffsetStrategy;
 
 public class MockupExtractMethodConfig {
 

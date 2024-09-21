@@ -25,16 +25,16 @@
 package org.python.pydev.refactoring.core.edit;
 
 import org.eclipse.text.edits.TextEdit;
+import org.python.pydev.ast.adapters.AbstractScopeNode;
+import org.python.pydev.ast.adapters.IASTNodeAdapter;
+import org.python.pydev.ast.adapters.ModuleAdapter;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.parser.jython.ast.factory.NodeHelper;
 import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 import org.python.pydev.parser.prettyprinterv2.MakeAstValidForPrettyPrintingVisitor;
-import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
-import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
-import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
-import org.python.pydev.refactoring.ast.visitors.rewriter.Rewriter;
+import org.python.pydev.parser.prettyprinterv2.Rewriter;
 import org.python.pydev.refactoring.core.request.IExtractMethodRefactoringRequest;
 import org.python.pydev.refactoring.core.request.IRefactoringRequest;
 

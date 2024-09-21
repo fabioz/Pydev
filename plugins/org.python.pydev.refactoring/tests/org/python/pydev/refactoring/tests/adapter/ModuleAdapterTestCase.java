@@ -22,9 +22,8 @@
 package org.python.pydev.refactoring.tests.adapter;
 
 import org.eclipse.jface.text.Document;
-import org.python.pydev.refactoring.ast.FQIdentifier;
-import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
-import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
+import org.python.pydev.ast.adapters.FQIdentifier;
+import org.python.pydev.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.tests.core.AbstractIOTestCase;
 
 import com.thoughtworks.xstream.XStream;
@@ -47,7 +46,8 @@ public class ModuleAdapterTestCase extends AbstractIOTestCase {
         });
         xstream.alias("config", ModuleAdapterTestConfig.class);
 
-        ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(data.source),
+        ModuleAdapter module = org.python.pydev.ast.adapters.visitors.VisitorFactory.createModuleAdapter(null, null,
+                new Document(data.source),
                 new PythonNatureStub(), createVersionProvider());
         if (data.config.length() > 0) {
             config = (ModuleAdapterTestConfig) xstream.fromXML(data.config);

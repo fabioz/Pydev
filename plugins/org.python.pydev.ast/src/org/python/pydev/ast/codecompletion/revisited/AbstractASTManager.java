@@ -558,7 +558,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
         TokensList completionsForModule;
         try {
             ParseOutput obj = PyParser
-                    .reparseDocument(new PyParser.ParserInfo(doc, state.getNature()));
+                    .parseFull(new PyParser.ParserInfo(doc, state.getNature()));
             SimpleNode n = (SimpleNode) obj.ast;
             IModule module = AbstractModule.createModule(n, state.getNature());
 

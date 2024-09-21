@@ -103,7 +103,7 @@ public class PyParserTestBase extends TestCase {
     protected Throwable parseILegalDoc(IDocument doc, boolean generateTree) {
         ParseOutput objects;
         try {
-            objects = PyParser.reparseDocument(new ParserInfo(doc, parser.getGrammarVersion(), generateTree, null));
+            objects = PyParser.parseFull(new ParserInfo(doc, parser.getGrammarVersion(), generateTree, null));
         } catch (MisconfigurationException e) {
             throw new RuntimeException(e);
         }
@@ -162,7 +162,7 @@ public class PyParserTestBase extends TestCase {
      */
     protected static SimpleNode parseLegalDoc(IDocument doc, Object[] additionalErrInfo, int grammarVersion,
             boolean generateTree) {
-        ParseOutput objects = PyParser.reparseDocument(new ParserInfo(doc, grammarVersion,
+        ParseOutput objects = PyParser.parseFull(new ParserInfo(doc, grammarVersion,
                 generateTree, null));
 
         Object err = objects.error;

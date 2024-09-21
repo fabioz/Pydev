@@ -33,8 +33,8 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.python.pydev.ast.codecompletion.revisited.ManagerInfoToUpdate;
 import org.python.pydev.ast.codecompletion.revisited.ProjectModulesManager;
 import org.python.pydev.ast.codecompletion.revisited.SyncSystemModulesManager;
-import org.python.pydev.ast.codecompletion.revisited.SyncSystemModulesManagerScheduler;
 import org.python.pydev.ast.codecompletion.revisited.SyncSystemModulesManager.PythonpathChange;
+import org.python.pydev.ast.codecompletion.revisited.SyncSystemModulesManagerScheduler;
 import org.python.pydev.ast.codecompletion.revisited.SyncSystemModulesManagerScheduler.IInfoTrackerListener;
 import org.python.pydev.ast.codecompletion.revisited.SyncSystemModulesManagerScheduler.InfoTracker;
 import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
@@ -48,7 +48,7 @@ import org.python.pydev.core.ISystemModulesManager;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.plugin.PydevTestUtils;
-import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.preferences.InMemoryEclipsePreferences;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -247,10 +247,10 @@ public class SyncSystemModulesManagerTest extends TestCase {
             }
             final File module4File = new File(libDir, "module4.py");
             FileUtils.writeStrToFile("class Module3:pass", module4File);
-            TestUtils.waitUntilCondition(new ICallback<String, Object>() {
+            TestUtils.waitUntilCondition(new ICallback0<String>() {
 
                 @Override
-                public String call(Object arg) {
+                public String call() {
                     if (changes.contains(module4File)) {
                         return null;
                     }
@@ -261,10 +261,10 @@ public class SyncSystemModulesManagerTest extends TestCase {
             changes.clear();
             final File myPthFile = new File(libDir, "my.pth");
             FileUtils.writeStrToFile("./setuptools-1.1.6-py2.6.egg", myPthFile);
-            TestUtils.waitUntilCondition(new ICallback<String, Object>() {
+            TestUtils.waitUntilCondition(new ICallback0<String>() {
 
                 @Override
-                public String call(Object arg) {
+                public String call() {
                     if (changes.contains(myPthFile)) {
                         return null;
                     }

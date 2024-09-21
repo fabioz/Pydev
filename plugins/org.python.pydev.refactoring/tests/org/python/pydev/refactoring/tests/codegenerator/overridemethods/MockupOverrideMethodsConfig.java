@@ -20,7 +20,7 @@ package org.python.pydev.refactoring.tests.codegenerator.overridemethods;
 
 import java.util.ArrayList;
 
-import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
+import org.python.pydev.ast.adapters.offsetstrategy.IOffsetStrategy;
 
 public class MockupOverrideMethodsConfig {
 

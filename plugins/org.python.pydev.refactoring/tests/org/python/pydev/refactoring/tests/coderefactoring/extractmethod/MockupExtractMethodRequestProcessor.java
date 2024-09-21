@@ -22,10 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.python.pydev.ast.adapters.AbstractScopeNode;
+import org.python.pydev.ast.adapters.ModuleAdapter;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
-import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
-import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.coderefactoring.extractmethod.edit.ParameterReturnDeduce;
 import org.python.pydev.refactoring.coderefactoring.extractmethod.request.ExtractMethodRequest;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;

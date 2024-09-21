@@ -12,8 +12,8 @@
 * Contributors:
 *     Fabio Zadrozny <fabiofz@gmail.com> - initial implementation
 ******************************************************************************/
-/* 
- * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler 
+/*
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
  */
 
 package org.python.pydev.refactoring.tests.codegenerator.generateproperties;
@@ -27,10 +27,9 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.TextEdit;
+import org.python.pydev.ast.adapters.IClassDefAdapter;
+import org.python.pydev.ast.adapters.ModuleAdapter;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
-import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
-import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.codegenerator.generateproperties.edit.DeleteMethodEdit;
 import org.python.pydev.refactoring.codegenerator.generateproperties.edit.GetterMethodEdit;
 import org.python.pydev.refactoring.codegenerator.generateproperties.edit.PropertyEdit;
@@ -90,7 +89,8 @@ public class GeneratePropertiesTestCase extends AbstractIOTestCase {
 
     private MockupGeneratePropertiesRequestProcessor setupRequestProcessor(MockupGeneratePropertiesConfig config)
             throws Throwable {
-        ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(data.source),
+        ModuleAdapter module = org.python.pydev.ast.adapters.visitors.VisitorFactory.createModuleAdapter(null, null,
+                new Document(data.source),
                 new PythonNatureStub(), createVersionProvider());
         List<IClassDefAdapter> classes = module.getClasses();
         assertTrue(classes.size() > 0);

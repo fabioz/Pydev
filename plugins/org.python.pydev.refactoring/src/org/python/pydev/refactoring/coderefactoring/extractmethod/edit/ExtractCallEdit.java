@@ -27,6 +27,8 @@ package org.python.pydev.refactoring.coderefactoring.extractmethod.edit;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.python.pydev.ast.adapters.IASTNodeAdapter;
+import org.python.pydev.ast.adapters.IClassDefAdapter;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Attribute;
@@ -35,8 +37,6 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.exprType;
-import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
-import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.coderefactoring.extractmethod.request.ExtractMethodRequest;
 import org.python.pydev.refactoring.core.edit.AbstractReplaceEdit;
 

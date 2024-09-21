@@ -14,7 +14,7 @@
 * Contributors:
 *     Fabio Zadrozny <fabiofz@gmail.com> - initial implementation
 ******************************************************************************/
-/* 
+/*
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
  * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  */
@@ -29,13 +29,12 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.MultiTextEdit;
+import org.python.pydev.ast.adapters.AbstractScopeNode;
+import org.python.pydev.ast.adapters.ModuleAdapter;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.parser.jython.ParseException;
 import org.python.pydev.parser.jython.ast.Module;
-import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
-import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
-import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.refactoring.coderefactoring.extractmethod.edit.ExtractCallEdit;
 import org.python.pydev.refactoring.coderefactoring.extractmethod.edit.ExtractMethodEdit;
 import org.python.pydev.refactoring.coderefactoring.extractmethod.edit.ParameterReturnDeduce;
@@ -68,7 +67,7 @@ public class ExtractMethodTestCase extends AbstractIOTestCase {
         IGrammarVersionProvider versionProvider = createVersionProvider();
         Module astModule;
         try {
-            astModule = VisitorFactory.getRootNode(doc, versionProvider);
+            astModule = org.python.pydev.parser.PyParser.parseSimple(doc, versionProvider);
         } catch (ParseException e) {
             throw new RuntimeException("Error parsing:\n" + data.source + "\n---\nError: " + e.getMessage(), e);
         } catch (Exception e1) {

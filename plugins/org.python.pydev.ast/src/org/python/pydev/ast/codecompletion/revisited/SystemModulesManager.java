@@ -295,7 +295,7 @@ public final class SystemModulesManager extends ModulesManagerWithBuild implemen
                             return null;
                         }
                     };
-                    ParseOutput obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, provider,
+                    ParseOutput obj = PyParser.parseFull(new PyParser.ParserInfo(doc, provider,
                             finalName, predefinedModule));
                     if (obj.error != null) {
                         if (lastModified == null) {

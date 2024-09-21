@@ -8,8 +8,8 @@ package com.python.pydev.refactoring.tdd;
 
 import java.util.List;
 
+import org.python.pydev.ast.adapters.ModuleAdapter;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.FastStringBuffer;

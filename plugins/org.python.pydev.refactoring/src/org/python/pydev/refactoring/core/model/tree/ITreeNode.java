@@ -24,7 +24,7 @@
 
 package org.python.pydev.refactoring.core.model.tree;
 
-import org.python.pydev.refactoring.ast.adapters.INodeAdapter;
+import org.python.pydev.ast.adapters.INodeAdapter;
 import org.python.pydev.refactoring.messages.Messages;
 
 public interface ITreeNode {

@@ -27,8 +27,8 @@ package org.python.pydev.refactoring.core.model.generateproperties;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.python.pydev.refactoring.ast.adapters.INodeAdapter;
-import org.python.pydev.refactoring.ast.adapters.PropertyTextAdapter;
+import org.python.pydev.ast.adapters.INodeAdapter;
+import org.python.pydev.ast.adapters.PropertyTextAdapter;
 import org.python.pydev.refactoring.core.model.tree.ITreeNode;
 import org.python.pydev.refactoring.core.model.tree.TreeNodeSimple;
 import org.python.pydev.refactoring.messages.Messages;

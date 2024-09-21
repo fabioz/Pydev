@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.shared_core.callbacks.ICallback;
+import org.python.pydev.shared_core.callbacks.ICallback0;
 import org.python.pydev.shared_core.partitioner.IToken;
 import org.python.pydev.shared_core.partitioner.ITokenScanner;
 import org.python.pydev.shared_core.string.FastStringBuffer;
@@ -24,14 +24,24 @@ public class TestUtils {
 
     private final static Object lock = new Object();
 
+    public static void waitForCondition(ICallback0<String> call) {
+        // just an alias
+        waitUntilCondition(call);
+    }
+
+    public static void waitUntilCondition(ICallback0<String> call) {
+        // default (5 seconds)
+        waitUntilCondition(call, 5000);
+    }
+
     /**
      * If callback returns null, stop the loop, otherwise keep looping (until timeout is reached).
      */
-    public static void waitUntilCondition(ICallback<String, Object> call) {
+    public static void waitUntilCondition(ICallback0<String> call, int timeout) {
         long currentTimeMillis = System.currentTimeMillis();
         String msg = null;
         while (System.currentTimeMillis() < currentTimeMillis + 5000) { //at most 5 seconds
-            msg = call.call(null);
+            msg = call.call();
             if (msg == null) {
                 return;
             }

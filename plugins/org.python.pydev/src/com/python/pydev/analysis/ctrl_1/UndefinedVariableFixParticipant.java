@@ -14,12 +14,11 @@ import java.util.List;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.ui.texteditor.MarkerAnnotation;
 import org.python.pydev.ast.analysis.IAnalysisPreferences;
 import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 
@@ -46,14 +45,9 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
         this.forceReparseOnApply = forceReparseOnApply;
     }
 
-    /**
-     * @see IAnalysisMarkersParticipant#addProps(MarkerAnnotation, IAnalysisPreferences, String, PySelection, int, IPythonNature,
-     * PyEdit, List)
-     *
-     */
     @Override
     public void addProps(MarkerAnnotationAndPosition markerAnnotation, IAnalysisPreferences analysisPreferences,
-            String line, PySelection ps, int offset, IPythonNature initialNature, PyEdit edit,
+            String line, PySelection ps, int offset, IPythonNature initialNature, IPyEdit edit,
             List<ICompletionProposalHandle> props)
             throws BadLocationException, CoreException {
         IMarker marker = markerAnnotation.markerAnnotation.getMarker();
@@ -75,8 +69,7 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
         int start = markerAnnotation.position.offset;
         int end = start + markerAnnotation.position.length;
         UndefinedVariableQuickFixCreator.createImportQuickProposalsFromMarkerSelectedText(edit, ps, offset,
-                initialNature,
-                props, astManager, start, end, forceReparseOnApply);
+                initialNature, props, astManager, start, end, forceReparseOnApply);
     }
 
 }

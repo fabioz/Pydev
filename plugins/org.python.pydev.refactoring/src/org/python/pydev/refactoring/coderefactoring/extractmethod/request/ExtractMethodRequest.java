@@ -27,12 +27,12 @@ package org.python.pydev.refactoring.coderefactoring.extractmethod.request;
 import java.util.List;
 import java.util.Map;
 
+import org.python.pydev.ast.adapters.AbstractScopeNode;
+import org.python.pydev.ast.adapters.FunctionDefAdapter;
+import org.python.pydev.ast.adapters.IASTNodeAdapter;
+import org.python.pydev.ast.adapters.ModuleAdapter;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
-import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
-import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
-import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
-import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
 import org.python.pydev.refactoring.core.request.IExtractMethodRefactoringRequest;
 import org.python.pydev.refactoring.core.request.IRefactoringRequest;
 import org.python.pydev.shared_core.string.ICoreTextSelection;

@@ -1169,7 +1169,7 @@ public abstract class ModulesManager implements IModulesManager {
                                     return null;
                                 }
                             };
-                            ParseOutput obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, provider,
+                            ParseOutput obj = PyParser.parseFull(new PyParser.ParserInfo(doc, provider,
                                     "_django_manager_body", managerBody));
                             Module ast2 = (Module) obj.ast;
                             newBody = ast2.body;

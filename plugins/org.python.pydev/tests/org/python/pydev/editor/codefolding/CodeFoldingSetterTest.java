@@ -366,7 +366,7 @@ public class CodeFoldingSetterTest extends TestCase {
     }
 
     private List<FoldingEntry> getMarks(Document doc, int grammarVersion) {
-        ParseOutput r = PyParser.reparseDocument(new PyParser.ParserInfo(doc, grammarVersion, null));
+        ParseOutput r = PyParser.parseFull(new PyParser.ParserInfo(doc, grammarVersion, null));
         List<FoldingEntry> marks = CodeFoldingSetter.getMarks(doc, (SimpleNode) r.ast, true, null);
         if (DEBUG) {
             for (FoldingEntry entry : marks) {

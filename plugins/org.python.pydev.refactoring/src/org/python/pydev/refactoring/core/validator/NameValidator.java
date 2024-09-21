@@ -28,9 +28,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
-import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
-import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
-import org.python.pydev.refactoring.ast.visitors.CannotCreateContextRuntimeException;
+import org.python.pydev.ast.adapters.AbstractScopeNode;
+import org.python.pydev.ast.adapters.FunctionDefAdapter;
+import org.python.pydev.ast.adapters.visitors.CannotCreateContextRuntimeException;
 import org.python.pydev.refactoring.messages.Messages;
 
 public class NameValidator {

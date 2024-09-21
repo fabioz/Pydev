@@ -12,8 +12,8 @@
 * Contributors:
 *     Fabio Zadrozny <fabiofz@gmail.com> - initial implementation
 ******************************************************************************/
-/* 
- * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler 
+/*
+ * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
  */
 
 package org.python.pydev.refactoring.tests.visitors;
@@ -21,12 +21,11 @@ package org.python.pydev.refactoring.tests.visitors;
 import java.util.Iterator;
 
 import org.eclipse.jface.text.Document;
-import org.python.pydev.refactoring.ast.adapters.ClassDefAdapter;
-import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
-import org.python.pydev.refactoring.ast.adapters.PropertyAdapter;
-import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
-import org.python.pydev.refactoring.ast.visitors.context.ClassDefVisitor;
-import org.python.pydev.refactoring.ast.visitors.context.PropertyVisitor;
+import org.python.pydev.ast.adapters.ClassDefAdapter;
+import org.python.pydev.ast.adapters.ModuleAdapter;
+import org.python.pydev.ast.adapters.PropertyAdapter;
+import org.python.pydev.ast.adapters.context.ClassDefVisitor;
+import org.python.pydev.ast.adapters.context.PropertyVisitor;
 import org.python.pydev.refactoring.tests.adapter.PythonNatureStub;
 import org.python.pydev.refactoring.tests.core.AbstractIOTestCase;
 
@@ -38,14 +37,17 @@ public class PropertyVisitorTestCase extends AbstractIOTestCase {
     @Override
     public void runTest() throws Throwable {
         StringBuffer buffer = new StringBuffer();
-        ModuleAdapter module = VisitorFactory.createModuleAdapter(null, null, new Document(data.source),
+        ModuleAdapter module = org.python.pydev.ast.adapters.visitors.VisitorFactory.createModuleAdapter(null, null,
+                new Document(data.source),
                 new PythonNatureStub(), createVersionProvider());
-        ClassDefVisitor classVisitor = VisitorFactory.createContextVisitor(ClassDefVisitor.class, module.getASTNode(),
+        ClassDefVisitor classVisitor = org.python.pydev.ast.adapters.visitors.VisitorFactory.createContextVisitor(
+                ClassDefVisitor.class, module.getASTNode(),
                 module, module);
 
         assertTrue(classVisitor.getAll().size() > 0);
         ClassDefAdapter classDefAdapter = (ClassDefAdapter) classVisitor.getAll().get(0);
-        PropertyVisitor propertyVisitor = VisitorFactory.createContextVisitor(PropertyVisitor.class,
+        PropertyVisitor propertyVisitor = org.python.pydev.ast.adapters.visitors.VisitorFactory.createContextVisitor(
+                PropertyVisitor.class,
                 classDefAdapter.getASTNode(), module, classDefAdapter);
 
         printProperties(buffer, propertyVisitor);

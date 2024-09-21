@@ -25,7 +25,7 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.refactoring.ast.visitors.rewriter.Rewriter;
+import org.python.pydev.parser.prettyprinterv2.Rewriter;
 import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.base.RefactoringInfo.SelectionComputer;
 import org.python.pydev.refactoring.core.base.RefactoringInfo.SelectionComputer.SelectionComputerKind;

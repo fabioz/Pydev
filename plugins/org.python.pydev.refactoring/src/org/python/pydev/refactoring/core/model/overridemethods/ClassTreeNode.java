@@ -24,8 +24,8 @@ package org.python.pydev.refactoring.core.model.overridemethods;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.python.pydev.refactoring.ast.adapters.FunctionDefAdapter;
-import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
+import org.python.pydev.ast.adapters.FunctionDefAdapter;
+import org.python.pydev.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.core.model.tree.ITreeNode;
 import org.python.pydev.refactoring.core.model.tree.TreeNodeSimple;
 

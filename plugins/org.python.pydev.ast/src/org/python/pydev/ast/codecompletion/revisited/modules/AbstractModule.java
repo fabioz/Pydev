@@ -330,12 +330,12 @@ public abstract class AbstractModule implements IModule {
 
         if (f != null) {
             if (!checkForPath || PythonPathHelper.isValidSourceFile(f.getName())) {
-                ParseOutput obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, grammarVersionProvider, name,
+                ParseOutput obj = PyParser.parseFull(new PyParser.ParserInfo(doc, grammarVersionProvider, name,
                         f));
                 return new SourceModule(name, f, (SimpleNode) obj.ast, obj.error, nature);
             }
         } else {
-            ParseOutput obj = PyParser.reparseDocument(new PyParser.ParserInfo(doc, grammarVersionProvider, name, f));
+            ParseOutput obj = PyParser.parseFull(new PyParser.ParserInfo(doc, grammarVersionProvider, name, f));
             return new SourceModule(name, f, (SimpleNode) obj.ast, obj.error, nature);
         }
         return null;

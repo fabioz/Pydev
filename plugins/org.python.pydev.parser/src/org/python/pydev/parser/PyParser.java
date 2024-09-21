@@ -28,6 +28,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.text.IRegion;
@@ -82,7 +83,7 @@ import org.python.pydev.shared_core.structure.Tuple3;
  */
 
 @SuppressWarnings("restriction")
-public class PyParser extends BaseParser implements IPyParser {
+public final class PyParser extends BaseParser implements IPyParser {
 
     /**
      * Just for tests: show whenever we're not able to parse some file.
@@ -291,7 +292,7 @@ public class PyParser extends BaseParser implements IPyParser {
             version = IGrammarVersionProvider.LATEST_GRAMMAR_PY3_VERSION;
         }
         long documentTime = System.currentTimeMillis();
-        ParseOutput obj = reparseDocument(new ParserInfo(document, version, true, additionalGrammarsToCheck));
+        ParseOutput obj = parseFull(new ParserInfo(document, version, true, additionalGrammarsToCheck));
 
         IFile original = null;
         IAdaptable adaptable = null;
@@ -366,6 +367,34 @@ public class PyParser extends BaseParser implements IPyParser {
     }
 
     //static methods that can be used to get the ast (and error if any) --------------------------------------
+
+    public static SimpleNode parseSimple(String source, IGrammarVersionProvider versionProvider)
+            throws ParseException, MisconfigurationException {
+        return parseSimple(new Document(source), versionProvider);
+    }
+
+    public static Module parseSimple(IDocument doc, IGrammarVersionProvider versionProvider) throws ParseException,
+            MisconfigurationException {
+        ParseOutput objects = parseFull(new ParserInfo(doc, versionProvider));
+        Throwable exception = objects.error;
+
+        if (exception != null) {
+            /* We try to get rid of the 'Throwable' exception, if possible */
+            if (exception instanceof ParseException) {
+                throw (ParseException) exception;
+            } else if (exception instanceof TokenMgrError) {
+                /* Error from Lexer */
+                throw new ParseException(exception.toString());
+            } else {
+                throw new RuntimeException(exception);
+            }
+        }
+
+        if (objects.error != null) {
+            throw new RuntimeException(objects.error);
+        }
+        return (Module) objects.ast;
+    }
 
     public final static class ParserInfo implements IGrammarVersionProvider {
         public IDocument document;
@@ -550,7 +579,7 @@ public class PyParser extends BaseParser implements IPyParser {
      * @return a tuple with the SimpleNode root(if parsed) and the error (if any).
      *         if we are able to recover from a reparse, we have both, the root and the error.
      */
-    public static ParseOutput reparseDocument(ParserInfo info) {
+    public static ParseOutput parseFull(ParserInfo info) {
         if (info.grammarVersion == IPythonNature.GRAMMAR_PYTHON_VERSION_CYTHON) {
             return createCythonAst(info);
         }

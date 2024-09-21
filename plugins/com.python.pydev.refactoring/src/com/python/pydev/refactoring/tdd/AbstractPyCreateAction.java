@@ -32,6 +32,10 @@ public abstract class AbstractPyCreateAction extends Action implements IEditorAc
 
     protected IPyEdit targetEditor;
 
+    public void setActiveEditor(IAction action, IPyEdit edit) {
+        this.targetEditor = edit;
+    }
+
     @Override
     public void setActiveEditor(IAction action, IEditorPart targetEditor) {
         if (targetEditor instanceof ITextEditor) {

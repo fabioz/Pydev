@@ -23,7 +23,7 @@ package org.python.pydev.refactoring.core.model.constructorfield;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
-import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
+import org.python.pydev.ast.adapters.IClassDefAdapter;
 import org.python.pydev.refactoring.core.model.tree.ITreeNode;
 
 public class ClassFieldTreeProvider implements ITreeContentProvider {

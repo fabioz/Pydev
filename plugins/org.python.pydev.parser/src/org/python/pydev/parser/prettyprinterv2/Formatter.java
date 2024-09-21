@@ -28,7 +28,7 @@ public class Formatter implements IFormatter {
             throws SyntaxErrorException {
         ParseOutput objects;
         try {
-            objects = PyParser.reparseDocument(new PyParser.ParserInfo(doc, edit.getPythonNature()));
+            objects = PyParser.parseFull(new PyParser.ParserInfo(doc, edit.getPythonNature()));
         } catch (MisconfigurationException e1) {
             Log.log(e1);
             return;

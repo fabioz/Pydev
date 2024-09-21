@@ -24,8 +24,8 @@ package org.python.pydev.refactoring.core.model.constructorfield;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
-import org.python.pydev.refactoring.ast.adapters.SimpleAdapter;
+import org.python.pydev.ast.adapters.IClassDefAdapter;
+import org.python.pydev.ast.adapters.SimpleAdapter;
 import org.python.pydev.refactoring.core.model.tree.ITreeNode;
 import org.python.pydev.refactoring.core.model.tree.TreeNodeSimple;
 

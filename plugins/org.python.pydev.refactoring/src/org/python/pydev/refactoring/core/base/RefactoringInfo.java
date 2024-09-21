@@ -35,6 +35,10 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
+import org.python.pydev.ast.adapters.AbstractScopeNode;
+import org.python.pydev.ast.adapters.IClassDefAdapter;
+import org.python.pydev.ast.adapters.ModuleAdapter;
+import org.python.pydev.ast.adapters.PythonModuleManager;
 import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IIndentPrefs;
@@ -52,11 +56,6 @@ import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
-import org.python.pydev.refactoring.ast.PythonModuleManager;
-import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
-import org.python.pydev.refactoring.ast.adapters.IClassDefAdapter;
-import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
-import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.string.CoreTextSelection;
 import org.python.pydev.shared_core.string.ICoreTextSelection;
@@ -133,7 +132,8 @@ public class RefactoringInfo {
         }
 
         try {
-            this.moduleAdapter = VisitorFactory.createModuleAdapter(moduleManager, realFile, doc, nature,
+            this.moduleAdapter = org.python.pydev.ast.adapters.visitors.VisitorFactory.createModuleAdapter(
+                    moduleManager, realFile, doc, nature,
                     this.versionProvider);
         } catch (Throwable e) {
             throw new RuntimeException(e);
@@ -281,7 +281,7 @@ public class RefactoringInfo {
                 Document temp = new Document(document.get());
                 temp.replace(o1.getOffset() + firstNonWhitespace,
                         o1.getLength() - (firstNonWhitespace + lastNonWhitespace), "call()");
-                Module rootNode = VisitorFactory.getRootNode(temp, info.getVersionProvider());
+                Module rootNode = org.python.pydev.parser.PyParser.parseSimple(temp, info.getVersionProvider());
                 if (rootNode != null) {
                     return true;
                 }
@@ -314,7 +314,8 @@ public class RefactoringInfo {
             source = source.replaceAll("\r", "");
 
             try {
-                ModuleAdapter node = VisitorFactory.createModuleAdapter(null, null, new Document(source), null,
+                ModuleAdapter node = org.python.pydev.ast.adapters.visitors.VisitorFactory.createModuleAdapter(null,
+                        null, new Document(source), null,
                         info.getVersionProvider());
                 return node;
             } catch (TokenMgrError e) {
@@ -335,8 +336,9 @@ public class RefactoringInfo {
 
     private ICoreTextSelection getExtendedSelection() {
         if (getScopeAdapter() != null) {
-            return moduleAdapter.normalizeSelection(VisitorFactory.createSelectionExtension(
-                    getScopeAdapter(), this.userSelection));
+            return moduleAdapter
+                    .normalizeSelection(org.python.pydev.ast.adapters.visitors.VisitorFactory.createSelectionExtension(
+                            getScopeAdapter(), this.userSelection));
         }
         return null;
     }
@@ -351,7 +353,8 @@ public class RefactoringInfo {
 
         if (selection != null && source.length() > 0) {
             try {
-                parsedAdapter = VisitorFactory.createModuleAdapter(moduleManager, null, new Document(source), nature,
+                parsedAdapter = org.python.pydev.ast.adapters.visitors.VisitorFactory.createModuleAdapter(moduleManager,
+                        null, new Document(source), nature,
                         this.versionProvider);
             } catch (TokenMgrError e) {
                 return null;

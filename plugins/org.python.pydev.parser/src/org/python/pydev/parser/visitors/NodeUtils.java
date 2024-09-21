@@ -2207,7 +2207,7 @@ public final class NodeUtils {
     public static exprType extractOptionalValueSubscript(exprType node) {
         if (node instanceof Str) {
             ParseOutput objects = PyParser
-                    .reparseDocument(new ParserInfo(new Document(((Str) node).s),
+                    .parseFull(new ParserInfo(new Document(((Str) node).s),
                             IPythonNature.LATEST_GRAMMAR_PY3_VERSION, null));
             if (objects.error == null && objects.ast != null && objects.ast instanceof Module
                     && ((Module) objects.ast).body.length == 1 && ((Module) objects.ast).body[0] != null

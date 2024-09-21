@@ -297,7 +297,7 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
         ParseOutput cythonParseOutput = new GenCythonAstImpl(parserInfoCython).genCythonAst();
 
         ParserInfo parserInfoInternal = new ParserInfo(new Document(expected), grammarVersionProvider);
-        ParseOutput parseOutput = PyParser.reparseDocument(parserInfoInternal);
+        ParseOutput parseOutput = PyParser.parseFull(parserInfoInternal);
         if (cythonParseOutput.ast == null) {
             if (cythonParseOutput.error != null) {
                 throw new RuntimeException(cythonParseOutput.error);

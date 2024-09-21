@@ -24,9 +24,9 @@
 
 package org.python.pydev.refactoring.core.request;
 
+import org.python.pydev.ast.adapters.IASTNodeAdapter;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
-import org.python.pydev.refactoring.ast.adapters.IASTNodeAdapter;
 
 public interface IRefactoringRequest {
 

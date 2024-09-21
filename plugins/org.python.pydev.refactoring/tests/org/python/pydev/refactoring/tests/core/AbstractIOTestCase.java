@@ -25,15 +25,14 @@ package org.python.pydev.refactoring.tests.core;
 import java.util.ArrayList;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.ast.adapters.ModuleAdapter;
+import org.python.pydev.ast.adapters.PythonModuleManager;
 import org.python.pydev.ast.codecompletion.revisited.CodeCompletionTestsBase;
 import org.python.pydev.ast.codecompletion.revisited.SystemModulesManager;
 import org.python.pydev.ast.interpreter_managers.InterpreterInfo;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.refactoring.ast.PythonModuleManager;
-import org.python.pydev.refactoring.ast.adapters.ModuleAdapter;
-import org.python.pydev.refactoring.ast.visitors.VisitorFactory;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.string.StringUtils;
 
@@ -64,8 +63,9 @@ public abstract class AbstractIOTestCase extends TestCase implements IInputOutpu
 
                 CodeCompletionTestsBase.nature.setVersion(version, null);
             }
-            ModuleAdapter module = VisitorFactory.createModuleAdapter(pythonModuleManager, data.file, new Document(
-                    data.source), CodeCompletionTestsBase.nature, CodeCompletionTestsBase.nature);
+            ModuleAdapter module = org.python.pydev.ast.adapters.visitors.VisitorFactory
+                    .createModuleAdapter(pythonModuleManager, data.file, new Document(
+                            data.source), CodeCompletionTestsBase.nature, CodeCompletionTestsBase.nature);
             return module;
         } catch (Exception e) {
             throw new RuntimeException("Error handling: " + data.file);

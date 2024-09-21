@@ -40,7 +40,7 @@ public class CodeFoldingVisitorTest extends TestCase {
                 "else:\n" +
                 "    print(3)\n" +
                 "\n";
-        ParseOutput objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
+        ParseOutput objects = PyParser.parseFull(new PyParser.ParserInfo(new Document(str),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_3_5, null));
         SimpleNode root = (SimpleNode) objects.ast;
         root.accept(visitor);
@@ -66,7 +66,7 @@ public class CodeFoldingVisitorTest extends TestCase {
                 "    else:\n" +
                 "        print(4)\n" +
                 "";
-        ParseOutput objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
+        ParseOutput objects = PyParser.parseFull(new PyParser.ParserInfo(new Document(str),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_3_5, null));
         SimpleNode root = (SimpleNode) objects.ast;
         root.accept(visitor);
@@ -91,7 +91,7 @@ public class CodeFoldingVisitorTest extends TestCase {
                 "with a:\n" +
                 "    print a\n" +
                 "";
-        ParseOutput objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
+        ParseOutput objects = PyParser.parseFull(new PyParser.ParserInfo(new Document(str),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_3_5, null));
         SimpleNode root = (SimpleNode) objects.ast;
         root.accept(visitor);
@@ -111,7 +111,7 @@ public class CodeFoldingVisitorTest extends TestCase {
                 "    print(5)\n" +
                 "\n" +
                 "";
-        ParseOutput objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
+        ParseOutput objects = PyParser.parseFull(new PyParser.ParserInfo(new Document(str),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_3_5, null));
         SimpleNode root = (SimpleNode) objects.ast;
         root.accept(visitor);
@@ -127,7 +127,7 @@ public class CodeFoldingVisitorTest extends TestCase {
                 "from a import b\n" +
                 "import b\n" +
                 "";
-        ParseOutput objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
+        ParseOutput objects = PyParser.parseFull(new PyParser.ParserInfo(new Document(str),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_3_5, null));
         SimpleNode root = (SimpleNode) objects.ast;
         root.accept(visitor);
@@ -147,7 +147,7 @@ public class CodeFoldingVisitorTest extends TestCase {
                 "    print(5)\n" +
                 "\n" +
                 "";
-        ParseOutput objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
+        ParseOutput objects = PyParser.parseFull(new PyParser.ParserInfo(new Document(str),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_3_5, null));
         SimpleNode root = (SimpleNode) objects.ast;
         root.accept(visitor);
@@ -167,7 +167,7 @@ public class CodeFoldingVisitorTest extends TestCase {
                 "    print(5)\n" +
                 "\n" +
                 "";
-        ParseOutput objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
+        ParseOutput objects = PyParser.parseFull(new PyParser.ParserInfo(new Document(str),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_3_5, null));
         SimpleNode root = (SimpleNode) objects.ast;
         root.accept(visitor);
@@ -187,7 +187,7 @@ public class CodeFoldingVisitorTest extends TestCase {
                 "    print(5)\n" +
                 "\n" +
                 "";
-        ParseOutput objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
+        ParseOutput objects = PyParser.parseFull(new PyParser.ParserInfo(new Document(str),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_3_5, null));
         SimpleNode root = (SimpleNode) objects.ast;
         root.accept(visitor);
@@ -206,7 +206,7 @@ public class CodeFoldingVisitorTest extends TestCase {
                 "    print(5)\n" +
                 "\n" +
                 "";
-        ParseOutput objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
+        ParseOutput objects = PyParser.parseFull(new PyParser.ParserInfo(new Document(str),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_3_5, null));
         SimpleNode root = (SimpleNode) objects.ast;
         root.accept(visitor);
@@ -223,7 +223,7 @@ public class CodeFoldingVisitorTest extends TestCase {
                 "test\n" +
                 "'''\n" +
                 "";
-        ParseOutput objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
+        ParseOutput objects = PyParser.parseFull(new PyParser.ParserInfo(new Document(str),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_3_5, null));
         SimpleNode root = (SimpleNode) objects.ast;
         root.accept(visitor);
@@ -251,7 +251,7 @@ public class CodeFoldingVisitorTest extends TestCase {
                 "    finally:\n" +
                 "        pass\n" +
                 "\n";
-        ParseOutput objects = PyParser.reparseDocument(new PyParser.ParserInfo(new Document(str),
+        ParseOutput objects = PyParser.parseFull(new PyParser.ParserInfo(new Document(str),
                 IPythonNature.GRAMMAR_PYTHON_VERSION_3_5, null));
         SimpleNode root = (SimpleNode) objects.ast;
         root.accept(visitor);

@@ -25,6 +25,7 @@ import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Point;
 import org.python.pydev.ast.item_pointer.ItemPointer;
 import org.python.pydev.ast.location.FindWorkspaceFiles;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.preferences.FileTypesPreferences;
@@ -44,7 +45,7 @@ public final class TddRefactorCompletionInInexistentModule extends AbstractTddRe
     private PySelection ps;
 
     public TddRefactorCompletionInInexistentModule(String replacementString, IImageHandle image, String displayString,
-            IContextInformation contextInformation, String additionalProposalInfo, int priority, PyEdit edit,
+            IContextInformation contextInformation, String additionalProposalInfo, int priority, IPyEdit edit,
             File module, List<String> parametersAfterCall, AbstractPyCreateAction pyCreateAction, PySelection ps) {
 
         super(edit, replacementString, 0, 0, 0, image, displayString, contextInformation, additionalProposalInfo,

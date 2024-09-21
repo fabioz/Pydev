@@ -29,8 +29,8 @@ import java.util.List;
 
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.Viewer;
-import org.python.pydev.refactoring.ast.adapters.AbstractScopeNode;
-import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
+import org.python.pydev.ast.adapters.AbstractScopeNode;
+import org.python.pydev.ast.adapters.offsetstrategy.IOffsetStrategy;
 import org.python.pydev.refactoring.messages.Messages;
 
 public class OffsetStrategyProvider implements IStructuredContentProvider {

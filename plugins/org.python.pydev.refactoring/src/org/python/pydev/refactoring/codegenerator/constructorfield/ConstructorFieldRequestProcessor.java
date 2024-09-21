@@ -28,10 +28,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.python.pydev.ast.adapters.ClassDefAdapter;
+import org.python.pydev.ast.adapters.INodeAdapter;
+import org.python.pydev.ast.adapters.offsetstrategy.IOffsetStrategy;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
-import org.python.pydev.refactoring.ast.adapters.ClassDefAdapter;
-import org.python.pydev.refactoring.ast.adapters.INodeAdapter;
-import org.python.pydev.refactoring.ast.adapters.offsetstrategy.IOffsetStrategy;
 import org.python.pydev.refactoring.codegenerator.constructorfield.request.ConstructorFieldRequest;
 import org.python.pydev.refactoring.core.model.constructorfield.TreeNodeClassField;
 import org.python.pydev.refactoring.core.model.constructorfield.TreeNodeField;

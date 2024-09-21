@@ -15,11 +15,11 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.ast.analysis.IAnalysisPreferences;
 import org.python.pydev.core.CheckAnalysisErrors;
+import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.formatter.FormatStd;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
-import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.shared_core.IMiscConstants;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
@@ -48,7 +48,7 @@ public class Flake8IgnoreErrorParticipant implements IAnalysisMarkersParticipant
 
     @Override
     public void addProps(MarkerAnnotationAndPosition marker, IAnalysisPreferences analysisPreferences,
-            final String line, final PySelection ps, int offset, IPythonNature nature, final PyEdit edit,
+            final String line, final PySelection ps, int offset, IPythonNature nature, final IPyEdit edit,
             List<ICompletionProposalHandle> props)
             throws BadLocationException, CoreException {
         IMarker m = marker.markerAnnotation.getMarker();
