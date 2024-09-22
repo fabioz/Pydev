@@ -71,7 +71,7 @@ public class Log {
             id = plugin.getBundle().getSymbolicName();
         }
 
-        Status s = new Status(errorLevel, id, errorLevel, message, e);
+        Status s = new Status(errorLevel, id, errorLevel, message, errorLevel >= IStatus.ERROR ? e : null);
         CoreException coreException = new CoreException(s);
 
         Tuple<Integer, String> key = new Tuple<Integer, String>(errorLevel, message);
@@ -90,8 +90,8 @@ public class Log {
             if (SharedCorePlugin.inTestMode()) {
                 if (DEBUG_LEVEL <= errorLevel) {
                     System.err.println(message);
-                    if (e != null) {
-                        e.printStackTrace();
+                    if (s.getException() != null) {
+                        s.getException().printStackTrace();
                     }
                 }
             } else {
