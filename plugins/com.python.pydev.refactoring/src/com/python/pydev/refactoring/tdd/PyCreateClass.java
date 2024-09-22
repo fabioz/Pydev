@@ -43,6 +43,11 @@ public class PyCreateClass extends AbstractPyCreateClassOrMethodOrField {
         return "class";
     }
 
+    @Override
+    protected String getDefaultActTok() {
+        return "MyClass";
+    }
+
     /**
      * Returns a proposal that can be used to generate the code.
      */

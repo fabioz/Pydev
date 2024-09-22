@@ -30,10 +30,10 @@ import org.python.pydev.ast.adapters.IASTNodeAdapter;
 import org.python.pydev.ast.adapters.IClassDefAdapter;
 import org.python.pydev.ast.adapters.INodeAdapter;
 import org.python.pydev.ast.adapters.PropertyTextAdapter;
+import org.python.pydev.core.preferences.PyDevCodeStylePreferences;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
 import org.python.pydev.parser.jython.ast.factory.NodeHelper;
-import org.python.pydev.plugin.preferences.PyCodeStylePreferencesPage;
 import org.python.pydev.refactoring.core.request.IRefactoringRequest;
 import org.python.pydev.shared_core.string.StringUtils;
 
@@ -122,11 +122,11 @@ public class GeneratePropertiesRequest implements IRefactoringRequest {
      */
     public static String getAccessorName(String accessType, String attributeName) {
         accessType += "_" + attributeName;
-        int useMethodsCamelCase = PyCodeStylePreferencesPage.useMethodsCamelCase();
-        if (useMethodsCamelCase == PyCodeStylePreferencesPage.METHODS_FORMAT_CAMELCASE_FIRST_LOWER) {
+        int useMethodsCamelCase = PyDevCodeStylePreferences.useMethodsCamelCase();
+        if (useMethodsCamelCase == PyDevCodeStylePreferences.METHODS_FORMAT_CAMELCASE_FIRST_LOWER) {
             return StringUtils.asStyleCamelCaseFirstLower(accessType);
         }
-        if (useMethodsCamelCase == PyCodeStylePreferencesPage.METHODS_FORMAT_CAMELCASE_FIRST_UPPER) {
+        if (useMethodsCamelCase == PyDevCodeStylePreferences.METHODS_FORMAT_CAMELCASE_FIRST_UPPER) {
             return StringUtils.asStyleCamelCaseFirstUpper(accessType);
         }
         //default is underscore

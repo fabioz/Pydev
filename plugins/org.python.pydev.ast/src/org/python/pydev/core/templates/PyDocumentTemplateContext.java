@@ -11,6 +11,7 @@ import java.io.File;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.templates.GlobalTemplateVariables;
 import org.eclipse.jface.text.templates.TemplateContextType;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IIndentPrefs;
@@ -163,6 +164,20 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContextWith
             return PyDocumentTemplateContext.createContext(contextType, edit, region, indent);
         }
         return null;
+    }
+
+    public static PyDocumentTemplateContext createContextWithCursor(ISourceViewerForTemplates targetEditor,
+            IRegion region, String indent) {
+        TemplateContextType contextType = new TemplateContextType();
+        contextType.addResolver(new GlobalTemplateVariables.Cursor()); //We do want the cursor thought.
+        return createContext(contextType, targetEditor, region, indent);
+    }
+
+    public static PyDocumentTemplateContext createContextWithDefaultResolvers(ISourceViewerForTemplates edit,
+            IRegion region, String indentTo) {
+        TemplateContextType contextType = new TemplateContextType();
+        PyAddTemplateResolvers.addDefaultResolvers(contextType);
+        return createContext(contextType, edit, region, indentTo);
     }
 
 }

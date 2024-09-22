@@ -14,11 +14,6 @@ import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 public class NullPyCreateAction extends AbstractPyCreateAction {
 
     @Override
-    public void execute(RefactoringInfo refactoringInfo, int locationStrategyBeforeCurrent) {
-
-    }
-
-    @Override
     public ICompletionProposalHandle createProposal(RefactoringInfo refactoringInfo, String actTok,
             int locationStrategy,
             List<String> parametersAfterCall) {

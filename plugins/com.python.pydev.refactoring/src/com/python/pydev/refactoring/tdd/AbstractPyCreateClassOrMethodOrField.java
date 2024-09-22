@@ -9,28 +9,21 @@ package com.python.pydev.refactoring.tdd;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.jface.dialogs.IInputValidator;
-import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Region;
-import org.eclipse.jface.text.contentassist.ICompletionProposalExtension2;
-import org.eclipse.jface.text.templates.GlobalTemplateVariables;
 import org.eclipse.jface.text.templates.Template;
-import org.eclipse.jface.text.templates.TemplateContextType;
 import org.python.pydev.ast.adapters.IClassDefAdapter;
 import org.python.pydev.ast.adapters.ModuleAdapter;
 import org.python.pydev.ast.adapters.offsetstrategy.BeginOffset;
 import org.python.pydev.ast.adapters.offsetstrategy.EndOffset;
 import org.python.pydev.ast.adapters.offsetstrategy.IOffsetStrategy;
-import org.python.pydev.ast.refactoring.RefactoringInfo;
+import org.python.pydev.ast.assist_assign.AssistAssign;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.core.templates.PyDocumentTemplateContext;
-import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.correctionassist.heuristics.AssistAssign;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -38,73 +31,12 @@ import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
-import org.python.pydev.shared_ui.EditorUtils;
 
 public abstract class AbstractPyCreateClassOrMethodOrField extends AbstractPyCreateAction {
 
     public abstract String getCreationStr();
 
-    @Override
-    public void execute(RefactoringInfo refactoringInfo, int locationStrategy) {
-        try {
-            String creationStr = this.getCreationStr();
-            final String asTitle = StringUtils.getWithFirstUpper(creationStr);
-
-            PySelection pySelection = refactoringInfo.getPySelection();
-            Tuple<String, Integer> currToken = pySelection.getCurrToken();
-            String actTok = currToken.o1;
-            List<String> parametersAfterCall = null;
-            if (actTok.length() == 0) {
-                InputDialog dialog = new InputDialog(EditorUtils.getShell(), asTitle + " name",
-                        "Please enter the name of the " + asTitle + " to be created.", "", new IInputValidator() {
-
-                            @Override
-                            public String isValid(String newText) {
-                                if (newText.length() == 0) {
-                                    return "The " + asTitle + " name may not be empty";
-                                }
-                                if (StringUtils.containsWhitespace(newText)) {
-                                    return "The " + asTitle + " name may not contain whitespaces.";
-                                }
-                                return null;
-                            }
-                        });
-                if (dialog.open() != InputDialog.OK) {
-                    return;
-                }
-                actTok = dialog.getValue();
-            } else {
-                parametersAfterCall = pySelection.getParametersAfterCall(currToken.o2 + actTok.length());
-
-            }
-
-            execute(refactoringInfo, actTok, parametersAfterCall, locationStrategy);
-        } catch (BadLocationException e) {
-            Log.log(e);
-        }
-    }
-
-    /**
-     * When executed it'll create a proposal and apply it.
-     */
-    /*default*/void execute(RefactoringInfo refactoringInfo, String actTok, List<String> parametersAfterCall,
-            int locationStrategy) {
-        try {
-            ICompletionProposalHandle proposal = createProposal(refactoringInfo, actTok, locationStrategy,
-                    parametersAfterCall);
-            if (proposal != null) {
-                if (proposal instanceof ICompletionProposalExtension2) {
-                    ICompletionProposalExtension2 extension2 = (ICompletionProposalExtension2) proposal;
-                    extension2.apply(((PyEdit) targetEditor).getPySourceViewer(), '\n', 0, 0);
-                } else {
-                    proposal.apply(refactoringInfo.getDocument());
-                }
-            }
-
-        } catch (Exception e) {
-            Log.log(e);
-        }
-    }
+    protected abstract String getDefaultActTok();
 
     protected ICompletionProposalHandle createProposal(PySelection pySelection, String source,
             Tuple<Integer, String> offsetAndIndent) {
@@ -176,10 +108,8 @@ public abstract class AbstractPyCreateClassOrMethodOrField extends AbstractPyCre
             //Note: was using new PyContextType(), but when we had something as ${user} it
             //would end up replacing it with the actual name of the user, which is not what
             //we want!
-            TemplateContextType contextType = new TemplateContextType();
-            contextType.addResolver(new GlobalTemplateVariables.Cursor()); //We do want the cursor thought.
-            PyDocumentTemplateContext context = PyDocumentTemplateContext.createContext(contextType,
-                    targetEditor, region, indent);
+            PyDocumentTemplateContext context = PyDocumentTemplateContext.createContextWithCursor(targetEditor, region,
+                    indent);
 
             Template template = new Template("Create " + creationStr, "Create " + creationStr, "", source, true);
             ICompletionProposalHandle templateProposal = CompletionProposalFactory.get()

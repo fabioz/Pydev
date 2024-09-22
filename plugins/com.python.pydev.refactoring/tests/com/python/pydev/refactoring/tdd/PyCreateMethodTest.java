@@ -67,7 +67,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
         ICoreTextSelection selection = new CoreTextSelection(document, 0, 0);
         RefactoringInfo info = new RefactoringInfo(document, selection, PY_27_ONLY_GRAMMAR_VERSION_PROVIDER);
 
-        pyCreateMethod.execute(info, AbstractPyCreateAction.LOCATION_STRATEGY_BEFORE_CURRENT);
+        ExecutePyCreate.execute(pyCreateMethod, info, AbstractPyCreateAction.LOCATION_STRATEGY_BEFORE_CURRENT);
 
         assertContentsEqual("" +
                 "def MyMethod():\n" +
@@ -87,7 +87,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
         ICoreTextSelection selection = new CoreTextSelection(document, 0, 0);
         RefactoringInfo info = new RefactoringInfo(document, selection, PY_27_ONLY_GRAMMAR_VERSION_PROVIDER);
 
-        pyCreateMethod.execute(info, AbstractPyCreateAction.LOCATION_STRATEGY_BEFORE_CURRENT);
+        ExecutePyCreate.execute(pyCreateMethod, info, AbstractPyCreateAction.LOCATION_STRATEGY_BEFORE_CURRENT);
 
         assertContentsEqual("" +
                 "def MyMethod(${a}, ${b}):\n" +
@@ -107,7 +107,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
         ICoreTextSelection selection = new CoreTextSelection(document, 5, 0);
         RefactoringInfo info = new RefactoringInfo(document, selection, PY_27_ONLY_GRAMMAR_VERSION_PROVIDER);
 
-        pyCreateMethod.execute(info, AbstractPyCreateAction.LOCATION_STRATEGY_END);
+        ExecutePyCreate.execute(pyCreateMethod, info, AbstractPyCreateAction.LOCATION_STRATEGY_END);
 
         assertContentsEqual("" +
                 "a = MyMethod()\n" +
@@ -128,7 +128,8 @@ public class PyCreateMethodTest extends TestCaseUtils {
         ICoreTextSelection selection = new CoreTextSelection(document, 5, 0);
         RefactoringInfo info = new RefactoringInfo(document, selection, PY_27_ONLY_GRAMMAR_VERSION_PROVIDER);
 
-        pyCreateMethod.execute(info, "MyMethod", new ArrayList<String>(), AbstractPyCreateAction.LOCATION_STRATEGY_END);
+        ExecutePyCreate.execute(pyCreateMethod, info, "MyMethod", new ArrayList<String>(),
+                AbstractPyCreateAction.LOCATION_STRATEGY_END);
 
         assertContentsEqual("" +
                 "def MyMethod():\n" +
@@ -138,7 +139,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
                 "", document.get());
 
         document.set("");
-        pyCreateMethod.execute(info, "MyMethod2", new ArrayList<String>(),
+        ExecutePyCreate.execute(pyCreateMethod, info, "MyMethod2", new ArrayList<String>(),
                 AbstractPyCreateAction.LOCATION_STRATEGY_BEFORE_CURRENT);
 
         assertContentsEqual("" +
@@ -164,7 +165,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
 
         pyCreateMethod.setCreateInClass("A");
         pyCreateMethod.setCreateAs(PyCreateMethodOrField.CLASSMETHOD);
-        pyCreateMethod.execute(info, AbstractPyCreateAction.LOCATION_STRATEGY_END);
+        ExecutePyCreate.execute(pyCreateMethod, info, AbstractPyCreateAction.LOCATION_STRATEGY_END);
 
         assertContentsEqual("" +
                 "" +
@@ -198,7 +199,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
 
         pyCreateMethod.setCreateInClass("A");
         pyCreateMethod.setCreateAs(PyCreateMethodOrField.BOUND_METHOD);
-        pyCreateMethod.execute(info, AbstractPyCreateAction.LOCATION_STRATEGY_BEFORE_CURRENT);
+        ExecutePyCreate.execute(pyCreateMethod, info, AbstractPyCreateAction.LOCATION_STRATEGY_BEFORE_CURRENT);
 
         String expected = "" +
                 "class A(object):\n" +
@@ -233,7 +234,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
 
         pyCreateMethod.setCreateInClass("A");
         pyCreateMethod.setCreateAs(PyCreateMethodOrField.BOUND_METHOD);
-        pyCreateMethod.execute(info, AbstractPyCreateAction.LOCATION_STRATEGY_BEFORE_CURRENT);
+        ExecutePyCreate.execute(pyCreateMethod, info, AbstractPyCreateAction.LOCATION_STRATEGY_BEFORE_CURRENT);
 
         String expected = "" +
                 "class A(object):\n" +
@@ -267,7 +268,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
 
         pyCreateMethod.setCreateInClass("A");
         pyCreateMethod.setCreateAs(PyCreateMethodOrField.BOUND_METHOD);
-        pyCreateMethod.execute(info, AbstractPyCreateAction.LOCATION_STRATEGY_BEFORE_CURRENT);
+        ExecutePyCreate.execute(pyCreateMethod, info, AbstractPyCreateAction.LOCATION_STRATEGY_BEFORE_CURRENT);
 
         String expected = "" +
                 "class A(object):\n" +

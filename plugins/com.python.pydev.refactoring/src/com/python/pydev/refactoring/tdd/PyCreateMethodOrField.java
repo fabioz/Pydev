@@ -48,6 +48,17 @@ public class PyCreateMethodOrField extends AbstractPyCreateClassOrMethodOrField 
         return "method";
     }
 
+    @Override
+    protected String getDefaultActTok() {
+        if (createAs == FIELD) {
+            return "my_field";
+        }
+        if (createAs == CONSTANT) {
+            return "my_constant";
+        }
+        return "my_method";
+    }
+
     /**
      * Returns a proposal that can be used to generate the code.
      */

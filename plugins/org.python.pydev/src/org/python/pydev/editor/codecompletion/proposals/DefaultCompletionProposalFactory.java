@@ -5,7 +5,6 @@ import java.util.List;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.contentassist.IContextInformation;
-import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateContext;
 import org.eclipse.swt.widgets.Display;
@@ -22,13 +21,13 @@ import org.python.pydev.core.interactive_console.IScriptConsoleViewer;
 import org.python.pydev.core.proposals.ICompletionProposalFactory;
 import org.python.pydev.editor.codecompletion.PyTemplateProposal;
 import org.python.pydev.editor.codefolding.PyCalltipsContextInformationFromIToken;
+import org.python.pydev.editor.correctionassist.AssistAssignCompletionProposal;
 import org.python.pydev.editor.correctionassist.FixCompletionProposal;
 import org.python.pydev.editor.correctionassist.IgnoreCompletionProposal;
 import org.python.pydev.editor.correctionassist.IgnoreCompletionProposalInSameLine;
 import org.python.pydev.editor.correctionassist.IgnoreFlake8CompletionProposalInSameLine;
 import org.python.pydev.editor.correctionassist.IgnorePyLintCompletionProposalInSameLine;
 import org.python.pydev.editor.correctionassist.docstrings.AssistDocstringCompletionProposal;
-import org.python.pydev.editor.correctionassist.heuristics.AssistAssignCompletionProposal;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.code_completion.IPyCompletionProposal.ICompareContext;
 import org.python.pydev.shared_core.image.IImageHandle;
@@ -104,12 +103,10 @@ public class DefaultCompletionProposalFactory implements ICompletionProposalFact
     @Override
     public ICompletionProposalHandle createAssistAssignCompletionProposal(String replacementString,
             int replacementOffset, int replacementLength, int cursorPosition, IImageHandle image, String displayString,
-            Object contextInformation, String additionalProposalInfo, int priority,
-            Object sourceViewer, ICompareContext compareContext) {
+            Object contextInformation, String additionalProposalInfo, int priority, IPyEdit edit) {
         return new AssistAssignCompletionProposal(replacementString, replacementOffset, replacementLength,
                 cursorPosition, image, displayString, (IContextInformation) contextInformation, additionalProposalInfo,
-                priority,
-                (ISourceViewer) sourceViewer, compareContext);
+                priority);
     }
 
     @Override

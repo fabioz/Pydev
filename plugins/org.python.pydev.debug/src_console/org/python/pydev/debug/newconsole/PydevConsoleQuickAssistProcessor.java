@@ -18,12 +18,12 @@ import org.eclipse.jface.text.quickassist.IQuickAssistProcessor;
 import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.viewers.ISelection;
+import org.python.pydev.ast.assist_assign.AssistAssign;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PySelectionFromEditor;
 import org.python.pydev.editor.codecompletion.ConvertCompletionProposals;
 import org.python.pydev.editor.correctionassist.PyCorrectionAssistant;
-import org.python.pydev.editor.correctionassist.heuristics.AssistAssign;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_interactive_console.console.ui.internal.ScriptConsoleViewer;
 import org.python.pydev.shared_ui.SharedUiPlugin;
@@ -84,8 +84,8 @@ public class PydevConsoleQuickAssistProcessor implements IQuickAssistProcessor {
                                 break;
                             }
                         }
-                        props.addAll(assistAssign.getProps(ps, SharedUiPlugin.getImageCache(), sourceViewer, offset,
-                                commandLine, commandLineOffset));
+                        props.addAll(assistAssign.getProps(ps, SharedUiPlugin.getImageCache(), null, offset,
+                                commandLine, commandLineOffset, null));
 
                     } catch (BadLocationException e) {
                         Log.log(e);

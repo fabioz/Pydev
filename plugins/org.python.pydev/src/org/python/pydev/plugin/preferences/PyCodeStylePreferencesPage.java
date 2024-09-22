@@ -14,32 +14,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.python.pydev.core.preferences.PydevPrefs;
+import org.python.pydev.core.preferences.PyDevCodeStylePreferences;
 import org.python.pydev.plugin.PydevPlugin;
-import org.python.pydev.shared_core.SharedCorePlugin;
 
 public class PyCodeStylePreferencesPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
-
-    public static final String USE_LOCALS_AND_ATTRS_CAMELCASE = "USE_LOCALS_AND_ATTRS_CAMELCASE";
-
-    public static final String USE_METHODS_FORMAT = "USE_METHODS_FORMAT";
-
-    public static final boolean DEFAULT_USE_LOCALS_AND_ATTRS_CAMELCASE = false;
-
-    public static final int METHODS_FORMAT_CAMELCASE_FIRST_LOWER = 0;
-    public static final int METHODS_FORMAT_CAMELCASE_FIRST_UPPER = 1;
-    public static final int METHODS_FORMAT_UNDERSCORE_SEPARATED = 2;
-
-    public static final int DEFAULT_USE_METHODS_FORMAT = METHODS_FORMAT_UNDERSCORE_SEPARATED;
-
-    public static final String[][] LABEL_AND_VALUE = new String[][] {
-            { "underscore_separated", String.valueOf(METHODS_FORMAT_UNDERSCORE_SEPARATED) },
-            { "CamelCase() with first upper", String.valueOf(METHODS_FORMAT_CAMELCASE_FIRST_UPPER) },
-            { "camelCase() with first lower", String.valueOf(METHODS_FORMAT_CAMELCASE_FIRST_LOWER) }, };
-
-    public static final String[][] LOCALS_LABEL_AND_VALUE = new String[][] {
-            { "underscore_separated", String.valueOf(false) },
-            { "camelCase with first lower", String.valueOf(true) }, };
 
     private Label labelLocalsFormat;
     private Label labelMethodsFormat;
@@ -59,19 +37,19 @@ public class PyCodeStylePreferencesPage extends FieldEditorPreferencePage implem
     public void createFieldEditors() {
         Composite p = getFieldEditorParent();
 
-        useLocalsAndAttrsCamelCase = new RadioGroupFieldEditor(USE_LOCALS_AND_ATTRS_CAMELCASE,
-                "Locals and attributes format (used for assign quick-assist)?", 1, LOCALS_LABEL_AND_VALUE, p, true);
+        useLocalsAndAttrsCamelCase = new RadioGroupFieldEditor(PyDevCodeStylePreferences.USE_LOCALS_AND_ATTRS_CAMELCASE,
+                "Locals and attributes format (used for assign quick-assist)?", 1, PyDevCodeStylePreferences.LOCALS_LABEL_AND_VALUE, p, true);
         addField(useLocalsAndAttrsCamelCase);
 
-        useMethodsFormat = new RadioGroupFieldEditor(USE_METHODS_FORMAT,
-                "Methods format (used for generate properties refactoring)", 1, LABEL_AND_VALUE, p, true);
+        useMethodsFormat = new RadioGroupFieldEditor(PyDevCodeStylePreferences.USE_METHODS_FORMAT,
+                "Methods format (used for generate properties refactoring)", 1, PyDevCodeStylePreferences.LABEL_AND_VALUE, p, true);
         addField(useMethodsFormat);
 
         labelLocalsFormat = new Label(p, SWT.NONE);
 
         labelMethodsFormat = new Label(p, SWT.NONE);
-        updateLabelLocalsAndAttrs(useLocalsAndAttrsCamelCase());
-        updateLabelMethods(useMethodsCamelCase());
+        updateLabelLocalsAndAttrs(PyDevCodeStylePreferences.useLocalsAndAttrsCamelCase());
+        updateLabelMethods(PyDevCodeStylePreferences.useMethodsCamelCase());
 
     }
 
@@ -80,10 +58,10 @@ public class PyCodeStylePreferencesPage extends FieldEditorPreferencePage implem
      */
     private void updateLabelMethods(int useMethodsFormat) {
 
-        if (useMethodsFormat == METHODS_FORMAT_CAMELCASE_FIRST_UPPER) {
+        if (useMethodsFormat == PyDevCodeStylePreferences.METHODS_FORMAT_CAMELCASE_FIRST_UPPER) {
             labelMethodsFormat.setText("Refactoring property methods in the format def MyMethod()    ");
 
-        } else if (useMethodsFormat == METHODS_FORMAT_UNDERSCORE_SEPARATED) {
+        } else if (useMethodsFormat == PyDevCodeStylePreferences.METHODS_FORMAT_UNDERSCORE_SEPARATED) {
             labelMethodsFormat.setText("Refactoring property methods in the format def my_method()   ");
 
         } else {
@@ -107,25 +85,6 @@ public class PyCodeStylePreferencesPage extends FieldEditorPreferencePage implem
     public void init(IWorkbench workbench) {
     }
 
-    public static int TESTING_METHOD_FORMAT = DEFAULT_USE_METHODS_FORMAT;
-
-    public static int useMethodsCamelCase() {
-        if (SharedCorePlugin.inTestMode()) {
-            return TESTING_METHOD_FORMAT;
-        }
-        return PydevPrefs.getEclipsePreferences().getInt(USE_METHODS_FORMAT, DEFAULT_USE_METHODS_FORMAT);
-    }
-
-    public static boolean TESTING_METHOD_LOCALS_AND_ATTRS_CAMEL_CASE = DEFAULT_USE_LOCALS_AND_ATTRS_CAMELCASE;
-
-    public static boolean useLocalsAndAttrsCamelCase() {
-        if (SharedCorePlugin.inTestMode()) {
-            return TESTING_METHOD_LOCALS_AND_ATTRS_CAMEL_CASE;
-        }
-        return PydevPrefs.getEclipsePreferences().getBoolean(USE_LOCALS_AND_ATTRS_CAMELCASE,
-                DEFAULT_USE_LOCALS_AND_ATTRS_CAMELCASE);
-    }
-
     @Override
     public void propertyChange(PropertyChangeEvent event) {
         super.propertyChange(event);
@@ -140,7 +99,7 @@ public class PyCodeStylePreferencesPage extends FieldEditorPreferencePage implem
                 String newValue = (String) event.getNewValue();
                 val = Integer.parseInt(newValue);
             } catch (NumberFormatException e) {
-                val = DEFAULT_USE_METHODS_FORMAT;
+                val = PyDevCodeStylePreferences.DEFAULT_USE_METHODS_FORMAT;
             }
 
             updateLabelMethods(val);

@@ -56,8 +56,7 @@ public interface ICompletionProposalFactory {
 
     ICompletionProposalHandle createAssistAssignCompletionProposal(String replacementString,
             int replacementOffset, int replacementLength, int cursorPosition, IImageHandle image, String displayString,
-            Object contextInformation, String additionalProposalInfo, int priority,
-            /*ISourceViewer*/ Object sourceViewer, ICompareContext compareContext);
+            Object contextInformation, String additionalProposalInfo, int priority, IPyEdit edit);
 
     ICompletionProposalHandle createOverrideMethodCompletionProposal(ICompletionRequest request,
             PySelection ps, int replacementOffset,

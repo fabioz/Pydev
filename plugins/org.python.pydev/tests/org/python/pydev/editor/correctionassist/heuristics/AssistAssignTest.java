@@ -15,7 +15,8 @@ import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
-import org.python.pydev.codingstd.ICodingStd;
+import org.python.pydev.ast.assist_assign.AssistAssign;
+import org.python.pydev.core.ICodingStd;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.editor.codecompletion.proposals.DefaultCompletionProposalFactory;

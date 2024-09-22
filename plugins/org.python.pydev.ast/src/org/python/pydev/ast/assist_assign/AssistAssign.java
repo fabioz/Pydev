@@ -9,27 +9,32 @@
  *
  * @author Fabio Zadrozny
  */
-package org.python.pydev.editor.correctionassist.heuristics;
+package org.python.pydev.ast.assist_assign;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.source.ISourceViewer;
-import org.python.pydev.codingstd.ICodingStd;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.templates.TemplateContext;
+import org.eclipse.jface.text.templates.TemplateContextType;
 import org.python.pydev.core.IAssistProps;
+import org.python.pydev.core.ICodingStd;
+import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.autoedit.DefaultIndentPrefs;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.preferences.PyDevCodeStylePreferences;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
-import org.python.pydev.editor.PyEdit;
-import org.python.pydev.editor.codefolding.PySourceViewer;
-import org.python.pydev.plugin.preferences.PyCodeStylePreferencesPage;
+import org.python.pydev.core.templates.PyAddTemplateResolvers;
+import org.python.pydev.core.templates.PyDocumentTemplateContext;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
 import org.python.pydev.shared_core.image.IImageCache;
@@ -51,7 +56,7 @@ public class AssistAssign implements IAssistProps {
 
             @Override
             public boolean localsAndAttrsCamelcase() {
-                return PyCodeStylePreferencesPage.useLocalsAndAttrsCamelCase();
+                return PyDevCodeStylePreferences.useLocalsAndAttrsCamelCase();
             }
 
         });
@@ -73,26 +78,17 @@ public class AssistAssign implements IAssistProps {
      */
     @Override
     public List<ICompletionProposalHandle> getProps(PySelection ps, IImageCache imageCache, File f,
-            IPythonNature nature,
-            IPyEdit edit, int offset) throws BadLocationException {
-        PySourceViewer viewer = null;
-        if (edit != null) { //only in tests it's actually null
-            viewer = ((PyEdit) edit).getPySourceViewer();
-        }
-
-        return this.getProps(ps, imageCache, viewer, offset, TextSelectionUtils.getLineWithoutComments(ps),
-                PySelection.getFirstCharPosition(ps.getDoc(), ps.getAbsoluteCursorOffset()));
+            IPythonNature nature, IPyEdit edit, int offset) throws BadLocationException {
+        return this.getProps(ps, imageCache, edit, offset, TextSelectionUtils.getLineWithoutComments(ps),
+                PySelection.getFirstCharPosition(ps.getDoc(), ps.getAbsoluteCursorOffset()), nature);
     }
 
     /**
-     * Actual implementation (receiving a source viewer and only the actually used parameters).
-     *
-     * @see org.python.pydev.core.IAssistProps#getProps
-     *
      * @param lineWithoutComments the line that should be checked (without any comments)
      */
-    public List<ICompletionProposalHandle> getProps(PySelection ps, IImageCache imageCache, ISourceViewer sourceViewer,
-            int offset, String lineWithoutComments, int firstCharAbsolutePosition) throws BadLocationException {
+    public List<ICompletionProposalHandle> getProps(PySelection ps, IImageCache imageCache, IPyEdit edit,
+            int offset, String lineWithoutComments, int firstCharAbsolutePosition, IPythonNature nature)
+            throws BadLocationException {
 
         List<ICompletionProposalHandle> l = new ArrayList<>();
         if (lineWithoutComments.trim().length() == 0) {
@@ -143,18 +139,51 @@ public class AssistAssign implements IAssistProps {
         if (loc.startsWith("_")) {
             loc = loc.substring(1);
         }
-        l.add(CompletionProposalFactory.get().createAssistAssignCompletionProposal(loc + " = ",
-                firstCharAbsolutePosition, 0, 0, getImage(imageCache,
-                        UIConstants.ASSIST_ASSIGN_TO_LOCAL),
-                "Assign to local (" + loc + ")", null, null, IPyCompletionProposal.PRIORITY_DEFAULT, sourceViewer,
-                null));
 
-        l.add(CompletionProposalFactory.get().createAssistAssignCompletionProposal("self." + callName + " = ",
-                firstCharAbsolutePosition, 0, 5, getImage(
-                        imageCache, UIConstants.ASSIST_ASSIGN_TO_CLASS),
-                "Assign to field (self." + callName + ")", null, null, IPyCompletionProposal.PRIORITY_DEFAULT,
-                sourceViewer, null));
+        IIndentPrefs indentPrefs = edit != null ? edit.getIndentPrefs() : null;
+        if (indentPrefs == null) {
+            indentPrefs = DefaultIndentPrefs.get(nature);
+        }
+
+        // Unfortunately in the IScriptConsole applying a template proposal doesn't work very well (on the first char
+        // typed it will exit the linked mode and the user will type in the exit location).
+        //        int len = offset - firstCharAbsolutePosition;
+        //        IRegion region = new Region(firstCharAbsolutePosition, len);
+        //        String upToCursor = ps.getDoc().get(firstCharAbsolutePosition, len);
+        //        TemplateContext context = createContext(region, ps.getDoc(), indentPrefs);
+        //
+        //        Template t = new Template("Assign to local (" + loc + ")", "", "", "${" + loc + "}${cursor} = " + upToCursor,
+        //                false);
+        //        l.add(CompletionProposalFactory.get().createPyTemplateProposal(t, context, region,
+        //                imageCache == null ? null : imageCache.get(UIConstants.COMPLETION_TEMPLATE),
+        //                IPyCompletionProposal.PRIORITY_DEFAULT));
+        //
+        //        t = new Template("Assign to field (self." + callName + ")", "", "",
+        //                "self.${" + callName + "}${cursor} = " + upToCursor,
+        //                false);
+        //        l.add(CompletionProposalFactory.get().createPyTemplateProposal(t, context, region,
+        //                imageCache == null ? null : imageCache.get(UIConstants.COMPLETION_TEMPLATE),
+        //                IPyCompletionProposal.PRIORITY_DEFAULT));
+
+        IImageHandle localImg = getImage(imageCache, UIConstants.ASSIST_ASSIGN_TO_LOCAL);
+        IImageHandle clsImage = getImage(imageCache, UIConstants.ASSIST_ASSIGN_TO_CLASS);
+
+        l.add(CompletionProposalFactory.get().createAssistAssignCompletionProposal("${" + loc + "} = ",
+                firstCharAbsolutePosition, 0, 0, localImg, "Assign to local (" + loc + ")", null, null,
+                IPyCompletionProposal.PRIORITY_DEFAULT, edit));
+
+        l.add(CompletionProposalFactory.get().createAssistAssignCompletionProposal(
+                "self.${" + callName + "} = ",
+                firstCharAbsolutePosition, 0, 5, clsImage, "Assign to field (self." + callName + ")", null, null,
+                IPyCompletionProposal.PRIORITY_DEFAULT, edit));
         return l;
+    }
+
+    public static TemplateContext createContext(IRegion region, IDocument document, IIndentPrefs indentPrefs) {
+        TemplateContextType contextType = new TemplateContextType();
+        PyAddTemplateResolvers.addDefaultResolvers(contextType);
+        return new PyDocumentTemplateContext(contextType, document, region.getOffset(), region.getLength(), "",
+                indentPrefs);
     }
 
     private String changeToCodingStd(String callName) {

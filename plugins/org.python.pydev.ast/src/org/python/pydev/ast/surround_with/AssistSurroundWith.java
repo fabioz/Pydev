@@ -17,6 +17,7 @@ import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateContext;
 import org.eclipse.jface.text.templates.TemplateContextType;
 import org.python.pydev.core.IAssistProps;
+import org.python.pydev.core.IIndentPrefs;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.autoedit.DefaultIndentPrefs;
@@ -35,12 +36,11 @@ import org.python.pydev.shared_core.string.StringUtils;
  */
 public class AssistSurroundWith implements IAssistProps {
 
-    protected TemplateContext createContext(IRegion region, IDocument document, IPythonNature nature) {
+    public static TemplateContext createContext(IRegion region, IDocument document, IIndentPrefs indentPrefs) {
         TemplateContextType contextType = new TemplateContextType();
         PyAddTemplateResolvers.addDefaultResolvers(contextType);
         return new PyDocumentTemplateContext(contextType, document, region.getOffset(), region.getLength(), "",
-                DefaultIndentPrefs.get(
-                        nature));
+                indentPrefs);
     }
 
     /**
@@ -49,13 +49,15 @@ public class AssistSurroundWith implements IAssistProps {
      */
     @Override
     public List<ICompletionProposalHandle> getProps(PySelection ps, IImageCache imageCache, File f,
-            IPythonNature nature,
-            IPyEdit edit, int offset) throws BadLocationException {
+            IPythonNature nature, IPyEdit edit, int offset) throws BadLocationException {
+
+        IIndentPrefs indentPrefs = edit != null ? edit.getIndentPrefs() : null;
+        if (indentPrefs == null) {
+            indentPrefs = DefaultIndentPrefs.get(nature);
+        }
 
         ArrayList<ICompletionProposalHandle> l = new ArrayList<ICompletionProposalHandle>();
-        String indentation = edit != null ? edit.getIndentPrefs().getIndentationString()
-                : DefaultIndentPrefs.get(
-                        nature).getIndentationString();
+        String indentation = indentPrefs.getIndentationString();
 
         ps.selectCompleteLine();
         String selectedText = ps.getSelectedText();
@@ -108,7 +110,7 @@ public class AssistSurroundWith implements IAssistProps {
 
         //region
         IRegion region = ps.getRegion();
-        TemplateContext context = createContext(region, ps.getDoc(), nature);
+        TemplateContext context = createContext(region, ps.getDoc(), indentPrefs);
 
         //not static because we need the actual code.
         String[] replace0to3 = new String[] { startIndent, delimiter, surroundedCode, delimiter, startIndent,

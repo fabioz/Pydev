@@ -16,6 +16,7 @@ import org.osgi.service.prefs.Preferences;
 import org.python.pydev.builder.todo.PyTodoPrefPage;
 import org.python.pydev.core.docstrings.DocstringPreferences;
 import org.python.pydev.core.imports.ImportPreferences;
+import org.python.pydev.core.preferences.PyDevCodeStylePreferences;
 import org.python.pydev.editor.codefolding.PyDevCodeFoldingPrefPage;
 import org.python.pydev.editor.commentblocks.CommentBlocksPreferences;
 import org.python.pydev.editor.hover.PyHoverPreferencesPage;
@@ -220,10 +221,10 @@ public class PydevPrefsInitializer extends AbstractPreferenceInitializer {
         //[[[end]]]
 
         //coding style
-        node.putBoolean(PyCodeStylePreferencesPage.USE_LOCALS_AND_ATTRS_CAMELCASE,
-                PyCodeStylePreferencesPage.DEFAULT_USE_LOCALS_AND_ATTRS_CAMELCASE);
-        node.putInt(PyCodeStylePreferencesPage.USE_METHODS_FORMAT,
-                PyCodeStylePreferencesPage.DEFAULT_USE_METHODS_FORMAT);
+        node.putBoolean(PyDevCodeStylePreferences.USE_LOCALS_AND_ATTRS_CAMELCASE,
+                PyDevCodeStylePreferences.DEFAULT_USE_LOCALS_AND_ATTRS_CAMELCASE);
+        node.putInt(PyDevCodeStylePreferences.USE_METHODS_FORMAT,
+                PyDevCodeStylePreferences.DEFAULT_USE_METHODS_FORMAT);
 
         //Editor title
         node.putBoolean(PyTitlePreferencesPage.TITLE_EDITOR_NAMES_UNIQUE,
