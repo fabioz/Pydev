@@ -23,10 +23,10 @@ package org.python.pydev.refactoring.coderefactoring.inlinelocal;
 
 import java.util.List;
 
+import org.python.pydev.ast.refactoring.RefactoringInfo;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.refactoring.coderefactoring.inlinelocal.request.InlineLocalRequest;
-import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
 import org.python.pydev.refactoring.utils.ListUtils;
 

@@ -25,10 +25,10 @@
 package org.python.pydev.refactoring.ui.actions;
 
 import org.eclipse.jface.wizard.IWizardPage;
+import org.python.pydev.ast.refactoring.RefactoringInfo;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.refactoring.codegenerator.overridemethods.OverrideMethodsRefactoring;
 import org.python.pydev.refactoring.core.base.AbstractPythonRefactoring;
-import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.model.overridemethods.ClassMethodsTreeProvider;
 import org.python.pydev.refactoring.ui.actions.internal.AbstractRefactoringAction;
 import org.python.pydev.refactoring.ui.pages.OverrideMethodsPage;

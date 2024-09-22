@@ -8,7 +8,7 @@ package com.python.pydev.refactoring.tdd;
 
 import java.util.List;
 
-import org.python.pydev.refactoring.core.base.RefactoringInfo;
+import org.python.pydev.ast.refactoring.RefactoringInfo;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 
 public class NullPyCreateAction extends AbstractPyCreateAction {

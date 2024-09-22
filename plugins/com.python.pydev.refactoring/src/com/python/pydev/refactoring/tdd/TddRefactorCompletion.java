@@ -14,12 +14,12 @@ import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.templates.TemplateProposal;
 import org.eclipse.swt.graphics.Point;
+import org.python.pydev.ast.refactoring.RefactoringInfo;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.parser.PyParser;
-import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.shared_core.image.IImageHandle;
 
 /**

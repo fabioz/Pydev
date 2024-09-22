@@ -26,10 +26,10 @@ package org.python.pydev.refactoring.coderefactoring.extractlocal;
 
 import java.util.List;
 
+import org.python.pydev.ast.refactoring.RefactoringInfo;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.refactoring.coderefactoring.extractlocal.request.ExtractLocalRequest;
-import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
 import org.python.pydev.refactoring.utils.ListUtils;
 import org.python.pydev.shared_core.string.ICoreTextSelection;

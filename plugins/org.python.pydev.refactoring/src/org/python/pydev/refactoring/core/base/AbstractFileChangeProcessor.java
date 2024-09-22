@@ -31,6 +31,7 @@ import org.eclipse.ltk.core.refactoring.TextChange;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.TextEdit;
 import org.eclipse.text.edits.TextEditGroup;
+import org.python.pydev.ast.refactoring.RefactoringInfo;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.refactoring.core.change.IChangeProcessor;
 import org.python.pydev.refactoring.core.edit.AbstractTextEdit;

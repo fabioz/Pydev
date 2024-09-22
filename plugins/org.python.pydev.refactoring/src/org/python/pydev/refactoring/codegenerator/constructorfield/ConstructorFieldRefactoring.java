@@ -31,8 +31,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.ast.adapters.IClassDefAdapter;
+import org.python.pydev.ast.refactoring.RefactoringInfo;
 import org.python.pydev.refactoring.core.base.AbstractPythonRefactoring;
-import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.change.IChangeProcessor;
 import org.python.pydev.refactoring.messages.Messages;
 

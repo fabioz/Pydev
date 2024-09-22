@@ -31,6 +31,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.python.pydev.ast.refactoring.RefactoringInfo;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.refactoring.core.change.CompositeChangeProcessor;
 import org.python.pydev.refactoring.core.change.IChangeProcessor;

@@ -21,13 +21,13 @@
 
 package org.python.pydev.refactoring.coderefactoring.inlinelocal;
 
+import org.python.pydev.ast.refactoring.RefactoringInfo;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.refactoring.coderefactoring.inlinelocal.edit.RemoveAssignment;
 import org.python.pydev.refactoring.coderefactoring.inlinelocal.edit.ReplaceWithExpression;
 import org.python.pydev.refactoring.coderefactoring.inlinelocal.request.InlineLocalRequest;
 import org.python.pydev.refactoring.core.base.AbstractFileChangeProcessor;
-import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
 import org.python.pydev.refactoring.messages.Messages;
 

@@ -33,11 +33,11 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.python.pydev.ast.adapters.IClassDefAdapter;
 import org.python.pydev.ast.adapters.ModuleAdapter;
 import org.python.pydev.ast.adapters.visitors.selection.SelectionException;
+import org.python.pydev.ast.refactoring.RefactoringInfo;
+import org.python.pydev.ast.refactoring.RefactoringInfo.SelectionComputer;
+import org.python.pydev.ast.refactoring.RefactoringInfo.SelectionComputer.SelectionComputerKind;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.refactoring.core.base.AbstractPythonRefactoring;
-import org.python.pydev.refactoring.core.base.RefactoringInfo;
-import org.python.pydev.refactoring.core.base.RefactoringInfo.SelectionComputer;
-import org.python.pydev.refactoring.core.base.RefactoringInfo.SelectionComputer.SelectionComputerKind;
 import org.python.pydev.refactoring.core.change.IChangeProcessor;
 import org.python.pydev.refactoring.messages.Messages;
 

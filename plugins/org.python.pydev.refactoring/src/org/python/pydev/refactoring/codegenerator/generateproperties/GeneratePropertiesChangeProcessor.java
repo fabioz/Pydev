@@ -26,6 +26,7 @@ package org.python.pydev.refactoring.codegenerator.generateproperties;
 
 import java.util.List;
 
+import org.python.pydev.ast.refactoring.RefactoringInfo;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.refactoring.codegenerator.generateproperties.edit.DeleteMethodEdit;
 import org.python.pydev.refactoring.codegenerator.generateproperties.edit.GetterMethodEdit;
@@ -34,7 +35,6 @@ import org.python.pydev.refactoring.codegenerator.generateproperties.edit.Setter
 import org.python.pydev.refactoring.codegenerator.generateproperties.request.GeneratePropertiesRequest;
 import org.python.pydev.refactoring.codegenerator.generateproperties.request.SelectionState;
 import org.python.pydev.refactoring.core.base.AbstractFileChangeProcessor;
-import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.edit.AbstractTextEdit;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
 import org.python.pydev.refactoring.messages.Messages;

@@ -26,9 +26,9 @@ package org.python.pydev.refactoring.ui.actions;
 
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.ltk.ui.refactoring.RefactoringWizard;
+import org.python.pydev.ast.refactoring.RefactoringInfo;
 import org.python.pydev.refactoring.coderefactoring.extractlocal.ExtractLocalRefactoring;
 import org.python.pydev.refactoring.core.base.AbstractPythonRefactoring;
-import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.ui.actions.internal.AbstractRefactoringAction;
 import org.python.pydev.refactoring.ui.pages.extractlocal.ExtractLocalInputPage;
 

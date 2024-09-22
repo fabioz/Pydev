@@ -22,7 +22,7 @@
  *
  */
 
-package org.python.pydev.refactoring.core.base;
+package org.python.pydev.ast.refactoring;
 
 import java.io.File;
 import java.util.List;
@@ -33,8 +33,6 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.TextUtilities;
-import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IFileEditorInput;
 import org.python.pydev.ast.adapters.AbstractScopeNode;
 import org.python.pydev.ast.adapters.IClassDefAdapter;
 import org.python.pydev.ast.adapters.ModuleAdapter;
@@ -98,18 +96,11 @@ public class RefactoringInfo {
     }
 
     public RefactoringInfo(IPyEdit edit, ICoreTextSelection selection) throws MisconfigurationException {
-        IEditorInput input = (IEditorInput) edit.getEditorInput();
         this.indentPrefs = edit.getIndentPrefs();
         IPythonNature localNature = edit.getPythonNature();
 
-        if (input instanceof IFileEditorInput) {
-            IFileEditorInput editorInput = (IFileEditorInput) input;
-            this.sourceFile = editorInput.getFile();
-            this.realFile = sourceFile != null ? sourceFile.getLocation().toFile() : null;
-        } else {
-            this.sourceFile = null;
-            this.realFile = edit.getEditorFile();
-        }
+        this.sourceFile = edit.getIFile();
+        this.realFile = edit.getEditorFile();
 
         if (localNature == null) {
             Tuple<IPythonNature, String> infoForFile = InterpreterManagersAPI.getInfoForFile(this.realFile);

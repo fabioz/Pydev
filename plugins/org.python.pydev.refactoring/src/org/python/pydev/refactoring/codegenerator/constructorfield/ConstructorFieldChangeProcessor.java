@@ -24,11 +24,11 @@
 
 package org.python.pydev.refactoring.codegenerator.constructorfield;
 
+import org.python.pydev.ast.refactoring.RefactoringInfo;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.refactoring.codegenerator.constructorfield.edit.ConstructorMethodEdit;
 import org.python.pydev.refactoring.codegenerator.constructorfield.request.ConstructorFieldRequest;
 import org.python.pydev.refactoring.core.base.AbstractFileChangeProcessor;
-import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.request.IRequestProcessor;
 import org.python.pydev.refactoring.messages.Messages;
 

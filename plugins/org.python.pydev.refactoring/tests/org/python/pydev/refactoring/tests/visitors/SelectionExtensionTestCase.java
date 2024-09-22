@@ -23,12 +23,12 @@ package org.python.pydev.refactoring.tests.visitors;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.python.pydev.ast.refactoring.RefactoringInfo;
+import org.python.pydev.ast.refactoring.RefactoringInfo.SelectionComputer;
+import org.python.pydev.ast.refactoring.RefactoringInfo.SelectionComputer.SelectionComputerKind;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.parser.prettyprinterv2.Rewriter;
-import org.python.pydev.refactoring.core.base.RefactoringInfo;
-import org.python.pydev.refactoring.core.base.RefactoringInfo.SelectionComputer;
-import org.python.pydev.refactoring.core.base.RefactoringInfo.SelectionComputer.SelectionComputerKind;
 import org.python.pydev.refactoring.tests.core.AbstractIOTestCase;
 import org.python.pydev.shared_core.string.CoreTextSelection;
 import org.python.pydev.shared_core.string.ICoreTextSelection;

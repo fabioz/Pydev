@@ -24,11 +24,11 @@ package org.python.pydev.refactoring.coderefactoring.inlinelocal.request;
 import java.util.List;
 
 import org.python.pydev.ast.adapters.IASTNodeAdapter;
+import org.python.pydev.ast.refactoring.RefactoringInfo;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.factory.AdapterPrefs;
-import org.python.pydev.refactoring.core.base.RefactoringInfo;
 import org.python.pydev.refactoring.core.request.IRefactoringRequest;
 
 public class InlineLocalRequest implements IRefactoringRequest {

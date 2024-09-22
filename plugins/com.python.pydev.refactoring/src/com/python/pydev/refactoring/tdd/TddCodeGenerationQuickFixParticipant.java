@@ -78,9 +78,14 @@ public class TddCodeGenerationQuickFixParticipant extends AbstractAnalysisMarker
         return ret;
     }
 
-    public static List<ICompletionProposalHandle> getTddProps(PySelection ps, IImageCache imageCache, File f,
+    public static List<ICompletionProposalHandle> getTddProps(
+            PySelection ps,
+            IImageCache imageCache,
+            File f,
             IPythonNature nature,
-            IPyEdit edit, int offset, List<ICompletionProposalHandle> ret) {
+            IPyEdit edit,
+            int offset,
+            List<ICompletionProposalHandle> ret) {
         if (ret == null) {
             ret = new ArrayList<ICompletionProposalHandle>();
         }
