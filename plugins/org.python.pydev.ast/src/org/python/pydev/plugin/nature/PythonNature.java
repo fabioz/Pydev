@@ -135,7 +135,9 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         protected IStatus run(IProgressMonitor monitor) {
             String paths;
             try {
-                paths = StringUtils.join("|", pythonPathNature.getOnlyProjectPythonPathStr(true));
+                boolean addInterpreterInfoSubstitutions = true;
+                paths = StringUtils.join("|",
+                        pythonPathNature.getOnlyProjectPythonPathStr(true, addInterpreterInfoSubstitutions));
             } catch (CoreException e1) {
                 Log.log(e1);
                 return Status.OK_STATUS;
@@ -671,7 +673,7 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
         protected IStatus run(IProgressMonitor monitor) {
             try {
                 if (astManager != null) {
-                    List<String> pythonpath = pythonPathNature.getOnlyProjectPythonPathStr(true);
+                    List<String> pythonpath = pythonPathNature.getOnlyProjectPythonPathStr(true, true);
                     PythonPathHelper pythonPathHelper = (PythonPathHelper) astManager.getModulesManager()
                             .getPythonPathHelper();
                     //If it doesn't match, rebuid the pythonpath!

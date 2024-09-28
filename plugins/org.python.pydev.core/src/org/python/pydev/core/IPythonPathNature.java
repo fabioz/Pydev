@@ -51,7 +51,8 @@ public interface IPythonPathNature {
      * complete paths in the filesystem.
      * @throws CoreException
      */
-    public List<String> getOnlyProjectPythonPathStr(boolean addExternal) throws CoreException;
+    public List<String> getOnlyProjectPythonPathStr(boolean addExternal, boolean addInterpreterInfoSubstitutions)
+            throws CoreException;
 
     /**
      * Sets the project source path (paths are relative to the project location and are separated by | )

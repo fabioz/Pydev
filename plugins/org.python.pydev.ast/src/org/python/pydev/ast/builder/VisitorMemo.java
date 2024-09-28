@@ -46,7 +46,7 @@ public class VisitorMemo extends HashMap<String, Object> {
         }
         if (lst == null) {
             HashSet<String> projectSourcePath = new HashSet<String>(
-                    nature.getPythonPathNature().getOnlyProjectPythonPathStr(addExternal));
+                    nature.getPythonPathNature().getOnlyProjectPythonPathStr(addExternal, true));
             lst = new ArrayList<String>(projectSourcePath);
             if (addExternal) {
                 onlyProjectPythonPathStrExternal = lst;

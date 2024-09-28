@@ -95,7 +95,7 @@ public class PyListSelectionDialog extends SelectionDialog {
             SelectionListener listenerNotInWorkspace = new SelectionAdapter() {
                 @Override
                 public void widgetSelected(SelectionEvent e) {
-                    HashSet<IPath> rootPaths = DefaultPathsForInterpreterInfo.getRootPaths();
+                    HashSet<IPath> rootPaths = DefaultPathsForInterpreterInfo.getRootPaths(false);
                     TableItem[] children = listViewer.getTable().getItems();
                     for (int i = 0; i < children.length; i++) {
                         TableItem item = children[i];
@@ -129,7 +129,7 @@ public class PyListSelectionDialog extends SelectionDialog {
     }
 
     /**
-     * Visually checks the previously-specified elements in this dialog's list 
+     * Visually checks the previously-specified elements in this dialog's list
      * viewer.
      */
     private void checkInitialSelections() {
@@ -177,7 +177,7 @@ public class PyListSelectionDialog extends SelectionDialog {
 
     /**
      * Returns the viewer used to show the list.
-     * 
+     *
      * @return the viewer, or <code>null</code> if not yet created
      */
     protected CheckboxTableViewer getViewer() {
@@ -192,7 +192,7 @@ public class PyListSelectionDialog extends SelectionDialog {
     }
 
     /**
-     * The <code>ListSelectionDialog</code> implementation of this 
+     * The <code>ListSelectionDialog</code> implementation of this
      * <code>Dialog</code> method builds a list of the selected elements for later
      * retrieval by the client and closes this dialog.
      */

@@ -253,7 +253,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
     }
 
     public String resolveModuleOnlyInProjectSources(String fileAbsolutePath, boolean addExternal) throws CoreException {
-        List<String> pathItems = this.nature.getPythonPathNature().getOnlyProjectPythonPathStr(addExternal);
+        List<String> pathItems = this.nature.getPythonPathNature().getOnlyProjectPythonPathStr(addExternal, true);
         List<String> filteredPathItems = filterDuplicatesPreservingOrder(pathItems);
         return this.pythonPathHelper.resolveModule(fileAbsolutePath, false, filteredPathItems, project);
     }
@@ -540,7 +540,7 @@ public final class ProjectModulesManager extends ModulesManagerWithBuild impleme
                         //Check if it's actually correct and auto-fix if it's not.
                         List<String> parsed;
                         try {
-                            parsed = pythonPathNature.getOnlyProjectPythonPathStr(true);
+                            parsed = pythonPathNature.getOnlyProjectPythonPathStr(true, true);
                             if (m2.nature != null
                                     && !new HashSet<String>(parsed).equals(new HashSet<String>(pythonpath))) {
                                 // Make it right at this moment (so any other place that calls it before the restore

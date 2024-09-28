@@ -53,22 +53,23 @@ public class StringSubstitution {
         this.variableSubstitution = vars;
     }
 
-    public StringSubstitution(IPythonNature nature) {
+    public StringSubstitution(IPythonNature nature, boolean addInterpreterInfoSubstitutions) {
         if (nature != null) {
             try {
                 IPythonPathNature pythonPathNature = nature.getPythonPathNature();
                 IProject project = nature.getProject(); //note: project can be null when creating a new project and receiving a system nature.
-                initialize(pythonPathNature, project);
+                initialize(pythonPathNature, project, addInterpreterInfoSubstitutions);
             } catch (Exception e) {
                 Log.log(e);
             }
         }
     }
 
-    public void initialize(IPythonPathNature pythonPathNature, IProject project) {
+    public void initialize(IPythonPathNature pythonPathNature, IProject project,
+            boolean addInterpreterInfoSubstitutions) {
         try {
             try {
-                variableSubstitution = pythonPathNature.getVariableSubstitution();
+                variableSubstitution = pythonPathNature.getVariableSubstitution(addInterpreterInfoSubstitutions);
                 IPathVariableManager projectPathVarManager = null;
                 try {
                     if (project != null) {

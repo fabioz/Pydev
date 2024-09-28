@@ -154,7 +154,8 @@ public class PythonPathNature implements IPythonPathNature {
      * @return the project pythonpath with complete paths in the filesystem.
      */
     @Override
-    public List<String> getOnlyProjectPythonPathStr(boolean addExternal) throws CoreException {
+    public List<String> getOnlyProjectPythonPathStr(boolean addExternal, boolean addInterpreterInfoSubstitutions)
+            throws CoreException {
         String source = null;
         String external = null;
         String contributed = null;
@@ -166,7 +167,7 @@ public class PythonPathNature implements IPythonPathNature {
         }
 
         //Substitute with variables!
-        StringSubstitution stringSubstitution = new StringSubstitution(nature);
+        StringSubstitution stringSubstitution = new StringSubstitution(nature, addInterpreterInfoSubstitutions);
 
         source = (String) getProjectSourcePath(true, stringSubstitution, RETURN_STRING_WITH_SEPARATOR);
         if (addExternal) {
@@ -238,7 +239,7 @@ public class PythonPathNature implements IPythonPathNature {
         }
 
         //Substitute with variables!
-        StringSubstitution stringSubstitution = new StringSubstitution(nature);
+        StringSubstitution stringSubstitution = new StringSubstitution(nature, true);
 
         source = (String) getProjectSourcePath(true, stringSubstitution, RETURN_STRING_WITH_SEPARATOR);
 
@@ -386,7 +387,7 @@ public class PythonPathNature implements IPythonPathNature {
         }
 
         if (replace && substitution == null) {
-            substitution = new StringSubstitution(fNature);
+            substitution = new StringSubstitution(fNature, true);
         }
 
         //we have to validate it, because as we store the values relative to the workspace, and not to the
@@ -489,7 +490,7 @@ public class PythonPathNature implements IPythonPathNature {
         }
 
         if (replace && substitution == null) {
-            substitution = new StringSubstitution(fNature);
+            substitution = new StringSubstitution(fNature, true);
         }
         return trimAndReplaceVariablesIfNeeded(replace, extPath, nature, substitution);
     }

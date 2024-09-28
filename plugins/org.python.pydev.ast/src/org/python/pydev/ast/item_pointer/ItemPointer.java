@@ -174,7 +174,11 @@ public class ItemPointer extends BaseItemPointer {
 
         } else if (file instanceof IFile) {
             IFile f = (IFile) file;
-            return f.getRawLocationURI();
+            URI rawLocationURI = f.getRawLocationURI();
+            if (rawLocationURI != null) {
+                return rawLocationURI;
+            }
+            return f.getLocationURI();
 
         } else if (file instanceof IPath) {
             IPath path = (IPath) file;

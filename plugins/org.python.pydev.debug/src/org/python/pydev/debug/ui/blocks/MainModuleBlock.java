@@ -102,16 +102,14 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
                     if (!fUnitTesting) {
                         title = "Main Module";
                         message = "Choose Python module which starts execution";
-                    }
-                    else
-                    {
+                    } else {
                         title = "Main Modules";
                         message = "Choose Python module(s) and/or package(s) to test";
                     }
                     PythonModulePickerDialog dialog = new PythonModulePickerDialog(lParent.getShell(), title,
                             message, project, fUnitTesting);
 
-                    // Fixed request 1407469: main module browse button forgets path                    
+                    // Fixed request 1407469: main module browse button forgets path
                     if (currentResources != null) {
                         dialog.setInitialSelections(currentResources);
                     }
@@ -127,8 +125,7 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
                                 if (results[i] instanceof IResource) {
                                     if (results[i] instanceof IFile) {
                                         r_results.add((IFile) results[i]);
-                                    }
-                                    else {
+                                    } else {
                                         r_results.add((IResource) results[i]);
                                     }
                                 }
@@ -142,7 +139,7 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
             }
         });
 
-        // Create a ModifyListener, used to listen for project modifications in the ProjectBlock. 
+        // Create a ModifyListener, used to listen for project modifications in the ProjectBlock.
         // This assumes that the Project is in a Text control...
         fProjectModifyListener = new ModifyListener() {
             @Override
@@ -169,7 +166,7 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#getName()
      */
     @Override
@@ -179,7 +176,7 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.debug.ui.ILaunchConfigurationTab#initializeFrom(org.eclipse.debug.core.ILaunchConfiguration)
      */
     @Override
@@ -234,10 +231,10 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
 
     /**
      * Obtains an IFile that targets the current main module.
-     * 
+     *
      * This is used for initializing the module selection dialog.
-     * 
-     * @return The main module file. 
+     *
+     * @return The main module file.
      */
     private IResource[] getMainModuleResources() {
         String path = fMainModuleText.getText();
@@ -303,16 +300,17 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
             nature = PythonNature.getPythonNature(resource);
         }
 
-        StringSubstitution stringSubstitution = new StringSubstitution(nature);
+        boolean addInterpreterInfoSubstitutions = true;
+        StringSubstitution stringSubstitution = new StringSubstitution(nature, addInterpreterInfoSubstitutions);
         return stringSubstitution;
     }
 
     /**
      * Sets attributes in the working copy
-     * 
+     *
      * @param configuration The configuration to set the attribute in
      * @param name Name of the attribute to set
-     * @param value Value to set 
+     * @param value Value to set
      */
     private void setAttribute(ILaunchConfigurationWorkingCopy configuration, String name, String value) {
         if (value == null || value.length() == 0) {
@@ -397,7 +395,7 @@ public class MainModuleBlock extends AbstractLaunchConfigurationTab {
     /**
      * Obtain a listener, used to detect changes of the currently selected project
      * This updates the browse button, and allos the appropriate selection of the main module.
-     *  
+     *
      * @return a ModifyListener that updates the block controls.
      */
     public ModifyListener getProjectModifyListener() {

@@ -280,7 +280,7 @@ public class SyncSystemModulesManager {
             if (newInterpreterInfo == null) {
                 continue;
             }
-            DefaultPathsForInterpreterInfo defaultPaths = new DefaultPathsForInterpreterInfo();
+            DefaultPathsForInterpreterInfo defaultPaths = new DefaultPathsForInterpreterInfo(false);
 
             OrderedSet<String> newEntries = new OrderedSet<String>(newInterpreterInfo.getPythonPath());
             newEntries.removeAll(internalInfo.getPythonPath());

@@ -33,8 +33,11 @@ public class DefaultPathsForInterpreterInfo {
 
     private final Set<IPath> rootPaths;
 
-    public DefaultPathsForInterpreterInfo() {
-        rootPaths = getRootPaths();
+    public DefaultPathsForInterpreterInfo(boolean resolvingInterpreter) {
+        boolean addInterpreterInfoSubstitutions = !resolvingInterpreter;
+        // When resolving the interpreter, we can't try to resolve variables from the
+        // interpreter itself as we could get into a recursion error.
+        rootPaths = getRootPaths(addInterpreterInfoSubstitutions);
 
     }
 
@@ -75,7 +78,7 @@ public class DefaultPathsForInterpreterInfo {
      * Creates a Set of the root paths of all projects (and the workspace root itself).
      * @return A HashSet of root paths.
      */
-    public static HashSet<IPath> getRootPaths() {
+    public static HashSet<IPath> getRootPaths(boolean addInterpreterInfoSubstitutions) {
         HashSet<IPath> rootPaths = new HashSet<IPath>();
         if (SharedCorePlugin.inTestMode()) {
             return rootPaths;
@@ -96,7 +99,8 @@ public class DefaultPathsForInterpreterInfo {
             PythonNature nature = PythonNature.getPythonNature(iProject);
             if (nature != null) {
                 try {
-                    List<String> splitted = nature.getPythonPathNature().getOnlyProjectPythonPathStr(true);
+                    List<String> splitted = nature.getPythonPathNature().getOnlyProjectPythonPathStr(true,
+                            addInterpreterInfoSubstitutions);
                     for (String s : splitted) {
                         try {
                             rootPaths.add(Path.fromOSString(FileUtils.getFileAbsolutePath(s)));

@@ -196,7 +196,8 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
             Collection<String> addToMypyPath = new HashSet<String>();
             IModulesManager[] managersInvolved = nature.getAstManager().getModulesManager().getManagersInvolved(false);
             for (IModulesManager iModulesManager : managersInvolved) {
-                for (String s : iModulesManager.getNature().getPythonPathNature().getOnlyProjectPythonPathStr(true)) {
+                for (String s : iModulesManager.getNature().getPythonPathNature().getOnlyProjectPythonPathStr(true,
+                        true)) {
                     if (!s.isEmpty()) {
                         addToMypyPath.add(s);
                     }

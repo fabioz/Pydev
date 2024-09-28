@@ -170,7 +170,7 @@ public class SimpleRunner {
             String translated = value;
             if (nature != null) {
                 try {
-                    StringSubstitution stringSubstitution = new StringSubstitution(nature);
+                    StringSubstitution stringSubstitution = new StringSubstitution(nature, true);
                     translated = stringSubstitution.performStringSubstitution(value, false);
                 } catch (Exception e) {
                     Log.log(e);

@@ -35,7 +35,8 @@ public class PythonPathNatureStub implements IPythonPathNature {
     }
 
     @Override
-    public List<String> getOnlyProjectPythonPathStr(boolean b) throws CoreException {
+    public List<String> getOnlyProjectPythonPathStr(boolean b, boolean addInterpreterInfoSubstitutions)
+            throws CoreException {
         throw new RuntimeException("Not impl");
 
     }

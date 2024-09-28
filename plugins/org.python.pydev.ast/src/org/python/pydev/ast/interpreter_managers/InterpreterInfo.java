@@ -371,7 +371,9 @@ public class InterpreterInfo implements IInterpreterInfo {
                     List<String> predefinedPaths = new ArrayList<String>();
                     Properties stringSubstitutionVars = new Properties();
 
-                    DefaultPathsForInterpreterInfo defaultPaths = new DefaultPathsForInterpreterInfo();
+                    boolean resolvingInterpreter = true;
+                    DefaultPathsForInterpreterInfo defaultPaths = new DefaultPathsForInterpreterInfo(
+                            resolvingInterpreter);
 
                     for (int j = 0; j < xmlNodes.getLength(); j++) {
                         Node xmlChild = xmlNodes.item(j);

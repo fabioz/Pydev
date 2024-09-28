@@ -399,7 +399,7 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase {
             String errorMsg = "Unable to find node with name:" + name +
                     " mod:" + modName +
                     "\nAvailable:" + available + "\n\nPythonpath: "
-                    + nature.getPythonPathNature().getOnlyProjectPythonPathStr(true) + "\n" +
+                    + nature.getPythonPathNature().getOnlyProjectPythonPathStr(true, true) + "\n" +
                     "Found possible references: " + StringUtils.join("\n", findPossibleReferences);
 
             fail(errorMsg);

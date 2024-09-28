@@ -192,7 +192,7 @@ public class PythonRunnerConfig {
     }
 
     private static StringSubstitution getStringSubstitution(IPythonNature nature) {
-        return new StringSubstitution(nature);
+        return new StringSubstitution(nature, true);
     }
 
     /**

@@ -24,7 +24,7 @@ public class DjangoWar extends DjangoAction {
                 return;
             }
             String javaLibs = null;
-            for (String path : nature.getPythonPathNature().getOnlyProjectPythonPathStr(true)) {
+            for (String path : nature.getPythonPathNature().getOnlyProjectPythonPathStr(true, true)) {
                 if (path.endsWith(".jar")) {
                     if (javaLibs == null) {
                         javaLibs = path;

@@ -194,7 +194,8 @@ public class StringSubstitutionTest extends TestCase {
                     }
 
                     @Override
-                    public List<String> getOnlyProjectPythonPathStr(boolean b) throws CoreException {
+                    public List<String> getOnlyProjectPythonPathStr(boolean b, boolean addInterpreterInfoSubstitutions)
+                            throws CoreException {
                         throw new RuntimeException("Not implemented");
                     }
 
@@ -1104,7 +1105,7 @@ public class StringSubstitutionTest extends TestCase {
             public Tuple<String, String> getVersionAndError(boolean translateIfInterpreter) throws CoreException {
                 throw new RuntimeException("Not implemented");
             }
-        });
+        }, false);
         return s;
     }
 }
