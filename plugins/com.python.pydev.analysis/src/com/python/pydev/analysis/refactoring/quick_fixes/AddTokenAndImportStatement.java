@@ -116,6 +116,17 @@ public class AddTokenAndImportStatement {
 
     public void createTextEdit(ComputedInfo computedInfo) {
         try {
+            if (computedInfo.realImportRep.length() > 0) {
+
+                //Workaround for: https://sourceforge.net/tracker/?func=detail&aid=2697165&group_id=85796&atid=577329
+                //when importing from __future__ import with_statement, we actually want to add a 'with' token, not
+                //with_statement token.
+                boolean isWithStatement = computedInfo.realImportRep.equals("from __future__ import with_statement");
+                if (isWithStatement) {
+                    computedInfo.fReplacementString = "with";
+                }
+            }
+
             String delimiter = this.getDelimiter();
 
             computedInfo.appliedWithTrigger = trigger == '.' || trigger == '(';
@@ -151,15 +162,6 @@ public class AddTokenAndImportStatement {
             ImportHandleInfo realImportHandleInfo = null;
 
             if (computedInfo.realImportRep.length() > 0) {
-
-                //Workaround for: https://sourceforge.net/tracker/?func=detail&aid=2697165&group_id=85796&atid=577329
-                //when importing from __future__ import with_statement, we actually want to add a 'with' token, not
-                //with_statement token.
-                boolean isWithStatement = computedInfo.realImportRep.equals("from __future__ import with_statement");
-                if (isWithStatement) {
-                    computedInfo.fReplacementString = "with";
-                }
-
                 if (groupImports) {
                     try {
                         realImportHandleInfo = new ImportHandleInfo(computedInfo.realImportRep);
