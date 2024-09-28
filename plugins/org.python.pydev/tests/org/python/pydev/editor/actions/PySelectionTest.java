@@ -312,7 +312,7 @@ public class PySelectionTest extends TestCase {
         String s = "def m1(self, a, b)";
         doc = new Document(s);
         ps = new PySelection(doc, 0);
-        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).o1;
+        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).contents;
         assertEquals(2, insideParentesisToks.size());
         assertEquals("a", insideParentesisToks.get(0));
         assertEquals("b", insideParentesisToks.get(1));
@@ -320,7 +320,7 @@ public class PySelectionTest extends TestCase {
         s = "def m1(self, a, b, )";
         doc = new Document(s);
         ps = new PySelection(doc, 0);
-        insideParentesisToks = ps.getInsideParentesisToks(false).o1;
+        insideParentesisToks = ps.getInsideParentesisToks(false).contents;
         assertEquals(2, insideParentesisToks.size());
         assertEquals("a", insideParentesisToks.get(0));
         assertEquals("b", insideParentesisToks.get(1));
@@ -328,7 +328,7 @@ public class PySelectionTest extends TestCase {
         s = "def m1(self, a, b=None)";
         doc = new Document(s);
         ps = new PySelection(doc, 0);
-        insideParentesisToks = ps.getInsideParentesisToks(true).o1;
+        insideParentesisToks = ps.getInsideParentesisToks(true).contents;
         assertEquals(3, insideParentesisToks.size());
         assertEquals("self", insideParentesisToks.get(0));
         assertEquals("a", insideParentesisToks.get(1));
@@ -337,7 +337,7 @@ public class PySelectionTest extends TestCase {
         s = "def m1(self, a, b=None)";
         doc = new Document(s);
         ps = new PySelection(doc, 0);
-        insideParentesisToks = ps.getInsideParentesisToks(false).o1;
+        insideParentesisToks = ps.getInsideParentesisToks(false).contents;
         assertEquals(2, insideParentesisToks.size());
         assertEquals("a", insideParentesisToks.get(0));
         assertEquals("b", insideParentesisToks.get(1));
@@ -346,14 +346,14 @@ public class PySelectionTest extends TestCase {
         s = "def m1(self, a, (b,c) )";
         doc = new Document(s);
         ps = new PySelection(doc, 0);
-        insideParentesisToks = ps.getInsideParentesisToks(false).o1;
+        insideParentesisToks = ps.getInsideParentesisToks(false).contents;
         assertEquals(1, insideParentesisToks.size());
         assertEquals("a", insideParentesisToks.get(0));
 
         s = "def m1(self, a, b, \nc,\nd )";
         doc = new Document(s);
         ps = new PySelection(doc, 0);
-        insideParentesisToks = ps.getInsideParentesisToks(false).o1;
+        insideParentesisToks = ps.getInsideParentesisToks(false).contents;
         assertEquals(4, insideParentesisToks.size());
         assertEquals("a", insideParentesisToks.get(0));
         assertEquals("b", insideParentesisToks.get(1));
@@ -363,7 +363,7 @@ public class PySelectionTest extends TestCase {
         s = "def m1(self, a=(1,2))";
         doc = new Document(s);
         ps = new PySelection(doc, 0);
-        insideParentesisToks = ps.getInsideParentesisToks(false).o1;
+        insideParentesisToks = ps.getInsideParentesisToks(false).contents;
         assertEquals(1, insideParentesisToks.size());
         assertEquals("a", insideParentesisToks.get(0));
 
@@ -373,7 +373,7 @@ public class PySelectionTest extends TestCase {
         String s = "def __init__(self, env: Dict[str, str]):";
         doc = new Document(s);
         ps = new PySelection(doc, 0);
-        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).o1;
+        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).contents;
         assertEquals(1, insideParentesisToks.size());
         assertEquals("env", insideParentesisToks.get(0));
     }
@@ -382,7 +382,7 @@ public class PySelectionTest extends TestCase {
         String s = "def __init__(self, complex_var: Dict[str, Node[str]()]):";
         doc = new Document(s);
         ps = new PySelection(doc, 0);
-        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).o1;
+        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).contents;
         assertEquals(1, insideParentesisToks.size());
         assertEquals("complex_var", insideParentesisToks.get(0));
     }
@@ -391,7 +391,7 @@ public class PySelectionTest extends TestCase {
         String s = "def __init__(self, complex_var: Dict[str, Node('')]):";
         doc = new Document(s);
         ps = new PySelection(doc, 0);
-        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).o1;
+        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).contents;
         assertEquals(1, insideParentesisToks.size());
         assertEquals("complex_var", insideParentesisToks.get(0));
     }
@@ -400,7 +400,7 @@ public class PySelectionTest extends TestCase {
         String s = "def __init__(self, complex_var: Dict[str, Node(0)]):";
         doc = new Document(s);
         ps = new PySelection(doc, 0);
-        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).o1;
+        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).contents;
         assertEquals(1, insideParentesisToks.size());
         assertEquals("complex_var", insideParentesisToks.get(0));
     }
@@ -409,7 +409,7 @@ public class PySelectionTest extends TestCase {
         String s = "def __init__(self, complex_var: DefaultDict[int, bytes]()):";
         doc = new Document(s);
         ps = new PySelection(doc, 0);
-        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).o1;
+        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).contents;
         assertEquals(1, insideParentesisToks.size());
         assertEquals("complex_var", insideParentesisToks.get(0));
     }
@@ -418,7 +418,7 @@ public class PySelectionTest extends TestCase {
         String s = "def __init__(self, complex_var: collections.defaultdict()):";
         doc = new Document(s);
         ps = new PySelection(doc, 0);
-        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).o1;
+        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).contents;
         assertEquals(1, insideParentesisToks.size());
         assertEquals("complex_var", insideParentesisToks.get(0));
     }
@@ -427,7 +427,7 @@ public class PySelectionTest extends TestCase {
         String s = "def __init__(self, complex_var: str):";
         doc = new Document(s);
         ps = new PySelection(doc, 0);
-        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).o1;
+        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).contents;
         assertEquals(1, insideParentesisToks.size());
         assertEquals("complex_var", insideParentesisToks.get(0));
     }
@@ -436,7 +436,7 @@ public class PySelectionTest extends TestCase {
         String s = "def __init__(self, left: 'Tree', right: 'Tree'):";
         doc = new Document(s);
         ps = new PySelection(doc, 0);
-        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).o1;
+        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).contents;
         assertEquals(2, insideParentesisToks.size());
         assertEquals("left", insideParentesisToks.get(0));
         assertEquals("right", insideParentesisToks.get(1));
@@ -446,7 +446,7 @@ public class PySelectionTest extends TestCase {
         String s = "def __init__(self, complex_var: Union[int, None, Empty]):";
         doc = new Document(s);
         ps = new PySelection(doc, 0);
-        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).o1;
+        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).contents;
         assertEquals(1, insideParentesisToks.size());
         assertEquals("complex_var", insideParentesisToks.get(0));
     }
@@ -455,7 +455,7 @@ public class PySelectionTest extends TestCase {
         String s = "def __init__(self, x: str): -> int";
         doc = new Document(s);
         ps = new PySelection(doc, 0);
-        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).o1;
+        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).contents;
         assertEquals(1, insideParentesisToks.size());
         assertEquals("x", insideParentesisToks.get(0));
     }
@@ -464,7 +464,7 @@ public class PySelectionTest extends TestCase {
         String s = "def __init__(self, x: Union[int, None, Empty]): -> Union[str, None, int]";
         doc = new Document(s);
         ps = new PySelection(doc, 0);
-        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).o1;
+        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).contents;
         assertEquals(1, insideParentesisToks.size());
         assertEquals("x", insideParentesisToks.get(0));
     }
@@ -473,7 +473,7 @@ public class PySelectionTest extends TestCase {
         String s = "def __init__(self, x: Union[Dict[str, str], None, Empty]):";
         doc = new Document(s);
         ps = new PySelection(doc, 0);
-        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).o1;
+        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).contents;
         assertEquals(1, insideParentesisToks.size());
         assertEquals("x", insideParentesisToks.get(0));
     }
@@ -482,7 +482,7 @@ public class PySelectionTest extends TestCase {
         String s = "def __init__(self, x: Union[Dict[str, str], None, Empty], y: str, z: Dict[int, int]):";
         doc = new Document(s);
         ps = new PySelection(doc, 0);
-        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).o1;
+        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).contents;
         assertEquals(3, insideParentesisToks.size());
         assertEquals("x", insideParentesisToks.get(0));
         assertEquals("y", insideParentesisToks.get(1));
@@ -493,7 +493,7 @@ public class PySelectionTest extends TestCase {
         String s = "def __init__(self, x: Dict[str, str], y: Dict[str, str], z: Dict[int, int]):";
         doc = new Document(s);
         ps = new PySelection(doc, 0);
-        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).o1;
+        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).contents;
         assertEquals(3, insideParentesisToks.size());
         assertEquals("x", insideParentesisToks.get(0));
         assertEquals("y", insideParentesisToks.get(1));
@@ -504,7 +504,7 @@ public class PySelectionTest extends TestCase {
         String s = "def __init__(self, x: Dict[str, str], y: Dict[str, str], z: Dict[int, int]): -> Dict[str, int]";
         doc = new Document(s);
         ps = new PySelection(doc, 0);
-        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).o1;
+        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).contents;
         assertEquals(3, insideParentesisToks.size());
         assertEquals("x", insideParentesisToks.get(0));
         assertEquals("y", insideParentesisToks.get(1));
@@ -515,7 +515,7 @@ public class PySelectionTest extends TestCase {
         String s = "def __init__(self, x: Dict[str, str], \ny: Dict[str, str], \nz: Dict[int, int]): -> Dict[str, int]";
         doc = new Document(s);
         ps = new PySelection(doc, 0);
-        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).o1;
+        List<String> insideParentesisToks = ps.getInsideParentesisToks(false).contents;
         assertEquals(3, insideParentesisToks.size());
         assertEquals("x", insideParentesisToks.get(0));
         assertEquals("y", insideParentesisToks.get(1));

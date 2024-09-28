@@ -443,7 +443,19 @@ public final class PySelection extends TextSelectionUtils {
         return buffer.toString();
     }
 
-    public Tuple<List<String>, Integer> getInsideParentesisToks(boolean addSelf) {
+    public static class InsideParenthesisInfo {
+        public final int openParenthesisOffset;
+        public final int closeParenthesisOffset;
+        public final List<String> contents;
+
+        public InsideParenthesisInfo(int openParenthesisOffset, int closeParenthesisOffset, List<String> contents) {
+            this.openParenthesisOffset = openParenthesisOffset;
+            this.closeParenthesisOffset = closeParenthesisOffset;
+            this.contents = contents;
+        }
+    }
+
+    public InsideParenthesisInfo getInsideParentesisToks(boolean addSelf) {
         String line = getLine();
         int openParIndex = line.indexOf('(');
         if (openParIndex <= -1) { // we are in a line that does not have a parenthesis
@@ -457,14 +469,14 @@ public final class PySelection extends TextSelectionUtils {
     }
 
     public String getFirstInsideParentesisTok(int line) {
-        List<String> insideParentesisToks = getInsideParentesisToks(true, line).o1;
+        List<String> insideParentesisToks = getInsideParentesisToks(true, line).contents;
         if (insideParentesisToks != null && insideParentesisToks.size() > 0) {
             return insideParentesisToks.get(0);
         }
         return null;
     }
 
-    public Tuple<List<String>, Integer> getInsideParentesisToks(boolean addSelf, int iLine) {
+    public InsideParenthesisInfo getInsideParentesisToks(boolean addSelf, int iLine) {
         String line = getLine(iLine);
         int openParIndex = line.indexOf('(');
         if (openParIndex <= -1) { // we are in a line that does not have a parenthesis
@@ -497,14 +509,15 @@ public final class PySelection extends TextSelectionUtils {
      * @return a Tuple so that the first param is the list and the second the offset of the end of the parenthesis.
      * It may return null if no starting parenthesis was found at the current line
      */
-    public Tuple<List<String>, Integer> getInsideParentesisToks(boolean addSelf, int offset, boolean isCall) {
+    public InsideParenthesisInfo getInsideParentesisToks(boolean addSelf, final int openParenthesisOffset,
+            boolean isCall) {
         List<String> params = new ArrayList<String>();
         String docContents = doc.get();
-        int j;
+        int closeParenthesisOffset;
         try {
-            j = ParsingUtils.create(docContents).eatPar(offset, null);
+            closeParenthesisOffset = ParsingUtils.create(docContents).eatPar(openParenthesisOffset, null);
 
-            final String insideParentesisTok = docContents.substring(offset + 1, j);
+            final String insideParentesisTok = docContents.substring(openParenthesisOffset + 1, closeParenthesisOffset);
             final ParsingUtils insideParensParsingUtils = ParsingUtils.create(insideParentesisTok);
             final int len = insideParentesisTok.length();
             final FastStringBuffer buf = new FastStringBuffer(len);
@@ -519,17 +532,17 @@ public final class PySelection extends TextSelectionUtils {
                         switch (c) {
                             case '\'':
                             case '"':
-                                j = insideParensParsingUtils.eatLiterals(null, i);
-                                buf.append(insideParentesisTok.substring(i, j + 1));
-                                i = j;
+                                closeParenthesisOffset = insideParensParsingUtils.eatLiterals(null, i);
+                                buf.append(insideParentesisTok.substring(i, closeParenthesisOffset + 1));
+                                i = closeParenthesisOffset;
                                 break;
 
                             case '{':
                             case '(':
                             case '[':
-                                j = insideParensParsingUtils.eatPar(i, null, c);
-                                buf.append(insideParentesisTok.substring(i, j + 1));
-                                i = j;
+                                closeParenthesisOffset = insideParensParsingUtils.eatPar(i, null, c);
+                                buf.append(insideParentesisTok.substring(i, closeParenthesisOffset + 1));
+                                i = closeParenthesisOffset;
                                 break;
 
                             default:
@@ -576,7 +589,7 @@ public final class PySelection extends TextSelectionUtils {
             throw new RuntimeException(e);
 
         }
-        return new Tuple<List<String>, Integer>(params, j);
+        return new InsideParenthesisInfo(openParenthesisOffset, closeParenthesisOffset, params);
     }
 
     private static final void addTrimmedBufToList(FastStringBuffer buf, List<String> list, boolean addSelf) {
@@ -1283,8 +1296,7 @@ public final class PySelection extends TextSelectionUtils {
             } while (Character.isWhitespace(c));
 
             if (c == '(') {
-                Tuple<List<String>, Integer> insideParentesisToks = getInsideParentesisToks(true, currentOffset, true);
-                return insideParentesisToks.o1;
+                return getInsideParentesisToks(true, currentOffset, true).contents;
             }
 
         } catch (Exception e) {

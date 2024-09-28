@@ -50,11 +50,16 @@ public class AddTokenAndImportStatementTest extends TestCase {
 
     public void checkLocalImport(String baseDoc, String importToAdd, String expectedDoc,
             boolean addLocalImportsOnTopOfMethod) throws Exception {
+        int offset = baseDoc.length();
+        checkLocalImport(baseDoc, importToAdd, expectedDoc, addLocalImportsOnTopOfMethod, offset);
+    }
+
+    public void checkLocalImport(String baseDoc, String importToAdd, String expectedDoc,
+            boolean addLocalImportsOnTopOfMethod, int offset) throws Exception {
 
         Document document = new Document(baseDoc);
 
         char trigger = '\n';
-        int offset = baseDoc.length();
         boolean addLocalImport = true;
         boolean groupImports = true;
 
@@ -634,27 +639,52 @@ public class AddTokenAndImportStatementTest extends TestCase {
     }
 
     public void testLocalImport() throws Exception {
-        String baseDoc = "def method():\r\n" +
-                "    pass\r\n" +
-                "\r\n" +
-                "\r\n" +
-                "def method2():\r\n" +
-                "    x = \"\"\"\r\n" +
-                "some string\r\n" +
-                "\"\"\"\r\n" +
-                "    sys";
-        String expectedDoc = "def method():\r\n" +
-                "    pass\r\n" +
-                "\r\n" +
-                "\r\n" +
-                "def method2():\r\n" +
-                "    import sys\r\n" +
-                "    x = \"\"\"\r\n" +
-                "some string\r\n" +
-                "\"\"\"\r\n" +
-                "    sys";
+        String baseDoc = """
+                def method():
+                    pass
+
+
+                def method2():
+                    x = \"""
+                some string
+                \"""
+                    sys""";
+        String expectedDoc = """
+                def method():
+                    pass
+
+
+                def method2():
+                    import sys
+                    x = \"""
+                some string
+                \"""
+                    sys""";
 
         checkLocalImport(baseDoc, "import sys", expectedDoc, true);
+    }
+
+    public void testLocalImportInsideMethod() throws Exception {
+        String baseDoc = """
+
+                def method(
+                    b: int,
+                    a: List,
+                    ):
+                    pass
+                """;
+        String expectedDoc = """
+                from typing import List
+
+                def method(
+                    b: int,
+                    a: List,
+                    ):
+                    pass
+                """;
+
+        int i = baseDoc.indexOf("List");
+        checkLocalImport(baseDoc, "from typing import List", expectedDoc, true, i);
     }
 
     public void testLocalImport2() throws Exception {

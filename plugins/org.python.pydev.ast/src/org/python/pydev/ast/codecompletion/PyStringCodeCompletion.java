@@ -28,6 +28,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.TokensOrProposalsList;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.PySelection.InsideParenthesisInfo;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.partition.PyPartitionScanner;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
@@ -41,7 +42,6 @@ import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.partitioner.FastPartitioner;
 import org.python.pydev.shared_core.string.DocIterator;
 import org.python.pydev.shared_core.string.TextSelectionUtils;
-import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * The code-completion engine that should be used inside strings
@@ -288,8 +288,8 @@ public class PyStringCodeCompletion extends AbstractTemplateCodeCompletion {
                     int currentLine = iterator.getCurrentLine() + 1;
                     PySelection selection = new PySelection(request.doc, currentLine, 0);
                     if (selection.isInFunctionLine(true)) {
-                        Tuple<List<String>, Integer> insideParentesisToks = selection.getInsideParentesisToks(false);
-                        for (String str : insideParentesisToks.o1) {
+                        InsideParenthesisInfo insideParentesisToks = selection.getInsideParentesisToks(false);
+                        for (String str : insideParentesisToks.contents) {
                             if (str.startsWith(initial)) {
                                 ret.add(CompletionProposalFactory.get().createPyLinkedModeCompletionProposal(str,
                                         request.documentOffset - request.qlen, request.qlen, str.length(),

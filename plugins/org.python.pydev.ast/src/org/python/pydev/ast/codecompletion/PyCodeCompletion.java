@@ -60,6 +60,7 @@ import org.python.pydev.core.TokensOrProposalsList;
 import org.python.pydev.core.autoedit.DefaultIndentPrefs;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.PySelection.InsideParenthesisInfo;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.logging.DebugSettings;
@@ -88,7 +89,6 @@ import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.structure.FastStack;
 import org.python.pydev.shared_core.structure.ImmutableTuple;
 import org.python.pydev.shared_core.structure.OrderedMap;
-import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * @author Dmoore
@@ -397,10 +397,10 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
         if (scopeStart != null) {
             className = PySelection.getClassNameInLine(scopeStart.lineStartingScope);
             if (className != null && className.length() > 0) {
-                Tuple<List<String>, Integer> insideParensBaseClasses = ps.getInsideParentesisToks(true,
+                InsideParenthesisInfo insideParensBaseClasses = ps.getInsideParentesisToks(true,
                         scopeStart.iLineStartingScope);
                 if (insideParensBaseClasses != null) {
-                    for (String baseClass : insideParensBaseClasses.o1) {
+                    for (String baseClass : insideParensBaseClasses.contents) {
                         ICompletionState state = new CompletionState(-1, -1, null, request.nature,
                                 baseClass);
                         String actTok = request.activationToken.replace("super()", baseClass);
@@ -449,14 +449,14 @@ public class PyCodeCompletion extends AbstractPyCodeCompletion {
         if (scopeStart != null) {
             className = PySelection.getClassNameInLine(scopeStart.lineStartingScope);
             if (className != null && className.length() > 0) {
-                Tuple<List<String>, Integer> insideParensBaseClasses = ps.getInsideParentesisToks(true,
+                InsideParenthesisInfo insideParensBaseClasses = ps.getInsideParentesisToks(true,
                         scopeStart.iLineStartingScope);
                 if (insideParensBaseClasses != null) {
 
                     //representation -> token and base class
                     OrderedMap<String, ImmutableTuple<IToken, String>> map = new OrderedMap<String, ImmutableTuple<IToken, String>>();
 
-                    for (String baseClass : insideParensBaseClasses.o1) {
+                    for (String baseClass : insideParensBaseClasses.contents) {
                         try {
                             ICompletionState state = new CompletionState(-1, -1, null, request.nature,
                                     baseClass);

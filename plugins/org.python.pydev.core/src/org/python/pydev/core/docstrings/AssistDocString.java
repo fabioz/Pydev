@@ -30,6 +30,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.autoedit.DefaultIndentPrefs;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.DocstringInfo;
+import org.python.pydev.core.docutils.PySelection.InsideParenthesisInfo;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
@@ -38,7 +39,6 @@ import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
-import org.python.pydev.shared_core.structure.Tuple;
 
 public class AssistDocString implements IAssistProps {
 
@@ -65,16 +65,16 @@ public class AssistDocString implements IAssistProps {
             IPyEdit edit, int offset) throws BadLocationException {
         ArrayList<ICompletionProposalHandle> l = new ArrayList<>();
 
-        Tuple<List<String>, Integer> tuple = ps.getInsideParentesisToks(false);
+        InsideParenthesisInfo tuple = ps.getInsideParentesisToks(false);
         if (tuple == null) {
             if (ps.isInClassLine()) {
-                tuple = new Tuple<List<String>, Integer>(new ArrayList<String>(), offset);
+                tuple = new InsideParenthesisInfo(offset, offset, new ArrayList<String>());
             } else {
                 return l;
             }
         }
-        List<String> params = tuple.o1;
-        int lineOfOffset = ps.getLineOfOffset(tuple.o2);
+        List<String> params = tuple.contents;
+        int lineOfOffset = ps.getLineOfOffset(tuple.closeParenthesisOffset);
 
         // Calculate only the initial part of the docstring here (everything else should be lazily computed on apply).
         String initial = PySelection.getIndentationFromLine(ps.getCursorLineContents());

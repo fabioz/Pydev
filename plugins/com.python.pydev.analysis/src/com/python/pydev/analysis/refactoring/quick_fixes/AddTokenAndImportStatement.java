@@ -15,6 +15,7 @@ import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PyDocIterator;
 import org.python.pydev.core.docutils.PyImportsHandling;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.docutils.PySelection.InsideParenthesisInfo;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.shared_core.log.Log;
@@ -115,11 +116,41 @@ public class AddTokenAndImportStatement {
 
     public void createTextEdit(ComputedInfo computedInfo) {
         try {
+            String delimiter = this.getDelimiter();
+
+            computedInfo.appliedWithTrigger = trigger == '.' || trigger == '(';
+            String appendForTrigger = "";
+            if (computedInfo.appliedWithTrigger) {
+                if (trigger == '(') {
+                    appendForTrigger = "()";
+
+                } else if (trigger == '.') {
+                    appendForTrigger = ".";
+                }
+            }
+
+            //if the trigger is ')', just let it apply regularly -- so, ')' will only be added if it's already in the completion.
+
+            //first do the completion
+            if (computedInfo.fReplacementString.length() > 0) {
+                int dif = offset - computedInfo.fReplacementOffset;
+                computedInfo.replace(offset - dif, dif + computedInfo.fLen,
+                        computedInfo.fReplacementString + appendForTrigger);
+            }
+            if (addLocalImport && computedInfo.realImportRep.length() > 0) {
+                if (addAsLocalImport(previousLineThatStartsScope, ps, delimiter, computedInfo,
+                        addLocalImportsOnTopOfMethod)) {
+                    // Ok, local import added
+                    return;
+                }
+                // Otherwise, keep on going, this turned out to be a global import.
+            }
+
             int lineToAddImport = -1;
             ImportHandleInfo groupInto = null;
             ImportHandleInfo realImportHandleInfo = null;
 
-            if (computedInfo.realImportRep.length() > 0 && !addLocalImport) {
+            if (computedInfo.realImportRep.length() > 0) {
 
                 //Workaround for: https://sourceforge.net/tracker/?func=detail&aid=2697165&group_id=85796&atid=577329
                 //when importing from __future__ import with_statement, we actually want to add a 'with' token, not
@@ -165,33 +196,6 @@ public class AddTokenAndImportStatement {
                 }
             } else {
                 lineToAddImport = -1;
-            }
-            String delimiter = this.getDelimiter();
-
-            computedInfo.appliedWithTrigger = trigger == '.' || trigger == '(';
-            String appendForTrigger = "";
-            if (computedInfo.appliedWithTrigger) {
-                if (trigger == '(') {
-                    appendForTrigger = "()";
-
-                } else if (trigger == '.') {
-                    appendForTrigger = ".";
-                }
-            }
-
-            //if the trigger is ')', just let it apply regularly -- so, ')' will only be added if it's already in the completion.
-
-            //first do the completion
-            if (computedInfo.fReplacementString.length() > 0) {
-                int dif = offset - computedInfo.fReplacementOffset;
-                computedInfo.replace(offset - dif, dif + computedInfo.fLen,
-                        computedInfo.fReplacementString + appendForTrigger);
-            }
-            if (addLocalImport && computedInfo.realImportRep.length() > 0) {
-                if (addAsLocalImport(previousLineThatStartsScope, ps, delimiter, computedInfo,
-                        addLocalImportsOnTopOfMethod)) {
-                    return;
-                }
             }
 
             if (groupInto != null && realImportHandleInfo != null) {
@@ -333,6 +337,11 @@ public class AddTokenAndImportStatement {
                     localImportsLocation = computeLocalImportsLocation(ps, previousLineThatStartsScope,
                             addLocalImportsOnTopOfMethod);
                 }
+                if (localImportsLocation == null) {
+                    // If we couldn't compute it, it's likely we're in the arguments, as such we need to add
+                    // it as a global import.
+                    return false;
+                }
                 String indent = localImportsLocation.o1;
                 int iLine = localImportsLocation.o2;
                 String strToAdd = indent + computedInfo.realImportRep + delimiter;
@@ -351,17 +360,21 @@ public class AddTokenAndImportStatement {
     }
 
     private static Tuple<String, Integer> computeLocalImportsLocation(PySelection ps,
-            LineStartingScope previousLineThatStartsScope,
-            boolean addLocalImportsOnTopOfMethod) throws SyntaxErrorException {
+            LineStartingScope previousLineThatStartsScope, boolean addLocalImportsOnTopOfMethod)
+            throws SyntaxErrorException {
         int iLineStartingScope;
         iLineStartingScope = previousLineThatStartsScope.iLineStartingScope;
 
         // Ok, we have the line where the scope starts... now, we have to check where that declaration
         // is finished (i.e.: def my( \n\n\n ): <- only after the ):
-        Tuple<List<String>, Integer> tuple = new PySelection(ps.getDoc(), iLineStartingScope, 0)
+        InsideParenthesisInfo insideParenthesisInfo = new PySelection(ps.getDoc(), iLineStartingScope, 0)
                 .getInsideParentesisToks(false);
-        if (tuple != null) {
-            iLineStartingScope = ps.getLineOfOffset(tuple.o2);
+        if (insideParenthesisInfo != null) {
+            int cursorOffset = ps.getAbsoluteCursorOffset();
+            if (cursorOffset < insideParenthesisInfo.closeParenthesisOffset) {
+                return null;
+            }
+            iLineStartingScope = ps.getLineOfOffset(insideParenthesisInfo.closeParenthesisOffset);
         }
 
         //Go to a non-empty line from the line we have and the line we're currently in.
