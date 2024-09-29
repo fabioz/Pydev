@@ -28,6 +28,7 @@ import org.python.pydev.shared_ui.editor_input.PydevFileEditorInput;
 
 import com.python.pydev.analysis.refactoring.refactorer.Refactorer;
 import com.python.pydev.analysis.refactoring.tdd.AbstractPyCreateClassOrMethodOrField;
+import com.python.pydev.analysis.refactoring.tdd.TddCodeGenerationQuickFixWithoutMarkersParticipant;
 import com.python.pydev.analysis.refactoring.tdd.TemplateInfo;
 
 /**

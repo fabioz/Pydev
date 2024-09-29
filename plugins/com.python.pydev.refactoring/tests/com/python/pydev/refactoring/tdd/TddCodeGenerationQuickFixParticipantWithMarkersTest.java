@@ -40,6 +40,7 @@ import com.python.pydev.analysis.AnalysisTestsBase;
 import com.python.pydev.analysis.additionalinfo.builders.AnalysisRunner;
 import com.python.pydev.analysis.refactoring.quick_fixes.DummyMarkerInfoForAnalysis;
 import com.python.pydev.analysis.refactoring.refactorer.Refactorer;
+import com.python.pydev.analysis.refactoring.tdd.TddCodeGenerationQuickFixWithoutMarkersParticipant;
 import com.python.pydev.analysis.refactoring.tdd.TemplateInfo;
 
 /**

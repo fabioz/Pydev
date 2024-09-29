@@ -1,5 +1,6 @@
 package org.python.pydev.core.proposals;
 
+import java.io.File;
 import java.util.List;
 
 import org.eclipse.jface.text.IRegion;
@@ -134,5 +135,16 @@ public interface ICompletionProposalFactory {
             IImageHandle iImageHandle, String displayString);
 
     ShellId getCythonShellId();
+
+    ICompletionProposalHandle createTddRefactorCompletion(String markerContents, IImageHandle iImageHandle,
+            String displayString, Object object, Object object2, int priorityCreate, IPyEdit edit,
+            int locationStrategyBeforeCurrent, List<String> parametersAfterCall,
+            /*PyCreateMethodOrField*/ Object pyCreateMethod,
+            PySelection ps);
+
+    ICompletionProposalHandle createTddRefactorCompletionInModule(String string, IImageHandle iImageHandle,
+            String displayString, Object object, String displayString2, int priorityCreate, IPyEdit edit, File file,
+            List<String> parametersAfterCall, /*PyCreateMethodOrField*/ Object pyCreateMethod, PySelection callPs,
+            int locationStrategyFirstMethod);
 
 }
