@@ -6,13 +6,92 @@
  */
 package org.python.pydev.editor.codefolding;
 
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.Position;
 import org.eclipse.ui.texteditor.SimpleMarkerAnnotation;
+import org.python.pydev.core.IMarkerInfoForAnalysis;
+import org.python.pydev.core.log.Log;
+import org.python.pydev.shared_core.IMiscConstants;
+
+import com.python.pydev.analysis.additionalinfo.builders.AnalysisRunner;
 
 /**
  * This class bundles the marker annotation and a related position.
  */
 public class MarkerAnnotationAndPosition {
+
+    public IMarkerInfoForAnalysis asMarkerInfoForAnalysis() {
+        return new IMarkerInfoForAnalysis() {
+
+            @Override
+            public Object getPyLintMessageIdAttribute() {
+                return getAttribute(IMiscConstants.PYLINT_MESSAGE_ID);
+            }
+
+            private Object getAttribute(String attr) {
+                IMarker marker = markerAnnotation.getMarker();
+                Object attribute;
+                try {
+                    attribute = marker.getAttribute(attr);
+                } catch (Exception e) {
+                    Log.log(e);
+                    return null;
+                }
+                return attribute;
+            }
+
+            @Override
+            public Integer getPyDevAnalisysType() {
+                IMarker marker = markerAnnotation.getMarker();
+                Integer id;
+                try {
+                    id = (Integer) marker.getAttribute(AnalysisRunner.PYDEV_ANALYSIS_TYPE);
+                } catch (Exception e) {
+                    Log.log(e);
+                    return null;
+                }
+                return id;
+            }
+
+            @Override
+            public Object getFlake8MessageId() {
+                return getAttribute(IMiscConstants.FLAKE8_MESSAGE_ID);
+            }
+
+            @Override
+            public Object getMessage() {
+                return getAttribute(IMarker.MESSAGE);
+            }
+
+            @Override
+            public boolean hasPosition() {
+                return position != null;
+            }
+
+            @Override
+            public int getOffset() {
+                return position.offset;
+            }
+
+            @Override
+            public int getLength() {
+                return position.length;
+            }
+
+            @Override
+            public void delete() {
+                IMarker marker = markerAnnotation.getMarker();
+                if (marker != null) {
+                    try {
+                        marker.delete();
+                    } catch (CoreException e) {
+                        Log.log(e);
+                    }
+                }
+            }
+        };
+    }
 
     public final SimpleMarkerAnnotation markerAnnotation;
     /**

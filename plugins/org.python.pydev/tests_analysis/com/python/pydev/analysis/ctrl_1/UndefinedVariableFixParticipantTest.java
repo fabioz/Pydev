@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.text.Document;
-import org.python.pydev.ast.analysis.IAnalysisPreferences;
+import org.python.pydev.core.IAnalysisPreferences;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.editor.codecompletion.proposals.CtxInsensitiveImportComplProposal;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
@@ -22,6 +22,7 @@ import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import com.python.pydev.analysis.AnalysisPreferences;
 import com.python.pydev.analysis.AnalysisPreferencesStub;
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
+import com.python.pydev.analysis.marker_quick_fixes.UndefinedVariableFixParticipant;
 
 public class UndefinedVariableFixParticipantTest extends AdditionalInfoTestsBase {
 
@@ -74,7 +75,7 @@ public class UndefinedVariableFixParticipantTest extends AdditionalInfoTestsBase
         ps = new PySelection(new Document(s));
         line = s;
         offset = s.length();
-        participant.addProps(marker, prefs, line, ps, offset, nature, null, props);
+        participant.addProps(marker.asMarkerInfoForAnalysis(), prefs, line, ps, offset, nature, null, props);
         printProps(1, props);
         assertEquals("Import testlib", props.get(0).getDisplayString());
     }
@@ -95,7 +96,7 @@ public class UndefinedVariableFixParticipantTest extends AdditionalInfoTestsBase
         offset = s.length();
 
         props = new ArrayList<ICompletionProposalHandle>();
-        participant.addProps(marker, prefs, line, ps, offset, nature, null, props);
+        participant.addProps(marker.asMarkerInfoForAnalysis(), prefs, line, ps, offset, nature, null, props);
         printProps(2, props);
         assertContains("Import testlib.unittest", props);
         assertContains("Import testlib", props);
@@ -115,7 +116,7 @@ public class UndefinedVariableFixParticipantTest extends AdditionalInfoTestsBase
         offset = s.length();
 
         props = new ArrayList<ICompletionProposalHandle>();
-        participant.addProps(marker, prefs, line, ps, offset, nature, null, props);
+        participant.addProps(marker.asMarkerInfoForAnalysis(), prefs, line, ps, offset, nature, null, props);
         printProps(3, props);
         assertContains("Import testlib.unittest.anothertest", props);
         assertContains("Import testlib.unittest", props);
@@ -136,7 +137,7 @@ public class UndefinedVariableFixParticipantTest extends AdditionalInfoTestsBase
         offset = s.length();
 
         props = new ArrayList<ICompletionProposalHandle>();
-        participant.addProps(marker, prefs, line, ps, offset, nature, null, props);
+        participant.addProps(marker.asMarkerInfoForAnalysis(), prefs, line, ps, offset, nature, null, props);
         printProps(3, props);
         assertContains("Import testlib.unittest.anothertest", props);
         assertContains("Import testlib.unittest", props);
@@ -158,7 +159,7 @@ public class UndefinedVariableFixParticipantTest extends AdditionalInfoTestsBase
         offset = s.length();
 
         props = new ArrayList<ICompletionProposalHandle>();
-        participant.addProps(marker, prefs, line, ps, offset, nature, null, props);
+        participant.addProps(marker.asMarkerInfoForAnalysis(), prefs, line, ps, offset, nature, null, props);
         printProps(1, props);
         assertContains("Import AnotherTest (testlib.unittest.anothertest)", props);
 
@@ -178,7 +179,7 @@ public class UndefinedVariableFixParticipantTest extends AdditionalInfoTestsBase
         offset = s.length();
 
         props = new ArrayList<ICompletionProposalHandle>();
-        participant.addProps(marker, prefs, line, ps, offset, nature, null, props);
+        participant.addProps(marker.asMarkerInfoForAnalysis(), prefs, line, ps, offset, nature, null, props);
         printProps(1, props);
         //appears with __init__
         assertContains("Import DTest (relative.rel1.__init__)", props);
@@ -204,7 +205,7 @@ public class UndefinedVariableFixParticipantTest extends AdditionalInfoTestsBase
             offset = s.length();
 
             props = new ArrayList<ICompletionProposalHandle>();
-            participant.addProps(marker, prefs, line, ps, offset, nature, null, props);
+            participant.addProps(marker.asMarkerInfoForAnalysis(), prefs, line, ps, offset, nature, null, props);
             printProps(1, props);
             //appears with _
             assertContains("Import Priv3 (relative.rel1._priv1._priv2._priv3)", props);
@@ -230,7 +231,7 @@ public class UndefinedVariableFixParticipantTest extends AdditionalInfoTestsBase
         offset = s.length();
 
         props = new ArrayList<ICompletionProposalHandle>();
-        participant.addProps(marker, prefs, line, ps, offset, nature, null, props);
+        participant.addProps(marker.asMarkerInfoForAnalysis(), prefs, line, ps, offset, nature, null, props);
         printProps(1, props);
         //appears with _
         assertContains("Import NotPriv3 (relative.rel1._priv1._priv2.notpriv3)", props);

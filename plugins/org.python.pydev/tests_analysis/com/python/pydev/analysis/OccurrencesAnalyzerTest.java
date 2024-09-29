@@ -9,10 +9,10 @@
  */
 package com.python.pydev.analysis;
 
-import static org.python.pydev.ast.analysis.IAnalysisPreferences.TYPE_DUPLICATED_SIGNATURE;
-import static org.python.pydev.ast.analysis.IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE;
-import static org.python.pydev.ast.analysis.IAnalysisPreferences.TYPE_UNUSED_IMPORT;
-import static org.python.pydev.ast.analysis.IAnalysisPreferences.TYPE_UNUSED_VARIABLE;
+import static org.python.pydev.core.IAnalysisPreferences.TYPE_DUPLICATED_SIGNATURE;
+import static org.python.pydev.core.IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE;
+import static org.python.pydev.core.IAnalysisPreferences.TYPE_UNUSED_IMPORT;
+import static org.python.pydev.core.IAnalysisPreferences.TYPE_UNUSED_VARIABLE;
 
 import java.io.File;
 import java.io.IOException;

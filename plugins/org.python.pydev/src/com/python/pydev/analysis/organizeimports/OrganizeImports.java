@@ -29,8 +29,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-import org.python.pydev.ast.analysis.IAnalysisPreferences;
 import org.python.pydev.ast.codecompletion.ProposalsComparator;
+import org.python.pydev.core.IAnalysisPreferences;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.PyEdit;
@@ -49,7 +49,7 @@ import org.python.pydev.ui.dialogs.TreeSelectionDialog;
 import com.python.pydev.analysis.AnalysisPreferences;
 import com.python.pydev.analysis.AnalysisUiPlugin;
 import com.python.pydev.analysis.additionalinfo.builders.AnalysisRunner;
-import com.python.pydev.analysis.ctrl_1.UndefinedVariableFixParticipant;
+import com.python.pydev.analysis.marker_quick_fixes.UndefinedVariableFixParticipant;
 
 /**
  * Used to present the user a way to add imports for the undefined variables.
@@ -120,7 +120,8 @@ public class OrganizeImports implements IOrganizeImports {
                         if (treatedVars.contains(string)) {
                             continue;
                         }
-                        variableFixParticipant.addProps(marker, null, null, ps, start, edit.getPythonNature(), edit,
+                        variableFixParticipant.addProps(marker.asMarkerInfoForAnalysis(), null, null, ps, start,
+                                edit.getPythonNature(), edit,
                                 props);
 
                         if (props.size() > 0) {

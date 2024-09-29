@@ -22,6 +22,8 @@ import org.python.pydev.editor.PyEdit;
 import org.python.pydev.editor.actions.PyOpenAction;
 import org.python.pydev.shared_core.image.IImageHandle;
 
+import com.python.pydev.analysis.refactoring.tdd.AbstractPyCreateAction;
+
 /**
  * This is the proposal that goes outside. It only creates the proposal that'll actually do something later, as
  * creating that proposal may be slower.
@@ -36,7 +38,8 @@ public final class TddRefactorCompletionInModule extends AbstractTddRefactorComp
 
     public TddRefactorCompletionInModule(String replacementString, IImageHandle image, String displayString,
             IContextInformation contextInformation, String additionalProposalInfo, int priority, IPyEdit edit,
-            File module, List<String> parametersAfterCall, AbstractPyCreateAction pyCreateAction, PySelection ps) {
+            File module, List<String> parametersAfterCall, AbstractPyCreateAction pyCreateAction, PySelection ps,
+            int locationStrategy) {
 
         super(edit, replacementString, 0, 0, 0, image, displayString, contextInformation, additionalProposalInfo,
                 priority);
@@ -44,6 +47,7 @@ public final class TddRefactorCompletionInModule extends AbstractTddRefactorComp
         this.parametersAfterCall = parametersAfterCall;
         this.pyCreateAction = pyCreateAction;
         this.ps = ps;
+        this.locationStrategy = locationStrategy;
     }
 
     public List<String> getParametersAfterCall() {

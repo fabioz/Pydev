@@ -9,7 +9,7 @@ package com.python.pydev.analysis;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.python.pydev.ast.analysis.IAnalysisPreferences;
+import org.python.pydev.core.IAnalysisPreferences;
 
 public abstract class AbstractAnalysisPreferences implements IAnalysisPreferences {
 

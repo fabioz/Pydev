@@ -19,6 +19,8 @@ import org.python.pydev.editor.codecompletion.proposals.DefaultCompletionProposa
 import org.python.pydev.shared_core.string.CoreTextSelection;
 import org.python.pydev.shared_core.string.ICoreTextSelection;
 
+import com.python.pydev.analysis.refactoring.tdd.PyCreateClass;
+
 public class PyCreateClassTest extends TestCaseUtils {
 
     public static void main(String[] args) {
@@ -70,8 +72,8 @@ public class PyCreateClassTest extends TestCaseUtils {
         ExecutePyCreate.execute(pyCreateClass, info, PyCreateClass.LOCATION_STRATEGY_BEFORE_CURRENT);
 
         assertContentsEqual("" +
-                "class MyClass(${object}):\n" +
-                "    ${pass}${cursor}\n" +
+                "class MyClass(object):\n" +
+                "    pass\n" +
                 "\n" +
                 "\n" +
                 "MyClass()"
@@ -106,8 +108,8 @@ public class PyCreateClassTest extends TestCaseUtils {
                 "    pass\n" +
                 "\n" +
                 "\n" +
-                "class MyClass(${object}):\n" +
-                "    ${pass}${cursor}\n" +
+                "class MyClass(object):\n" +
+                "    pass\n" +
                 "\n" +
                 "\n"
                 +
@@ -144,9 +146,9 @@ public class PyCreateClassTest extends TestCaseUtils {
                 "    pass\n" +
                 "\n" +
                 "\n" +
-                "class MyClass(${object}):\n"
+                "class MyClass(object):\n"
                 +
-                "    ${pass}${cursor}\n" +
+                "    pass\n" +
                 "\n" +
                 "\n" +
                 "MyClass()" +
@@ -174,8 +176,8 @@ public class PyCreateClassTest extends TestCaseUtils {
                 "a = 10\n" +
                 "\n" +
                 "\n" +
-                "class MyClass(${object}):\n" +
-                "    ${pass}${cursor}\n"
+                "class MyClass(object):\n" +
+                "    pass\n"
                 +
                 "\n" +
                 "\n" +
@@ -199,11 +201,11 @@ public class PyCreateClassTest extends TestCaseUtils {
         ExecutePyCreate.execute(pyCreateClass, info, PyCreateClass.LOCATION_STRATEGY_BEFORE_CURRENT);
 
         assertContentsEqual("" +
-                "class MyClass(${object}):\n" +
+                "class MyClass(object):\n" +
                 "    \n"
                 +
-                "    def __init__(self, ${aa}, ${bb}, ${param2}):\n" +
-                "        ${pass}${cursor}\n" +
+                "    def __init__(self, aa, bb, param2):\n" +
+                "        pass\n" +
                 "\n" +
                 "\n"
                 +
@@ -222,11 +224,11 @@ public class PyCreateClassTest extends TestCaseUtils {
         ExecutePyCreate.execute(pyCreateClass, info, PyCreateClass.LOCATION_STRATEGY_BEFORE_CURRENT);
 
         assertContentsEqual("" +
-                "class MyClass(${object}):\n" +
+                "class MyClass(object):\n" +
                 "    \n"
                 +
-                "    def __init__(self, ${aa}, ${bb}, ${my_foo}):\n" +
-                "        ${pass}${cursor}\n" +
+                "    def __init__(self, aa, bb, my_foo):\n" +
+                "        pass\n" +
                 "\n" +
                 "\n"
                 +
@@ -253,8 +255,8 @@ public class PyCreateClassTest extends TestCaseUtils {
         assertContentsEqual("" +
                 "import foo\n" +
                 "\n" +
-                "class MyClass(${object}):\n" +
-                "    ${pass}${cursor}\n"
+                "class MyClass(object):\n" +
+                "    pass\n"
                 +
                 "\n" +
                 "\n" +
@@ -290,8 +292,8 @@ public class PyCreateClassTest extends TestCaseUtils {
                 "\n" +
                 "\n"
                 +
-                "class MyClass(${object}):\n" +
-                "    ${pass}${cursor}\n" +
+                "class MyClass(object):\n" +
+                "    pass\n" +
                 "\n" +
                 "\n" +
                 "class Bar(object):\n"
@@ -332,8 +334,8 @@ public class PyCreateClassTest extends TestCaseUtils {
                 "\n" +
                 "\n"
                 +
-                "class MyClass(${object}):\n" +
-                "    ${pass}${cursor}\n" +
+                "class MyClass(object):\n" +
+                "    pass\n" +
                 "\n" +
                 "\n", document.get());
     }
@@ -349,8 +351,8 @@ public class PyCreateClassTest extends TestCaseUtils {
                 document);
 
         assertContentsEqual("" +
-                "class Foo(${object}):\n" +
-                "    ${pass}${cursor}\n" +
+                "class Foo(object):\n" +
+                "    pass\n" +
                 "\n" +
                 "\n", document.get());
     }

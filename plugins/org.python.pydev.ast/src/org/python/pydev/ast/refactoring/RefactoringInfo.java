@@ -125,7 +125,7 @@ public class RefactoringInfo {
         try {
             this.moduleAdapter = org.python.pydev.ast.adapters.visitors.VisitorFactory.createModuleAdapter(
                     moduleManager, realFile, doc, nature,
-                    this.versionProvider);
+                    this.versionProvider, true);
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }

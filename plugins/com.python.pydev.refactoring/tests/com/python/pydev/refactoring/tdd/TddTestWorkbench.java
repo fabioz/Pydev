@@ -62,8 +62,6 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         //We have to wait a bit until the info is setup for the tests to work...
         waitForModulesManagerSetup();
 
-        checkCreateMethod4();
-
         checkCreateMethod3();
 
         checkCreateMethodAtField0();
@@ -81,8 +79,6 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         checkCreateConstant();
 
         checkCreateFieldAtClass4();
-
-        checkCreateMethod2();
 
         checkCreateFieldAtClass3();
 
@@ -143,7 +139,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                 "";
         setContentsAndWaitReparseAndError(mod1Contents, false); //no error here
 
-        TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
+        TddCodeGenerationQuickFixFromMarkersParticipant quickFix = new TddCodeGenerationQuickFixFromMarkersParticipant();
         IDocument doc = editor.getDocument();
         int offset = doc.getLength();
         PySelection ps = new PySelection(doc, offset);
@@ -184,7 +180,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                 "";
         setContentsAndWaitReparseAndError(mod1Contents, false); //no error here
 
-        TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
+        TddCodeGenerationQuickFixFromMarkersParticipant quickFix = new TddCodeGenerationQuickFixFromMarkersParticipant();
         IDocument doc = editor.getDocument();
         int offset = doc.getLength();
         PySelection ps = new PySelection(doc, offset);
@@ -232,7 +228,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                 "";
         setContentsAndWaitReparseAndError(mod1Contents, false); //no error here
 
-        TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
+        TddCodeGenerationQuickFixFromMarkersParticipant quickFix = new TddCodeGenerationQuickFixFromMarkersParticipant();
         IDocument doc = editor.getDocument();
         int offset = doc.getLength();
         PySelection ps = new PySelection(doc, offset);
@@ -283,7 +279,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                 "";
         setContentsAndWaitReparseAndError(mod1Contents, false); //no error here
 
-        TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
+        TddCodeGenerationQuickFixFromMarkersParticipant quickFix = new TddCodeGenerationQuickFixFromMarkersParticipant();
         IDocument doc = editor.getDocument();
         int offset = doc.getLength();
         PySelection ps = new PySelection(doc, offset);
@@ -325,7 +321,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                 "        self.bar()";
         setContentsAndWaitReparseAndError(mod1Contents, false); //no error here
 
-        TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
+        TddCodeGenerationQuickFixFromMarkersParticipant quickFix = new TddCodeGenerationQuickFixFromMarkersParticipant();
         IDocument doc = editor.getDocument();
         int offset = doc.getLength() - "r()".length();
         PySelection ps = new PySelection(doc, offset);
@@ -369,7 +365,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                 "    obj.unimplementedFunction()";
         setContentsAndWaitReparseAndError(mod1Contents, false); //no error here
 
-        TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
+        TddCodeGenerationQuickFixFromMarkersParticipant quickFix = new TddCodeGenerationQuickFixFromMarkersParticipant();
         IDocument doc = editor.getDocument();
         int offset = doc.getLength() - "()".length();
         PySelection ps = new PySelection(doc, offset);
@@ -419,7 +415,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                 "";
         setContentsAndWaitReparseAndError(mod1Contents);
 
-        TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
+        TddCodeGenerationQuickFixFromMarkersParticipant quickFix = new TddCodeGenerationQuickFixFromMarkersParticipant();
         int offset = mod1Contents.length();
         PySelection ps = new PySelection(editor.getDocument(), offset);
         assertTrue(quickFix.isValid(ps, "", editor, offset));
@@ -439,90 +435,6 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                     "    \n" +
                     "    def m1(self):\n" +
                     "        self.m2" +
-                    "" +
-                    "", editor.getDocument().get());
-        } finally {
-            editor.doRevertToSaved();
-        }
-    }
-
-    private void checkCreateMethod4() throws CoreException, BadLocationException, MisconfigurationException {
-        String mod1Contents = "" +
-                "print i\n"
-                + //just to have an error
-                "class Foo(object):\n" +
-                "\n" +
-                "#comment\n" +
-                "\n" +
-                "    def m1(self):\n" +
-                "        self.m2" +
-                ""
-                +
-                "";
-        setContentsAndWaitReparseAndError(mod1Contents);
-
-        TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
-        int offset = mod1Contents.length();
-        PySelection ps = new PySelection(editor.getDocument(), offset);
-        assertTrue(quickFix.isValid(ps, "", editor, offset));
-        try {
-            waitForQuickFixProps(quickFix, ps, offset, "Create m2 method at Foo").apply(editor.getISourceViewer(),
-                    '\n', 0, offset);
-            assertContentsEqual("" +
-                    "print i\n"
-                    + //just to have an error
-                    "class Foo(object):\n" +
-                    "\n" +
-                    "#comment\n" +
-                    "\n" +
-                    "\n" +
-                    "    def m2(self):\n"
-                    +
-                    "        pass\n" +
-                    "    \n" +
-                    "    \n" +
-                    "    def m1(self):\n" +
-                    "        self.m2" +
-                    "" +
-                    "",
-                    editor.getDocument().get());
-        } finally {
-            editor.doRevertToSaved();
-        }
-    }
-
-    private void checkCreateMethod2() throws CoreException, BadLocationException, MisconfigurationException {
-        String mod1Contents = "" +
-                "print i\n" + //just to have an error
-                "class Foo(object):\n" +
-                "\n" +
-                "\n" +
-                "    def m1(self):\n" +
-                "        self.m2()" +
-                "" +
-                "";
-        setContentsAndWaitReparseAndError(mod1Contents);
-
-        TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
-        int offset = mod1Contents.length();
-        PySelection ps = new PySelection(editor.getDocument(), offset);
-        assertTrue(quickFix.isValid(ps, "", editor, offset));
-        try {
-            waitForQuickFixProps(quickFix, ps, offset, "Create m2 method at Foo").apply(editor.getISourceViewer(),
-                    '\n', 0, offset);
-            assertContentsEqual("" +
-                    "print i\n"
-                    + //just to have an error
-                    "class Foo(object):\n" +
-                    "\n" +
-                    "\n" +
-                    "    def m2(self):\n" +
-                    "        pass\n" +
-                    "    \n"
-                    +
-                    "    \n" +
-                    "    def m1(self):\n" +
-                    "        self.m2()" +
                     "" +
                     "", editor.getDocument().get());
         } finally {
@@ -534,7 +446,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         String mod1Contents = "Foo";
         setContentsAndWaitReparseAndError(mod1Contents);
 
-        TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
+        TddCodeGenerationQuickFixFromMarkersParticipant quickFix = new TddCodeGenerationQuickFixFromMarkersParticipant();
         PySelection ps = new PySelection(editor.getDocument(), 0);
         assertTrue(quickFix.isValid(ps, "", editor, 0));
         List<ICompletionProposalHandle> props = quickFix.getProps(ps, SharedUiPlugin.getImageCache(),
@@ -559,7 +471,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
     private void checkCreateMethodAtOtherModule()
             throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents;
-        TddCodeGenerationQuickFixParticipant quickFix;
+        TddCodeGenerationQuickFixFromMarkersParticipant quickFix;
         PySelection ps;
         IFile mod2 = initFile.getParent().getFile(new Path("other_module2.py"));
         mod2.create(new ByteArrayInputStream("".getBytes()), true, null);
@@ -571,7 +483,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                     "other_module2.Foo(a, b)";
             setContentsAndWaitReparseAndError(mod1Contents);
 
-            quickFix = new TddCodeGenerationQuickFixParticipant();
+            quickFix = new TddCodeGenerationQuickFixFromMarkersParticipant();
             int offset = mod1Contents.length() - "o(a, b)".length();
             ps = new PySelection(editor.getDocument(), offset);
             assertTrue(quickFix.isValid(ps, "", editor, offset));
@@ -593,7 +505,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
     private void checkCreateMethodAtOtherModule2() throws CoreException, BadLocationException,
             MisconfigurationException {
         String mod1Contents;
-        TddCodeGenerationQuickFixParticipant quickFix;
+        TddCodeGenerationQuickFixFromMarkersParticipant quickFix;
         PySelection ps;
         IFile mod2 = initFile.getParent().getFile(new Path("other_module3.py"));
         String str = "" +
@@ -609,7 +521,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                     "other_module3.Bar.Foo(10, 20)";
             setContentsAndWaitReparseAndError(mod1Contents);
 
-            quickFix = new TddCodeGenerationQuickFixParticipant();
+            quickFix = new TddCodeGenerationQuickFixFromMarkersParticipant();
             int offset = mod1Contents.length() - "o(a, b)".length();
             ps = new PySelection(editor.getDocument(), offset);
             assertTrue(quickFix.isValid(ps, "", editor, offset));
@@ -638,7 +550,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
     private void checkCreateMethodAtOtherModule4() throws CoreException, BadLocationException,
             MisconfigurationException {
         String mod1Contents;
-        TddCodeGenerationQuickFixParticipant quickFix;
+        TddCodeGenerationQuickFixFromMarkersParticipant quickFix;
         PySelection ps;
         IFile mod2 = initFile.getParent().getFile(new Path("other_module4.py"));
         String str = "";
@@ -650,7 +562,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                     "from pack1.pack2.other_module4 import Foo";
             setContentsAndWaitReparseAndError(mod1Contents);
 
-            quickFix = new TddCodeGenerationQuickFixParticipant();
+            quickFix = new TddCodeGenerationQuickFixFromMarkersParticipant();
             int offset = mod1Contents.length();
             ps = new PySelection(editor.getDocument(), offset);
             assertTrue(quickFix.isValid(ps, "", editor, offset));
@@ -673,7 +585,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
 
     private void checkCreateNewModule() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents;
-        TddCodeGenerationQuickFixParticipant quickFix;
+        TddCodeGenerationQuickFixFromMarkersParticipant quickFix;
         PySelection ps;
         IFile mod2 = initFile.getParent().getFile(new Path("module_new.py"));
         final List<PyEdit> pyEditCreated = new ArrayList<PyEdit>();
@@ -693,7 +605,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                     "import pack1.pack2.module_new";
             setContentsAndWaitReparseAndError(mod1Contents);
 
-            quickFix = new TddCodeGenerationQuickFixParticipant();
+            quickFix = new TddCodeGenerationQuickFixFromMarkersParticipant();
             int offset = mod1Contents.length();
             ps = new PySelection(editor.getDocument(), offset);
             assertTrue(quickFix.isValid(ps, "", editor, offset));
@@ -715,7 +627,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
 
     private void checkCreateNewModule4() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents;
-        TddCodeGenerationQuickFixParticipant quickFix;
+        TddCodeGenerationQuickFixFromMarkersParticipant quickFix;
         PySelection ps;
         IFile mod3 = initFile.getParent().getFile(new Path("module_new3.py"));
         final List<PyEdit> pyEditCreated = new ArrayList<PyEdit>();
@@ -735,7 +647,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                     "from pack1.pack2 import module_new3";
             setContentsAndWaitReparseAndError(mod1Contents);
 
-            quickFix = new TddCodeGenerationQuickFixParticipant();
+            quickFix = new TddCodeGenerationQuickFixFromMarkersParticipant();
             int offset = mod1Contents.length();
             ps = new PySelection(editor.getDocument(), offset);
             assertTrue(quickFix.isValid(ps, "", editor, offset));
@@ -757,7 +669,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
 
     private void checkCreateNewModule2() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents;
-        TddCodeGenerationQuickFixParticipant quickFix;
+        TddCodeGenerationQuickFixFromMarkersParticipant quickFix;
         PySelection ps;
         List<ICompletionProposalHandle> props;
         IFile mod2 = initFile.getParent().getFile(new Path("pack2a/module_new.py"));
@@ -778,7 +690,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                     "import pack1.pack2.pack2a.module_new";
             setContentsAndWaitReparseAndError(mod1Contents);
 
-            quickFix = new TddCodeGenerationQuickFixParticipant();
+            quickFix = new TddCodeGenerationQuickFixFromMarkersParticipant();
             int offset = mod1Contents.length();
             ps = new PySelection(editor.getDocument(), offset);
             assertTrue(quickFix.isValid(ps, "", editor, offset));
@@ -802,7 +714,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
 
     private void checkCreateNewModule3() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents;
-        TddCodeGenerationQuickFixParticipant quickFix;
+        TddCodeGenerationQuickFixFromMarkersParticipant quickFix;
         PySelection ps;
         List<ICompletionProposalHandle> props;
         IFile mod2 = initFile.getParent().getParent().getParent().getFile(new Path("newpack/module_new.py"));
@@ -824,7 +736,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                     "import newpack.module_new";
             setContentsAndWaitReparseAndError(mod1Contents);
 
-            quickFix = new TddCodeGenerationQuickFixParticipant();
+            quickFix = new TddCodeGenerationQuickFixFromMarkersParticipant();
             int offset = mod1Contents.length();
             ps = new PySelection(editor.getDocument(), offset);
             assertTrue(quickFix.isValid(ps, "", editor, offset));
@@ -844,7 +756,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                     "module_new.NewClass";
             setContentsAndWaitReparseAndError(mod1Contents);
 
-            quickFix = new TddCodeGenerationQuickFixParticipant();
+            quickFix = new TddCodeGenerationQuickFixFromMarkersParticipant();
             offset = mod1Contents.length();
             ps = new PySelection(editor.getDocument(), offset);
             assertTrue(quickFix.isValid(ps, "", editor, offset));
@@ -872,7 +784,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                     "    module_new.NewClass(param)"; //the 'undefined param' will be the error
             setContentsAndWaitReparseAndError(mod1Contents);
 
-            quickFix = new TddCodeGenerationQuickFixParticipant();
+            quickFix = new TddCodeGenerationQuickFixFromMarkersParticipant();
             offset = mod1Contents.length();
             ps = new PySelection(editor.getDocument(), offset);
             assertTrue(quickFix.isValid(ps, "", editor, offset));
@@ -905,7 +817,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         }
     }
 
-    private ICompletionProposalExtension2 waitForQuickFixProps(TddCodeGenerationQuickFixParticipant quickFix,
+    private ICompletionProposalExtension2 waitForQuickFixProps(TddCodeGenerationQuickFixFromMarkersParticipant quickFix,
             PySelection ps, int offset, String expectedCompletion) throws MisconfigurationException,
             BadLocationException {
 
@@ -927,7 +839,8 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
 
     }
 
-    private List<ICompletionProposalHandle> waitForQuickFixProps(TddCodeGenerationQuickFixParticipant quickFix,
+    private List<ICompletionProposalHandle> waitForQuickFixProps(
+            TddCodeGenerationQuickFixFromMarkersParticipant quickFix,
             PySelection ps, int offset) throws BadLocationException, MisconfigurationException {
         for (int i = 0; i < 10; i++) {
             List<ICompletionProposalHandle> props = quickFix.getProps(ps, SharedUiPlugin.getImageCache(),
@@ -945,7 +858,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
     private void checkCreateNewModuleWithClass2()
             throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents;
-        TddCodeGenerationQuickFixParticipant quickFix;
+        TddCodeGenerationQuickFixFromMarkersParticipant quickFix;
         PySelection ps;
         List<ICompletionProposalHandle> props;
         IFile mod2 = initFile.getParent().getParent().getParent().getFile(new Path("newpack2/module_new.py"));
@@ -966,7 +879,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                     "from newpack2.module_new import Foo";
             setContentsAndWaitReparseAndError(mod1Contents);
 
-            quickFix = new TddCodeGenerationQuickFixParticipant();
+            quickFix = new TddCodeGenerationQuickFixFromMarkersParticipant();
             int offset = mod1Contents.length();
             ps = new PySelection(editor.getDocument(), offset);
             assertTrue(quickFix.isValid(ps, "", editor, offset));
@@ -992,7 +905,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
     private void checkCreateNewModuleWithClass3()
             throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents;
-        TddCodeGenerationQuickFixParticipant quickFix;
+        TddCodeGenerationQuickFixFromMarkersParticipant quickFix;
         PySelection ps;
         List<ICompletionProposalHandle> props;
         IFile mod2 = initFile.getParent().getParent().getParent().getFile(new Path("newpack2/module_new9.py"));
@@ -1013,7 +926,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                     "class Foo:\n    from newpack2.module_new9 import Foo";
             setContentsAndWaitReparseAndError(mod1Contents);
 
-            quickFix = new TddCodeGenerationQuickFixParticipant();
+            quickFix = new TddCodeGenerationQuickFixFromMarkersParticipant();
             int offset = mod1Contents.length();
             ps = new PySelection(editor.getDocument(), offset);
             assertTrue(quickFix.isValid(ps, "", editor, offset));
@@ -1038,7 +951,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
 
     private void checkCreateNewModuleWithClass() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents;
-        TddCodeGenerationQuickFixParticipant quickFix;
+        TddCodeGenerationQuickFixFromMarkersParticipant quickFix;
         PySelection ps;
         List<ICompletionProposalHandle> props;
         IFile mod2 = initFile.getParent().getFolder(new Path("pack3")).getFile(new Path("module_new2.py"));
@@ -1059,7 +972,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                     "from pack1.pack2.pack3.module_new2 import Foo";
             setContentsAndWaitReparseAndError(mod1Contents);
 
-            quickFix = new TddCodeGenerationQuickFixParticipant();
+            quickFix = new TddCodeGenerationQuickFixFromMarkersParticipant();
             int offset = mod1Contents.length();
             ps = new PySelection(editor.getDocument(), offset);
             assertTrue(quickFix.isValid(ps, "", editor, offset));
@@ -1094,7 +1007,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
         String mod1Contents = "Foo";
         setContentsAndWaitReparseAndError(mod1Contents);
 
-        TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
+        TddCodeGenerationQuickFixFromMarkersParticipant quickFix = new TddCodeGenerationQuickFixFromMarkersParticipant();
         PySelection ps = new PySelection(editor.getDocument(), 0);
         assertTrue(quickFix.isValid(ps, "", editor, 0));
         List<ICompletionProposalHandle> props = quickFix.getProps(ps, SharedUiPlugin.getImageCache(),
@@ -1126,7 +1039,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                 "foo.Met1()";
         setContentsAndWaitReparseAndError(mod1Contents);
 
-        TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
+        TddCodeGenerationQuickFixFromMarkersParticipant quickFix = new TddCodeGenerationQuickFixFromMarkersParticipant();
         int offset = mod1Contents.length() - 1;
         PySelection ps = new PySelection(editor.getDocument(), offset);
         assertTrue(quickFix.isValid(ps, "", editor, offset));
@@ -1168,7 +1081,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                 "foo.new_field";
         setContentsAndWaitReparseAndError(mod1Contents);
 
-        TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
+        TddCodeGenerationQuickFixFromMarkersParticipant quickFix = new TddCodeGenerationQuickFixFromMarkersParticipant();
         int offset = mod1Contents.length() - 1;
         PySelection ps = new PySelection(editor.getDocument(), offset);
         assertTrue(quickFix.isValid(ps, "", editor, offset));
@@ -1208,7 +1121,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                 "        self.a = 10";
         setContentsAndWaitReparseAndError(mod1Contents);
 
-        TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
+        TddCodeGenerationQuickFixFromMarkersParticipant quickFix = new TddCodeGenerationQuickFixFromMarkersParticipant();
         int offset = mod1Contents.length() - 1;
         PySelection ps = new PySelection(editor.getDocument(), offset);
         assertTrue(quickFix.isValid(ps, "", editor, offset));
@@ -1248,7 +1161,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                 "foo.new_field";
         setContentsAndWaitReparseAndError(mod1Contents);
 
-        TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
+        TddCodeGenerationQuickFixFromMarkersParticipant quickFix = new TddCodeGenerationQuickFixFromMarkersParticipant();
         int offset = mod1Contents.length() - 1;
         PySelection ps = new PySelection(editor.getDocument(), offset);
         assertTrue(quickFix.isValid(ps, "", editor, offset));
@@ -1291,7 +1204,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                 "";
         setContentsAndWaitReparseAndError(mod1Contents);
 
-        TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
+        TddCodeGenerationQuickFixFromMarkersParticipant quickFix = new TddCodeGenerationQuickFixFromMarkersParticipant();
         int offset = mod1Contents.length() - secondPart.length();
         PySelection ps = new PySelection(editor.getDocument(), offset);
         assertTrue(quickFix.isValid(ps, "", editor, offset));
@@ -1326,7 +1239,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
 
         setContentsAndWaitReparseAndError(mod1Contents);
 
-        TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
+        TddCodeGenerationQuickFixFromMarkersParticipant quickFix = new TddCodeGenerationQuickFixFromMarkersParticipant();
         int offset = mod1Contents.length();
         PySelection ps = new PySelection(editor.getDocument(), offset);
         assertTrue(quickFix.isValid(ps, "", editor, offset));
@@ -1361,7 +1274,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                 "foo.new_field";
         setContentsAndWaitReparseAndError(mod1Contents);
 
-        TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
+        TddCodeGenerationQuickFixFromMarkersParticipant quickFix = new TddCodeGenerationQuickFixFromMarkersParticipant();
         int offset = mod1Contents.length() - 1;
         PySelection ps = new PySelection(editor.getDocument(), offset);
         assertTrue(quickFix.isValid(ps, "", editor, offset));
@@ -1395,7 +1308,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                 "foo.Met1(param1=10)";
         setContentsAndWaitReparseAndError(mod1Contents);
 
-        TddCodeGenerationQuickFixParticipant quickFix = new TddCodeGenerationQuickFixParticipant();
+        TddCodeGenerationQuickFixFromMarkersParticipant quickFix = new TddCodeGenerationQuickFixFromMarkersParticipant();
         int offset = mod1Contents.length() - 1;
         PySelection ps = new PySelection(editor.getDocument(), offset);
         assertTrue(quickFix.isValid(ps, "", editor, offset));
@@ -1426,12 +1339,12 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
 
     private void checkCreateClassWithParams() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents;
-        TddCodeGenerationQuickFixParticipant quickFix;
+        TddCodeGenerationQuickFixFromMarkersParticipant quickFix;
         PySelection ps;
         List<ICompletionProposalHandle> props;
         mod1Contents = "Foo(call1(ueo), 'aa,bb', 10, cc)";
         setContentsAndWaitReparseAndError(mod1Contents);
-        quickFix = new TddCodeGenerationQuickFixParticipant();
+        quickFix = new TddCodeGenerationQuickFixFromMarkersParticipant();
         ps = new PySelection(editor.getDocument(), 0);
         assertTrue(quickFix.isValid(ps, "", editor, 0));
         props = quickFix.getProps(ps, SharedUiPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(),
@@ -1456,12 +1369,12 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
 
     private void checkCreateClassWithParams2() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents;
-        TddCodeGenerationQuickFixParticipant quickFix;
+        TddCodeGenerationQuickFixFromMarkersParticipant quickFix;
         PySelection ps;
         List<ICompletionProposalHandle> props;
         mod1Contents = "Foo(a=10, b=20)";
         setContentsAndWaitReparseAndError(mod1Contents);
-        quickFix = new TddCodeGenerationQuickFixParticipant();
+        quickFix = new TddCodeGenerationQuickFixFromMarkersParticipant();
         ps = new PySelection(editor.getDocument(), 0);
         assertTrue(quickFix.isValid(ps, "", editor, 0));
         props = quickFix.getProps(ps, SharedUiPlugin.getImageCache(), editor.getEditorFile(), editor.getPythonNature(),
@@ -1493,7 +1406,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
 
     private void checkCreateClassInit3() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents;
-        TddCodeGenerationQuickFixParticipant quickFix;
+        TddCodeGenerationQuickFixFromMarkersParticipant quickFix;
         PySelection ps;
         List<ICompletionProposalHandle> props;
         mod1Contents = "" +
@@ -1507,7 +1420,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                 +
                 "Foo(a=10, b=20)";
         setContentsAndWaitReparseAndError(mod1Contents);
-        quickFix = new TddCodeGenerationQuickFixParticipant();
+        quickFix = new TddCodeGenerationQuickFixFromMarkersParticipant();
         int offset = mod1Contents.length();
         ps = new PySelection(editor.getDocument(), offset);
         assertTrue(quickFix.isValid(ps, "", editor, offset));
@@ -1540,7 +1453,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
     private void baseCheckCreateClassInit(int minusOffset) throws CoreException, BadLocationException,
             MisconfigurationException {
         String mod1Contents;
-        TddCodeGenerationQuickFixParticipant quickFix;
+        TddCodeGenerationQuickFixFromMarkersParticipant quickFix;
         PySelection ps;
         List<ICompletionProposalHandle> props;
         mod1Contents = "" +
@@ -1551,7 +1464,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                 "\n" +
                 "Foo(a=10, b=20)";
         setContentsAndWaitReparseAndError(mod1Contents);
-        quickFix = new TddCodeGenerationQuickFixParticipant();
+        quickFix = new TddCodeGenerationQuickFixFromMarkersParticipant();
         int offset = mod1Contents.length() - minusOffset;
         ps = new PySelection(editor.getDocument(), offset);
         assertTrue(quickFix.isValid(ps, "", editor, offset));
@@ -1582,7 +1495,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
 
     private void checkCreateClassAtOtherModule() throws CoreException, BadLocationException, MisconfigurationException {
         String mod1Contents;
-        TddCodeGenerationQuickFixParticipant quickFix;
+        TddCodeGenerationQuickFixFromMarkersParticipant quickFix;
         PySelection ps;
         List<ICompletionProposalHandle> props;
         IFile mod2 = initFile.getParent().getFile(new Path("other_module.py"));
@@ -1595,7 +1508,7 @@ public class TddTestWorkbench extends AbstractWorkbenchTestCase implements IPars
                     "other_module.Foo";
             setContentsAndWaitReparseAndError(mod1Contents);
 
-            quickFix = new TddCodeGenerationQuickFixParticipant();
+            quickFix = new TddCodeGenerationQuickFixFromMarkersParticipant();
             int offset = mod1Contents.length() - 1;
             ps = new PySelection(editor.getDocument(), offset);
             assertTrue(quickFix.isValid(ps, "", editor, offset));

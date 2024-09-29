@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.text.Document;
-import org.python.pydev.ast.analysis.IAnalysisPreferences;
+import org.python.pydev.core.IAnalysisPreferences;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.formatter.FormatStd;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
@@ -23,6 +23,7 @@ import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 
 import com.python.pydev.analysis.AnalysisPreferencesStub;
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;
+import com.python.pydev.analysis.marker_quick_fixes.IgnoreErrorParticipant;
 
 public class IgnoreErrorFixParticipantTest extends AdditionalInfoTestsBase {
 
@@ -59,7 +60,7 @@ public class IgnoreErrorFixParticipantTest extends AdditionalInfoTestsBase {
         super.setUp();
         format = new FormatStd();
         format.spacesBeforeComment = 2;
-        participant = new IgnoreErrorParticipant(format);
+        participant = IgnoreErrorParticipant.createForTests(format);
         prefs = new AnalysisPreferencesStub();
         props = new ArrayList<ICompletionProposalHandle>();
         CompletionProposalFactory.set(new DefaultCompletionProposalFactory());
@@ -82,7 +83,7 @@ public class IgnoreErrorFixParticipantTest extends AdditionalInfoTestsBase {
         ps = new PySelection(new Document(s));
         line = s;
         offset = s.length();
-        participant.addProps(marker, prefs, line, ps, offset, nature, null, props);
+        participant.addProps(marker.asMarkerInfoForAnalysis(), prefs, line, ps, offset, nature, null, props);
         printProps(1, props);
         assertEquals("UndefinedVariable", props.get(0).getDisplayString());
 
@@ -102,7 +103,7 @@ public class IgnoreErrorFixParticipantTest extends AdditionalInfoTestsBase {
         ps = new PySelection(new Document(s));
         line = s;
         offset = s.length();
-        participant.addProps(marker, prefs, line, ps, offset, nature, null, props);
+        participant.addProps(marker.asMarkerInfoForAnalysis(), prefs, line, ps, offset, nature, null, props);
         printProps(1, props);
         assertEquals("UndefinedVariable", props.get(0).getDisplayString());
 
@@ -122,7 +123,7 @@ public class IgnoreErrorFixParticipantTest extends AdditionalInfoTestsBase {
         ps = new PySelection(new Document(s));
         line = s;
         offset = s.length();
-        participant.addProps(marker, prefs, line, ps, offset, nature, null, props);
+        participant.addProps(marker.asMarkerInfoForAnalysis(), prefs, line, ps, offset, nature, null, props);
         printProps(1, props);
         assertEquals("UndefinedVariable", props.get(0).getDisplayString());
 
@@ -142,7 +143,7 @@ public class IgnoreErrorFixParticipantTest extends AdditionalInfoTestsBase {
         ps = new PySelection(new Document(s));
         line = s;
         offset = s.length();
-        participant.addProps(marker, prefs, line, ps, offset, nature, null, props);
+        participant.addProps(marker.asMarkerInfoForAnalysis(), prefs, line, ps, offset, nature, null, props);
         printProps(1, props);
         assertEquals("UndefinedVariable", props.get(0).getDisplayString());
 
@@ -162,7 +163,7 @@ public class IgnoreErrorFixParticipantTest extends AdditionalInfoTestsBase {
         ps = new PySelection(new Document(s));
         line = s;
         offset = s.length();
-        participant.addProps(marker, prefs, line, ps, offset, nature, null, props);
+        participant.addProps(marker.asMarkerInfoForAnalysis(), prefs, line, ps, offset, nature, null, props);
         printProps(1, props);
         assertEquals("UndefinedVariable", props.get(0).getDisplayString());
 

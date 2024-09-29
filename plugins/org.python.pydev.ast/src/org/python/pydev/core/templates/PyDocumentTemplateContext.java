@@ -21,6 +21,7 @@ import org.python.pydev.core.IPySourceViewer;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ISourceViewerForTemplates;
 import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.core.autoedit.DefaultIndentPrefs;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.interactive_console.IScriptConsoleViewer;
 import org.python.pydev.parser.fastparser.FastParser;
@@ -49,7 +50,8 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContextWith
 
     public PyDocumentTemplateContext(TemplateContextType type, IDocument document, int offset, int length,
             String indentTo, ISourceViewerForTemplates viewer) {
-        this(type, document, offset, length, indentTo, viewer.getIndentPrefs());
+        this(type, document, offset, length, indentTo,
+                viewer != null ? viewer.getIndentPrefs() : DefaultIndentPrefs.get(null));
         this.edit = viewer;
     }
 
@@ -145,9 +147,8 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContextWith
      * @return a template context that can handle template insertion at the given location, or <code>null</code>
      */
     public static PyDocumentTemplateContext createContext(final TemplateContextType contextType,
-            final ISourceViewerForTemplates edit, final IRegion region, String indentTo) {
+            final ISourceViewerForTemplates edit, IDocument document, final IRegion region, String indentTo) {
         if (contextType != null) {
-            IDocument document = edit.getDocument();
             return new PyDocumentTemplateContext(contextType, document, region.getOffset(), region.getLength(),
                     indentTo, edit);
         }
@@ -161,7 +162,7 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContextWith
             ICoreTextSelection textSelection = edit.getTextSelection();
             PySelection selection = new PySelection(document, textSelection);
             String indent = selection.getIndentationFromLine();
-            return PyDocumentTemplateContext.createContext(contextType, edit, region, indent);
+            return PyDocumentTemplateContext.createContext(contextType, edit, edit.getDocument(), region, indent);
         }
         return null;
     }
@@ -170,14 +171,23 @@ public final class PyDocumentTemplateContext extends DocumentTemplateContextWith
             IRegion region, String indent) {
         TemplateContextType contextType = new TemplateContextType();
         contextType.addResolver(new GlobalTemplateVariables.Cursor()); //We do want the cursor thought.
-        return createContext(contextType, targetEditor, region, indent);
+        return createContext(contextType, targetEditor, targetEditor != null ? targetEditor.getDocument() : null,
+                region, indent);
+    }
+
+    public static PyDocumentTemplateContext createContextWithCursor(ISourceViewerForTemplates targetEditor,
+            IDocument document,
+            IRegion region, String indent) {
+        TemplateContextType contextType = new TemplateContextType();
+        contextType.addResolver(new GlobalTemplateVariables.Cursor()); //We do want the cursor thought.
+        return createContext(contextType, targetEditor, document, region, indent);
     }
 
     public static PyDocumentTemplateContext createContextWithDefaultResolvers(ISourceViewerForTemplates edit,
             IRegion region, String indentTo) {
         TemplateContextType contextType = new TemplateContextType();
         PyAddTemplateResolvers.addDefaultResolvers(contextType);
-        return createContext(contextType, edit, region, indentTo);
+        return createContext(contextType, edit, edit != null ? edit.getDocument() : null, region, indentTo);
     }
 
 }

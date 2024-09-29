@@ -26,6 +26,7 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.ITextViewer;
 import org.python.pydev.ast.codecompletion.CompletionRequest;
 import org.python.pydev.ast.codecompletion.IPyCodeCompletion;
 import org.python.pydev.ast.codecompletion.PyCodeCompletionUtils;
@@ -641,6 +642,11 @@ public class CodeCompletionTestsBase extends TestCase {
 
     public ICompletionProposalHandle[] requestCompl(String strDoc, String retCompl) throws Exception {
         return requestCompl(strDoc, new String[] { retCompl });
+    }
+
+    public static ITextViewer createViewerWithDoc(IDocument doc) {
+        // TODO Auto-generated method stub
+        return new TextViewerStub(doc);
     }
 
     public static void assertContains(List<String> found, String toFind) {

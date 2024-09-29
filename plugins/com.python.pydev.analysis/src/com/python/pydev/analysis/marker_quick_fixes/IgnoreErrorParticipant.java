@@ -9,7 +9,7 @@
  *
  * @author Fabio Zadrozny
  */
-package com.python.pydev.analysis.ctrl_1;
+package com.python.pydev.analysis.marker_quick_fixes;
 
 import java.util.HashSet;
 import java.util.List;
@@ -17,21 +17,20 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
-import org.python.pydev.ast.analysis.IAnalysisPreferences;
 import org.python.pydev.core.CheckAnalysisErrors;
+import org.python.pydev.core.IAnalysisMarkersParticipant;
+import org.python.pydev.core.IAnalysisPreferences;
+import org.python.pydev.core.IMarkerInfoForAnalysis;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.formatter.FormatStd;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
-import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
+import org.python.pydev.shared_core.SharedCorePlugin;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.image.UIConstants;
-import org.python.pydev.shared_ui.SharedUiPlugin;
-
-import com.python.pydev.analysis.additionalinfo.builders.AnalysisRunner;
 
 public class IgnoreErrorParticipant implements IAnalysisMarkersParticipant {
 
@@ -43,19 +42,23 @@ public class IgnoreErrorParticipant implements IAnalysisMarkersParticipant {
         this(null);
     }
 
-    /**
-     * Only for tests.
-     */
-    /*default*/ IgnoreErrorParticipant(FormatStd format) {
+    private IgnoreErrorParticipant(FormatStd format) {
         this.format = format;
     }
 
+    /**
+     * Only for tests.
+     */
+    public static IgnoreErrorParticipant createForTests(FormatStd format) {
+        return new IgnoreErrorParticipant(format);
+    }
+
     @Override
-    public void addProps(MarkerAnnotationAndPosition marker, IAnalysisPreferences analysisPreferences,
+    public void addProps(IMarkerInfoForAnalysis markerInfo, IAnalysisPreferences analysisPreferences,
             final String line, final PySelection ps, int offset, IPythonNature nature, final IPyEdit edit,
             List<ICompletionProposalHandle> props)
             throws BadLocationException, CoreException {
-        Integer id = (Integer) marker.markerAnnotation.getMarker().getAttribute(AnalysisRunner.PYDEV_ANALYSIS_TYPE);
+        Integer id = markerInfo.getPyDevAnalisysType();
         if (handled.contains(id)) {
             return;
         }
@@ -65,7 +68,7 @@ public class IgnoreErrorParticipant implements IAnalysisMarkersParticipant {
             return;
         }
 
-        IImageCache imageCache = SharedUiPlugin.getImageCache();
+        IImageCache imageCache = SharedCorePlugin.getImageCache();
         ICompletionProposalHandle proposal = CompletionProposalFactory.get().createIgnoreCompletionProposalInSameLine(
                 messageToIgnore, ps.getEndLineOffset(), 0, offset,
                 imageCache != null ? imageCache.get(UIConstants.ASSIST_ANNOTATION) : null,

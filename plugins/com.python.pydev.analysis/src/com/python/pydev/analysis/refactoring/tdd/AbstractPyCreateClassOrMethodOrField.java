@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.python.pydev.refactoring.tdd;
+package com.python.pydev.analysis.refactoring.tdd;
 
 import java.util.List;
 
@@ -22,12 +22,10 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.docutils.PyStringUtils;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.core.templates.PyDocumentTemplateContext;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.visitors.NodeUtils;
-import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -36,14 +34,14 @@ public abstract class AbstractPyCreateClassOrMethodOrField extends AbstractPyCre
 
     public abstract String getCreationStr();
 
-    protected abstract String getDefaultActTok();
+    public abstract String getDefaultActTok();
 
-    protected ICompletionProposalHandle createProposal(PySelection pySelection, String source,
+    protected TemplateInfo createProposal(PySelection pySelection, String source,
             Tuple<Integer, String> offsetAndIndent) {
         return createProposal(pySelection, source, offsetAndIndent, true, null);
     }
 
-    protected ICompletionProposalHandle createProposal(PySelection pySelection, String source,
+    protected TemplateInfo createProposal(PySelection pySelection, String source,
             Tuple<Integer, String> offsetAndIndent, boolean requireEmptyLines, Pass replacePassStatement) {
         int offset;
         int len;
@@ -102,25 +100,22 @@ public abstract class AbstractPyCreateClassOrMethodOrField extends AbstractPyCre
             }
         }
 
+        String creationStr = getCreationStr();
+        Region region = new Region(offset, len);
+        //Note: was using new PyContextType(), but when we had something as ${user} it
+        //would end up replacing it with the actual name of the user, which is not what
+        //we want!
+        PyDocumentTemplateContext context;
         if (targetEditor != null) {
-            String creationStr = getCreationStr();
-            Region region = new Region(offset, len);
-            //Note: was using new PyContextType(), but when we had something as ${user} it
-            //would end up replacing it with the actual name of the user, which is not what
-            //we want!
-            PyDocumentTemplateContext context = PyDocumentTemplateContext.createContextWithCursor(targetEditor, region,
+            context = PyDocumentTemplateContext.createContextWithCursor(targetEditor, region,
                     indent);
-
-            Template template = new Template("Create " + creationStr, "Create " + creationStr, "", source, true);
-            ICompletionProposalHandle templateProposal = CompletionProposalFactory.get()
-                    .createPyTemplateProposal(template, context, region, null, 0);
-            return templateProposal;
-
         } else {
-            //This should only happen in tests.
-            source = StringUtils.indentTo(source, indent, false);
-            return CompletionProposalFactory.get().createPyCompletionProposal(source, offset, len, 0, 0);
+            context = PyDocumentTemplateContext.createContextWithCursor(targetEditor, pySelection.getDoc(), region,
+                    indent);
         }
+
+        Template template = new Template("Create " + creationStr, "Create " + creationStr, "", source, true);
+        return new TemplateInfo(template, context, region);
     }
 
     /**

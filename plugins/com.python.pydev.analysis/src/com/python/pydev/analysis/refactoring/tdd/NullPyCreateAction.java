@@ -4,17 +4,16 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.python.pydev.refactoring.tdd;
+package com.python.pydev.analysis.refactoring.tdd;
 
 import java.util.List;
 
 import org.python.pydev.ast.refactoring.RefactoringInfo;
-import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 
 public class NullPyCreateAction extends AbstractPyCreateAction {
 
     @Override
-    public ICompletionProposalHandle createProposal(RefactoringInfo refactoringInfo, String actTok,
+    public TemplateInfo createProposal(RefactoringInfo refactoringInfo, String actTok,
             int locationStrategy,
             List<String> parametersAfterCall) {
         return null;

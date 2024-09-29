@@ -10,7 +10,7 @@
 package org.python.pydev.ast.analysis.messages;
 
 import org.eclipse.core.runtime.Assert;
-import org.python.pydev.ast.analysis.IAnalysisPreferences;
+import org.python.pydev.core.IAnalysisPreferences;
 import org.python.pydev.core.IToken;
 
 public class Message extends AbstractMessage {

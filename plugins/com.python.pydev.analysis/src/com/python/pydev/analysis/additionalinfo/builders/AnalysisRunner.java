@@ -174,7 +174,8 @@ public class AnalysisRunner {
         return null;
     }
 
-    public ArrayList<MarkerInfo> generateMarkers(IDocument document, IMessage[] messages, IProgressMonitor monitor) {
+    public static ArrayList<MarkerInfo> generateMarkers(IDocument document, IMessage[] messages,
+            IProgressMonitor monitor) {
         ArrayList<MarkerInfo> lst = new ArrayList<MarkerInfo>();
         //add the markers... the id is put as additional info for it
         for (IMessage m : messages) {

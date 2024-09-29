@@ -7,17 +7,13 @@
 /*
  * Created on 24/09/2005
  */
-package com.python.pydev.analysis.ctrl_1;
+package org.python.pydev.core;
 
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
-import org.python.pydev.ast.analysis.IAnalysisPreferences;
-import org.python.pydev.core.IPyEdit;
-import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 
 public interface IAnalysisMarkersParticipant {
@@ -38,7 +34,7 @@ public interface IAnalysisMarkersParticipant {
      * @throws BadLocationException
      * @throws CoreException
      */
-    public abstract void addProps(MarkerAnnotationAndPosition marker, IAnalysisPreferences analysisPreferences,
+    public abstract void addProps(IMarkerInfoForAnalysis markerInfo, IAnalysisPreferences analysisPreferences,
             String line, PySelection ps, int offset, IPythonNature nature, IPyEdit edit,
             List<ICompletionProposalHandle> props)
             throws BadLocationException, CoreException;

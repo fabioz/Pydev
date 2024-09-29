@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import org.python.pydev.ast.analysis.IAnalysisPreferences;
+import org.python.pydev.core.IAnalysisPreferences;
 import org.python.pydev.core.IToken;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 

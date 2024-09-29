@@ -7,7 +7,7 @@
 /*
  * Created on 24/07/2005
  */
-package org.python.pydev.ast.analysis;
+package org.python.pydev.core;
 
 import java.util.Set;
 

@@ -11,12 +11,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.python.pydev.ast.analysis.IAnalysisPreferences;
 import org.python.pydev.ast.codecompletion.revisited.CompletionCache;
 import org.python.pydev.ast.codecompletion.revisited.CompletionState;
 import org.python.pydev.ast.codecompletion.revisited.CompletionStateFactory;
@@ -25,9 +23,12 @@ import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.ast.refactoring.PyRefactoringFindDefinition;
 import org.python.pydev.ast.refactoring.RefactoringRequest;
+import org.python.pydev.core.IAnalysisMarkersParticipant;
+import org.python.pydev.core.IAnalysisPreferences;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
 import org.python.pydev.core.IDefinition;
+import org.python.pydev.core.IMarkerInfoForAnalysis;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
@@ -38,7 +39,6 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.preferences.FileTypesPreferences;
 import org.python.pydev.core.structure.CompletionRecursionException;
-import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -54,19 +54,21 @@ import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 import org.python.pydev.shared_ui.SharedUiPlugin;
 
-import com.python.pydev.analysis.additionalinfo.builders.AnalysisRunner;
-import com.python.pydev.analysis.ctrl_1.IAnalysisMarkersParticipant;
+import com.python.pydev.analysis.refactoring.tdd.AbstractPyCreateAction;
+import com.python.pydev.analysis.refactoring.tdd.NullPyCreateAction;
+import com.python.pydev.analysis.refactoring.tdd.PyCreateClass;
+import com.python.pydev.analysis.refactoring.tdd.PyCreateMethodOrField;
 
 /**
  * This participant will add a suggestion to create class/methods/attributes when an undefined variable error is found.
  */
-public class TddQuickFixParticipant implements IAnalysisMarkersParticipant {
+public class TddQuickFixFromMarkersParticipant implements IAnalysisMarkersParticipant {
 
     /*default*/IImageHandle imageClass;
     /*default*/IImageHandle imageMethod;
     /*default*/IImageHandle imageModule;
 
-    public TddQuickFixParticipant() {
+    public TddQuickFixFromMarkersParticipant() {
         IImageCache imageCache = SharedUiPlugin.getImageCache();
         if (imageCache != null) { //making tests
             imageClass = imageCache.get(UIConstants.CREATE_CLASS_ICON);
@@ -76,7 +78,7 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant {
     }
 
     @Override
-    public void addProps(MarkerAnnotationAndPosition markerAnnotation, IAnalysisPreferences analysisPreferences,
+    public void addProps(IMarkerInfoForAnalysis markerInfo, IAnalysisPreferences analysisPreferences,
             String line, PySelection ps, int offset, IPythonNature nature, IPyEdit edit,
             List<ICompletionProposalHandle> props)
             throws BadLocationException, CoreException {
@@ -89,13 +91,13 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant {
             return;
         }
 
-        if (markerAnnotation.position == null) {
+        if (!markerInfo.hasPosition()) {
             return;
         }
-        IMarker marker = markerAnnotation.markerAnnotation.getMarker();
-        Integer id = (Integer) marker.getAttribute(AnalysisRunner.PYDEV_ANALYSIS_TYPE);
-        int start = markerAnnotation.position.offset;
-        int end = start + markerAnnotation.position.length;
+        Integer id = markerInfo.getPyDevAnalisysType();
+        int start = markerInfo.getOffset();
+        int end = start + markerInfo.getLength();
+
         ps.setSelection(start, end);
         String markerContents;
         try {
@@ -348,7 +350,7 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant {
                         " classmethod at class: " + className +
                         " in " + file,
                 IPyCompletionProposal.PRIORITY_CREATE, edit,
-                file, parametersAfterCall, pyCreateMethod, ps));
+                file, parametersAfterCall, pyCreateMethod, ps, AbstractPyCreateAction.LOCATION_STRATEGY_END));
     }
 
     private void addCreateMethodOption(PySelection ps, IPyEdit edit, List<ICompletionProposalHandle> props,
@@ -358,7 +360,7 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant {
                 "Create " + markerContents +
                         " method at " + file,
                 IPyCompletionProposal.PRIORITY_CREATE, edit, file, parametersAfterCall, new PyCreateMethodOrField(),
-                ps));
+                ps, AbstractPyCreateAction.LOCATION_STRATEGY_END));
     }
 
     private void addCreateClassOption(PySelection ps, IPyEdit edit, List<ICompletionProposalHandle> props,
@@ -367,7 +369,8 @@ public class TddQuickFixParticipant implements IAnalysisMarkersParticipant {
                 " class at " + file.getName(), null,
                 "Create " + markerContents +
                         " class at " + file,
-                IPyCompletionProposal.PRIORITY_CREATE, edit, file, parametersAfterCall, new PyCreateClass(), ps));
+                IPyCompletionProposal.PRIORITY_CREATE, edit, file, parametersAfterCall, new PyCreateClass(), ps,
+                AbstractPyCreateAction.LOCATION_STRATEGY_END));
     }
 
     private void addCreateClassInNewModuleOption(PySelection ps, IPyEdit edit, List<ICompletionProposalHandle> props,

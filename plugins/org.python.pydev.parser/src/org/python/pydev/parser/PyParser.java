@@ -575,6 +575,11 @@ public final class PyParser extends BaseParser implements IPyParser {
         return new Tuple<SimpleNode, IGrammar>(grammar.file_input(), grammar); // parses the file
     }
 
+    public static ParseOutput parseFull(IDocument doc, IGrammarVersionProvider versionProvider)
+            throws MisconfigurationException {
+        return parseFull(new ParserInfo(doc, versionProvider));
+    }
+
     /**
      * @return a tuple with the SimpleNode root(if parsed) and the error (if any).
      *         if we are able to recover from a reparse, we have both, the root and the error.

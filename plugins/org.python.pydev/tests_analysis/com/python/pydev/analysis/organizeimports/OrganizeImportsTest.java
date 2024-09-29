@@ -10,7 +10,7 @@
 package com.python.pydev.analysis.organizeimports;
 
 import org.eclipse.jface.text.Document;
-import org.python.pydev.ast.analysis.IAnalysisPreferences;
+import org.python.pydev.core.IAnalysisPreferences;
 import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoTestsBase;

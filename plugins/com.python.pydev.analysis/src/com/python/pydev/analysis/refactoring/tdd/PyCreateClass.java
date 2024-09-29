@@ -4,14 +4,13 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.python.pydev.refactoring.tdd;
+package com.python.pydev.analysis.refactoring.tdd;
 
 import java.util.List;
 
 import org.python.pydev.ast.adapters.ModuleAdapter;
 import org.python.pydev.ast.refactoring.RefactoringInfo;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
@@ -44,7 +43,7 @@ public class PyCreateClass extends AbstractPyCreateClassOrMethodOrField {
     }
 
     @Override
-    protected String getDefaultActTok() {
+    public String getDefaultActTok() {
         return "MyClass";
     }
 
@@ -52,7 +51,7 @@ public class PyCreateClass extends AbstractPyCreateClassOrMethodOrField {
      * Returns a proposal that can be used to generate the code.
      */
     @Override
-    public ICompletionProposalHandle createProposal(RefactoringInfo refactoringInfo, String actTok,
+    public TemplateInfo createProposal(RefactoringInfo refactoringInfo, String actTok,
             int locationStrategy,
             List<String> parametersAfterCall) {
         PySelection pySelection = refactoringInfo.getPySelection();

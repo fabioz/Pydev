@@ -6,13 +6,17 @@
  */
 package com.python.pydev.refactoring.tdd;
 
+import java.io.File;
 import java.util.List;
 
 import org.eclipse.jface.text.Document;
 import org.python.pydev.ast.codecompletion.PyCodeCompletion;
 import org.python.pydev.ast.codecompletion.revisited.CodeCompletionTestsBase;
+import org.python.pydev.ast.codecompletion.revisited.PyEditStub;
 import org.python.pydev.ast.codecompletion.revisited.modules.CompiledModule;
 import org.python.pydev.ast.refactoring.AbstractPyRefactoring;
+import org.python.pydev.core.IPyEdit;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.structure.CompletionRecursionException;
@@ -20,8 +24,11 @@ import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.FastStringBuffer;
+import org.python.pydev.shared_ui.editor_input.PydevFileEditorInput;
 
 import com.python.pydev.analysis.refactoring.refactorer.Refactorer;
+import com.python.pydev.analysis.refactoring.tdd.AbstractPyCreateClassOrMethodOrField;
+import com.python.pydev.analysis.refactoring.tdd.TemplateInfo;
 
 /**
  * @author Fabio
@@ -61,7 +68,7 @@ public class TddCodeGenerationQuickFixParticipantTest extends CodeCompletionTest
 
         this.restorePythonPath(false);
         codeCompletion = new PyCodeCompletion();
-        TddCodeGenerationQuickFixParticipant.onGetTddPropsError = new ICallback<Boolean, Exception>() {
+        TddCodeGenerationQuickFixWithoutMarkersParticipant.onGetTddPropsError = new ICallback<Boolean, Exception>() {
 
             @Override
             public Boolean call(Exception e) {
@@ -90,26 +97,100 @@ public class TddCodeGenerationQuickFixParticipantTest extends CodeCompletionTest
         PyCodeCompletion.onCompletionRecursionException = null;
     }
 
+    public void testCreateInSelf1() throws Exception {
+        String s = """
+                print i
+                class Foo(object):
+
+                #comment
+
+                    def m1(self):
+                        self.m2
+                """;
+        String expected = """
+                print i
+                class Foo(object):
+
+                #comment
+
+
+                    def m2(self):
+                        pass
+                ----
+                ----
+                    def m1(self):
+                        self.m2
+                """.replace('-', ' '); // Hack to keep whitespaces there
+        String label = "Create m2 method at Foo";
+
+        check(s, expected, label);
+
+    }
+
+    public void testCreateInSelf2() throws Exception {
+        String s = """
+                print i
+                class Foo(object):
+
+                #comment
+
+                    def m1(self):
+                        self.m2()
+                """;
+        String expected = """
+                print i
+                class Foo(object):
+
+                #comment
+
+
+                    def m2(self):
+                        pass
+                ----
+                ----
+                    def m1(self):
+                        self.m2()
+                """.replace('-', ' '); // Hack to keep whitespaces there
+        String label = "Create m2 method at Foo";
+
+        check(s, expected, label);
+    }
+
+    private void check(String s, String expected, String label) throws MisconfigurationException {
+        Document doc = new Document(s);
+
+        File file = new File(TestDependent.TEST_PYSRC_TESTING_LOC + "extendable/check_analysis_and_tdd.py");
+        PydevFileEditorInput editorInputStub = new PydevFileEditorInput(file);
+        IPyEdit edit = new PyEditStub(doc, editorInputStub, nature, file);
+
+        List<ICompletionProposalHandle> props = TddCodeGenerationQuickFixWithoutMarkersParticipant.getTddProps(
+                new PySelection(doc, s.length() - 1), null, null, nature, edit, s.length() - 1, null);
+        ICompletionProposalHandle handle = assertContains(label, props.toArray(new ICompletionProposalHandle[0]));
+        TddRefactorCompletion completion = (TddRefactorCompletion) handle;
+        TemplateInfo templateInfo = completion.getAsTemplateInfo();
+        templateInfo.apply(doc);
+        assertEquals(expected, doc.get());
+    }
+
     public void testCreate() throws Exception {
         String s = "" +
                 "class MyClass(object):\n" +
                 "    pass\n" +
                 "\n" +
-                "def makeTestObj():\n"
-                +
+                "def makeTestObj():\n" +
                 "    return MyClass()\n" +
                 "\n" +
                 "def makeTestObj2():\n" +
                 "    return makeTestObj()\n" +
-                "\n"
-                +
+                "\n" +
                 "def testName():\n" +
                 "    obj = makeTestObj2()\n" +
                 "    obj.unimplementedFunction()\n" +
                 "";
-        TddCodeGenerationQuickFixParticipant participant = new TddCodeGenerationQuickFixParticipant();
+
         Document doc = new Document(s);
-        List<ICompletionProposalHandle> props = participant.getTddProps(new PySelection(doc, s.length() - 1), null,
+        List<ICompletionProposalHandle> props = TddCodeGenerationQuickFixWithoutMarkersParticipant.getTddProps(
+                new PySelection(doc, s.length() - 1), null,
                 null,
                 nature, null, s.length() - 1, null);
         assertContains("Create unimplementedFunction method at MyClass (__module_not_in_the_pythonpath__)",
@@ -124,9 +205,10 @@ public class TddCodeGenerationQuickFixParticipantTest extends CodeCompletionTest
                 "    obj = MyClass()\n" +
                 "    obj.unimplementedFunction(a.x, 'Some comment in ticket.')\n" +
                 "";
-        TddCodeGenerationQuickFixParticipant participant = new TddCodeGenerationQuickFixParticipant();
+
         Document doc = new Document(s);
-        List<ICompletionProposalHandle> props = participant.getTddProps(new PySelection(doc, s.length() - 1), null,
+        List<ICompletionProposalHandle> props = TddCodeGenerationQuickFixWithoutMarkersParticipant.getTddProps(
+                new PySelection(doc, s.length() - 1), null,
                 null,
                 nature, null, s.length() - 1, null);
         TddRefactorCompletionInModule proposal = (TddRefactorCompletionInModule) assertContains(
@@ -159,9 +241,10 @@ public class TddCodeGenerationQuickFixParticipantTest extends CodeCompletionTest
                 +
                 "    obj.unimplementedFunction()\n" +
                 "";
-        TddCodeGenerationQuickFixParticipant participant = new TddCodeGenerationQuickFixParticipant();
+
         Document doc = new Document(s);
-        List<ICompletionProposalHandle> props = participant.getTddProps(new PySelection(doc, s.length() - 1), null,
+        List<ICompletionProposalHandle> props = TddCodeGenerationQuickFixWithoutMarkersParticipant.getTddProps(
+                new PySelection(doc, s.length() - 1), null,
                 null,
                 nature, null, s.length() - 1, null);
         assertNotContains("Create unimplementedFunction method at MyClass (__module_not_in_the_pythonpath__)",
@@ -178,9 +261,10 @@ public class TddCodeGenerationQuickFixParticipantTest extends CodeCompletionTest
                     "\n" +
                     "def method(foo: Foo = 'A'):\n" +
                     "    foo.bar()";
-            TddCodeGenerationQuickFixParticipant participant = new TddCodeGenerationQuickFixParticipant();
+
             Document doc = new Document(s);
-            List<ICompletionProposalHandle> props = participant.getTddProps(new PySelection(doc, s.length() - 1), null,
+            List<ICompletionProposalHandle> props = TddCodeGenerationQuickFixWithoutMarkersParticipant.getTddProps(
+                    new PySelection(doc, s.length() - 1), null,
                     null,
                     nature, null, s.length() - 1, null);
             assertContains("Create bar method at Foo (__module_not_in_the_pythonpath__)",
@@ -200,9 +284,10 @@ public class TddCodeGenerationQuickFixParticipantTest extends CodeCompletionTest
                     "\n" +
                     "def method(foo = Foo()):\n" +
                     "    foo.bar()";
-            TddCodeGenerationQuickFixParticipant participant = new TddCodeGenerationQuickFixParticipant();
+
             Document doc = new Document(s);
-            List<ICompletionProposalHandle> props = participant.getTddProps(new PySelection(doc, s.length() - 1), null,
+            List<ICompletionProposalHandle> props = TddCodeGenerationQuickFixWithoutMarkersParticipant.getTddProps(
+                    new PySelection(doc, s.length() - 1), null,
                     null,
                     nature, null, s.length() - 1, null);
             assertContains("Create bar method at Foo (__module_not_in_the_pythonpath__)",
@@ -226,9 +311,10 @@ public class TddCodeGenerationQuickFixParticipantTest extends CodeCompletionTest
                     "def method():\n" +
                     "    foo = method2()\n" +
                     "    foo.bar()";
-            TddCodeGenerationQuickFixParticipant participant = new TddCodeGenerationQuickFixParticipant();
+
             Document doc = new Document(s);
-            List<ICompletionProposalHandle> props = participant.getTddProps(new PySelection(doc, s.length() - 1), null,
+            List<ICompletionProposalHandle> props = TddCodeGenerationQuickFixWithoutMarkersParticipant.getTddProps(
+                    new PySelection(doc, s.length() - 1), null,
                     null,
                     nature, null, s.length() - 1, null);
             assertContains("Create bar method at Foo (__module_not_in_the_pythonpath__)",

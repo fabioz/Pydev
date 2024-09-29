@@ -2,7 +2,6 @@ package org.python.pydev.editor.codecompletion.proposals;
 
 import java.util.List;
 
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.templates.Template;
@@ -10,6 +9,7 @@ import org.eclipse.jface.text.templates.TemplateContext;
 import org.eclipse.swt.widgets.Display;
 import org.python.pydev.ast.refactoring.RefactoringRequest;
 import org.python.pydev.core.ICompletionRequest;
+import org.python.pydev.core.IMarkerInfoForAnalysis;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.ShellId;
@@ -56,7 +56,7 @@ public class DefaultCompletionProposalFactory implements ICompletionProposalFact
             String replacementString, int replacementOffset, int replacementLength, int cursorPosition,
             IImageHandle image, String displayString, Object contextInformation,
             String additionalProposalInfo, int priority, IPyEdit edit, String line, PySelection ps, FormatStd format,
-            IMarker marker) {
+            IMarkerInfoForAnalysis marker) {
         return new IgnorePyLintCompletionProposalInSameLine(replacementString, replacementOffset, replacementLength,
                 cursorPosition, image, displayString, (IContextInformation) contextInformation, additionalProposalInfo,
                 priority, edit, line,
@@ -68,7 +68,7 @@ public class DefaultCompletionProposalFactory implements ICompletionProposalFact
             String replacementString, int replacementOffset, int replacementLength, int cursorPosition,
             IImageHandle image, String displayString, Object contextInformation,
             String additionalProposalInfo, int priority, IPyEdit edit, String line, PySelection ps, FormatStd format,
-            IMarker marker) {
+            IMarkerInfoForAnalysis marker) {
         return new IgnoreFlake8CompletionProposalInSameLine(replacementString, replacementOffset, replacementLength,
                 cursorPosition, image, displayString, (IContextInformation) contextInformation, additionalProposalInfo,
                 priority, edit, line,

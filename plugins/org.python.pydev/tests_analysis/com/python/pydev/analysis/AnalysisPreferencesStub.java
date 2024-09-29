@@ -115,7 +115,7 @@ public final class AnalysisPreferencesStub extends AbstractAnalysisPreferences {
     }
 
     /**
-     * @see org.python.pydev.ast.analysis.IAnalysisPreferences#getNamesIgnoredByUnusedVariable()
+     * @see org.python.pydev.core.IAnalysisPreferences#getNamesIgnoredByUnusedVariable()
      */
     @Override
     public Set<String> getNamesIgnoredByUnusedVariable() {

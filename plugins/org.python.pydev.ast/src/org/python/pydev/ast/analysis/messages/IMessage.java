@@ -25,21 +25,21 @@ public interface IMessage {
     int getSeverity();
 
     /**
-     * @see org.python.pydev.ast.analysis.IAnalysisPreferences#TYPE_DUPLICATED_SIGNATURE
-     * @see org.python.pydev.ast.analysis.IAnalysisPreferences#TYPE_NO_SELF
-     * @see org.python.pydev.ast.analysis.IAnalysisPreferences#TYPE_REIMPORT
-     * @see org.python.pydev.ast.analysis.IAnalysisPreferences#TYPE_UNDEFINED_VARIABLE
-     * @see org.python.pydev.ast.analysis.IAnalysisPreferences#TYPE_UNRESOLVED_IMPORT
-     * @see org.python.pydev.ast.analysis.IAnalysisPreferences#TYPE_UNUSED_IMPORT
-     * @see org.python.pydev.ast.analysis.IAnalysisPreferences#TYPE_UNUSED_VARIABLE
-     * @see org.python.pydev.ast.analysis.IAnalysisPreferences#TYPE_UNUSED_PARAMETER
-     * @see org.python.pydev.ast.analysis.IAnalysisPreferences#TYPE_UNUSED_WILD_IMPORT
-     * @see org.python.pydev.ast.analysis.IAnalysisPreferences#TYPE_USED_WILD_IMPORT
-     * @see org.python.pydev.ast.analysis.IAnalysisPreferences#TYPE_NO_EFFECT_STMT
-     * @see org.python.pydev.ast.analysis.IAnalysisPreferences#TYPE_INDENTATION_PROBLEM
-     * @see org.python.pydev.ast.analysis.IAnalysisPreferences#TYPE_PEP8
-     * @see org.python.pydev.ast.analysis.IAnalysisPreferences#TYPE_ARGUMENTS_MISATCH
-     * @see org.python.pydev.ast.analysis.IAnalysisPreferences#TYPE_INVALID_ENCODING
+     * @see org.python.pydev.core.IAnalysisPreferences#TYPE_DUPLICATED_SIGNATURE
+     * @see org.python.pydev.core.IAnalysisPreferences#TYPE_NO_SELF
+     * @see org.python.pydev.core.IAnalysisPreferences#TYPE_REIMPORT
+     * @see org.python.pydev.core.IAnalysisPreferences#TYPE_UNDEFINED_VARIABLE
+     * @see org.python.pydev.core.IAnalysisPreferences#TYPE_UNRESOLVED_IMPORT
+     * @see org.python.pydev.core.IAnalysisPreferences#TYPE_UNUSED_IMPORT
+     * @see org.python.pydev.core.IAnalysisPreferences#TYPE_UNUSED_VARIABLE
+     * @see org.python.pydev.core.IAnalysisPreferences#TYPE_UNUSED_PARAMETER
+     * @see org.python.pydev.core.IAnalysisPreferences#TYPE_UNUSED_WILD_IMPORT
+     * @see org.python.pydev.core.IAnalysisPreferences#TYPE_USED_WILD_IMPORT
+     * @see org.python.pydev.core.IAnalysisPreferences#TYPE_NO_EFFECT_STMT
+     * @see org.python.pydev.core.IAnalysisPreferences#TYPE_INDENTATION_PROBLEM
+     * @see org.python.pydev.core.IAnalysisPreferences#TYPE_PEP8
+     * @see org.python.pydev.core.IAnalysisPreferences#TYPE_ARGUMENTS_MISATCH
+     * @see org.python.pydev.core.IAnalysisPreferences#TYPE_INVALID_ENCODING
      * 
      * @return this message type
      */

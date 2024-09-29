@@ -7,8 +7,13 @@ import org.eclipse.jface.text.contentassist.ICompletionProposalExtension2;
 import org.python.pydev.ast.refactoring.RefactoringInfo;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.proposals.CompletionProposalFactory;
+import org.python.pydev.editor.codecompletion.PyTemplateProposal;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.structure.Tuple;
+
+import com.python.pydev.analysis.refactoring.tdd.AbstractPyCreateClassOrMethodOrField;
+import com.python.pydev.analysis.refactoring.tdd.TemplateInfo;
 
 public class ExecutePyCreate {
 
@@ -59,10 +64,15 @@ public class ExecutePyCreate {
             String actTok, List<String> parametersAfterCall,
             int locationStrategy) {
         try {
-            ICompletionProposalHandle proposal = action.createProposal(refactoringInfo, actTok, locationStrategy,
+            TemplateInfo templateInfo = action.createProposal(refactoringInfo, actTok, locationStrategy,
                     parametersAfterCall);
-            if (proposal != null) {
-                if (proposal instanceof ICompletionProposalExtension2) {
+            if (templateInfo != null) {
+                ICompletionProposalHandle proposal = CompletionProposalFactory.get()
+                        .createPyTemplateProposal(templateInfo.fTemplate, templateInfo.fContext, templateInfo.fRegion,
+                                null, 0);
+                if (proposal instanceof PyTemplateProposal) {
+                    ((PyTemplateProposal) proposal).getAsTemplateInfo().apply(refactoringInfo.getDocument());
+                } else if (proposal instanceof ICompletionProposalExtension2) {
                     ICompletionProposalExtension2 extension2 = (ICompletionProposalExtension2) proposal;
                     extension2.apply(null, '\n', 0, 0);
                 } else {

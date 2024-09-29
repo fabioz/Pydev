@@ -1072,7 +1072,7 @@ public class FileUtils {
             return lastModified(path);
         } catch (IOException e) {
             final long lastModified = file.lastModified();
-            Log.log("Error. returning: " + lastModified, e);
+            Log.logInfo("Exception checking file: " + file + ": " + e.getMessage() + " - returning: " + lastModified);
             return lastModified;
         }
     }

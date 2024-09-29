@@ -11,7 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.python.pydev.ast.analysis.IAnalysisPreferences;
+import org.python.pydev.core.IAnalysisMarkersParticipant;
+import org.python.pydev.core.IAnalysisPreferences;
 import org.python.pydev.core.IAssistProps;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
@@ -67,7 +68,8 @@ public abstract class AbstractAnalysisMarkersParticipants implements IAssistProp
             for (MarkerAnnotationAndPosition marker : markersAtLine) {
                 for (IAnalysisMarkersParticipant participant : participants) {
                     try {
-                        participant.addProps(marker, analysisPreferences, currLine, ps, offset, nature, edit, props);
+                        participant.addProps(marker.asMarkerInfoForAnalysis(), analysisPreferences, currLine, ps,
+                                offset, nature, edit, props);
                     } catch (Exception e) {
                         Log.log("Error when getting proposals.", e);
                     }

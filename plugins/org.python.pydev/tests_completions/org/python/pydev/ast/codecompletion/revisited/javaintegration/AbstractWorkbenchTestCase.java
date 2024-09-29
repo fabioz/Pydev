@@ -112,7 +112,9 @@ public class AbstractWorkbenchTestCase extends TestCase {
 
             NullProgressMonitor monitor = new NullProgressMonitor();
 
-            createJythonInterpreterManager(monitor);
+            if (TestDependent.JYTHON_JAR_LOCATION != null) {
+                createJythonInterpreterManager(monitor);
+            }
             createPythonInterpreterManager(monitor);
         }
     }
@@ -571,7 +573,7 @@ public class AbstractWorkbenchTestCase extends TestCase {
         if (!junitJarFile.exists()) {
             FileUtils.copyFile(TestDependent.TEST_PYDEV_PLUGIN_LOC
                     +
-                    "tests_completions/org/python/pydev/editor/codecompletion/revisited/javaintegration/junit.jar",
+                    "tests_completions/org/python/pydev/ast/codecompletion/revisited/javaintegration/junit.jar",
                     junitJarLocatioon);
         }
         project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
@@ -587,7 +589,7 @@ public class AbstractWorkbenchTestCase extends TestCase {
         if (!grinderJarFile.exists()) {
             FileUtils.copyFile(TestDependent.TEST_PYDEV_PLUGIN_LOC
                     +
-                    "tests_completions/org/python/pydev/editor/codecompletion/revisited/javaintegration/grinder.jar",
+                    "tests_completions/org/python/pydev/ast/codecompletion/revisited/javaintegration/grinder.jar",
                     grinderJarLocatioon);
         }
         project.refreshLocal(IResource.DEPTH_INFINITE, monitor);

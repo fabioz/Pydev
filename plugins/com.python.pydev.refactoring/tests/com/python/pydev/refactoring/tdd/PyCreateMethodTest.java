@@ -14,10 +14,15 @@ import org.python.pydev.ast.refactoring.RefactoringInfo;
 import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestCaseUtils;
+import org.python.pydev.core.autoedit.DefaultIndentPrefs;
+import org.python.pydev.core.autoedit.TestIndentPrefs;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.editor.codecompletion.proposals.DefaultCompletionProposalFactory;
 import org.python.pydev.shared_core.string.CoreTextSelection;
 import org.python.pydev.shared_core.string.ICoreTextSelection;
+
+import com.python.pydev.analysis.refactoring.tdd.AbstractPyCreateAction;
+import com.python.pydev.analysis.refactoring.tdd.PyCreateMethodOrField;
 
 public class PyCreateMethodTest extends TestCaseUtils {
 
@@ -71,7 +76,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
 
         assertContentsEqual("" +
                 "def MyMethod():\n" +
-                "    ${pass}${cursor}\n" +
+                "    pass\n" +
                 "\n" +
                 "\n" +
                 "MyMethod()" +
@@ -90,8 +95,8 @@ public class PyCreateMethodTest extends TestCaseUtils {
         ExecutePyCreate.execute(pyCreateMethod, info, AbstractPyCreateAction.LOCATION_STRATEGY_BEFORE_CURRENT);
 
         assertContentsEqual("" +
-                "def MyMethod(${a}, ${b}):\n" +
-                "    ${pass}${cursor}\n" +
+                "def MyMethod(a, b):\n" +
+                "    pass\n" +
                 "\n" +
                 "\n"
                 +
@@ -113,7 +118,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
                 "a = MyMethod()\n" +
                 "\n" +
                 "def MyMethod():\n" +
-                "    ${pass}${cursor}\n" +
+                "    pass\n" +
                 "\n"
                 +
                 "\n" +
@@ -133,7 +138,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
 
         assertContentsEqual("" +
                 "def MyMethod():\n" +
-                "    ${pass}${cursor}\n" +
+                "    pass\n" +
                 "\n" +
                 "\n" +
                 "", document.get());
@@ -144,7 +149,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
 
         assertContentsEqual("" +
                 "def MyMethod2():\n" +
-                "    ${pass}${cursor}\n" +
+                "    pass\n" +
                 "\n" +
                 "\n" +
                 "", document.get());
@@ -175,8 +180,8 @@ public class PyCreateMethodTest extends TestCaseUtils {
                 "    \n"
                 +
                 "    @classmethod\n" +
-                "    def MyMethod(cls, ${a}, ${b}):\n" +
-                "        ${pass}${cursor}\n"
+                "    def MyMethod(cls, a, b):\n" +
+                "        pass\n"
                 +
                 "    \n" +
                 "    \n" +
@@ -207,7 +212,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
                 "    \n" +
                 "    def m2(self):\n"
                 +
-                "        ${pass}${cursor}\n" +
+                "        pass\n" +
                 "    \n" +
                 "    \n" +
                 "    @decorator\n" +
@@ -243,7 +248,7 @@ public class PyCreateMethodTest extends TestCaseUtils {
                 "\n" +
                 "    def m2(self):\n"
                 +
-                "        ${pass}${cursor}\n" +
+                "        pass\n" +
                 "    \n" +
                 "    \n" +
                 "    def m1(self):\n" +
@@ -253,35 +258,42 @@ public class PyCreateMethodTest extends TestCaseUtils {
     }
 
     public void testPyCreateMethodWithTabs() {
-        PyCreateMethodOrField pyCreateMethod = new PyCreateMethodOrField();
+        DefaultIndentPrefs.set(new TestIndentPrefs(false, 4));
+        IDocument document;
+        String expected;
+        try {
+            PyCreateMethodOrField pyCreateMethod = new PyCreateMethodOrField();
 
-        String source = "" +
-                "class A(object):\n" +
-                "\n" +
-                "\n" +
-                "\n" +
-                "\tdef m1(self):\n" +
-                "\t\tself.m2()";
-        IDocument document = new Document(source);
-        ICoreTextSelection selection = new CoreTextSelection(document, document.getLength() - "2()".length(), 0);
-        RefactoringInfo info = new RefactoringInfo(document, selection, PY_27_ONLY_GRAMMAR_VERSION_PROVIDER);
+            String source = "" +
+                    "class A(object):\n" +
+                    "\n" +
+                    "\n" +
+                    "\n" +
+                    "\tdef m1(self):\n" +
+                    "\t\tself.m2()";
+            document = new Document(source);
+            ICoreTextSelection selection = new CoreTextSelection(document, document.getLength() - "2()".length(), 0);
+            RefactoringInfo info = new RefactoringInfo(document, selection, PY_27_ONLY_GRAMMAR_VERSION_PROVIDER);
 
-        pyCreateMethod.setCreateInClass("A");
-        pyCreateMethod.setCreateAs(PyCreateMethodOrField.BOUND_METHOD);
-        ExecutePyCreate.execute(pyCreateMethod, info, AbstractPyCreateAction.LOCATION_STRATEGY_BEFORE_CURRENT);
+            pyCreateMethod.setCreateInClass("A");
+            pyCreateMethod.setCreateAs(PyCreateMethodOrField.BOUND_METHOD);
+            ExecutePyCreate.execute(pyCreateMethod, info, AbstractPyCreateAction.LOCATION_STRATEGY_BEFORE_CURRENT);
 
-        String expected = "" +
-                "class A(object):\n" +
-                "\n" +
-                "\n" +
-                "\n" +
-                "\tdef m2(self):\n"
-                +
-                "\t\t${pass}${cursor}\n" +
-                "\t\n" +
-                "\t\n" +
-                "\tdef m1(self):\n" +
-                "\t\tself.m2()";
+            expected = "" +
+                    "class A(object):\n" +
+                    "\n" +
+                    "\n" +
+                    "\n" +
+                    "\tdef m2(self):\n"
+                    +
+                    "\t\tpass\n" +
+                    "\t\n" +
+                    "\t\n" +
+                    "\tdef m1(self):\n" +
+                    "\t\tself.m2()";
+        } finally {
+            DefaultIndentPrefs.set(null);
+        }
 
         assertContentsEqual(expected, document.get());
     }

@@ -14,7 +14,6 @@ import org.python.pydev.ast.adapters.visitors.selection.SelectionValidationVisit
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.core.BaseModuleRequest;
 import org.python.pydev.core.IGrammarVersionProvider;
-import org.python.pydev.core.IGrammarVersionProvider.AdditionalGrammarVersionsToCheck;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
@@ -23,9 +22,12 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.preferences.FileTypesPreferences;
 import org.python.pydev.parser.PyParser;
 import org.python.pydev.parser.jython.SimpleNode;
+import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.VisitorIF;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.shared_core.io.FileUtils;
+import org.python.pydev.shared_core.model.ISimpleNode;
+import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
 import org.python.pydev.shared_core.string.ICoreTextSelection;
 
 public final class VisitorFactory {
@@ -76,15 +78,21 @@ public final class VisitorFactory {
 
     public static ModuleAdapter createModuleAdapter(PythonModuleManager pythonModuleManager, File file, IDocument doc,
             IPythonNature nature, IGrammarVersionProvider versionProvider) throws Throwable {
+        return createModuleAdapter(pythonModuleManager, file, doc, nature, versionProvider, false);
+    }
+
+    public static ModuleAdapter createModuleAdapter(PythonModuleManager pythonModuleManager, File file, IDocument doc,
+            IPythonNature nature, IGrammarVersionProvider versionProvider, boolean acceptSyntaxErrors)
+            throws Throwable {
         if (file != null && file.exists()) {
             if (FileTypesPreferences.isCythonFile(file.getName())) {
                 versionProvider = new IGrammarVersionProvider() {
-    
+
                     @Override
                     public int getGrammarVersion() throws MisconfigurationException {
                         return IPythonNature.GRAMMAR_PYTHON_VERSION_CYTHON;
                     }
-    
+
                     @Override
                     public AdditionalGrammarVersionsToCheck getAdditionalGrammarVersions()
                             throws MisconfigurationException {
@@ -100,8 +108,10 @@ public final class VisitorFactory {
                         IModule module = modulesManager.getModule(modName, nature, true, new BaseModuleRequest(false));
                         if (module instanceof ISourceModule) {
                             SourceModule iSourceModule = (SourceModule) module;
-                            if (iSourceModule.parseError != null) {
-                                throw iSourceModule.parseError;
+                            if (!acceptSyntaxErrors) {
+                                if (iSourceModule.parseError != null) {
+                                    throw iSourceModule.parseError;
+                                }
                             }
                             return new ModuleAdapter(pythonModuleManager, ((ISourceModule) module), nature, doc);
                         }
@@ -109,7 +119,14 @@ public final class VisitorFactory {
                 }
             }
         }
-        return new ModuleAdapter(pythonModuleManager, file, doc, org.python.pydev.parser.PyParser.parseSimple(doc, versionProvider), nature);
+        ParseOutput output = PyParser.parseFull(doc, versionProvider);
+        if (!acceptSyntaxErrors) {
+            if (output.error != null) {
+                throw output.error;
+            }
+        }
+        ISimpleNode module = output.ast;
+        return new ModuleAdapter(pythonModuleManager, file, doc, (Module) module, nature);
     }
 
     public static void validateSelection(ModuleAdapter scope) throws SelectionException {

@@ -4,7 +4,7 @@
    <extension point="org.python.pydev.pydev_pyedit_listener">
   		<pyedit_listener_participant class="com.python.pydev.refactoring.markoccurrences.MarkOccurrencesDispatcher"/>
    </extension>
-   
+
 <!-- Initialize our preferences -->
    <extension
          point="org.eclipse.core.runtime.preferences">
@@ -43,7 +43,10 @@
 
 <!-- Generate code (tdd) -->
    <extension point="org.python.pydev.pydev_ctrl_1">
-        <ctrl_1_participant class="com.python.pydev.refactoring.tdd.TddCodeGenerationQuickFixParticipant"/>
+        <ctrl_1_participant class="com.python.pydev.refactoring.tdd.TddCodeGenerationQuickFixFromMarkersParticipant"/>
+   </extension>
+   <extension point="org.python.pydev.pydev_ctrl_1">
+        <ctrl_1_participant class="com.python.pydev.refactoring.tdd.TddCodeGenerationQuickFixWithoutMarkersParticipant"/>
    </extension>
 
 
@@ -51,7 +54,7 @@
    <extension point="org.python.pydev.pydev_pyedit_listener">
   		<pyedit_listener_participant class="com.python.pydev.refactoring.actions.ActionCreatorPyEditListener"/>
    </extension>
-   
+
     <!--[[[cog
     #Note: run the install.py to regenerate the actions contents!
     #Actions below available only to PyDev editors (generating code for new actions now).
@@ -121,14 +124,14 @@
     </extension>
 
     <!--[[[end]]]-->
-   
-   
+
+
    <extension point="org.eclipse.ui.bindings">
 <!-- command: Find all references-->
       <key
             sequence="M1+M2+G"
             contextId="org.python.pydev.ui.editor.scope"
-            commandId="com.python.pydev.refactoring.actions.PyFindAllOccurrences"	
+            commandId="com.python.pydev.refactoring.actions.PyFindAllOccurrences"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
 <!-- command: Go To Defition-->
@@ -202,11 +205,11 @@
       </key>
 
       -->
-            
+
       <!--[[[cog
       import plugin_install
       import cog
-      
+
       template = '''
       <key
             commandId="%s"
@@ -214,7 +217,7 @@
             contextId="org.python.pydev.ui.editor.scope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"/>
       '''
-      
+
       for action in plugin_install.ACTIONS_AND_BINDING:
           for key in action.key:
               cog.outl(template % (action.id, key))
@@ -234,7 +237,7 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"/>
 
       <!--[[[end]]]-->
-      
+
    </extension>
 
    <extension
@@ -283,11 +286,11 @@
             description="%peptic.OverrideMethodsDescription"
             id="org.python.pydev.refactoring.ui.actions.OverrideMethodsCommand"
             name="%peptic.OverrideMethodsLabel"/>
-            
+
       <!--[[[cog
       import plugin_install
       import cog
-      
+
       template = '''
       <command
             categoryId="org.python.pydev.refactoring.pepticCategory"
@@ -295,7 +298,7 @@
             id="%s"
             name="%%peptic.%sLabel"/>
       '''
-      
+
       for action in plugin_install.ACTIONS_AND_BINDING:
           cog.outl(template % (action.desc, action.id, action.desc))
       ]]]-->
@@ -392,7 +395,7 @@
          <!--[[[cog
          import plugin_install
          import cog
-         
+
          template = '''
          <action
                class="%s"
@@ -402,7 +405,7 @@
                menubarPath="org.python.pydev.refactoring.refactoringMenu/%s"
                style="push"/>
          '''
-         
+
          for action in plugin_install.ACTIONS_AND_BINDING:
              cog.outl(template % (action.class_, action.id, action.id, action.desc, action.group))
          ]]]-->
@@ -430,8 +433,8 @@
                label="%peptic.InlineLocalLabel"
                menubarPath="org.python.pydev.refactoring.refactoringMenu/pepticRefactoringGroup"
                style="push"/>
-               
-               
+
+
          <action
                class="com.python.pydev.refactoring.actions.PyFindAllOccurrences"
                definitionId="com.python.pydev.refactoring.actions.PyFindAllOccurrences"
@@ -499,7 +502,7 @@
          <!--[[[cog
          import plugin_install
          import cog
-         
+
          template = '''
          <action
                class="%s"
@@ -509,7 +512,7 @@
                menubarPath="org.python.pydev.editor.refactoring/%s">
          </action>
          '''
-         
+
          for action in plugin_install.ACTIONS_AND_BINDING:
              cog.outl(template % (action.class_, action.id, action.id, action.desc, action.group))
          ]]]-->
@@ -538,7 +541,7 @@
                label="%peptic.InlineLocalLabel"
                menubarPath="org.python.pydev.editor.refactoring/pepticRefactoringGroup">
          </action>
-         
+
       </viewerContribution>
    </extension>
 

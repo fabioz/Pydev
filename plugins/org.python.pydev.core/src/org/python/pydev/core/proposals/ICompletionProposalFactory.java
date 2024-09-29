@@ -2,11 +2,11 @@ package org.python.pydev.core.proposals;
 
 import java.util.List;
 
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateContext;
 import org.python.pydev.core.ICompletionRequest;
+import org.python.pydev.core.IMarkerInfoForAnalysis;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IToken;
 import org.python.pydev.core.ShellId;
@@ -34,13 +34,13 @@ public interface ICompletionProposalFactory {
             String replacementString, int replacementOffset, int replacementLength, int cursorPosition,
             IImageHandle image, String displayString, Object contextInformation,
             String additionalProposalInfo, int priority, IPyEdit edit, String line, PySelection ps, FormatStd format,
-            IMarker marker);
+            IMarkerInfoForAnalysis marker);
 
     ICompletionProposalHandle createIgnoreFlake8CompletionProposalInSameLine(
             String replacementString, int replacementOffset, int replacementLength, int cursorPosition,
             IImageHandle image, String displayString, Object contextInformation,
             String additionalProposalInfo, int priority, IPyEdit edit, String line, PySelection ps, FormatStd format,
-            IMarker marker);
+            IMarkerInfoForAnalysis marker);
 
     ICompletionProposalHandle createPyTemplateProposal(Template template, TemplateContext context,
             IRegion region, IImageHandle image, int relevance);

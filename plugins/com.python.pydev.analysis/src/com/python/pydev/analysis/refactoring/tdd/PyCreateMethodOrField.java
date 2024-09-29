@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.python.pydev.refactoring.tdd;
+package com.python.pydev.analysis.refactoring.tdd;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +22,6 @@ import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.visitors.NodeUtils;
-import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_core.structure.Tuple;
 
@@ -49,7 +48,7 @@ public class PyCreateMethodOrField extends AbstractPyCreateClassOrMethodOrField 
     }
 
     @Override
-    protected String getDefaultActTok() {
+    public String getDefaultActTok() {
         if (createAs == FIELD) {
             return "my_field";
         }
@@ -63,7 +62,7 @@ public class PyCreateMethodOrField extends AbstractPyCreateClassOrMethodOrField 
      * Returns a proposal that can be used to generate the code.
      */
     @Override
-    public ICompletionProposalHandle createProposal(RefactoringInfo refactoringInfo, String actTok,
+    public TemplateInfo createProposal(RefactoringInfo refactoringInfo, String actTok,
             int locationStrategy,
             List<String> parametersAfterCall) {
         PySelection pySelection = refactoringInfo.getPySelection();

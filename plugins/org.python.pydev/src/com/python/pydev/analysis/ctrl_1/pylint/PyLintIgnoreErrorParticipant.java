@@ -10,24 +10,21 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
-import org.python.pydev.ast.analysis.IAnalysisPreferences;
 import org.python.pydev.core.CheckAnalysisErrors;
+import org.python.pydev.core.IAnalysisMarkersParticipant;
+import org.python.pydev.core.IAnalysisPreferences;
+import org.python.pydev.core.IMarkerInfoForAnalysis;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.formatter.FormatStd;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
-import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
-import org.python.pydev.shared_core.IMiscConstants;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 import org.python.pydev.shared_core.code_completion.IPyCompletionProposal;
 import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_ui.SharedUiPlugin;
-
-import com.python.pydev.analysis.ctrl_1.IAnalysisMarkersParticipant;
 
 public class PyLintIgnoreErrorParticipant implements IAnalysisMarkersParticipant {
 
@@ -48,15 +45,14 @@ public class PyLintIgnoreErrorParticipant implements IAnalysisMarkersParticipant
 
     /**
      * @throws CoreException
-     * @see org.python.pydev.ast.analysis.ctrl_1.IAnalysisMarkersParticipant#addProps(org.eclipse.core.resources.IMarker, org.python.pydev.ast.analysis.IAnalysisPreferences, java.lang.String, org.python.pydev.core.docutils.PySelection, int, org.python.pydev.editor.PyEdit, java.util.List)
+     * @see org.python.pydev.core.ctrl_1.IAnalysisMarkersParticipant#addProps(org.eclipse.core.resources.IMarker, org.python.pydev.core.IAnalysisPreferences, java.lang.String, org.python.pydev.core.docutils.PySelection, int, org.python.pydev.editor.PyEdit, java.util.List)
      */
     @Override
-    public void addProps(MarkerAnnotationAndPosition marker, IAnalysisPreferences analysisPreferences,
+    public void addProps(IMarkerInfoForAnalysis markerInfo, IAnalysisPreferences analysisPreferences,
             final String line, final PySelection ps, int offset, IPythonNature nature, final IPyEdit edit,
             List<ICompletionProposalHandle> props)
             throws BadLocationException, CoreException {
-        IMarker m = marker.markerAnnotation.getMarker();
-        Object attribute = m.getAttribute(IMiscConstants.PYLINT_MESSAGE_ID);
+        Object attribute = markerInfo.getPyLintMessageIdAttribute();
         if (attribute == null) {
             return;
         }
@@ -75,7 +71,7 @@ public class PyLintIgnoreErrorParticipant implements IAnalysisMarkersParticipant
                         messageId, ps.getEndLineOffset(), 0, offset,
                         SharedUiPlugin.getImageCache().get(UIConstants.ASSIST_ANNOTATION),
                         "pylint: disable=" + messageId, null,
-                        null, IPyCompletionProposal.PRIORITY_DEFAULT, edit, line, ps, format, m);
+                        null, IPyCompletionProposal.PRIORITY_DEFAULT, edit, line, ps, format, markerInfo);
         props.add(proposal);
     }
 }

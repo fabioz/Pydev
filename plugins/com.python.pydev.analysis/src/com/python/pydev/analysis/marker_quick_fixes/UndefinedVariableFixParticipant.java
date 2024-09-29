@@ -7,22 +7,21 @@
 /*
  * Created on 24/09/2005
  */
-package com.python.pydev.analysis.ctrl_1;
+package com.python.pydev.analysis.marker_quick_fixes;
 
 import java.util.List;
 
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
-import org.python.pydev.ast.analysis.IAnalysisPreferences;
+import org.python.pydev.core.IAnalysisMarkersParticipant;
+import org.python.pydev.core.IAnalysisPreferences;
 import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.IMarkerInfoForAnalysis;
 import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.docutils.PySelection;
-import org.python.pydev.editor.codefolding.MarkerAnnotationAndPosition;
 import org.python.pydev.shared_core.code_completion.ICompletionProposalHandle;
 
-import com.python.pydev.analysis.additionalinfo.builders.AnalysisRunner;
 import com.python.pydev.analysis.refactoring.quick_fixes.UndefinedVariableQuickFixCreator;
 
 /**
@@ -46,12 +45,11 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
     }
 
     @Override
-    public void addProps(MarkerAnnotationAndPosition markerAnnotation, IAnalysisPreferences analysisPreferences,
+    public void addProps(IMarkerInfoForAnalysis markerInfoForAnalysis, IAnalysisPreferences analysisPreferences,
             String line, PySelection ps, int offset, IPythonNature initialNature, IPyEdit edit,
             List<ICompletionProposalHandle> props)
             throws BadLocationException, CoreException {
-        IMarker marker = markerAnnotation.markerAnnotation.getMarker();
-        Integer id = (Integer) marker.getAttribute(AnalysisRunner.PYDEV_ANALYSIS_TYPE);
+        Integer id = markerInfoForAnalysis.getPyDevAnalisysType();
         if (id != IAnalysisPreferences.TYPE_UNDEFINED_VARIABLE) {
             return;
         }
@@ -63,11 +61,11 @@ public class UndefinedVariableFixParticipant implements IAnalysisMarkersParticip
             return;
         }
 
-        if (markerAnnotation.position == null) {
+        if (!markerInfoForAnalysis.hasPosition()) {
             return;
         }
-        int start = markerAnnotation.position.offset;
-        int end = start + markerAnnotation.position.length;
+        int start = markerInfoForAnalysis.getOffset();
+        int end = start + markerInfoForAnalysis.getLength();
         UndefinedVariableQuickFixCreator.createImportQuickProposalsFromMarkerSelectedText(edit, ps, offset,
                 initialNature, props, astManager, start, end, forceReparseOnApply);
     }
