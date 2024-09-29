@@ -42,6 +42,8 @@ import com.python.pydev.analysis.refactoring.quick_fixes.DummyMarkerInfoForAnaly
 import com.python.pydev.analysis.refactoring.refactorer.Refactorer;
 import com.python.pydev.analysis.refactoring.tdd.TddCodeGenerationQuickFixWithoutMarkersParticipant;
 import com.python.pydev.analysis.refactoring.tdd.TemplateInfo;
+import com.python.pydev.refactoring.tdd.completions.TddRefactorCompletion;
+import com.python.pydev.refactoring.tdd.completions.TddRefactorCompletionInModule;
 
 /**
  * @author Fabio

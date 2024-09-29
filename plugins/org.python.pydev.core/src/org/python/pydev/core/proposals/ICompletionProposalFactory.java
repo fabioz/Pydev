@@ -136,15 +136,18 @@ public interface ICompletionProposalFactory {
 
     ShellId getCythonShellId();
 
-    ICompletionProposalHandle createTddRefactorCompletion(String markerContents, IImageHandle iImageHandle,
-            String displayString, Object object, Object object2, int priorityCreate, IPyEdit edit,
-            int locationStrategyBeforeCurrent, List<String> parametersAfterCall,
-            /*PyCreateMethodOrField*/ Object pyCreateMethod,
+    ICompletionProposalHandle createTddRefactorCompletion(String replacementString, IImageHandle image,
+            String displayString,
+            /*IContextInformation*/Object contextInformation, String additionalProposalInfo, int priority, IPyEdit edit,
+            int locationStrategy, List<String> parametersAfterCall, /*PyCreateMethodOrField*/Object pyCreateAction,
             PySelection ps);
 
-    ICompletionProposalHandle createTddRefactorCompletionInModule(String string, IImageHandle iImageHandle,
-            String displayString, Object object, String displayString2, int priorityCreate, IPyEdit edit, File file,
-            List<String> parametersAfterCall, /*PyCreateMethodOrField*/ Object pyCreateMethod, PySelection callPs,
-            int locationStrategyFirstMethod);
+    ICompletionProposalHandle createTddRefactorCompletionInModule(String replacementString, IImageHandle image,
+            String displayString,
+            /*IContextInformation*/ Object contextInformation, String additionalProposalInfo, int priority,
+            IPyEdit edit,
+            File module, List<String> parametersAfterCall, /*AbstractPyCreateAction*/ Object pyCreateAction,
+            PySelection ps,
+            int locationStrategy);
 
 }

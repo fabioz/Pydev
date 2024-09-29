@@ -58,6 +58,9 @@ import com.python.pydev.analysis.refactoring.tdd.AbstractPyCreateAction;
 import com.python.pydev.analysis.refactoring.tdd.NullPyCreateAction;
 import com.python.pydev.analysis.refactoring.tdd.PyCreateClass;
 import com.python.pydev.analysis.refactoring.tdd.PyCreateMethodOrField;
+import com.python.pydev.refactoring.tdd.completions.TddRefactorCompletion;
+import com.python.pydev.refactoring.tdd.completions.TddRefactorCompletionInInexistentModule;
+import com.python.pydev.refactoring.tdd.completions.TddRefactorCompletionInModule;
 
 /**
  * This participant will add a suggestion to create class/methods/attributes when an undefined variable error is found.

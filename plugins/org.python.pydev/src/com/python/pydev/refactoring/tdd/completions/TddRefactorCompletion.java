@@ -4,7 +4,7 @@
  * Please see the license.txt included with this distribution for details.
  * Any modifications to this file must keep this entire header intact.
  */
-package com.python.pydev.refactoring.tdd;
+package com.python.pydev.refactoring.tdd.completions;
 
 import java.util.List;
 
@@ -39,7 +39,7 @@ public final class TddRefactorCompletion extends AbstractTddRefactorCompletion {
     private PySelection ps;
     private TemplateInfo templateInfo;
 
-    TddRefactorCompletion(String replacementString, IImageHandle image, String displayString,
+    public TddRefactorCompletion(String replacementString, IImageHandle image, String displayString,
             IContextInformation contextInformation, String additionalProposalInfo, int priority, IPyEdit edit,
             int locationStrategy, List<String> parametersAfterCall, AbstractPyCreateAction pyCreateAction,
             PySelection ps) {
