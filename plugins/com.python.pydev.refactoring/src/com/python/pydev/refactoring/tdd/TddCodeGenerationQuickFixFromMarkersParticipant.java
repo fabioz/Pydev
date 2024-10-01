@@ -2,6 +2,7 @@ package com.python.pydev.refactoring.tdd;
 
 import com.python.pydev.analysis.additionalinfo.builders.AnalysisRunner;
 import com.python.pydev.analysis.ctrl_1.AbstractAnalysisMarkersParticipants;
+import com.python.pydev.analysis.marker_quick_fixes.TddQuickFixFromMarkersParticipant;
 
 public class TddCodeGenerationQuickFixFromMarkersParticipant extends AbstractAnalysisMarkersParticipants {
 

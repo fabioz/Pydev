@@ -150,4 +150,11 @@ public interface ICompletionProposalFactory {
             PySelection ps,
             int locationStrategy);
 
+    ICompletionProposalHandle createTddRefactorCompletionInInexistentModule(String replacementString,
+            IImageHandle image, String displayString,
+            /*IContextInformation*/ Object contextInformation, String additionalProposalInfo, int priority,
+            IPyEdit edit,
+            File module, List<String> parametersAfterCall, /*AbstractPyCreateAction*/ Object pyCreateAction,
+            PySelection ps);
+
 }

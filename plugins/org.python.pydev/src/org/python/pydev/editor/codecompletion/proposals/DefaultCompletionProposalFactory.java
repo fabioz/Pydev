@@ -38,6 +38,7 @@ import org.python.pydev.shared_ui.ImageCache;
 
 import com.python.pydev.analysis.refactoring.tdd.AbstractPyCreateAction;
 import com.python.pydev.refactoring.tdd.completions.TddRefactorCompletion;
+import com.python.pydev.refactoring.tdd.completions.TddRefactorCompletionInInexistentModule;
 import com.python.pydev.refactoring.tdd.completions.TddRefactorCompletionInModule;
 
 public class DefaultCompletionProposalFactory implements ICompletionProposalFactory {
@@ -303,6 +304,17 @@ public class DefaultCompletionProposalFactory implements ICompletionProposalFact
                 additionalProposalInfo, priority, edit, module, parametersAfterCall,
                 (AbstractPyCreateAction) pyCreateAction, ps,
                 locationStrategy);
+    }
+
+    @Override
+    public ICompletionProposalHandle createTddRefactorCompletionInInexistentModule(String replacementString,
+            IImageHandle image, String displayString, Object contextInformation, String additionalProposalInfo,
+            int priority, IPyEdit edit, File module, List<String> parametersAfterCall, Object pyCreateAction,
+            PySelection ps) {
+        return new TddRefactorCompletionInInexistentModule(replacementString, image, displayString,
+                (IContextInformation) contextInformation,
+                additionalProposalInfo, priority, edit, module, parametersAfterCall,
+                (AbstractPyCreateAction) pyCreateAction, ps);
     }
 
 }
