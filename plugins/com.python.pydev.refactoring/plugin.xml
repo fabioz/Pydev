@@ -46,7 +46,7 @@
         <ctrl_1_participant class="com.python.pydev.refactoring.tdd.TddCodeGenerationQuickFixFromMarkersParticipant"/>
    </extension>
    <extension point="org.python.pydev.pydev_ctrl_1">
-        <ctrl_1_participant class="com.python.pydev.refactoring.tdd.TddCodeGenerationQuickFixWithoutMarkersParticipant"/>
+        <ctrl_1_participant class="com.python.pydev.analysis.refactoring.tdd.TddCodeGenerationQuickFixWithoutMarkersParticipant"/>
    </extension>
 
 

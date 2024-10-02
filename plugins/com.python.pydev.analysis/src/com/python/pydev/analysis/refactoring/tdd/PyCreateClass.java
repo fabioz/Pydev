@@ -21,14 +21,14 @@ import org.python.pydev.shared_core.structure.Tuple;
 public class PyCreateClass extends AbstractPyCreateClassOrMethodOrField {
 
     private final static String baseClassStr = "" +
-            "class %s(${object}):\n" +
+            "class %s:\n" +
             "    ${pass}${cursor}\n" +
             "\n" +
             "\n" +
             "";
 
     private final static String baseClassWithInitStr = "" +
-            "class %s(${object}):\n" +
+            "class %s:\n" +
             "    \n"
             +
             "    def __init__(self, %s):\n" +

@@ -38,9 +38,13 @@ import org.python.pydev.shared_ui.editor_input.PydevFileEditorInput;
 import com.python.pydev.analysis.AnalysisPreferences;
 import com.python.pydev.analysis.AnalysisTestsBase;
 import com.python.pydev.analysis.additionalinfo.builders.AnalysisRunner;
+import com.python.pydev.analysis.marker_quick_fixes.TddQuickFixFromMarkersParticipant;
 import com.python.pydev.analysis.refactoring.quick_fixes.DummyMarkerInfoForAnalysis;
 import com.python.pydev.analysis.refactoring.refactorer.Refactorer;
+import com.python.pydev.analysis.refactoring.tdd.TddCodeGenerationQuickFixWithoutMarkersParticipant;
 import com.python.pydev.analysis.refactoring.tdd.TemplateInfo;
+import com.python.pydev.refactoring.tdd.completions.TddRefactorCompletion;
+import com.python.pydev.refactoring.tdd.completions.TddRefactorCompletionInModule;
 
 /**
  * @author Fabio

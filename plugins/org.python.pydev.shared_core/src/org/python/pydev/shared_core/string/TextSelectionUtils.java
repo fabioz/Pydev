@@ -760,7 +760,11 @@ public class TextSelectionUtils {
      */
     public static int getFirstCharPosition(IDocument doc, int cursorOffset) throws BadLocationException {
         IRegion region;
-        region = doc.getLineInformationOfOffset(cursorOffset);
+        try {
+            region = doc.getLineInformationOfOffset(cursorOffset);
+        } catch (BadLocationException e) {
+            throw new BadLocationException("Error: bad offset: " + cursorOffset + " doc len: " + doc.getLength());
+        }
         int offset = region.getOffset();
         return offset + getFirstCharRelativePosition(doc, cursorOffset);
     }
@@ -1219,7 +1223,7 @@ public class TextSelectionUtils {
      */
     public static boolean stillInTok(String string, int j) {
         char c = string.charAt(j);
-    
+
         return c != '\n' && c != '\r' && c != ' ' && c != '.' && c != '(' && c != ')' && c != ',' && c != ']'
                 && c != '[' && c != '#' && c != '\'' && c != '"';
     }

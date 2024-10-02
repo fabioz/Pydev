@@ -1,4 +1,4 @@
-package com.python.pydev.refactoring.tdd;
+package com.python.pydev.analysis.refactoring.tdd;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -29,6 +29,7 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PySelection.LineStartingScope;
 import org.python.pydev.core.docutils.PySelection.TddPossibleMatches;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
@@ -45,10 +46,6 @@ import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.image.UIConstants;
 import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.string.StringUtils;
-
-import com.python.pydev.analysis.refactoring.tdd.AbstractPyCreateAction;
-import com.python.pydev.analysis.refactoring.tdd.PyCreateClass;
-import com.python.pydev.analysis.refactoring.tdd.PyCreateMethodOrField;
 
 public class TddCodeGenerationQuickFixWithoutMarkersParticipant implements IAssistProps {
 
@@ -104,11 +101,12 @@ public class TddCodeGenerationQuickFixWithoutMarkersParticipant implements IAssi
                     String displayString = StringUtils.format(
                             "Create %s __init__ (%s)", className,
                             definition.module.getName());
-                    TddRefactorCompletionInModule completion = new TddRefactorCompletionInModule("__init__",
-                            imageCache.get(UIConstants.CREATE_METHOD_ICON), displayString, null, displayString,
-                            IPyCompletionProposal.PRIORITY_CREATE, edit, definition.module.getFile(),
-                            parametersAfterCall, pyCreateMethod, callPs,
-                            AbstractPyCreateAction.LOCATION_STRATEGY_FIRST_METHOD);
+                    ICompletionProposalHandle completion = CompletionProposalFactory.get()
+                            .createTddRefactorCompletionInModule("__init__",
+                                    imageCache.get(UIConstants.CREATE_METHOD_ICON), displayString, null, displayString,
+                                    IPyCompletionProposal.PRIORITY_CREATE, edit, definition.module.getFile(),
+                                    parametersAfterCall, pyCreateMethod, callPs,
+                                    AbstractPyCreateAction.LOCATION_STRATEGY_FIRST_METHOD);
                     ret.add(completion);
                     return true;
                 }
@@ -123,7 +121,8 @@ public class TddCodeGenerationQuickFixWithoutMarkersParticipant implements IAssi
         String displayString = StringUtils.format("Create %s %s at %s",
                 markerContents,
                 pyCreateMethod.getCreationStr(), classNameInLine);
-        TddRefactorCompletion tddRefactorCompletion = new TddRefactorCompletion(markerContents,
+        ICompletionProposalHandle tddRefactorCompletion = CompletionProposalFactory.get().createTddRefactorCompletion(
+                markerContents,
                 imageCache.get(UIConstants.CREATE_METHOD_ICON), displayString, null, null,
                 IPyCompletionProposal.PRIORITY_CREATE,
                 edit, PyCreateClass.LOCATION_STRATEGY_BEFORE_CURRENT, parametersAfterCall, pyCreateMethod, ps);
@@ -183,11 +182,12 @@ public class TddCodeGenerationQuickFixWithoutMarkersParticipant implements IAssi
                             "Create %s %s at %s (%s)", methodToCreate,
                             pyCreateMethod.getCreationStr(), className, definition.module.getName());
 
-                    TddRefactorCompletionInModule completion = new TddRefactorCompletionInModule(methodToCreate,
-                            imageCache.get(UIConstants.CREATE_METHOD_ICON), displayString,
-                            null, displayString, IPyCompletionProposal.PRIORITY_CREATE, edit,
-                            definition.module.getFile(), parametersAfterCall, pyCreateMethod, newSelection,
-                            AbstractPyCreateAction.LOCATION_STRATEGY_END);
+                    ICompletionProposalHandle completion = CompletionProposalFactory.get()
+                            .createTddRefactorCompletionInModule(methodToCreate,
+                                    imageCache.get(UIConstants.CREATE_METHOD_ICON), displayString,
+                                    null, displayString, IPyCompletionProposal.PRIORITY_CREATE, edit,
+                                    definition.module.getFile(), parametersAfterCall, pyCreateMethod, newSelection,
+                                    AbstractPyCreateAction.LOCATION_STRATEGY_END);
                     ret.add(completion);
                 }
                 return true;

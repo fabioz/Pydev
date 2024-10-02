@@ -1,5 +1,6 @@
 package org.python.pydev.editor.codecompletion.proposals;
 
+import java.io.File;
 import java.util.List;
 
 import org.eclipse.jface.text.IRegion;
@@ -34,6 +35,11 @@ import org.python.pydev.shared_core.image.IImageHandle;
 import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_ui.ImageCache;
+
+import com.python.pydev.analysis.refactoring.tdd.AbstractPyCreateAction;
+import com.python.pydev.refactoring.tdd.completions.TddRefactorCompletion;
+import com.python.pydev.refactoring.tdd.completions.TddRefactorCompletionInInexistentModule;
+import com.python.pydev.refactoring.tdd.completions.TddRefactorCompletionInModule;
 
 public class DefaultCompletionProposalFactory implements ICompletionProposalFactory {
 
@@ -271,6 +277,44 @@ public class DefaultCompletionProposalFactory implements ICompletionProposalFact
             String importedToken, ImportHandleInfo importHandleInfo, IImageHandle iImageHandle, String displayString) {
         return new PyMoveImportsToLocalCompletionProposal((RefactoringRequest) refactoringRequest, importedToken,
                 importHandleInfo, iImageHandle, displayString);
+    }
+
+    @Override
+    public ICompletionProposalHandle createTddRefactorCompletion(String replacementString, IImageHandle image,
+            String displayString,
+            /*IContextInformation*/ Object contextInformation, String additionalProposalInfo, int priority,
+            IPyEdit edit,
+            int locationStrategy, List<String> parametersAfterCall, /*AbstractPyCreateAction*/ Object pyCreateAction,
+            PySelection ps) {
+        return new TddRefactorCompletion(replacementString, image, displayString,
+                (IContextInformation) contextInformation, additionalProposalInfo,
+                priority, edit, locationStrategy, parametersAfterCall, (AbstractPyCreateAction) pyCreateAction, ps);
+    }
+
+    @Override
+    public ICompletionProposalHandle createTddRefactorCompletionInModule(String replacementString, IImageHandle image,
+            String displayString,
+            /*IContextInformation*/ Object contextInformation, String additionalProposalInfo, int priority,
+            IPyEdit edit,
+            File module, List<String> parametersAfterCall, /*AbstractPyCreateAction*/ Object pyCreateAction,
+            PySelection ps,
+            int locationStrategy) {
+        return new TddRefactorCompletionInModule(replacementString, image, displayString,
+                (IContextInformation) contextInformation,
+                additionalProposalInfo, priority, edit, module, parametersAfterCall,
+                (AbstractPyCreateAction) pyCreateAction, ps,
+                locationStrategy);
+    }
+
+    @Override
+    public ICompletionProposalHandle createTddRefactorCompletionInInexistentModule(String replacementString,
+            IImageHandle image, String displayString, Object contextInformation, String additionalProposalInfo,
+            int priority, IPyEdit edit, File module, List<String> parametersAfterCall, Object pyCreateAction,
+            PySelection ps) {
+        return new TddRefactorCompletionInInexistentModule(replacementString, image, displayString,
+                (IContextInformation) contextInformation,
+                additionalProposalInfo, priority, edit, module, parametersAfterCall,
+                (AbstractPyCreateAction) pyCreateAction, ps);
     }
 
 }
