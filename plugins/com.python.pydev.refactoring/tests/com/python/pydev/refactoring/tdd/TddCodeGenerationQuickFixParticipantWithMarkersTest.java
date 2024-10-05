@@ -26,6 +26,7 @@ import org.python.pydev.core.IPyEdit;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.docutils.PySelection;
+import org.python.pydev.core.preferences.InterpreterGeneralPreferences;
 import org.python.pydev.core.structure.CompletionRecursionException;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.IMiscConstants;
@@ -75,6 +76,7 @@ public class TddCodeGenerationQuickFixParticipantWithMarkersTest extends Analysi
     public void setUp() throws Exception {
         super.setUp();
         AbstractPyRefactoring.setPyRefactoring(new Refactorer());
+        InterpreterGeneralPreferences.FORCE_USE_TYPESHED = true;
         CompiledModule.COMPILED_MODULES_ENABLED = false;
         this.restorePythonPath(TestDependent.getCompletePythonLib(true, isPython3Test()) +
                 "|" + TestDependent.PYTHON2_PIL_PACKAGES +
@@ -120,7 +122,7 @@ public class TddCodeGenerationQuickFixParticipantWithMarkersTest extends Analysi
                         NewClass
                 """;
         String expected = """
-                class NewClass(object):
+                class NewClass:
                     pass
 
 
@@ -142,7 +144,7 @@ public class TddCodeGenerationQuickFixParticipantWithMarkersTest extends Analysi
                         NewClass
                 """;
         String expected = """
-                class NewClass(object):
+                class NewClass:
                     pass
 
 

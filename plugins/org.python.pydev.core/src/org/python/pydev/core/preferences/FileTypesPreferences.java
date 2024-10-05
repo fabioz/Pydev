@@ -176,6 +176,9 @@ public class FileTypesPreferences {
     }
 
     public final static String getDefaultDottedPythonExtension() {
+        if (SharedCorePlugin.inTestMode()) {
+            return "." + DEFAULT_FIRST_CHOICE_PYTHON_SOURCE_FILE;
+        }
         return "." + PydevPrefs.getEclipsePreferences().get(FIRST_CHOICE_PYTHON_SOURCE_FILE,
                 DEFAULT_FIRST_CHOICE_PYTHON_SOURCE_FILE);
     }
