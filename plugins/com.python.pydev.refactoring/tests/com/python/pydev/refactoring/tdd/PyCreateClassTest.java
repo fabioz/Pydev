@@ -72,7 +72,7 @@ public class PyCreateClassTest extends TestCaseUtils {
         ExecutePyCreate.execute(pyCreateClass, info, PyCreateClass.LOCATION_STRATEGY_BEFORE_CURRENT);
 
         assertContentsEqual("" +
-                "class MyClass(object):\n" +
+                "class MyClass:\n" +
                 "    pass\n" +
                 "\n" +
                 "\n" +
@@ -108,7 +108,7 @@ public class PyCreateClassTest extends TestCaseUtils {
                 "    pass\n" +
                 "\n" +
                 "\n" +
-                "class MyClass(object):\n" +
+                "class MyClass:\n" +
                 "    pass\n" +
                 "\n" +
                 "\n"
@@ -146,7 +146,7 @@ public class PyCreateClassTest extends TestCaseUtils {
                 "    pass\n" +
                 "\n" +
                 "\n" +
-                "class MyClass(object):\n"
+                "class MyClass:\n"
                 +
                 "    pass\n" +
                 "\n" +
@@ -176,7 +176,7 @@ public class PyCreateClassTest extends TestCaseUtils {
                 "a = 10\n" +
                 "\n" +
                 "\n" +
-                "class MyClass(object):\n" +
+                "class MyClass:\n" +
                 "    pass\n"
                 +
                 "\n" +
@@ -201,7 +201,7 @@ public class PyCreateClassTest extends TestCaseUtils {
         ExecutePyCreate.execute(pyCreateClass, info, PyCreateClass.LOCATION_STRATEGY_BEFORE_CURRENT);
 
         assertContentsEqual("" +
-                "class MyClass(object):\n" +
+                "class MyClass:\n" +
                 "    \n"
                 +
                 "    def __init__(self, aa, bb, param2):\n" +
@@ -224,7 +224,7 @@ public class PyCreateClassTest extends TestCaseUtils {
         ExecutePyCreate.execute(pyCreateClass, info, PyCreateClass.LOCATION_STRATEGY_BEFORE_CURRENT);
 
         assertContentsEqual("" +
-                "class MyClass(object):\n" +
+                "class MyClass:\n" +
                 "    \n"
                 +
                 "    def __init__(self, aa, bb, my_foo):\n" +
@@ -255,7 +255,7 @@ public class PyCreateClassTest extends TestCaseUtils {
         assertContentsEqual("" +
                 "import foo\n" +
                 "\n" +
-                "class MyClass(object):\n" +
+                "class MyClass:\n" +
                 "    pass\n"
                 +
                 "\n" +
@@ -292,7 +292,7 @@ public class PyCreateClassTest extends TestCaseUtils {
                 "\n" +
                 "\n"
                 +
-                "class MyClass(object):\n" +
+                "class MyClass:\n" +
                 "    pass\n" +
                 "\n" +
                 "\n" +
@@ -334,7 +334,7 @@ public class PyCreateClassTest extends TestCaseUtils {
                 "\n" +
                 "\n"
                 +
-                "class MyClass(object):\n" +
+                "class MyClass:\n" +
                 "    pass\n" +
                 "\n" +
                 "\n", document.get());
@@ -351,7 +351,7 @@ public class PyCreateClassTest extends TestCaseUtils {
                 document);
 
         assertContentsEqual("" +
-                "class Foo(object):\n" +
+                "class Foo:\n" +
                 "    pass\n" +
                 "\n" +
                 "\n", document.get());
