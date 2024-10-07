@@ -177,7 +177,21 @@ public class TestDependent {
             }
 
             if (TEST_PYDEV_BASE_LOC == null) {
-                System.err.println("TEST_PYDEV_BASE_LOC variable MUST be set in " + propertiesFile + " to run tests.");
+                File file = new File(TestDependent.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+
+                // File is something as Pydev/plugins/org.python.pydev.core
+                // We want something as: Pydev/plugins/
+                file = file.getParentFile();
+                if (new File(file, "org.python.pydev.core").exists()) {
+                    TEST_PYDEV_BASE_LOC = file.toString().replace("\\", "/");
+                    if (!TEST_PYDEV_BASE_LOC.endsWith("/")) {
+                        TEST_PYDEV_BASE_LOC += '/';
+                    }
+                } else {
+                    System.err.println(
+                            "TEST_PYDEV_BASE_LOC variable MUST be set in " + propertiesFile + " to run tests.");
+                }
+
             } else if (!new File(TEST_PYDEV_BASE_LOC).exists()) {
                 System.err.println("TEST_PYDEV_BASE_LOC variable points to path that does NOT exist: "
                         + TEST_PYDEV_BASE_LOC);
