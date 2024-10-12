@@ -285,14 +285,18 @@ def codegen():
         import cogapp
     except ImportError:
         raise RuntimeError('Missing "pip install cogapp"')
-    f1 = _pydev_root / 'plugins/org.python.pydev.core/src/org/python/pydev/core/IGrammarVersionProvider.java'
-    assert f1.exists(), f'{f1} does not exist'
-    args: list[str] = ['', '-r', str(f1)]
+    for f in [
+        'plugins/org.python.pydev.core/src/org/python/pydev/core/IGrammarVersionProvider.java',
+        'plugins/org.python.pydev.ast/src/org/python/pydev/plugin/nature/PythonNature.java'
+        ]:
+        f1 = _pydev_root / f
+        assert f1.exists(), f'{f1} does not exist'
+        args: list[str] = ['', '-r', str(f1)]
 
-    retcode = cogapp.Cog().main(args)
-    if retcode != 0:
-        sys.stderr.write('Error with cog!')
-        sys.exit(retcode)
+        retcode = cogapp.Cog().main(args)
+        if retcode != 0:
+            sys.stderr.write('Error with cog!')
+            sys.exit(retcode)
 
 def _gen_fire_args() -> dict[str, Callable]:
     """Generate a dict of arguments to be called by fire.Fire()"""

@@ -1280,9 +1280,20 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
             case "3.2":
             case "3.3":
             case "3.4":
+            // @formatter:off
+            /*[[[cog
+            # Note: run
+            # python -m dev codegen
+            # to regenerate
+            from codegen_helper import python_versions_base, python_versions_underscore
+
+            for version_under, version_base in zip(python_versions_underscore, python_versions_base):
+                constant_name = f'GRAMMAR_PYTHON_VERSION_{version_under}'
+                cog.outl(f'case "{version_base}":')
+                cog.outl(f'    return {constant_name};')
+            ]]]*/
             case "3.5":
                 return GRAMMAR_PYTHON_VERSION_3_5;
-
             case "3.6":
                 return GRAMMAR_PYTHON_VERSION_3_6;
             case "3.7":
@@ -1297,7 +1308,8 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                 return GRAMMAR_PYTHON_VERSION_3_11;
             case "3.12":
                 return GRAMMAR_PYTHON_VERSION_3_12;
-
+            /*[[[end]]]*/
+            // @formatter:on
             default:
                 break;
         }
