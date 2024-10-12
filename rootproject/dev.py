@@ -263,6 +263,37 @@ def add_to_github():
     webbrowser.open(rf'''https://github.com/fabioz/Pydev/releases/new?tag=pydev_{_VERSION.replace('.', '_')}''')
 
 
+# /*[[[cog
+#  # Note: run
+#  # python -m dev codegen
+#  # to regenerate
+#  from codegen_helper import python_versions_underscore
+#
+#  i = 98
+#  for version in python_versions_underscore:
+#      i += 1
+#      constant_name = f'GRAMMAR_PYTHON_VERSION_{version}'
+#      cog.outl(f'public static final int {constant_name} = {i};')
+#
+#  ]]]*/
+#  /*[[[end]]]*/
+
+
+def codegen():
+    print('codegen')
+    try:
+        import cogapp
+    except ImportError:
+        raise RuntimeError('Missing "pip install cogapp"')
+    f1 = _pydev_root / 'plugins/org.python.pydev.core/src/org/python/pydev/core/IGrammarVersionProvider.java'
+    assert f1.exists(), f'{f1} does not exist'
+    args: list[str] = ['', '-r', str(f1)]
+
+    retcode = cogapp.Cog().main(args)
+    if retcode != 0:
+        sys.stderr.write('Error with cog!')
+        sys.exit(retcode)
+
 def _gen_fire_args() -> dict[str, Callable]:
     """Generate a dict of arguments to be called by fire.Fire()"""
     globals_ = globals()

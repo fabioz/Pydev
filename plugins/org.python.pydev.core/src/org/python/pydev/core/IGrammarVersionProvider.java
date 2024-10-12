@@ -19,6 +19,22 @@ import java.util.Map;
 import java.util.Set;
 
 public interface IGrammarVersionProvider {
+
+    /*[[[cog
+    # Note: run
+    # python -m dev codegen
+    # to regenerate
+    from codegen_helper import python_versions_underscore
+    
+    i = 98
+    for version in python_versions_underscore:
+        i += 1
+        constant_name = f'GRAMMAR_PYTHON_VERSION_{version}'
+        cog.outl(f'public static final int {constant_name} = {i};')
+    
+    cog.outl(f'public static final int LATEST_GRAMMAR_PY3_VERSION = {constant_name};')
+    cog.outl(f'public static final int LATEST_GRAMMAR_PY2_VERSION = {constant_name};')
+    ]]]*/
     public static final int GRAMMAR_PYTHON_VERSION_3_5 = 99;
     public static final int GRAMMAR_PYTHON_VERSION_3_6 = 100;
     public static final int GRAMMAR_PYTHON_VERSION_3_7 = 101;
@@ -29,6 +45,7 @@ public interface IGrammarVersionProvider {
     public static final int GRAMMAR_PYTHON_VERSION_3_12 = 106;
     public static final int LATEST_GRAMMAR_PY3_VERSION = GRAMMAR_PYTHON_VERSION_3_12;
     public static final int LATEST_GRAMMAR_PY2_VERSION = GRAMMAR_PYTHON_VERSION_3_12;
+    /*[[[end]]]*/
 
     /**
      * So, no specific reason for the 777 number (just wanted something unique that wouldn't be close to the other grammars).
@@ -73,6 +90,19 @@ class GrammarsIterator {
 
     public static List<Integer> createList() {
         List<Integer> grammarVersions = new ArrayList<>();
+        /*[[[cog
+        # Note: run
+        # python -m dev codegen
+        # to regenerate
+        from codegen_helper import python_versions_underscore
+        
+        i = 98
+        for version in python_versions_underscore:
+            i += 1
+            constant_name = f'GRAMMAR_PYTHON_VERSION_{version}'
+            cog.outl(f'grammarVersions.add(IGrammarVersionProvider.{constant_name});')
+        
+        ]]]*/
         grammarVersions.add(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5);
         grammarVersions.add(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_6);
         grammarVersions.add(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_7);
@@ -81,11 +111,21 @@ class GrammarsIterator {
         grammarVersions.add(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_10);
         grammarVersions.add(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_11);
         grammarVersions.add(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_12);
+        /*[[[end]]]*/
         return Collections.unmodifiableList(grammarVersions);
     }
 
     public static List<String> createStr() {
         List<String> grammarVersions = new ArrayList<>();
+        /*[[[cog
+        # Note: run
+        # python -m dev codegen
+        # to regenerate
+        from codegen_helper import python_versions_base
+        
+        for version in python_versions_base:
+            cog.outl(f'grammarVersions.add("{version}");')
+        ]]]*/
         grammarVersions.add("3.5");
         grammarVersions.add("3.6");
         grammarVersions.add("3.7");
@@ -94,11 +134,22 @@ class GrammarsIterator {
         grammarVersions.add("3.10");
         grammarVersions.add("3.11");
         grammarVersions.add("3.12");
+        /*[[[end]]]*/
         return Collections.unmodifiableList(grammarVersions);
     }
 
     public static Map<Integer, String> createDict() {
         HashMap<Integer, String> ret = new HashMap<>();
+        /*[[[cog
+        # Note: run
+        # python -m dev codegen
+        # to regenerate
+        from codegen_helper import python_versions_base, python_versions_underscore
+        
+        for version_under, version_base in zip(python_versions_underscore, python_versions_base):
+            constant_name = f'GRAMMAR_PYTHON_VERSION_{version_under}'
+            cog.outl(f'ret.put(IGrammarVersionProvider.{constant_name}, "{version_base}");')
+        ]]]*/
         ret.put(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5, "3.5");
         ret.put(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_6, "3.6");
         ret.put(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_7, "3.7");
@@ -107,11 +158,22 @@ class GrammarsIterator {
         ret.put(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_10, "3.10");
         ret.put(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_11, "3.11");
         ret.put(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_12, "3.12");
+        /*[[[end]]]*/
         return Collections.unmodifiableMap(ret);
     }
 
     public static Map<String, Integer> createStrToInt() {
         HashMap<String, Integer> ret = new HashMap<>();
+        /*[[[cog
+        # Note: run
+        # python -m dev codegen
+        # to regenerate
+        from codegen_helper import python_versions_base, python_versions_underscore
+        
+        for version_under, version_base in zip(python_versions_underscore, python_versions_base):
+            constant_name = f'GRAMMAR_PYTHON_VERSION_{version_under}'
+            cog.outl(f'ret.put("{version_base}", IGrammarVersionProvider.{constant_name});')
+        ]]]*/
         ret.put("3.5", IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5);
         ret.put("3.6", IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_6);
         ret.put("3.7", IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_7);
@@ -120,6 +182,7 @@ class GrammarsIterator {
         ret.put("3.10", IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_10);
         ret.put("3.11", IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_11);
         ret.put("3.12", IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_12);
+        /*[[[end]]]*/
         return Collections.unmodifiableMap(ret);
     }
 }
