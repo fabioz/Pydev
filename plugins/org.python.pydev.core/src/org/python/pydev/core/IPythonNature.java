@@ -40,9 +40,9 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
         public static final HashSet<String> ALL_VERSIONS_ANY_FLAVOR = new HashSet<String>();
         public static final List<String> VERSION_NUMBERS = new ArrayList<String>();
 
-        public static final String JYTHON_VERSION_LATEST = JYTHON_VERSION_3_0;
+        public static final String JYTHON_VERSION_LATEST = JYTHON_VERSION_3_5;
         public static final String PYTHON_VERSION_LATEST = PYTHON_VERSION_3_12;
-        public static final String IRONPYTHON_VERSION_LATEST = IRONPYTHON_VERSION_3_0;
+        public static final String IRONPYTHON_VERSION_LATEST = IRONPYTHON_VERSION_3_5;
 
         public static final String INTERPRETER_VERSION = "interpreter";
         private static final Map<String, String> mappedVersions = new HashMap<>();
@@ -51,53 +51,18 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
         public static final String JYTHON_PREFIX = "jython";
         public static final String IRONYTHON_PREFIX = "ironpython";
 
+        /*[[[cog
+        # Note: run
+        # python -m dev codegen
+        # to regenerate
+        from codegen_helper import python_versions_base
+        
+        cog.outl(f'public static final String LATEST_VERSION_NUMBER = "{python_versions_base[-1]}";')
+        ]]]*/
         public static final String LATEST_VERSION_NUMBER = "3.12";
+        /*[[[end]]]*/
 
         static {
-            ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_3_0);
-            ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_3_6);
-            ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_3_7);
-            ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_3_8);
-            ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_3_9);
-            ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_3_10);
-            ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_3_11);
-            ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_3_12);
-            ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_INTERPRETER);
-
-            ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_3_0);
-            ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_3_6);
-            ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_3_7);
-            ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_3_8);
-            ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_3_9);
-            ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_3_10);
-            ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_3_11);
-            ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_3_12);
-            ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_INTERPRETER);
-
-            ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_3_0);
-            ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_3_6);
-            ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_3_7);
-            ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_3_8);
-            ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_3_9);
-            ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_3_10);
-            ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_3_11);
-            ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_3_12);
-            ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_INTERPRETER);
-
-            ALL_VERSIONS_ANY_FLAVOR.addAll(ALL_JYTHON_VERSIONS);
-            ALL_VERSIONS_ANY_FLAVOR.addAll(ALL_PYTHON_VERSIONS);
-            ALL_VERSIONS_ANY_FLAVOR.addAll(ALL_IRONPYTHON_VERSIONS);
-
-            VERSION_NUMBERS.add("3.5");
-            VERSION_NUMBERS.add("3.6");
-            VERSION_NUMBERS.add("3.7"); // actually the same as 3.6
-            VERSION_NUMBERS.add("3.8");
-            VERSION_NUMBERS.add("3.9"); // actually the same as 3.8
-            VERSION_NUMBERS.add("3.10");
-            VERSION_NUMBERS.add("3.11");
-            VERSION_NUMBERS.add("3.12");
-            VERSION_NUMBERS.add(INTERPRETER_VERSION);
-
             // Anything below 3.5 is marked as 3.5
             mappedVersions.put("3.0", "3.5");
             mappedVersions.put("3.1", "3.5");
@@ -105,20 +70,92 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
             mappedVersions.put("3.3", "3.5");
             mappedVersions.put("3.4", "3.5");
             mappedVersions.put("3.5", "3.5");
+            VERSION_NUMBERS.add(INTERPRETER_VERSION);
 
+            /*[[[cog
+            # Note: run
+            # python -m dev codegen
+            # to regenerate
+            from codegen_helper import python_versions_base, python_versions_underscore
+            
+            for version_under, version_base in zip(python_versions_underscore, python_versions_base):
+                constant_name = f'PYTHON_VERSION_{version_under}'
+                cog.outl(f'ALL_PYTHON_VERSIONS.add({constant_name});')
+            
+            cog.outl('')
+            
+            for version_under, version_base in zip(python_versions_underscore, python_versions_base):
+                constant_name = f'JYTHON_VERSION_{version_under}'
+                cog.outl(f'ALL_JYTHON_VERSIONS.add({constant_name});')
+            
+            cog.outl('')
+            
+            for version_under, version_base in zip(python_versions_underscore, python_versions_base):
+                constant_name = f'IRONPYTHON_VERSION_{version_under}'
+                cog.outl(f'ALL_IRONPYTHON_VERSIONS.add({constant_name});')
+            
+            cog.outl('')
+            
+            for version_under, version_base in zip(python_versions_underscore, python_versions_base):
+                cog.outl(f'VERSION_NUMBERS.add("{version_base}");')
+            
+            cog.outl('')
+            
+            for version_under, version_base in zip(python_versions_underscore, python_versions_base):
+                cog.outl(f'mappedVersions.put("{version_base}", "{version_base}");')
+            ]]]*/
+            ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_3_5);
+            ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_3_6);
+            ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_3_7);
+            ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_3_8);
+            ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_3_9);
+            ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_3_10);
+            ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_3_11);
+            ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_3_12);
+
+            ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_3_5);
+            ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_3_6);
+            ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_3_7);
+            ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_3_8);
+            ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_3_9);
+            ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_3_10);
+            ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_3_11);
+            ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_3_12);
+
+            ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_3_5);
+            ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_3_6);
+            ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_3_7);
+            ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_3_8);
+            ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_3_9);
+            ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_3_10);
+            ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_3_11);
+            ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_3_12);
+
+            VERSION_NUMBERS.add("3.5");
+            VERSION_NUMBERS.add("3.6");
+            VERSION_NUMBERS.add("3.7");
+            VERSION_NUMBERS.add("3.8");
+            VERSION_NUMBERS.add("3.9");
+            VERSION_NUMBERS.add("3.10");
+            VERSION_NUMBERS.add("3.11");
+            VERSION_NUMBERS.add("3.12");
+
+            mappedVersions.put("3.5", "3.5");
             mappedVersions.put("3.6", "3.6");
-
-            mappedVersions.put("3.7", "3.7"); // actually the same as 3.6
-
+            mappedVersions.put("3.7", "3.7");
             mappedVersions.put("3.8", "3.8");
-
-            mappedVersions.put("3.9", "3.9"); // actually the same as 3.8
-
+            mappedVersions.put("3.9", "3.9");
             mappedVersions.put("3.10", "3.10");
-
             mappedVersions.put("3.11", "3.11");
-
             mappedVersions.put("3.12", "3.12");
+            /*[[[end]]]*/
+
+            ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_INTERPRETER);
+            ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_INTERPRETER);
+            ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_INTERPRETER);
+            ALL_VERSIONS_ANY_FLAVOR.addAll(ALL_JYTHON_VERSIONS);
+            ALL_VERSIONS_ANY_FLAVOR.addAll(ALL_PYTHON_VERSIONS);
+            ALL_VERSIONS_ANY_FLAVOR.addAll(ALL_IRONPYTHON_VERSIONS);
         }
 
         /**
@@ -207,7 +244,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
      * Constants persisted. Probably a better way would be disassociating whether it's python/jython and the
      * grammar version to be used (to avoid the explosion of constants below).
      */
-    public static final String PYTHON_VERSION_3_0 = "python 3.5";
+    public static final String PYTHON_VERSION_3_5 = "python 3.5";
     public static final String PYTHON_VERSION_3_6 = "python 3.6";
     public static final String PYTHON_VERSION_3_7 = "python 3.7";
     public static final String PYTHON_VERSION_3_8 = "python 3.8";
@@ -217,7 +254,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
     public static final String PYTHON_VERSION_3_12 = "python 3.12";
     public static final String PYTHON_VERSION_INTERPRETER = "python interpreter";
 
-    public static final String JYTHON_VERSION_3_0 = "jython 3.5";
+    public static final String JYTHON_VERSION_3_5 = "jython 3.5";
     public static final String JYTHON_VERSION_3_6 = "jython 3.6";
     public static final String JYTHON_VERSION_3_7 = "jython 3.7";
     public static final String JYTHON_VERSION_3_8 = "jython 3.8";
@@ -227,7 +264,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
     public static final String JYTHON_VERSION_3_12 = "jython 3.12";
     public static final String JYTHON_VERSION_INTERPRETER = "jython interpreter";
 
-    public static final String IRONPYTHON_VERSION_3_0 = "ironpython 3.5";
+    public static final String IRONPYTHON_VERSION_3_5 = "ironpython 3.5";
     public static final String IRONPYTHON_VERSION_3_6 = "ironpython 3.6";
     public static final String IRONPYTHON_VERSION_3_7 = "ironpython 3.7";
     public static final String IRONPYTHON_VERSION_3_8 = "ironpython 3.8";

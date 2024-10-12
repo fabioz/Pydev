@@ -531,7 +531,7 @@ public class AbstractWorkbenchTestCase extends TestCase {
         if (addNature) {
             String name = project.getName();
             if (isJython) {
-                PythonNature.addNature(project, monitor, PythonNature.JYTHON_VERSION_3_0, "/" + name +
+                PythonNature.addNature(project, monitor, PythonNature.JYTHON_VERSION_3_5, "/" + name +
                         "/src|/" + name
                         +
                         "/grinder.jar", null, null, null);
