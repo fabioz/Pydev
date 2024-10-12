@@ -244,6 +244,25 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
      * Constants persisted. Probably a better way would be disassociating whether it's python/jython and the
      * grammar version to be used (to avoid the explosion of constants below).
      */
+    /*[[[cog
+    # Note: run
+    # python -m dev codegen
+    # to regenerate
+    from codegen_helper import python_versions_base, python_versions_underscore
+    
+    for version_under, version_base in zip(python_versions_underscore, python_versions_base):
+        cog.outl(f'public static final String PYTHON_VERSION_{version_under} = "python {version_base}";')
+    
+    cog.outl('')
+    
+    for version_under, version_base in zip(python_versions_underscore, python_versions_base):
+        cog.outl(f'public static final String JYTHON_VERSION_{version_under} = "jython {version_base}";')
+    
+    cog.outl('')
+    
+    for version_under, version_base in zip(python_versions_underscore, python_versions_base):
+        cog.outl(f'public static final String IRONPYTHON_VERSION_{version_under} = "ironpython {version_base}";')
+    ]]]*/
     public static final String PYTHON_VERSION_3_5 = "python 3.5";
     public static final String PYTHON_VERSION_3_6 = "python 3.6";
     public static final String PYTHON_VERSION_3_7 = "python 3.7";
@@ -252,7 +271,6 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
     public static final String PYTHON_VERSION_3_10 = "python 3.10";
     public static final String PYTHON_VERSION_3_11 = "python 3.11";
     public static final String PYTHON_VERSION_3_12 = "python 3.12";
-    public static final String PYTHON_VERSION_INTERPRETER = "python interpreter";
 
     public static final String JYTHON_VERSION_3_5 = "jython 3.5";
     public static final String JYTHON_VERSION_3_6 = "jython 3.6";
@@ -262,7 +280,6 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
     public static final String JYTHON_VERSION_3_10 = "jython 3.10";
     public static final String JYTHON_VERSION_3_11 = "jython 3.11";
     public static final String JYTHON_VERSION_3_12 = "jython 3.12";
-    public static final String JYTHON_VERSION_INTERPRETER = "jython interpreter";
 
     public static final String IRONPYTHON_VERSION_3_5 = "ironpython 3.5";
     public static final String IRONPYTHON_VERSION_3_6 = "ironpython 3.6";
@@ -272,6 +289,10 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
     public static final String IRONPYTHON_VERSION_3_10 = "ironpython 3.10";
     public static final String IRONPYTHON_VERSION_3_11 = "ironpython 3.11";
     public static final String IRONPYTHON_VERSION_3_12 = "ironpython 3.12";
+    /*[[[end]]]*/
+
+    public static final String JYTHON_VERSION_INTERPRETER = "jython interpreter";
+    public static final String PYTHON_VERSION_INTERPRETER = "python interpreter";
     public static final String IRONPYTHON_VERSION_INTERPRETER = "ironpython interpreter";
 
     /**
