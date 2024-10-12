@@ -531,14 +531,32 @@ public final class PyParser extends BaseParser implements IPyParser {
         IGrammar grammar;
         FastCharStream in = new FastCharStream(charArray);
         switch (grammarVersion) {
+            /*[[[cog
+            # Note: run
+            # python -m dev codegen
+            # to regenerate
+            from codegen_helper import python_versions_base, python_versions_underscore, grammar_parser_map
+            
+            for version_under, version_base in zip(python_versions_underscore, python_versions_base):
+                constant_name = f'GRAMMAR_PYTHON_VERSION_{version_under}'
+                cog.outl(f'case IPythonNature.{constant_name}:')
+            
+                clsname = grammar_parser_map[version_under]
+                cog.outl(f'    grammar = new {clsname}(generateTree, in);')
+                cog.outl(f'    break;')
+            ]]]*/
             case IPythonNature.GRAMMAR_PYTHON_VERSION_3_5:
                 grammar = new PythonGrammar30(generateTree, in);
                 break;
             case IPythonNature.GRAMMAR_PYTHON_VERSION_3_6:
+                grammar = new PythonGrammar36(generateTree, in);
+                break;
             case IPythonNature.GRAMMAR_PYTHON_VERSION_3_7:
                 grammar = new PythonGrammar36(generateTree, in);
                 break;
             case IPythonNature.GRAMMAR_PYTHON_VERSION_3_8:
+                grammar = new PythonGrammar38(generateTree, in);
+                break;
             case IPythonNature.GRAMMAR_PYTHON_VERSION_3_9:
                 grammar = new PythonGrammar38(generateTree, in);
                 break;
@@ -551,6 +569,7 @@ public final class PyParser extends BaseParser implements IPyParser {
             case IPythonNature.GRAMMAR_PYTHON_VERSION_3_12:
                 grammar = new PythonGrammar312(generateTree, in);
                 break;
+            /*[[[end]]]*/
             //case CYTHON: not treated here (only in reparseDocument).
             default:
                 throw new RuntimeException("The grammar specified for parsing is not valid: " + grammarVersion);

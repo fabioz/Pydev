@@ -287,7 +287,8 @@ def codegen():
         raise RuntimeError('Missing "pip install cogapp"')
     for f in [
         'plugins/org.python.pydev.core/src/org/python/pydev/core/IGrammarVersionProvider.java',
-        'plugins/org.python.pydev.ast/src/org/python/pydev/plugin/nature/PythonNature.java'
+        'plugins/org.python.pydev.ast/src/org/python/pydev/plugin/nature/PythonNature.java',
+        'plugins/org.python.pydev.parser/src/org/python/pydev/parser/PyParser.java',
         ]:
         f1 = _pydev_root / f
         assert f1.exists(), f'{f1} does not exist'
