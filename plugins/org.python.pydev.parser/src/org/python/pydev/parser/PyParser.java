@@ -106,31 +106,39 @@ public final class PyParser extends BaseParser implements IPyParser {
     private final IGrammarVersionProvider grammarVersionProvider;
 
     public static String getGrammarVersionStr(int grammarVersion) {
-        if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5) {
-            return "grammar: Python 3.5";
+        switch (grammarVersion) {
+            /*[[[cog
+            # Note: run
+            # python -m dev codegen
+            # to regenerate
+            from codegen_helper import python_versions_base, python_versions_underscore
+            
+            for version_under, version_base in zip(python_versions_underscore, python_versions_base):
+                constant_name = f'GRAMMAR_PYTHON_VERSION_{version_under}'
+                cog.outl(f'case IGrammarVersionProvider.{constant_name}:')
+                cog.outl(f'    return "grammar: Python {version_base}";')
+            ]]]*/
+            case IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_5:
+                return "grammar: Python 3.5";
+            case IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_6:
+                return "grammar: Python 3.6";
+            case IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_7:
+                return "grammar: Python 3.7";
+            case IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_8:
+                return "grammar: Python 3.8";
+            case IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_9:
+                return "grammar: Python 3.9";
+            case IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_10:
+                return "grammar: Python 3.10";
+            case IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_11:
+                return "grammar: Python 3.11";
+            case IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_12:
+                return "grammar: Python 3.12";
+            /*[[[end]]]*/
+        }
 
-        } else if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_6) {
-            return "grammar: Python 3.6";
-
-        } else if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_7) {
-            return "grammar: Python 3.7";
-
-        } else if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_8) {
-            return "grammar: Python 3.8";
-
-        } else if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_9) {
-            return "grammar: Python 3.9";
-
-        } else if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_10) {
-            return "grammar: Python 3.10";
-
-        } else if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_11) {
-            return "grammar: Python 3.11";
-
-        } else if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_12) {
-            return "grammar: Python 3.12";
-
-        } else if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_CYTHON) {
+        // If it still didn't return...
+        if (grammarVersion == IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_CYTHON) {
             return "grammar: Cython";
 
         } else {
