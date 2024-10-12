@@ -59,7 +59,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
         
         cog.outl(f'public static final String LATEST_VERSION_NUMBER = "{python_versions_base[-1]}";')
         ]]]*/
-        public static final String LATEST_VERSION_NUMBER = "3.12";
+        public static final String LATEST_VERSION_NUMBER = "3.13";
         /*[[[end]]]*/
 
         static {
@@ -112,6 +112,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
             ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_3_10);
             ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_3_11);
             ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_3_12);
+            ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_3_13);
 
             ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_3_5);
             ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_3_6);
@@ -121,6 +122,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
             ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_3_10);
             ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_3_11);
             ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_3_12);
+            ALL_JYTHON_VERSIONS.add(JYTHON_VERSION_3_13);
 
             ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_3_5);
             ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_3_6);
@@ -130,6 +132,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
             ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_3_10);
             ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_3_11);
             ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_3_12);
+            ALL_IRONPYTHON_VERSIONS.add(IRONPYTHON_VERSION_3_13);
 
             VERSION_NUMBERS.add("3.5");
             VERSION_NUMBERS.add("3.6");
@@ -139,6 +142,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
             VERSION_NUMBERS.add("3.10");
             VERSION_NUMBERS.add("3.11");
             VERSION_NUMBERS.add("3.12");
+            VERSION_NUMBERS.add("3.13");
 
             mappedVersions.put("3.5", "3.5");
             mappedVersions.put("3.6", "3.6");
@@ -148,6 +152,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
             mappedVersions.put("3.10", "3.10");
             mappedVersions.put("3.11", "3.11");
             mappedVersions.put("3.12", "3.12");
+            mappedVersions.put("3.13", "3.13");
             /*[[[end]]]*/
 
             ALL_PYTHON_VERSIONS.add(PYTHON_VERSION_INTERPRETER);
@@ -271,6 +276,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
     public static final String PYTHON_VERSION_3_10 = "python 3.10";
     public static final String PYTHON_VERSION_3_11 = "python 3.11";
     public static final String PYTHON_VERSION_3_12 = "python 3.12";
+    public static final String PYTHON_VERSION_3_13 = "python 3.13";
 
     public static final String JYTHON_VERSION_3_5 = "jython 3.5";
     public static final String JYTHON_VERSION_3_6 = "jython 3.6";
@@ -280,6 +286,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
     public static final String JYTHON_VERSION_3_10 = "jython 3.10";
     public static final String JYTHON_VERSION_3_11 = "jython 3.11";
     public static final String JYTHON_VERSION_3_12 = "jython 3.12";
+    public static final String JYTHON_VERSION_3_13 = "jython 3.13";
 
     public static final String IRONPYTHON_VERSION_3_5 = "ironpython 3.5";
     public static final String IRONPYTHON_VERSION_3_6 = "ironpython 3.6";
@@ -289,6 +296,7 @@ public interface IPythonNature extends IProjectNature, IGrammarVersionProvider, 
     public static final String IRONPYTHON_VERSION_3_10 = "ironpython 3.10";
     public static final String IRONPYTHON_VERSION_3_11 = "ironpython 3.11";
     public static final String IRONPYTHON_VERSION_3_12 = "ironpython 3.12";
+    public static final String IRONPYTHON_VERSION_3_13 = "ironpython 3.13";
     /*[[[end]]]*/
 
     public static final String JYTHON_VERSION_INTERPRETER = "jython interpreter";

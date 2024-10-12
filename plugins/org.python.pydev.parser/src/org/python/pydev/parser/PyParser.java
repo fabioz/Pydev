@@ -134,6 +134,8 @@ public final class PyParser extends BaseParser implements IPyParser {
                 return "grammar: Python 3.11";
             case IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_12:
                 return "grammar: Python 3.12";
+            case IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_13:
+                return "grammar: Python 3.13";
             /*[[[end]]]*/
         }
 
@@ -575,6 +577,9 @@ public final class PyParser extends BaseParser implements IPyParser {
                 grammar = new PythonGrammar311(generateTree, in);
                 break;
             case IPythonNature.GRAMMAR_PYTHON_VERSION_3_12:
+                grammar = new PythonGrammar312(generateTree, in);
+                break;
+            case IPythonNature.GRAMMAR_PYTHON_VERSION_3_13:
                 grammar = new PythonGrammar312(generateTree, in);
                 break;
             /*[[[end]]]*/

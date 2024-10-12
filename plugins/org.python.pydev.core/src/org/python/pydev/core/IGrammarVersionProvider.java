@@ -43,8 +43,9 @@ public interface IGrammarVersionProvider {
     public static final int GRAMMAR_PYTHON_VERSION_3_10 = 104;
     public static final int GRAMMAR_PYTHON_VERSION_3_11 = 105;
     public static final int GRAMMAR_PYTHON_VERSION_3_12 = 106;
-    public static final int LATEST_GRAMMAR_PY3_VERSION = GRAMMAR_PYTHON_VERSION_3_12;
-    public static final int LATEST_GRAMMAR_PY2_VERSION = GRAMMAR_PYTHON_VERSION_3_12;
+    public static final int GRAMMAR_PYTHON_VERSION_3_13 = 107;
+    public static final int LATEST_GRAMMAR_PY3_VERSION = GRAMMAR_PYTHON_VERSION_3_13;
+    public static final int LATEST_GRAMMAR_PY2_VERSION = GRAMMAR_PYTHON_VERSION_3_13;
     /*[[[end]]]*/
 
     /**
@@ -111,6 +112,7 @@ class GrammarsIterator {
         grammarVersions.add(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_10);
         grammarVersions.add(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_11);
         grammarVersions.add(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_12);
+        grammarVersions.add(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_13);
         /*[[[end]]]*/
         return Collections.unmodifiableList(grammarVersions);
     }
@@ -134,6 +136,7 @@ class GrammarsIterator {
         grammarVersions.add("3.10");
         grammarVersions.add("3.11");
         grammarVersions.add("3.12");
+        grammarVersions.add("3.13");
         /*[[[end]]]*/
         return Collections.unmodifiableList(grammarVersions);
     }
@@ -158,6 +161,7 @@ class GrammarsIterator {
         ret.put(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_10, "3.10");
         ret.put(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_11, "3.11");
         ret.put(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_12, "3.12");
+        ret.put(IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_13, "3.13");
         /*[[[end]]]*/
         return Collections.unmodifiableMap(ret);
     }
@@ -182,6 +186,7 @@ class GrammarsIterator {
         ret.put("3.10", IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_10);
         ret.put("3.11", IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_11);
         ret.put("3.12", IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_12);
+        ret.put("3.13", IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_13);
         /*[[[end]]]*/
         return Collections.unmodifiableMap(ret);
     }
