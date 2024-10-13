@@ -74,7 +74,6 @@ public class AssistDocString implements IAssistProps {
             }
         }
         List<String> params = tuple.contents;
-        int lineOfOffset = ps.getLineOfOffset(tuple.closeParenthesisOffset);
 
         // Calculate only the initial part of the docstring here (everything else should be lazily computed on apply).
         String initial = PySelection.getIndentationFromLine(ps.getCursorLineContents());
@@ -90,6 +89,7 @@ public class AssistDocString implements IAssistProps {
         buf.append(delimiterAndIndent);
 
         int newOffset = buf.length();
+        int lineOfOffset = ps.getLineOfOffset(tuple.closeParenthesisOffset);
         int offsetPosToAdd = ps.getEndLineOffset(lineOfOffset);
 
         IImageHandle image = null; //may be null (testing)
@@ -99,8 +99,7 @@ public class AssistDocString implements IAssistProps {
         final boolean inFunctionLine = ps.isInFunctionLine(true);
         DocstringInfo docstringFromFunction = null;
         if (inFunctionLine) {
-            int currLine = ps.getLineOfOffset();
-            docstringFromFunction = ps.getDocstringFromLine(currLine + 1);
+            docstringFromFunction = ps.getDocstringFromLine(lineOfOffset + 1);
         }
         final DocstringInfo finalDocstringFromFunction = docstringFromFunction;
         String preferredDocstringStyle = AssistDocString.this.docStringStyle;

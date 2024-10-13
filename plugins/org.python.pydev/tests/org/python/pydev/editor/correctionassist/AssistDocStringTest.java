@@ -133,11 +133,38 @@ public class AssistDocStringTest extends TestCase {
 
     public void testApplyGoogle2() throws Exception {
         String expected;
-        expected = "    def foo(self): #comment\r\n" +
-                "        '''\r\n" +
-                "        \r\n" +
-                "        '''";
+        expected = """
+                    def foo(self): #comment
+                        '''
+                    ....
+                        '''\
+                """.replace("....", "    ");
         checkGoogle(expected, "    def foo(self): #comment", 1);
+    }
+
+    public void testUpdateDocstringGoogleRequest() throws Exception {
+        String expected;
+        expected = """
+                    def foo(
+                        self,
+                        a,
+                        b):
+                        '''
+                        Args:
+                            a:
+                            b:
+                        '''
+                """;
+        checkGoogle(expected, """
+                    def foo(
+                        self,
+                        a,
+                        b):
+                        '''
+                        Args:
+                            a:
+                        '''
+                """, 1);
     }
 
     public void testApply() throws Exception {
