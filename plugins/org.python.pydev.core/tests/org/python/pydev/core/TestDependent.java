@@ -181,15 +181,21 @@ public class TestDependent {
 
                 // File is something as Pydev/plugins/org.python.pydev.core
                 // We want something as: Pydev/plugins/
-                file = file.getParentFile();
-                if (new File(file, "org.python.pydev.core").exists()) {
-                    TEST_PYDEV_BASE_LOC = file.toString().replace("\\", "/");
-                    if (!TEST_PYDEV_BASE_LOC.endsWith("/")) {
-                        TEST_PYDEV_BASE_LOC += '/';
+                for (int i = 0; i < 10; i++) {
+                    file = file.getParentFile();
+                    File corePlugin = new File(file, "org.python.pydev.core");
+                    if (corePlugin.exists()) {
+                        TEST_PYDEV_BASE_LOC = file.toString().replace("\\", "/");
+                        if (!TEST_PYDEV_BASE_LOC.endsWith("/")) {
+                            TEST_PYDEV_BASE_LOC += '/';
+                        }
+                        break;
                     }
-                } else {
+                }
+                if (TEST_PYDEV_BASE_LOC == null) {
                     System.err.println(
-                            "TEST_PYDEV_BASE_LOC variable MUST be set in " + propertiesFile + " to run tests.");
+                            "TEST_PYDEV_BASE_LOC variable MUST be set in " + propertiesFile
+                                    + " to run tests (unable to auto-discover value).");
                 }
 
             } else if (!new File(TEST_PYDEV_BASE_LOC).exists()) {
@@ -233,6 +239,9 @@ public class TestDependent {
             }
             if (!TEST_PYSRC_TESTING_LOC.endsWith("/")) {
                 throw new RuntimeException("Expecting TEST_PYSRC_TESTING_LOC to end with '/'");
+            }
+            if (!new File(TEST_PYSRC_TESTING_LOC).exists()) {
+                throw new RuntimeException("Expected TEST_PYSRC_TESTING_LOC: " + TEST_PYSRC_TESTING_LOC + " to exist!");
             }
 
             if (TEST_PYSRC_NAVIGATOR_LOC == null) {

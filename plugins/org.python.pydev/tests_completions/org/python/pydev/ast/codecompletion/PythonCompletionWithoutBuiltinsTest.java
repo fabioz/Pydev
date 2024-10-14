@@ -67,7 +67,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
             //DEBUG_TESTS_BASE = true;
             PythonCompletionWithoutBuiltinsTest test = new PythonCompletionWithoutBuiltinsTest();
             test.setUp();
-            test.testGrammar2AbsoluteAndRelativeImports();
+            test.testAnnotatedCompletion();
             test.tearDown();
             System.out.println("Finished");
 
@@ -3556,6 +3556,20 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 + "X = Signal.INITIALISE\n"
                 + "X.";
         requestCompl(s, s.length(), -1, new String[] { "name", "value", "signal_type" });
+    }
+
+    public void testAnnotatedCompletion() throws Exception {
+        String s = """
+                from typing import Annotated
+
+                class C:
+                    def method1(self) -> None:
+                        pass
+
+                def f2(c: Annotated[C, ...]) -> None:
+                    c.
+                """.strip();
+        requestCompl(s, s.length(), -1, new String[] { "method1()" });
     }
 
 }
