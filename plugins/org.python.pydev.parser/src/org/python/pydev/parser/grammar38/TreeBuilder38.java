@@ -268,7 +268,7 @@ public final class TreeBuilder38 extends AbstractTreeBuilder implements ITreeBui
                 exprType[] bases = makeExprs(nodeArity);
                 nameTok = makeNameTok(NameTok.ClassName);
                 //decorator is always null at this point... it's decorated later on
-                ClassDef classDef = new ClassDef(nameTok, bases, body, null,
+                ClassDef classDef = new ClassDef(nameTok, null, bases, body, null,
                         classDefKeywords.toArray(new keywordType[classDefKeywords.size()]), starargs, kwargs);
 
                 addSpecialsAndClearOriginal(suite, classDef);

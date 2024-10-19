@@ -7,6 +7,7 @@ import org.python.pydev.parser.jython.ISpecialStr;
 
 public final class ClassDef extends stmtType {
     public NameTokType name;
+    public type_params_suiteType type_params;
     public exprType[] bases;
     public stmtType[] body;
     public decoratorsType[] decs;
@@ -18,9 +19,11 @@ public final class ClassDef extends stmtType {
     // Hack: nor anything else besides being a marker token). 
     public ISpecialStr colonDefEnd;
 
-    public ClassDef(NameTokType name, exprType[] bases, stmtType[] body, decoratorsType[] decs,
-    keywordType[] keywords, exprType starargs, exprType kwargs) {
+    public ClassDef(NameTokType name, type_params_suiteType type_params, exprType[] bases,
+    stmtType[] body, decoratorsType[] decs, keywordType[] keywords, exprType starargs, exprType
+    kwargs) {
         this.name = name;
+        this.type_params = type_params;
         this.bases = bases;
         this.body = body;
         this.decs = decs;
@@ -34,6 +37,7 @@ public final class ClassDef extends stmtType {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result + ((type_params == null) ? 0 : type_params.hashCode());
         result = prime * result + Arrays.hashCode(bases);
         result = prime * result + Arrays.hashCode(body);
         result = prime * result + Arrays.hashCode(decs);
@@ -51,6 +55,8 @@ public final class ClassDef extends stmtType {
         ClassDef other = (ClassDef) obj;
         if (name == null) { if (other.name != null) return false;}
         else if (!name.equals(other.name)) return false;
+        if (type_params == null) { if (other.type_params != null) return false;}
+        else if (!type_params.equals(other.type_params)) return false;
         if (!Arrays.equals(bases, other.bases)) return false;
         if (!Arrays.equals(body, other.body)) return false;
         if (!Arrays.equals(decs, other.decs)) return false;
@@ -107,7 +113,8 @@ public final class ClassDef extends stmtType {
             new3 = this.keywords;
         }
         ClassDef temp = new ClassDef(name!=null?(NameTokType)name.createCopy(copyComments):null,
-        new0, new1, new2, new3, starargs!=null?(exprType)starargs.createCopy(copyComments):null,
+        type_params!=null?(type_params_suiteType)type_params.createCopy(copyComments):null, new0,
+        new1, new2, new3, starargs!=null?(exprType)starargs.createCopy(copyComments):null,
         kwargs!=null?(exprType)kwargs.createCopy(copyComments):null);
         temp.beginLine = this.beginLine;
         temp.beginColumn = this.beginColumn;
@@ -135,6 +142,9 @@ public final class ClassDef extends stmtType {
         StringBuffer sb = new StringBuffer("ClassDef[");
         sb.append("name=");
         sb.append(dumpThis(this.name));
+        sb.append(", ");
+        sb.append("type_params=");
+        sb.append(dumpThis(this.type_params));
         sb.append(", ");
         sb.append("bases=");
         sb.append(dumpThis(this.bases));
@@ -166,6 +176,9 @@ public final class ClassDef extends stmtType {
     public void traverse(VisitorIF visitor) throws Exception {
         if (name != null) {
             name.accept(visitor);
+        }
+        if (type_params != null) {
+            type_params.accept(visitor);
         }
         if (bases != null) {
             for (int i = 0; i < bases.length; i++) {

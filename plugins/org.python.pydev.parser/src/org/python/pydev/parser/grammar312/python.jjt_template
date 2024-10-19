@@ -499,10 +499,10 @@ Expr eval_input(): {}
 }
 
 
-//funcdef: 'def' NAME parameters ['->' test] ':' suite
+//funcdef: 'def' NAME [type_params] parameters ['->' test] ':' suite
 void funcdef(): {}
 {
-    $DEF_START parameters() [{grammarActions.addSpecialToken("->", STRATEGY_BEFORE_NEXT);}<MINUS_GREATER> test()#funcdef_return_annottation] $COLON_END_DEF
+    $DEF_START [type_params()] parameters() [{grammarActions.addSpecialToken("->", STRATEGY_BEFORE_NEXT);}<MINUS_GREATER> test()#funcdef_return_annottation] $COLON_END_DEF
         suite()
 }
 
@@ -519,6 +519,49 @@ void decorators(): {}
 void begin_decorator(): {}
 { $AT namedexpr_test()
 }
+
+// type_params: '[' type_param_seq  ']'
+void type_params():  {}
+{ {grammarActions.findTokenAndAdd("[");}<LBRACKET>
+  [type_param_seq()]
+  {grammarActions.findTokenAndAdd("]");}<RBRACKET>
+}
+
+// type_param_seq: ','.type_param+ [',']
+
+void type_param_seq() #void: {}
+{
+    type_param() (LOOKAHEAD(2){grammarActions.findTokenAndAdd(",");}<COMMA> type_param())* [{grammarActions.findTokenAndAdd(",");}<COMMA>]
+}
+
+
+// type_param:
+//     | NAME [type_param_bound] //TypeVar
+//     | '*' NAME  //TypeVarTuple
+//     | '**' NAME //ParamSpec
+void type_param() #void: {}
+{
+    type_var()
+    | type_var_tuple()
+    | type_var_param_spec()
+
+}
+
+void type_var(): {}
+{
+	Name() [LOOKAHEAD(2)<COLON> {grammarActions.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} test()]
+}
+
+void type_var_tuple(): {}
+{
+	<MULTIPLY> Name()
+}
+
+void type_var_param_spec(): {}
+{
+	<POWER> Name()
+}
+
 
 //parameters: '(' [typedargslist] ')'
 void parameters() #void:  {}
@@ -1535,10 +1578,10 @@ void async_funcdef() #void : {}
     }
 }
 
-//classdef: 'class' NAME ['(' [arglist] ')'] ':' suite
+//classdef: 'class' NAME [type_params] ['(' [arglist] ')'] ':' suite
 void classdef(): {Token spStr;Token spStr2;}
 {
-    $START_CLASS [$LPAREN3   [arglist()] $RPAREN ] $COLON_END_DEF
+    $START_CLASS [type_params()] [$LPAREN3   [arglist()] $RPAREN ] $COLON_END_DEF
         suite()
 }
 

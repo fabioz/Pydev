@@ -32,13 +32,26 @@ public class PyParser312Test extends PyParserTestBase {
 
     }
 
+    public void testTypeVarSyntaxClass() {
+        String s = """
+                class myclass[T, Y:str]:
+                    pass
+                """;
+        parseLegalDocStr(s);
+    }
+
     public void testTypeVarSyntax() {
         String s = """
-                def f312[T](e: T) -> None: ...
-                print(f312)
+                def f312[T, Y:str](e: T) -> None: ...
                 """;
-        // TODO: Support this!
-        // parseLegalDocStr(s);
+        parseLegalDocStr(s);
+    }
+
+    public void testTypeVarSyntax2() {
+        String s = """
+                def f312[*X, **Y](e: T) -> None: ...
+                """;
+        parseLegalDocStr(s);
     }
 
 }

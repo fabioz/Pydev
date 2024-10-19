@@ -53,6 +53,7 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.NonLocal;
 import org.python.pydev.parser.jython.ast.Num;
+import org.python.pydev.parser.jython.ast.ParamSpec;
 import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.jython.ast.Print;
 import org.python.pydev.parser.jython.ast.Raise;
@@ -69,6 +70,9 @@ import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.parser.jython.ast.TryFinally;
 import org.python.pydev.parser.jython.ast.Tuple;
+import org.python.pydev.parser.jython.ast.TypeParamsSuite;
+import org.python.pydev.parser.jython.ast.TypeVar;
+import org.python.pydev.parser.jython.ast.TypeVarTuple;
 import org.python.pydev.parser.jython.ast.UnaryOp;
 import org.python.pydev.parser.jython.ast.While;
 import org.python.pydev.parser.jython.ast.With;
@@ -87,6 +91,7 @@ import org.python.pydev.parser.jython.ast.match_caseType;
 import org.python.pydev.parser.jython.ast.patternType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
+import org.python.pydev.parser.jython.ast.type_paramType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
@@ -348,6 +353,66 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
                 doc.addRequire(",", lastNode);
             }
         }
+    }
+
+    private void visitCommaSeparated(type_paramType[] elts, boolean requireEndWithCommaSingleElement) throws Exception {
+        if (elts != null) {
+            for (int i = 0; i < elts.length; i++) {
+                if (elts[i] != null) {
+                    if (i > 0) {
+                        doc.addRequire(",", lastNode);
+                    }
+                    elts[i].accept(this);
+                }
+            }
+            if (elts.length == 1 && requireEndWithCommaSingleElement) {
+                doc.addRequire(",", lastNode);
+            }
+        }
+    }
+
+    @Override
+    public Object visitTypeParamsSuite(TypeParamsSuite node) throws Exception {
+        beforeNode(node);
+        this.pushTupleNeedsParens();
+        doc.addRequire("[", node);
+        visitCommaSeparated(node.typeParams, false);
+        doc.addRequire("]", lastNode);
+        this.popTupleNeedsParens();
+        afterNode(node);
+        return null;
+    }
+
+    @Override
+    public Object visitTypeVar(TypeVar node) throws Exception {
+        beforeNode(node);
+        if (node.name != null) {
+            node.name.accept(this);
+        }
+        if (node.bound != null) {
+            doc.addRequire(":", node.bound);
+            node.bound.accept(this);
+        }
+        afterNode(node);
+        return null;
+    }
+
+    @Override
+    public Object visitTypeVarTuple(TypeVarTuple node) throws Exception {
+        beforeNode(node);
+        doc.addRequire("*", node);
+        node.accept(this);
+        afterNode(node);
+        return null;
+    }
+
+    @Override
+    public Object visitParamSpec(ParamSpec node) throws Exception {
+        beforeNode(node);
+        doc.addRequire("**", node);
+        node.accept(this);
+        afterNode(node);
+        return null;
     }
 
     @Override
@@ -981,6 +1046,10 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         doc.add(node.name.beginLine, node.beginColumn, "class", node);
         node.name.accept(this);
 
+        if (node.type_params != null) {
+            node.type_params.accept(this);
+        }
+
         int id = this.doc.pushRecordChanges();
         this.pushTupleNeedsParens();
         handleArguments(node.bases, node.keywords, node.starargs, node.kwargs);
@@ -1167,6 +1236,10 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         }
         doc.add(node.name.beginLine, node.beginColumn, "def", node);
         node.name.accept(this);
+
+        if (node.type_params != null) {
+            node.type_params.accept(this);
+        }
 
         doc.addRequire("(", lastNode);
         if (node.args != null) {

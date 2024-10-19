@@ -454,7 +454,7 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
                 + "def f():\n" +
                 "    cdef char **a_2d_char_ptr_ptr_array[10][20]\n" +
                 "",
-                "Module[body=[FunctionDef[decs=null, name=NameTok[id=f, ctx=FunctionName], args=arguments[args=[], vararg=null, kwarg=null, defaults=[], kwonlyargs=[], kw_defaults=[], annotation=[], varargannotation=null, kwargannotation=null, kwonlyargannotation=[]], returns=null, body=[], async=false]]]");
+                "Module[body=[FunctionDef[decs=null, name=NameTok[id=f, ctx=FunctionName], type_params=null, args=arguments[args=[], vararg=null, kwarg=null, defaults=[], kwonlyargs=[], kw_defaults=[], annotation=[], varargannotation=null, kwargannotation=null, kwonlyargannotation=[]], returns=null, body=[], async=false]]]");
     }
 
     public void testGenCythonAstCornerCase11() throws Exception {

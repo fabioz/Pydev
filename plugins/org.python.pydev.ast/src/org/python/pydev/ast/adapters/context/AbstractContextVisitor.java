@@ -14,12 +14,12 @@
 * Contributors:
 *     Fabio Zadrozny <fabiofz@gmail.com> - initial implementation
 ******************************************************************************/
-/* 
+/*
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
  * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  *
  * IFS Institute for Software, HSR Rapperswil, Switzerland
- * 
+ *
  */
 
 package org.python.pydev.ast.adapters.context;
@@ -162,6 +162,9 @@ public abstract class AbstractContextVisitor<T> extends VisitorBase {
             visit(node.decs);
         }
         visit(node.name);
+        if (node.type_params != null) {
+            visit(node.type_params);
+        }
         visit(node.args);
         visit(node.body);
     }

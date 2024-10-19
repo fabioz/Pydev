@@ -27,7 +27,7 @@ import org.python.pydev.shared_core.structure.Tuple;
 
 /**
  * This document is the temporary structure we create to put on the tokens and the comments.
- * 
+ *
  * It's line oriented and we should fill it with all things in the proper place (and properly indented) so
  * that we can just make a simple print later on.
  */
@@ -186,12 +186,11 @@ public class PrettyPrinterDocV2 {
     @Override
     public String toString() {
         FastStringBuffer buf = new FastStringBuffer();
-        buf.append("PrettyPrinterDocV2[\n");
         Set<Entry<Integer, PrettyPrinterDocLineEntry>> entrySet = linesToColAndContents.entrySet();
         for (Entry<Integer, PrettyPrinterDocLineEntry> entry : entrySet) {
             buf.append(entry.getKey() + ": " + entry.getValue() + "\n");
         }
-        return "PrettyPrinterDocV2[" + buf + "]";
+        return "PrettyPrinterDocV2<\n" + buf + "\n>";
     }
 
     //------------ Changes Recording
