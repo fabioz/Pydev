@@ -419,7 +419,8 @@ public class AdditionalInterpreterInfoTest extends AdditionalInfoTestsBase {
     }
 
     private ClassDef createClassDef(String name) {
-        return new ClassDef(new NameTok(name, NameTok.FunctionName), null, null, null, null, null, null);
+        return new ClassDef(new NameTok(name, NameTok.FunctionName), null, null, null,
+                null, null, null, null);
     }
 
     private IInfo assertIsIn(String req, Collection<IInfo> tokensStartingWith) {

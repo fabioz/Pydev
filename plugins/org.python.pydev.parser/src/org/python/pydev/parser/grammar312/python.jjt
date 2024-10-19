@@ -628,10 +628,10 @@ Expr eval_input(): {}
 }
 
 
-//funcdef: 'def' NAME parameters ['->' test] ':' suite
+//funcdef: 'def' NAME [type_params] parameters ['->' test] ':' suite
 void funcdef(): {}
 {
-    <DEF> {this.markLastAsSuiteStart();} Name() parameters() [{grammarActions.addSpecialToken("->", STRATEGY_BEFORE_NEXT);}<MINUS_GREATER> test()#funcdef_return_annottation] {ISpecialStr s = grammarActions.findTokenAndAdd(":"); if(s != null){grammarActions.markEndDefColon(s, jjtThis);}}<COLON>
+    <DEF> {this.markLastAsSuiteStart();} Name() [type_params()] parameters() [{grammarActions.addSpecialToken("->", STRATEGY_BEFORE_NEXT);}<MINUS_GREATER> test()#funcdef_return_annottation] {ISpecialStr s = grammarActions.findTokenAndAdd(":"); if(s != null){grammarActions.markEndDefColon(s, jjtThis);}}<COLON>
         suite()
 }
 
@@ -648,6 +648,49 @@ void decorators(): {}
 void begin_decorator(): {}
 { temporaryToken=<AT>  {grammarActions.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);} namedexpr_test()
 }
+
+// type_params: '[' type_param_seq  ']'
+void type_params():  {}
+{ {grammarActions.findTokenAndAdd("[");}<LBRACKET>
+  [type_param_seq()]
+  {grammarActions.findTokenAndAdd("]");}<RBRACKET>
+}
+
+// type_param_seq: ','.type_param+ [',']
+
+void type_param_seq() #void: {}
+{
+    type_param() (LOOKAHEAD(2){grammarActions.findTokenAndAdd(",");}<COMMA> type_param())* [{grammarActions.findTokenAndAdd(",");}<COMMA>]
+}
+
+
+// type_param:
+//     | NAME [type_param_bound] //TypeVar
+//     | '*' NAME  //TypeVarTuple
+//     | '**' NAME //ParamSpec
+void type_param() #void: {}
+{
+    type_var()
+    | type_var_tuple()
+    | type_var_param_spec()
+
+}
+
+void type_var(): {}
+{
+	Name() [LOOKAHEAD(2)<COLON> {grammarActions.addSpecialToken(":", STRATEGY_BEFORE_NEXT);} test()]
+}
+
+void type_var_tuple(): {}
+{
+	<MULTIPLY> Name()
+}
+
+void type_var_param_spec(): {}
+{
+	<POWER> Name()
+}
+
 
 //parameters: '(' [typedargslist] ')'
 void parameters() #void:  {}
@@ -1777,10 +1820,10 @@ void async_funcdef() #void : {}
     }
 }
 
-//classdef: 'class' NAME ['(' [arglist] ')'] ':' suite
+//classdef: 'class' NAME [type_params] ['(' [arglist] ')'] ':' suite
 void classdef(): {Token spStr;Token spStr2;}
 {
-    <CLASS> {this.markLastAsSuiteStart();} Name() [{temporaryToken=grammarActions.createSpecialStr("(");}<LPAREN>  {grammarActions.addSpecialToken(temporaryToken, STRATEGY_ADD_AFTER_PREV);}   [arglist()] try{{grammarActions.findTokenAndAdd(")");}<RPAREN> }catch(ParseException e){handleRParensNearButNotCurrent(e);} ] {ISpecialStr s = grammarActions.findTokenAndAdd(":"); if(s != null){grammarActions.markEndDefColon(s, jjtThis);}}<COLON>
+    <CLASS> {this.markLastAsSuiteStart();} Name() [type_params()] [{temporaryToken=grammarActions.createSpecialStr("(");}<LPAREN>  {grammarActions.addSpecialToken(temporaryToken, STRATEGY_ADD_AFTER_PREV);}   [arglist()] try{{grammarActions.findTokenAndAdd(")");}<RPAREN> }catch(ParseException e){handleRParensNearButNotCurrent(e);} ] {ISpecialStr s = grammarActions.findTokenAndAdd(":"); if(s != null){grammarActions.markEndDefColon(s, jjtThis);}}<COLON>
         suite()
 }
 

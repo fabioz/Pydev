@@ -28,6 +28,7 @@ import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.keywordType;
 import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.parser.jython.ast.type_paramType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.string.StringUtils;
@@ -55,13 +56,14 @@ public class PyAstFactory {
 
     public static FunctionDef createFunctionDefFull(NameTokType name, argumentsType args, stmtType[] body,
             decoratorsType[] decs, exprType returns, boolean async) {
-        return new FunctionDef(decs, name, args, returns, body, async);
+        return new FunctionDef(decs, name, null, args, returns, body, async);
     }
 
     public static final exprType[] EMPTY_EXPR_TYPE = new exprType[0];
     public static final keywordType[] EMPTY_KEYWORD_TYPE = new keywordType[0];
     public static final stmtType[] EMPTY_STMT_TYPE = new stmtType[0];
     public static final decoratorsType[] EMPTY_DECORATORS_TYPE = new decoratorsType[0];
+    public static final type_paramType[] EMPTY_TYPE_PARAMTYPE = new type_paramType[0];
 
     public argumentsType createEmptyArgumentsType() {
         exprType[] args = EMPTY_EXPR_TYPE;
@@ -95,7 +97,8 @@ public class PyAstFactory {
         exprType starargs = null;
         exprType kwargs = null;
 
-        ClassDef def = new ClassDef(new NameTok(name, NameTok.ClassName), bases, body, decs, keywords, starargs,
+        ClassDef def = new ClassDef(new NameTok(name, NameTok.ClassName), null, bases, body, decs,
+                keywords, starargs,
                 kwargs);
         return def;
 

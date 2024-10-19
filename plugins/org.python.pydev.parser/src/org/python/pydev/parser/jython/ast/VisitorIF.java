@@ -8,6 +8,7 @@ public interface VisitorIF {
     public Object visitExpression(Expression node) throws Exception;
     public Object visitNameTok(NameTok node) throws Exception;
     public Object visitSuite(Suite node) throws Exception;
+    public Object visitTypeParamsSuite(TypeParamsSuite node) throws Exception;
     public Object visitWithItem(WithItem node) throws Exception;
     public Object visitFunctionDef(FunctionDef node) throws Exception;
     public Object visitClassDef(ClassDef node) throws Exception;
@@ -72,4 +73,7 @@ public interface VisitorIF {
     public Object visitMatchKeyVal(MatchKeyVal node) throws Exception;
     public Object visitMatchAs(MatchAs node) throws Exception;
     public Object visitMatchOr(MatchOr node) throws Exception;
+    public Object visitTypeVar(TypeVar node) throws Exception;
+    public Object visitParamSpec(ParamSpec node) throws Exception;
+    public Object visitTypeVarTuple(TypeVarTuple node) throws Exception;
 }

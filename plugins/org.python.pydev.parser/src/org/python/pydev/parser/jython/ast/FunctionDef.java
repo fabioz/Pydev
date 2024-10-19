@@ -8,6 +8,7 @@ import org.python.pydev.parser.jython.ISpecialStr;
 public final class FunctionDef extends stmtType {
     public decoratorsType[] decs;
     public NameTokType name;
+    public type_params_suiteType type_params;
     public argumentsType args;
     public exprType returns;
     public stmtType[] body;
@@ -17,10 +18,11 @@ public final class FunctionDef extends stmtType {
     // Hack: nor anything else besides being a marker token). 
     public ISpecialStr colonDefEnd;
 
-    public FunctionDef(decoratorsType[] decs, NameTokType name, argumentsType args, exprType
-    returns, stmtType[] body, boolean async) {
+    public FunctionDef(decoratorsType[] decs, NameTokType name, type_params_suiteType type_params,
+    argumentsType args, exprType returns, stmtType[] body, boolean async) {
         this.decs = decs;
         this.name = name;
+        this.type_params = type_params;
         this.args = args;
         this.returns = returns;
         this.body = body;
@@ -33,6 +35,7 @@ public final class FunctionDef extends stmtType {
         int result = 1;
         result = prime * result + Arrays.hashCode(decs);
         result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result + ((type_params == null) ? 0 : type_params.hashCode());
         result = prime * result + ((args == null) ? 0 : args.hashCode());
         result = prime * result + ((returns == null) ? 0 : returns.hashCode());
         result = prime * result + Arrays.hashCode(body);
@@ -49,6 +52,8 @@ public final class FunctionDef extends stmtType {
         if (!Arrays.equals(decs, other.decs)) return false;
         if (name == null) { if (other.name != null) return false;}
         else if (!name.equals(other.name)) return false;
+        if (type_params == null) { if (other.type_params != null) return false;}
+        else if (!type_params.equals(other.type_params)) return false;
         if (args == null) { if (other.args != null) return false;}
         else if (!args.equals(other.args)) return false;
         if (returns == null) { if (other.returns != null) return false;}
@@ -84,6 +89,7 @@ public final class FunctionDef extends stmtType {
         }
         FunctionDef temp = new FunctionDef(new0,
         name!=null?(NameTokType)name.createCopy(copyComments):null,
+        type_params!=null?(type_params_suiteType)type_params.createCopy(copyComments):null,
         args!=null?(argumentsType)args.createCopy(copyComments):null,
         returns!=null?(exprType)returns.createCopy(copyComments):null, new1, async);
         temp.beginLine = this.beginLine;
@@ -116,6 +122,9 @@ public final class FunctionDef extends stmtType {
         sb.append("name=");
         sb.append(dumpThis(this.name));
         sb.append(", ");
+        sb.append("type_params=");
+        sb.append(dumpThis(this.type_params));
+        sb.append(", ");
         sb.append("args=");
         sb.append(dumpThis(this.args));
         sb.append(", ");
@@ -147,6 +156,9 @@ public final class FunctionDef extends stmtType {
         }
         if (name != null) {
             name.accept(visitor);
+        }
+        if (type_params != null) {
+            type_params.accept(visitor);
         }
         if (args != null) {
             args.accept(visitor);

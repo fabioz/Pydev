@@ -44,6 +44,7 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.NamedExpr;
 import org.python.pydev.parser.jython.ast.NonLocal;
+import org.python.pydev.parser.jython.ast.ParamSpec;
 import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.jython.ast.Raise;
 import org.python.pydev.parser.jython.ast.Return;
@@ -55,6 +56,9 @@ import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.parser.jython.ast.TryFinally;
 import org.python.pydev.parser.jython.ast.Tuple;
+import org.python.pydev.parser.jython.ast.TypeParamsSuite;
+import org.python.pydev.parser.jython.ast.TypeVar;
+import org.python.pydev.parser.jython.ast.TypeVarTuple;
 import org.python.pydev.parser.jython.ast.While;
 import org.python.pydev.parser.jython.ast.Yield;
 import org.python.pydev.parser.jython.ast.argumentsType;
@@ -67,6 +71,7 @@ import org.python.pydev.parser.jython.ast.patternType;
 import org.python.pydev.parser.jython.ast.sliceType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
+import org.python.pydev.parser.jython.ast.type_paramType;
 
 public final class TreeBuilder312 extends AbstractTreeBuilder implements ITreeBuilder, ITreeConstants {
 
@@ -280,10 +285,22 @@ public final class TreeBuilder312 extends AbstractTreeBuilder implements ITreeBu
                     Collections.reverse(classDefKeywords);
                 }
 
-                exprType[] bases = makeExprs(nodeArity);
+                java.util.List<exprType> basesAsList = new ArrayList<>();
+                TypeParamsSuite typeParamsSuite = null;
+                for (int i = nodeArity - 1; i >= 0; i--) {
+                    lastPop = stack.popNode();
+                    if (lastPop instanceof TypeParamsSuite) {
+                        typeParamsSuite = (TypeParamsSuite) lastPop;
+                    } else {
+                        basesAsList.add((exprType) lastPop);
+                    }
+                }
+                Collections.reverse(basesAsList);
+
                 nameTok = makeNameTok(NameTok.ClassName);
+                exprType[] bases = basesAsList.toArray(new exprType[0]);
                 //decorator is always null at this point... it's decorated later on
-                ClassDef classDef = new ClassDef(nameTok, bases, body, null,
+                ClassDef classDef = new ClassDef(nameTok, typeParamsSuite, bases, body, null,
                         classDefKeywords.toArray(new keywordType[classDefKeywords.size()]), starargs, kwargs);
 
                 addSpecialsAndClearOriginal(suite, classDef);
@@ -689,7 +706,7 @@ public final class TreeBuilder312 extends AbstractTreeBuilder implements ITreeBu
                     Collections.reverse(lst);
                     return new MatchMapping(lst.toArray(new patternType[0]), rest);
                 }
-                addAndReportException(MatchKeyVal.class.getName());
+                addAndReportException(MatchMapping.class.getName());
                 return new MatchMapping(new patternType[0], null);
 
             case JJTLIST_PATTERN:
@@ -716,7 +733,7 @@ public final class TreeBuilder312 extends AbstractTreeBuilder implements ITreeBu
                         return new MatchValue(attr);
                     }
                 }
-                addAndReportException(Attribute.class.getName());
+                addAndReportException(MatchValue.class.getName());
                 return getDefaultInvalidExpr();
 
             case JJTCLASS_PATTERN:
@@ -756,7 +773,7 @@ public final class TreeBuilder312 extends AbstractTreeBuilder implements ITreeBu
                     Name name = makeName(Name.Store);
                     return new Starred(name, name.ctx);
                 }
-                addAndReportException(SimpleNode.class.getName());
+                addAndReportException(Starred.class.getName());
                 return new Starred(getDefaultInvalidExpr(), 0);
 
             case JJTOPEN_SEQUENCE_PATTERN:
@@ -776,8 +793,34 @@ public final class TreeBuilder312 extends AbstractTreeBuilder implements ITreeBu
                     }
                     return new MatchSequence(patterns, 0);
                 }
-                addAndReportException(SimpleNode.class.getName());
+                addAndReportException(MatchSequence.class.getName());
                 return new MatchSequence(new patternType[0], 0);
+            case JJTTYPE_VAR:
+                exprType bound = null;
+                exprType defaultValue = null;
+                if (arity >= 3) {
+                    defaultValue = (exprType) stack.popNode();
+                }
+
+                if (arity >= 2) {
+                    bound = (exprType) stack.popNode();
+                }
+                return new TypeVar(makeNameTok(NameTok.TypeVarName), bound, defaultValue);
+
+            case JJTTYPE_VAR_PARAM_SPEC:
+                return new ParamSpec(makeNameTok(NameTok.TypeVarName), null);
+
+            case JJTTYPE_VAR_TUPLE:
+                return new TypeVarTuple(makeNameTok(NameTok.TypeVarName), null);
+
+            case JJTTYPE_PARAMS:
+                java.util.List<type_paramType> typeParams = new ArrayList<>();
+                while (arity > 0) {
+                    arity--;
+                    typeParams.add((type_paramType) stack.popNode());
+                }
+                Collections.reverse(typeParams);
+                return new TypeParamsSuite(typeParams.toArray(new type_paramType[0]));
 
             default:
                 Log.log(("Error at TreeBuilder: default not treated:" + n.getId()));

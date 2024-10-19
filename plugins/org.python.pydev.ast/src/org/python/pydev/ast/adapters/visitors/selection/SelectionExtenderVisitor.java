@@ -306,6 +306,9 @@ public class SelectionExtenderVisitor extends VisitorBase {
     @Override
     public Object visitFunctionDef(FunctionDef node) throws Exception {
         visit(node.name);
+        if (node.type_params != null) {
+            visit(node.type_params);
+        }
         visit(node.args);
         visit(node.body);
         extendLast(node);
@@ -316,6 +319,9 @@ public class SelectionExtenderVisitor extends VisitorBase {
     @Override
     public Object visitClassDef(ClassDef node) throws Exception {
         visit(node.name);
+        if (node.type_params != null) {
+            node.type_params.accept(this);
+        }
         visit(node.bases);
         visit(node.body);
         extendLast(node);

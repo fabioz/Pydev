@@ -336,7 +336,8 @@ public final class FastParser {
     }
 
     private ClassDef createClassDef(int lastReturnedLine, NameTok nameTok, int matchedCol) {
-        ClassDef classDef = new ClassDef(nameTok, PyAstFactory.EMPTY_EXPR_TYPE, PyAstFactory.EMPTY_STMT_TYPE, null,
+        ClassDef classDef = new ClassDef(nameTok, null, PyAstFactory.EMPTY_EXPR_TYPE,
+                PyAstFactory.EMPTY_STMT_TYPE, null,
                 null, null,
                 null);
         classDef.beginLine = lastReturnedLine + 1;

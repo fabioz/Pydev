@@ -61,6 +61,7 @@ import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.NamedExpr;
 import org.python.pydev.parser.jython.ast.NonLocal;
 import org.python.pydev.parser.jython.ast.Num;
+import org.python.pydev.parser.jython.ast.ParamSpec;
 import org.python.pydev.parser.jython.ast.Pass;
 import org.python.pydev.parser.jython.ast.Print;
 import org.python.pydev.parser.jython.ast.Raise;
@@ -76,6 +77,9 @@ import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.parser.jython.ast.TryFinally;
+import org.python.pydev.parser.jython.ast.TypeParamsSuite;
+import org.python.pydev.parser.jython.ast.TypeVar;
+import org.python.pydev.parser.jython.ast.TypeVarTuple;
 import org.python.pydev.parser.jython.ast.UnaryOp;
 import org.python.pydev.parser.jython.ast.VisitorIF;
 import org.python.pydev.parser.jython.ast.While;
@@ -840,6 +844,42 @@ public class FindDuplicatesVisitor implements VisitorIF {
 
     @Override
     public Object visitMatchKeyVal(MatchKeyVal node) throws Exception {
+        boolean ret = unhandled_node(node);
+        if (ret) {
+            traverse(node);
+        }
+        return null;
+    }
+
+    @Override
+    public Object visitTypeVar(TypeVar node) throws Exception {
+        boolean ret = unhandled_node(node);
+        if (ret) {
+            traverse(node);
+        }
+        return null;
+    }
+
+    @Override
+    public Object visitParamSpec(ParamSpec node) throws Exception {
+        boolean ret = unhandled_node(node);
+        if (ret) {
+            traverse(node);
+        }
+        return null;
+    }
+
+    @Override
+    public Object visitTypeVarTuple(TypeVarTuple node) throws Exception {
+        boolean ret = unhandled_node(node);
+        if (ret) {
+            traverse(node);
+        }
+        return null;
+    }
+
+    @Override
+    public Object visitTypeParamsSuite(TypeParamsSuite node) throws Exception {
         boolean ret = unhandled_node(node);
         if (ret) {
             traverse(node);

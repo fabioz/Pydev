@@ -587,7 +587,8 @@ public final class FastDefinitionsParser {
         nameTok.beginLine = startClassRow;
         nameTok.beginColumn = nameCol;
 
-        ClassDef classDef = new ClassDef(nameTok, null, null, null, null, null, null);
+        ClassDef classDef = new ClassDef(nameTok, null, null, null, null, null, null,
+                null);
         classDef.beginLine = startClassRow;
         classDef.beginColumn = startClassCol;
 
