@@ -253,6 +253,11 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
 
         handleDecorators(node.decs);
 
+        // visit typed params. i.e.: class A[T]
+        if (node.type_params != null) {
+            node.type_params.accept(visitor);
+        }
+
         //we want to visit the bases before actually starting the class scope (as it's as if they're attribute
         //accesses).
         if (node.bases != null) {
@@ -383,6 +388,11 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
         addToNamesToIgnore(node, false, true);
 
         AbstractScopeAnalyzerVisitor visitor = this;
+        // visit typed params. i.e.: def func[T](arg: t):
+        if (node.type_params != null) {
+            node.type_params.accept(visitor);
+        }
+
         argumentsType args = node.args;
 
         //visit the defaults first (before starting the scope, because this is where the load of variables from other scopes happens)
@@ -566,7 +576,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
     @Override
     public Object visitNameTok(NameTok nameTok) throws Exception {
         unhandled_node(nameTok);
-        if (nameTok.ctx == NameTok.VarArg || nameTok.ctx == NameTok.KwArg) {
+        if (nameTok.ctx == NameTok.VarArg || nameTok.ctx == NameTok.KwArg || nameTok.ctx == NameTok.TypeVarName) {
             SourceToken token = AbstractVisitor.makeToken(nameTok, moduleName, nature, this.current);
             scope.addToken(token, token, (nameTok).id);
             if (checkCurrentScopeForAssignmentsToBuiltins()) {
