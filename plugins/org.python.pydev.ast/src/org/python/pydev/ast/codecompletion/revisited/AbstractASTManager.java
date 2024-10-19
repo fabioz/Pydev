@@ -1059,7 +1059,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
             Subscript subscript = (Subscript) node;
             String rep = NodeUtils.getFullRepresentationString(subscript.value);
             if (rep != null && !rep.isBlank()) {
-                if (rep.equals("Union") || rep.endsWith(".Union")) {
+                if (rep.equals("Union") || rep.endsWith(".Union") || rep.equals("Annotated")
+                        || rep.endsWith(".Annotated")) {
                     return true;
                 }
             }
