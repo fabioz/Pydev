@@ -3,7 +3,7 @@
 	
 
 	<property environment="env"/>
-    <property name="javaccHome" value="${env.GRAMMAR_JAVACC_DIR}"/>
+    <property name="javaccHome" value="../../../../../../javacc"/>
     <property name="python" value="${env.GRAMMAR_PYTHON_EXE}" />
     <property name="basedir" value="." />
     <property name="parser.dir" value="${basedir}" />
