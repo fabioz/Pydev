@@ -70,6 +70,7 @@ import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.parser.jython.ast.TryFinally;
 import org.python.pydev.parser.jython.ast.Tuple;
+import org.python.pydev.parser.jython.ast.TypeAlias;
 import org.python.pydev.parser.jython.ast.TypeParamsSuite;
 import org.python.pydev.parser.jython.ast.TypeVar;
 import org.python.pydev.parser.jython.ast.TypeVarTuple;
@@ -378,6 +379,26 @@ public final class PrettyPrinterVisitorV2 extends PrettyPrinterUtilsV2 {
         doc.addRequire("[", node);
         visitCommaSeparated(node.typeParams, false);
         doc.addRequire("]", lastNode);
+        this.popTupleNeedsParens();
+        afterNode(node);
+        return null;
+    }
+
+    @Override
+    public Object visitTypeAlias(TypeAlias node) throws Exception {
+        beforeNode(node);
+        this.pushTupleNeedsParens();
+        doc.addRequire("type ", node);
+        if (node.name != null) {
+            node.name.accept(this);
+        }
+        if (node.type_params != null) {
+            node.type_params.accept(this);
+        }
+        doc.addRequire("=", lastNode);
+        if (node.value != null) {
+            node.value.accept(this);
+        }
         this.popTupleNeedsParens();
         afterNode(node);
         return null;

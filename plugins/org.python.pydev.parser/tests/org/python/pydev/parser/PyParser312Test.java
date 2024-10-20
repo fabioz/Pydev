@@ -54,4 +54,17 @@ public class PyParser312Test extends PyParserTestBase {
         parseLegalDocStr(s);
     }
 
+    public void testTypeSyntax() {
+        String s = """
+                type Point[T, Y] = tuple[T, Y]
+                """;
+        parseLegalDocStr(s);
+    }
+
+    public void testTypeNameStillValidSyntax() {
+        String s = """
+                print(type(int))
+                """;
+        parseLegalDocStr(s);
+    }
 }

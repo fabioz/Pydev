@@ -16,7 +16,7 @@ module Python
 
 	NameTok = NameTok(identifier id, name_context ctx)
 
-	name_context = ClassName | FunctionName | KeywordName | ImportName | VarArg | KwArg | ImportModule | Attrib | GlobalName | NonLocalName | TypeVarName
+	name_context = ClassName | FunctionName | KeywordName | ImportName | VarArg | KwArg | ImportModule | Attrib | GlobalName | NonLocalName | TypeVarName | TypeAliasName
 
 	-- the body is an array of statements (this is not used for all constructs because initially the suite was 'inlined'
 	-- in the constructs, but some information was lost in this way).
@@ -33,6 +33,8 @@ module Python
 	      | Delete(expr* targets)
 	      | Assign(expr* targets, expr value, expr? type)
 	      | AugAssign(expr target, operator op, expr value)
+
+	      | TypeAlias(NameTok name, type_params_suite? type_params, expr value)
 
 	      -- not sure if bool is allowed, can always use int
  	      | Print(expr? dest, expr* values, bool nl)

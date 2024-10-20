@@ -364,6 +364,7 @@ TOKEN : /* KEYWORDS */
 |   < RAISE: "raise" >
 |   < GLOBAL: "global" >
 |   < NONLOCAL: "nonlocal" >
+|   < TYPE: "type" >
 |   < ASSERT: "assert" >
 |   < AS: "as" >
 |   < WITH: "with" >
@@ -649,6 +650,13 @@ void begin_decorator(): {}
 { temporaryToken=<AT>  {grammarActions.addSpecialToken(temporaryToken, STRATEGY_BEFORE_NEXT);} namedexpr_test()
 }
 
+// type_alias:
+//     | "type" NAME [type_params] '=' expression
+void type_alias():  {}
+{
+	<TYPE> Name() [type_params()] {grammarActions.addSpecialToken("=", STRATEGY_BEFORE_NEXT);} <EQUAL> expr()
+}
+
 // type_params: '[' type_param_seq  ']'
 void type_params():  {}
 { {grammarActions.findTokenAndAdd("[");}<LBRACKET>
@@ -892,6 +900,9 @@ void stmt() #void: {}
     	LOOKAHEAD(match_stmt())
     	match_stmt()
     |
+    	LOOKAHEAD(type_alias())
+    	type_alias()
+    |
         non_async_stmt()
 }
 
@@ -919,7 +930,7 @@ void simple_stmt() #void: {}
 
 
 
-//small_stmt: expr_stmt | del_stmt | pass_stmt | flow_stmt | import_stmt | global_stmt | nonlocal_stmt | assert_stmt
+//small_stmt: expr_stmt | del_stmt | pass_stmt | flow_stmt | import_stmt | global_stmt | nonlocal_stmt | assert_stmt | type_alias
 void small_stmt() #void: {SimpleNode simpleNode;Token spStr;}
 {
     expr_stmt()
@@ -1920,6 +1931,8 @@ Token Name() #Name:
          	t = <MATCH>
          |
          	t = <CASE>
+         |
+         	t = <TYPE>
         )
     }catch(ParseException e){
         t = handleErrorInName(e);

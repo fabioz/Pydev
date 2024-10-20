@@ -172,4 +172,6 @@ public interface ITreeConstants {
     public static final int JJTTYPE_VAR = 664;
     public static final int JJTTYPE_VAR_TUPLE = 665;
     public static final int JJTTYPE_VAR_PARAM_SPEC = 666;
+    public static final int JJTTYPE_ALIAS = 667;
+
 }

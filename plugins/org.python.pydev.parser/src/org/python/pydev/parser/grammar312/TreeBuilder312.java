@@ -56,6 +56,7 @@ import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.parser.jython.ast.TryFinally;
 import org.python.pydev.parser.jython.ast.Tuple;
+import org.python.pydev.parser.jython.ast.TypeAlias;
 import org.python.pydev.parser.jython.ast.TypeParamsSuite;
 import org.python.pydev.parser.jython.ast.TypeVar;
 import org.python.pydev.parser.jython.ast.TypeVarTuple;
@@ -72,6 +73,7 @@ import org.python.pydev.parser.jython.ast.sliceType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
 import org.python.pydev.parser.jython.ast.type_paramType;
+import org.python.pydev.parser.jython.ast.type_params_suiteType;
 
 public final class TreeBuilder312 extends AbstractTreeBuilder implements ITreeBuilder, ITreeConstants {
 
@@ -821,6 +823,18 @@ public final class TreeBuilder312 extends AbstractTreeBuilder implements ITreeBu
                 }
                 Collections.reverse(typeParams);
                 return new TypeParamsSuite(typeParams.toArray(new type_paramType[0]));
+
+            case JJTTYPE_ALIAS:
+                defaultValue = null;
+                if (arity >= 3) {
+                    defaultValue = (exprType) stack.popNode();
+                }
+
+                type_params_suiteType t = null;
+                if (arity >= 2) {
+                    t = (type_params_suiteType) stack.popNode();
+                }
+                return new TypeAlias(makeNameTok(NameTok.TypeAliasName), t, defaultValue);
 
             default:
                 Log.log(("Error at TreeBuilder: default not treated:" + n.getId()));

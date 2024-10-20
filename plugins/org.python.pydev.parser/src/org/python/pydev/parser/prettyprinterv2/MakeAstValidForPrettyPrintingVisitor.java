@@ -73,6 +73,7 @@ import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.parser.jython.ast.TryFinally;
 import org.python.pydev.parser.jython.ast.Tuple;
+import org.python.pydev.parser.jython.ast.TypeAlias;
 import org.python.pydev.parser.jython.ast.TypeParamsSuite;
 import org.python.pydev.parser.jython.ast.TypeVar;
 import org.python.pydev.parser.jython.ast.TypeVarTuple;
@@ -120,6 +121,14 @@ public class MakeAstValidForPrettyPrintingVisitor extends VisitorBase {
     @Override
     protected Object unhandled_node(SimpleNode node) throws Exception {
         throw new RuntimeException("Unhandled: " + node);
+    }
+
+    @Override
+    public Object visitTypeAlias(TypeAlias node) throws Exception {
+        fixNode(node);
+        traverse(node);
+        fixAfterNode(node);
+        return null;
     }
 
     @Override

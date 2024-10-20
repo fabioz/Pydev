@@ -62,4 +62,14 @@ public class OccurrencesAnalyzerPy312Test extends AnalysisTestsBase {
         checkNoError();
     }
 
+    public void testTypeAlias() {
+        doc = new Document("""
+                type Point[T, Y] = tuple[T, Y]
+
+                def method(arg: Point[int, int]):
+                    print(type(arg))
+                """);
+        checkNoError();
+    }
+
 }

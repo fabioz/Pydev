@@ -77,6 +77,7 @@ import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.Suite;
 import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.parser.jython.ast.TryFinally;
+import org.python.pydev.parser.jython.ast.TypeAlias;
 import org.python.pydev.parser.jython.ast.TypeParamsSuite;
 import org.python.pydev.parser.jython.ast.TypeVar;
 import org.python.pydev.parser.jython.ast.TypeVarTuple;
@@ -880,6 +881,15 @@ public class FindDuplicatesVisitor implements VisitorIF {
 
     @Override
     public Object visitTypeParamsSuite(TypeParamsSuite node) throws Exception {
+        boolean ret = unhandled_node(node);
+        if (ret) {
+            traverse(node);
+        }
+        return null;
+    }
+
+    @Override
+    public Object visitTypeAlias(TypeAlias node) throws Exception {
         boolean ret = unhandled_node(node);
         if (ret) {
             traverse(node);

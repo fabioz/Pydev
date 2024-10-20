@@ -38,4 +38,11 @@ public class PrettyPrinter312Test extends AbstractPrettyPrinterTestBase {
                 """;
         checkPrettyPrintEqual(s);
     }
+
+    public void testTypeAlias() {
+        String s = """
+                type Point[X,Y]=tuple[X,Y]
+                """;
+        checkPrettyPrintEqual(s);
+    }
 }

@@ -181,75 +181,77 @@ public interface PythonGrammar312Constants {
   /** RegularExpression Id. */
   int NONLOCAL = 91;
   /** RegularExpression Id. */
-  int ASSERT = 92;
+  int TYPE = 92;
   /** RegularExpression Id. */
-  int AS = 93;
+  int ASSERT = 93;
   /** RegularExpression Id. */
-  int WITH = 94;
+  int AS = 94;
   /** RegularExpression Id. */
-  int FALSE = 95;
+  int WITH = 95;
   /** RegularExpression Id. */
-  int TRUE = 96;
+  int FALSE = 96;
   /** RegularExpression Id. */
-  int NONE = 97;
+  int TRUE = 97;
   /** RegularExpression Id. */
-  int AT = 98;
+  int NONE = 98;
   /** RegularExpression Id. */
-  int MATCH = 99;
+  int AT = 99;
   /** RegularExpression Id. */
-  int CASE = 100;
+  int MATCH = 100;
   /** RegularExpression Id. */
-  int NAME = 101;
+  int CASE = 101;
   /** RegularExpression Id. */
-  int LETTER = 102;
+  int NAME = 102;
   /** RegularExpression Id. */
-  int DECNUMBER = 103;
+  int LETTER = 103;
   /** RegularExpression Id. */
-  int HEXNUMBER = 104;
+  int DECNUMBER = 104;
   /** RegularExpression Id. */
-  int OCTNUMBER = 105;
+  int HEXNUMBER = 105;
   /** RegularExpression Id. */
-  int BINNUMBER = 106;
+  int OCTNUMBER = 106;
   /** RegularExpression Id. */
-  int FLOAT = 107;
+  int BINNUMBER = 107;
   /** RegularExpression Id. */
-  int COMPLEX = 108;
+  int FLOAT = 108;
   /** RegularExpression Id. */
-  int EXPONENT = 109;
+  int COMPLEX = 109;
   /** RegularExpression Id. */
-  int DIGIT = 110;
+  int EXPONENT = 110;
   /** RegularExpression Id. */
-  int SINGLE_STRING = 135;
+  int DIGIT = 111;
   /** RegularExpression Id. */
-  int SINGLE_STRING2 = 136;
+  int SINGLE_STRING = 136;
   /** RegularExpression Id. */
-  int TRIPLE_STRING = 137;
+  int SINGLE_STRING2 = 137;
   /** RegularExpression Id. */
-  int TRIPLE_STRING2 = 138;
+  int TRIPLE_STRING = 138;
   /** RegularExpression Id. */
-  int SINGLE_BSTRING = 139;
+  int TRIPLE_STRING2 = 139;
   /** RegularExpression Id. */
-  int SINGLE_BSTRING2 = 140;
+  int SINGLE_BSTRING = 140;
   /** RegularExpression Id. */
-  int TRIPLE_BSTRING = 141;
+  int SINGLE_BSTRING2 = 141;
   /** RegularExpression Id. */
-  int TRIPLE_BSTRING2 = 142;
+  int TRIPLE_BSTRING = 142;
   /** RegularExpression Id. */
-  int SINGLE_FSTRING = 143;
+  int TRIPLE_BSTRING2 = 143;
   /** RegularExpression Id. */
-  int SINGLE_FSTRING2 = 144;
+  int SINGLE_FSTRING = 144;
   /** RegularExpression Id. */
-  int TRIPLE_FSTRING = 145;
+  int SINGLE_FSTRING2 = 145;
   /** RegularExpression Id. */
-  int TRIPLE_FSTRING2 = 146;
+  int TRIPLE_FSTRING = 146;
   /** RegularExpression Id. */
-  int SINGLE_USTRING = 147;
+  int TRIPLE_FSTRING2 = 147;
   /** RegularExpression Id. */
-  int SINGLE_USTRING2 = 148;
+  int SINGLE_USTRING = 148;
   /** RegularExpression Id. */
-  int TRIPLE_USTRING = 149;
+  int SINGLE_USTRING2 = 149;
   /** RegularExpression Id. */
-  int TRIPLE_USTRING2 = 150;
+  int TRIPLE_USTRING = 150;
+  /** RegularExpression Id. */
+  int TRIPLE_USTRING2 = 151;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -406,6 +408,7 @@ public interface PythonGrammar312Constants {
     "\"raise\"",
     "\"global\"",
     "\"nonlocal\"",
+    "\"type\"",
     "\"assert\"",
     "\"as\"",
     "\"with\"",
@@ -425,7 +428,6 @@ public interface PythonGrammar312Constants {
     "<COMPLEX>",
     "<EXPONENT>",
     "<DIGIT>",
-    "<token of kind 111>",
     "<token of kind 112>",
     "<token of kind 113>",
     "<token of kind 114>",
@@ -449,6 +451,7 @@ public interface PythonGrammar312Constants {
     "<token of kind 132>",
     "<token of kind 133>",
     "<token of kind 134>",
+    "<token of kind 135>",
     "\"\\\'\"",
     "\"\\\"\"",
     "\"\\\'\\\'\\\'\"",
@@ -466,21 +469,21 @@ public interface PythonGrammar312Constants {
     "\"\\\'\\\'\\\'\"",
     "\"\\\"\\\"\\\"\"",
     "\"\\\\\\r\\n\"",
-    "<token of kind 152>",
+    "<token of kind 153>",
     "\"\\\\\\r\\n\"",
-    "<token of kind 154>",
+    "<token of kind 155>",
     "\"\\\\\\r\\n\"",
-    "<token of kind 156>",
+    "<token of kind 157>",
     "\"\\\\\\r\\n\"",
-    "<token of kind 158>",
+    "<token of kind 159>",
     "\"\\\\\\r\\n\"",
-    "<token of kind 160>",
+    "<token of kind 161>",
     "\"\\\\\\r\\n\"",
-    "<token of kind 162>",
+    "<token of kind 163>",
     "\"\\\\\\r\\n\"",
-    "<token of kind 164>",
+    "<token of kind 165>",
     "\"\\\\\\r\\n\"",
-    "<token of kind 166>",
+    "<token of kind 167>",
     "\"\"",
     "\"\"",
     "\"\"",
@@ -489,13 +492,13 @@ public interface PythonGrammar312Constants {
     "\"\"",
     "\"\"",
     "\"\"",
-    "<token of kind 175>",
     "<token of kind 176>",
+    "<token of kind 177>",
     "\"\\r\\n\"",
     "\"\\n\"",
     "\"\\r\"",
-    "<token of kind 180>",
     "<token of kind 181>",
+    "<token of kind 182>",
   };
 
 }

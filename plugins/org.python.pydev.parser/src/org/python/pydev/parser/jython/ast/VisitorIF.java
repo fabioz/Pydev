@@ -16,6 +16,7 @@ public interface VisitorIF {
     public Object visitDelete(Delete node) throws Exception;
     public Object visitAssign(Assign node) throws Exception;
     public Object visitAugAssign(AugAssign node) throws Exception;
+    public Object visitTypeAlias(TypeAlias node) throws Exception;
     public Object visitPrint(Print node) throws Exception;
     public Object visitFor(For node) throws Exception;
     public Object visitWhile(While node) throws Exception;

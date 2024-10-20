@@ -16,6 +16,7 @@ public interface ISimpleNodeSwitch {
     public void visit(Delete node);
     public void visit(Assign node);
     public void visit(AugAssign node);
+    public void visit(TypeAlias node);
     public void visit(Print node);
     public void visit(For node);
     public void visit(While node);
