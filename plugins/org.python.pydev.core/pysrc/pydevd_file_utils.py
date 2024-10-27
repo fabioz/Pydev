@@ -963,3 +963,16 @@ def get_package_dir(mod_name):
         if os.path.isdir(mod_path):
             return mod_path
     return None
+
+
+PYDEVD_ROOT_PATH = get_abs_path_real_path_and_base_from_file(os.path.dirname(__file__))[1]
+
+
+def is_pydevd_path(path, _cache={}) -> bool:
+    try:
+        return _cache[path]
+    except KeyError:
+        # Return true if this file is rooted in the pydevd directory.
+        f: str = get_abs_path_real_path_and_base_from_file(path)[1]
+        b = _cache[path] = f.startswith(PYDEVD_ROOT_PATH)
+        return b
