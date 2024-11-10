@@ -96,10 +96,9 @@ public class HierarchyTestCase extends CodeCompletionTestsBase {
             actual.add(adapter.getName());
         }
         HashSet<String> expected = new HashSet<String>();
+        expected.add("Reversible");
         expected.add("MyList2");
-        expected.add("Container");
         expected.add("Iterable");
-        expected.add("Collection");
         expected.add("MutableSequence");
         expected.add("Sequence");
         expected.add("list");
