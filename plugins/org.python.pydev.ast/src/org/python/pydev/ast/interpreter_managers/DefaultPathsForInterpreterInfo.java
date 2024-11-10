@@ -45,6 +45,10 @@ public class DefaultPathsForInterpreterInfo {
         return !isChildOfRootPath(data, rootPaths);
     }
 
+    public boolean forceDeselect(String data) {
+        return isRootPath(data, rootPaths);
+    }
+
     public boolean exists(String data) {
         return new File(data).exists();
     }
@@ -63,6 +67,21 @@ public class DefaultPathsForInterpreterInfo {
             if (FileUtils.isPrefixOf(p, path)) {
                 return true;
             }
+            try {
+                if (Files.isSameFile(nativePath, p.toFile().toPath())) {
+                    return true;
+                }
+            } catch (IOException e) {
+                Log.log(e);
+            }
+        }
+        return false;
+    }
+
+    public static boolean isRootPath(String data, Set<IPath> rootPaths) {
+        java.nio.file.Path nativePath = new File(data).toPath();
+
+        for (IPath p : rootPaths) {
             try {
                 if (Files.isSameFile(nativePath, p.toFile().toPath())) {
                     return true;

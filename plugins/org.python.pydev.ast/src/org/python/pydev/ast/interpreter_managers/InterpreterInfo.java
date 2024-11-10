@@ -35,6 +35,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SafeRunner;
@@ -375,6 +376,8 @@ public class InterpreterInfo implements IInterpreterInfo {
                     DefaultPathsForInterpreterInfo defaultPaths = new DefaultPathsForInterpreterInfo(
                             resolvingInterpreter);
 
+                    Set<IPath> pythonHomePaths = new HashSet<>();
+
                     for (int j = 0; j < xmlNodes.getLength(); j++) {
                         Node xmlChild = xmlNodes.item(j);
                         String name = xmlChild.getNodeName();
@@ -387,6 +390,14 @@ public class InterpreterInfo implements IInterpreterInfo {
 
                         } else if ("executable".equals(name)) {
                             infoExecutable = data;
+
+                            // Handling of python inside of project.
+                            File pythonExecutableFile = new File(infoExecutable);
+                            File pythonHome = pythonExecutableFile.getParentFile();
+                            if (new File(pythonHome, "pyenv.cfg").exists()) {
+                                pythonHome = pythonHome.getParentFile();
+                            }
+                            pythonHomePaths.add(Path.fromOSString(pythonHome.toString()));
 
                         } else if ("vmArgs".equals(name)) {
                             infoVmArgs = data;
@@ -410,10 +421,17 @@ public class InterpreterInfo implements IInterpreterInfo {
                                     if (askUserInOutPath) {
                                         toAsk.add(data);
                                     }
-                                    //Select only if path is not child of a root path
-                                    if (defaultPaths.selectByDefault(data)) {
-                                        selection.add(data);
+
+                                    if (!defaultPaths.forceDeselect(data)) { // It's directly a project source folder (don't add it).
+                                        // If it's site-package, in python home or not under a source folder add it.
+                                        if (data.contains("site-packages")
+                                                || (DefaultPathsForInterpreterInfo
+                                                        .isChildOfRootPath(data, pythonHomePaths))
+                                                || defaultPaths.selectByDefault(data)) {
+                                            selection.add(data);
+                                        }
                                     }
+
                                 }
 
                             } else {
