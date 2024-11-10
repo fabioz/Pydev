@@ -314,6 +314,45 @@ public class InterpreterInfo implements IInterpreterInfo {
         return this.executableOrJar.hashCode();
     }
 
+    public static class HelperToComputeIfPathIsInInterpreter {
+
+        Set<IPath> pythonHomePaths = new HashSet<>();
+        private DefaultPathsForInterpreterInfo defaultPaths;
+
+        public void setPythonExecutable(String infoExecutable) {
+            File pythonExecutableFile = new File(infoExecutable);
+            File pythonHome = pythonExecutableFile.getParentFile();
+            if (pythonHome != null) {
+                if (new File(pythonHome, "pyenv.cfg").exists()) {
+                    pythonHome = pythonHome.getParentFile();
+                }
+                pythonHomePaths.add(Path.fromOSString(pythonHome.toString()));
+            }
+
+        }
+
+        public HelperToComputeIfPathIsInInterpreter() {
+            boolean resolvingInterpreter = true;
+            defaultPaths = new DefaultPathsForInterpreterInfo(
+                    resolvingInterpreter);
+
+        }
+
+        public boolean isInterpreterPath(String data) {
+            if (!defaultPaths.forceDeselect(data)) { // It's directly a project source folder (don't add it).
+                // If it's site-package, in python home or not under a source folder add it.
+                if (data.contains("site-packages")
+                        || (DefaultPathsForInterpreterInfo
+                                .isChildOfRootPath(data, pythonHomePaths))
+                        || defaultPaths.selectByDefault(data)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+    }
+
     /**
      *
      * @param received
@@ -372,11 +411,7 @@ public class InterpreterInfo implements IInterpreterInfo {
                     List<String> predefinedPaths = new ArrayList<String>();
                     Properties stringSubstitutionVars = new Properties();
 
-                    boolean resolvingInterpreter = true;
-                    DefaultPathsForInterpreterInfo defaultPaths = new DefaultPathsForInterpreterInfo(
-                            resolvingInterpreter);
-
-                    Set<IPath> pythonHomePaths = new HashSet<>();
+                    HelperToComputeIfPathIsInInterpreter helper = new HelperToComputeIfPathIsInInterpreter();
 
                     for (int j = 0; j < xmlNodes.getLength(); j++) {
                         Node xmlChild = xmlNodes.item(j);
@@ -390,14 +425,7 @@ public class InterpreterInfo implements IInterpreterInfo {
 
                         } else if ("executable".equals(name)) {
                             infoExecutable = data;
-
-                            // Handling of python inside of project.
-                            File pythonExecutableFile = new File(infoExecutable);
-                            File pythonHome = pythonExecutableFile.getParentFile();
-                            if (new File(pythonHome, "pyenv.cfg").exists()) {
-                                pythonHome = pythonHome.getParentFile();
-                            }
-                            pythonHomePaths.add(Path.fromOSString(pythonHome.toString()));
+                            helper.setPythonExecutable(infoExecutable);
 
                         } else if ("vmArgs".equals(name)) {
                             infoVmArgs = data;
@@ -413,7 +441,7 @@ public class InterpreterInfo implements IInterpreterInfo {
                             Node pathIncludeItem = attributes.getNamedItem("path");
 
                             if (pathIncludeItem != null) {
-                                if (defaultPaths.exists(data)) {
+                                if (DefaultPathsForInterpreterInfo.exists(data)) {
                                     //The python backend is expected to put path='ins' or path='out'
                                     //While our own toString() is not expected to do that.
                                     //This is probably not a very good heuristic, but it maps the current state of affairs.
@@ -422,16 +450,9 @@ public class InterpreterInfo implements IInterpreterInfo {
                                         toAsk.add(data);
                                     }
 
-                                    if (!defaultPaths.forceDeselect(data)) { // It's directly a project source folder (don't add it).
-                                        // If it's site-package, in python home or not under a source folder add it.
-                                        if (data.contains("site-packages")
-                                                || (DefaultPathsForInterpreterInfo
-                                                        .isChildOfRootPath(data, pythonHomePaths))
-                                                || defaultPaths.selectByDefault(data)) {
-                                            selection.add(data);
-                                        }
+                                    if (helper.isInterpreterPath(data)) {
+                                        selection.add(data);
                                     }
-
                                 }
 
                             } else {

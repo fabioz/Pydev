@@ -49,7 +49,7 @@ public class DefaultPathsForInterpreterInfo {
         return isRootPath(data, rootPaths);
     }
 
-    public boolean exists(String data) {
+    public static boolean exists(String data) {
         return new File(data).exists();
     }
 
