@@ -53,7 +53,7 @@ def _cmd(batch_commands:str, cwd=None, env=None):
         print(batch_commands)
         try:
             subprocess.run(
-                ["cmd", "/c", batch_file_path], input=b"\n", check=True, cwd=cwd, env=env
+                ["cmd", "/c", batch_file_path], input=b"\n", check=True, cwd=cwd, env=use_env
             )
         finally:
             os.remove(batch_file_path)
@@ -62,7 +62,7 @@ def _cmd(batch_commands:str, cwd=None, env=None):
         print(batch_commands)
         try:
             args = ['bash', batch_file_path]
-            subprocess.run(args, input=b"\n", check=True, cwd=cwd, env=env)
+            subprocess.run(args, input=b"\n", check=True, cwd=cwd, env=use_env)
         except:
             print("Failed running: " + subprocess.list2cmdline(args), file=sys.stderr)
         finally:
@@ -193,7 +193,6 @@ python %BUILD_DIR%/Pydev/plugins/org.python.pydev.core/pysrc/build_tools/build_b
 
     if sys.platform == 'win32':
         contents = rf'''
-@echo off
 git clone {BASE_LOCAL_PYDEV_GIT}
 cd Pydev
 git reset --hard
