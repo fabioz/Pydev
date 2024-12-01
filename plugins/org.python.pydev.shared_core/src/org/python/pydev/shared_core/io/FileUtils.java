@@ -232,6 +232,23 @@ public class FileUtils {
         return getFileAbsolutePath(new File(f));
     }
 
+    public static String getFileAbsolutePath(Path path) {
+        try {
+            if (!PlatformUtils.isWindowsPlatform()) {
+                // We don't want to follow links on Linux.
+                return path.toRealPath(LinkOption.NOFOLLOW_LINKS).toString();
+            } else {
+                // On Windows, this is needed to get the proper case of files (because it's case-preserving
+                // and we have to get the proper case when resolving module names).
+                // Especially annoying if something starts with 'C:' and sometimes is entered with 'c:'.
+                // Note: this doesn't resolve `substs` on Windows (which is good).
+                return path.toFile().getCanonicalPath();
+            }
+        } catch (IOException e) {
+            return path.toFile().getAbsolutePath();
+        }
+    }
+
     /**
      * This version does not resolve links on Linux.
      */
@@ -244,6 +261,7 @@ public class FileUtils {
                 // On Windows, this is needed to get the proper case of files (because it's case-preserving
                 // and we have to get the proper case when resolving module names).
                 // Especially annoying if something starts with 'C:' and sometimes is entered with 'c:'.
+                // Note: this doesn't resolve `substs` on Windows (which is good).
                 return f.getCanonicalPath();
             }
         } catch (IOException e) {
