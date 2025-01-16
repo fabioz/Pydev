@@ -27,7 +27,6 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.PropertiesHelper;
-import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.TokensList;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.nature.AbstractPythonNature;
@@ -67,14 +66,12 @@ public class SystemPythonNature extends AbstractPythonNature implements IPythonN
         }
 
         @Override
-        public Map<String, String> getVariableSubstitution(boolean addInterpreterInfoSubstitutions)
-                throws CoreException, MisconfigurationException, PythonNatureWithoutProjectException {
+        public Map<String, String> getVariableSubstitution(boolean addInterpreterInfoSubstitutions) {
             return getVariableSubstitution();
         }
 
         @Override
-        public Map<String, String> getVariableSubstitution() throws CoreException, MisconfigurationException,
-                PythonNatureWithoutProjectException {
+        public Map<String, String> getVariableSubstitution() {
             Properties stringSubstitutionVariables = SystemPythonNature.this.info.getStringSubstitutionVariables(false);
             Map<String, String> variableSubstitution;
             if (stringSubstitutionVariables == null) {

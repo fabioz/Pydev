@@ -35,7 +35,6 @@ import org.python.pydev.core.IModulesManager;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IPythonPathNature;
 import org.python.pydev.core.MisconfigurationException;
-import org.python.pydev.core.ProjectMisconfiguredException;
 import org.python.pydev.core.PropertiesHelper;
 import org.python.pydev.core.PythonNatureWithoutProjectException;
 import org.python.pydev.core.docutils.StringSubstitution;
@@ -503,8 +502,7 @@ public class PythonPathNature implements IPythonPathNature {
     }
 
     @Override
-    public Map<String, String> getVariableSubstitution() throws CoreException, MisconfigurationException,
-            PythonNatureWithoutProjectException {
+    public Map<String, String> getVariableSubstitution() {
         return getVariableSubstitution(true);
     }
 
@@ -512,8 +510,7 @@ public class PythonPathNature implements IPythonPathNature {
      * Returns the variables in the python nature and in the interpreter.
      */
     @Override
-    public Map<String, String> getVariableSubstitution(boolean addInterpreterInfoSubstitutions) throws CoreException,
-            MisconfigurationException, PythonNatureWithoutProjectException {
+    public Map<String, String> getVariableSubstitution(boolean addInterpreterInfoSubstitutions) {
         PythonNature nature = this.fNature;
         if (nature == null) {
             return new HashMap<String, String>();
@@ -530,9 +527,10 @@ public class PythonPathNature implements IPythonPathNature {
                 } else {
                     variableSubstitution = PropertiesHelper.createMapFromProperties(stringSubstitutionVariables);
                 }
-            } catch (ProjectMisconfiguredException e) {
+            } catch (MisconfigurationException | PythonNatureWithoutProjectException e) {
                 Log.logInfo(
-                        "Interpreter info still not fully configured (interpreter substitutions won't be available).",
+                        "Interpreter info still not fully configured (interpreter substitutions won't be available). Project: "
+                                + nature.getProject(),
                         e);
                 variableSubstitution = new HashMap<String, String>();
             }
@@ -541,8 +539,13 @@ public class PythonPathNature implements IPythonPathNature {
         }
 
         //no need to validate because those are always 'file-system' related
-        Map<String, String> variableSubstitution2 = nature.getStore().getMapProperty(
-                PythonPathNature.getProjectVariableSubstitutionQualifiedName());
+        Map<String, String> variableSubstitution2 = null;
+        try {
+            variableSubstitution2 = nature.getStore().getMapProperty(
+                    PythonPathNature.getProjectVariableSubstitutionQualifiedName());
+        } catch (CoreException e) {
+            Log.logInfo("Unable to get variable substitutions for project: " + nature.getProject(), e);
+        }
         if (variableSubstitution2 != null && !variableSubstitution2.isEmpty()) {
             if (variableSubstitution != null) {
                 variableSubstitution.putAll(variableSubstitution2);
