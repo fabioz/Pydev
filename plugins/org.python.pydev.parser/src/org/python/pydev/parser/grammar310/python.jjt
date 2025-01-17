@@ -1369,13 +1369,13 @@ void with_stmt(): {}
 	  	LOOKAHEAD(with_item())
 	  	(
 	  		with_item()
-			({grammarActions.findTokenAndAdd(",");}<COMMA> with_item())*
+			({grammarActions.findTokenAndAdd(",");}<COMMA> [with_item()])*
 		)
 	  	|
 		(
 			<LPAREN>
 			with_item()
-			({grammarActions.findTokenAndAdd(",");}<COMMA> with_item())*
+			({grammarActions.findTokenAndAdd(",");}<COMMA> [with_item()])*
 		  	<RPAREN>
 	  	)
   	)

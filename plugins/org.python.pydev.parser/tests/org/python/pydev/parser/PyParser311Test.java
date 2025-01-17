@@ -49,4 +49,39 @@ public class PyParser311Test extends PyParserTestBase {
         assertTrue(t.handlers[0].isExceptionGroup);
     }
 
+    public void testWithStatement() {
+        String s = """
+                with foo as a, bar as b:
+                    pass
+                """;
+
+        parseLegalDocStr(s);
+    }
+
+    public void testWithStatementMultiLinesAndCommaAtEnd() {
+        String s = """
+                with (
+                    foo as a,
+                    bar as b,
+                ):
+                    pass
+                """;
+
+        parseLegalDocStr(s);
+    }
+
+    public void testWithStatementMultiLinesAndCommaAtEnd2() {
+        String s = """
+                def test_get_tools_success() -> None:
+                    with (
+                        a as b,
+                        c as d,
+                        e as f,
+                    ):
+                        pass
+                """;
+
+        parseLegalDocStr(s);
+    }
+
 }

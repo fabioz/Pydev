@@ -1187,13 +1187,13 @@ void with_stmt(): {}
 	  	LOOKAHEAD(with_item())
 	  	(
 	  		with_item()
-			($COMMA with_item())*
+			($COMMA [with_item()])*
 		)
 	  	|
 		(
 			<LPAREN>
 			with_item()
-			($COMMA with_item())*
+			($COMMA [with_item()])*
 		  	<RPAREN>
 	  	)
   	)
