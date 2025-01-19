@@ -200,6 +200,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                     throw new RuntimeException(e);
                 }
                 cmdList.add(0, "ruff");
+                cmdList.add(1, "check");
                 String[] args = cmdList.toArray(new String[0]);
                 WriteToStreamHelper.write("Ruff: Executing command line:", out, "python", "-m", args);
                 SimplePythonRunner runner = new SimplePythonRunner();
@@ -212,6 +213,7 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
         } else {
             String ruffExecutable = FileUtils.getFileAbsolutePath(ruffLocation);
             cmdList.add(0, ruffExecutable);
+            cmdList.add(1, "check");
 
             launchProcessCallback = () -> {
                 String[] args = cmdList.toArray(new String[0]);
