@@ -190,7 +190,7 @@ def _resolve_listing_parts(resolved, parts_in_lowercase, filename):
         # Don't fail nor log unless the trace level is at least info. Just return the original file passed.
         if DebugInfoHolder.DEBUG_TRACE_LEVEL >= 1:
             pydev_log.info(
-                "pydev debugger: OSError: Unable to get real case for file. Details:\n" "filename: %s\ndrive: %s\nparts: %s\n",
+                "pydev debugger: OSError: Unable to get real case for file. Details:\nfilename: %s\ndrive: %s\nparts: %s\n",
                 filename,
                 resolved,
                 parts_in_lowercase,
@@ -644,6 +644,11 @@ map_file_to_server = _original_map_file_to_server
 
 
 def _fix_path(path, sep, add_end_sep=False):
+    if path.startswith("."):
+        # We need the full path if this relative because all other comparisons
+        # check if the path is substring of another
+        path = os.path.abspath(path)
+
     if add_end_sep:
         if not path.endswith("/") and not path.endswith("\\"):
             path += "/"
