@@ -46,7 +46,8 @@ def _cmd(batch_commands:str, cwd=None, env=None):
     if env:
         use_env.update(env)
 
-    print('using JAVA_HOME:', use_env['JAVA_HOME'])
+    if 'JAVA_HOME' in use_env:
+        print('using JAVA_HOME:', use_env['JAVA_HOME'])
 
     if sys.platform == "win32":
         batch_file_path = _create_temp(batch_commands, ".bat")
@@ -151,22 +152,23 @@ def write_and_exit(msg):
     sys.exit(1)
 
 
+if sys.platform == "win32":
+    JAVA_HOME = "D:/bin/jdk-17.0.8.1+1"
+    MAVEN_BIN = "X:/liclipsews/maven/apache-maven-3.9.5/bin"
+    BUILD_DIR = 'X:/pydev_build/build_dir'
+    BASE_LOCAL_PYDEV_GIT = 'X:/liclipsews/liclipsews/Pydev'  # git://github.com/fabioz/Pydev.git could be used to build with the repo.
+else:
+    JAVA_HOME = "/Library/Java/JavaVirtualMachines/temurin-17.jdk/Contents/Home"
+    MAVEN_BIN = os.path.expanduser("~/Desktop/dev/liclipsews/maven/apache-maven-3.9.9/bin")
+    BUILD_DIR = os.path.expanduser("~/Desktop/dev/build-pydev")
+    BASE_LOCAL_PYDEV_GIT = os.path.expanduser('~/Desktop/dev/liclipsews/liclipsews/Pydev')  # git://github.com/fabioz/Pydev.git could be used to build with the repo.
+
 def build_pydev_in_build_dir(pydevd_binaries='true'):
     pydevd_binaries = 0 if str(pydevd_binaries).lower() in ('0', 'false', 'f') else 1
     if 'SIGN_KEYSTORE' not in os.environ:
         if sys.platform == 'win32':
             write_and_exit('SIGN_KEYSTORE not defined in the os.environ.')
 
-    if sys.platform == "win32":
-        JAVA_HOME = "D:/bin/jdk-17.0.8.1+1"
-        MAVEN_BIN = "X:/liclipsews/maven/apache-maven-3.9.5/bin"
-        BUILD_DIR = 'X:/pydev_build/build_dir'
-        BASE_LOCAL_PYDEV_GIT = 'X:/liclipsews/liclipsews/Pydev'  # git://github.com/fabioz/Pydev.git could be used to build with the repo.
-    else:
-        JAVA_HOME = "/Library/Java/JavaVirtualMachines/temurin-17.jdk/Contents/Home"
-        MAVEN_BIN = os.path.expanduser("~/Desktop/dev/liclipsews/maven/apache-maven-3.9.9/bin")
-        BUILD_DIR = os.path.expanduser("~/Desktop/dev/build-pydev")
-        BASE_LOCAL_PYDEV_GIT = os.path.expanduser('~/Desktop/dev/liclipsews/liclipsews/Pydev')  # git://github.com/fabioz/Pydev.git could be used to build with the repo.
 
     build_binaries_instructions = ''
     if pydevd_binaries:
