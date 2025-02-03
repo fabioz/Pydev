@@ -24,6 +24,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.core.preferences.InterpreterGeneralPreferences;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.plugin.nature.PythonNature;
 import org.python.pydev.shared_core.io.FileUtils;
@@ -67,7 +68,7 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase {
             baseDir2.mkdirs();
         }
         super.setUp();
-
+        InterpreterGeneralPreferences.FORCE_USE_TYPESHED = true;
     }
 
     @Override
@@ -134,6 +135,7 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase {
         FileUtils.deleteDirectoryTree(baseDir2);
 
         super.tearDown();
+        InterpreterGeneralPreferences.FORCE_USE_TYPESHED = null;
     }
 
     public void testFindHierarchy() throws Throwable {
@@ -154,7 +156,7 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase {
             assertEquals("Bar", node.name);
             assertTrue(node.moduleName.startsWith("foo"));
 
-            assertIsIn("Pickler", "pickle", node.parents);
+            assertIsIn("Pickler", "_pickle", node.parents);
             assertIsIn("Foo", node.moduleName, node.children);
         } finally {
             //            System.out.println("END ------------");
@@ -177,7 +179,7 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase {
         assertTrue(node.moduleName.startsWith("foo"));
 
         HierarchyNodeModel model = assertIsIn("Bar", node.moduleName, node.parents);
-        assertIsIn("Pickler", "pickle", model.parents);
+        assertIsIn("Pickler", "_pickle", model.parents);
 
     }
 
@@ -201,7 +203,7 @@ public class ClassHierarchySearchTest extends AdditionalInfoTestsBase {
         assertTrue(node.moduleName.startsWith("foo"));
 
         assertIsIn("Bar", node.moduleName, node.parents);
-        assertIsIn("Pickler", "pickle", node.parents);
+        assertIsIn("Pickler", "_pickle", node.parents);
 
     }
 

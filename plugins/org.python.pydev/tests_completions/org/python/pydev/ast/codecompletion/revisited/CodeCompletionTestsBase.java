@@ -149,6 +149,7 @@ public class CodeCompletionTestsBase extends TestCase {
         CorePlugin.setBundleInfo(null);
         ProjectModulesManager.IN_TESTS = false;
         FileUtils.IN_TESTS = false;
+        InterpreterGeneralPreferences.FORCE_USE_TYPESHED = null;
         super.tearDown();
     }
 
