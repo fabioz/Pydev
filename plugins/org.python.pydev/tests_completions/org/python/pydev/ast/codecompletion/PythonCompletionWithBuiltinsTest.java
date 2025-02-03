@@ -746,7 +746,8 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
                 "generator.close";
         ICompletionProposalHandle[] comps = requestCompl(s, s.length(), 1, new String[] { "close()" });
         String info = comps[0].getAdditionalProposalInfo();
-        if (StringUtils.count(info, "def close(self)->None") != 1) {
+        if (StringUtils.count(info, "def close(self)->None") != 1
+                && StringUtils.count(info, "def close(self)->_ReturnT_co | None") != 1) {
             throw new AssertionFailedError("Expected 1 occurrence of: 'def close(self)->None' in " + info);
         }
 

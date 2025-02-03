@@ -42,6 +42,7 @@ import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.core.TokensOrProposalsList;
+import org.python.pydev.core.preferences.InterpreterGeneralPreferences;
 import org.python.pydev.core.proposals.CompletionProposalFactory;
 import org.python.pydev.editor.codecompletion.proposals.DefaultCompletionProposalFactory;
 import org.python.pydev.plugin.PydevPlugin;
@@ -125,6 +126,7 @@ public class CodeCompletionTestsBase extends TestCase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
+        InterpreterGeneralPreferences.FORCE_USE_TYPESHED = true;
         CompletionProposalFactory.set(new DefaultCompletionProposalFactory());
         PydevPlugin.setBundleInfo(new BundleInfoStub());
         CorePlugin.setBundleInfo(new BundleInfoStub());
