@@ -1,6 +1,7 @@
 package com.python.pydev.analysis;
 
 import org.eclipse.jface.text.Document;
+import org.python.pydev.ast.analysis.messages.IMessage;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.parser.jython.ParseException;
 
@@ -70,6 +71,29 @@ public class OccurrencesAnalyzerPy312Test extends AnalysisTestsBase {
                     print(type(arg))
                 """);
         checkNoError();
+    }
+
+    public void testTypeAlias2() {
+        doc = new Document("""
+                from typing import cast
+                class C:
+                    def foo[T](self, x: T | None) -> T:
+                        return cast(T, x)
+                """);
+        checkNoError();
+    }
+
+    public void testTypeAlias3() {
+        doc = new Document("""
+                from typing import cast
+                class C:
+                    def foo[T](self, x: T = T): # The T as the default value is wrong, T is not defined!
+                        return cast(T, x)
+                """);
+        IMessage[] messages = checkError("Undefined variable: T\n");
+        assertEquals(1, messages.length);
+        assertEquals(3, messages[0].getStartLine(doc));
+        assertEquals(29, messages[0].getStartCol(doc));
     }
 
 }

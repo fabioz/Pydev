@@ -388,10 +388,6 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
         addToNamesToIgnore(node, false, true);
 
         AbstractScopeAnalyzerVisitor visitor = this;
-        // visit typed params. i.e.: def func[T](arg: t):
-        if (node.type_params != null) {
-            node.type_params.accept(visitor);
-        }
 
         argumentsType args = node.args;
 
@@ -430,6 +426,11 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
                         scopeType = Scope.SCOPE_TYPE_ANNOTATION_STR;
                     }
                     startScope(scopeType, expr);
+                    if (node.type_params != null) {
+                        // Note: we visit type-params multiple times so that the types are available in
+                        // all required scopes when checking the function (arguments, return and method body).
+                        node.type_params.accept(visitor);
+                    }
                     expr.accept(visitor);
                     endScope(expr);
                 }
@@ -443,6 +444,11 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
                 scopeType = Scope.SCOPE_TYPE_ANNOTATION_STR;
             }
             startScope(scopeType, node.returns);
+            if (node.type_params != null) {
+                // Note: we visit type-params multiple times so that the types are available in
+                // all required scopes when checking the function (arguments, return and method body).
+                node.type_params.accept(visitor);
+            }
             node.returns.accept(visitor);
             endScope(node.returns);
         }
@@ -452,6 +458,13 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
 
         startScope(Scope.SCOPE_TYPE_METHOD, node);
         this.currentLocalScope.getScopeStack().push(node);
+
+        // visit typed params. i.e.: def func[T](arg: t):
+        if (node.type_params != null) {
+            // Note: we visit type-params multiple times so that the types are available in
+            // all required scopes when checking the function (arguments, return and method body).
+            node.type_params.accept(visitor);
+        }
 
         scope.isInMethodDefinition = true;
         //visit regular args
