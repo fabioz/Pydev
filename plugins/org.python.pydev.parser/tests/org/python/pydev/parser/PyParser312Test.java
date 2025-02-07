@@ -61,6 +61,13 @@ public class PyParser312Test extends PyParserTestBase {
         parseLegalDocStr(s);
     }
 
+    public void testTypeSyntax2() {
+        String s = """
+                type IntOrStr = int | str
+                """;
+        parseLegalDocStr(s);
+    }
+
     public void testTypeNameStillValidSyntax() {
         String s = """
                 print(type(int))

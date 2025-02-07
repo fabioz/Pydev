@@ -832,7 +832,16 @@ public final class TreeBuilder312 extends AbstractTreeBuilder implements ITreeBu
 
                 type_params_suiteType t = null;
                 if (arity >= 2) {
-                    t = (type_params_suiteType) stack.popNode();
+                    final SimpleNode node = stack.popNode();
+                    if (defaultValue == null && (node instanceof exprType)) {
+                        defaultValue = (exprType) node;
+                    } else {
+                        if (node instanceof type_params_suiteType) {
+                            t = (type_params_suiteType) node;
+                        } else {
+                            addAndReportException("type_params_suiteType or exprType", node);
+                        }
+                    }
                 }
                 return new TypeAlias(makeNameTok(NameTok.TypeAliasName), t, defaultValue);
 
