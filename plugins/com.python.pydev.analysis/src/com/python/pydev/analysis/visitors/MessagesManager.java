@@ -317,6 +317,7 @@ public final class MessagesManager {
             if (startsWithNamesToIgnore(g)) {
                 int type = IAnalysisPreferences.TYPE_UNUSED_VARIABLE;
 
+                boolean addMessage = true;
                 if (g.tok instanceof SourceToken) {
                     SourceToken t = (SourceToken) g.tok;
                     SimpleNode ast = t.getAst();
@@ -325,6 +326,9 @@ public final class MessagesManager {
                         if (n.ctx == NameTok.KwArg || n.ctx == NameTok.VarArg || n.ctx == NameTok.KeywordName) {
                             type = IAnalysisPreferences.TYPE_UNUSED_PARAMETER;
                         }
+                        if (n.ctx == NameTok.TypeVarName) {
+                            continue;
+                        }
                     } else if (ast instanceof Name) {
                         Name n = (Name) ast;
                         if (n.ctx == Name.Param || n.ctx == Name.KwOnlyParam) {
@@ -332,7 +336,6 @@ public final class MessagesManager {
                         }
                     }
                 }
-                boolean addMessage = true;
                 if (type == IAnalysisPreferences.TYPE_UNUSED_PARAMETER) {
                     // just add unused parameters in methods that have some content (not only 'pass' and 'strings')
 
