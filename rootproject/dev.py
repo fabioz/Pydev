@@ -17,7 +17,7 @@ from pathlib import Path
 import sys
 import subprocess
 
-_VERSION = '13.0.0'
+_VERSION = '13.0.1'
 
 _pydev_root = Path(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
