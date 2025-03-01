@@ -1,23 +1,32 @@
-PyDev 12.0.0 Released
+PyDev 13.0 Released
 
-PyDev 12.0.0 Release Highlights
+PyDev 13.0 Release Highlights
 -------------------------------
 
-* **Debugger**
-	* **sys.monitoring** is now used in Python 3.12 (and it's **much** faster than any previous version).
-	* A new setting was added in the **Preferences > PyDev > Debug** to debug **just my code** (meaning that when stepping it will just step into files under PyDev source folders).
-	* Improved the step into function (activated with **Ctrl+Alt** then **Click function** to step into).
-	* Support for Python 3.6 and 3.7 was dropped (only Python 3.8 onwards is now supported).
+## Updates & Improvements
 
-* **Ruff**
-	* Ruff can now be used as a code formatter.
-	* The latest ruff (**0.1.x**) is now supported (as it broke backward compatibility in its **0.1.0** version).
+- Support for Python 3.13
+- Support for type alias syntax
+- Parsing type vars (still missing semantic analysis).
+- Support for **Annotated[cls]** in code-completion
+- Added **condition** to resolve as **True|False** in templates
+- Updated typeshed
+- Updated PyDev debugger (pydevd) to version 3.3.0
+- Updated minimum Java version requirement to Java 17
+- Changed **ruff** linting command to **ruff check** to match breaking change
+- Improved docstring assist to properly handle multi-line function signatures
+- Converted paragraph wrapping functionality from Jython to Java
+- Changed "Surround with try..except" to use **try..except Exception** as default
+- Supporting trailing commas in multi-line **with** statements
 
-* **Code Analysis**
-	* Fixes in semantic analysis to better determine if strings in annotations should be checked for symbols or not.
+## Bug Fixes
 
-Note: **Only Python 3.8 onwards is now supported**
-	* **Python 3.6** and **3.7** support is now **dropped** (please use **PyDev 11.0.3** if you still use it).
+- Fixed recursion error that could occur during interpreter restoration
+- Fixed **with_statement** import handling in auto-import
+- Fixed issue where local imports were incorrectly placed within arguments
+- Fixed issue with paragraph wrapping on last line
+- Fixed exception handling for project configuration variables
+- Improved logging to avoid stack traces for non-error messages
 
 About PyDev
 ---------------------------
