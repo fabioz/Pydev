@@ -30,6 +30,7 @@ import org.python.pydev.parser.jython.ast.List;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Tuple;
+import org.python.pydev.parser.jython.ast.TypeAlias;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.structure.FastStack;
@@ -142,6 +143,13 @@ public final class GlobalModelVisitor extends AbstractVisitor {
         lastCall.push(node);
         node.traverse(this);
         lastCall.pop();
+        return null;
+    }
+
+    @Override
+    public Object visitTypeAlias(TypeAlias node) throws Exception {
+        SourceToken token = addToken(node.name);
+        token.setFoundInTypeAlias(node);
         return null;
     }
 

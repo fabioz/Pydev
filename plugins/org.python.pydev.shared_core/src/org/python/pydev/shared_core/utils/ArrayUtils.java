@@ -9,7 +9,9 @@ package org.python.pydev.shared_core.utils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.eclipse.core.runtime.Assert;
@@ -93,6 +95,61 @@ public class ArrayUtils {
             int temp = copyOf[i];
             copyOf[i] = copyOf[length - i - 1];
             copyOf[length - i - 1] = temp;
+        }
+    }
+
+    /**
+     * This class receives through `addArray` multiple arrays.
+     * Afterwards, it can be iterated using hasNext/next.
+     */
+    public static final class ArraysIterator<T> implements Iterator<T> {
+
+        private final List<T[]> iterThroughArrays = new ArrayList<>();
+        private int currentArrayIndex = 0;
+        private int currentElementIndex = 0;
+        private boolean frozen = false;
+
+        public void addArray(T[] array) {
+            if (frozen) {
+                throw new RuntimeException("ArraysIterator already frozen");
+            }
+            if (array != null) {
+                iterThroughArrays.add(array);
+            }
+        }
+
+        @Override
+        public boolean hasNext() {
+            frozen = true;
+            if (iterThroughArrays.isEmpty()) {
+                return false;
+            }
+
+            if (currentArrayIndex >= iterThroughArrays.size()) {
+                return false;
+            }
+
+            T[] currentArray = iterThroughArrays.get(currentArrayIndex);
+            if (currentElementIndex >= currentArray.length) {
+                // Try next array
+                currentArrayIndex++;
+                currentElementIndex = 0;
+                return hasNext(); // Recurse to check next array
+            }
+
+            return true;
+        }
+
+        @Override
+        public T next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+
+            T[] currentArray = iterThroughArrays.get(currentArrayIndex);
+            T element = currentArray[currentElementIndex];
+            currentElementIndex++;
+            return element;
         }
     }
 }

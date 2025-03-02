@@ -25,7 +25,7 @@ import org.python.pydev.ast.codecompletion.revisited.CompletionStateFactory;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.ast.codecompletion.revisited.visitors.AbstractVisitor;
-import org.python.pydev.ast.codecompletion.revisited.visitors.AssignDefinition;
+import org.python.pydev.ast.codecompletion.revisited.visitors.AssignOrTypeAliasDefinition;
 import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.ast.codecompletion.revisited.visitors.LocalScope;
 import org.python.pydev.core.ICompletionCache;
@@ -73,6 +73,8 @@ import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.string.FullRepIterable;
 import org.python.pydev.shared_core.structure.FastStack;
 import org.python.pydev.shared_core.structure.StringToIntCounterSmallSet;
+import org.python.pydev.shared_core.utils.ArrayUtils;
+import org.python.pydev.shared_core.utils.ArrayUtils.ArraysIterator;
 
 import com.python.pydev.analysis.visitors.Found;
 import com.python.pydev.analysis.visitors.GenAndTok;
@@ -409,48 +411,41 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
             }
         }
 
-        if (args.kwonlyargannotation != null) {
-            for (exprType expr : args.kwonlyargannotation) {
-                if (expr != null) {
-                    expr.accept(visitor);
-                }
-            }
+        ArraysIterator<exprType> it = new ArrayUtils.ArraysIterator<>();
+        it.addArray(args.kwonlyargannotation);
+        it.addArray(args.annotation);
+        if (args.varargannotation != null) {
+            it.addArray(new exprType[] { args.varargannotation });
         }
-
-        //visit annotation
-        if (args.annotation != null) {
-            for (exprType expr : args.annotation) {
-                if (expr != null) {
-                    int scopeType = Scope.SCOPE_TYPE_ANNOTATION;
-                    if (futureAnnotationsImported) {
-                        scopeType = Scope.SCOPE_TYPE_ANNOTATION_STR;
-                    }
-                    startScope(scopeType, expr);
-                    if (node.type_params != null) {
-                        // Note: we visit type-params multiple times so that the types are available in
-                        // all required scopes when checking the function (arguments, return and method body).
-                        node.type_params.accept(visitor);
-                    }
-                    expr.accept(visitor);
-                    endScope(expr);
-                }
-            }
+        if (args.kwargannotation != null) {
+            it.addArray(new exprType[] { args.kwargannotation });
         }
-
-        //visit the return
         if (node.returns != null) {
+            it.addArray(new exprType[] { node.returns });
+        }
+
+        //visit all the annotations in a new scope
+        if (it.hasNext()) {
             int scopeType = Scope.SCOPE_TYPE_ANNOTATION;
             if (futureAnnotationsImported) {
                 scopeType = Scope.SCOPE_TYPE_ANNOTATION_STR;
             }
-            startScope(scopeType, node.returns);
+            SimpleNode dummyNode = new SimpleNode();
+            startScope(scopeType, dummyNode);
             if (node.type_params != null) {
                 // Note: we visit type-params multiple times so that the types are available in
                 // all required scopes when checking the function (arguments, return and method body).
                 node.type_params.accept(visitor);
             }
-            node.returns.accept(visitor);
-            endScope(node.returns);
+
+            while (it.hasNext()) {
+                exprType expr = it.next();
+                if (expr == null) {
+                    continue;
+                }
+                expr.accept(visitor);
+            }
+            endScope(dummyNode);
         }
 
         //then the decorators (no, still not in method scope)
@@ -1403,8 +1398,8 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
                 nature);
         for (int i = 0; i < definitions.length; i++) {
             IDefinition foundDefinition = definitions[i];
-            if (foundDefinition instanceof AssignDefinition) {
-                AssignDefinition d = (AssignDefinition) foundDefinition;
+            if (foundDefinition instanceof AssignOrTypeAliasDefinition) {
+                AssignOrTypeAliasDefinition d = (AssignOrTypeAliasDefinition) foundDefinition;
 
                 //if the value is currently None, it will be set later on
                 if (d.value.equals("None")) {

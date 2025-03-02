@@ -13,7 +13,7 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.python.pydev.ast.codecompletion.revisited.visitors.AssignDefinition;
+import org.python.pydev.ast.codecompletion.revisited.visitors.AssignOrTypeAliasDefinition;
 import org.python.pydev.parser.visitors.scope.ASTEntry;
 import org.python.pydev.shared_core.structure.Tuple;
 
@@ -35,7 +35,7 @@ public interface IPyRefactoring2 {
      * @param defs the definitions we're intersted in.
      * @return true if all the definitions are in the same class hierarchy and false otherwise
      */
-    public boolean areAllInSameClassHierarchy(List<AssignDefinition> defs);
+    public boolean areAllInSameClassHierarchy(List<AssignOrTypeAliasDefinition> defs);
 
     /**
      * @return A map so that: the key of the map has the file and the module name that the file represents and

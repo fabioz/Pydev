@@ -13,10 +13,11 @@ package org.python.pydev.ast.codecompletion.revisited.visitors;
 
 import org.python.pydev.core.ILocalScope;
 import org.python.pydev.core.IModule;
+import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
-import org.python.pydev.parser.jython.ast.exprType;
+import org.python.pydev.parser.jython.ast.TypeAlias;
 
-public class AssignDefinition extends Definition {
+public class AssignOrTypeAliasDefinition extends Definition {
 
     /**
      * This is the token name.
@@ -44,9 +45,9 @@ public class AssignDefinition extends Definition {
      * This is the value node found (can be used later to determine if it's a
      * Call or some regular attribute.
      */
-    public final exprType nodeValue;
+    public final SimpleNode nodeValue;
 
-    public final exprType nodeType;
+    public final SimpleNode nodeType;
 
     /**
      * If it's an assign we should unpack.
@@ -61,8 +62,21 @@ public class AssignDefinition extends Definition {
     /**
      * The line and col are defined starting at 1 (and not 0)
      */
-    public AssignDefinition(String value, String type, String target, int targetPos, Assign ast, int line, int col,
-            ILocalScope scope, IModule module, exprType nodeValue, exprType nodeType, int unpackPos) {
+    public AssignOrTypeAliasDefinition(String value, String type, String target, int targetPos, Assign ast, int line, int col,
+            ILocalScope scope, IModule module, SimpleNode nodeValue, SimpleNode nodeType, int unpackPos) {
+        super(line, col, value, type, nodeType, ast, scope, module);
+        this.target = target;
+        this.targetPos = targetPos;
+        this.nodeValue = nodeValue;
+        this.nodeType = nodeType;
+        this.unpackPos = unpackPos;
+    }
+
+    /**
+     * The line and col are defined starting at 1 (and not 0)
+     */
+    public AssignOrTypeAliasDefinition(String value, String type, String target, int targetPos, TypeAlias ast, int line, int col,
+            ILocalScope scope, IModule module, SimpleNode nodeValue, SimpleNode nodeType, int unpackPos) {
         super(line, col, value, type, nodeType, ast, scope, module);
         this.target = target;
         this.targetPos = targetPos;

@@ -33,6 +33,7 @@ import org.python.pydev.parser.jython.ast.Import;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
+import org.python.pydev.parser.jython.ast.TypeAlias;
 import org.python.pydev.parser.jython.ast.keywordType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.callbacks.ICallback;
@@ -364,6 +365,8 @@ public class SourceToken extends AbstractToken {
 
     private Call foundInCall;
 
+    private TypeAlias foundInTypeAlias;
+
     public void setDefinition(Definition d) {
         this.definition = d;
     }
@@ -394,6 +397,14 @@ public class SourceToken extends AbstractToken {
 
     public Assign getDummyAssignFromParam() {
         return dummyAssignFromParam;
+    }
+
+    public void setFoundInTypeAlias(TypeAlias node) {
+        this.foundInTypeAlias = node;
+    }
+
+    public TypeAlias getFoundInTypeAlias() {
+        return foundInTypeAlias;
     }
 
 }

@@ -23,7 +23,7 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.python.pydev.ast.codecompletion.revisited.CompletionCache;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
-import org.python.pydev.ast.codecompletion.revisited.visitors.AssignDefinition;
+import org.python.pydev.ast.codecompletion.revisited.visitors.AssignOrTypeAliasDefinition;
 import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.ast.item_pointer.ItemPointer;
 import org.python.pydev.ast.refactoring.HierarchyNodeModel;
@@ -362,7 +362,7 @@ public class RefactorerFinds {
         return model;
     }
 
-    public boolean areAllInSameClassHierarchy(List<AssignDefinition> defs) {
+    public boolean areAllInSameClassHierarchy(List<AssignOrTypeAliasDefinition> defs) {
         return true;
     }
 

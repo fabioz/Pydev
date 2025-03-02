@@ -26,7 +26,7 @@ import java.util.TreeMap;
 import org.python.pydev.ast.codecompletion.revisited.AbstractASTManager;
 import org.python.pydev.ast.codecompletion.revisited.AbstractToken;
 import org.python.pydev.ast.codecompletion.revisited.ConcreteToken;
-import org.python.pydev.ast.codecompletion.revisited.visitors.AssignDefinition;
+import org.python.pydev.ast.codecompletion.revisited.visitors.AssignOrTypeAliasDefinition;
 import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.ast.codecompletion.revisited.visitors.FindDefinitionModelVisitor;
 import org.python.pydev.ast.codecompletion.revisited.visitors.FindScopeVisitor;
@@ -65,7 +65,9 @@ import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.ImportFrom;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.Str;
+import org.python.pydev.parser.jython.ast.TypeAlias;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.TypeInfo;
@@ -625,7 +627,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                         }
                                         d = visitor.definitions.get(0);
                                         value = d.value;
-                                        if (d instanceof AssignDefinition) {
+                                        if (d instanceof AssignOrTypeAliasDefinition) {
                                             //Yes, at this point we really are looking for an assign!
                                             //E.g.:
                                             //
@@ -651,7 +653,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                                             }
                                             d = definitions2[0];
                                             value = d.value + "." + actToks.get(actToksLen - 1);
-                                            if (d instanceof AssignDefinition) {
+                                            if (d instanceof AssignOrTypeAliasDefinition) {
                                                 return ((SourceModule) d.module).getValueCompletions(initialState,
                                                         manager, value, d.module);
                                             }
@@ -834,7 +836,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         private Set<LineCol> memo = null;
 
         private List<Definition> optional = null;
-        public boolean optionalIsParam;
+        public boolean optionalIsParamOrTypeAlias;
 
         public DefinitionsContainer() {
         }
@@ -861,11 +863,16 @@ public class SourceModule extends AbstractModule implements ISourceModule {
 
         public void addOptional(Definition definition) {
             if (definition instanceof KeywordParameterDefinition) {
-                this.optionalIsParam = true;
+                this.optionalIsParamOrTypeAlias = true;
 
             } else if (definition.ast instanceof Name) {
                 Name name = (Name) definition.ast;
-                this.optionalIsParam = name.ctx == Name.Param || name.ctx == Name.KwOnlyParam;
+                this.optionalIsParamOrTypeAlias = name.ctx == Name.Param || name.ctx == Name.KwOnlyParam;
+            } else if (definition.ast instanceof NameTok) {
+                NameTok name = (NameTok) definition.ast;
+                this.optionalIsParamOrTypeAlias = name.ctx == NameTok.TypeAliasName;
+            } else if (definition.ast instanceof TypeAlias) {
+                this.optionalIsParamOrTypeAlias = true;
             }
 
             if (optional == null) {
@@ -972,8 +979,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
             //ok, it is an assign, so, let's get it
             for (int i = 0; i < size; i++) {
                 Object next = defs.get(i);
-                if (next instanceof AssignDefinition) {
-                    AssignDefinition element = (AssignDefinition) next;
+                if (next instanceof AssignOrTypeAliasDefinition) {
+                    AssignOrTypeAliasDefinition element = (AssignOrTypeAliasDefinition) next;
                     if (element.target.startsWith("self") == false) {
                         if (element.scope.isOuterOrSameScope(scopeVisitor.scope) || element.foundAsGlobal) {
                             toRet.addOptional(element);
@@ -991,7 +998,8 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         // as MyClass.foo = 2, keep on going because we'd like to get to the definition
         // of 'foo' inside of MyClass (and later on just append these as definitions found
         // if they aren't duplicated).
-        if (toRet.optionalIsParam) {
+
+        if (toRet.optionalIsParamOrTypeAlias) {
             return toRet.toArray();
         }
 
@@ -1010,6 +1018,17 @@ public class SourceModule extends AbstractModule implements ISourceModule {
                         toRet.add(new Definition(tok, scopeVisitor.scope, this, true));
                         continue;
                     }
+
+                    if (sourceToken.getFoundInTypeAlias() != null) {
+                        TypeAlias node = sourceToken.getFoundInTypeAlias();
+                        String target = tok.getRepresentation();
+                        toRet.add(
+                                FindDefinitionModelVisitor.getAssignDefinition(node, target, 0, line, col,
+                                        scopeVisitor.scope, this,
+                                        -1));
+                        continue;
+                    }
+
                     if (sourceTokenAst instanceof Assign) {
                         Assign node = (Assign) sourceTokenAst;
                         String target = tok.getRepresentation();

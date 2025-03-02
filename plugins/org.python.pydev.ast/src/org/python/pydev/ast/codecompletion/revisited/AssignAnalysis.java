@@ -13,7 +13,7 @@ import java.util.Map;
 
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
-import org.python.pydev.ast.codecompletion.revisited.visitors.AssignDefinition;
+import org.python.pydev.ast.codecompletion.revisited.visitors.AssignOrTypeAliasDefinition;
 import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.core.ICodeCompletionASTManager;
 import org.python.pydev.core.ICompletionState;
@@ -37,9 +37,11 @@ import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Index;
 import org.python.pydev.parser.jython.ast.Name;
+import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.Num;
 import org.python.pydev.parser.jython.ast.Str;
 import org.python.pydev.parser.jython.ast.Subscript;
+import org.python.pydev.parser.jython.ast.TypeAlias;
 import org.python.pydev.parser.jython.ast.UnaryOp;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
@@ -90,8 +92,8 @@ public class AssignAnalysis {
                             TokensList completionsFromDefinition = getCompletionsFromDefinition(
                                     definition, state, sourceModule, manager);
                             if (completionsFromDefinition != null && completionsFromDefinition.notEmpty()) {
-                                if (definition instanceof AssignDefinition) {
-                                    AssignDefinition assignDefinition = (AssignDefinition) definition;
+                                if (definition instanceof AssignOrTypeAliasDefinition) {
+                                    AssignOrTypeAliasDefinition assignDefinition = (AssignOrTypeAliasDefinition) definition;
                                     if (assignDefinition.nodeValue instanceof Call) {
                                         completionsFromDefinition.setLookingFor(
                                                 LookingFor.LOOKING_FOR_INSTANCED_VARIABLE);
@@ -162,9 +164,9 @@ public class AssignAnalysis {
             }
         }
 
-        AssignDefinition assignDefinition = null;
-        if (definition instanceof AssignDefinition) {
-            assignDefinition = (AssignDefinition) definition;
+        AssignOrTypeAliasDefinition assignDefinition = null;
+        if (definition instanceof AssignOrTypeAliasDefinition) {
+            assignDefinition = (AssignOrTypeAliasDefinition) definition;
         }
 
         boolean foundAsParamWithTypingInfo = false;
@@ -176,6 +178,24 @@ public class AssignAnalysis {
                     ast = assign.targets[0];
                 }
             }
+            if (ast instanceof NameTok) {
+                NameTok nameTok = (NameTok) definition.ast;
+                if (nameTok.ctx == NameTok.TypeAliasName && definition.scope != null) {
+                    ast = (SimpleNode) definition.scope.getFoundAtASTNode();
+                }
+            }
+
+            if (ast instanceof TypeAlias) {
+                String rep = NodeUtils.getRepresentationString(((TypeAlias) ast).value);
+                if (rep != null) {
+                    ICompletionState cp = state.getCopyWithActTok(rep);
+                    ret.addAll(manager.getCompletionsForModule(definition.module, cp));
+                    if (ret != null && ret.size() > 0) {
+                        return ret;
+                    }
+                }
+            }
+
             if (NodeUtils.isParamName(ast)) {
                 Name name = (Name) ast;
                 String scopeStackPathNames = definition.scope.getScopeStackPathNames();
@@ -313,7 +333,7 @@ public class AssignAnalysis {
      */
     private TokensList getNonFunctionDefCompletionsFromAssign(ICodeCompletionASTManager manager,
             ICompletionState state,
-            SourceModule sourceModule, Definition definition, AssignDefinition assignDefinition)
+            SourceModule sourceModule, Definition definition, AssignOrTypeAliasDefinition assignDefinition)
             throws CompletionRecursionException {
         IModule module;
         TokensList ret = new TokensList();
@@ -329,8 +349,7 @@ public class AssignAnalysis {
             //pyprotocols does adapt(xxx, Interface), so, knowing the type of the interface can get us to nice results...
             //the user can usually have other factory methods that do that too. E.g.: GetSingleton(Class) may return an
             //expected class and so on, so, this should be configured somehow
-            if (assignDefinition != null) {
-
+            if (assignDefinition != null && assignDefinition.ast instanceof Assign) {
                 Assign assign = (Assign) assignDefinition.ast;
                 if (assign.value instanceof Call) {
                     Call call = (Call) assign.value;
@@ -527,7 +546,7 @@ public class AssignAnalysis {
     }
 
     private static List<String> extractTypingUnionValues(ICodeCompletionASTManager manager,
-            IModule module, exprType node)
+            IModule module, SimpleNode node)
             throws CompletionRecursionException {
         if (manager.isNodeTypingUnionSubscript(module, node)) {
             Subscript subscript = (Subscript) node;

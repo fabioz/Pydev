@@ -16,7 +16,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
-import org.python.pydev.ast.codecompletion.revisited.visitors.AssignDefinition;
+import org.python.pydev.ast.codecompletion.revisited.visitors.AssignOrTypeAliasDefinition;
 import org.python.pydev.ast.item_pointer.ItemPointer;
 import org.python.pydev.ast.refactoring.AbstractPyRefactoring;
 import org.python.pydev.ast.refactoring.HierarchyNodeModel;
@@ -48,7 +48,7 @@ public class Refactorer extends AbstractPyRefactoring implements IPyRefactoring2
 
     // --------------------------------------------------------- IPyRefactoring2
     @Override
-    public boolean areAllInSameClassHierarchy(List<AssignDefinition> defs) {
+    public boolean areAllInSameClassHierarchy(List<AssignOrTypeAliasDefinition> defs) {
         return new RefactorerFinds(this).areAllInSameClassHierarchy(defs);
     }
 

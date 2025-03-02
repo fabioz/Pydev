@@ -235,19 +235,17 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
      * This is done in AssignAnalysis
      */
     public void testProtocolsAdaptation() throws Exception {
-        String s = "import protocols\n" +
-                "class InterfM1(protocols.Interface):\n" +
-                "    def m1(self):\n"
-                +
-                "        pass\n" +
-                " \n" +
-                "class Bar(object):\n"
-                +
-                "    protocols.advise(instancesProvide=[InterfM1])\n" +
-                "if __name__ == '__main__':\n"
-                +
-                "    a = protocols.adapt(Bar(), InterfM1)\n" +
-                "    a.";
+        String s = """
+                import protocols
+                class InterfM1(protocols.Interface):
+                    def m1(self):
+                        pass
+                \s
+                class Bar(object):
+                    protocols.advise(instancesProvide=[InterfM1])
+                if __name__ == '__main__':
+                    a = protocols.adapt(Bar(), InterfM1)
+                    a.""";
 
         requestCompl(s, s.length(), -1, new String[] { "m1()" });
     }
@@ -260,81 +258,82 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
      * This is done in ILocalScope#getPossibleClassesForActivationToken
      */
     public void testAssertDeterminesClass() throws Exception {
-        String s = "def m1(a):\n" +
-                "    import zipfile\n" +
-                "    assert isinstance(a, zipfile.ZipFile)\n" +
-                "    a.";
+        String s = """
+                def m1(a):
+                    import zipfile
+                    assert isinstance(a, zipfile.ZipFile)
+                    a.""";
 
         requestCompl(s, s.length(), -1, new String[] { "getinfo(name)" });
 
     }
 
     public void testAssertDeterminesClass2() throws Exception {
-        String s = "def m1(a):\n" +
-                "    import zipfile\n" +
-                "    assert isinstance(a.bar, zipfile.ZipFile)\n" +
-                "    a.bar.";
+        String s = """
+                def m1(a):
+                    import zipfile
+                    assert isinstance(a.bar, zipfile.ZipFile)
+                    a.bar.""";
 
         requestCompl(s, s.length(), -1, new String[] { "getinfo(name)" });
 
     }
 
     public void testAssertDeterminesClass3() throws Exception {
-        String s = "class InterfM1:\n" +
-                "    def m1(self):\n" +
-                "        pass\n" +
-                "\n" +
-                "" +
-                "def m1(a):\n" +
-                "    assert isinstance(a, InterfM1)\n" +
-                "    a.";
+        String s = """
+                class InterfM1:
+                    def m1(self):
+                        pass
+
+                def m1(a):
+                    assert isinstance(a, InterfM1)
+                    a.""";
 
         requestCompl(s, s.length(), -1, new String[] { "m1()" });
 
     }
 
     public void testAssertDeterminesClass4() throws Exception {
-        String s = "class InterfM1:\n" +
-                "    def m1(self):\n" +
-                "        pass\n" +
-                "\n" +
-                "class InterfM2:\n" +
-                "    def m2(self):\n" +
-                "        pass\n" +
-                "\n" +
-                "" +
-                "def m1(a):\n" +
-                "    assert isinstance(a, (InterfM1, InterfM2))\n" +
-                "    a.";
+        String s = """
+                class InterfM1:
+                    def m1(self):
+                        pass
+
+                class InterfM2:
+                    def m2(self):
+                        pass
+
+                def m1(a):
+                    assert isinstance(a, (InterfM1, InterfM2))
+                    a.""";
 
         requestCompl(s, s.length(), -1, new String[] { "m1()", "m2()" });
 
     }
 
     public void testAssertDeterminesClass5() throws Exception {
-        String s = "class InterfM1:\n" +
-                "    def m1(self):\n" +
-                "        pass\n" +
-                "\n" +
-                "" +
-                "def m1(a):\n" +
-                "    assert InterfM1.implementedBy(a)\n" +
-                "    a.";
+        String s = """
+                class InterfM1:
+                    def m1(self):
+                        pass
+
+                def m1(a):
+                    assert InterfM1.implementedBy(a)
+                    a.""";
 
         requestCompl(s, s.length(), -1, new String[] { "m1()" });
 
     }
 
     public void testAssertDeterminesClass6() throws Exception {
-        String s = "class InterfM1:\n" +
-                "    def m1(self):\n" +
-                "        pass\n" +
-                "\n" +
-                "" +
-                "def m1(a):\n"
-                +
-                "    assert InterfM1.implementedBy()\n" + //should give no error
-                "    a.";
+        String s = """
+                class InterfM1:
+                    def m1(self):
+                        pass
+
+                def m1(a):
+                    assert InterfM1.implementedBy()
+                    a.""";
 
         requestCompl(s, s.length(), -1, new String[] {});
 
@@ -3271,15 +3270,16 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 
     public void testSubClassConstructorParams2() throws Exception {
         String s;
-        String original = "" +
-                "class Foo:\n" +
-                "    def __init__(self, a, b):pass\n\n" +
-                "    def m1(self):pass\n\n" +
-                "class Bar(Foo):\n" +
-                "    pass\n\n"
-                +
-                "Bar" +
-                "";
+        String original = """
+                class Foo:
+                    def __init__(self, a, b):pass
+
+                    def m1(self):pass
+
+                class Bar(Foo):
+                    pass
+
+                Bar""";
         s = StringUtils.format(original, "");
 
         ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
@@ -3290,13 +3290,13 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 
     public void testTypingForVariable() throws Exception { // TODO: Fix this test.
         String s;
-        String original = "" +
-                "class Foo:\n" +
-                "    def m1(self):pass\n\n" +
-                "def m(self, b):\n" +
-                "    #: :type b.var: Foo\n" +
-                "    b.var." +
-                "";
+        String original = """
+                class Foo:
+                    def m1(self):pass
+
+                def m(self, b):
+                    #: :type b.var: Foo
+                    b.var.""";
         s = StringUtils.format(original, "");
 
         ICompletionProposalHandle[] proposals = requestCompl(s, s.length(), -1, new String[] {});
@@ -3325,6 +3325,38 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         s = StringUtils.format(original, "");
 
         requestCompl(s, s.length(), -1, new String[] { "bar()" });
+    }
+
+    public void testImportTypeAlias() throws Exception {
+        int initial = GRAMMAR_TO_USE_FOR_PARSING;
+        try {
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.LATEST_GRAMMAR_PY3_VERSION;
+            String s;
+            String original = """
+                    from extendable.typecheck import typemod
+                    typemod.""";
+            s = StringUtils.format(original, "");
+
+            requestCompl(s, s.length(), -1, new String[] { "FooType", "FooClass" });
+        } finally {
+            GRAMMAR_TO_USE_FOR_PARSING = initial;
+        }
+    }
+
+    public void testImportTypeAlia2s() throws Exception {
+        int initial = GRAMMAR_TO_USE_FOR_PARSING;
+        try {
+            GRAMMAR_TO_USE_FOR_PARSING = IPythonNature.LATEST_GRAMMAR_PY3_VERSION;
+            String s;
+            String original = """
+                    from extendable.typecheck.typemod import FooType
+                    FooType.""";
+            s = StringUtils.format(original, "");
+
+            requestCompl(s, s.length(), -1, new String[] { "foo_method(self)" });
+        } finally {
+            GRAMMAR_TO_USE_FOR_PARSING = initial;
+        }
     }
 
     public void testPyiStubs3() throws Exception {
@@ -3363,16 +3395,16 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 
     public void testTypeHintAttributes() throws Exception {
         String s;
-        String original = "" +
-                "class MyClass(object):\r\n" +
-                "    def method(self):\r\n" +
-                "        pass\r\n" +
-                "\r\n" +
-                "class AnotherClass(object):\r\n" +
-                "    def __init__(self, param):\r\n" +
-                "        #: :type self.my_var: MyClass\r\n" +
-                "        self.my_var = param\r\n" +
-                "        self.my_var.";
+        String original = """
+                class MyClass(object):\r
+                    def method(self):\r
+                        pass\r
+                \r
+                class AnotherClass(object):\r
+                    def __init__(self, param):\r
+                        #: :type self.my_var: MyClass\r
+                        self.my_var = param\r
+                        self.my_var.""";
         s = StringUtils.format(original, "");
 
         requestCompl(s, s.length(), -1, new String[] { "method()" });
@@ -3380,16 +3412,16 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 
     public void testTypeHintAttributes2() throws Exception {
         String s;
-        String original = "" +
-                "class MyClass(object):\r\n" +
-                "    def method(self):\r\n" +
-                "        pass\r\n" +
-                "\r\n" +
-                "class AnotherClass(object):\r\n" +
-                "    def __init__(self, param):\r\n" +
-                "        #: :type my_var: MyClass\r\n" +
-                "        my_var = NameError\r\n" +
-                "        my_var.";
+        String original = """
+                class MyClass(object):\r
+                    def method(self):\r
+                        pass\r
+                \r
+                class AnotherClass(object):\r
+                    def __init__(self, param):\r
+                        #: :type my_var: MyClass\r
+                        my_var = NameError\r
+                        my_var.""";
         s = StringUtils.format(original, "");
 
         requestCompl(s, s.length(), -1, new String[] { "method()" });
@@ -3411,16 +3443,17 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 
     public void testTypedExceptionCompletion() throws Exception {
         String s;
-        String original = "class MyException(object):\r\n" +
-                "    def method(self):\r\n" +
-                "        pass\r\n" +
-                "\r\n" +
-                "class MyClass(object):\r\n" +
-                "    def __init__(self):\r\n" +
-                "        try:\r\n" +
-                "            raise MyException()\r\n" +
-                "        except MyException as e:\r\n" +
-                "           e.";
+        String original = """
+                class MyException(object):\r
+                    def method(self):\r
+                        pass\r
+                \r
+                class MyClass(object):\r
+                    def __init__(self):\r
+                        try:\r
+                            raise MyException()\r
+                        except MyException as e:\r
+                           e.""";
         s = StringUtils.format(original, "");
 
         requestCompl(s, s.length(), -1, new String[] { "method()" });
@@ -3428,20 +3461,21 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 
     public void testTypedExceptionCompletion2() throws Exception {
         String s;
-        String original = "class MyException(object):\r\n" +
-                "    def method(self):\r\n" +
-                "        pass\r\n" +
-                "\r\n" +
-                "class MyException2(object):\r\n" +
-                "    def method2(self):\r\n" +
-                "        pass\r\n" +
-                "\r\n" +
-                "class MyClass(object):\r\n" +
-                "    def __init__(self):\r\n" +
-                "        try:\r\n" +
-                "            raise MyException2()\r\n" +
-                "        except (MyException, MyException2) as e:\r\n" +
-                "           e.";
+        String original = """
+                class MyException(object):\r
+                    def method(self):\r
+                        pass\r
+                \r
+                class MyException2(object):\r
+                    def method2(self):\r
+                        pass\r
+                \r
+                class MyClass(object):\r
+                    def __init__(self):\r
+                        try:\r
+                            raise MyException2()\r
+                        except (MyException, MyException2) as e:\r
+                           e.""";
         s = StringUtils.format(original, "");
 
         requestCompl(s, s.length(), -1, new String[] { "method()", "method2()" });
@@ -3449,22 +3483,23 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
 
     public void testTypedExceptionCompletion3() throws Exception {
         String s;
-        String original = "class MyException(object):\r\n" +
-                "    def method(self):\r\n" +
-                "        pass\r\n" +
-                "\r\n" +
-                "class MyException2(object):\r\n" +
-                "    def method2(self):\r\n" +
-                "        pass\r\n" +
-                "\r\n" +
-                "class MyClass(object):\r\n" +
-                "    def __init__(self):\r\n" +
-                "        try:\r\n" +
-                "            raise MyException2()\r\n" +
-                "        except MyException as e:\r\n" +
-                "           e.method()\r\n" +
-                "        except MyException2 as e:\r\n" +
-                "           e.";
+        String original = """
+                class MyException(object):\r
+                    def method(self):\r
+                        pass\r
+                \r
+                class MyException2(object):\r
+                    def method2(self):\r
+                        pass\r
+                \r
+                class MyClass(object):\r
+                    def __init__(self):\r
+                        try:\r
+                            raise MyException2()\r
+                        except MyException as e:\r
+                           e.method()\r
+                        except MyException2 as e:\r
+                           e.""";
         s = StringUtils.format(original, "");
         requestCompl(s, s.length(), -1, new String[] { "method()", "method2()" });
     }

@@ -96,4 +96,59 @@ public class OccurrencesAnalyzerPy312Test extends AnalysisTestsBase {
         assertEquals(29, messages[0].getStartCol(doc));
     }
 
+    public void testTypeAlias4() {
+        doc = new Document("""
+                def foo[T](*, x: T) -> str:
+                    return str(x)
+                """);
+        checkNoError();
+    }
+
+    public void testTypeAlias5() {
+        doc = new Document("""
+                class C[T]:
+                    def foo(self, *, x: T) -> str:
+                        return str(x)
+                    def bar[V](self, *, y: V) -> str:
+                        return str(y)
+                        """);
+        checkNoError();
+    }
+
+    public void testTypeAlias6() {
+        doc = new Document("""
+                def foo[T](*x: T) -> str:
+                    print(T)
+                    return str(x)
+                            """);
+        checkNoError();
+    }
+
+    public void testTypeAlias7() {
+        doc = new Document("""
+                def foo[T](**x: T) -> str:
+                    print(T)
+                    return str(x)
+                            """);
+        checkNoError();
+    }
+
+    public void testTypeAlias8() {
+        doc = new Document("""
+                def foo(**x: T) -> str:
+                    return str(x)
+                            """);
+        IMessage[] messages = checkError("Undefined variable: T\n");
+        assertEquals(1, messages.length);
+        assertEquals(1, messages[0].getStartLine(doc));
+        assertEquals(14, messages[0].getStartCol(doc));
+    }
+
+    public void testImportTypeAlias() {
+        doc = new Document("from extendable.typecheck.typemod import FooType\n" +
+                "print(FooType)\n");
+
+        checkNoError();
+    }
+
 }

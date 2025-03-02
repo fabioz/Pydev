@@ -26,7 +26,6 @@ import org.python.pydev.core.IterTokenEntry;
 import org.python.pydev.core.TokensList;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
-import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.FullRepIterable;
@@ -70,7 +69,7 @@ public class Definition implements IDefinition {
      */
     public final String type;
 
-    public final exprType nodeType;
+    public final SimpleNode nodeType;
 
     /**
      * This is the module where the definition is.
@@ -111,7 +110,7 @@ public class Definition implements IDefinition {
     /**
      * The line and col are defined starting at 1
      */
-    public Definition(int line, int col, String value, String type, exprType nodeType, SimpleNode ast,
+    public Definition(int line, int col, String value, String type, SimpleNode nodeType, SimpleNode ast,
             ILocalScope scope, IModule module) {
         this(line, col, value, type, nodeType, ast, scope, module, false);
     }
@@ -170,7 +169,7 @@ public class Definition implements IDefinition {
         this.foundAsLocal = foundAsLocal;
     }
 
-    public Definition(int line, int col, String value, String type, exprType nodeType, SimpleNode ast,
+    public Definition(int line, int col, String value, String type, SimpleNode nodeType, SimpleNode ast,
             ILocalScope scope, IModule module,
             boolean foundAsLocal) {
         Assert.isNotNull(value, "Invalid value.");

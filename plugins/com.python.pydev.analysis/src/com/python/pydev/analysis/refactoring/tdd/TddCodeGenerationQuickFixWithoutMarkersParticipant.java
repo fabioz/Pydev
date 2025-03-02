@@ -11,7 +11,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.python.pydev.ast.codecompletion.revisited.CompletionCache;
 import org.python.pydev.ast.codecompletion.revisited.CompletionState;
 import org.python.pydev.ast.codecompletion.revisited.CompletionStateFactory;
-import org.python.pydev.ast.codecompletion.revisited.visitors.AssignDefinition;
+import org.python.pydev.ast.codecompletion.revisited.visitors.AssignOrTypeAliasDefinition;
 import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.ast.item_pointer.ItemPointer;
 import org.python.pydev.ast.refactoring.AbstractPyRefactoring;
@@ -207,11 +207,11 @@ public class TddCodeGenerationQuickFixWithoutMarkersParticipant implements IAssi
             return definition;
         }
 
-        if (definition instanceof AssignDefinition || definition.ast instanceof FunctionDef) {
+        if (definition instanceof AssignOrTypeAliasDefinition || definition.ast instanceof FunctionDef) {
             //Avoid recursions.
             completionState.checkDefinitionMemory(definition.module, definition);
-            if (definition instanceof AssignDefinition) {
-                definition = rebaseAssignDefinition((AssignDefinition) definition, nature, completionCache);
+            if (definition instanceof AssignOrTypeAliasDefinition) {
+                definition = rebaseAssignDefinition((AssignOrTypeAliasDefinition) definition, nature, completionCache);
 
             } else { // definition.ast MUST BE FunctionDef
                 definition = rebaseFunctionDef(definition, nature, completionCache);
@@ -255,7 +255,7 @@ public class TddCodeGenerationQuickFixWithoutMarkersParticipant implements IAssi
         return definition;
     }
 
-    public static Definition rebaseAssignDefinition(AssignDefinition assignDef, IPythonNature nature,
+    public static Definition rebaseAssignDefinition(AssignOrTypeAliasDefinition assignDef, IPythonNature nature,
             ICompletionCache completionCache) throws Exception {
         IDefinition[] definitions2;
         if ("None".equals(assignDef.type)) {

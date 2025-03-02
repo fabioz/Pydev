@@ -72,7 +72,7 @@ public class FindDefinitionModelVisitorTest extends CodeCompletionTestsBase {
                 CompletionStateFactory.getEmptyCompletionState("ex", nature, new CompletionCache()), 3, 3, nature);
 
         assertEquals(1, defs.length);
-        assertEquals("ex", ((AssignDefinition) defs[0]).target);
+        assertEquals("ex", ((AssignOrTypeAliasDefinition) defs[0]).target);
         assertEquals("assist.ExistingClass", defs[0].value);
         assertSame(module, defs[0].module);
 
@@ -101,7 +101,7 @@ public class FindDefinitionModelVisitorTest extends CodeCompletionTestsBase {
                 CompletionStateFactory.getEmptyCompletionState("mydict", nature, new CompletionCache()), 2, 2, nature);
 
         assertEquals(1, defs.length);
-        assertEquals("mydict", ((AssignDefinition) defs[0]).target);
+        assertEquals("mydict", ((AssignOrTypeAliasDefinition) defs[0]).target);
         assertEquals("dict", defs[0].value);
         assertSame(module, defs[0].module);
     }
@@ -196,7 +196,7 @@ public class FindDefinitionModelVisitorTest extends CodeCompletionTestsBase {
                 CompletionStateFactory.getEmptyCompletionState("self.c", nature, new CompletionCache()), 10, 9, nature);
 
         assertEquals(1, defs.length);
-        assertEquals("self.c", ((AssignDefinition) defs[0]).target);
+        assertEquals("self.c", ((AssignOrTypeAliasDefinition) defs[0]).target);
         assertEquals("C", defs[0].value);
         assertSame(module, defs[0].module);
 

@@ -29,7 +29,7 @@ import org.python.pydev.ast.codecompletion.revisited.modules.AbstractModule;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.ast.codecompletion.revisited.modules.SourceToken;
 import org.python.pydev.ast.codecompletion.revisited.visitors.AbstractVisitor;
-import org.python.pydev.ast.codecompletion.revisited.visitors.AssignDefinition;
+import org.python.pydev.ast.codecompletion.revisited.visitors.AssignOrTypeAliasDefinition;
 import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.ast.codecompletion.revisited.visitors.GlobalModelVisitor;
 import org.python.pydev.ast.refactoring.PyRefactoringFindDefinition;
@@ -1269,8 +1269,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                                     .hasNext();) {
                                 IDefinition iDefinition = iterator.next();
                                 // Ok, couldn't get possible classes, let's see if the definition is a dict
-                                if (iDefinition instanceof AssignDefinition) {
-                                    AssignDefinition assignDefinition = (AssignDefinition) iDefinition;
+                                if (iDefinition instanceof AssignOrTypeAliasDefinition) {
+                                    AssignOrTypeAliasDefinition assignDefinition = (AssignOrTypeAliasDefinition) iDefinition;
                                     DefinitionAndCompletions assignInfo = getCompletionsFromAssignDefinition(module,
                                             state, unpackPos, assignDefinition);
                                     if (assignInfo != null && assignInfo.completions != null
@@ -1355,7 +1355,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                     selected, state.getLine() + 1, state.getCol() + 1, state.getNature(), state);
             for (Iterator<IDefinition> iterator = selected.iterator(); iterator.hasNext();) {
                 IDefinition iDefinition = iterator.next();
-                if (!(iDefinition instanceof AssignDefinition) && iDefinition instanceof Definition) {
+                if (!(iDefinition instanceof AssignOrTypeAliasDefinition) && iDefinition instanceof Definition) {
                     Definition definition = (Definition) iDefinition;
                     if (definition.ast != null) {
                         TokensList ret = getCompletionsUnpackingAST(definition, state, unpackPos);
@@ -1392,8 +1392,8 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
                         }
                     }
 
-                } else if (iDefinition instanceof AssignDefinition) {
-                    AssignDefinition assignDefinition = (AssignDefinition) iDefinition;
+                } else if (iDefinition instanceof AssignOrTypeAliasDefinition) {
+                    AssignOrTypeAliasDefinition assignDefinition = (AssignOrTypeAliasDefinition) iDefinition;
                     DefinitionAndCompletions assignInfo = getCompletionsFromAssignDefinition(module, state, unpackPos,
                             assignDefinition);
                     if (assignInfo != null && assignInfo.completions != null && assignInfo.completions.size() > 0) {
@@ -1467,7 +1467,7 @@ public abstract class AbstractASTManager implements ICodeCompletionASTManager {
     }
 
     public DefinitionAndCompletions getCompletionsFromAssignDefinition(IModule module, ICompletionState state,
-            UnpackInfo unpackPos, AssignDefinition assignDefinition) throws CompletionRecursionException, Exception {
+            UnpackInfo unpackPos, AssignOrTypeAliasDefinition assignDefinition) throws CompletionRecursionException, Exception {
         exprType[] elts = null;
         if (assignDefinition.ast instanceof Assign) {
             Assign assign = (Assign) assignDefinition.ast;

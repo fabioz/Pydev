@@ -39,6 +39,7 @@ import org.python.pydev.parser.jython.ast.NameTokType;
 import org.python.pydev.parser.jython.ast.NamedExpr;
 import org.python.pydev.parser.jython.ast.Subscript;
 import org.python.pydev.parser.jython.ast.Tuple;
+import org.python.pydev.parser.jython.ast.TypeAlias;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.jython.ast.comprehensionType;
 import org.python.pydev.parser.jython.ast.exprType;
@@ -318,6 +319,38 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
         return this.visitAssign(node, -1);
     }
 
+    @Override
+    public Object visitTypeAlias(TypeAlias node) throws Exception {
+        ILocalScope scope = new LocalScope(nature, this.defsStack, this.module.get());
+        scope.setFoundAtASTNode(node);
+        if (foundAsDefinition && !scope.equals(definitionFound.scope)) { //if it is found as a definition it is an 'exact' match, so, we do not keep checking it
+            return null;
+        }
+        int unpackPos = -1;
+
+        NameTokType target = node.name;
+        String rep = NodeUtils.getFullRepresentationString(target);
+
+        if (tokenToFind.equals(rep)) { //note, order of equals is important (because one side may be null).
+            //get the line and column correspondent to the target
+            int line = NodeUtils.getLineDefinition(target);
+            int col = NodeUtils.getColDefinition(target);
+            AssignOrTypeAliasDefinition definition = getAssignDefinition(node, rep, 0, line, col, scope, module.get(),
+                    unpackPos);
+
+            //mark it as global (if it was found as global in some of the previous contexts).
+            for (Set<String> globals : globalDeclarationsStack) {
+                if (globals.contains(rep)) {
+                    definition.foundAsGlobal = true;
+                }
+            }
+
+            definitions.add(definition);
+        }
+
+        return super.visitTypeAlias(node);
+    }
+
     public Object visitAssign(Assign node, int unpackPos) throws Exception {
         ILocalScope scope = new LocalScope(nature, this.defsStack, this.module.get());
         scope.setFoundAtASTNode(node);
@@ -354,7 +387,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
                     //get the line and column correspondent to the target
                     int line = NodeUtils.getLineDefinition(target);
                     int col = NodeUtils.getColDefinition(target);
-                    AssignDefinition definition = getAssignDefinition(node, rep, i, line, col, scope, module.get(),
+                    AssignOrTypeAliasDefinition definition = getAssignDefinition(node, rep, i, line, col, scope, module.get(),
                             unpackPos);
 
                     //mark it as global (if it was found as global in some of the previous contexts).
@@ -533,7 +566,7 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
     /**
      * The line and col are defined starting at 1
      */
-    public static AssignDefinition getAssignDefinition(Assign node, String target, int targetPos, int line, int col,
+    public static AssignOrTypeAliasDefinition getAssignDefinition(Assign node, String target, int targetPos, int line, int col,
             ILocalScope scope, IModule module, int unpackPos) {
         exprType nodeValue = node.value;
         exprType nodeType = NodeUtils.extractOptionalValueSubscript(node.type);
@@ -545,7 +578,24 @@ public class FindDefinitionModelVisitor extends AbstractVisitor {
         if (type == null) {
             type = "";
         }
-        return new AssignDefinition(value, type, target, targetPos, node, line, col, scope, module, nodeValue, nodeType,
+        return new AssignOrTypeAliasDefinition(value, type, target, targetPos, node, line, col, scope, module, nodeValue, nodeType,
+                unpackPos);
+    }
+
+    public static AssignOrTypeAliasDefinition getAssignDefinition(TypeAlias node, String target, int targetPos, int line, int col,
+            ILocalScope scope, IModule module, int unpackPos) {
+        exprType nodeValue = node.value;
+        NameTokType nodeType = node.name;
+        String value = NodeUtils.getFullRepresentationString(nodeValue);
+        String type = NodeUtils.getFullRepresentationString(nodeType);
+        if (value == null) {
+            value = "";
+        }
+        if (type == null) {
+            type = "";
+        }
+
+        return new AssignOrTypeAliasDefinition(value, type, target, targetPos, node, line, col, scope, module, nodeValue, nodeType,
                 unpackPos);
     }
 

@@ -9,7 +9,7 @@
  */
 package com.python.pydev.analysis.refactoring.wizards;
 
-import org.python.pydev.ast.codecompletion.revisited.visitors.AssignDefinition;
+import org.python.pydev.ast.codecompletion.revisited.visitors.AssignOrTypeAliasDefinition;
 import org.python.pydev.ast.codecompletion.revisited.visitors.Definition;
 import org.python.pydev.ast.codecompletion.revisited.visitors.KeywordParameterDefinition;
 import org.python.pydev.ast.refactoring.RefactoringRequest;
@@ -37,8 +37,8 @@ public class RefactorProcessFactory {
      * @param request
      */
     public static IRefactorRenameProcess getProcess(Definition definition, RefactoringRequest request) {
-        if (definition instanceof AssignDefinition) {
-            AssignDefinition d = (AssignDefinition) definition;
+        if (definition instanceof AssignOrTypeAliasDefinition) {
+            AssignOrTypeAliasDefinition d = (AssignOrTypeAliasDefinition) definition;
             if (d.target.indexOf('.') != -1) {
                 if (d.target.startsWith("self.")) {
                     //ok, it is a member and not a local
@@ -119,7 +119,7 @@ public class RefactorProcessFactory {
         if (definition == null) {
             return false;
         }
-        if (!(definition instanceof AssignDefinition)) {
+        if (!(definition instanceof AssignOrTypeAliasDefinition)) {
             if (NodeUtils.isImport(definition.ast)) {
                 //this means that we found an import and we cannot actually map that import to a definition (so, it is an unresolved import)
                 return true;
