@@ -1,32 +1,13 @@
-PyDev 13.0 Released
+PyDev 13.0.2 Released
 
-PyDev 13.0 Release Highlights
+PyDev 13.0.2 Release Highlights
 -------------------------------
-
-## Updates & Improvements
-
-- Support for Python 3.13
-- Support for type alias syntax
-- Parsing type vars (still missing semantic analysis).
-- Support for **Annotated[cls]** in code-completion
-- Added **condition** to resolve as **True|False** in templates
-- Updated typeshed
-- Updated PyDev debugger (pydevd) to version 3.3.0
-- Updated minimum Java version requirement to Java 17
-- Changed **ruff** linting command to **ruff check** to match breaking change
-- Improved docstring assist to properly handle multi-line function signatures
-- Converted paragraph wrapping functionality from Jython to Java
-- Changed "Surround with try..except" to use **try..except Exception** as default
-- Supporting trailing commas in multi-line **with** statements
 
 ## Bug Fixes
 
-- Fixed recursion error that could occur during interpreter restoration
-- Fixed **with_statement** import handling in auto-import
-- Fixed issue where local imports were incorrectly placed within arguments
-- Fixed issue with paragraph wrapping on last line
-- Fixed exception handling for project configuration variables
-- Improved logging to avoid stack traces for non-error messages
+* Handle case where module.body could be null.
+* Improve type inference engine to deal with TypeAlias.
+* Fixes in code analysis to deal with TypeAlias.
 
 About PyDev
 ---------------------------
