@@ -22,8 +22,8 @@ import org.python.pydev.parser.jython.ast.TryExcept;
 import org.python.pydev.parser.jython.ast.TryFinally;
 import org.python.pydev.parser.jython.ast.While;
 import org.python.pydev.parser.jython.ast.With;
-import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 
 public class CodeFoldingVisitor extends EasyASTIteratorWithChildrenVisitor {
 
@@ -94,8 +94,9 @@ public class CodeFoldingVisitor extends EasyASTIteratorWithChildrenVisitor {
             stmtType firstOrElseStmt = entryIf.orelse.body[0];
 
             if (!(firstOrElseStmt instanceof If) && firstOrElseStmt != null) {
-                If generatedIf = new If(new BoolOp(BoolOp.And, new exprType[0]), new stmtType[0], new Suite(
-                        new stmtType[0]));
+                If generatedIf = new If(new BoolOp(BoolOp.And, PyAstFactory.EMPTY_EXPR_TYPE),
+                        PyAstFactory.EMPTY_STMT_TYPE,
+                        new Suite(PyAstFactory.EMPTY_STMT_TYPE));
 
                 generatedIf.beginLine = firstOrElseStmt.beginLine - 1;
                 generatedIf.beginColumn = 1;

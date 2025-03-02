@@ -56,6 +56,7 @@ import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.sliceType;
 import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
+import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 import org.python.pydev.shared_core.string.FastStringBuffer;
 
 /**
@@ -282,7 +283,7 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
                 break;
 
             case JJTFILE_INPUT:
-                ret = new Module(null);
+                ret = new Module(PyAstFactory.EMPTY_STMT_TYPE);
                 break;
 
             case JJTEVAL_INPUT:
@@ -736,13 +737,13 @@ public abstract class AbstractTreeBuilder extends AbstractTreeBuilderHelpers {
         exprType iter = (exprType) stack.popNode();
         exprType target = (exprType) stack.popNode();
         ctx.setStore(target);
-        col.added.add(new Comprehension(target, iter, ifs.toArray(new exprType[0])));
+        col.added.add(new Comprehension(target, iter, ifs.toArray(PyAstFactory.EMPTY_EXPR_TYPE)));
         return col;
     }
 
     protected final SimpleNode makeDictionaryOrSet(int arity) {
         if (arity == 0) {
-            return new Dict(new exprType[0], new exprType[0]);
+            return new Dict(PyAstFactory.EMPTY_EXPR_TYPE, PyAstFactory.EMPTY_EXPR_TYPE);
         }
 
         SimpleNode dictNode0 = stack.popNode();

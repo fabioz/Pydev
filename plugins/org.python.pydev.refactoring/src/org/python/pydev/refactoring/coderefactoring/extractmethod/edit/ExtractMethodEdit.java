@@ -94,11 +94,11 @@ public class ExtractMethodEdit extends AbstractInsertEdit {
     }
 
     private FunctionDef initExtractedMethod(List<stmtType> body, List<exprType> argsList) {
-        argumentsType args = new argumentsType(argsList.toArray(new exprType[0]), null, null, null, null, null, null,
-                null, null, null);
+        argumentsType args = new argumentsType(argsList.toArray(PyAstFactory.EMPTY_EXPR_TYPE), null, null, null, null,
+                null, null, null, null, null);
 
         FunctionDef extractedMethod = PyAstFactory.createFunctionDefFull(new NameTok(methodName, NameTok.FunctionName),
-                args, body.toArray(new stmtType[0]), null, null, false);
+                args, body.toArray(PyAstFactory.EMPTY_STMT_TYPE), null, null, false);
         return extractedMethod;
     }
 
@@ -152,7 +152,7 @@ public class ExtractMethodEdit extends AbstractInsertEdit {
             returnValue = returnList.get(0);
 
         } else if (returnList.size() > 1) {
-            returnValue = new Tuple(returnList.toArray(new exprType[0]), Tuple.Load, false);
+            returnValue = new Tuple(returnList.toArray(PyAstFactory.EMPTY_EXPR_TYPE), Tuple.Load, false);
 
         } else if (body.size() == 1) {
             // return expression as-is (note: body must be cleared)

@@ -55,6 +55,7 @@ import org.python.pydev.parser.jython.Token;
 import org.python.pydev.parser.jython.TokenMgrError;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 import org.python.pydev.shared_core.callbacks.ICallback;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.model.ErrorDescription;
@@ -631,7 +632,7 @@ public final class PyParser extends BaseParser implements IPyParser {
 
         if (startDoc.trim().length() == 0) {
             //If empty, don't bother to parse!
-            return new ParseOutput(new Module(new stmtType[0]), null, modifiedTime);
+            return new ParseOutput(new Module(PyAstFactory.EMPTY_STMT_TYPE), null, modifiedTime);
         }
         Set<Integer> parsedVersions = new HashSet<>();
         char[] charArray;

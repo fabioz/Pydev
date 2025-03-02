@@ -15,7 +15,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.ModulesKey;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.parser.jython.ast.Module;
-import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 import org.python.pydev.shared_core.io.FileUtils;
 
 import com.python.pydev.analysis.additionalinfo.AdditionalInfoIntegrityChecker.IntegrityInfo;
@@ -23,7 +23,7 @@ import com.python.pydev.analysis.additionalinfo.AdditionalInfoIntegrityChecker.I
 /**
  * TODO: Still doesn't check:
  * 1. additional info -- where we also have to check if a module was changed (and the cache is old)
- * 
+ *
  * @author Fabio
  *
  */
@@ -74,7 +74,7 @@ public class AdditionalInfoIntegrityCheckerTest extends AdditionalInfoTestsBase 
 
         File f = FileUtils.getTempFileAt(baseDir, "integrity_no_file", ".py");
         FileUtils.writeStrToFile("", f);
-        addFooModule(new Module(new stmtType[0]), f);
+        addFooModule(new Module(PyAstFactory.EMPTY_STMT_TYPE), f);
         info = AdditionalInfoIntegrityChecker.checkIntegrity(nature, monitor, false);
         assertFalse(info.allOk);
         assertEquals(1, info.modulesNotInDisk.size());

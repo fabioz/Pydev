@@ -172,7 +172,7 @@ public class PyAstFactory {
 
     public Call createCall(String call, List<exprType> params, keywordType[] keywords, exprType starargs,
             exprType kwargs) {
-        exprType[] array = params != null ? params.toArray(new Name[params.size()]) : new exprType[0];
+        exprType[] array = params != null ? params.toArray(new Name[params.size()]) : PyAstFactory.EMPTY_EXPR_TYPE;
         if (call.indexOf(".") != -1) {
             return new Call(createAttribute(call), array, keywords, starargs, kwargs);
         }
@@ -181,7 +181,7 @@ public class PyAstFactory {
 
     public Call createCall(exprType name, List<exprType> params, keywordType[] keywords, exprType starargs,
             exprType kwargs) {
-        exprType[] array = params != null ? params.toArray(new exprType[0]) : new exprType[0];
+        exprType[] array = params != null ? params.toArray(PyAstFactory.EMPTY_EXPR_TYPE) : PyAstFactory.EMPTY_EXPR_TYPE;
         return new Call(name, array, keywords, starargs, kwargs);
     }
 
@@ -243,7 +243,7 @@ public class PyAstFactory {
                 newBases.add(expr);
             }
         }
-        return newBases.toArray(new exprType[0]);
+        return newBases.toArray(PyAstFactory.EMPTY_EXPR_TYPE);
     }
 
     public exprType asExpr(Object node) {

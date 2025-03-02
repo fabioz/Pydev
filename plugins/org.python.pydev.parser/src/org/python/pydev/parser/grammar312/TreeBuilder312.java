@@ -74,6 +74,7 @@ import org.python.pydev.parser.jython.ast.stmtType;
 import org.python.pydev.parser.jython.ast.suiteType;
 import org.python.pydev.parser.jython.ast.type_paramType;
 import org.python.pydev.parser.jython.ast.type_params_suiteType;
+import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 
 public final class TreeBuilder312 extends AbstractTreeBuilder implements ITreeBuilder, ITreeConstants {
 
@@ -300,7 +301,7 @@ public final class TreeBuilder312 extends AbstractTreeBuilder implements ITreeBu
                 Collections.reverse(basesAsList);
 
                 nameTok = makeNameTok(NameTok.ClassName);
-                exprType[] bases = basesAsList.toArray(new exprType[0]);
+                exprType[] bases = basesAsList.toArray(PyAstFactory.EMPTY_EXPR_TYPE);
                 //decorator is always null at this point... it's decorated later on
                 ClassDef classDef = new ClassDef(nameTok, typeParamsSuite, bases, body, null,
                         classDefKeywords.toArray(new keywordType[classDefKeywords.size()]), starargs, kwargs);

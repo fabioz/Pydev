@@ -67,6 +67,7 @@ import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.aliasType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.shared_core.cache.LRUMap;
 import org.python.pydev.shared_core.callbacks.ICallback2;
@@ -1023,7 +1024,7 @@ public abstract class ModulesManager implements IModulesManager {
                             }
                         } else if (e instanceof EmptyModuleForFolder) {
                             try {
-                                n = new InitFromDirModule(name, e.f, new Module(new stmtType[0]), null,
+                                n = new InitFromDirModule(name, e.f, new Module(PyAstFactory.EMPTY_STMT_TYPE), null,
                                         this.getNature());
                                 n = decorateModule(n, nature);
                             } catch (Exception e1) {
@@ -1103,6 +1104,9 @@ public abstract class ModulesManager implements IModulesManager {
                 boolean found = false;
                 Module module = (Module) ast;
                 stmtType[] body = module.body;
+                if (body == null) {
+                    body = PyAstFactory.EMPTY_STMT_TYPE;
+                }
                 for (SimpleNode node : body) {
                     if (node instanceof ClassDef && "Model".equals(NodeUtils.getRepresentationString(node))) {
                         found = true;
@@ -1148,6 +1152,9 @@ public abstract class ModulesManager implements IModulesManager {
                 SimpleNode ast = sourceModule.getAst();
                 Module module = (Module) ast;
                 stmtType[] body = module.body;
+                if (body == null) {
+                    body = PyAstFactory.EMPTY_STMT_TYPE;
+                }
                 for (SimpleNode node : body) {
                     if (node instanceof ClassDef && "Manager".equals(NodeUtils.getRepresentationString(node))) {
                         ClassDef classDef = (ClassDef) node;
@@ -1190,13 +1197,15 @@ public abstract class ModulesManager implements IModulesManager {
                 }
             } else if ("typing".equals(n.getName())) {
                 Module module = (Module) ((SourceModule) n).getAst();
-                for (SimpleNode node : module.body) {
-                    if (node instanceof Assign && ((Assign) node).value instanceof Call
-                            && ((Call) ((Assign) node).value).func instanceof Name
-                            && "_alias".equals(((Name) ((Call) ((Assign) node).value).func).id)
-                            && ((Call) ((Assign) node).value).args.length >= 1) {
-                        Assign assign = (Assign) node;
-                        assign.value = ((Call) assign.value).args[0];
+                if (module.body != null) {
+                    for (SimpleNode node : module.body) {
+                        if (node instanceof Assign && ((Assign) node).value instanceof Call
+                                && ((Call) ((Assign) node).value).func instanceof Name
+                                && "_alias".equals(((Name) ((Call) ((Assign) node).value).func).id)
+                                && ((Call) ((Assign) node).value).args.length >= 1) {
+                            Assign assign = (Assign) node;
+                            assign.value = ((Call) assign.value).args[0];
+                        }
                     }
                 }
             }

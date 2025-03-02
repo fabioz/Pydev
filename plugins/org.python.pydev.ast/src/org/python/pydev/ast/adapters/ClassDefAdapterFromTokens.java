@@ -111,7 +111,8 @@ public class ClassDefAdapterFromTokens implements IClassDefAdapter {
                         useAnyArgs = true;
                     }
 
-                    argumentsType functionArguments = new argumentsType(arguments.toArray(new exprType[0]), null, null,
+                    argumentsType functionArguments = new argumentsType(arguments.toArray(PyAstFactory.EMPTY_EXPR_TYPE),
+                            null, null,
                             null, null, null, null, null, null, null);
                     if (useAnyArgs) {
                         Name name = new Name("self", Name.Store, false);

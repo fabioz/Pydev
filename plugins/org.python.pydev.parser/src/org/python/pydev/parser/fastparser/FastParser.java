@@ -251,7 +251,7 @@ public final class FastParser {
         int id = System.identityHashCode(t);
         List<stmtType> list = objectIdToBody.get(id);
         if (list != null) {
-            NodeUtils.setBody(t, list.toArray(new stmtType[0]));
+            NodeUtils.setBody(t, list.toArray(PyAstFactory.EMPTY_STMT_TYPE));
             for (stmtType stmtType : list) {
                 buildBody(stmtType, objectIdToBody);
             }

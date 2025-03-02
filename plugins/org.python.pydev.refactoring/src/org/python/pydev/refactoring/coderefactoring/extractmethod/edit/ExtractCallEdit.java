@@ -14,12 +14,12 @@
 * Contributors:
 *     Fabio Zadrozny <fabiofz@gmail.com> - initial implementation
 ******************************************************************************/
-/* 
+/*
  * Copyright (C) 2006, 2007  Dennis Hunziker, Ueli Kistler
  * Copyright (C) 2007  Reto Schuettel, Robin Stocker
  *
  * IFS Institute for Software, HSR Rapperswil, Switzerland
- * 
+ *
  */
 
 package org.python.pydev.refactoring.coderefactoring.extractmethod.edit;
@@ -37,6 +37,7 @@ import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.NameTok;
 import org.python.pydev.parser.jython.ast.Tuple;
 import org.python.pydev.parser.jython.ast.exprType;
+import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 import org.python.pydev.refactoring.coderefactoring.extractmethod.request.ExtractMethodRequest;
 import org.python.pydev.refactoring.core.edit.AbstractReplaceEdit;
 
@@ -65,7 +66,8 @@ public class ExtractCallEdit extends AbstractReplaceEdit {
     protected SimpleNode getEditNode() {
 
         List<exprType> argsList = initCallArguments();
-        Call methodCall = new Call(createCallAttribute(), argsList.toArray(new exprType[0]), null, null, null);
+        Call methodCall = new Call(createCallAttribute(), argsList.toArray(PyAstFactory.EMPTY_EXPR_TYPE), null, null,
+                null);
 
         return initSubstituteCall(methodCall);
 
@@ -80,7 +82,7 @@ public class ExtractCallEdit extends AbstractReplaceEdit {
                 returnExpr.add(new Name(returnVar, Name.Store, false));
             }
 
-            exprType[] expr = returnExpr.toArray(new exprType[0]);
+            exprType[] expr = returnExpr.toArray(PyAstFactory.EMPTY_EXPR_TYPE);
             if (expr.length > 1) {
                 expr = new exprType[] { new Tuple(expr, Tuple.Load, false) };
             }

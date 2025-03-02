@@ -33,6 +33,7 @@ import org.python.pydev.parser.jython.ast.decoratorsType;
 import org.python.pydev.parser.jython.ast.exprType;
 import org.python.pydev.parser.jython.ast.keywordType;
 import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 
 /**
  * Provides a bunch of helpers useful when creating a tree builder.
@@ -141,7 +142,7 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
             }
 
             //recover properly!
-            return new Tuple(new exprType[0], Tuple.Load, false);
+            return new Tuple(PyAstFactory.EMPTY_EXPR_TYPE, Tuple.Load, false);
 
         }
     }
@@ -260,7 +261,7 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
         stmtType[] body = suite.body;
         if (body == null) {
             //This can happen when we have errors in the grammar.
-            body = new stmtType[0];
+            body = PyAstFactory.EMPTY_STMT_TYPE;
         }
         if (body.length > 0) {
             //Check size (this can happen when parsing wrong grammar files)
@@ -342,7 +343,7 @@ public abstract class AbstractTreeBuilderHelpers implements ITreeBuilder, ITreeC
                     d.func = func;
                     Collections.reverse(argsl);
                     Collections.reverse(keywordsl);
-                    d.args = argsl.toArray(new exprType[0]);
+                    d.args = argsl.toArray(PyAstFactory.EMPTY_EXPR_TYPE);
                     d.keywords = keywordsl.toArray(new keywordType[0]);
                     d.starargs = starargs;
                     d.kwargs = kwargs;

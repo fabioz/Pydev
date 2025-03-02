@@ -143,7 +143,7 @@ public class TypeshedLoader {
             }
         }
 
-        NodeUtils.setBody(ast, bodyAsList.toArray(new stmtType[0]));
+        NodeUtils.setBody(ast, bodyAsList.toArray(PyAstFactory.EMPTY_STMT_TYPE));
     }
 
     public static void fixBuiltinsAST(final SimpleNode ast, final ISystemModulesManager systemModulesManager,
@@ -198,7 +198,7 @@ public class TypeshedLoader {
         //        bodyAsList.add(astFactory.createAssign(astFactory.createStoreName("LiteralString"),
         //                astFactory.createName("str")));
 
-        NodeUtils.setBody(ast, bodyAsList.toArray(new stmtType[0]));
+        NodeUtils.setBody(ast, bodyAsList.toArray(PyAstFactory.EMPTY_STMT_TYPE));
         return;
     }
 
@@ -257,7 +257,7 @@ public class TypeshedLoader {
                         NameTok name = (NameTok) classDef.name;
                         if (name != null) {
                             if ("_SpecialForm".equals(name.id)) {
-                                classDef.body = new stmtType[0];
+                                classDef.body = PyAstFactory.EMPTY_STMT_TYPE;
                                 break;
                             }
                         }
@@ -387,7 +387,7 @@ public class TypeshedLoader {
         }
 
         if (changed) {
-            NodeUtils.setBody(ast, bodyAsList.toArray(new stmtType[0]));
+            NodeUtils.setBody(ast, bodyAsList.toArray(PyAstFactory.EMPTY_STMT_TYPE));
         }
     }
 

@@ -15,6 +15,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.stmtType;
+import org.python.pydev.parser.jython.ast.factory.PyAstFactory;
 import org.python.pydev.parser.prettyprinter.AbstractPrettyPrinterTestBase;
 import org.python.pydev.parser.prettyprinterv2.IPrettyPrinterPrefs;
 import org.python.pydev.parser.prettyprinterv2.PrettyPrinterPrefsV2;
@@ -263,7 +264,8 @@ public class FastParserTest extends TestCase {
             }
         };
         IPrettyPrinterPrefs prefs = new PrettyPrinterPrefsV2("\n", "    ", versionProvider);
-        String s = AbstractPrettyPrinterTestBase.makePrint(prefs, new Module(stmts.toArray(new stmtType[0])));
+        String s = AbstractPrettyPrinterTestBase.makePrint(prefs,
+                new Module(stmts.toArray(PyAstFactory.EMPTY_STMT_TYPE)));
         return s;
     }
 

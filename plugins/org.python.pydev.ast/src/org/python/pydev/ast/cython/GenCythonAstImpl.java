@@ -582,13 +582,13 @@ public class GenCythonAstImpl {
                 }
             }
             if (node instanceof Set) {
-                ((Set) node).elts = elts.toArray(new exprType[0]);
+                ((Set) node).elts = elts.toArray(PyAstFactory.EMPTY_EXPR_TYPE);
 
             } else if (node instanceof Tuple) {
-                ((Tuple) node).elts = elts.toArray(new exprType[0]);
+                ((Tuple) node).elts = elts.toArray(PyAstFactory.EMPTY_EXPR_TYPE);
 
             } else if (node instanceof org.python.pydev.parser.jython.ast.List) {
-                ((org.python.pydev.parser.jython.ast.List) node).elts = elts.toArray(new exprType[0]);
+                ((org.python.pydev.parser.jython.ast.List) node).elts = elts.toArray(PyAstFactory.EMPTY_EXPR_TYPE);
 
             }
 
@@ -689,7 +689,7 @@ public class GenCythonAstImpl {
         }
 
         private excepthandlerType createExceptClause(JsonObject asObject) {
-            stmtType[] body = extractStmts(asObject, "body").toArray(new stmtType[0]);
+            stmtType[] body = extractStmts(asObject, "body").toArray(PyAstFactory.EMPTY_STMT_TYPE);
             exprType name = null;
             exprType type = null;
 
@@ -715,7 +715,7 @@ public class GenCythonAstImpl {
                 if (lst.size() == 1) {
                     type = lst.get(0);
                 } else {
-                    type = new Tuple(lst.toArray(new exprType[0]), Tuple.Load, false);
+                    type = new Tuple(lst.toArray(PyAstFactory.EMPTY_EXPR_TYPE), Tuple.Load, false);
                     setLine(type, asArray.get(0).asObject());
                 }
             }
@@ -754,7 +754,7 @@ public class GenCythonAstImpl {
                     }
                 }
             }
-            Delete delete = new Delete(targets.toArray(new exprType[0]));
+            Delete delete = new Delete(targets.toArray(PyAstFactory.EMPTY_EXPR_TYPE));
             try {
                 ctx.setDelete(delete.targets);
             } catch (Exception e) {
@@ -1131,7 +1131,8 @@ public class GenCythonAstImpl {
                 keys.add(asExpr(key));
                 values.add(asExpr(val));
             }
-            Dict tup = new Dict(keys.toArray(new exprType[0]), values.toArray(new exprType[0]));
+            Dict tup = new Dict(keys.toArray(PyAstFactory.EMPTY_EXPR_TYPE),
+                    values.toArray(PyAstFactory.EMPTY_EXPR_TYPE));
             setLine(tup, asObject);
             return tup;
         }
@@ -1284,7 +1285,7 @@ public class GenCythonAstImpl {
                     suiteType orelse = for1.orelse;
                     exprType target = for1.target;
                     stmtType[] body = for1.body;
-                    Comprehension generator = new Comprehension(target, iter, new exprType[0]);
+                    Comprehension generator = new Comprehension(target, iter, PyAstFactory.EMPTY_EXPR_TYPE);
                     exprType exprToUse = null;
                     if (body.length == 1) {
                         stmtType stmtType = body[0];
@@ -1447,7 +1448,7 @@ public class GenCythonAstImpl {
                     keys.add((exprType) iSimpleNode);
                 }
             }
-            return new Dict(keys.toArray(new exprType[0]), values.toArray(new exprType[0]));
+            return new Dict(keys.toArray(PyAstFactory.EMPTY_EXPR_TYPE), values.toArray(PyAstFactory.EMPTY_EXPR_TYPE));
         }
 
         private void fillKeywordsFromDict(List<keywordType> keywords, Dict dict, boolean afterstarargs) {
@@ -1699,7 +1700,7 @@ public class GenCythonAstImpl {
                     }
                 }
                 node = new Compare(asExpr(left), operators.stream().mapToInt(i -> i).toArray(),
-                        right.toArray(new exprType[0]));
+                        right.toArray(PyAstFactory.EMPTY_EXPR_TYPE));
                 setLine(node, asObject);
             }
             return node;
@@ -2191,13 +2192,13 @@ public class GenCythonAstImpl {
 
                         }
                     }
-                    arguments.kwonlyargs = kwOnlyArgsList.toArray(new exprType[0]);
-                    arguments.kwonlyargannotation = kwOnlyArgsAnnotationsList.toArray(new exprType[0]);
-                    arguments.kw_defaults = kwOnlyArgsDefaultsList.toArray(new exprType[0]);
+                    arguments.kwonlyargs = kwOnlyArgsList.toArray(PyAstFactory.EMPTY_EXPR_TYPE);
+                    arguments.kwonlyargannotation = kwOnlyArgsAnnotationsList.toArray(PyAstFactory.EMPTY_EXPR_TYPE);
+                    arguments.kw_defaults = kwOnlyArgsDefaultsList.toArray(PyAstFactory.EMPTY_EXPR_TYPE);
 
-                    arguments.args = argsList.toArray(new exprType[0]);
-                    arguments.defaults = defaultsList.toArray(new exprType[0]);
-                    arguments.annotation = annotationsList.toArray(new exprType[0]);
+                    arguments.args = argsList.toArray(PyAstFactory.EMPTY_EXPR_TYPE);
+                    arguments.defaults = defaultsList.toArray(PyAstFactory.EMPTY_EXPR_TYPE);
+                    arguments.annotation = annotationsList.toArray(PyAstFactory.EMPTY_EXPR_TYPE);
                 } catch (Exception e) {
                     log(e);
                 }
@@ -2318,7 +2319,7 @@ public class GenCythonAstImpl {
                 orelse = createSuite(jsonElse.asObject());
             }
 
-            body = extractStmts(asObject, "body").toArray(new stmtType[0]);
+            body = extractStmts(asObject, "body").toArray(PyAstFactory.EMPTY_STMT_TYPE);
 
             For node = new For(target, iter, body, orelse, false);
             setLine(node, asObject);
@@ -2348,7 +2349,7 @@ public class GenCythonAstImpl {
                 orelse = createSuite(jsonElse.asObject());
             }
 
-            body = extractStmts(asObject, "body").toArray(new stmtType[0]);
+            body = extractStmts(asObject, "body").toArray(PyAstFactory.EMPTY_STMT_TYPE);
 
             For node = new For(target, iter, body, orelse, async);
             setLine(node, asObject);
@@ -2368,7 +2369,7 @@ public class GenCythonAstImpl {
                 if (node != null) {
                     ArrayList<stmtType> lst = new ArrayList<>();
                     addToStmtsList(node, lst);
-                    suite = new Suite(lst.toArray(new stmtType[0]));
+                    suite = new Suite(lst.toArray(PyAstFactory.EMPTY_STMT_TYPE));
                 }
             }
             return suite;
@@ -2389,7 +2390,7 @@ public class GenCythonAstImpl {
                 }
 
                 ISimpleNode right = createNode(rhs);
-                node = new Assign(targets.toArray(new exprType[0]), asExpr(right), null);
+                node = new Assign(targets.toArray(PyAstFactory.EMPTY_EXPR_TYPE), asExpr(right), null);
                 setLine(node, asObject);
             }
             return node;
@@ -2528,7 +2529,7 @@ public class GenCythonAstImpl {
             Name nogil = astFactory.createName("nogil");
             setLine(nogil, asObject);
 
-            stmtType[] body = extractStmts(asObject, "body").toArray(new stmtType[0]);
+            stmtType[] body = extractStmts(asObject, "body").toArray(PyAstFactory.EMPTY_STMT_TYPE);
             suiteType bodySuite = new Suite(body);
             setLine(bodySuite, asObject);
 
@@ -2549,7 +2550,7 @@ public class GenCythonAstImpl {
                 ctx.setStore(target);
             } catch (Exception e) {
             }
-            stmtType[] body = extractStmts(asObject, "body").toArray(new stmtType[0]);
+            stmtType[] body = extractStmts(asObject, "body").toArray(PyAstFactory.EMPTY_STMT_TYPE);
 
             suiteType bodySuite = new Suite(body);
             setLine(bodySuite, asObject);
@@ -2565,12 +2566,12 @@ public class GenCythonAstImpl {
 
         private While createWhile(JsonObject asObject) {
             exprType test = asExpr(createNode(asObject.get("condition")));
-            stmtType[] body = extractStmts(asObject, "body").toArray(new stmtType[0]);
+            stmtType[] body = extractStmts(asObject, "body").toArray(PyAstFactory.EMPTY_STMT_TYPE);
             suiteType orelse = null;
 
             List<stmtType> extractStmts = extractStmts(asObject, "else_clause");
             if (extractStmts.size() > 0) {
-                orelse = new Suite(extractStmts.toArray(new stmtType[0]));
+                orelse = new Suite(extractStmts.toArray(PyAstFactory.EMPTY_STMT_TYPE));
             }
 
             While whileStmt = new While(test, body, orelse);
@@ -2640,7 +2641,7 @@ public class GenCythonAstImpl {
                         ISimpleNode elseClause = createNode(jsonValue);
                         List<stmtType> elseStmts = new ArrayList<>();
                         addToStmtsList(elseClause, elseStmts);
-                        lastIfNode.orelse = new Suite(elseStmts.toArray(new stmtType[0]));
+                        lastIfNode.orelse = new Suite(elseStmts.toArray(PyAstFactory.EMPTY_STMT_TYPE));
                     }
                 }
             }
