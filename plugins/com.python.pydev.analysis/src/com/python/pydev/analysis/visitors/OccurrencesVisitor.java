@@ -150,6 +150,7 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
         }
         isInTestScope -= 1;
         isInMatchScope -= 1;
+        scope.addStatementSubScope();
         if (node.body != null) {
             for (SimpleNode n : node.body) {
                 if (n != null) {
@@ -157,6 +158,7 @@ public final class OccurrencesVisitor extends AbstractScopeAnalyzerVisitor {
                 }
             }
         }
+        scope.removeStatementSubScope();
     }
 
     public void traverse(If node) throws Exception {

@@ -943,6 +943,10 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
             endScope(node.type);
         }
 
+        if (node.value == null) {
+            scope.inAssignWithoutValue += 1;
+        }
+
         //in 'target1 = target2 = a', this is 'target1, target2'
         if (node.targets != null) {
             for (int i = 0; i < node.targets.length; i++) {
@@ -950,6 +954,9 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
                     node.targets[i].accept(this);
                 }
             }
+        }
+        if (node.value == null) {
+            scope.inAssignWithoutValue -= 1;
         }
         onAfterVisitAssign(node);
         return null;

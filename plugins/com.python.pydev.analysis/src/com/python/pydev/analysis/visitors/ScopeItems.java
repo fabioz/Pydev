@@ -106,7 +106,14 @@ public final class ScopeItems {
         if (foundItems == null || foundItems.size() == 0) {
             return null;
         }
-        return foundItems.get(foundItems.size() - 1);
+        for (int i = foundItems.size() - 1; i >= 0; i--) {
+            Found found = foundItems.get(i);
+            if (found.isEphemeral()) {
+                continue;
+            }
+            return found;
+        }
+        return null;
     }
 
     public void setAllUsed() {

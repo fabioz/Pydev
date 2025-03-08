@@ -576,7 +576,7 @@ public class OccurrencesAnalyzerPy310Test extends AnalysisTestsBase {
                 + "class SomeClass:\n"
                 + "    pass        \n"
                 + "");
-        checkNoError();
+        checkError("Undefined variable: a");
     }
 
     public void testTypingInfoInStrOk2() {
@@ -735,19 +735,56 @@ public class OccurrencesAnalyzerPy310Test extends AnalysisTestsBase {
     }
 
     public void testOverload() {
-        doc = new Document("from typing import overload\n"
-                + "\n"
-                + "\n"
-                + "class C:\n"
-                + "    @overload\n"
-                + "    def foo(self, a: int) -> None: ...\n"
-                + "\n"
-                + "    @overload\n"
-                + "    def foo(self, a: str) -> None: ...\n"
-                + "\n"
-                + "    def foo(self, a: int | str) -> None:\n"
-                + "        print(a)  # dummy impl"
-                + "");
+        doc = new Document("""
+                from typing import overload
+
+
+                class C:
+                    @overload
+                    def foo(self, a: int) -> None: ...
+
+                    @overload
+                    def foo(self, a: str) -> None: ...
+
+                    def foo(self, a: int | str) -> None:
+                        print(a)  # dummy impl""");
+        checkNoError();
+    }
+
+    public void testVarNotDefined() {
+        doc = new Document("""
+                def foo():
+                    v: int
+                    return v
+                    """);
+        IMessage[] messages = checkError("Undefined variable: v\n");
+        assertEquals(1, messages.length);
+        assertEquals(3, messages[0].getStartLine(doc));
+    }
+
+    public void testNoUnusedVariable() {
+        doc = new Document("""
+                def foo() -> float:
+                    v: int
+                    v = 3
+                    return v
+                    """);
+        checkNoError();
+    }
+
+    public void testNoUnusedVariableInMatch() {
+        doc = new Document("""
+                def foo(x: int|str) -> int:
+                    v: int             # spurious "Unused variable: v"
+                    match x:
+                        case int():
+                            v = 1      # spurious "Unused variable: v"
+                        case str():
+                            v = 2      # spurious "Unused variable: v"
+                        case None:
+                            v = 3      # No warning
+                    return v
+                    """);
         checkNoError();
     }
 }

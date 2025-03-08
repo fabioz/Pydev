@@ -37,6 +37,8 @@ public final class Found {
 
     private CallbackWithListeners<Found> onDefined;
 
+    private boolean isEphemeral = false;
+
     public Found(IToken tok, IToken generator, int scopeId, ScopeItems scopeFound) {
         GenAndTok o = new GenAndTok(generator, tok, scopeId, scopeFound);
         lastGenAndTok = o;
@@ -119,6 +121,19 @@ public final class Found {
 
     public boolean isWildImport() {
         return lastGenAndTok.generator.isWildImport();
+    }
+
+    public void setEphemeral(boolean b) {
+        // We have something as:
+        // variable: <type>
+        // i.e.: x: int
+        // -- it defines an assign with a name with a store which is needed
+        // to find occurrences but doesn't really define a value.
+        this.isEphemeral = true;
+    }
+
+    public boolean isEphemeral() {
+        return isEphemeral;
     }
 
 }

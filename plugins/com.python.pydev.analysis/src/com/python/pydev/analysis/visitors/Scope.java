@@ -298,6 +298,10 @@ public final class Scope implements Iterable<ScopeItems> {
         if (m.isInTypeChecking()) {
             newFound.setUsed(true); // Don't report imports inside of typing.TYPE_CHECKING as unused.
         }
+        if (inAssignWithoutValue > 0) {
+            newFound.setUsed(true); // Don't report `v: int` as unused
+            newFound.setEphemeral(true);
+        }
         if (isReimport) {
             if (m.getTryExceptImportError() == null) {
                 //we don't want to add reimport messages if we're within a try..except
@@ -524,6 +528,8 @@ public final class Scope implements Iterable<ScopeItems> {
     }
 
     public final FastStack<Subscript> subscripts = new FastStack<>(3);
+
+    public int inAssignWithoutValue;
 
     public void pushSubscript(Subscript node) {
         subscripts.push(node);
