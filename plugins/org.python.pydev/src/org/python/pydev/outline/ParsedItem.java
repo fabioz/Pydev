@@ -183,9 +183,9 @@ public class ParsedItem extends BaseParsedItem {
                 for (decoratorsType decorator : functionDefToken.decs) {
                     if (decorator.func instanceof Name) {
                         Name decoratorFuncName = (Name) decorator.func;
-                        if (decoratorFuncName.id.equals("staticmethod")) {
+                        if (NodeUtils.isStaticMethodDecoratorName(decoratorFuncName.id)) {
                             decorationIcon = UIConstants.DECORATION_STATIC;
-                        } else if (decoratorFuncName.id.equals("classmethod")) {
+                        } else if (NodeUtils.isClassMethodDecoratorName(decoratorFuncName.id)) {
                             decorationIcon = UIConstants.DECORATION_CLASS;
                         } else if (decoratorFuncName.id.equals("overload")) {
                             decorationIcon = UIConstants.DECORATION_OVERLOAD;

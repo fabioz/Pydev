@@ -345,7 +345,7 @@ public class PyAstFactory {
         if (functionDef.decs != null) {
             for (decoratorsType dec : functionDef.decs) {
                 String rep = NodeUtils.getRepresentationString(dec.func);
-                if ("classmethod".equals(rep)) {
+                if (NodeUtils.isClassMethodDecoratorName(rep)) {
                     isClassMethod = true;
                     break;
                 }

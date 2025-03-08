@@ -151,9 +151,9 @@ public final class NoSelfChecker {
 
                         if (rep != null) {
 
-                            if (rep.equals("staticmethod")) {
+                            if (NodeUtils.isStaticMethodDecoratorName(rep)) {
                                 isStaticMethod = true;
-                            } else if (rep.equals("classmethod")) {
+                            } else if (NodeUtils.isClassMethodDecoratorName(rep)) {
                                 isClassMethod = true;
                             }
                         }
@@ -233,11 +233,12 @@ public final class NoSelfChecker {
                     if (argRep != null && argRep.equals(rep)) {
                         String funcCall = NodeUtils.getRepresentationString(call.func);
 
-                        if (def != null && funcCall != null && funcCall.equals("staticmethod")) {
+                        if (def != null && funcCall != null
+                                && NodeUtils.isStaticMethodDecoratorName(funcCall)) {
                             //ok, finally... it is a staticmethod after all...
                             maybeNoSelfDefinedItems.peek().remove(rep);
 
-                        } else if (funcCall != null && funcCall.equals("classmethod")) {
+                        } else if (funcCall != null && NodeUtils.isClassMethodDecoratorName(funcCall)) {
                             //ok, finally... it is a classmethod after all...
                             tup.o1.expected = "cls";
                         }

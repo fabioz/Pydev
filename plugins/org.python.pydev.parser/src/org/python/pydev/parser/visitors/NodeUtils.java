@@ -2409,4 +2409,12 @@ public final class NodeUtils {
         // so, just say that it's inside.
         return true;
     }
+
+    public static boolean isStaticMethodDecoratorName(String rep) {
+        return "staticmethod".equals(rep) || "abstractstaticmethod".equals(rep);
+    }
+
+    public static boolean isClassMethodDecoratorName(String rep) {
+        return "classmethod".equals(rep) || "abstractclassmethod".equals(rep);
+    }
 }

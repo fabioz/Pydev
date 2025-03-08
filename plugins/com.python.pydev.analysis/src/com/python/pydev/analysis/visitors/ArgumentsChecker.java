@@ -72,9 +72,9 @@ public final class ArgumentsChecker {
 
                     if (rep != null) {
 
-                        if (rep.equals("staticmethod")) {
+                        if (NodeUtils.isStaticMethodDecoratorName(rep)) {
                             return STATICMETHOD;
-                        } else if (rep.equals("classmethod")) {
+                        } else if (NodeUtils.isClassMethodDecoratorName(rep)) {
                             return CLASSMETHOD;
                         }
                     }
@@ -114,11 +114,11 @@ public final class ArgumentsChecker {
                                 if (argRep != null && argRep.equals(funcName)) {
                                     String funcCall = NodeUtils.getRepresentationString(call.func);
 
-                                    if ("staticmethod".equals(funcCall)) {
+                                    if (NodeUtils.isStaticMethodDecoratorName(funcCall)) {
                                         //ok, finally... it is a staticmethod after all...
                                         return STATICMETHOD;
                                     }
-                                    if ("classmethod".equals(funcCall)) {
+                                    if (NodeUtils.isClassMethodDecoratorName(funcCall)) {
                                         return CLASSMETHOD;
                                     }
                                 }

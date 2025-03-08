@@ -12,6 +12,7 @@ import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Name;
 import org.python.pydev.parser.jython.ast.decoratorsType;
+import org.python.pydev.parser.visitors.NodeUtils;
 import org.python.pydev.parser.visitors.scope.ASTEntryWithChildren;
 import org.python.pydev.shared_core.image.IImageCache;
 import org.python.pydev.shared_core.image.UIConstants;
@@ -57,7 +58,7 @@ public class OutlineHideStaticMethodsAction extends AbstractOutlineFilterAction 
                             for (decoratorsType decorator : functionDefToken.decs) {
                                 if (decorator.func instanceof Name) {
                                     Name decoratorFuncName = (Name) decorator.func;
-                                    if (decoratorFuncName.id.equals("staticmethod")) {
+                                    if (NodeUtils.isStaticMethodDecoratorName(decoratorFuncName.id)) {
                                         return false;
                                     }
                                 }
