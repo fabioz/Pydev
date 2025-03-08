@@ -585,7 +585,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
         assertEquals("" +
                 "class Bar(object):\n" +
                 "    def __hash__(self)->int:\n" +
-                "        return object.__hash__(self)", doc.get());
+                "        return super().__hash__()", doc.get());
     }
 
     public void testOverrideCompletionsNoReturn() throws Exception {
@@ -608,7 +608,7 @@ public class PythonCompletionWithBuiltinsTest extends CodeCompletionTestsBase {
                 "        ...\n" +
                 "class Bar(Foo):\n" +
                 "    def method(self)->None:\n" +
-                "        Foo.method(self)", doc.get());
+                "        super().method()", doc.get());
     }
 
     public void testBuiltinKnownReturns() throws Exception {

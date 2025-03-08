@@ -299,7 +299,7 @@ public class PyAstFactory {
      * @param functionDef the function for the override body
      * @param currentClassName
      */
-    public stmtType createOverrideBody(FunctionDef functionDef, String parentClassName, String currentClassName) {
+    public stmtType createOverrideBody(FunctionDef functionDef) {
         //create a copy because we do not want to retain the original line/col and we may change the originals here.
         final boolean[] addReturn = new boolean[] { false };
         if (functionDef.returns != null) {
@@ -352,6 +352,15 @@ public class PyAstFactory {
             }
         }
 
+        boolean firstIsSelf = false;
+        if (functionDef.args != null && functionDef.args.args != null && functionDef.args.args.length > 0) {
+            exprType firstArg = functionDef.args.args[0];
+            if (firstArg != null) {
+                String rep = NodeUtils.getRepresentationString(firstArg);
+                firstIsSelf = "self".equals(rep);
+            }
+        }
+
         argumentsType args = functionDef.args.createCopy(false);
         List<exprType> params = new ArrayList<exprType>();
         for (exprType expr : args.args) { //note: self should be there already!
@@ -383,27 +392,14 @@ public class PyAstFactory {
             }
         }
         Call call;
-        if (isClassMethod && params.size() > 0) {
-            //We need to use the super() construct
-            //Something as:
-            //Expr[value=
-            //    Call[func=
-            //        Attribute[value=
-            //            Call[func=Name[id=super, ctx=Load, reserved=false], args=[Name[id=Current, ctx=Load, reserved=false], Name[id=cls, ctx=Load, reserved=false]], keywords=[], starargs=null, kwargs=null],
-            //        attr=NameTok[id=test, ctx=Attrib], ctx=Load],
-            //    args=[], keywords=[], starargs=null, kwargs=null]
-            //]
+        if (isClassMethod && params.size() > 0 || firstIsSelf) {
+            exprType _firstParam = params.remove(0);
 
-            exprType firstParam = params.remove(0);
-
-            Call innerCall = createCall("super", currentClassName, NodeUtils.getRepresentationString(firstParam));
-            Attribute attr = new Attribute(innerCall, new NameTok(NodeUtils.getRepresentationString(functionDef),
-                    NameTok.Attrib), Attribute.Load);
-            call = new Call(attr, params.toArray(new Name[params.size()]), keywords.toArray(new keywordType[keywords
-                    .size()]), starargs, kwargs);
+            call = createCall("super()." + NodeUtils.getRepresentationString(functionDef), params,
+                    keywords.toArray(new keywordType[keywords.size()]), starargs, kwargs);
 
         } else {
-            call = createCall(parentClassName + "." + NodeUtils.getRepresentationString(functionDef), params,
+            call = createCall("super()." + NodeUtils.getRepresentationString(functionDef), params,
                     keywords.toArray(new keywordType[keywords.size()]), starargs, kwargs);
         }
         if (addReturn[0]) {

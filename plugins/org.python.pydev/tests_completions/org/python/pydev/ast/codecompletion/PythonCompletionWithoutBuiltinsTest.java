@@ -1733,7 +1733,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         s = "" +
                 "class Foo:\n" +
                 "    def foo(self):\n" +
-                "        pass\n" +
+                "        return 1\n" +
                 "    \n" +
                 "class Bar(Foo):\n"
                 +
@@ -1747,12 +1747,12 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
         assertEquals("" +
                 "class Foo:\n" +
                 "    def foo(self):\n" +
-                "        pass\n" +
+                "        return 1\n" +
                 "    \n" +
                 "class Bar(Foo):\n"
                 +
                 "    def foo(self):\n" +
-                "        Foo.foo(self)", doc.get());
+                "        return super().foo()", doc.get());
     }
 
     public void testOverrideCompletions2() throws Exception {
@@ -1779,7 +1779,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "class Bar(Foo):\n"
                 +
                 "    def foo(self):\n" +
-                "        Foo.foo(self)", doc.get());
+                "        super().foo()", doc.get());
     }
 
     public void testOverrideCompletions3() throws Exception {
@@ -1833,7 +1833,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "    @classmethod\n" +
                 "    def rara(cls):\n"
                 +
-                "        super(Bar, cls).rara()", doc.get());
+                "        super().rara()", doc.get());
     }
 
     public void testOverrideCompletions5() throws Exception {
@@ -1862,7 +1862,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "        pass\n" +
                 "class Bar(Foo):\n" +
                 "    def rara(self):\n" +
-                "        Foo.rara(self)",
+                "        super().rara()",
                 doc.get());
     }
 
@@ -1908,7 +1908,7 @@ public class PythonCompletionWithoutBuiltinsTest extends CodeCompletionTestsBase
                 "\n" +
                 "class Bar(Foo):\n" +
                 "    def what(self, a, b):\n" +
-                "        Foo.what(self, a, b)",
+                "        super().what(a, b)",
                 doc.get());
     }
 

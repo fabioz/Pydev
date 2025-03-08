@@ -45,7 +45,7 @@ class B(A):
         print(self.attribute)
 
     def foo(self):
-        return A.foo(self)
+        super().foo()
 
         
 b = B()

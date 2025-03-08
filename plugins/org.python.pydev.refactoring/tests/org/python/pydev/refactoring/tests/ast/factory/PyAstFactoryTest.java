@@ -16,6 +16,7 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.parser.PyParserTestBase;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Attribute;
+import org.python.pydev.parser.jython.ast.ClassDef;
 import org.python.pydev.parser.jython.ast.FunctionDef;
 import org.python.pydev.parser.jython.ast.Module;
 import org.python.pydev.parser.jython.ast.Name;
@@ -101,12 +102,12 @@ public class PyAstFactoryTest extends PyParserTestBase {
     public void testCreateOverrideBody() throws Exception {
         String expected = "" +
                 "def test(self,arg,attribute):\n" +
-                "    Parent.test(self,arg,attribute)\n" +
+                "    super().test(arg,attribute)\n" +
                 "";
 
         FunctionDef functionDef = astFactory.createFunctionDef("test");
         functionDef.args = astFactory.createArguments(true, "arg", "attribute");
-        astFactory.setBody(functionDef, astFactory.createOverrideBody(functionDef, "Parent", "Current"));
+        astFactory.setBody(functionDef, astFactory.createOverrideBody(functionDef));
         checkExpected(functionDef, expected);
     }
 
@@ -114,14 +115,14 @@ public class PyAstFactoryTest extends PyParserTestBase {
         String expected = "" +
                 "def test(arg,attribute,*args,**kwargs):\n"
                 +
-                "    return Parent.test(arg,attribute,*args,**kwargs)\n" +
+                "    return super().test(arg,attribute,*args,**kwargs)\n" +
                 "";
 
         Module module = (Module) parseLegalDocStr(expected);
         FunctionDef functionDef = (FunctionDef) module.body[0];
         FunctionDef createdFunctionDef = astFactory.createFunctionDef("test");
         createdFunctionDef.args = functionDef.args.createCopy();
-        astFactory.setBody(createdFunctionDef, astFactory.createOverrideBody(functionDef, "Parent", "Current"));
+        astFactory.setBody(createdFunctionDef, astFactory.createOverrideBody(functionDef));
         checkExpected(createdFunctionDef, expected);
     }
 
@@ -134,14 +135,14 @@ public class PyAstFactoryTest extends PyParserTestBase {
         String expected = "" +
                 "def test(arg,attribute,a=10,b=20,*args,**kwargs):\n"
                 +
-                "    Parent.test(arg,attribute,a=a,b=b,*args,**kwargs)\n" +
+                "    super().test(arg,attribute,a=a,b=b,*args,**kwargs)\n" +
                 "";
 
         Module module = (Module) parseLegalDocStr(base);
         FunctionDef functionDef = (FunctionDef) module.body[0];
         FunctionDef createdFunctionDef = astFactory.createFunctionDef("test");
         createdFunctionDef.args = functionDef.args.createCopy();
-        astFactory.setBody(createdFunctionDef, astFactory.createOverrideBody(functionDef, "Parent", "Current"));
+        astFactory.setBody(createdFunctionDef, astFactory.createOverrideBody(functionDef));
         checkExpected(createdFunctionDef, expected);
     }
 
@@ -155,7 +156,7 @@ public class PyAstFactoryTest extends PyParserTestBase {
         String expected = "" +
                 "@classmethod\n" +
                 "def test(cls):\n" +
-                "    super(Current,cls).test()\n" +
+                "    super().test()\n" +
                 "";
         //        Module m = (Module) parseLegalDocStr(expected);
         //        FunctionDef func = (FunctionDef) m.body[0];
@@ -164,11 +165,51 @@ public class PyAstFactoryTest extends PyParserTestBase {
         Module module = (Module) parseLegalDocStr(base);
         FunctionDef functionDef = (FunctionDef) module.body[0];
         FunctionDef createdFunctionDef = functionDef.createCopy();
-        astFactory.setBody(createdFunctionDef, astFactory.createOverrideBody(functionDef, "Parent", "Current"));
+        astFactory.setBody(createdFunctionDef, astFactory.createOverrideBody(functionDef));
         checkExpected(createdFunctionDef, expected);
     }
 
     public void testCreateOverrideBody5() throws Exception {
+        String base = """
+                class A:
+                    def test(self, a):
+                        pass
+                """;
+
+        String expected = """
+                def test(self,a):
+                    super().test(a)
+                """;
+
+        Module module = (Module) parseLegalDocStr(base);
+        ClassDef classDef = (ClassDef) module.body[0];
+        FunctionDef functionDef = (FunctionDef) classDef.body[0];
+        FunctionDef createdFunctionDef = functionDef.createCopy();
+        astFactory.setBody(createdFunctionDef, astFactory.createOverrideBody(functionDef));
+        checkExpected(createdFunctionDef, expected);
+    }
+
+    public void testCreateOverrideBodyTypes() throws Exception {
+        String base = """
+                class A:
+                    def test(self, a) -> int:
+                        pass
+                """;
+
+        String expected = """
+                def test(self,a)->int:
+                    return super().test(a)
+                """;
+
+        Module module = (Module) parseLegalDocStr(base);
+        ClassDef classDef = (ClassDef) module.body[0];
+        FunctionDef functionDef = (FunctionDef) classDef.body[0];
+        FunctionDef createdFunctionDef = functionDef.createCopy();
+        astFactory.setBody(createdFunctionDef, astFactory.createOverrideBody(functionDef));
+        checkExpected(createdFunctionDef, expected);
+    }
+
+    public void testCreateOverrideBody6() throws Exception {
         String base = "" +
                 "@classmethod\n" +
                 "def test(cls):\n" +
@@ -179,13 +220,13 @@ public class PyAstFactoryTest extends PyParserTestBase {
         String expected = "" +
                 "@classmethod\n" +
                 "def test(cls):\n" +
-                "    super(Current,cls).test()\n" +
+                "    super().test()\n" +
                 "";
 
         Module module = (Module) parseLegalDocStr(base);
         FunctionDef functionDef = (FunctionDef) module.body[0];
         FunctionDef createdFunctionDef = functionDef.createCopy(false);
-        astFactory.setBody(createdFunctionDef, astFactory.createOverrideBody(functionDef, "Parent", "Current"));
+        astFactory.setBody(createdFunctionDef, astFactory.createOverrideBody(functionDef));
         checkExpected(createdFunctionDef, expected);
     }
 

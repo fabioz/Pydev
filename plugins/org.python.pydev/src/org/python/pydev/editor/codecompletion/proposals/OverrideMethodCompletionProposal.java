@@ -106,7 +106,7 @@ public class OverrideMethodCompletionProposal extends AbstractPyCompletionPropos
         String delimiter = PySelection.getDelimiter(document);
 
         PyAstFactory factory = new PyAstFactory(new AdapterPrefs(delimiter, versionProvider));
-        stmtType overrideBody = factory.createOverrideBody(this.functionDef, parentClassName, currentClassName); //Note that the copy won't have a parent.
+        stmtType overrideBody = factory.createOverrideBody(this.functionDef); //Note that the copy won't have a parent.
 
         FunctionDef functionDef = this.functionDef.createCopy(false);
         functionDef.body = new stmtType[] { overrideBody != null ? overrideBody : new Pass() };

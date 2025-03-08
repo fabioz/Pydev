@@ -21,5 +21,5 @@ class B(object):
     '''
         comment
     '''
-    def __hash__(self):
-        return object.__hash__(self)
+    def __hash__(self)->int:
+        return super().__hash__()
