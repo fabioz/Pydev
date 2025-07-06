@@ -49,6 +49,7 @@ import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.ast.runners.SimpleRunner;
 import org.python.pydev.core.ExtensionHelper;
 import org.python.pydev.core.ICodeCompletionASTManager;
+import org.python.pydev.core.IGrammarVersionProvider;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.core.IModule;
@@ -911,7 +912,10 @@ public class PythonNature extends AbstractPythonNature implements IPythonNature 
                 Log.log(e);
                 errorMessage = e.getMessage();
             }
-            return new Tuple<String, String>(split.o1 + " " + "2.7",
+            return new Tuple<String, String>(
+                    split.o1 + " "
+                            + IGrammarVersionProvider.grammarVersionToRep
+                                    .get(IGrammarVersionProvider.LATEST_GRAMMAR_PY3_VERSION),
                     errorMessage + " (in project: " + getProject() + ")");
         }
         return new Tuple<String, String>(versionPropertyCache, null);
