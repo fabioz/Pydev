@@ -1760,7 +1760,7 @@ public class InterpreterInfo implements IInterpreterInfo {
         if (this.activateCondaEnv) {
             File condaPrefix = this.getCondaPrefix();
             if (condaPrefix == null) {
-                Log.log("Unable to find conda prefix for: " + this.getExecutableOrJar());
+                Log.logInfo("Unable to find conda prefix for: " + this.getExecutableOrJar());
             } else if (condaPrefix.exists()) {
                 try {
                     Map<String, String> condaEnv = this.condaEnvCache;
