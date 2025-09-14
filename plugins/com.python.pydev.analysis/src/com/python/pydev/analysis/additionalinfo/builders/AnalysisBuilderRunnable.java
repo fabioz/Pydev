@@ -54,6 +54,9 @@ import com.python.pydev.analysis.pylint.PyLintVisitorFactory;
 import com.python.pydev.analysis.ruff.OnlyRemoveMarkersRuffVisitor;
 import com.python.pydev.analysis.ruff.RuffVisitor;
 import com.python.pydev.analysis.ruff.RuffVisitorFactory;
+import com.python.pydev.analysis.pyright.OnlyRemoveMarkersPyrightVisitor;
+import com.python.pydev.analysis.pyright.PyrightVisitor;
+import com.python.pydev.analysis.pyright.PyrightVisitorFactory;
 
 /**
  * This class is used to do analysis on a thread, so that if an analysis is asked for some analysis that
@@ -80,6 +83,7 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
     private IExternalCodeAnalysisVisitor mypyVisitor;
     private IExternalCodeAnalysisVisitor flake8Visitor;
     private IExternalCodeAnalysisVisitor ruffVisitor;
+    private IExternalCodeAnalysisVisitor pyrightVisitor;
 
     private boolean onlyRecreateCtxInsensitiveInfo;
 
@@ -131,9 +135,11 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
                     this.flake8Visitor = visitor;
                 } else if (visitor instanceof OnlyRemoveMarkersRuffVisitor || visitor instanceof RuffVisitor) {
                     this.ruffVisitor = visitor;
+                } else if (visitor instanceof OnlyRemoveMarkersPyrightVisitor || visitor instanceof PyrightVisitor) {
+                    this.pyrightVisitor = visitor;
                 }
             }
-            if (pyLintVisitor == null || mypyVisitor == null || flake8Visitor == null || ruffVisitor == null) {
+            if (pyLintVisitor == null || mypyVisitor == null || flake8Visitor == null || ruffVisitor == null || pyrightVisitor == null) {
                 throw new AssertionError("All visitor types must be passed.");
             }
         } else {
@@ -141,8 +147,9 @@ public class AnalysisBuilderRunnable extends AbstractAnalysisBuilderRunnable {
             this.mypyVisitor = MypyVisitorFactory.create(resource, document, module, internalCancelMonitor);
             this.flake8Visitor = Flake8VisitorFactory.create(resource, document, module, internalCancelMonitor);
             this.ruffVisitor = RuffVisitorFactory.create(resource, document, module, internalCancelMonitor);
+            this.pyrightVisitor = PyrightVisitorFactory.create(resource, document, module, internalCancelMonitor);
             this.allVisitors = new IExternalCodeAnalysisVisitor[] { this.pyLintVisitor, this.mypyVisitor,
-                    this.flake8Visitor, this.ruffVisitor };
+                    this.flake8Visitor, this.ruffVisitor, this.pyrightVisitor };
         }
 
         for (IExternalCodeAnalysisVisitor visitor : allVisitors) {
