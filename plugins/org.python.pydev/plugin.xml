@@ -477,6 +477,11 @@
             name="Flake8"
             id="org.python.pydev.prefs.flake8"/>
       <page
+            class="org.python.pydev.builder.pyright.PyrightPrefPage"
+            category="org.python.pydev.prefs.extensions.analysis"
+            name="Pyright"
+            id="org.python.pydev.prefs.pyright"/>
+      <page
             class="org.python.pydev.builder.todo.PyTodoPrefPage"
             category="org.python.pydev.prefs"
             name="Task Tags"
@@ -1236,6 +1241,14 @@
         point="org.eclipse.core.resources.markers"
         name="Flake8 Problem"
         id="flake8problemmarker">
+       <super type="org.eclipse.core.resources.problemmarker"/>
+       <persistent value="true"/>
+    </extension>
+    <!-- Communicate pyright problems as markers -->
+    <extension
+        point="org.eclipse.core.resources.markers"
+        name="PyRight Problem"
+        id="pyrightproblemmarker">
        <super type="org.eclipse.core.resources.problemmarker"/>
        <persistent value="true"/>
     </extension>

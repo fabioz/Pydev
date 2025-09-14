@@ -149,6 +149,7 @@ public class UIConstants {
 
     public static final String MYPY_ICON = "icons/python_file.gif";
     public static final String RUFF_ICON = "icons/python_file.gif";
+    public static final String PYRIGHT_ICON = "icons/python_file.gif";
 
     // search
     public static final String LINE_MATCH = "icons/line_match.gif";
