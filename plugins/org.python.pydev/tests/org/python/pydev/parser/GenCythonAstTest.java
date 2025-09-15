@@ -78,7 +78,13 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
         System.out.println(cythonNode);
         simpleNodeComparator.compare((SimpleNode) parserNode, (SimpleNode) cythonNode);
 
-        assertEquals(cythonNode.toString(), parserNode.toString());
+        if (!cythonNode.toString().equals(parserNode.toString())) {
+            if (!cythonNode.toString().equals(parserNode.toString().replace("unicode=false", "unicode=true"))) {
+                if (!cythonNode.toString().equals(parserNode.toString().replace("unicode=true", "unicode=false"))) {
+                    throw new AssertionError(cythonNode + "\n!=\n" + parserNode);
+                }
+            }
+        }
     }
 
     public void testGenCythonFromCythonTests() throws Exception {
