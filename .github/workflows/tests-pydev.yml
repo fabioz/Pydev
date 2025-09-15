@@ -56,7 +56,7 @@ jobs:
             which java
             which mvn
             echo ---- rt.jar should be listed below
-            find /opt/hostedtoolcache/Java_Adopt_jdk/17.*/x64/ -name "*.jar"
+            find /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.*/x64/ -name "*.jar"
             
       - name: xvfb
         shell: bash
