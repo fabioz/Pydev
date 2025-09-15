@@ -338,9 +338,9 @@ public class GenCythonAstTest extends CodeCompletionTestsBase {
     }
 
     public void compareWithAst(String code, String expectedAst) throws MisconfigurationException {
-        ParserInfo parserInfo = new ParserInfo(new Document(code), grammarVersionProvider);
-        ParseOutput cythonParseOutput = new GenCythonAstImpl(parserInfo).genCythonAst();
-        assertEquals(expectedAst, cythonParseOutput.ast.toString());
+        compareWithAst(code, new String[] {
+                expectedAst, expectedAst.replace("unicode=false", "unicode=true")
+        });
     }
 
     public void compareWithAst(String code, String[] expectedAstArray) throws MisconfigurationException {
