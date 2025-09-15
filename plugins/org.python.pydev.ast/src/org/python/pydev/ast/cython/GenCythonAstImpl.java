@@ -370,6 +370,7 @@ public class GenCythonAstImpl {
                         case "Div":
                         case "MatMult":
                         case "IntBinop":
+                        case "BitwiseOr":
                         case "Pow":
                         case "Mod":
                             node = createBinOp(asObject);
@@ -2823,6 +2824,11 @@ public class GenCythonAstImpl {
 
         private void setLine(SimpleNode node, JsonObject asObject) {
             if (node != null) {
+                JsonValue baseType = asObject.get("base_type");
+                if (baseType != null && baseType.isObject() && baseType.asObject().get("col") != null) {
+                    asObject = baseType.asObject();
+                }
+
                 JsonValue line = asObject.get("line");
                 if (line != null) {
                     node.beginLine = line.asInt();
