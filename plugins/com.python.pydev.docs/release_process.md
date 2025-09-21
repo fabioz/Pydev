@@ -21,7 +21,7 @@ python x:\liclipsews\pydev.page\build_homepage.py
 
 ## Commit everything and merge with master (homepage at: x:\liclipsews\pydev.page and X:\liclipsews\liclipsews\Pydev repo)
 
-mu acp "PyDev release 13.0.2"
+mu acp "PyDev release 13.1.0"
 
 ## Do build:
 
@@ -42,8 +42,8 @@ python -m dev add_to_update_site_mirror
 
 ## Tag repository (needed so that GitHub can reference it later)
 
-git tag pydev_13_0_2 -a -m "PyDev 13.0.2"
-git push --tag origin pydev_13_0_2
+git tag pydev_13_1_0 -a -m "PyDev 13.1.0"
+git push --tag origin pydev_13_1_0
 
 ## Create release in Github Releases
 
@@ -52,19 +52,19 @@ python -m dev add_to_github
 Contents in: X:\pydev_build\build_dir\pydev\features\org.python.pydev.p2-repo\target\github
 
 ### Title:
-PyDev 13.0.2
+PyDev 13.1.0
 
 ### Message:
 
-This release contains PyDev 13.0.2
+This release contains PyDev 13.1.0
 
 It's possible to add it as an Eclipse update site using the url:
 
-https://github.com/fabioz/Pydev/releases/download/pydev_13_0_2/
+https://github.com/fabioz/Pydev/releases/download/pydev_13_1_0/
 
 Or get a .zip to install manually by unzipping it in the dropins:
 
-https://github.com/fabioz/Pydev/releases/download/pydev_13_0_2/PyDev.13.0.2.zip
+https://github.com/fabioz/Pydev/releases/download/pydev_13_1_0/PyDev.13.1.0.zip
 
 
 ## Update homepage:
