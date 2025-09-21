@@ -196,6 +196,19 @@ public class OccurrencesAnalyzerPy38Test extends AnalysisTestsBase {
                 """);
         analyzer = new OccurrencesAnalyzer();
         checkNoError();
+    }
 
+    public void testTypecheckOk() {
+        doc = new Document("""
+                import typing
+                if typing.TYPE_CHECKING:
+                    from typing import Optional
+
+                def method():
+                    a: Optional[int] = None
+                    print(a)
+                """);
+        analyzer = new OccurrencesAnalyzer();
+        checkNoError();
     }
 }

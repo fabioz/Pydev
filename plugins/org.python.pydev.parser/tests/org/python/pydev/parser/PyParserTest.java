@@ -821,6 +821,23 @@ public class PyParserTest extends PyParserTestBase {
         });
     }
 
+    public void testParserSlash() throws Throwable {
+        final String s = "" +
+                "async def foo(a, /, b): pass\n";
+
+        checkWithAllGrammars(new ICallback<Boolean, Integer>() {
+
+            @Override
+            public Boolean call(Integer arg) {
+                if (arg <= IGrammarVersionProvider.GRAMMAR_PYTHON_VERSION_3_8) {
+                    return true;
+                }
+                parseLegalDocStr(s);
+                return true;
+            }
+        });
+    }
+
     public void testParserAs1() throws Throwable {
         final String s = "" +
                 "as = 1\n" +

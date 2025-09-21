@@ -427,7 +427,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
         //visit all the annotations in a new scope
         if (it.hasNext()) {
             int scopeType = Scope.SCOPE_TYPE_ANNOTATION;
-            if (futureAnnotationsImported) {
+            if (futureAnnotationsImported || !this.scope.isInGobalScope()) {
                 scopeType = Scope.SCOPE_TYPE_ANNOTATION_STR;
             }
             SimpleNode dummyNode = new SimpleNode();
@@ -935,7 +935,7 @@ public abstract class AbstractScopeAnalyzerVisitor extends VisitorBase {
 
         if (node.type != null) {
             int scopeType = Scope.SCOPE_TYPE_ANNOTATION;
-            if (futureAnnotationsImported) {
+            if (futureAnnotationsImported || !this.scope.isInGobalScope()) {
                 scopeType = Scope.SCOPE_TYPE_ANNOTATION_STR;
             }
             startScope(scopeType, node.type);

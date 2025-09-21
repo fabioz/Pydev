@@ -540,4 +540,15 @@ public final class Scope implements Iterable<ScopeItems> {
         subscripts.pop();
     }
 
+    public boolean isInGobalScope() {
+        for (ScopeItems s : this.scope) {
+            // Inside a class definition is still considered "global" only
+            // inside a method it's not global.
+            if ((s.getScopeType() & (SCOPE_TYPE_METHOD | SCOPE_TYPE_LAMBDA)) != 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 }
