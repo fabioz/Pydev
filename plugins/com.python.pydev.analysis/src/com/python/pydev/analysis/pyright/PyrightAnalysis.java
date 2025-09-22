@@ -95,7 +95,8 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                 return false;
             }
             ModuleLineCol other = (ModuleLineCol) obj;
-            return col == other.col && endCol == other.endCol && endLine == other.endLine && line == other.line && Objects.equals(moduleFile, other.moduleFile);
+            return col == other.col && endCol == other.endCol && endLine == other.endLine && line == other.line
+                    && Objects.equals(moduleFile, other.moduleFile);
         }
 
     }
@@ -193,9 +194,9 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                 }
                 cmdList.add(0, "pyright");
                 String[] args = cmdList.toArray(new String[0]);
-                WriteToStreamHelper.write("Pyright: Executing command line:", out, "python", "-m", args);
                 SimplePythonRunner runner = new SimplePythonRunner();
                 String[] parameters = SimplePythonRunner.preparePythonCallParameters(interpreter, "-m", args);
+                WriteToStreamHelper.write("MyPy: Executing command line:", out, StringUtils.join(" ", parameters));
 
                 Tuple<Process, String> r = runner.run(parameters, workingDir, nature, monitor, null);
                 return r.o1;
@@ -471,7 +472,8 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
                 MessageInfo messageInfo = moduleLineColToMessage.get(moduleLineCol);
                 if (messageInfo == null) {
                     messageInfo = new MessageInfo(message, markerSeverity, messageId, line, column,
-                            endLine, endColumn, document.get(region.getOffset(), region.getLength()), moduleFile, document);
+                            endLine, endColumn, document.get(region.getOffset(), region.getLength()), moduleFile,
+                            document);
                     moduleLineColToMessage.put(moduleLineCol, messageInfo);
                 } else {
                     messageInfo.addMessageLine(message);
@@ -491,7 +493,8 @@ import com.python.pydev.analysis.external.WriteToStreamHelper;
         }
     }
 
-    private void addToMarkers(String tok, int priority, String id, int line, int column, int endLine, int endColumn, String lineContents,
+    private void addToMarkers(String tok, int priority, String id, int line, int column, int endLine, int endColumn,
+            String lineContents,
             IFile moduleFile, IDocument document) {
         Map<String, Object> additionalInfo = new HashMap<>();
         additionalInfo.put(PyrightVisitor.PYRIGHT_MESSAGE_ID, id);

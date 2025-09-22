@@ -1210,6 +1210,22 @@ public class FileUtils {
         return (char) i;
     }
 
+    public static boolean isPrefixOf(File thisFile, File parentFile) {
+        File current = thisFile;
+        int parentLen = parentFile.getAbsolutePath().length();
+
+        while (current != null) {
+            if (current.equals(parentFile)) {
+                return true;
+            }
+            current = current.getParentFile();
+            if (current != null && current.getAbsolutePath().length() < parentLen) {
+                return false;
+            }
+        }
+        return false;
+    }
+
     public static boolean isPrefixOf(IPath thisPath, IPath anotherPath) {
         if (thisPath.getDevice() == null) {
             if (anotherPath.getDevice() != null) {
