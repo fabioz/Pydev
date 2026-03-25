@@ -121,6 +121,109 @@
       </objectContribution>
    </extension>
 
+   <extension
+         point="org.eclipse.ui.popupMenus">
+         <objectContribution
+            adaptable="true"
+            id="org.python.pydev.ui.actions.project"
+            objectClass="org.eclipse.core.resources.IProject">
+             <menu id="org.python.pydev.ui.poetry.menu" label="Poetry" icon="icons/PythonPoetry.svg">
+                 <separator name="misc"/>
+             </menu>
+             <action
+                   class="org.python.pydev.ui.actions.project.PoetryInstallAction"
+                   enablesFor="1"
+                   id="org.python.pydev.ui.actions.project.poetryInstallAction"
+                   label="Poetry install"
+                   menubarPath="org.python.pydev.ui.poetry.menu/misc"
+                   tooltip="Installs the project dependencies">
+             </action>
+             <action
+                   class="org.python.pydev.ui.actions.project.PoetrySync"
+                   enablesFor="1"
+                   id="org.python.pydev.ui.actions.project.poetrySync"
+                   label="Poetry sync"
+                   menubarPath="org.python.pydev.ui.poetry.menu/misc"
+                   tooltip="Update the project's environment according to the lockfile">
+             </action>
+             <action
+                   class="org.python.pydev.ui.actions.project.PoetryLock"
+                   enablesFor="1"
+                   id="org.python.pydev.ui.actions.project.poetryLock"
+                   label="Poetry lock"
+                   menubarPath="org.python.pydev.ui.poetry.menu/misc"
+                   tooltip="Locks the project dependencies">
+             </action>
+             <action
+                   class="org.python.pydev.ui.actions.project.PoetryUpdate"
+                   enablesFor="1"
+                   id="org.python.pydev.ui.actions.project.poetryUpdate"
+                   label="Poetry update"
+                   menubarPath="org.python.pydev.ui.poetry.menu/misc"
+                   tooltip="Update the dependencies as according to the pyproject.toml file">
+             </action>
+             <action
+                   class="org.python.pydev.ui.actions.project.PoetryRemove"
+                   enablesFor="1"
+                   id="org.python.pydev.ui.actions.project.poetryRemove"
+                   label="Poetry remove"
+                   menubarPath="org.python.pydev.ui.poetry.menu/misc"
+                   tooltip="Removes a package from the project dependencies">
+             </action>
+             <action
+                   class="org.python.pydev.ui.actions.project.PoetryAdd"
+                   enablesFor="1"
+                   id="org.python.pydev.ui.actions.project.poetryAdd"
+                   label="Poetry add"
+                   menubarPath="org.python.pydev.ui.poetry.menu/misc"
+                   tooltip="Adds a new dependency to pyproject.toml and installs it">
+             </action>
+             <visibility><objectState name="projectNature" value="org.python.pydev.pythonNature"/></visibility>
+         </objectContribution>
+         <objectContribution
+            adaptable="true"
+            id="org.python.pydev.ui.actions.project"
+            objectClass="org.eclipse.core.resources.IProject">
+             <menu id="org.python.pydev.ui.uv.menu" label="UV" icon="icons/uv.svg">
+                 <separator name="misc"/>
+             </menu>
+             <action
+                   class="org.python.pydev.ui.actions.project.UVLock"
+                   enablesFor="1"
+                   id="org.python.pydev.ui.actions.project.uvLock"
+                   label="UV lock"
+                   menubarPath="org.python.pydev.ui.uv.menu/misc"
+                   tooltip="Locks the project dependencies">
+             </action>
+             <action
+                   class="org.python.pydev.ui.actions.project.UVSync"
+                   enablesFor="1"
+                   id="org.python.pydev.ui.actions.project.uvSync"
+                   label="UV sync"
+                   menubarPath="org.python.pydev.ui.uv.menu/misc"
+                   tooltip="Syncs the project dependencies">
+             </action>
+             <action
+                   class="org.python.pydev.ui.actions.project.UVRemove"
+                   enablesFor="1"
+                   id="org.python.pydev.ui.actions.project.uvRemove"
+                   label="UV remove"
+                   menubarPath="org.python.pydev.ui.uv.menu/misc"
+                   tooltip="Removes a package from the project dependencies">
+             </action>
+             <action
+                   class="org.python.pydev.ui.actions.project.UVAdd"
+                   enablesFor="1"
+                   id="org.python.pydev.ui.actions.project.uvAdd"
+                   label="UV add"
+                   menubarPath="org.python.pydev.ui.uv.menu/misc"
+                   tooltip="Adds a new dependency to pyproject.toml and installs it">
+             </action>
+             <visibility><objectState name="projectNature" value="org.python.pydev.pythonNature"/></visibility>
+           </objectContribution>
+   </extension>
+
+
    <extension point="org.eclipse.ui.popupMenus">
 
       <!-- add to PYTHONPATH -->
