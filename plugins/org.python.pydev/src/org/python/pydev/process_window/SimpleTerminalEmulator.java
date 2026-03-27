@@ -1,11 +1,13 @@
 package org.python.pydev.process_window;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Text;
+import org.python.pydev.shared_core.string.FastStringBuffer;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.FontUtils;
 import org.python.pydev.shared_ui.IFontUsage;
@@ -72,10 +74,9 @@ public class SimpleTerminalEmulator {
     }
 
     public void processText(String contents) {
-        List<String> splitInLines = StringUtils.splitInLines(contents, false);
+        List<String> splitInLines = StringUtils.splitInLines(contents, true);
+        FastStringBuffer buf = new FastStringBuffer(output.getTextChars()).removeChars(Collections.singleton('\r'));
         for (String line : splitInLines) {
-            output.append(line);
-            output.append("\n");
             // System.out.println("start line ---");
             // char[] charArray = line.toCharArray();
             // for (char c : charArray) {
@@ -93,30 +94,38 @@ public class SimpleTerminalEmulator {
             //     }
             // }
             // System.out.println("end line ---");
-            // if (line.endsWith("\r")) {
-            //     // Work as a terminal emulator and go to the start of the line
-            //     char[] textChars = output.getTextChars();
-            //     FastStringBuffer buf = new FastStringBuffer(textChars);
-            //     while (buf.length() > 0 && !buf.endsWith('\n')) {
-            //         buf.deleteLast();
-            //     }
-            //     cursor = buf.length();
-            //     output.append(line.substring(0, line.length() - 1));
-            // } else {
-            //     String text = output.getText();
-            //     if (text.length() == cursor) {
-            //         output.append(line);
-            //         cursor += line.length();
-            //     } else if (line.equals("\r\n") || line.equals("\n")) {
-            //         cursor = text.length() + line.length();
-            //         output.append(line);
-            //     } else {
-            //         text = text.substring(0, cursor);
-            //         text += line;
-            //         output.setText(text);
-            //         cursor = text.length();
-            //     }
-            // }
+
+            // Convert Windows newlines to Unix.
+            if (line.endsWith("\r\n")) {
+                line = line.substring(0, line.length() - 2) + "\n";
+            }
+            // Rewrite each line in between carriage returns.
+            while (!line.isEmpty()) {
+                String cutString = line;
+                int crIndex = line.indexOf('\r');
+                if (crIndex > -1) {
+                    cutString = line.substring(0, crIndex);
+                    line = line.substring(crIndex + 1);
+                }
+                if (cursor < buf.length()) {
+                    buf.setLength(cursor);
+                    buf.append(cutString);
+                    output.setText(buf.toString());
+                    cursor = buf.length();
+                } else {
+                    output.append(cutString);
+                    buf.append(cutString);
+                    cursor += cutString.length();
+                }
+                if (line.isEmpty()) {
+                    // Line ended with \r, so line.substring made it blank,
+                    // so we reset the cursor to the last newline character.
+                    cursor = buf.lastIndexOf('\n') + 1;
+                } else if (crIndex < 0) {
+                    // \r didn't exist so we already processed a whole line.
+                    line = "";
+                }
+            }
         }
     }
 }
