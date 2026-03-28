@@ -16,6 +16,9 @@ from typing import Sequence, Callable
 from pathlib import Path
 import sys
 import subprocess
+from tempfile import TemporaryDirectory
+import venv
+import shutil
 
 _VERSION = '13.1.0'
 
@@ -23,7 +26,6 @@ _pydev_root = Path(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 def _call(cmdline: str | Sequence[str]):
-    import subprocess
     if not isinstance(cmdline, (list, tuple)):
         cmdline = cmdline.split(' ')
     subprocess.check_call(cmdline)
@@ -146,6 +148,26 @@ echo i.e.:
 echo mu ac Updated typeshed
 ''', typeshed_dir)
 
+
+def update_third_party():
+    """Updates autopep8 and pycodestyle in `plugins/org.python.pydev.core/pysrc/third_party/pep8`."""
+    with TemporaryDirectory() as temp_dir:
+        basedir = Path(temp_dir) / "tmp"
+        venv.create(basedir, with_pip=True)
+        version = ".".join((
+            subprocess.check_output([basedir / "bin/python", "--version"]).decode().split(" ")[-1]
+        ).strip().split(".")[0:2])
+        pip = Path(basedir) / "bin/pip"
+        subprocess.check_output([pip, "install", "autopep8","pycodestyle"])
+        autopep8 = Path(basedir) / f"lib/python{version}/site-packages/autopep8.py"
+        pycodestyle = Path(basedir) / f"lib/python{version}/site-packages/pycodestyle.py"
+        dest_dir = Path(__file__).parents[1] / "plugins/org.python.pydev.core/pysrc/third_party/pep8"
+        if autopep8.exists():
+            shutil.copy(autopep8.as_posix(), dest_dir.as_posix())
+            print("Copied autopep8.py")
+        if pycodestyle.exists():
+            shutil.copy(pycodestyle.as_posix(), dest_dir.as_posix())
+            print("Copied pycodestyle.py")
 
 def write_and_exit(msg):
     sys.stderr.write(f'{msg}\n')
