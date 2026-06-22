@@ -9,6 +9,7 @@ package org.python.pydev.parser.visitors;
 import java.util.Iterator;
 import java.util.List;
 
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.parser.PyParserTestBase;
 import org.python.pydev.parser.jython.SimpleNode;
 import org.python.pydev.parser.jython.ast.Assign;
@@ -210,6 +211,37 @@ public class NodeUtilsTest extends PyParserTestBase {
         List<ASTEntry> classes = visitor.getClassesAndMethodsList();
         assertEquals(1, classes.size());
         assertEquals(endLine, classes.get(0).endLine);
+    }
+
+    private FunctionDef parseSingleFunctionDef(String src) {
+        setDefaultVersion(IPythonNature.GRAMMAR_PYTHON_VERSION_3_6);
+        Module module = (Module) parseLegalDocStr(src);
+        return (FunctionDef) module.body[0];
+    }
+
+    public void testGetTypeForPositionalParameter() throws Exception {
+        FunctionDef funcDef = parseSingleFunctionDef("def f(x: int):\n    return x\n");
+        assertEquals("int", NodeUtils.getTypeForParameterFromAST("x", funcDef).getActTok());
+    }
+
+    public void testGetTypeForKeywordOnlyParameter() throws Exception {
+        // Keyword-only parameters live in kwonlyargs/kwonlyargannotation, not args/annotation.
+        FunctionDef funcDef = parseSingleFunctionDef("def f(x, *, y: int):\n    return y\n");
+        assertEquals("int", NodeUtils.getTypeForParameterFromAST("y", funcDef).getActTok());
+    }
+
+    public void testGetTypeForKeywordOnlyParameterWithoutPositionalAnnotation() throws Exception {
+        // No positional parameter is annotated, so args.annotation is empty; the keyword-only
+        // annotation must still be found.
+        FunctionDef funcDef = parseSingleFunctionDef("def f(x, *, y: str):\n    return y\n");
+        assertEquals("str", NodeUtils.getTypeForParameterFromAST("y", funcDef).getActTok());
+        assertNull(NodeUtils.getTypeForParameterFromAST("x", funcDef));
+    }
+
+    public void testGetTypeForVarargAndKwargParameters() throws Exception {
+        FunctionDef funcDef = parseSingleFunctionDef("def f(*args: int, **kwargs: str):\n    pass\n");
+        assertEquals("int", NodeUtils.getTypeForParameterFromAST("args", funcDef).getActTok());
+        assertEquals("str", NodeUtils.getTypeForParameterFromAST("kwargs", funcDef).getActTok());
     }
 
     public void testFindStmtForNode() throws Exception {

@@ -1511,28 +1511,65 @@ public final class NodeUtils {
             if (args == null) {
                 return null;
             }
-            exprType[] annotation = args.annotation;
-            if (annotation == null) {
-                return null;
+            // Positional parameters: args.args[i] is annotated by args.annotation[i].
+            exprType found = getAnnotationForParameter(actTok, args.args, args.annotation);
+            if (found != null) {
+                return found;
             }
-            exprType[] args2 = args.args;
-            if (args2 == null) {
-                return null;
+            // Keyword-only parameters (declared after a bare '*' or '*args'):
+            // args.kwonlyargs[i] is annotated by args.kwonlyargannotation[i].
+            found = getAnnotationForParameter(actTok, args.kwonlyargs, args.kwonlyargannotation);
+            if (found != null) {
+                return found;
             }
-            for (int i = 0; i < args2.length; i++) {
-                exprType argI = args2[i];
-                if (argI != null) {
-                    String rep = NodeUtils.getRepresentationString(argI);
-                    if (actTok.equals(rep)) {
-                        if (annotation.length > i) {
-                            exprType exprType = annotation[i];
-                            if (exprType != null) {
-                                return exprType;
-                            }
-                        }
+            // The '*args' and '**kwargs' parameters carry a single annotation slot each.
+            found = getAnnotationForVararg(actTok, args.vararg, args.varargannotation);
+            if (found != null) {
+                return found;
+            }
+            found = getAnnotationForVararg(actTok, args.kwarg, args.kwargannotation);
+            if (found != null) {
+                return found;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Finds the annotation for the parameter named <code>actTok</code> in a pair of parallel
+     * arrays (parameter names and their annotations), as used for positional and keyword-only
+     * parameters in {@link argumentsType}.
+     */
+    private static exprType getAnnotationForParameter(String actTok, exprType[] params,
+            exprType[] annotations) {
+        if (params == null || annotations == null) {
+            return null;
+        }
+        for (int i = 0; i < params.length; i++) {
+            exprType param = params[i];
+            if (param != null && actTok.equals(NodeUtils.getRepresentationString(param))) {
+                if (annotations.length > i) {
+                    exprType annotation = annotations[i];
+                    if (annotation != null) {
+                        return annotation;
                     }
                 }
             }
+        }
+        return null;
+    }
+
+    /**
+     * Finds the annotation for a '*args'/'**kwargs' parameter, which carries a single name and a
+     * single annotation slot in {@link argumentsType}.
+     */
+    private static exprType getAnnotationForVararg(String actTok, NameTokType param,
+            exprType annotation) {
+        if (param == null || annotation == null) {
+            return null;
+        }
+        if (actTok.equals(NodeUtils.getRepresentationString(param))) {
+            return annotation;
         }
         return null;
     }
