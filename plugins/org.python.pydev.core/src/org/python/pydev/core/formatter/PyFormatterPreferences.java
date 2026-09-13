@@ -102,9 +102,26 @@ public class PyFormatterPreferences {
         return getString(RUFF_PARAMETERS, projectAdaptable);
     }
 
+    /**
+     * @return whether the given formatter can format only some lines of a document: the PyDev formatter keeps
+     * the line count so that changed lines can be spliced back, black and ruff have range options
+     * (--line-ranges since black 23.11, --range since ruff 0.2.1). autopep8 can't (its --range takes a single
+     * region while a save usually changes several).
+     */
+    public static boolean supportsFormatOnlyChangedLines(FormatterEnum formatterStyle) {
+        switch (formatterStyle) {
+            case PYDEVF:
+            case BLACK:
+            case RUFF:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     public static boolean getFormatOnlyChangedLines(IAdaptable projectAdaptable) {
-        if (getFormatterStyle(projectAdaptable) != FormatterEnum.PYDEVF) {
-            return false; //i.e.: not available with autopep8 nor black nor ruff.
+        if (!supportsFormatOnlyChangedLines(getFormatterStyle(projectAdaptable))) {
+            return false;
         }
         return getBoolean(FORMAT_ONLY_CHANGED_LINES, projectAdaptable);
     }

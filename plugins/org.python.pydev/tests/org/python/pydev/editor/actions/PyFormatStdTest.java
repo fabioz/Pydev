@@ -15,6 +15,7 @@ import org.eclipse.jface.text.Document;
 import org.python.pydev.ast.formatter.PyFormatter;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
+import org.python.pydev.core.formatter.ExternalFormatterException;
 import org.python.pydev.core.formatter.FormatStd;
 import org.python.pydev.shared_core.string.StringUtils;
 
@@ -845,7 +846,7 @@ public class PyFormatStdTest extends TestCase {
         checkFormatResults(s, s1);
     }
 
-    public void testFormatSelection() {
+    public void testFormatSelection() throws Exception {
         std.spaceAfterComma = true;
         std.parametersWithSpace = false;
         std.operatorsWithSpace = true;
@@ -868,7 +869,7 @@ public class PyFormatStdTest extends TestCase {
         assertEquals(expected, doc.get());
     }
 
-    public void testFormatSelection2() {
+    public void testFormatSelection2() throws Exception {
         std.spaceAfterComma = true;
         std.parametersWithSpace = false;
         std.operatorsWithSpace = true;
@@ -891,7 +892,7 @@ public class PyFormatStdTest extends TestCase {
         assertEquals(expected, doc.get());
     }
 
-    public void testFormatSelectionNotOnStrings() {
+    public void testFormatSelectionNotOnStrings() throws Exception {
         std.spaceAfterComma = true;
         std.parametersWithSpace = true;
         std.operatorsWithSpace = true;
@@ -941,7 +942,7 @@ public class PyFormatStdTest extends TestCase {
         checkFormatResults("c = 30", "c = 30\n");
     }
 
-    public void testEqualsWithSpace() {
+    public void testEqualsWithSpace() throws Exception {
         std.spaceAfterComma = true;
         std.parametersWithSpace = false;
         std.operatorsWithSpace = true;
@@ -1088,7 +1089,7 @@ public class PyFormatStdTest extends TestCase {
             doc.set(s);
             PyFormatter.formatAll(null, doc, null, true, std, false, true);
             assertEquals(expected, doc.get());
-        } catch (SyntaxErrorException e) {
+        } catch (SyntaxErrorException | ExternalFormatterException e) {
             throw new RuntimeException(e);
         }
     }
@@ -2016,7 +2017,7 @@ public class PyFormatStdTest extends TestCase {
         checkFormatResults(input, expected);
     }
 
-    public void testFormatSelectionChangingLines() {
+    public void testFormatSelectionChangingLines() throws Exception {
         std.manageBlankLines = true;
         std.trimLines = true;
 

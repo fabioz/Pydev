@@ -28,7 +28,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.python.pydev.ast.formatter.PyFormatter;
 import org.python.pydev.core.IPythonPartitions;
 import org.python.pydev.core.docutils.SyntaxErrorException;
+import org.python.pydev.core.formatter.ExternalFormatterException;
 import org.python.pydev.core.formatter.FormatStd;
+import org.python.pydev.core.log.Log;
 import org.python.pydev.core.partition.PyPartitionScanner;
 import org.python.pydev.plugin.PyDevUiPrefs;
 import org.python.pydev.shared_core.partitioner.FastPartitioner;
@@ -138,6 +140,8 @@ public class StyledTextForShowingCodeFactory implements IPropertyChangeListener 
             PyFormatter.formatAll(null, doc, null, false, formatStd, false, true);
             str = doc.get();
         } catch (SyntaxErrorException e) {
+        } catch (ExternalFormatterException e) {
+            Log.log(e);
         }
         FastStringBuffer buf = new FastStringBuffer();
         for (String line : StringUtils.splitInLines(str)) {

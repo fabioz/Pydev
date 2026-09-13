@@ -106,6 +106,7 @@ import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.PythonPairMatcher;
 import org.python.pydev.core.docutils.SyntaxErrorException;
 import org.python.pydev.core.editor.OpenEditors;
+import org.python.pydev.core.formatter.ExternalFormatterException;
 import org.python.pydev.core.formatter.FormatStd;
 import org.python.pydev.core.formatter.PyFormatterPreferences;
 import org.python.pydev.core.log.Log;
@@ -888,6 +889,8 @@ public class PyEdit extends PyEditProjection implements IPyEdit, IGrammarVersion
                             statusLineManager.setErrorMessage(null);
                         } catch (SyntaxErrorException e) {
                             statusLineManager.setErrorMessage(e.getMessage());
+                        } catch (ExternalFormatterException e) {
+                            PyFormatAction.notifyExternalFormatterFailure(this, e);
                         }
                     }
                 }

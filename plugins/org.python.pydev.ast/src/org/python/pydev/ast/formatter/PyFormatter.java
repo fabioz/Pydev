@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Assert;
@@ -22,12 +23,15 @@ import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.docutils.ParsingUtils;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
+import org.python.pydev.core.formatter.ExternalFormatterException;
 import org.python.pydev.core.formatter.FormatStd;
+import org.python.pydev.core.formatter.FormatStd.FormatterEnum;
 import org.python.pydev.core.formatter.PyFormatStdManageBlankLines;
 import org.python.pydev.core.formatter.PyFormatStdManageBlankLines.LineOffsetAndInfo;
 import org.python.pydev.core.formatter.PyFormatterPreferences;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.core.pep8.BlackRunner;
+import org.python.pydev.core.pep8.IExternalFormatterRunner;
 import org.python.pydev.core.pep8.Pep8Runner;
 import org.python.pydev.core.pep8.RuffRunner;
 import org.python.pydev.parser.prettyprinterv2.IFormatter;
@@ -39,6 +43,23 @@ import org.python.pydev.shared_core.utils.ArrayUtils;
 import org.python.pydev.shared_core.utils.DocUtils.EmptyLinesComputer;
 
 public class PyFormatter {
+
+    /**
+     * Provides the runner for an external formatter style (BLACK, RUFF). May be replaced (e.g. in tests).
+     */
+    public static Function<FormatterEnum, IExternalFormatterRunner> externalFormatterRunnerProvider = //
+            PyFormatter::createExternalFormatterRunner;
+
+    private static IExternalFormatterRunner createExternalFormatterRunner(FormatterEnum style) {
+        switch (style) {
+            case BLACK:
+                return new BlackRunner();
+            case RUFF:
+                return new RuffRunner();
+            default:
+                throw new IllegalArgumentException("Not an external formatter: " + style);
+        }
+    }
 
     /**
      * This method formats a string given some standard.
@@ -756,7 +777,7 @@ public class PyFormatter {
     }
 
     public static void formatSelection(IDocument doc, int[] regionsForSave, IPyFormatStdProvider edit, PySelection ps,
-            FormatStd formatStd) {
+            FormatStd formatStd) throws ExternalFormatterException {
         formatSelection(doc, regionsForSave, edit, ps, formatStd, Integer.MAX_VALUE);
     }
 
@@ -767,7 +788,7 @@ public class PyFormatter {
      * @see IFormatter
      */
     public static void formatSelection(IDocument doc, int[] regionsForSave, IPyFormatStdProvider edit, PySelection ps,
-            FormatStd formatStd, int manageBlankLinesBeforeLine) {
+            FormatStd formatStd, int manageBlankLinesBeforeLine) throws ExternalFormatterException {
         //        Formatter formatter = new Formatter();
         //        formatter.formatSelection(doc, startLine, endLineIndex, edit, ps);
         Assert.isTrue(regionsForSave != null);
@@ -801,10 +822,8 @@ public class PyFormatter {
                 return;
             case BLACK:
             case RUFF:
-                try {
-                    formatAll(filepath, doc, edit, true, formatStd, true, false);
-                } catch (SyntaxErrorException e1) {
-                }
+                formatWithExternalToolInLines(filepath, doc, edit, formatStd, regionsForSave);
+                return;
             case PYDEVF:
                 //fallthrough
         }
@@ -922,7 +941,7 @@ public class PyFormatter {
     /*default*/public static String formatStrAutopep8OrPyDev(String filepath, IPythonNature nature, IDocument doc,
             FormatStd std,
             String delimiter, boolean throwSyntaxError, boolean allowChangingBlankLines, File workingDir)
-            throws SyntaxErrorException {
+            throws SyntaxErrorException, ExternalFormatterException {
         switch (std.formatterStyle) {
             case AUTOPEP8:
                 String parameters = std.autopep8Parameters;
@@ -935,23 +954,10 @@ public class PyFormatter {
 
                 return formatted;
             case BLACK:
-                formatted = BlackRunner.formatWithBlack(filepath, nature, doc, std, workingDir);
-                if (formatted == null) {
-                    formatted = doc.get();
-                }
-
-                formatted = StringUtils.replaceNewLines(formatted, delimiter);
-
-                return formatted;
             case RUFF:
-                formatted = RuffRunner.formatWithRuff(filepath, nature, doc, std, workingDir);
-                if (formatted == null) {
-                    formatted = doc.get();
-                }
-
-                formatted = StringUtils.replaceNewLines(formatted, delimiter);
-
-                return formatted;
+                formatted = externalFormatterRunnerProvider.apply(std.formatterStyle).format(filepath, nature, doc,
+                        std, workingDir, null);
+                return StringUtils.replaceNewLines(formatted, delimiter);
             default:
                 FastStringBuffer buf = formatStr(doc.get(), std, 0, delimiter, throwSyntaxError);
                 if (allowChangingBlankLines && std.manageBlankLines) {
@@ -971,19 +977,54 @@ public class PyFormatter {
     public static String formatStrAutopep8OrPyDev(String filepath, IPythonNature nature, FormatStd formatStd,
             boolean throwSyntaxError,
             IDocument doc, String delimiter, boolean allowChangingBlankLines)
-            throws SyntaxErrorException {
-        File workingDir = null;
+            throws SyntaxErrorException, ExternalFormatterException {
+        return formatStrAutopep8OrPyDev(filepath, nature, formatStd, throwSyntaxError,
+                doc, delimiter, allowChangingBlankLines, getProjectLocation(nature));
+    }
+
+    /**
+     * @return the location of the project of the given nature (the working dir for external tools) or null.
+     */
+    private static File getProjectLocation(IPythonNature nature) {
         if (nature != null) {
             IProject project = nature.getProject();
             if (project != null) {
                 IPath location = project.getLocation();
                 if (location != null) {
-                    workingDir = new File(location.toOSString());
+                    return new File(location.toOSString());
                 }
             }
         }
-        return formatStrAutopep8OrPyDev(filepath, nature, formatStd, throwSyntaxError,
-                doc, delimiter, allowChangingBlankLines, workingDir);
+        return null;
+    }
+
+    /**
+     * Formats only the given lines with an external formatter (black/ruff): the tool restricts the
+     * formatting to those lines itself and its result is applied to the document as a minimal diff
+     * (so that markers, the caret, etc. are kept).
+     *
+     * @param zeroBasedLines the lines to format; nothing is done when empty.
+     */
+    private static void formatWithExternalToolInLines(String filepath, IDocument doc, IPyFormatStdProvider edit,
+            FormatStd formatStd, int[] zeroBasedLines) throws ExternalFormatterException {
+        if (zeroBasedLines.length == 0) {
+            return;
+        }
+        IPythonNature nature;
+        try {
+            nature = edit != null ? edit.getPythonNature() : null;
+        } catch (MisconfigurationException e) {
+            Log.log(e);
+            return;
+        }
+        String delimiter = PySelection.getDelimiter(doc);
+        String formatted = externalFormatterRunnerProvider.apply(formatStd.formatterStyle).format(filepath, nature,
+                doc, formatStd, getProjectLocation(nature), zeroBasedLines);
+        formatted = StringUtils.replaceNewLines(formatted, delimiter);
+        String contents = doc.get();
+        if (!contents.equals(formatted)) {
+            TextSelectionUtils.setOnlyDifferentCode(doc, contents, formatted);
+        }
     }
 
     /**
@@ -993,7 +1034,7 @@ public class PyFormatter {
     public static String formatStrAutopep8OrPyDev(String filepath, IPythonNature nature, FormatStd formatStd,
             boolean throwSyntaxError,
             IDocument doc, String delimiter, boolean allowChangingBlankLines, File workingDir)
-            throws SyntaxErrorException {
+            throws SyntaxErrorException, ExternalFormatterException {
         String formatted = formatStrAutopep8OrPyDev(filepath, nature, doc, formatStd, delimiter, throwSyntaxError,
                 allowChangingBlankLines, workingDir);
         //To finish, check the end of line.
@@ -1015,7 +1056,8 @@ public class PyFormatter {
 
     public static void formatAll(String filepath, IDocument doc, IPyFormatStdProvider edit, boolean isOpenedFile,
             FormatStd formatStd,
-            boolean throwSyntaxError, boolean allowChangingLines) throws SyntaxErrorException {
+            boolean throwSyntaxError, boolean allowChangingLines)
+            throws SyntaxErrorException, ExternalFormatterException {
         String delimiter = PySelection.getDelimiter(doc);
         String formatted;
         try {
@@ -1122,6 +1164,10 @@ public class PyFormatter {
                         newDocContents = PyFormatter.formatStrAutopep8OrPyDev(filepath, null, formatStd, true, newDoc,
                                 delimiter,
                                 allowChangingLines);
+                    } catch (ExternalFormatterException e) {
+                        // Keep the contents as they are (the error is reported on stderr).
+                        System.err.println(e.getMessage());
+                        newDocContents = initialContent;
                     } catch (SyntaxErrorException e) {
                         // Don't format: syntax is not Ok.
                         System.out.write(("Content-Length: 0\r\n").getBytes());
@@ -1161,6 +1207,10 @@ public class PyFormatter {
                     newDocContents = PyFormatter.formatStrAutopep8OrPyDev(filepath, null, formatStd, true, newDoc,
                             delimiter,
                             allowChangingLines);
+                } catch (ExternalFormatterException e) {
+                    // Keep the contents as they are (the error is reported on stderr).
+                    System.err.println(e.getMessage());
+                    newDocContents = initialContent;
                 } catch (SyntaxErrorException e) {
                     // Don't format: syntax is not Ok.
                     System.exit(1);
