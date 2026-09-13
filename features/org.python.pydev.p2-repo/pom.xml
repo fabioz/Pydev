@@ -34,6 +34,8 @@
         <artifactId>tycho-eclipserun-plugin</artifactId>
         <version>${tycho-version}</version>
         <configuration>
+          <!-- The p2 features run here require JavaSE-21 (see the root pom). -->
+          <executionEnvironment>JavaSE-21</executionEnvironment>
           <appArgLine>-consoleLog -application org.eclipse.equinox.p2.repository.repo2runnable -source file:${basedir}/target/repository/ -destination ${basedir}/target/runnable/</appArgLine>
           <dependencies>
             <dependency>
