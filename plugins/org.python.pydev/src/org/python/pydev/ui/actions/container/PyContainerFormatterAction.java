@@ -21,8 +21,10 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.ast.codecompletion.revisited.PythonPathHelper;
 import org.python.pydev.core.FileUtilsFileBuffer;
 import org.python.pydev.core.docutils.SyntaxErrorException;
+import org.python.pydev.core.formatter.ExternalFormatterException;
 import org.python.pydev.core.log.Log;
 import org.python.pydev.editor.actions.PyAction;
+import org.python.pydev.editor.actions.PyFormatAction;
 import org.python.pydev.parser.prettyprinterv2.IFormatter;
 import org.python.pydev.shared_core.string.StringUtils;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
@@ -137,6 +139,8 @@ abstract class PyContainerFormatterAction extends PyContainerAction {
                                             } catch (SyntaxErrorException e) {
                                                 Log.log(IStatus.ERROR, "Could not " + verbPresentMsg + " file: " + name
                                                         + " (invalid syntax).", e);
+                                            } catch (ExternalFormatterException e) {
+                                                PyFormatAction.notifyExternalFormatterFailure(null, e);
                                             }
                                         }
                                     });
@@ -147,6 +151,8 @@ abstract class PyContainerFormatterAction extends PyContainerAction {
                                 Log.log(IStatus.ERROR, "Could not " + verbPresentMsg + " file: " + name
                                         + " (invalid syntax).",
                                         e);
+                            } catch (ExternalFormatterException e) {
+                                PyFormatAction.notifyExternalFormatterFailure(null, e);
                             }
                             formatted += 1;
                             if (isOpenedFile) {

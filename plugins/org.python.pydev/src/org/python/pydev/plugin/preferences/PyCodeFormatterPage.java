@@ -26,6 +26,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.ui.IWorkbench;
@@ -58,6 +59,7 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
     private StyledText labelExample;
     private BooleanFieldEditorCustom spaceAfterComma;
     private BooleanFieldEditorCustom onlyChangedLines;
+    private Label onlyChangedLinesNote;
     private BooleanFieldEditorCustom spaceForParentesis;
     private BooleanFieldEditorCustom assignWithSpaceInsideParentesis;
     private BooleanFieldEditorCustom operatorsWithSpace;
@@ -222,6 +224,13 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
         onlyChangedLines = createBooleanFieldEditorCustom(PyFormatterPreferences.FORMAT_ONLY_CHANGED_LINES,
                 "On save, only apply formatting in changed lines?", p);
         addField(onlyChangedLines);
+
+        onlyChangedLinesNote = new Label(p, SWT.NONE);
+        onlyChangedLinesNote.setText(
+                "Note: formatting only the changed lines requires black 23.11+ or ruff 0.2.1+ (their --line-ranges / --range options).");
+        GridData onlyChangedLinesNoteLayoutData = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        onlyChangedLinesNoteLayoutData.horizontalSpan = 2;
+        onlyChangedLinesNote.setLayoutData(onlyChangedLinesNoteLayoutData);
 
         createTabs(p);
 
@@ -407,7 +416,10 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
                 spacesBeforeComment.setEnabled(false, commentsParent);
                 spacesInStartComment.setEnabled(false, commentsParent);
 
-                onlyChangedLines.setVisible(false, fieldParent);
+                boolean changedLinesSupported = PyFormatterPreferences
+                        .supportsFormatOnlyChangedLines(currFormatterStyle);
+                onlyChangedLines.setVisible(changedLinesSupported, fieldParent);
+                setVisible(onlyChangedLinesNote, changedLinesSupported);
                 setVisible(tabFolder, false);
                 break;
 
@@ -440,6 +452,7 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
                 spacesInStartComment.setEnabled(true, commentsParent);
 
                 onlyChangedLines.setVisible(true, fieldParent);
+                setVisible(onlyChangedLinesNote, false);
                 setVisible(tabFolder, true);
         }
         fieldParent.layout(true);

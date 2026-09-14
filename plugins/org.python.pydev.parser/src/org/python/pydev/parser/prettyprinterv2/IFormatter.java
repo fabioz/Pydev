@@ -14,6 +14,7 @@ import org.eclipse.jface.text.IDocument;
 import org.python.pydev.core.IPyFormatStdProvider;
 import org.python.pydev.core.docutils.PySelection;
 import org.python.pydev.core.docutils.SyntaxErrorException;
+import org.python.pydev.core.formatter.ExternalFormatterException;
 
 /**
  * This interface is provided for clients that want to implement code-formatting
@@ -22,14 +23,17 @@ public interface IFormatter {
 
     /**
      * Formats the whole doc
-     * @throws SyntaxErrorException 
+     * @throws SyntaxErrorException
+     * @throws ExternalFormatterException if an external formatter (black, ruff) could not be run or failed.
      */
     void formatAll(IDocument doc, IPyFormatStdProvider edit, IFile f, boolean isOpenedFile, boolean throwSyntaxError)
-            throws SyntaxErrorException;
+            throws SyntaxErrorException, ExternalFormatterException;
 
     /**
-     * Formats the passed regions.
+     * Formats the passed regions (0-based lines).
+     * @throws ExternalFormatterException if an external formatter (black, ruff) could not be run or failed.
      */
-    void formatSelection(IDocument doc, int[] regionsToFormat, IPyFormatStdProvider edit, PySelection ps);
+    void formatSelection(IDocument doc, int[] regionsToFormat, IPyFormatStdProvider edit, PySelection ps)
+            throws ExternalFormatterException;
 
 }
