@@ -260,6 +260,7 @@ public class SourceModule extends AbstractModule implements ISourceModule {
         TreeMap<String, Object> tokens = tokensCache.get(GlobalModelVisitor.GLOBAL_TOKENS);
         if (tokens == null) {
             getGlobalTokens();
+            tokens = tokensCache.get(GlobalModelVisitor.GLOBAL_TOKENS);
         }
 
         boolean ret = false;
@@ -277,8 +278,9 @@ public class SourceModule extends AbstractModule implements ISourceModule {
 
     public boolean isInDirectImportTokens(String tok) {
         TreeMap<String, Object> tokens = tokensCache.get(GlobalModelVisitor.ALIAS_MODULES);
-        if (tokens != null) {
+        if (tokens == null) {
             getTokenImportedModules();
+            tokens = tokensCache.get(GlobalModelVisitor.ALIAS_MODULES);
         }
 
         boolean ret = false;
