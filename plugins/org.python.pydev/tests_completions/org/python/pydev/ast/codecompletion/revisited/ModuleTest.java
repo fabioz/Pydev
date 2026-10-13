@@ -16,6 +16,7 @@ import java.util.HashSet;
 
 import org.eclipse.jface.text.Document;
 import org.python.pydev.ast.codecompletion.revisited.modules.AbstractModule;
+import org.python.pydev.ast.codecompletion.revisited.modules.SourceModule;
 import org.python.pydev.core.IModule;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.IToken;
@@ -46,6 +47,26 @@ public class ModuleTest extends TestCase {
         } catch (Throwable e) {
             e.printStackTrace();
         }
+    }
+
+    private static SourceModule createColdModule(String doc) {
+        ParseOutput obj = PyParser.parseFull(new PyParser.ParserInfo(new Document(doc),
+                IPythonNature.GRAMMAR_PYTHON_VERSION_3_7, null));
+        return (SourceModule) AbstractModule.createModule((SimpleNode) obj.ast, null);
+    }
+
+    /**
+     * A name the module defines is a direct global token on the first query too, before the token cache is filled.
+     */
+    public void testIsInDirectGlobalTokensOnColdCache() {
+        assertTrue(createColdModule("x = 1\n").isInDirectGlobalTokens("x", null));
+    }
+
+    /**
+     * A name the module imports is a direct import token on the first query too, before the token cache is filled.
+     */
+    public void testIsInDirectImportTokensOnColdCache() {
+        assertTrue(createColdModule("import os\n").isInDirectImportTokens("os"));
     }
 
     public void testMod1() {
