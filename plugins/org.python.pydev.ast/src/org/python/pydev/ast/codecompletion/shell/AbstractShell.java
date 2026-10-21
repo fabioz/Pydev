@@ -20,6 +20,9 @@ import java.net.SocketTimeoutException;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -98,6 +101,48 @@ public abstract class AbstractShell {
 
     protected final Object lockLastPythonPath = new Object();
     protected String lastPythonPath = null;
+
+    /**
+     * How many times a request is resent when the server is found dead before it could process it.
+     */
+    private static final int MAX_RESENDS = 2;
+
+    /**
+     * How long to wait for the server process to exit after it stopped answering a request.
+     */
+    private static final long MILLIS_TO_WAIT_FOR_EXIT = 2000;
+
+    /**
+     * The number of shell failures in this session (see {@link #getFailureCount()}).
+     */
+    private static final AtomicLong failureCount = new AtomicLong();
+
+    /**
+     * Requests (keyed by interpreter, state, such as the PYTHONPATH, and request) whose processing made the server
+     * exit. They're not sent again in this session, as resending one would just kill the restarted server.
+     */
+    private static final Set<String> requestsThatKilledServer = ConcurrentHashMap.newKeySet();
+
+    /**
+     * Returns the number of shell failures in this session, across all shells and threads. The count never
+     * decreases.
+     *
+     * A failure is any event in which a shell server died or a request to it went unanswered: a request whose
+     * processing made the server exit (e.g.: importing a compiled module that aborts the interpreter), a reply that
+     * didn't arrive in full, a server found dead before a request could be sent, or a request that couldn't be
+     * delivered. It's counted even if resending the request to a restarted server then succeeded. A request that's
+     * skipped, without being sent, because it killed the server earlier in the session (with the same interpreter and
+     * PYTHONPATH) is counted again each time, as it's answered as having no results.
+     *
+     * Clients that need to know whether any answer they (or PyDev's background jobs, such as the interpreter
+     * indexing) got from the shells may be incomplete can read the count before and after an operation and treat a
+     * change as a failure of that operation.
+     *
+     * @return the number of shell failures so far.
+     */
+    public static long getFailureCount() {
+        return failureCount.get();
+    }
 
     private static void dbg(String string, int priority) {
         if (priority <= DEBUG_SHELL) {
@@ -446,6 +491,9 @@ public abstract class AbstractShell {
 
                 if (useContentLen) {
                     String read = readWithContentLen(this.socket.getInputStream());
+                    if (read == null) {
+                        throw new IOException("The shell server didn't answer the request.");
+                    }
                     return new FastStringBuffer(read, 0);
                 }
 
@@ -456,7 +504,9 @@ public abstract class AbstractShell {
 
                     int len = this.socket.getInputStream().read(b);
                     if (len <= 0) {
-                        break;
+                        //The stream ended (i.e.: the server closed the connection or exited) before the reply did.
+                        throw new IOException("The shell server closed the connection before answering"
+                                + " (END@@ not received). Received: " + truncate(strBuf));
                     }
 
                     String s = new String(b, 0, len);
@@ -480,25 +530,26 @@ public abstract class AbstractShell {
                 }
 
                 //remove END@@
-                try {
-                    int endIndex = strBuf.indexOf("END@@", searchFrom);
-                    if (endIndex != -1) {
-                        strBuf.setCount(endIndex);
-                        return strBuf;
-                    } else {
-                        throw new RuntimeException("Couldn't find END@@ on received string.");
-                    }
-                } catch (RuntimeException e) {
-                    if (strBuf.length() > 500) {
-                        strBuf.setCount(499).append("...(continued)...");//if the string gets too big, it can crash Eclipse...
-                    }
-                    Log.log(IStatus.ERROR, ("ERROR WITH STRING:" + strBuf), e);
-                    return new FastStringBuffer();
+                int endIndex = strBuf.indexOf("END@@", searchFrom);
+                if (endIndex == -1) {
+                    throw new IOException("Couldn't find END@@ on received string: " + truncate(strBuf));
                 }
+                strBuf.setCount(endIndex);
+                return strBuf;
             } finally {
                 isInRead = false;
             }
         }
+    }
+
+    /**
+     * @return the contents of the buffer, truncated if needed (if the string gets too big, it can crash Eclipse).
+     */
+    private static String truncate(FastStringBuffer strBuf) {
+        if (strBuf.length() > 500) {
+            return strBuf.toString().substring(0, 499) + "...(continued)...";
+        }
+        return strBuf.toString();
     }
 
     private final HttpProtocolUtils httpProtocol = new HttpProtocolUtils();
@@ -702,24 +753,97 @@ public abstract class AbstractShell {
         return writeAndGetResults(false, str);
     }
 
+    /**
+     * Sends a request and returns the server's reply to it.
+     *
+     * If the server is found dead before the request is delivered (it isn't running, or writing to it fails), it's
+     * restarted, the state set up by earlier requests is restored (see {@link #getStateRestoreMessage()}), and the
+     * request is resent, up to {@link #MAX_RESENDS} times.
+     *
+     * If the request was delivered but the reply didn't arrive in full, the request isn't resent: the server is
+     * restarted for the next requests and null is returned. If, moreover, the server process exited while processing
+     * the request, the request is taken to have killed it (e.g.: importing a compiled module that aborts the
+     * interpreter): it's logged once as a warning and, for the rest of the session (with the same interpreter and
+     * state, see {@link #getStateRestoreMessage()}), answered with null without being sent, as resending it would
+     * just kill the restarted server.
+     *
+     * Every failure is counted (see {@link #getFailureCount()}).
+     *
+     * @return the reply, or null if no reply could be obtained.
+     */
     protected FastStringBuffer writeAndGetResults(boolean useContentLen, String... str) throws CoreException {
+        String request = StringUtils.join("", str);
 
         try {
             synchronized (ioLock) {
-                this.write(useContentLen, StringUtils.join("", str));
-                FastStringBuffer read = this.read(useContentLen);
-                return read;
-            }
+                String requestKey = getRequestKey(request);
+                if (requestsThatKilledServer.contains(requestKey)) {
+                    //Logged when it killed the server. Counted, as its answer is missing.
+                    failureCount.incrementAndGet();
+                    return null;
+                }
 
-        } catch (Exception e) {
-            String message = "ERROR reading shell. Message sent: " + StringUtils.join("", str) + "\n";
-            if (process != null) {
-                message += "\n" + process.getProcessLog();
-            }
-            Log.log(IStatus.ERROR, message, e);
+                boolean restart = false;
+                if (!isServerAlive()) {
+                    //The server died independently of this request: restart it and send the request to the new one.
+                    recordFailure("Shell server not running when about to send a request (restarting it). Message: "
+                            + request, null);
+                    restart = true;
+                }
 
-            restartShell();
-            return null;
+                for (int attempt = 0; attempt <= MAX_RESENDS; attempt++) {
+                    if (restart) {
+                        restart = false;
+                        restartShell();
+                        String restoreMessage = getStateRestoreMessage();
+                        if (restoreMessage != null) {
+                            try {
+                                this.write(useContentLen, restoreMessage);
+                                this.read(useContentLen);
+                            } catch (Exception e) {
+                                recordFailure("ERROR restoring the state of a restarted shell. Message sent: "
+                                        + restoreMessage, e);
+                                restart = true;
+                                continue;
+                            }
+                        }
+                    }
+
+                    try {
+                        this.write(useContentLen, request);
+                    } catch (Exception e) {
+                        //Not delivered, so the server didn't process it: resend it to a restarted server.
+                        recordFailure("ERROR writing to shell (will restart it and resend). Message: " + request, e);
+                        restart = true;
+                        continue;
+                    }
+
+                    try {
+                        return this.read(useContentLen);
+                    } catch (Exception e) {
+                        ProcessCreationInfo p = process;
+                        if (p != null && p.waitForExit(MILLIS_TO_WAIT_FOR_EXIT)) {
+                            //The server was running when the request was sent and exited before answering it.
+                            requestsThatKilledServer.add(requestKey);
+                            failureCount.incrementAndGet();
+                            Log.log(IStatus.WARNING,
+                                    "The shell server exited (exit value: " + p.exitValue()
+                                            + ") while processing a request, which won't be sent again in this session"
+                                            + " (it's answered as having no results). Message: " + request + "\n"
+                                            + p.getAndClearContents(),
+                                    e);
+                        } else {
+                            recordFailure("ERROR reading shell. Message sent: " + request, e);
+                        }
+                        restartShell();
+                        return null;
+                    }
+                }
+                Log.log(IStatus.ERROR,
+                        "Giving up on a request after resending it " + MAX_RESENDS + " times. Message: " + request,
+                        null);
+                return null;
+            }
         } finally {
             if (process != null) {
                 //Clear the contents from the output from time to time
@@ -728,6 +852,40 @@ public abstract class AbstractShell {
                 process.clearOutput();
             }
         }
+    }
+
+    /**
+     * Subclasses may override to provide a message that re-establishes, on a restarted server, the state that earlier
+     * requests set up (e.g.: the PYTHONPATH). It's sent before a request is resent to a restarted server, and its
+     * reply is ignored.
+     *
+     * @return the message to send, or null if there's no state to restore.
+     */
+    protected String getStateRestoreMessage() {
+        return null;
+    }
+
+    /**
+     * Must be called with the ioLock held.
+     *
+     * @return whether the server is connected and its process is running.
+     */
+    private boolean isServerAlive() {
+        return isConnected && socket != null && process != null && process.isAlive();
+    }
+
+    private String getRequestKey(String request) {
+        IInterpreterInfo interpreter = shellInterpreter;
+        return StringUtils.join("\n", interpreter != null ? interpreter.getExecutableOrJar() : "",
+                String.valueOf(getStateRestoreMessage()), request);
+    }
+
+    private void recordFailure(String message, Throwable e) {
+        failureCount.incrementAndGet();
+        if (process != null) {
+            message += "\n" + process.getProcessLog();
+        }
+        Log.log(IStatus.ERROR, message, e);
     }
 
 }
