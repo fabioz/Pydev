@@ -23,6 +23,16 @@ public abstract class CompletionsShell extends AbstractShell {
     }
 
     /**
+     * The message that set the PYTHONPATH last (resent to a restarted server before a request is resent to it).
+     */
+    private volatile String changePythonPathMessage;
+
+    @Override
+    protected String getStateRestoreMessage() {
+        return changePythonPathMessage;
+    }
+
+    /**
      * @param pythonpath
      */
     private void internalChangePythonPath(List<String> pythonpath) throws Exception {
@@ -41,7 +51,10 @@ public abstract class CompletionsShell extends AbstractShell {
             lastPythonPath = pythonpathStr;
         }
         try {
-            writeAndGetResults("@@CHANGE_PYTHONPATH:", URLEncoder.encode(pythonpathStr, ENCODING_UTF_8), "\nEND@@");
+            String message = StringUtils.join("", "@@CHANGE_PYTHONPATH:",
+                    URLEncoder.encode(pythonpathStr, ENCODING_UTF_8), "\nEND@@");
+            changePythonPathMessage = message;
+            writeAndGetResults(message);
         } catch (Exception e) {
             Log.log("Error changing the pythonpath to: " + StringUtils.join("\n", pythonpath), e);
             throw e;
