@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -126,6 +127,32 @@ public class CompiledModule extends AbstractModule {
      */
     private LRUCache<String, Definition[]> definitionsFoundCache = new LRUCache<String, Definition[]>(30);
 
+    /**
+     * After how many lost answers (see {@link AbstractShell#getLostAnswerCount()}) for the same request the server
+     * isn't asked again (each later access is then counted as a lost answer for the thread making it).
+     */
+    private static final int MAX_LOST_ANSWERS = 2;
+
+    /**
+     * Keys of {@link #lostAnswers}.
+     */
+    private static final String LOST_TOKENS = "tokens";
+    private static final String LOST_INNER_TOKENS = "inner:";
+    private static final String LOST_DEFINITION = "definition:";
+
+    /**
+     * How many answers from the server were lost for the requests whose last answer was lost (keyed by
+     * {@link #LOST_TOKENS}, or by {@link #LOST_INNER_TOKENS} or {@link #LOST_DEFINITION} followed by the activation
+     * token). Nothing built from a lost answer is cached, so that the next access asks the server again, up to
+     * {@link #MAX_LOST_ANSWERS} times.
+     */
+    private final Map<String, Integer> lostAnswers = new ConcurrentHashMap<String, Integer>();
+
+    /**
+     * The modules manager to ask the server for the tokens again with, if their answer was lost.
+     */
+    private volatile IModulesManager managerToRetry;
+
     private File file;
 
     private final boolean isPythonBuiltin;
@@ -175,18 +202,9 @@ public class CompiledModule extends AbstractModule {
                 return;
             }
             if (COMPILED_MODULES_ENABLED) {
-
-                try {
-                    info = createTokensFromServer(name, manager);
-                    this.file = info.o1;
-                    this.tokens = asMap(info.o2);
-
-                    if (info != null) {
-                        updateCache(name, manager, info);
-                    }
-                } catch (Exception e) {
+                if (!setTokensFromServer(manager)) {
                     tokens = new HashMap<String, IToken>();
-                    Log.log(e);
+                    managerToRetry = manager;
                 }
             } else {
                 //not used if not enabled.
@@ -201,6 +219,80 @@ public class CompiledModule extends AbstractModule {
                 observer.notifyCompiledModuleCreated(this, manager);
             }
         }
+    }
+
+    /**
+     * Asks the server for the tokens and sets them (not if the answer was lost).
+     *
+     * @return whether the tokens were set.
+     */
+    private boolean setTokensFromServer(IModulesManager manager) {
+        long lostAnswerCount = AbstractShell.getLostAnswerCount();
+        Tuple<File, IToken[]> info = null;
+        try {
+            info = createTokensFromServer(name, manager);
+        } catch (Exception e) {
+            Log.log(e);
+        }
+        if (!recordAnswer(LOST_TOKENS, info == null, lostAnswerCount)) {
+            return false;
+        }
+        this.file = info.o1;
+        this.tokens = asMap(info.o2);
+        updateCache(name, manager, info);
+        return true;
+    }
+
+    /**
+     * @return the tokens, asking the server for them again if their answer was lost.
+     */
+    private Map<String, IToken> getTokens() {
+        if (managerToRetry != null) {
+            synchronized (lostAnswers) {
+                if (managerToRetry != null && !isGivenUp(LOST_TOKENS) && setTokensFromServer(managerToRetry)) {
+                    managerToRetry = null;
+                }
+            }
+        }
+        return tokens;
+    }
+
+    /**
+     * Must be called before asking the server for something whose answer may have been lost before.
+     *
+     * @return whether the server isn't asked again, as its answer was lost too many times. If so, a lost answer is
+     * counted for the calling thread.
+     */
+    private boolean isGivenUp(String key) {
+        Integer lost = lostAnswers.get(key);
+        if (lost != null && lost >= MAX_LOST_ANSWERS) {
+            AbstractShell.countLostAnswer();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Must be called after asking the server for something.
+     *
+     * @param failed whether getting the answer failed with an exception.
+     * @param lostAnswerCount the calling thread's {@link AbstractShell#getLostAnswerCount()} from before the server
+     * was asked.
+     * @return whether the answer was gotten (if it wasn't, it's recorded as lost, and counted for the calling thread).
+     */
+    private boolean recordAnswer(String key, boolean failed, long lostAnswerCount) {
+        boolean lost = AbstractShell.getLostAnswerCount() != lostAnswerCount;
+        if (failed && !lost) {
+            //e.g.: there's no shell to ask.
+            AbstractShell.countLostAnswer();
+            lost = true;
+        }
+        if (lost) {
+            lostAnswers.merge(key, 1, Integer::sum);
+            return false;
+        }
+        lostAnswers.remove(key);
+        return true;
     }
 
     /**
@@ -487,6 +579,7 @@ public class CompiledModule extends AbstractModule {
      */
     @Override
     public TokensList getGlobalTokens() {
+        Map<String, IToken> tokens = getTokens();
         if (tokens == null) {
             return new TokensList();
         }
@@ -548,12 +641,26 @@ public class CompiledModule extends AbstractModule {
                     return new TokensList(cached.o2);
                 }
 
-                toks = createInnerFromServer(manager, nature, act, tokenToCompletion);
-
-                //Put it in the cache for the next time.
-                updateCache(tokenToCompletion, manager.getModulesManager(), new Tuple<File, IToken[]>(null, toks));
-                Map<String, IToken> map = asMap(toks);
-                cache.put(activationToken, map);
+                String lostKey = LOST_INNER_TOKENS + activationToken;
+                if (isGivenUp(lostKey)) {
+                    return new TokensList(toks);
+                }
+                long lostAnswerCount = AbstractShell.getLostAnswerCount();
+                IToken[] fromServer = null;
+                try {
+                    fromServer = createInnerFromServer(manager, nature, act, tokenToCompletion);
+                } catch (Exception e) {
+                    Log.log("Error while getting info for module:" + this.name + ". Project: "
+                            + manager.getNature().getProject(), e);
+                }
+                if (recordAnswer(lostKey, fromServer == null, lostAnswerCount)) {
+                    toks = fromServer;
+                    //Put it in the cache for the next time.
+                    updateCache(tokenToCompletion, manager.getModulesManager(),
+                            new Tuple<File, IToken[]>(null, toks));
+                    Map<String, IToken> map = asMap(toks);
+                    cache.put(activationToken, map);
+                }
             } catch (Exception e) {
                 Log.log("Error while getting info for module:" + this.name + ". Project: "
                         + manager.getNature().getProject(), e);
@@ -564,8 +671,9 @@ public class CompiledModule extends AbstractModule {
 
     @Override
     public boolean isInDirectGlobalTokens(String tok, ICompletionCache completionCache) {
-        if (this.tokens != null) {
-            return this.tokens.containsKey(tok);
+        Map<String, IToken> tokens = getTokens();
+        if (tokens != null) {
+            return tokens.containsKey(tok);
         }
         return false;
     }
@@ -613,9 +721,25 @@ public class CompiledModule extends AbstractModule {
             return found;
         }
 
-        CompletionsShell shell = (CompletionsShell) AbstractShell.getServerShell(nature, AbstractShell.getShellId());
-        Tuple<String[], int[]> def = shell.getLineCol(this.name, token, nature.getAstManager().getModulesManager()
-                .getCompletePythonPath(nature.getProjectInterpreter(), nature.getRelatedInterpreterManager())); //default
+        String lostKey = LOST_DEFINITION + token;
+        if (isGivenUp(lostKey)) {
+            return EMPTY_DEFINITION;
+        }
+        long lostAnswerCount = AbstractShell.getLostAnswerCount();
+        Tuple<String[], int[]> def;
+        try {
+            CompletionsShell shell = (CompletionsShell) AbstractShell.getServerShell(nature,
+                    AbstractShell.getShellId());
+            def = shell.getLineCol(this.name, token, nature.getAstManager().getModulesManager()
+                    .getCompletePythonPath(nature.getProjectInterpreter(), nature.getRelatedInterpreterManager())); //default
+        } catch (Exception e) {
+            recordAnswer(lostKey, true, lostAnswerCount);
+            throw e;
+        }
+        if (!recordAnswer(lostKey, false, lostAnswerCount)) {
+            //Not cached, so that the server is asked again.
+            return EMPTY_DEFINITION;
+        }
         if (def == null) {
             if (TRACE_COMPILED_MODULES) {
                 System.out.println("CompiledModule.findDefinition:" + token + " = empty");
