@@ -103,8 +103,8 @@ public class PyFormatterPreferences {
     }
 
     public static boolean getFormatOnlyChangedLines(IAdaptable projectAdaptable) {
-        if (getFormatterStyle(projectAdaptable) != FormatterEnum.PYDEVF) {
-            return false; //i.e.: not available with autopep8 nor black nor ruff.
+        if (getFormatterStyle(projectAdaptable) == FormatterEnum.AUTOPEP8) {
+            return false; //i.e.: not available with autopep8.
         }
         return getBoolean(FORMAT_ONLY_CHANGED_LINES, projectAdaptable);
     }

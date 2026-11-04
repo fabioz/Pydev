@@ -25,6 +25,7 @@ import org.python.pydev.core.CorePlugin;
 import org.python.pydev.core.TestDependent;
 import org.python.pydev.shared_core.io.FileUtils;
 import org.python.pydev.shared_core.structure.Tuple;
+import org.python.pydev.shared_core.utils.PlatformUtils;
 import org.python.pydev.ui.BundleInfoStub;
 
 import junit.framework.AssertionFailedError;
@@ -34,6 +35,12 @@ import junit.framework.TestCase;
  * @author Fabio Zadrozny
  */
 public class InterpreterInfoTest extends TestCase {
+
+    // updateEnv puts the folder of the interpreter first in the PATH (the path must be absolute in the platform).
+    private static final String EXE = PlatformUtils.isWindowsPlatform() ? "C:\\pydev_test\\python.exe"
+            : "/pydev_test/python";
+    private static final String EXE_FOLDER_IN_PATH = PlatformUtils.isWindowsPlatform() ? "C:\\pydev_test;"
+            : "/pydev_test:";
 
     public static void main(String[] args) {
 
@@ -244,22 +251,24 @@ public class InterpreterInfoTest extends TestCase {
     }
 
     public void testInfo4() throws Exception {
-        InterpreterInfo info = new InterpreterInfo("2.5", "c:\\bin\\python.exe", new ArrayList<String>());
+        InterpreterInfo info = new InterpreterInfo("2.5", EXE, new ArrayList<String>());
         String[] original1 = new String[] { "LIBPATH=k:\\foo", "PATH=c:\\bin;d:\\bin" };
         info.setEnvVariables(original1);
 
-        compareEnvironments(info.updateEnv(null), original1);
+        String[] expected1 = new String[] { "LIBPATH=k:\\foo", "PATH=" + EXE_FOLDER_IN_PATH + "c:\\bin;d:\\bin" };
+        compareEnvironments(info.updateEnv(null), expected1);
 
-        compareEnvironments(info.updateEnv(new String[0]), original1);
+        compareEnvironments(info.updateEnv(new String[0]), expected1);
 
         String[] original2 = new String[] { "LIBPATH=k:\\foo", "boo=boo", "PATH=c:\\bin;d:\\bin2" };
-        String[] expected2 = new String[] { "LIBPATH=k:\\foo", "boo=boo", "PATH=c:\\bin;d:\\bin" };
+        String[] expected2 = new String[] { "LIBPATH=k:\\foo", "boo=boo",
+                "PATH=" + EXE_FOLDER_IN_PATH + "c:\\bin;d:\\bin" };
         compareEnvironments(info.updateEnv(original2), expected2);
         check(info);
     }
 
     public void testVariableExpansion() throws Exception {
-        InterpreterInfo info = new InterpreterInfo("2.5", "c:\\bin\\python.exe", new ArrayList<String>());
+        InterpreterInfo info = new InterpreterInfo("2.5", EXE, new ArrayList<String>());
         MockStringVariableManager manager = new MockStringVariableManager();
         manager.addMockVariable("var1", "value1");
         info.stringVariableManagerForTests = manager;
@@ -267,20 +276,22 @@ public class InterpreterInfoTest extends TestCase {
         info.setEnvVariables(variableInInfo);
 
         // echeck expected output when no environment is being added to
-        String[] expected1 = new String[] { "LIBPATH=k:\\foo", "PATH=c:\\bin;d:\\bin", "ENV1=value1" };
+        String[] expected1 = new String[] { "LIBPATH=k:\\foo", "PATH=" + EXE_FOLDER_IN_PATH + "c:\\bin;d:\\bin",
+                "ENV1=value1" };
         compareEnvironments(info.updateEnv(null), expected1);
         compareEnvironments(info.updateEnv(new String[0]), expected1);
 
         // check expected output when there is an input environment
         String[] inputEnv = new String[] { "LIBPATH=k:\\foo", "boo=boo", "PATH=c:\\bin;d:\\bin2",
                 "ENV1=some_other_value" };
-        String[] expected2 = new String[] { "LIBPATH=k:\\foo", "boo=boo", "PATH=c:\\bin;d:\\bin", "ENV1=value1" };
+        String[] expected2 = new String[] { "LIBPATH=k:\\foo", "boo=boo",
+                "PATH=" + EXE_FOLDER_IN_PATH + "c:\\bin;d:\\bin", "ENV1=value1" };
         compareEnvironments(info.updateEnv(inputEnv), expected2);
 
         // make sure that variables in the input (system) environment are not expanded
         String[] original3 = new String[] { "LIBPATH=k:\\foo", "boo=boo", "PATH=c:\\bin;d:\\bin2", "ENV2=${var1}" };
-        String[] expected3 = new String[] { "LIBPATH=k:\\foo", "boo=boo", "PATH=c:\\bin;d:\\bin", "ENV2=${var1}",
-                "ENV1=value1" };
+        String[] expected3 = new String[] { "LIBPATH=k:\\foo", "boo=boo",
+                "PATH=" + EXE_FOLDER_IN_PATH + "c:\\bin;d:\\bin", "ENV2=${var1}", "ENV1=value1" };
         compareEnvironments(info.updateEnv(original3), expected3);
     }
 
