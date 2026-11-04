@@ -4,6 +4,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -39,6 +41,43 @@ import org.python.pydev.shared_core.utils.ArrayUtils;
 import org.python.pydev.shared_core.utils.DocUtils.EmptyLinesComputer;
 
 public class PyFormatter {
+
+    /**
+     * Same approach as autopep8's --range: the lines are passed to the tool through its parameters.
+     * black: --line-ranges=A-B (23.11+), 1-based, inclusive, may be repeated.
+     * ruff: --range=A-C (0.2.1+), 1-based, C exclusive and one per run, so blocks are done bottom-up.
+     */
+    private static void formatLinesWithExternalTool(String filepath, IDocument doc, IPyFormatStdProvider edit,
+            int[] zeroBasedLines) throws SyntaxErrorException {
+        int[] lines = zeroBasedLines.clone();
+        Arrays.sort(lines);
+        List<int[]> blocks = new ArrayList<>();
+        for (int line : lines) {
+            int[] last = blocks.isEmpty() ? null : blocks.get(blocks.size() - 1);
+            if (last != null && line <= last[1]) {
+                last[1] = line + 1;
+            } else {
+                blocks.add(new int[] { line + 1, line + 1 });
+            }
+        }
+        FormatStd std = (FormatStd) (edit != null ? edit.getFormatStd() : PyFormatterPreferences.getFormatStd(null));
+        std.addNewLineAtEndOfFile = false; // Only the given lines may change.
+        if (std.formatterStyle == FormatStd.FormatterEnum.BLACK) {
+            for (int[] block : blocks) {
+                std.blackParameters += " --line-ranges=" + block[0] + "-" + block[1];
+            }
+            formatAll(filepath, doc, edit, true, std, true, false);
+            return;
+        }
+        String ruffParameters = std.ruffParameters;
+        int numberOfLines = doc.getNumberOfLines();
+        for (int i = blocks.size() - 1; i >= 0; i--) {
+            int[] block = blocks.get(i);
+            std.ruffParameters = ruffParameters + " --range=" + block[0]
+                    + (block[1] >= numberOfLines ? "" : "-" + (block[1] + 1));
+            formatAll(filepath, doc, edit, true, std, true, false);
+        }
+    }
 
     /**
      * This method formats a string given some standard.
@@ -802,9 +841,10 @@ public class PyFormatter {
             case BLACK:
             case RUFF:
                 try {
-                    formatAll(filepath, doc, edit, true, formatStd, true, false);
+                    formatLinesWithExternalTool(filepath, doc, edit, regionsForSave);
                 } catch (SyntaxErrorException e1) {
                 }
+                return;
             case PYDEVF:
                 //fallthrough
         }

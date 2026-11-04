@@ -407,7 +407,7 @@ public class PyCodeFormatterPage extends ScopedFieldEditorPreferencePage impleme
                 spacesBeforeComment.setEnabled(false, commentsParent);
                 spacesInStartComment.setEnabled(false, commentsParent);
 
-                onlyChangedLines.setVisible(false, fieldParent);
+                onlyChangedLines.setVisible(currFormatterStyle != FormatterEnum.AUTOPEP8, fieldParent);
                 setVisible(tabFolder, false);
                 break;
 
